@@ -1,7 +1,7 @@
 # REPORT — TASK-619 (G1 Backend): Permissions Bitfield Engine v9
 
 - **Ветка:** `feature/task-619-permissions-engine`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-619-permissions-engine`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-619-permissions-engine`
 - **Отдел:** `G1 Backend (Rust Core & Tauri BFF)`
 - **Затронутые карточки:** `TASK-619` (`Permissions Bitfield Engine v9`)
 - **Дата:** 2026-11-07
@@ -11,8 +11,8 @@
 
 ## 1. Сделано
 
-1. **Сверка с эталонным RE-дампом `/home/sanya/re-deep/` и захватом `002-READY.json`:**
-   - В `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` (`@9770000..9774000`, модуль `136722` `BigFlagUtils` и таблица констант `eC = Object.freeze({...})`) сверены все 41 битовый флаг Discord API v9 (`0..=40`, от `CREATE_INSTANT_INVITE = 1 << 0` до `MODERATE_MEMBERS = 1 << 40`) и функции расчёта прав `U(guildId, member, basePerms, overwrites)` / `w(e)`:
+1. **Сверка с эталонным RE-дампом `reference-oracle/` и захватом `002-READY.json`:**
+   - В `reference-oracle/decoded/4d2a64cb5df5fc4e_0` (`@9770000..9774000`, модуль `136722` `BigFlagUtils` и таблица констант `eC = Object.freeze({...})`) сверены все 41 битовый флаг Discord API v9 (`0..=40`, от `CREATE_INSTANT_INVITE = 1 << 0` до `MODERATE_MEMBERS = 1 << 40`) и функции расчёта прав `U(guildId, member, basePerms, overwrites)` / `w(e)`:
      - базовые права: `everyone_role_perms | (OR всех ролей участника)`;
      - обход для владельца гильдии (`user_id == owner_id`) и наличия бита `ADMINISTRATOR` (`(base_perms & ADMINISTRATOR) != 0`) с возвратом `ALL_PERMISSIONS` (`u64::MAX`);
      - иерархия канальных перезаписей независимо от порядка элементов в массиве `permission_overwrites`:
@@ -42,7 +42,7 @@
 
 ### Red-прогон (до реализации `permissions.rs`):
 - **Команда:**
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test permissions_resolution_contract`
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test permissions_resolution_contract`
 - **Лог:** `waves/RW-40/G1/task-619-permissions-engine/red.log` (`md5 392cc9f5f4c497a9ec95fbb4d8ed3496`, `exit 101`):
   ```text
   error[E0432]: unresolved import `discord_core::permissions`
@@ -54,7 +54,7 @@
 
 ### Green-прогон (после реализации, 5 прогонов подряд):
 - **Команда:**
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test permissions_resolution_contract`
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test permissions_resolution_contract`
 - **Лог:** `waves/RW-40/G1/task-619-permissions-engine/green.log` (`md5 f8febb88a18707554285cf158684d203`, `exit 0`):
   `6 passed; 0 failed; 0 ignored` × 5 прогонов подряд (`flaky_rate = 0%`).
 - **Форматирование и `clippy`:**

@@ -3,7 +3,7 @@
 - **batch/карточка:** RW-40 / task-137, код `BE-RE-01` — находка **F-GW-01** из
   `waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL.md` §2.2 и карточка BE-P1-03 из
   `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` §1.
-- **worktree:** `/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush`,
+- **worktree:** `/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush`,
   ветка `feature/task-137-zstd-stream-flush`, HEAD `4e24048`.
 - **scope (расширен Team Lead в ходе работы, подтверждено дважды):**
   `rust/crates/discord-codec/src/zstd.rs`, `rust/crates/discord-codec/Cargo.toml`,
@@ -57,7 +57,7 @@
 
 ## Red
 
-`CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-codec`
+`CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-codec`
 → `test result: FAILED. 3 passed; 2 failed`, exit 101. Падают оба новых теста:
 `flush_releases_each_message_immediately` (`push 0: left: ""`, ожидалось 39 Б) и
 `flush_keeps_window_history_across_chunks` (накопленный выход пуст). Третий тест
@@ -73,7 +73,7 @@
 
 ## Green
 
-`CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-codec -p discord-core`
+`CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-codec -p discord-core`
 → **623 passed, 0 failed**, exit 0 (57 тестовых бинарей + 2 doc-test). Лог: `green.log`.
 Ключевые: `zstd::tests::flush_*` (3/3), `lab_stream_1389_matches_oracle`,
 `lab_real_stream_routes_known_kinds`, `lab_capture_stream_feeds_pipe`,
@@ -128,6 +128,6 @@
    соединении, это будет видно как `TrailingData`, а не как тихая потеря.
 5. `Cargo.lock` потерял `ruzstd`/`twox-hash`. При интеграции с ветками, где ruzstd ещё нужен,
    lock пересоберётся; пакеты остаются в локальном кэше, оффлайн-сборка возможна.
-6. В основном чекауте `/home/sanya/orca/project` файлы `discord-codec/*` и
+6. В основном чекауте `/home/user/orca/project` файлы `discord-codec/*` и
    `discord-core/tests/dispatch_router.rs` не изменялись другими воркерами на момент работы
    (проверено `git status`), пересечения write-scope нет.

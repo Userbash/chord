@@ -1,5 +1,5 @@
 $ (cd rust/gui-spike && cargo test --offline -p discord-gui-spike --test ipc_wiring_contract --lib --bins --no-fail-fast)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 4.60s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
 

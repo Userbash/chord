@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,23 +11,23 @@ reasoning summaries: none
 session id: 01a15d04-4ee7-71d2-9f35-198afd80b479
 --------
 user
-Independent read-only re-review of P0-04 and P0-07 after addressing your prior 3 P2 findings. Do not edit files. Your prior review: (1) claimed manifest_path points to fixtures/MANIFEST.json but file is not there; this appears false. Evidence: default fixtures_root() is <repo>/fixtures; manifest_path() is fixtures_root().join("MANIFEST.json"); realpath is /home/sanya/orca/project/fixtures/MANIFEST.json; cargo test -p discord-conformance --offline passes 6/6 including manifest_is_readable_and_has_versioned_provenance, and the test now explicitly asserts manifest_path()==fixtures_root().join("MANIFEST.json") and endswith fixtures/MANIFEST.json. Please verify statically/with read-only realpath and retract if the claim was mistaken. (2) lab skip: added RE_REQUIRE_LAB guard in rust/crates/discord-conformance/tests/fixtures.rs; with RE_LAB_ROOT=/nonexistent RE_REQUIRE_LAB=1 it fails exit 101 (waves/RW-21/logs/b02-conformance-require-red.log), with real lab and RE_REQUIRE_LAB=1 it passes 6/6 (b02-conformance-require-green2.log); normal no-env run remains soft-skip with reason per repo TEST-PLAN. (3) LEGAL.md now separates policy/target from verified implementation: keyring not implemented, token in-memory until P1-10, IP/payload scan and SBOM/cargo-deny are backlog, checklist uses [x]/[~]/[ ]. Review updated files. Return verdict accepted / accepted with P3 / changes required, P0/P1/P2 counts and findings file:line. Do not repeat prior findings unless still present.
+Independent read-only re-review of P0-04 and P0-07 after addressing your prior 3 P2 findings. Do not edit files. Your prior review: (1) claimed manifest_path points to fixtures/MANIFEST.json but file is not there; this appears false. Evidence: default fixtures_root() is <repo>/fixtures; manifest_path() is fixtures_root().join("MANIFEST.json"); realpath is /home/user/orca/project/fixtures/MANIFEST.json; cargo test -p discord-conformance --offline passes 6/6 including manifest_is_readable_and_has_versioned_provenance, and the test now explicitly asserts manifest_path()==fixtures_root().join("MANIFEST.json") and endswith fixtures/MANIFEST.json. Please verify statically/with read-only realpath and retract if the claim was mistaken. (2) lab skip: added RE_REQUIRE_LAB guard in rust/crates/discord-conformance/tests/fixtures.rs; with RE_LAB_ROOT=/nonexistent RE_REQUIRE_LAB=1 it fails exit 101 (waves/RW-21/logs/b02-conformance-require-red.log), with real lab and RE_REQUIRE_LAB=1 it passes 6/6 (b02-conformance-require-green2.log); normal no-env run remains soft-skip with reason per repo TEST-PLAN. (3) LEGAL.md now separates policy/target from verified implementation: keyring not implemented, token in-memory until P1-10, IP/payload scan and SBOM/cargo-deny are backlog, checklist uses [x]/[~]/[ ]. Review updated files. Return verdict accepted / accepted with P3 / changes required, P0/P1/P2 counts and findings file:line. Do not repeat prior findings unless still present.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сверяю обязательный контекст процесса и актуальные файлы P0-04/P0-07, затем проверю пути и тестовые доказательства в read-only режиме. Ничего менять не буду.
 exec
-/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'LEGAL.md' -g 'AGENTS.md' -g '*P0-04*' -g '*P0-07*' -g 'fixtures.rs' -g 'MANIFEST.json' -g '*b02-conformance-require*'" in /home/sanya/orca/project
+/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'LEGAL.md' -g 'AGENTS.md' -g '*P0-04*' -g '*P0-07*' -g 'fixtures.rs' -g 'MANIFEST.json' -g '*b02-conformance-require*'" in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/orca/project
+/home/user/orca/project
 waves/RW-21/DESIGN-P0-04.md
 TASKS.md
 waves/RW-21/logs/b02-conformance-require-green2.log
@@ -43,9 +43,9 @@ TDD-PLAN.md
 rust/crates/discord-conformance/tests/fixtures.rs
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,200p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,200p' docs/rust-client/TEAM.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,220p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/user/orca/project
  succeeded in 0ms:
 # PROCESS.md — производственный процесс discord-lab
 
@@ -114,7 +114,7 @@ exec
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -523,7 +523,7 @@ RW-19/RW-20 (P2-10/P2-11) — активная пара B01.
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -944,7 +944,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-21, I1,
   P2-01/P2-02/P2-04/P2-05/P2-06/P2-07/P2-09/P2-10/P2-11, B01 accepted, B02 research,
   удаление legacy `ready_data` и правки доков **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -1111,7 +1111,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 
 
 exec
-/usr/bin/bash -lc 'git status --short && git diff -- docs/rust-client/LEGAL.md rust/crates/discord-conformance/tests/fixtures.rs && git diff --cached -- docs/rust-client/LEGAL.md rust/crates/discord-conformance/tests/fixtures.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short && git diff -- docs/rust-client/LEGAL.md rust/crates/discord-conformance/tests/fixtures.rs && git diff --cached -- docs/rust-client/LEGAL.md rust/crates/discord-conformance/tests/fixtures.rs' in /home/user/orca/project
  succeeded in 0ms:
  M AGENTS.md
  M PROCESS.md
@@ -1242,9 +1242,9 @@ exec
 ?? waves/reviews/review-rw-10-11.md
 
 exec
-/usr/bin/bash -lc "realpath fixtures/MANIFEST.json && stat -c '%F %n' fixtures/MANIFEST.json && nl -ba rust/crates/discord-conformance/tests/fixtures.rs | sed -n '1,240p' && nl -ba docs/rust-client/LEGAL.md | sed -n '1,260p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "realpath fixtures/MANIFEST.json && stat -c '%F %n' fixtures/MANIFEST.json && nl -ba rust/crates/discord-conformance/tests/fixtures.rs | sed -n '1,240p' && nl -ba docs/rust-client/LEGAL.md | sed -n '1,260p'" in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/orca/project/fixtures/MANIFEST.json
+/home/user/orca/project/fixtures/MANIFEST.json
 regular file fixtures/MANIFEST.json
      1	//! T-HARN-01: загрузчик фикстур и контракт путей (P0-04, B02).
      2	//!
@@ -1380,7 +1380,7 @@ regular file fixtures/MANIFEST.json
    132	    if let Ok(value) = std::env::var("RE_LAB_ROOT") {
    133	        assert_eq!(lab_root(), PathBuf::from(value));
    134	    } else {
-   135	        assert_eq!(lab_root(), PathBuf::from("/home/sanya/re-deep"));
+   135	        assert_eq!(lab_root(), PathBuf::from("/home/user/clean-room-oracle"));
    136	    }
    137	}
      1	# Правовая рамка Rust-клиента (P0-07)
@@ -1473,12 +1473,12 @@ regular file fixtures/MANIFEST.json
 codex
 Подтверждено: реальный `fixtures/MANIFEST.json` существует именно по заявленному пути, и тест закрепляет это. По legal-документу разделение политики и текущей реализации теперь явно; сейчас проверю контракт библиотеки, точный режим обязательного lab и привязку документов к карточкам.
 exec
-/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-conformance/src/lib.rs && sed -n '1,180p' rust/crates/discord-conformance/Cargo.toml" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-conformance/src/lib.rs && sed -n '1,180p' rust/crates/discord-conformance/Cargo.toml" in /home/user/orca/project
  succeeded in 0ms:
 //! # discord-conformance
 //!
 //! Доступ к курированным конформанс-фикстурам RE (`fixtures/` в корне репозитория;
-//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/sanya/re-deep`).
+//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/user/clean-room-oracle`).
 //!
 //! Тесты уровня L1–L3 (`docs/rust-client/TEST-PLAN.md` §3) читают артефакты отсюда,
 //! поэтому путь переопределяется переменной `RE_FIXTURES_ROOT` (например, для CI).
@@ -1494,7 +1494,7 @@ use std::path::{Component, Path, PathBuf};
 pub enum FixtureSource {
     /// Курированная копия в `fixtures/` репозитория.
     Repository,
-    /// Сырьё в лаборатории (`/home/sanya/re-deep` либо `RE_LAB_ROOT`).
+    /// Сырьё в лаборатории (`/home/user/clean-room-oracle` либо `RE_LAB_ROOT`).
     Lab,
 }
 
@@ -1595,10 +1595,10 @@ pub fn fixtures_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
 }
 
-/// Корень лаборатории: `RE_LAB_ROOT` либо `/home/sanya/re-deep`.
+/// Корень лаборатории: `RE_LAB_ROOT` либо `/home/user/clean-room-oracle`.
 pub fn lab_root() -> PathBuf {
     PathBuf::from(
-        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
     )
 }
 
@@ -1696,7 +1696,7 @@ description = "Доступ к конформанс-фикстурам лабо�
 unsafe_code = "forbid"
 
 exec
-/usr/bin/bash -lc "for f in waves/RW-21/logs/b02-conformance-require-red.log waves/RW-21/logs/b02-conformance-require-green2.log; do printf '\\n--- %s ---\\n' \""'$f"; sed -n '"'1,120p' \""'$f"; done; printf '"'\\n--- DESIGN ---\\n'; sed -n '1,220p' waves/RW-21/DESIGN-P0-04.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "for f in waves/RW-21/logs/b02-conformance-require-red.log waves/RW-21/logs/b02-conformance-require-green2.log; do printf '\\n--- %s ---\\n' \""'$f"; sed -n '"'1,120p' \""'$f"; done; printf '"'\\n--- DESIGN ---\\n'; sed -n '1,220p' waves/RW-21/DESIGN-P0-04.md" in /home/user/orca/project
  succeeded in 0ms:
 
 --- waves/RW-21/logs/b02-conformance-require-red.log ---
@@ -1769,7 +1769,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 ## 1. Цель
 
 Дать тестам один детерминированный загрузчик фикстур: сначала курированный `fixtures/`
-репозитория, затем сырьё `/home/sanya/re-deep` (переопределяется `RE_LAB_ROOT`). Ошибки
+репозитория, затем сырьё `/home/user/clean-room-oracle` (переопределяется `RE_LAB_ROOT`). Ошибки
 типизированы, путь и источник видны в отчёте; отсутствие lab — skip-aware на уровне теста,
 а не паника загрузчика.
 
@@ -1781,7 +1781,7 @@ pub struct Fixture { pub name: String, pub source: FixtureSource, pub path: Path
 pub enum ConformanceError { InvalidName{..}, NotFound{..}, Io{..}, Utf8{..} }
 
 pub fn fixtures_root() -> PathBuf;   // RE_FIXTURES_ROOT | <repo>/fixtures
-pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/sanya/re-deep
+pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/user/clean-room-oracle
 pub fn manifest_path() -> PathBuf;
 pub fn manifest_text() -> Result<String, ConformanceError>;
 pub fn resolve(name: &str) -> Result<Fixture, ConformanceError>; // repo → lab
@@ -1812,11 +1812,11 @@ T-HARN-02/03 (полный реплей gateway/REST) остаются отде�
 загрузчика, не подмена протокольных тестов.
 
 exec
-/usr/bin/bash -lc "sed -n '1,160p' fixtures/MANIFEST.json && rg -n \"keyring|token|telemetry|asset|SBOM|cargo deny|P0-07|P0-04|checklist|T-HARN-07\" docs/rust-client/LEGAL.md docs/rust-client/STATUS.md docs/rust-client/ROADMAP.md TASKS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,160p' fixtures/MANIFEST.json && rg -n \"keyring|token|telemetry|asset|SBOM|cargo deny|P0-07|P0-04|checklist|T-HARN-07\" docs/rust-client/LEGAL.md docs/rust-client/STATUS.md docs/rust-client/ROADMAP.md TASKS.md" in /home/user/orca/project
  succeeded in 0ms:
 {
-  "$comment": "Курированные конформанс-фикстуры для Rust-клиента (сырьё волны R7, санитизированные). Полная лаборатория — /home/sanya/re-deep; сборка — fixtures/tools/make-fixtures.mjs; сверка — docs/rust-client/verify/verify-re.mjs.",
-  "labRoot": "/home/sanya/re-deep",
+  "$comment": "Курированные конформанс-фикстуры для Rust-клиента (сырьё волны R7, санитизированные). Полная лаборатория — /home/user/clean-room-oracle; сборка — fixtures/tools/make-fixtures.mjs; сверка — docs/rust-client/verify/verify-re.mjs.",
+  "labRoot": "/home/user/clean-room-oracle",
   "fixtures": [
     {
       "path": "gateway/ready-stats.json",
@@ -1957,7 +1957,7 @@ docs/rust-client/LEGAL.md:79:- [x] Телеметрия off зафиксиров
 docs/rust-client/LEGAL.md:82:- [~] Чужие ассеты не распространяются; проверка лицензий/SBOM — T-HARN-07.
 
 exec
-/usr/bin/bash -lc 'rg -n "P0-04|P0-07|T-HARN-01|RE_REQUIRE_LAB|manifest_path|fn fixtures_root|fn lab_root|MANIFEST" TASKS.md TDD-PLAN.md waves/STATE.md waves/RW-21 rust/crates/discord-conformance' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg -n "P0-04|P0-07|T-HARN-01|RE_REQUIRE_LAB|manifest_path|fn fixtures_root|fn lab_root|MANIFEST" TASKS.md TDD-PLAN.md waves/STATE.md waves/RW-21 rust/crates/discord-conformance' in /home/user/orca/project
  succeeded in 0ms:
 waves/STATE.md:56:  секции; research и контракт `RW-21/DESIGN-P2-08.md`), далее `P1-01`, `P1-02`, `P0-04`,
 waves/STATE.md:57:  `P0-07`. Активных кодовых воркеров — не более двух; P2-08 идёт первым, потому что research
@@ -1980,11 +1980,11 @@ waves/RW-21/REPORT-B02.md:37:| P0-04 green | `discord-conformance` | **5 passed*
 waves/RW-21/REPORT-B02.md:92:- P0-04: реализован скелет T-HARN-01; полный replay T-HARN-02/03 — отдельная карточка
 waves/RW-21/REPORT-B02.md:94:- P0-07: юридическая оценка ToS/распространения — за владельцем; документ не заменяет юриста.
 waves/RW-21/TEST-MATRIX-B02.md:3:Дата: 2026-10-21. Batch: **B02**. Карточки: P2-08, P1-01, P1-02, P0-04, P0-07.
-waves/RW-21/TEST-MATRIX-B02.md:11:| P0-04 conformance | `fixtures` 5 | `fixtures/MANIFEST.json` + `/home/sanya/re-deep`; `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` | `logs/conformance-red.log` | `logs/b02-conformance-targeted.log` 5/5 |
+waves/RW-21/TEST-MATRIX-B02.md:11:| P0-04 conformance | `fixtures` 5 | `fixtures/MANIFEST.json` + `/home/user/clean-room-oracle`; `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` | `logs/conformance-red.log` | `logs/b02-conformance-targeted.log` 5/5 |
 waves/RW-21/TEST-MATRIX-B02.md:12:| P0-07 legal | docs-only (без runtime) | `README.md` §Правовая рамка, `CONCEPT.md` §1/§7 | — | `LEGAL.md` + README/rust-README |
 waves/RW-21/TEST-MATRIX-B02.md:31:- P0-04 — скелет загрузчика (T-HARN-01); полный побайтовый replay T-HARN-02/03 требует
 waves/RW-21/TEST-MATRIX-B02.md:33:- P0-07 — правовая рамка и чек-лист; юридическую оценку даёт владелец.
-rust/crates/discord-conformance/src/lib.rs:4://! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/sanya/re-deep`).
+rust/crates/discord-conformance/src/lib.rs:4://! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/user/clean-room-oracle`).
 rust/crates/discord-conformance/src/lib.rs:114:pub fn fixtures_root() -> PathBuf {
 rust/crates/discord-conformance/src/lib.rs:118:    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
 rust/crates/discord-conformance/src/lib.rs:122:pub fn lab_root() -> PathBuf {
@@ -1992,15 +1992,15 @@ rust/crates/discord-conformance/src/lib.rs:129:pub fn manifest_path() -> PathBuf
 rust/crates/discord-conformance/src/lib.rs:130:    fixtures_root().join("MANIFEST.json")
 rust/crates/discord-conformance/src/lib.rs:135:    read_text(&manifest_path())
 TASKS.md:538:| RC-07 | Единая структура | Объединение RE и Rust-клиента: курированные фикстуры `fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5), cargo-воркспейс `rust/` (10 крейтов, офлайн `cargo test` — на 2026-10-20 **337** тестов, ядро **295**), строение и трассировка (141 F → спека → фикстуры → 133 T) | `fixtures/`, `rust/`, `docs/rust-client/PROJECT-STRUCTURE.md`, `TRACEABILITY.md` |
-waves/RW-21/reviews/codex-harness-legal-round2.log:14:Independent read-only re-review of P0-04 and P0-07 after addressing your prior 3 P2 findings. Do not edit files. Your prior review: (1) claimed manifest_path points to fixtures/MANIFEST.json but file is not there; this appears false. Evidence: default fixtures_root() is <repo>/fixtures; manifest_path() is fixtures_root().join("MANIFEST.json"); realpath is /home/sanya/orca/project/fixtures/MANIFEST.json; cargo test -p discord-conformance --offline passes 6/6 including manifest_is_readable_and_has_versioned_provenance, and the test now explicitly asserts manifest_path()==fixtures_root().join("MANIFEST.json") and endswith fixtures/MANIFEST.json. Please verify statically/with read-only realpath and retract if the claim was mistaken. (2) lab skip: added RE_REQUIRE_LAB guard in rust/crates/discord-conformance/tests/fixtures.rs; with RE_LAB_ROOT=/nonexistent RE_REQUIRE_LAB=1 it fails exit 101 (waves/RW-21/logs/b02-conformance-require-red.log), with real lab and RE_REQUIRE_LAB=1 it passes 6/6 (b02-conformance-require-green2.log); normal no-env run remains soft-skip with reason per repo TEST-PLAN. (3) LEGAL.md now separates policy/target from verified implementation: keyring not implemented, token in-memory until P1-10, IP/payload scan and SBOM/cargo-deny are backlog, checklist uses [x]/[~]/[ ]. Review updated files. Return verdict accepted / accepted with P3 / changes required, P0/P1/P2 counts and findings file:line. Do not repeat prior findings unless still present.
+waves/RW-21/reviews/codex-harness-legal-round2.log:14:Independent read-only re-review of P0-04 and P0-07 after addressing your prior 3 P2 findings. Do not edit files. Your prior review: (1) claimed manifest_path points to fixtures/MANIFEST.json but file is not there; this appears false. Evidence: default fixtures_root() is <repo>/fixtures; manifest_path() is fixtures_root().join("MANIFEST.json"); realpath is /home/user/orca/project/fixtures/MANIFEST.json; cargo test -p discord-conformance --offline passes 6/6 including manifest_is_readable_and_has_versioned_provenance, and the test now explicitly asserts manifest_path()==fixtures_root().join("MANIFEST.json") and endswith fixtures/MANIFEST.json. Please verify statically/with read-only realpath and retract if the claim was mistaken. (2) lab skip: added RE_REQUIRE_LAB guard in rust/crates/discord-conformance/tests/fixtures.rs; with RE_LAB_ROOT=/nonexistent RE_REQUIRE_LAB=1 it fails exit 101 (waves/RW-21/logs/b02-conformance-require-red.log), with real lab and RE_REQUIRE_LAB=1 it passes 6/6 (b02-conformance-require-green2.log); normal no-env run remains soft-skip with reason per repo TEST-PLAN. (3) LEGAL.md now separates policy/target from verified implementation: keyring not implemented, token in-memory until P1-10, IP/payload scan and SBOM/cargo-deny are backlog, checklist uses [x]/[~]/[ ]. Review updated files. Return verdict accepted / accepted with P3 / changes required, P0/P1/P2 counts and findings file:line. Do not repeat prior findings unless still present.
 waves/RW-21/reviews/codex-harness-legal-round2.log:26:Сверяю обязательный контекст процесса и актуальные файлы P0-04/P0-07, затем проверю пути и тестовые доказательства в read-only режиме. Ничего менять не буду.
-waves/RW-21/reviews/codex-harness-legal-round2.log:28:/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'LEGAL.md' -g 'AGENTS.md' -g '*P0-04*' -g '*P0-07*' -g 'fixtures.rs' -g 'MANIFEST.json' -g '*b02-conformance-require*'" in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal-round2.log:28:/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'LEGAL.md' -g 'AGENTS.md' -g '*P0-04*' -g '*P0-07*' -g 'fixtures.rs' -g 'MANIFEST.json' -g '*b02-conformance-require*'" in /home/user/orca/project
 waves/RW-21/reviews/codex-harness-legal-round2.log:31:waves/RW-21/DESIGN-P0-04.md
 waves/RW-21/reviews/codex-harness-legal-round2.log:40:fixtures/MANIFEST.json
 waves/RW-21/reviews/codex-harness-legal-round2.log:987:  секции; research и контракт `RW-21/DESIGN-P2-08.md`), далее `P1-01`, `P1-02`, `P0-04`,
 waves/RW-21/reviews/codex-harness-legal-round2.log:988:  `P0-07`. Активных кодовых воркеров — не более двух; P2-08 идёт первым, потому что research
-waves/RW-21/reviews/codex-harness-legal-round2.log:1245:/usr/bin/bash -lc "realpath fixtures/MANIFEST.json && stat -c '%F %n' fixtures/MANIFEST.json && nl -ba rust/crates/discord-conformance/tests/fixtures.rs | sed -n '1,240p' && nl -ba docs/rust-client/LEGAL.md | sed -n '1,260p'" in /home/sanya/orca/project
-waves/RW-21/reviews/codex-harness-legal-round2.log:1247:/home/sanya/orca/project/fixtures/MANIFEST.json
+waves/RW-21/reviews/codex-harness-legal-round2.log:1245:/usr/bin/bash -lc "realpath fixtures/MANIFEST.json && stat -c '%F %n' fixtures/MANIFEST.json && nl -ba rust/crates/discord-conformance/tests/fixtures.rs | sed -n '1,240p' && nl -ba docs/rust-client/LEGAL.md | sed -n '1,260p'" in /home/user/orca/project
+waves/RW-21/reviews/codex-harness-legal-round2.log:1247:/home/user/orca/project/fixtures/MANIFEST.json
 waves/RW-21/reviews/codex-harness-legal-round2.log:1248:regular file fixtures/MANIFEST.json
 waves/RW-21/reviews/codex-harness-legal-round2.log:1249:     1	//! T-HARN-01: загрузчик фикстур и контракт путей (P0-04, B02).
 waves/RW-21/reviews/codex-harness-legal-round2.log:1255:     7	    ConformanceError, FixtureSource, fixtures_root, lab_root, load_bytes, load_text, manifest_path,
@@ -2015,19 +2015,19 @@ waves/RW-21/reviews/codex-harness-legal-round2.log:1386:     1	# Правова�
 waves/RW-21/reviews/codex-harness-legal-round2.log:1415:    30	  и проверки провенанса (`fixtures/MANIFEST.json`). Это правило процесса; полный
 waves/RW-21/reviews/codex-harness-legal-round2.log:1458:    73	## 7. Чек-лист P0-07
 waves/RW-21/reviews/codex-harness-legal-round2.log:1474:Подтверждено: реальный `fixtures/MANIFEST.json` существует именно по заявленному пути, и тест закрепляет это. По legal-документу разделение политики и текущей реализации теперь явно; сейчас проверю контракт библиотеки, точный режим обязательного lab и привязку документов к карточкам.
-waves/RW-21/reviews/review-harness-legal-codex.md:5:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
-waves/RW-21/reviews/review-harness-legal-codex.md:7:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
-waves/RW-21/reviews/review-harness-legal-codex.md:9:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/sanya/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
-waves/RW-21/reviews/review-harness-legal-codex.md:11:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/sanya/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
+waves/RW-21/reviews/review-harness-legal-codex.md:5:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/user/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
+waves/RW-21/reviews/review-harness-legal-codex.md:7:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
+waves/RW-21/reviews/review-harness-legal-codex.md:9:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/user/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
+waves/RW-21/reviews/review-harness-legal-codex.md:11:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/user/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
 waves/RW-21/reviews/codex-harness-legal.log:14:Independent read-only review of B02 cards P0-04 (conformance fixture loader skeleton) and P0-07 (legal framework docs). Do not edit files. Sources: rust/crates/discord-conformance/src/lib.rs, tests/fixtures.rs, fixtures/MANIFEST.json, waves/RW-21/DESIGN-P0-04.md, docs/rust-client/LEGAL.md, docs/rust-client/README.md, rust/README.md, docs/rust-client/PLAN.md, docs/rust-client/CONCEPT.md (if present), rust/Cargo.toml workspace license. Check: path traversal and absolute/empty names, symlink/TOCTOU assumptions appropriate for test loader, repo-to-lab fallback, env overrides, typed errors, no writes/network, skip-aware lab test, manifest provenance; whether T-HARN-01 scope is honestly bounded and T-HARN-02/03 not falsely claimed. For LEGAL: claims must match actual repo/current implementation (license, telemetry, keyring, assets, live approval), no unapproved legal guarantee, no false claim that unimplemented keyring exists. Return verdict accepted / accepted with P3 / changes required, findings with file:line and severity P0/P1/P2/P3, explicitly list P0/P1/P2 counts.
 waves/RW-21/reviews/codex-harness-legal.log:495:| B02 / RW-21 | P1-01, P1-02, P0-04, P0-07, P2-08 | TL-2, CORE-3, TEST-1, OPS-1 | research/freeze P2-08 готов; пара P1-01/P1-02 |
 waves/RW-21/reviews/codex-harness-legal.log:985:  секции; research и контракт `RW-21/DESIGN-P2-08.md`), далее `P1-01`, `P1-02`, `P0-04`,
 waves/RW-21/reviews/codex-harness-legal.log:986:  `P0-07`. Активных кодовых воркеров — не более двух; P2-08 идёт первым, потому что research
-waves/RW-21/reviews/codex-harness-legal.log:1096:/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P0-04.md' in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal.log:1096:/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P0-04.md' in /home/user/orca/project
 waves/RW-21/reviews/codex-harness-legal.log:1098:     1	//! T-HARN-01: загрузчик фикстур и контракт путей (P0-04, B02).
 waves/RW-21/reviews/codex-harness-legal.log:1104:     7	    ConformanceError, FixtureSource, fixtures_root, lab_root, load_bytes, load_text, manifest_path,
 waves/RW-21/reviews/codex-harness-legal.log:1112:    15	    let path = manifest_path();
-waves/RW-21/reviews/codex-harness-legal.log:1208:     4	//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/sanya/re-deep`).
+waves/RW-21/reviews/codex-harness-legal.log:1208:     4	//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/user/clean-room-oracle`).
 waves/RW-21/reviews/codex-harness-legal.log:1318:   114	pub fn fixtures_root() -> PathBuf {
 waves/RW-21/reviews/codex-harness-legal.log:1322:   118	    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
 waves/RW-21/reviews/codex-harness-legal.log:1326:   122	pub fn lab_root() -> PathBuf {
@@ -2037,11 +2037,11 @@ waves/RW-21/reviews/codex-harness-legal.log:1339:   135	    read_text(&manifest_
 waves/RW-21/reviews/codex-harness-legal.log:1417:     1	# B02 / P0-04 — conformance harness skeleton (contract)
 waves/RW-21/reviews/codex-harness-legal.log:1419:     3	Дата: 2026-10-21. Карточка **P0-04** (M). Файлы: `discord-conformance/src/lib.rs`,
 waves/RW-21/reviews/codex-harness-legal.log:1436:    20	pub fn fixtures_root() -> PathBuf;   // RE_FIXTURES_ROOT | <repo>/fixtures
-waves/RW-21/reviews/codex-harness-legal.log:1437:    21	pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/sanya/re-deep
+waves/RW-21/reviews/codex-harness-legal.log:1437:    21	pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/user/clean-room-oracle
 waves/RW-21/reviews/codex-harness-legal.log:1438:    22	pub fn manifest_path() -> PathBuf;
 waves/RW-21/reviews/codex-harness-legal.log:1449:    33	## 3. Тесты (T-HARN-01)
 waves/RW-21/reviews/codex-harness-legal.log:1460:    44	T-HARN-02/03 (полный реплей gateway/REST) остаются отдельными карточками: P0-04 — скелет
-waves/RW-21/reviews/codex-harness-legal.log:1500:/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/fixtures/MANIFEST.json' in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal.log:1500:/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/fixtures/MANIFEST.json' in /home/user/orca/project
 waves/RW-21/reviews/codex-harness-legal.log:1502:nl: rust/crates/discord-conformance/fixtures/MANIFEST.json: No such file or directory
 waves/RW-21/reviews/codex-harness-legal.log:1613:    56	`../../fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5; полный манифест — `TEST-PLAN.md` §2).
 waves/RW-21/reviews/codex-harness-legal.log:1632:    75	- `../../fixtures/MANIFEST.json` — провенанс фикстур (источник, md5, T-ID).
@@ -2049,7 +2049,7 @@ waves/RW-21/reviews/codex-harness-legal.log:1647:     1	# Правовая ра�
 waves/RW-21/reviews/codex-harness-legal.log:1674:    28	  и проверки провенанса (`fixtures/MANIFEST.json`).
 waves/RW-21/reviews/codex-harness-legal.log:1700:    54	  `cargo deny`/SBOM — отдельная карточка P0-07-adjacent (T-HARN-07).
 waves/RW-21/reviews/codex-harness-legal.log:1711:    65	## 7. Чек-лист P0-07
-waves/RW-21/reviews/codex-harness-legal.log:1770:    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/sanya/re-deep`, запуск из `cargo test` | T-HARN-01…03 | — | M |
+waves/RW-21/reviews/codex-harness-legal.log:1770:    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/user/clean-room-oracle`, запуск из `cargo test` | T-HARN-01…03 | — | M |
 waves/RW-21/reviews/codex-harness-legal.log:1773:    50	| P0-07 | Ревизия правовой рамки | README клиента: ToS, телеметрия off, честный отпечаток | — | — | S |
 waves/RW-21/reviews/codex-harness-legal.log:2407:     1	# Правовая рамка Rust-клиента (P0-07)
 waves/RW-21/reviews/codex-harness-legal.log:2434:    28	  и проверки провенанса (`fixtures/MANIFEST.json`).
@@ -2057,26 +2057,26 @@ waves/RW-21/reviews/codex-harness-legal.log:2460:    54	  `cargo deny`/SBOM — 
 waves/RW-21/reviews/codex-harness-legal.log:2471:    65	## 7. Чек-лист P0-07
 waves/RW-21/reviews/codex-harness-legal.log:2539:    56	`../../fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5; полный манифест — `TEST-PLAN.md` §2).
 waves/RW-21/reviews/codex-harness-legal.log:2558:    75	- `../../fixtures/MANIFEST.json` — провенанс фикстур (источник, md5, T-ID).
-waves/RW-21/reviews/codex-harness-legal.log:2617:    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/sanya/re-deep`, запуск из `cargo test` | T-HARN-01…03 | — | M |
+waves/RW-21/reviews/codex-harness-legal.log:2617:    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/user/clean-room-oracle`, запуск из `cargo test` | T-HARN-01…03 | — | M |
 waves/RW-21/reviews/codex-harness-legal.log:2620:    50	| P0-07 | Ревизия правовой рамки | README клиента: ToS, телеметрия off, честный отпечаток | — | — | S |
-waves/RW-21/reviews/codex-harness-legal.log:2710:/usr/bin/bash -lc "rg --files | rg '("'^|/)MANIFEST'"\\.json"'$|LEGAL'"\\.md|CONCEPT\\.md|Cargo\\.toml"'$'"'" in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal.log:2710:/usr/bin/bash -lc "rg --files | rg '("'^|/)MANIFEST'"\\.json"'$|LEGAL'"\\.md|CONCEPT\\.md|Cargo\\.toml"'$'"'" in /home/user/orca/project
 waves/RW-21/reviews/codex-harness-legal.log:2760:fixtures/MANIFEST.json
-waves/RW-21/reviews/codex-harness-legal.log:2969:/usr/bin/bash -lc "nl -ba fixtures/MANIFEST.json | sed -n '1,120p'" in /home/sanya/orca/project
+waves/RW-21/reviews/codex-harness-legal.log:2969:/usr/bin/bash -lc "nl -ba fixtures/MANIFEST.json | sed -n '1,120p'" in /home/user/orca/project
 waves/RW-21/reviews/codex-harness-legal.log:3059:    28	  и проверки провенанса (`fixtures/MANIFEST.json`).
 waves/RW-21/reviews/codex-harness-legal.log:3085:    54	  `cargo deny`/SBOM — отдельная карточка P0-07-adjacent (T-HARN-07).
 waves/RW-21/reviews/codex-harness-legal.log:3096:    65	## 7. Чек-лист P0-07
-waves/RW-21/reviews/codex-harness-legal.log:3422:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
-waves/RW-21/reviews/codex-harness-legal.log:3424:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
-waves/RW-21/reviews/codex-harness-legal.log:3426:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/sanya/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
-waves/RW-21/reviews/codex-harness-legal.log:3428:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/sanya/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
-waves/RW-21/reviews/codex-harness-legal.log:3437:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
-waves/RW-21/reviews/codex-harness-legal.log:3439:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
-waves/RW-21/reviews/codex-harness-legal.log:3441:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/sanya/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
-waves/RW-21/reviews/codex-harness-legal.log:3443:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/sanya/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
+waves/RW-21/reviews/codex-harness-legal.log:3422:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/user/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
+waves/RW-21/reviews/codex-harness-legal.log:3424:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
+waves/RW-21/reviews/codex-harness-legal.log:3426:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/user/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
+waves/RW-21/reviews/codex-harness-legal.log:3428:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/user/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
+waves/RW-21/reviews/codex-harness-legal.log:3437:- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/user/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
+waves/RW-21/reviews/codex-harness-legal.log:3439:- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
+waves/RW-21/reviews/codex-harness-legal.log:3441:- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/user/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
+waves/RW-21/reviews/codex-harness-legal.log:3443:**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/user/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
 waves/RW-21/DESIGN-P0-04.md:1:# B02 / P0-04 — conformance harness skeleton (contract)
 waves/RW-21/DESIGN-P0-04.md:3:Дата: 2026-10-21. Карточка **P0-04** (M). Файлы: `discord-conformance/src/lib.rs`,
 waves/RW-21/DESIGN-P0-04.md:20:pub fn fixtures_root() -> PathBuf;   // RE_FIXTURES_ROOT | <repo>/fixtures
-waves/RW-21/DESIGN-P0-04.md:21:pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/sanya/re-deep
+waves/RW-21/DESIGN-P0-04.md:21:pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/user/clean-room-oracle
 waves/RW-21/DESIGN-P0-04.md:22:pub fn manifest_path() -> PathBuf;
 waves/RW-21/DESIGN-P0-04.md:34:`RE_REQUIRE_LAB=1` превращает отсутствие lab-файла в падение, чтобы skip не засчитывался
 waves/RW-21/DESIGN-P0-04.md:37:## 3. Тесты (T-HARN-01)
@@ -2115,7 +2115,7 @@ waves/RW-21/logs/b02-conformance-require-red.log:23:RE_REQUIRE_LAB задан, �
 codex
 В обновлённом тестовом коде нашёл важный нюанс: `RE_REQUIRE_LAB` считается включённым при любом наличии переменной, даже если значение `0` или пустое. Сверяю это с контрактом `=1` и прежним выводом о пропуске: этот флаг переводит отсутствие фикстуры в красный прогон, но обычный `cargo test` всё ещё возвращает успешный статус с сообщением `skip`.
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-conformance/src/lib.rs | sed -n '108,150p'; nl -ba docs/rust-client/LEGAL.md | sed -n '19,90p'; nl -ba waves/RW-21/DESIGN-P0-04.md | sed -n '22,52p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-conformance/src/lib.rs | sed -n '108,150p'; nl -ba docs/rust-client/LEGAL.md | sed -n '19,90p'; nl -ba waves/RW-21/DESIGN-P0-04.md | sed -n '22,52p'" in /home/user/orca/project
  succeeded in 0ms:
    108	            _ => None,
    109	        }
@@ -2130,10 +2130,10 @@ exec
    118	    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
    119	}
    120	
-   121	/// Корень лаборатории: `RE_LAB_ROOT` либо `/home/sanya/re-deep`.
+   121	/// Корень лаборатории: `RE_LAB_ROOT` либо `/home/user/clean-room-oracle`.
    122	pub fn lab_root() -> PathBuf {
    123	    PathBuf::from(
-   124	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+   124	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
    125	    )
    126	}
    127	
@@ -2258,9 +2258,9 @@ exec
     49	загрузчика, не подмена протокольных тестов.
 
 exec
-/usr/bin/bash -lc 'rg -n "прогон|skip-aware|Skip ≠ pass|skip|T-HARN-01|P0-04|P0-07" docs/rust-client/TEST-PLAN.md waves/RW-21/REPORT-B02.md waves/RW-21/TEST-MATRIX-B02.md docs/rust-client/TEAM.md PROCESS.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg -n "прогон|skip-aware|Skip ≠ pass|skip|T-HARN-01|P0-04|P0-07" docs/rust-client/TEST-PLAN.md waves/RW-21/REPORT-B02.md waves/RW-21/TEST-MATRIX-B02.md docs/rust-client/TEAM.md PROCESS.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'rg -n "P0-04|P0-07" docs/rust-client/TASKS.md TASKS.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg -n "P0-04|P0-07" docs/rust-client/TASKS.md TASKS.md' in /home/user/orca/project
  exited 2 in 0ms:
 rg: docs/rust-client/TASKS.md: No such file or directory (os error 2)
 
@@ -2288,7 +2288,7 @@ PROCESS.md:307:**Qualification** — прогон на собранном пак
 PROCESS.md:309:golden, удаления (§4.4). **Приёмка** — проверка отчёта координатором с независимым прогоном.
 waves/RW-21/TEST-MATRIX-B02.md:3:Дата: 2026-10-21. Batch: **B02**. Карточки: P2-08, P1-01, P1-02, P0-04, P0-07.
 waves/RW-21/TEST-MATRIX-B02.md:4:Все тесты офлайн; lab-файлы read-only; при отсутствии lab — skip с причиной.
-waves/RW-21/TEST-MATRIX-B02.md:11:| P0-04 conformance | `fixtures` 5 | `fixtures/MANIFEST.json` + `/home/sanya/re-deep`; `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` | `logs/conformance-red.log` | `logs/b02-conformance-targeted.log` 5/5 |
+waves/RW-21/TEST-MATRIX-B02.md:11:| P0-04 conformance | `fixtures` 5 | `fixtures/MANIFEST.json` + `/home/user/clean-room-oracle`; `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` | `logs/conformance-red.log` | `logs/b02-conformance-targeted.log` 5/5 |
 waves/RW-21/TEST-MATRIX-B02.md:12:| P0-07 legal | docs-only (без runtime) | `README.md` §Правовая рамка, `CONCEPT.md` §1/§7 | — | `LEGAL.md` + README/rust-README |
 waves/RW-21/TEST-MATRIX-B02.md:31:- P0-04 — скелет загрузчика (T-HARN-01); полный побайтовый replay T-HARN-02/03 требует
 waves/RW-21/TEST-MATRIX-B02.md:33:- P0-07 — правовая рамка и чек-лист; юридическую оценку даёт владелец.
@@ -2296,7 +2296,7 @@ docs/rust-client/TEST-PLAN.md:14:| L4 | E2E-smoke | ручной прогон н
 docs/rust-client/TEST-PLAN.md:18:(живой аккаунт не задействуется в CI); L5 — ночной прогон.
 docs/rust-client/TEST-PLAN.md:44:- **Skip-aware.** Нет внешней среды — skip с причиной; skip не считается pass.
 docs/rust-client/TEST-PLAN.md:48:`cargo test --workspace` → `npm run gate:worker`. Полный прогон не дублируется каждым воркером.
-docs/rust-client/TEST-PLAN.md:261:| T-HARN-01 | L2 | загрузчик фикстур находит /home/sanya/re-deep, контракт версий | манифест |
+docs/rust-client/TEST-PLAN.md:261:| T-HARN-01 | L2 | загрузчик фикстур находит /home/user/clean-room-oracle, контракт версий | манифест |
 docs/rust-client/TEST-PLAN.md:274:3. Красный/зелёный прогон сохраняются в отчёт задачи (как в `AGENTS.md` этого репозитория).
 waves/RW-21/REPORT-B02.md:4:**P1-02** (zstd strict), **P0-04** (conformance skeleton), **P0-07** (legal).
 waves/RW-21/REPORT-B02.md:18:- **P0-04**: `discord-conformance` loader repo→lab, `RE_FIXTURES_ROOT`/`RE_LAB_ROOT`,
@@ -2313,15 +2313,15 @@ docs/rust-client/TEAM.md:226:| B02 / RW-21 | P1-01, P1-02, P0-04, P0-07, P2-08 |
 codex
 **Verdict: accepted with P3** — P0: 0, P1: 0, P2: 0. One P3 remains.
 
-- **P3 — `RE_REQUIRE_LAB` treats any set value as enabled.** The contract says `RE_REQUIRE_LAB=1`; the code checks only whether the variable exists, so `RE_REQUIRE_LAB=0` or an empty value also fails when the lab fixture is missing ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:19)). This is a minor mismatch; the documented `=1` case works.
-- **Retracted the manifest-path finding.** `realpath` resolves to `/home/sanya/orca/project/fixtures/MANIFEST.json`; the library builds that path from `fixtures_root()`, and the test asserts it ([lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:128), [fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:35)).
-- The lab-required red/green logs show the missing fixture fails and the present fixture passes. The ordinary path still returns success after printing `skip`; that remains a `cargo test` limitation under the repo’s “Skip ≠ pass” rule ([PROCESS.md](/home/sanya/orca/project/PROCESS.md:26), [fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:26)). Treat the required-lab run as the acceptance check.
-- `LEGAL.md` now marks keyring, log scanning, IP/payload redaction, and dependency license automation as incomplete or backlog items ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:25), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:45), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:57), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:75)).
+- **P3 — `RE_REQUIRE_LAB` treats any set value as enabled.** The contract says `RE_REQUIRE_LAB=1`; the code checks only whether the variable exists, so `RE_REQUIRE_LAB=0` or an empty value also fails when the lab fixture is missing ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:19)). This is a minor mismatch; the documented `=1` case works.
+- **Retracted the manifest-path finding.** `realpath` resolves to `/home/user/orca/project/fixtures/MANIFEST.json`; the library builds that path from `fixtures_root()`, and the test asserts it ([lib.rs](/home/user/orca/project/rust/crates/discord-conformance/src/lib.rs:128), [fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:35)).
+- The lab-required red/green logs show the missing fixture fails and the present fixture passes. The ordinary path still returns success after printing `skip`; that remains a `cargo test` limitation under the repo’s “Skip ≠ pass” rule ([PROCESS.md](/home/user/orca/project/PROCESS.md:26), [fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:26)). Treat the required-lab run as the acceptance check.
+- `LEGAL.md` now marks keyring, log scanning, IP/payload redaction, and dependency license automation as incomplete or backlog items ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:25), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:45), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:57), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:75)).
 tokens used
 49 881
 **Verdict: accepted with P3** — P0: 0, P1: 0, P2: 0. One P3 remains.
 
-- **P3 — `RE_REQUIRE_LAB` treats any set value as enabled.** The contract says `RE_REQUIRE_LAB=1`; the code checks only whether the variable exists, so `RE_REQUIRE_LAB=0` or an empty value also fails when the lab fixture is missing ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:19)). This is a minor mismatch; the documented `=1` case works.
-- **Retracted the manifest-path finding.** `realpath` resolves to `/home/sanya/orca/project/fixtures/MANIFEST.json`; the library builds that path from `fixtures_root()`, and the test asserts it ([lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:128), [fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:35)).
-- The lab-required red/green logs show the missing fixture fails and the present fixture passes. The ordinary path still returns success after printing `skip`; that remains a `cargo test` limitation under the repo’s “Skip ≠ pass” rule ([PROCESS.md](/home/sanya/orca/project/PROCESS.md:26), [fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:26)). Treat the required-lab run as the acceptance check.
-- `LEGAL.md` now marks keyring, log scanning, IP/payload redaction, and dependency license automation as incomplete or backlog items ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:25), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:45), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:57), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:75)).
+- **P3 — `RE_REQUIRE_LAB` treats any set value as enabled.** The contract says `RE_REQUIRE_LAB=1`; the code checks only whether the variable exists, so `RE_REQUIRE_LAB=0` or an empty value also fails when the lab fixture is missing ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:19)). This is a minor mismatch; the documented `=1` case works.
+- **Retracted the manifest-path finding.** `realpath` resolves to `/home/user/orca/project/fixtures/MANIFEST.json`; the library builds that path from `fixtures_root()`, and the test asserts it ([lib.rs](/home/user/orca/project/rust/crates/discord-conformance/src/lib.rs:128), [fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:35)).
+- The lab-required red/green logs show the missing fixture fails and the present fixture passes. The ordinary path still returns success after printing `skip`; that remains a `cargo test` limitation under the repo’s “Skip ≠ pass” rule ([PROCESS.md](/home/user/orca/project/PROCESS.md:26), [fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:26)). Treat the required-lab run as the acceptance check.
+- `LEGAL.md` now marks keyring, log scanning, IP/payload redaction, and dependency license automation as incomplete or backlog items ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:25), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:45), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:57), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:75)).

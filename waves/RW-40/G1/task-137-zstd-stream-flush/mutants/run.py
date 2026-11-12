@@ -5,7 +5,7 @@ import pathlib
 import subprocess
 import sys
 
-ROOT = pathlib.Path("/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush")
+ROOT = pathlib.Path("/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush")
 SRC = ROOT / "rust/crates/discord-codec/src/zstd.rs"
 BASE_MD5 = "6563379e4a71ec6875ad1b678d31975b"
 LOG_DIR = pathlib.Path(__file__).resolve().parent
@@ -75,8 +75,8 @@ def main():
                 ["cargo", "test", "--offline", "--manifest-path", "rust/Cargo.toml",
                  "-p", "discord-codec", "-p", "discord-core"],
                 cwd=ROOT, stdout=handle, stderr=subprocess.STDOUT,
-                env={"CARGO_TARGET_DIR": "/home/sanya/orca/project/rust/target",
-                     "PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": "/home/sanya"},
+                env={"CARGO_TARGET_DIR": "/home/user/orca/project/rust/target",
+                     "PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": "/home/user"},
                 timeout=900,
             )
         text = log.read_text(encoding="utf-8")

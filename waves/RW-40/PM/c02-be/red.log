@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0425]: cannot find function `channels` in module `data`
    --> tests/channels_contract.rs:104:22
     |

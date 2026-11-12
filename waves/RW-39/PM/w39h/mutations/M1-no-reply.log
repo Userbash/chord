@@ -15,9 +15,9 @@
 test at tests/unit/gui-spike-features.test.mjs:406:3
 ✖ group start/continuation, day divider, reply-quote, reactions, embeds, edited (29.856357ms)
   AssertionError [ERR_ASSERTION]: у строки 12 нет .reply-quote
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:425:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:407:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:425:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:407:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

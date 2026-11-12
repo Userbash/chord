@@ -22,7 +22,7 @@
 
 ## 2. Верификация тестов и линтеров
 
-Запущены целевые проверки со связкой с общим `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Запущены целевые проверки со связкой с общим `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 1. `cargo test --manifest-path rust/Cargo.toml -p discord-platform --test deep_link_contract --lib`:
    - 1 unit test в `lib.rs`: `ok`
    - 17/17 контрактных тестов в `tests/deep_link_contract.rs`: `ok` (0 failed).

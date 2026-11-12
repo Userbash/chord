@@ -1,5 +1,5 @@
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
-     Running tests/keyring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/keyring_contract-08983f2bacdcafa3)
+     Running tests/keyring_contract.rs (/home/user/orca/project/rust/target/debug/deps/keyring_contract-08983f2bacdcafa3)
 
 running 12 tests
 test k01_connect_to_default_collection ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets
@@ -17,7 +17,7 @@ test k12_debug_does_not_print_secret_or_pointers ... ignored, live-keyring: ну
 
 test result: ok. 0 passed; 0 failed; 12 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/safe_storage_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/safe_storage_contract-9e9b66a6e9cf378a)
+     Running tests/safe_storage_contract.rs (/home/user/orca/project/rust/target/debug/deps/safe_storage_contract-9e9b66a6e9cf378a)
 
 running 14 tests
 test k25_migrator_with_live_keyring ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets

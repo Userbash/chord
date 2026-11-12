@@ -121,7 +121,7 @@ fn main() {
     let a = args
         .get(1)
         .cloned()
-        .unwrap_or_else(|| "/home/sanya/re-deep/gw-proto/zstd-frames-95974_1389.hexl".into());
+        .unwrap_or_else(|| "/home/user/clean-room-oracle/gw-proto/zstd-frames-95974_1389.hexl".into());
     run(&a);
     if let Some(b) = args.get(2) {
         run(b);

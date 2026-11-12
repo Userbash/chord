@@ -1,7 +1,7 @@
 # Независимое ревью — task-121-parity-wave11 (Review 42A)
 
 Дата: **2026-10-30, 20:52–21:00 +05**. Ревьюер: `DeepSeek V4.1 Flash` (`Review 42A`), независимая сессия.
-Репозиторий: `/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11`, HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`
+Репозиторий: `/home/user/orca/workspaces/project/docs-task-121-parity-wave11`, HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`
 (`RW-40: integrate Discord GUI spike, dispatch, paging and QA evidence`), ветка `docs/task-121-parity-wave11`.
 
 Ревьюируемые артефакты (снимок зафиксирован MD5 на момент проверки; правка любого из файлов инвалидирует ревью):

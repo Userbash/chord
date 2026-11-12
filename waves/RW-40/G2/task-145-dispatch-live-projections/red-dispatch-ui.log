@@ -74,7 +74,7 @@ test at tests/unit/dispatch_ui.test.mjs:283:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:298:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:298:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -95,7 +95,7 @@ test at tests/unit/dispatch_ui.test.mjs:570:3
   
   0 !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:577:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:577:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -116,7 +116,7 @@ test at tests/unit/dispatch_ui.test.mjs:654:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:661:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:661:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -137,7 +137,7 @@ test at tests/unit/dispatch_ui.test.mjs:699:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:713:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:713:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -155,7 +155,7 @@ test at tests/unit/dispatch_ui.test.mjs:699:3
 test at tests/unit/dispatch_ui.test.mjs:747:3
 ✖ B20: MESSAGE_ACK — сброс unread и mention для channel_id до message_id (0.14701ms)
   TypeError [Error]: Cannot read properties of undefined (reading 'get')
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:762:40)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:762:40)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -169,7 +169,7 @@ test at tests/unit/dispatch_ui.test.mjs:793:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:801:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:801:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -190,7 +190,7 @@ test at tests/unit/dispatch_ui.test.mjs:844:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:859:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:859:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -211,7 +211,7 @@ test at tests/unit/dispatch_ui.test.mjs:917:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:923:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:923:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -232,7 +232,7 @@ test at tests/unit/dispatch_ui.test.mjs:1574:3
   
   4 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:1589:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:1589:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -249,7 +249,7 @@ test at tests/unit/dispatch_ui.test.mjs:1697:3
   
   0 !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:1717:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections/tests/unit/dispatch_ui.test.mjs:1717:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

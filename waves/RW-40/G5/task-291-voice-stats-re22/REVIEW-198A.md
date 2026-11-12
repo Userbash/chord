@@ -2,7 +2,7 @@
 
 - **Ревьюер:** Технический ревьюер (DeepSeek), TR-198A
 - **Проверяемая ветка:** `feature/task-291-voice-stats-re22`, HEAD `d7eff40` (Merge PR-168), коммитов в PR нет
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/feature-task-291-voice-stats-re22`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/feature-task-291-voice-stats-re22`
 - **Дата:** 2026-10-31
 - **Вердикт:** **APPROVED** — `P0 = 0`, `P1 = 0`, мутации `5/5` убиты, файл после каждой мутации восстановлен побайтно (MD5 `d5debf4c…` до и после цикла)
 - **Объект:** `rust/crates/discord-voice/src/stats.rs` — `+476 / −0` строк, единственный изменённый путь PR
@@ -28,7 +28,7 @@
 - `stats.rs` — предмет PR-170 (476 строк: константы, `ConnectionQuality`, `PingSample`, `PingHistory`, `compute_outbound_loss_rate_pct`, `short_hostname`, `RtcConnectionStatsSnapshot`, 22 новых теста).
 - `D node_modules`, `M package-lock.json` — шум дерева, к PR не относятся: симлинк `node_modules` (`120000 …`) отсутствует в рабочей копии, lock отличается блоками `bin`/`engines` пакета `discord-lab` и был изменён до начала работы (mtime `12:05:54` против `12:07:27` у `stats.rs`). **При merge брать только `rust/crates/discord-voice/src/stats.rs`, не `git add -A`** (см. `P2-6`).
 
-## 3. Сверка с оракулом `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0`
+## 3. Сверка с оракулом `reference-oracle/decoded/3eefa7dae1e2c234_0`
 
 Проверял поведение, а не только текст: вырезал эталонные фрагменты из бандла по смещениям и переписал их на Python один-в-один, после чего прогнал те же входные векторы, что в Rust-тестах. Лог: `logs/review-198a-oracle.log`, скрипт `logs/oracle-check-198a.py`. Итог: `RESULT: ALL CHECKS MATCH`.
 
@@ -45,7 +45,7 @@
 
 ## 4. Тесты
 
-Все прогоны с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`, `--offline`.
+Все прогоны с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`, `--offline`.
 
 | Проверка | Результат | Лог |
 | --- | --- | --- |

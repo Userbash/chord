@@ -39,7 +39,7 @@ v09 подаёт `003` в пустой store, поэтому мутант «оч
 | 11 | voice-мутации | `waves/B01/mutations/V1…V8.log`, `summary.txt`, `/tmp/opencode/b01-mutation-backup` | 8/8 exit 101; текущие md5 reducer/selectors совпадают с backup |
 | 12 | паники/секреты/сеть | `grep` по `state/voice` | нет `unwrap/expect/panic!/todo!/unimplemented!/unsafe`, нет сети/SQLite/UI/keyring/новых зависимостей |
 | 13 | golden | `git status --porcelain -- logs functions evidence` | пусто; golden не изменялись |
-| 14 | live-значения | `/home/sanya/re-deep/gw-proto/msgs-run2-95974_10029.jsonl:57` (s=51), run1 s=111, run2 s=112/52/53 | значения v02/v04 совпадают; в v03 расходится `self_mute` (см. P3-3) |
+| 14 | live-значения | `reference-oracle/gw-proto/msgs-run2-95974_10029.jsonl:57` (s=51), run1 s=111, run2 s=112/52/53 | значения v02/v04 совпадают; в v03 расходится `self_mute` (см. P3-3) |
 
 ### Что проверено по коду
 
@@ -181,7 +181,7 @@ let (mut state, _) = apply_frame(minimal_state(), &load("003-READY_SUPPLEMENTAL.
 
 - **Где:** `tests/voice_state_types.rs:175-211` (v03, `self_mute` false в кадре и
   ассерте), `waves/RW-19/TEST-MATRIX-P2-10.md:18` («флаги как в capture»), capture
-  `/home/sanya/re-deep/gw-proto/msgs-run2-95974_10029.jsonl:57`.
+  `reference-oracle/gw-proto/msgs-run2-95974_10029.jsonl:57`.
 - **Факт:** в live s=51 `self_mute: "true"`, `self_deaf/self_video/suppress/mute/deaf` —
   false; тест ставит `self_mute=false` и утверждает false. Guild/user/channel/connected_at
   совпадают, поэтому содержательная проверка leave не страдает, но заявление матрицы

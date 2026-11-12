@@ -2,7 +2,7 @@ node:internal/modules/esm/resolve:241
     throw new ERR_MODULE_NOT_FOUND(
           ^
 
-Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/workspaces/project/feature-task-241-ui-poll-card/rust/gui-spike/ui/features/poll-card.js' imported from /home/sanya/orca/workspaces/project/feature-task-241-ui-poll-card/tests/unit/poll-card.test.mjs
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/workspaces/project/feature-task-241-ui-poll-card/rust/gui-spike/ui/features/poll-card.js' imported from /home/user/orca/workspaces/project/feature-task-241-ui-poll-card/tests/unit/poll-card.test.mjs
     at finalizeResolution (node:internal/modules/esm/resolve:241:11)
     at moduleResolve (node:internal/modules/esm/resolve:846:10)
     at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -14,7 +14,7 @@ Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/workspaces/pr
     at ModuleJob.syncLink (node:internal/modules/esm/module_job:277:33)
     at ModuleJob.link (node:internal/modules/esm/module_job:389:17) {
   code: 'ERR_MODULE_NOT_FOUND',
-  url: 'file:///home/sanya/orca/workspaces/project/feature-task-241-ui-poll-card/rust/gui-spike/ui/features/poll-card.js'
+  url: 'file:///home/user/orca/workspaces/project/feature-task-241-ui-poll-card/rust/gui-spike/ui/features/poll-card.js'
 }
 
 Node.js v26.13.0

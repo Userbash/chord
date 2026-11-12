@@ -1,14 +1,14 @@
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-json)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-codec)
-   Compiling discord-ui v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-ui)
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-platform)
-   Compiling discord-store v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-store)
-   Compiling discord-media v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-media)
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-voice)
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-updater)
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-i18n)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-json)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-codec)
+   Compiling discord-ui v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-ui)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-platform)
+   Compiling discord-store v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-store)
+   Compiling discord-media v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-media)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-voice)
+   Compiling discord-updater v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-updater)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-i18n)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
 error[E0432]: unresolved import `discord_core::rest::search`
     --> tests/search_contract.rs:1366:29
      |
@@ -42,7 +42,7 @@ error[E0603]: enum `HttpMethod` is private
      |                                    ^^^^^^^^^^ private enum
      |
 note: the enum `HttpMethod` is defined here
-    --> /home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/http1.rs:8:5
+    --> /home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/http1.rs:8:5
      |
    8 | use super::routes::HttpMethod;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -61,7 +61,7 @@ error[E0599]: no associated function or constant named `default_linux_desktop` f
 note: if you're trying to build a new `SuperProperties` consider using one of the following associated functions:
       SuperProperties::from_json
       SuperProperties::from_base64
-    --> /home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/super_properties.rs:113:5
+    --> /home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/super_properties.rs:113:5
      |
  113 |     pub fn from_json(text: &str) -> Result<Self, SuperPropertiesError> {
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

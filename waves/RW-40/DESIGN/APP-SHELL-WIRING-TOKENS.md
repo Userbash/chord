@@ -2,7 +2,7 @@
 
 - **Волна / Пакет**: `RW-40` / `G3 Design` (`DESIGN-P1-18`, карточка `task-275-app-shell-wiring-spec`)
 - **Единый источник истины CSS-переменных**: `rust/gui-spike/ui/tokens.css` (`md5: 21d570a6bf9c4b5d77b00d3d9b3d1d08`, `392` строки)
-- **Эталон RE**: `/home/sanya/re-deep/frontend-d03.md` (`§2 Layout Structure`, `§4 CSS Custom Properties`, `§5.5–§5.12`)
+- **Эталон RE**: `reference-oracle/frontend-d03.md` (`§2 Layout Structure`, `§4 CSS Custom Properties`, `§5.5–§5.12`)
 - **Связанная спецификация**: `docs/specs/APP-SHELL-WIRING-SPEC.md`
 
 ---
@@ -24,7 +24,7 @@
 
 ## 2. Геометрические и структурные токены оболочки, модалок, дроверов и поповеров `[T][D][M]`
 
-| CSS-токен (`tokens.css`) | Строка в `tokens.css` | Значение в `tokens.css` | Область применения в `APP-SHELL-WIRING-SPEC.md` | Эталон RE (`/home/sanya/re-deep/frontend-d03.md`) |
+| CSS-токен (`tokens.css`) | Строка в `tokens.css` | Значение в `tokens.css` | Область применения в `APP-SHELL-WIRING-SPEC.md` | Эталон RE (`reference-oracle/frontend-d03.md`) |
 | :--- | :---: | :--- | :--- | :--- |
 | `--layout-rail-w` | `214` | `64px` | Левая колонка иконок серверов `.guild-rail` | `rail_w=64` (`--custom-guild-list-width`) |
 | `--layout-tree-w` | `215` | `240px` | Колонка списка каналов `.channel-sidebar` и левая колонка списков в `roles_matrix` / `automod` | `.sidebar_c48ade` (`width: 240px`) |

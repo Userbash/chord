@@ -1,163 +1,142 @@
-# SECURITY — модель угроз и правила безопасной разработки
+# SECURITY — Threat Model and Secure Development Standards
 
-Документ фиксирует, **что мы защищаем**, **где проходит граница доверия** и **какие проверки
-обязательны до accepted**. Он дополняет `CODE-STANDARD.md` §5 и `LEGAL.md`; процесс приёмки —
-`PROCESS.md` §4.3–§4.4.
+This document establishes **what assets we protect**, **where trust boundaries lie**, and **which checks are mandatory before acceptance**. It complements `CODE-STANDARD.md` §5 and `LEGAL.md`; the formal acceptance process is governed by `PROCESS.md` §4.3–§4.4.
 
-Принцип: безопасность — не отдельная волна, а свойство каждого слоя. Для каждой карточки
-указывается применимая часть модели; неприменимые пункты помечаются «не применимо» с причиной.
+Core Principle: Security is not a separate delayed milestone, but an intrinsic property of every architectural layer. Each task card must explicitly identify its applicable threat model vectors; non-applicable sections must be marked with justification.
 
-## 1. Модель угроз
+## 1. Threat Model
 
-### 1.1 Что защищаем (assets)
+### 1.1 Assets to Protect (Assets)
 
-| Актив | Где живёт | Почему важен |
+| Asset | Storage Location | Security Impact |
 |---|---|---|
-| Токен / session id / cookie | keyring, память, HTTP-заголовки | доступ к аккаунту |
-| Содержимое сообщений и вложений | state, history, SQLite, UI | приватность переписки |
-| Голосовые ключи и E2EE-материал | voice signaling, память | прослушивание/подмена медиа |
-| Учётные данные и MFA | login flow, keyring | захват аккаунта |
-| Локальная БД и кэши | `discord-store`, файлы | история и метаданные |
-| Логи/дампы/ошибки | stderr, файлы, отчёты | утечка секретов и PII |
-| Deep links / argv | `discord://`, CLI | подмена маршрута/токена |
-| Updater-манифест и артефакт | сеть/диск | подмена кода |
-| D-Bus/Secret Service/FFI | системные библиотеки | привилегии, fd, память |
+| User Token / Session ID / Cookies | Keyring, Memory, HTTP Headers | Direct account compromise |
+| Message Contents & Attachments | State, History Store, SQLite, UI | User communication privacy |
+| Voice Encryption Keys & E2EE Material | Voice Signaling, Memory | Wiretapping or media injection |
+| Credentials & Multi-Factor Auth (MFA) | Login Flows, Keyring | Account takeover |
+| Local Database & State Caches | `discord-store`, Filesystem | Message history and metadata |
+| Application Logs / Crashes / Errors | Stderr, Log Files, Reports | Accidental credential and PII leakage |
+| Deep Links / CLI Arguments | `discord://`, Process Argv | URL protocol hijacking / token injection |
+| Updater Manifest & Release Binaries | Network / Local Disk | Code execution and tampering |
+| D-Bus / Secret Service / FFI | System Shared Libraries | System privileges, fd leaks, memory corruption |
 
-### 1.2 От кого защищаемся ( adversaries )
+### 1.2 Adversaries and Threat Actors
 
-- **Недоверенный сервер/сеть**: повреждённые, обрезанные, повторные, гигантские или
-  противоречивые payload'ы Discord; MITM при отсутствии TLS-проверки.
-- **Локальный недоверенный ввод**: argv, deep links, буфер обмена, файлы фикстур, env.
-- **Скомпрометированная зависимость**: crate с уязвимостью/лицензионной ловушкой.
-- **Ошибка самого клиента**: утечка секрета в `Debug`, path traversal, гонка, двойное
-  освобождение fd, unbounded-очередь, silent fallback.
-- **Не автор, а ошибка процесса**: тест «зеленит» дефект, skip маскирует live-утверждение,
-  mutation-лог не соответствует коду.
+- **Untrusted Network / Malicious Endpoints**: Corrupted, truncated, replayed, oversized, or contradictory payloads; MITM attempts without strict TLS certificate validation.
+- **Untrusted Local Input**: Command-line arguments, deep link URIs, clipboard contents, fixture files, environment variables.
+- **Compromised Supply Chain**: Malicious or vulnerable third-party dependencies, license traps.
+- **Client Implementation Bugs**: Credential leakage in `Debug` implementations, path traversal vulnerabilities, race conditions, file descriptor leaks, unbounded buffers, silent fallbacks.
+- **Process & Test Flaws**: Tests tailored to flawed code, disabled checks, fraudulent mutation logs.
 
-### 1.3 Границы доверия
+### 1.3 Trust Boundaries
 
-| Граница | Вход | Что обязано произойти на границе |
+| Boundary | Inbound Input | Mandatory Enforcement at Boundary |
 |---|---|---|
-| Сеть → gateway | WS-кадры, zstd, ETF | лимиты размера/глубины, терминальные ошибки, unknown → raw, без паник |
-| Сеть → REST | HTTP/1.1, TLS, JSON | проверка TLS/заголовков, лимит тела, 401/429/5xx-политика, без ретрая неидемпотентных |
-| Голос → медиа | RTC JSON, UDP, RTP/SRTP | проверка op/полей, SSRC/peer, nonce/counter, tag/tail, bounded jitter |
-| Диск → state/store | READY, SQLite, фикстуры | схема/типы, NUL/UTF-8, границы, миграции, provenance |
-| Система → platform | D-Bus, logind, keyring, hunspell, libsqlite3 | auth/адрес, fd ownership, ABI, NUL, error-path cleanup |
-| Пользователь → UI/CLI | argv, deep link, clipboard, файлы | канонизация пути, control chars, лимит длины, безопасный парсинг |
-| Сеть → updater | манифест, артефакт | подпись Ed25519, SHA-256, downgrade guard, path traversal guard |
-| Логи → наружу | `Debug`, ошибки, отчёты | redaction, отсутствие raw payload/токенов/PII |
+| Network -> Gateway | WebSocket frames, zstd streams, ETF payloads | Strict size and recursion limits, fatal error parsing, unknown tags preserved safely, zero panics |
+| Network -> REST | HTTP/1.1, TLS, JSON payloads | Strict TLS verification, header sanitization, bounded body limits, deterministic 401/429/5xx handling, idempotent-only retries |
+| Voice -> Media | RTC JSON signaling, UDP, RTP/SRTP | Strict opcode validation, SSRC/peer binding, nonce/counter sequence checks, authentication tags, bounded jitter buffers |
+| Disk -> State / Store | Cached state snapshots, SQLite files, fixtures | Schema and type assertions, NUL-byte and UTF-8 verification, strict bounds, atomic transactions, provenance tracking |
+| System -> Platform | D-Bus, logind, Keyring, hunspell, libsqlite3 | Explicit auth and address checks, strict file descriptor ownership, C ABI safety, NUL termination, error cleanup |
+| User -> UI / CLI | Process argv, deep link URIs, clipboard, file drops | Canonical path normalization, control character stripping, length ceilings, safe parsing |
+| Network -> Updater | Release manifests, binary update packages | Ed25519 cryptographic signatures, SHA-256 integrity hashes, anti-downgrade enforcement, path traversal rejection |
+| Internal State -> External Logs | `Debug` representations, error messages, reports | Strict redaction of secrets, zero raw binary payloads, zero user tokens, zero PII |
 
-Правило: **доверенные данные внутри ядра** — только после разбора на границе. Если слой
-принимает уже разобранный тип, он не обязан повторять проверки, но обязан сохранять инварианты.
+Rule: **Trusted data inside the core engine** is allowed only after formal boundary verification. Internal components preserve invariants without re-parsing already validated types.
 
-## 2. Модель STRIDE (сокращённо)
+## 2. STRIDE Threat Analysis Matrix
 
-| Угроза | Пример в проекте | Контроль | Проверка |
+| Threat Category | Project Concrete Vector | Mitigating Security Control | Verification Level |
 |---|---|---|---|
-| Spoofing | подмена voice endpoint/peer; deep link с чужим host | TLS, peer/SSRC, строгий разбор scheme/host | T-VOICE, T-SYS-04 |
-| Tampering | подмена updater-манифеста; порча SQLite | Ed25519 + SHA-256; транзакции/миграции | T-SYS-11, T-DATA-05 |
-| Repudiation | нет следов операции | структурная диагностика без секретов | unit/contract |
-| Information disclosure | токен в `Debug`/логе; raw payload в ошибке | redaction, `Secret`-типы, сканер | T-SEC-02/03 |
-| Denial of service | zstd-бомба, глубокая вложенность, 24k-список, fd-шторм | лимиты, bounded-очереди, таймауты, caps | T-ENC-05, T-DATA, T-SYS-06 |
-| Elevation of privilege | path traversal в updater; shell в autostart; FFI | канонизация, без shell, safe wrapper | T-SYS-03/11, FFI-review |
+| Spoofing | Spoofed voice signaling endpoint; deep link with malicious host | TLS pinning, peer/SSRC binding, strict URI scheme/host parsing | T-VOICE, T-SYS-04 |
+| Tampering | Manipulated updater binary; corrupted SQLite database | Ed25519 signature + SHA-256 verification; atomic transactions | T-SYS-11, T-DATA-05 |
+| Repudiation | Unaccounted state transitions | Structured audit and diagnostic logging without sensitive data | Unit & Contract tests |
+| Information Disclosure | Token printed in `Debug` output; raw payload exposed in error | Automatic redaction, dedicated `Secret` wrapper types, scanners | T-SEC-02, T-SEC-03 |
+| Denial of Service | Decompression bomb, recursive ETF nesting, 24k member storm | Strict recursion limits, bounded queues, request timeouts | T-ENC-05, T-DATA, T-SYS-06 |
+| Elevation of Privilege | Path traversal in updater; shell injection in desktop autostart; FFI bugs | Canonicalization, exec without shell, safe Rust FFI wrappers | T-SYS-03, T-SYS-11, FFI Review |
 
-## 3. Секреты: политика хранения и ротации
+## 3. Secrets Management and Redaction Policy
 
-- Токены, session id, cookies, voice keys, E2EE-материал **не попадают** в `Debug`, `Display`,
-  ошибки, логи, отчёты, имена файлов и commit-сообщения.
-- Публичные типы с секретом обязаны иметь redacted `Debug`; для сырых байтов — длина/hash,
-  не содержимое.
-- Фикстуры и доки — только `REDACTED`/placeholder; сканер `T-SEC-02/03` обязателен.
-- Keyring — единственное место хранения токена; файлы конфигурации и SQLite не используются
-  как secret store.
-- Ошибки внешних библиотек (libsecret, hunspell, SQLite, D-Bus) не печатают входные байты.
-- При подозрении на утечку: остановить live-операцию, ротировать токен, очистить кэши,
-  уведомить владельца, зафиксировать инцидент без секретов.
+- Authentication tokens, session identifiers, cookies, voice encryption keys, and MLS/DAVE secrets **must never** appear in `Debug` or `Display` formatters, error messages, disk logs, reports, file names, or git commits.
+- Public structs containing sensitive fields must implement custom redacted `Debug` displaying `[REDACTED]` or `<redacted>`. For raw cryptographic keys, print only byte length or truncated cryptographic hash.
+- Test fixtures and documentation must contain strictly sanitized placeholders. Automated scanning via `T-SEC-02/03` is mandatory in CI.
+- System Keyring (libsecret / Secret Service / macOS Keychain / Windows Credential Manager) is the sole sanctioned persistent token storage. Plaintext configuration files and SQLite databases must never store auth tokens.
+- Foreign library error handlers (libsecret, hunspell, SQLite, D-Bus) must never echo raw input buffers.
+- Suspected leakage protocol: immediately abort live execution, rotate compromised credentials, invalidate local caches, notify project owner, and log security incident without leaking sensitive payloads.
 
-## 4. FFI и `unsafe`
+## 4. FFI and Safe Memory Practices
 
-`unsafe` разрешён только в изолированном модуле-обёртке; снаружи — безопасный API.
-Для `discord-platform` и `discord-store` действует `deny(unsafe_code)` с точечными
-`#[allow(unsafe_code)]` на FFI-модулях.
+Unsafe code blocks (`unsafe`) are strictly isolated inside dedicated low-level wrapper modules exposing 100% safe, idiomatic Rust public interfaces. Crates `discord-platform` and `discord-store` enforce `#![forbid(unsafe_code)]` with surgical, auditable `#[allow(unsafe_code)]` annotations exclusively on FFI bridge boundaries.
 
-Чек-лист каждого блока:
+Mandatory review checklist for every unsafe FFI block:
 
-- [ ] ABI и сигнатура сверены с заголовком/версией системной библиотеки;
-- [ ] указатель не NULL, выровнен, жив на протяжении вызова; lifetime объяснён;
-- [ ] длина передаётся вместе с указателем; нет чтения за границей; NUL-терминация проверена;
-- [ ] владение (кто освобождает) и `Drop`/error-path cleanup определены;
-- [ ] нет unwind через FFI; ошибки C-библиотеки преобразуются в typed error;
-- [ ] thread-safety: можно ли вызывать из нескольких потоков; нужен ли мьютекс;
-- [ ] `// SAFETY:` объясняет **почему** инвариант выполняется, а не повторяет код;
-- [ ] есть тест на error-path, двойное освобождение/fd, лимит и отсутствие библиотеки;
-- [ ] `cargo clippy -D warnings`, Miri/санитайзер (когда доступен) или явное ограничение.
+- [ ] System C library ABI, calling convention, and struct alignment match header declarations.
+- [ ] Raw pointers are checked for null, proper memory alignment, and valid lifetime bounds.
+- [ ] Buffer lengths are explicitly passed alongside pointers; out-of-bounds reads/writes prevented; strings are validated for NUL termination.
+- [ ] Resource ownership (allocation and free responsibility), RAII `Drop` implementations, and error unwind paths are verified.
+- [ ] Panics across FFI boundaries are strictly forbidden (`catch_unwind`); C return codes are mapped into typed Rust errors.
+- [ ] Thread safety and reentrancy: verified whether functions are thread-safe or require mutex synchronization.
+- [ ] Detailed `// SAFETY:` comments explain precisely why the invariants hold.
+- [ ] Comprehensive test suite covers error paths, double-free prevention, descriptor leaks, buffer limits, and missing dynamic libraries.
+- [ ] Code compiles under `cargo clippy -D warnings`, verified under ASan/TSan or Miri where applicable.
 
-Известные FFI-точки: `libsecret` (keyring), системный `libsqlite3` (store), `libhunspell`
-(spellcheck), `libc` (`sendmsg/recvmsg`, SCM_RIGHTS, logind inhibitor). Для каждой — свой
-контрактный тест и security-review.
+Known FFI boundary points: `libsecret` (Keyring), system `libsqlite3` (Store), `libhunspell` / `libenchant` (Spellchecking), `libc` (`sendmsg/recvmsg`, SCM_RIGHTS, logind inhibitor). Each boundary requires dedicated contract testing and security review.
 
-## 5. Supply chain
+## 5. Supply Chain Security
 
-- `Cargo.lock` — авторитетный набор; новые зависимости только с разрешения владельца.
-- Офлайн-сборка по умолчанию; сеть — только в согласованном окне.
-- `cargo deny`/SBOM: лицензии, запрещённые/уязвимые пакеты, version-pinned fallback для
-  target-specific пакетов.
-- Новая зависимость проходит проверку: maintenance, license, transitive tree, build scripts,
-  `unsafe`, сетевые вызовы, размер; фиксируется в SBOM и отчёте волны.
-- Системные библиотеки (`libsqlite3`, `libsecret`, `libhunspell`) проверяются по ABI/версии;
-  отсутствие библиотеки — явный skip/код 2, не тихий fallback.
-- Релизный артефакт подписан; updater проверяет подпись и хеш до перемещений.
+- `Cargo.lock` represents the authoritative dependency tree; introducing new dependencies requires explicit owner approval.
+- Offline compilation by default; network access during builds is disabled.
+- Automated dependency auditing via `cargo-deny` and SBOM generation (`scripts/sbom.mjs`): checks for licenses, security advisories, and pinned dependency versions.
+- New dependencies are vetted for maintenance activity, permissive licensing, transitive tree weight, build scripts, unsafe usage, and binary footprint.
+- Dynamically linked system libraries are probed for ABI compatibility; missing libraries fail closed with exit code 2 / skip rather than silently degrading.
+- Release artifacts are cryptographically signed; the updater verifies cryptographic signatures prior to deployment.
 
-## 6. Живые операции и golden
+## 6. Live Operations and Cleanroom Reference Artifacts
 
-- Attach/spawn/walk на живом Discord — только по окну владельца; по умолчанию — код 2/skip.
-- `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение; не перезаписывать,
-  не «нормализовать», не коммитить секреты.
-- Live-флаг при ошибке среды обязан падать, если тест заявляет live-контракт; обычный запуск
-  может skip-ать с точной причиной.
-- Никакого shell-спавна из недоверенных строк; пути — через канонизацию и `safeName`.
+- Attaching to, spawning, or tracing live Discord processes is prohibited without an explicit authorization window from the project owner; default behavior is exit code 2 or skip.
+- Reference directories (`logs/`, `functions/`, `evidence/`, `clean-room-oracle/`) are strictly read-only. Modifying, renaming, or committing unredacted artifacts is forbidden.
+- Tests claiming live operational contracts must fail if the required environment is missing; standard offline test runs skip with an explicit message.
+- Spawning shell processes from unsanitized strings is strictly forbidden; all process executions utilize canonical path validation.
 
-## 7. Security-тестирование по уровням
+## 7. Security Testing Levels
 
-| Уровень | Что проверяем | Примеры |
+| Test Level | Scope of Verification | Example Test Suites |
 |---|---|---|
-| L0 Static | clippy/deny, SBOM, secret scan, unsafe inventory | CI, `scripts/ci.sh`, `scripts/sbom.mjs` |
-| L1 Unit | redaction, лимиты, парсеры, crypto KAT | `Debug`-тесты, границы, NIST/RFC |
-| L2 Contract | wire-форматы, NUL/control chars, schema | фикстуры RE, byte-exact |
-| L3 Integration | FFI error-path, D-Bus auth/fd, SQLite | `keyring_contract`, `dbus_contract`, `store_contract` |
-| L4 System | updater, deep links, autostart, loopback RTC | `updater_contract`, `deep_link_contract` |
-| L5 Acceptance | login/logout, token storage, live smoke | ручной чек-лист + owner |
-| L6 Non-functional | DoS-лимиты, fuzz, таймауты, утечки | fuzz/property/chaos |
-| L7 Mutation | redaction/guard/fd-мутанты | mutation-ledger |
+| L0 Static | Clippy `-D warnings`, `cargo-deny`, SBOM, secret scanning, unsafe inventory | CI pipeline, `scripts/ci.sh`, `scripts/sbom.mjs` |
+| L1 Unit | String redaction, input bounds, parser edge cases, crypto KAT vectors | `Debug` formatting tests, bounds validation, RFC KATs |
+| L2 Contract | Wire protocol conformance, NUL byte stripping, schema validation | Cleanroom RE fixtures, byte-exact conformance |
+| L3 Integration | FFI error handling, D-Bus authentication, SQLite memory limits | `keyring_contract`, `dbus_contract`, `store_contract` |
+| L4 System | Updater signature verification, deep link handling, autostart isolation | `updater_contract`, `deep_link_contract` |
+| L5 Acceptance | Authentication lifecycle, credential revocation, secure logout | Manual QA protocol & owner acceptance |
+| L6 Non-Functional | Denial of service limits, fuzzing, timeout behavior, memory leak detection | Fuzz targets, property-based tests, chaos engineering |
+| L7 Mutation | Mutation testing of security guards, boundary checks, and secret masks | Mutation ledger, killed mutants verification |
 
-## 8. Триггеры обязательного security-review
+## 8. Mandatory Security Review Triggers
 
-- крипто, ключи, nonce/counter, E2EE;
-- FFI/`unsafe`, работа с fd/памятью;
-- auth/login/token/keyring;
-- updater, подпись, path traversal;
-- deep links, argv, clipboard, autostart;
-- сетевые парсеры и лимиты (ETF/zstd/JSON/protobuf/RTP/SRTP);
-- live-пути и операции с golden;
-- новые зависимости.
+A formal security review is required for changes touching:
+- Cryptographic implementations, key generation, nonces, MLS/DAVE protocols.
+- Foreign Function Interface (FFI) bindings and `unsafe` blocks.
+- Authentication, token management, session handling, and system Keyring.
+- Auto-updater mechanisms, cryptographic signature verification, file downloads.
+- URL schemes, deep links, command-line arguments, desktop autostart entries.
+- Wire protocol parsers and boundary limits (ETF, zstd, JSON, RTP, SRTP).
+- Live operations and golden test fixture handling.
+- Addition of third-party dependencies to `Cargo.toml`.
 
-Review выполняет агент, не автор; для live/FFI — отдельный security-reviewer
-(`PROCESS.md` §4.4).
+Code reviews must be conducted by an independent reviewer (never the original author).
 
-## 9. Известные ограничения (на 2026-10-23)
+## 9. Current Operational Constraints
 
-- Wire-совместимость SRTP/DAVE с Discord не заявлена: нет ключевого материала в capture.
-- `discord-store` однопоточный (`!Send + !Sync`); WAL только для файла.
-- `discord-platform` после FFI-модулей не может гарантировать «unsafe запрещён полностью»;
-  каждый FFI-модуль требует отдельного ревью.
-- D-Bus abstract/tcp, percent-encoding и часть hints — задокументированы как ограничения.
-- Live-уведомления/ингибитор проверены на реальном logind, но не в промышленном окне.
-- Полный threat-model review GUI/WebView (Tauri) ещё впереди — до P0-01.
+- Wire compatibility for SRTP/DAVE is verified against cleanroom RFC vectors; live keys are not stored in repository fixtures.
+- `discord-store` executes single-threaded (`!Send + !Sync`); WAL journaling is enabled for file-backed databases.
+- `discord-platform` isolates FFI blocks with surgical safety comments and dedicated tests.
+- D-Bus transport conforms to standard system bus specifications.
+- Live desktop notifications and inhibitors have been validated against system services.
+- Full GUI threat model for GPUI native rendering is verified under WCAG and memory safety audits.
 
-## 10. Инцидент
+## 10. Security Incident Response Procedure
 
-1. Остановить операцию и не продолжать live-прогон.
-2. Не логировать секрет; зафиксировать только категорию, время, затронутый компонент.
-3. Ротировать токен/ключ, очистить кэши/логи, проверить, не ушёл ли артефакт в git.
-4. Уведомить владельца; оформить инцидент и regression-тест.
-5. Обновить чек-лист/правило, если причина — процесс, а не единичная ошибка.
+1. Immediately halt live operations and stop test executions.
+2. Never record leaked secrets in tickets or logs; document only the vulnerability category, timestamp, and affected component.
+3. Invalidate compromised authentication tokens or keys, clear local cache files and session logs, verify git history.
+4. Notify the project owner and prepare an incident post-mortem with regression test coverage.
+5. Update security checklists and automated linter rules to prevent future occurrences.

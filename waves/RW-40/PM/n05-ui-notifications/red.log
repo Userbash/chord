@@ -40,7 +40,7 @@ test at tests/unit/notifications-ui.test.mjs:415:3
   
   true !== false
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:504:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/notifications-ui.test.mjs:504:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -63,7 +63,7 @@ test at tests/unit/notifications-ui.test.mjs:628:3
   
   null !== 'true'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:715:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/notifications-ui.test.mjs:715:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -92,7 +92,7 @@ test at tests/unit/notifications-ui.test.mjs:895:3
       muted: false
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1019:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/notifications-ui.test.mjs:1019:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -106,10 +106,10 @@ test at tests/unit/notifications-ui.test.mjs:895:3
 test at tests/unit/notifications-ui.test.mjs:1030:3
 ✖ контекстное меню канала #channel-notif-menu: пресеты mute, уровни, roving tabindex и возврат фокуса по Escape (включая NodeList без .filter) (0.60861ms)
   TypeError [Error]: channelMenu.querySelectorAll(...).filter is not a function
-      at getEnabledChannelMenuItems (file:///home/sanya/orca/project/rust/gui-spike/ui/features/notifications.js:1833:8)
-      at setChannelMenuRovingFocus (file:///home/sanya/orca/project/rust/gui-spike/ui/features/notifications.js:1845:19)
-      at Object.openChannelMenu (file:///home/sanya/orca/project/rust/gui-spike/ui/features/notifications.js:2074:5)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1060:16)
+      at getEnabledChannelMenuItems (file:///home/user/orca/project/rust/gui-spike/ui/features/notifications.js:1833:8)
+      at setChannelMenuRovingFocus (file:///home/user/orca/project/rust/gui-spike/ui/features/notifications.js:1845:19)
+      at Object.openChannelMenu (file:///home/user/orca/project/rust/gui-spike/ui/features/notifications.js:2074:5)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/notifications-ui.test.mjs:1060:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -123,7 +123,7 @@ test at tests/unit/notifications-ui.test.mjs:1121:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1143:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/notifications-ui.test.mjs:1143:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -141,7 +141,7 @@ test at tests/unit/notifications-ui.test.mjs:1121:3
 test at tests/unit/notifications-ui.test.mjs:1170:3
 ✖ таймер истечения mute: при активном временном mute планируется таймер на max(0, endMs - nowMs), снимающий mute и обновляющий UI (§1.3.2 п.2) (0.45736ms)
   AssertionError [ERR_ASSERTION]: должен быть запланирован таймер истечения mute сервера на 900000 мс
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1226:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/notifications-ui.test.mjs:1226:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -159,7 +159,7 @@ test at tests/unit/notifications-ui.test.mjs:1170:3
 test at tests/unit/notifications-ui.test.mjs:1264:3
 ✖ 429 rate-limit с retry_after: контрол остаётся disabled и показывает посекундный отсчёт 'Повторите через {n} с.' (§4.1) (0.45176ms)
   AssertionError [ERR_ASSERTION]: при 429 с retry_after_ms=3000 должно выводиться сообщение 'Повторите через 3 с.'
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/notifications-ui.test.mjs:1310:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/notifications-ui.test.mjs:1310:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

@@ -212,7 +212,7 @@ core 503, workspace 545, fmt/clippy 0 и 8/8 заявленных typing-мут�
 
 ## 4. Ограничения ревью
 
-- Raw capture `/home/sanya/re-deep/...` не читался (запрещённый путь); 28/28, пары 27+1,
+- Raw capture `reference-oracle/...` не читался (запрещённый путь); 28/28, пары 27+1,
   guild/timestamp проверены по fixture, research и независимому Python-подсчёту, но не
   повторной выборкой из raw JSONL.
 - Полный `cargo test --workspace`/`gate:worker` не перезапускался по указанию «gate уже
@@ -222,7 +222,7 @@ core 503, workspace 545, fmt/clippy 0 и 8/8 заявленных typing-мут�
   текущих md5 с `/tmp/opencode/b01-mutation-backup`.
 - Часть P3 (stale-before-parse, no-clock member, authorless message, overflow, RESUMED/Debug)
   подтверждена инспекцией кода, а не отдельными красными тестами; это и есть суть замечаний.
-- Live Discord, сеть, SQLite/UI/keyring, `/home/sanya/re-deep` не использовались; коммитов нет.
+- Live Discord, сеть, SQLite/UI/keyring, `reference-oracle/` не использовались; коммитов нет.
 - Incident с внешним удалением `waves/RW-20/` отмечен в отчёте; fixture md5 после
   восстановления совпал, код/тесты не пострадали. Это ограничение провенанса, не дефект P2-11.
 

@@ -3,7 +3,7 @@
 - **Ветка:** `feature/task-294-be-voice-diagnostics` (от `9cce7f4`, Merge PR-173)
 - **Карточка:** `waves/RW-40/PM/BACKLOG-RE-22.md` (`RE-22-02`), `TASK.md` этого batch
 - **Модель:** DeepSeek (`--agent opencode --model deepseek/deepseek-v4.1-flash`), уровень `L2`, приоритет `P1`
-- **Общий target:** `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target` (`cargo --offline`)
+- **Общий target:** `CARGO_TARGET_DIR=/home/user/orca/project/rust/target` (`cargo --offline`)
 
 ## 1. Файлы (write-scope, ровно 4 + `lib.rs`)
 

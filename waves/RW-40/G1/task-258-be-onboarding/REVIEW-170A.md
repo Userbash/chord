@@ -4,7 +4,7 @@
 - **PR**: 141, ветка `feature/task-258-be-onboarding`
 - **Объект**: `rust/gui-spike/src/onboarding.rs`, `rust/gui-spike/tests/onboarding_contract.rs`, `REPORT.md`
 - **Дата**: 2026-10-31
-- **CARGO_TARGET_DIR**: `/home/sanya/orca/project/rust/target`
+- **CARGO_TARGET_DIR**: `/home/user/orca/project/rust/target`
 
 ## 1. Вердикт
 
@@ -27,7 +27,7 @@
 Команда:
 
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test onboarding_contract
 ```
 
@@ -60,7 +60,7 @@ test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 
 ## 5. Содержательная проверка
 
-Соответствие контракту Discord API v9 и оракулу `/home/sanya/re-deep/rest-static.json` (`GUILD_ONBOARDING`, `GUILD_WELCOME_SCREEN`):
+Соответствие контракту Discord API v9 и оракулу `reference-oracle/rest-static.json` (`GUILD_ONBOARDING`, `GUILD_WELCOME_SCREEN`):
 
 - Маршруты `/api/v9/guilds/{guild_id}/welcome-screen` и `/api/v9/guilds/{guild_id}/onboarding` — совпадают с `REPORT.md` §2.
 - Константы: `0/1` режимы, `140` описание экрана, `5` каналов, `50` описание канала.

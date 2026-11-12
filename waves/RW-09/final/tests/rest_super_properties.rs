@@ -1,7 +1,7 @@
 //! X-Super-Properties: 22 поля, JSON и base64 (волна RW-09, P1-08 / T-REST-04).
 //!
 //! **Провенанс оракулов** (живой снимок, не подгонка под реализацию):
-//! - снимок `/home/sanya/re-deep/d02-snapshot/capture-run2.snap.jsonl`, md5
+//! - снимок `/home/user/clean-room-oracle/d02-snapshot/capture-run2.snap.jsonl`, md5
 //!   `abfe14b76cec1e559c3b45522bc44b7a`; запрос `requestId = "95974.2323"`
 //!   (GET `/api/v9/channels/{id}/messages?limit=12`), заголовок `X-Super-Properties` —
 //!   1084 символа base64 → 811 байт компактного JSON (22 ключа, порядок из захвата);

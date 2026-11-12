@@ -1,4 +1,4 @@
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
      Running tests/relative_contract.rs (/tmp/opencode/target-w28/debug/deps/relative_contract-ec0420d8bd877682)
 

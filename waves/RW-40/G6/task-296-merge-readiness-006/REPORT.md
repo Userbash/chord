@@ -1,7 +1,7 @@
 # REPORT — task-296 (`DOCS-P2-06`, G6 Tech Writer / Parity): Итоговый отчёт `MERGE-READINESS-006.md` и обновление манифеста `BUILD-003.md`
 
 - **batch/карточка:** RW-40 / task-296, ветка `docs/task-296-merge-readiness-006`
-- **воркер:** `G6 Tech Writer / Parity`, рабочее дерево `/home/sanya/orca/workspaces/project/docs-task-296-merge-readiness-006`
+- **воркер:** `G6 Tech Writer / Parity`, рабочее дерево `/home/user/orca/workspaces/project/docs-task-296-merge-readiness-006`
 - **строгий Write-Scope:** ровно 2 файла (`waves/RW-40/G6/MERGE-READINESS-006.md`, `waves/RW-40/BUILDS/BUILD-003.md`) + локальный `REPORT.md`.
 
 ## 1. Сделано

@@ -150,6 +150,6 @@ pub fn complete_probe(probe: &RegionProbe, received_at_ms: u64, timeout_ms: u64)
 
 ```sh
 cd rust
-CARGO_TARGET_DIR=/home/sanya/.cache/discord-lab-target-rw26b \
+CARGO_TARGET_DIR=/home/user/.cache/discord-lab-target-rw26b \
   cargo test --offline -p discord-voice --test regions_contract
 ```

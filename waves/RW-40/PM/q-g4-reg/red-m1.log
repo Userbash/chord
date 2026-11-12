@@ -23,9 +23,9 @@ test at tests/unit/gui-spike-regressions.test.mjs:101:3
   
   false !== true
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:112:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:25:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:102:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:112:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:25:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:102:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

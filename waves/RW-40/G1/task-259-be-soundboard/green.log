@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-259-be-soundboard/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-259-be-soundboard/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.53s
-     Running tests/soundboard_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/soundboard_contract-98aab6f9acda163b)
+     Running tests/soundboard_contract.rs (/home/user/orca/project/rust/target/debug/deps/soundboard_contract-98aab6f9acda163b)
 
 running 6 tests
 test soundboard_constants_match_discord_contract ... ok

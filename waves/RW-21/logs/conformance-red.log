@@ -1,4 +1,4 @@
-   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+   Compiling discord-conformance v0.1.0 (/home/user/orca/project/rust/crates/discord-conformance)
 error[E0432]: unresolved imports `discord_conformance::ConformanceError`, `discord_conformance::FixtureSource`, `discord_conformance::lab_root`, `discord_conformance::load_bytes`, `discord_conformance::load_text`, `discord_conformance::manifest_text`, `discord_conformance::resolve`
  --> crates/discord-conformance/tests/fixtures.rs:7:5
   |

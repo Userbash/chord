@@ -8,7 +8,7 @@
   - `tests/unit/gui-spike-dom.test.mjs`
 - **Ревьюер**: Технический ревьюер (Review 66A)
 - **Дата проверки**: 2026-10-30
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat`
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat`
 
 ---
 

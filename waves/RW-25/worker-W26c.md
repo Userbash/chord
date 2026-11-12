@@ -47,7 +47,7 @@ API ТЗ, без изменения `Cargo.toml`/`Cargo.lock`/`src/lib.rs`.
 Лог: `waves/RW-25/red-W26c.log`.
 
 ```
-$ cd /home/sanya/orca/project/rust
+$ cd /home/user/orca/project/rust
 $ export CARGO_TARGET_DIR=/tmp/opencode/target-w26c
 $ cargo test --offline -p discord-updater --test updater_contract
 → error[E0432]: unresolved imports `discord_updater::manifest::Manifest`, ... `parse_manifest`,

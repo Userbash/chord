@@ -4,7 +4,7 @@
 - **Компоненты**: `rust/gui-spike/ui/features/pins-threads.js`, `tests/unit/pins-threads.test.mjs`
 - **Ревьюер**: Технический ревьюер (Review 64A)
 - **Дата проверки**: 2026-10-30
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-152-mount-pins-threads`
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-152-mount-pins-threads`
 
 ---
 

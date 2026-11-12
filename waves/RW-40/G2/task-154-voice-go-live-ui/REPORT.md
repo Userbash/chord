@@ -6,7 +6,7 @@
   - `waves/RW-40/DESIGN/VOICE-STREAM-UI-SPEC.md` (§2.1–§2.4, §3.1–§3.3, §4, §5)
   - `waves/RW-40/DESIGN/voice-spec.json`
   - `rust/gui-spike/ui/tokens.css`
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-154-voice-go-live-ui`
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-154-voice-go-live-ui`
 
 ---
 
@@ -26,7 +26,7 @@
      - остановка стрима (`#stream-stop-btn` -> `voice_stream_delete` / `onStopStream`);
      - оверлей возрастного ограничения `AGE_GATED_SPACES` (`#voice-age-gated-overlay`) с блокировкой сетки/предпросмотра (`data-blocked="true"`) до нажатия кнопки подтверждения (`#voice-age-gated-confirm-btn`);
      - сквозная интеграция сцены и модалки в `createVoicePanel`.
-   - Зафиксирован red-лог падения: `/home/sanya/orca/project/waves/RW-40/G2/task-154-voice-go-live-ui/red.log`.
+   - Зафиксирован red-лог падения: `/home/user/orca/project/waves/RW-40/G2/task-154-voice-go-live-ui/red.log`.
 
 2. **Реализация в `rust/gui-spike/ui/features/voice.js`**:
    - Расширены модели `VoiceParticipant`, `VoiceSnapshot` и `VoiceService` поддержкой стримов (`isStream`, `stream`), `ageGated`, `focusedTileId`, а также сигналов управления стримом (`voice_stream_create`, `voice_stream_delete`, `voice_stream_watch`, `voice_stream_set_paused`, `onStartStream`, `onWatchStream`, `onPauseStream`, `onStopStream`, `onConfirmAge`).
@@ -50,10 +50,10 @@
 
 - **Команда**: `node --test tests/unit/voice_ui.test.mjs`
 - **Код выхода**: `1`
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-154-voice-go-live-ui/red.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-154-voice-go-live-ui/red.log`
 
 ```text
-file:///home/sanya/orca/workspaces/project/feature-task-154-voice-go-live-ui/tests/unit/voice-ui.test.mjs:32
+file:///home/user/orca/workspaces/project/feature-task-154-voice-go-live-ui/tests/unit/voice-ui.test.mjs:32
   createGoLiveModal,
   ^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/voice.js' does not provide an export named 'createGoLiveModal'
@@ -67,7 +67,7 @@ SyntaxError: The requested module '../../rust/gui-spike/ui/features/voice.js' do
 
 - **Команда**: `node --test tests/unit/voice_ui.test.mjs tests/unit/gui-spike-dom.test.mjs`
 - **Код выхода**: `0`
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-154-voice-go-live-ui/green.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-154-voice-go-live-ui/green.log`
 
 ```text
 ℹ tests 85
@@ -86,7 +86,7 @@ SyntaxError: The requested module '../../rust/gui-spike/ui/features/voice.js' do
 
 - `npx tsc -p rust/gui-spike/ui/tsconfig.json` -> **exit 0** (0 ошибок)
 - `npx tsc -p tsconfig.json` -> **exit 0** (0 ошибок)
-- В основном дереве `/home/sanya/orca/project`:
+- В основном дереве `/home/user/orca/project`:
   - `node --test tests/unit/voice_ui.test.mjs tests/unit/gui-spike-dom.test.mjs` -> **94/94 pass** (включая P-03-UI typing)
   - `npx tsc -p tsconfig.json` -> **exit 0**
 

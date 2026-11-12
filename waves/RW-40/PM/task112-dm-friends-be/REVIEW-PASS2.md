@@ -14,7 +14,7 @@ Review 40A: `dm_friends.rs` и `dm_friends_contract.rs` не закоммиче�
 
 | Команда | Результат | Exit |
 |---|---|---|
-| `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test dm_friends_contract` | `6 passed; 0 failed; 0 ignored` | 0 |
+| `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test dm_friends_contract` | `6 passed; 0 failed; 0 ignored` | 0 |
 | `... cargo clippy --manifest-path rust/gui-spike/Cargo.toml -p discord-gui-spike --test dm_friends_contract -- -D warnings` | `Finished`, предупреждений нет | 0 |
 | `... cargo test --manifest-path rust/gui-spike/Cargo.toml --test ipc_wiring_contract` | `8 passed; 0 failed` | 0 |
 | `rustfmt --edition 2021 --check rust/gui-spike/src/dm_friends.rs rust/gui-spike/tests/dm_friends_contract.rs` | чисто | 0 |

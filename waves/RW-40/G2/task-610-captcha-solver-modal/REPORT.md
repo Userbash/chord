@@ -1,7 +1,7 @@
 # REPORT — TASK-610 (G2 Frontend + G1 Backend): hCaptcha Solver Modal (`#captcha-modal` / `ui/features/captcha-modal.js` + `invites.rs`)
 
 - **Ветка:** `feature/task-610-captcha-solver-modal`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-610-captcha-solver-modal`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-610-captcha-solver-modal`
 - **Отделы:** `G2 Frontend (WebView UI & DOM/A11y)` + `G1 Backend (Rust Core & Tauri BFF)`
 - **Затронутые карточки:** `TASK-610` (`CARD-TEL-006` / hCaptcha Solver Modal при `POST /invites/{code}`)
 - **Дата:** 2026-11-07
@@ -12,7 +12,7 @@
 ## 1. Сделано
 
 1. **Изучены RE-оракулы и спецификации:**
-   - `AGENTS.md`, `PROCESS.md` §4.2, `docs/re/rest-d02.md`, `/home/sanya/re-deep/rest-d02.md`.
+   - `AGENTS.md`, `PROCESS.md` §4.2, `docs/re/rest-d02.md`, `reference-oracle/rest-d02.md`.
    - `waves/RW-39/NET/LOGIN-UI-RE.md` §8 (`CAP-01`..`CAP-15`: формат ответа HTTP 400 с `code: 40003`, `captcha_service: "hcaptcha"`, `captcha_sitekey`, `captcha_rqdata`, `captcha_rqtoken`, `captcha_session_id` и повтор с `captcha_key` / `X-Captcha-Key`).
    - `waves/RW-40/NETWORK-CONTRACTS.md` §1.2 (`POST /invites/{code}`).
 2. **G2 Frontend (`rust/gui-spike/ui/features/captcha-modal.js`, `join-server.js`, `app.js`):**
@@ -43,7 +43,7 @@
      ℹ tests 1 | pass 0 | fail 1 (exit 1)
      ```
 2. **Rust-контракт:**
-   - Команда: `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test invites_contract`
+   - Команда: `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test invites_contract`
    - Вывод:
      ```text
      error[E0432]: unresolved imports `discord_gui_spike::invites::accept_invite_with_captcha`, `discord_gui_spike::invites::CaptchaSolution`
@@ -57,7 +57,7 @@
    - Команда: `node --test tests/unit/captcha-modal.test.mjs tests/unit/join-server.test.mjs`
    - Результат: `38/38 pass`, `0 fail` (`1085.99ms`, exit 0).
 2. **Targeted Rust-контракты (`invites_contract`, `ipc_contract`, `ipc_wiring_contract`, `server_join_and_subscriptions_contract`):**
-   - Команда: `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test invites_contract --test ipc_wiring_contract --test ipc_contract --test server_join_and_subscriptions_contract`
+   - Команда: `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test invites_contract --test ipc_wiring_contract --test ipc_contract --test server_join_and_subscriptions_contract`
    - Результат: `28 passed` (`invites_contract`), `20 passed` (`ipc_contract`), `9 passed` (`ipc_wiring_contract`), `6 passed` (`server_join_and_subscriptions_contract`), `0 failed` (exit 0).
 3. **Проверка типов и мета-тестов:**
    - `npm run typecheck` → `0 errors` (exit 0).

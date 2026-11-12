@@ -6,7 +6,7 @@
 плюс разбор 38 тумблеров из ui8/23-settings-voice.json.
 Пишет waves/RW-40/PM/n2d/evidence.json и печатает отчёт.
 
-Только чтение лаборатории /home/sanya/re-deep; ничего не пишет вне PM/n2d.
+Только чтение лаборатории /home/user/clean-room-oracle; ничего не пишет вне PM/n2d.
 """
 
 import json
@@ -15,7 +15,7 @@ import os
 from PIL import Image
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
-LAB = "/home/sanya/re-deep"
+LAB = "/home/user/clean-room-oracle"
 PNG = os.path.join(LAB, "voice/ui/01-joined.png")
 SETTINGS = os.path.join(LAB, "ui8/23-settings-voice.json")
 OUT = os.path.join(ROOT, "waves/RW-40/PM/n2d/evidence.json")

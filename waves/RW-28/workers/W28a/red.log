@@ -1,4 +1,4 @@
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 error[E0432]: unresolved import `crate::relative::format_relative`
   --> crates/discord-i18n/src/timestamp.rs:20:69
    |

@@ -325,7 +325,7 @@
       "wave": "RW-43",
       "closed_at": "2026-11-11T13:42:00+05:00",
       "commit": "6f60b11",
-      "summary": "Устранение критической ошибки парсинга read_state, обнаруженной живым GDB-трейсером: поле last_acked_id в entries[31] пакета READY приходит как integer/null/string. Замена жесткого требования строки на гибкий десериализатор Snowflake по эталону re-deep/gateway-schema.md.",
+      "summary": "Устранение критической ошибки парсинга read_state, обнаруженной живым GDB-трейсером: поле last_acked_id в entries[31] пакета READY приходит как integer/null/string. Замена жесткого требования строки на гибкий десериализатор Snowflake по эталону clean-room-oracle/gateway-schema.md.",
       "acceptance_criteria": [
         "read_state успешно парсит entries с целочисленным и строковым last_acked_id",
         "Красный баннер «Не удалось прочитать состояние канала» не отображается",
@@ -547,7 +547,7 @@
       "wave": "RW-42-AUDIT",
       "closed_at": "2026-11-11T00:05:00+05:00",
       "commit": "e09b499",
-      "summary": "Сверка wire-контрактов Voice Opcodes 1 (SELECT_PROTOCOL), 12 (VIDEO), 16 (VOICE_BACKEND_VERSION) и 22 (STREAM_SET_PAUSED / DAVE) по эталонному дампу /home/sanya/re-deep.",
+      "summary": "Сверка wire-контрактов Voice Opcodes 1 (SELECT_PROTOCOL), 12 (VIDEO), 16 (VOICE_BACKEND_VERSION) и 22 (STREAM_SET_PAUSED / DAVE) по эталонному дампу /home/user/clean-room-oracle.",
       "acceptance_criteria": [
         "Задокументированы точные форматы полей Voice Opcodes 1, 12, 16 и Gateway OP 22",
         "Подтверждено соответствие таблиц кодеков H264/VP8 (payload_type 105..108)"
@@ -744,10 +744,10 @@
       "wave": "RW-42-AUDIT",
       "closed_at": "2026-11-11T00:05:00+05:00",
       "commit": "e09b499",
-      "summary": "Сверка реальных дампов OP 18/20/STREAM_CREATE в /home/sanya/re-deep/ и фиксация расхождений кодеков H264/VP8/AV1.",
+      "summary": "Сверка реальных дампов OP 18/20/STREAM_CREATE в /home/user/clean-room-oracle/ и фиксация расхождений кодеков H264/VP8/AV1.",
       "acceptance_criteria": [
         "Документирован точный формат ETF/JSON фреймов шлюза",
-        "Выпущен отчёт RE-GAP-STREAM-SIGNALS.md с чанками из re-deep"
+        "Выпущен отчёт RE-GAP-STREAM-SIGNALS.md с чанками из clean-room-oracle"
       ]
     },
     {

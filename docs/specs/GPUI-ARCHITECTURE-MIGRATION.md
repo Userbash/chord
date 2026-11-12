@@ -1,40 +1,40 @@
-# Архитектурный манифест миграции на GPUI Kit (`docs/specs/GPUI-ARCHITECTURE-MIGRATION.md`)
+# GPUI Kit Migration Architectural Manifest (`docs/specs/GPUI-ARCHITECTURE-MIGRATION.md`)
 
-## 1. Цели и принципы модернизации
+## 1. Modernization Goals and Principles
 
-### 1.1. Главная цель
-Полная замена гибридной архитектуры **Tauri 2 (WebKit2GTK + 107 JS-файлов + ручной DOM/CSS + IPC-мост)** на **100% нативный Rust UI-стек на базе `gpui-kit`** (`/home/sanya/orca/project/gpui-kit`).
-Переход устраняет все фундаментальные проблемы текущего решения:
-- **Устранение IPC-моста**: все данные передаются напрямую через Rust `Model<T>` и реактивные контексты `Context<T>`, без сериализации каждого действия в строки JSON.
-- **Устранение WebKit-накладных расходов**: потребление памяти снижается с 260–390 МБ до 35–65 МБ RAM; частота отрисовки интерфейса достигает стабильных 120 FPS на GPU (Vulkan / Wayland / X11).
-- **Ликвидация хрупкого самописного кода**: замена 15 000+ строк самописных JS-скриптов, ручного CSS, самописных виртуальных скроллеров и регулярных выражений парсинга на стандартные индустриальные библиотеки (crates).
+### 1.1. Primary Objective
+Complete replacement of the hybrid architecture **Tauri 2 (WebKit2GTK + 107 JS files + manual DOM/CSS + IPC bridge)** with a **100% native Rust UI stack powered by `gpui-kit`** (`./gpui-kit`).
+This transition eliminates all fundamental drawbacks of the current approach:
+- **IPC Bridge Elimination**: All data is transferred directly via Rust `Model<T>` and reactive `Context<T>`, without serializing every action into JSON strings.
+- **WebKit Overhead Removal**: RAM usage drops from 260–390 MB down to 35–65 MB; UI frame rate achieves a stable 120 FPS powered by the GPU (Vulkan / Wayland / X11).
+- **Fragile Custom Code Liquidation**: Replacing 15,000+ lines of custom JS scripts, manual CSS, bespoke virtual scrollers, and regular expression parsers with production-grade industrial libraries (crates).
 
 ---
 
-## 2. Матрица замены: Самописный код → Проверенные библиотеки
+## 2. Replacement Matrix: Custom Scripts → Industry Crates
 
-| Домен функционала | Текущая реализация (Самописный код) | Замена на стандартную библиотеку / Crate | Преимущество решения |
+| Functional Domain | Current Implementation (Custom Code) | Standard Library / Crate Replacement | Solution Benefit |
 |---|---|---|---|
-| **Оконная система и UI-компоненты** | Tauri 2 + 107 JS-файлов (`rust/gui-spike/ui/**`), ручной DOM, ручной CSS | **`gpui-kit` + `gpui-component`** (`/home/sanya/orca/project/gpui-kit`) | 75+ готовых компонентов: `Button`, `Sidebar`, `Dialog`, `DropdownMenu`, `Input`, `Avatar`, `Badge`, `Checkbox`, `Switch`, `Tooltip`. GPU-рендеринг, zero-JS. |
-| **Виртуальный скроллинг чата и участников** | Самописный JS-расчёт высоты строк, ручные `translateY` и отслеживание `onscroll` | **`gpui-component::virtual_list`** / **`gpui-component::table`** | Нативный GPU-скролл, O(1) расход памяти при 100 000+ сообщениях, плавная прокрутка без белых экранов и джиттера. |
-| **Сплиты и лейаут панелей** | Самописные CSS Flexbox-колонки с ручным захватом мыши для ресайза (`actions.js`) | **`gpui-kit::component::resizable::{h_resizable, resizable_panel}`** | Встроенная поддержка многоколоночных ресайзов, запоминание ширин колонок, нативные курсоры изменения размера. |
-| **Рендеринг текста, Markdown и подсветка** | Самописные регулярные выражения на JS, ручные теги `<span>`, уязвимость к XSS | **`gpui-component::text::TextView` + `gpui-component::highlighter`** (Syntect + AST Markdown) | Безопасный AST-парсер, подсветка синтаксиса кода на базе Syntect, нативные интерактивные ссылки, упоминания (@mention) и эмодзи. |
-| **Ввод сообщений и хоткеи** | HTML `<div contenteditable>` / `<textarea>` с ручным перехватом `keydown` | **`gpui-component::input::{Input, Editor, InputState}`** | Полноценный нативный текстовый редактор с поддержкой Undo/Redo, буфера обмена, истории, IME и хоткеев. |
-| **Реактивное состояние и шина событий** | Строковый IPC `window.__TAURI__.invoke` + `CustomEvent` в глобальном `window` | **Реактивная модель GPUI (`Model<AppState>`, `cx.notify()`, `cx.subscribe()`)** | Строгая типизация Rust во время компиляции, отсутствие гонок данных, 0 накладных расходов на сериализацию/десериализацию. |
-| **Интерактивная Captcha / Web Auth** | Инъекция `<iframe>` в DOM WebView с коллизиями стилей и потерей фокуса | **`gpui-webview::WebView`** | Изолированное нативное модальное окно на базе `wry::WebViewBuilder` только на момент прохождения hCaptcha или OAuth; остальное приложение остаётся чистым GPUI. |
-| **Сетевой клиент REST API** | Самописный HTTP/1.1 парсинг через сокеты и сырые строки | **`reqwest`** (с пулом соединений, HTTP/2, Rustls и JSON-маппингом `serde`) + **`backoff`** | Автоматическая обработка keep-alive, ротация соединений, экспоненциальный бэкофф при rate-limit (HTTP 429), безопасность памяти. |
-| **Шлюз (Gateway) и компрессия** | Ручные обёртки | **`tokio-tungstenite`** + **`ruzstd`** (стримовый декомпрессор Zstandard) + **`discord-codec`** (ETF) | Стандартный стек WebSocket без утечек памяти и с корректным поддержанием Heartbeat. |
-| **Аудио и устройства ввода/вывода** | Ручные FFI-вызовы через системные команды | **`cpal`** (Cross-Platform Audio Library) + **`rubato`** (ресэмплинг) | Проверенный стандарт аудио в Rust для захвата микрофона и воспроизведения голоса с ультранизкой задержкой. |
-| **Безопасное хранение токенов** | Ручной FFI к libsecret | **`keyring`** crate (поддержка Secret Service, KWallet, Windows Credential Manager, macOS Keychain) | Единый проверенный абстрактный интерфейс ко всем платформам без дублирования кода. |
+| **Windowing System & UI Components** | Tauri 2 + 107 JS files (`rust/gui-spike/ui/**`), manual DOM, manual CSS | **`gpui-kit` + `gpui-component`** (`./gpui-kit`) | 75+ ready-made components: `Button`, `Sidebar`, `Dialog`, `DropdownMenu`, `Input`, `Avatar`, `Badge`, `Checkbox`, `Switch`, `Tooltip`. GPU-accelerated rendering, zero JavaScript. |
+| **Chat & Member Virtual Scrolling** | Custom JS row-height calculation, manual `translateY` transforms, and `onscroll` listeners | **`gpui-component::virtual_list`** / **`gpui-component::table`** | Native GPU scrolling, O(1) memory footprint with 100,000+ messages, seamless scrolling without blank screens or jitter. |
+| **Splits & Panel Layout** | Custom CSS Flexbox columns with manual mouse-drag handlers for resizing (`actions.js`) | **`gpui-kit::component::resizable::{h_resizable, resizable_panel}`** | Built-in multi-column resize support, persistent column widths, native OS resize cursors. |
+| **Text Rendering, Markdown & Highlighting** | Custom JS regular expressions, manual `<span>` tags, vulnerable to XSS | **`gpui-component::text::TextView` + `gpui-component::highlighter`** (Syntect + Markdown AST) | Secure AST parser, Syntect-based syntax highlighting, native interactive hyperlinks, @mentions, and custom emoji. |
+| **Message Input & Hotkeys** | HTML `<div contenteditable>` / `<textarea>` with manual `keydown` event trapping | **`gpui-component::input::{Input, Editor, InputState}`** | Fully featured native text editor supporting Undo/Redo, clipboard, history, IME, and keyboard shortcuts. |
+| **Reactive State & Event Bus** | String IPC `window.__TAURI__.invoke` + `CustomEvent` dispatched on global `window` | **GPUI Reactive Model (`Model<AppState>`, `cx.notify()`, `cx.subscribe()`)** | Compile-time Rust type safety, zero data races, 0 serialization/deserialization overhead. |
+| **Interactive Captcha / Web Auth** | Injecting `<iframe>` into WebView DOM with styling collisions and focus loss | **`gpui-webview::WebView`** | Isolated native modal based on `wry::WebViewBuilder` used exclusively during hCaptcha or OAuth verification; remainder of app remains pure GPUI. |
+| **REST API Network Client** | Custom HTTP/1.1 parsing over raw sockets and text strings | **`reqwest`** (with connection pooling, HTTP/2, Rustls, and `serde` JSON mapping) + **`backoff`** | Automatic keep-alive handling, connection rotation, exponential backoff on HTTP 429 rate limits, memory safety. |
+| **Gateway & Compression** | Manual wrappers | **`tokio-tungstenite`** + **`ruzstd`** (streaming Zstandard decompressor) + **`discord-codec`** (ETF) | Industry-standard WebSocket stack with zero memory leaks and proper Heartbeat management. |
+| **Audio Input/Output Devices** | Manual FFI invocations via shell commands | **`cpal`** (Cross-Platform Audio Library) + **`rubato`** (resampling) | Battle-tested Rust audio standard for ultra-low latency microphone capture and playback. |
+| **Secure Token Storage** | Manual FFI to libsecret | **`keyring`** crate (supports Secret Service, KWallet, Windows Credential Manager, macOS Keychain) | Single verified cross-platform abstraction interface without code duplication. |
 
 ---
 
-## 3. Распределение ролей и ответственные в отделах
+## 3. Department Roles and Responsibilities
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │                   CHIEF SOFTWARE ARCHITECT / TECH LEAD                           │
-│        (Архитектурный дизайн GPUI, жизненный цикл App/Window, модель данных)      │
+│        (GPUI Architecture Design, App/Window Lifecycle, Data Model)              │
 └────────┬─────────────────┬─────────────────┬──────────────────┬──────────────────┘
          │                 │                 │                  │
          ▼                 ▼                 ▼                  ▼
@@ -50,94 +50,94 @@
 └─────────────────┘
 ```
 
-### 3.1. Chief Software Architect (Главный архитектор)
-- **Ответственный**: Team Lead / Software Architect
-- **Обязанности**:
-  1. Проектирование корневой структуры GPUI-приложения (`crates/discord-app-gpui`).
-  2. Определение единой реактивной модели состояния `AppState` (`Model<CurrentUser>`, `Model<GuildTree>`, `Model<MessageStore>`, `Model<VoiceSessionState>`).
-  3. Контроль строгого запрета самописных костылей: каждое архитектурное решение должно опираться на проверенную библиотеку.
+### 3.1. Chief Software Architect
+- **Owner**: Team Lead / Software Architect
+- **Responsibilities**:
+  1. Designing root structure of the GPUI application (`crates/discord-app-gpui`).
+  2. Defining unified reactive state model `AppState` (`Model<CurrentUser>`, `Model<GuildTree>`, `Model<MessageStore>`, `Model<VoiceSessionState>`).
+  3. Enforcing ban on ad-hoc scripts: every architectural choice must rely on a proven crate.
 
 ### 3.2. G1 Backend (Data, Domain & Standard Libraries Lead)
-- **Ответственный**: G1 Backend Lead
-- **Обязанности**:
-  1. Вынос доменных структур из старого спайка в чистые крейты данных.
-  2. Интеграция `reqwest` с автоматическим retry/rate-limit по спецификации Discord REST v9.
-  3. Обеспечение потокобезопасного взаимодействия фоновых Tokio-потоков (Gateway, Voice) с главным UI-потоком GPUI через `cx.update_model()`.
+- **Owner**: G1 Backend Lead
+- **Responsibilities**:
+  1. Extracting domain structs from the prototype into clean data crates.
+  2. Integrating `reqwest` with automatic retry/rate-limit complying with Discord REST v9.
+  3. Ensuring thread-safe interaction between background Tokio tasks (Gateway, Voice) and the main GPUI thread via `cx.update_model()`.
 
 ### 3.3. G2 GPUI Frontend (Native UI & Components Lead)
-- **Ответственный**: G2 Frontend Lead
-- **Обязанности**:
-  1. Реализация главного окна приложения: `ServerRail` (колонка серверов), `ChannelSidebar` (список каналов), `ChatView` (сообщения), `MemberSidebar` (список участников).
-  2. Внедрение `virtual_list` для чата и участников: плавная прокрутка 100k сообщений и 25k участников.
-  3. Реализация модальных окон на базе `gpui-kit::component::dialog`: визард создания сервера, поиск сообщений, настройки, окно решения капчи через `gpui-webview`.
+- **Owner**: G2 Frontend Lead
+- **Responsibilities**:
+  1. Implementing main window layout: `ServerRail` (guild column), `ChannelSidebar` (channel list), `ChatView` (messages), `MemberSidebar` (member roster).
+  2. Integrating `virtual_list` for chat and member lists: smooth scrolling across 100k messages and 25k members.
+  3. Implementing modals on top of `gpui-kit::component::dialog`: server creation wizard, message search, settings, and captcha resolution modal via `gpui-webview`.
 
 ### 3.4. G3 Design (UX/UI Tokens & Theming Lead)
-- **Ответственный**: G3 Design Lead
-- **Обязанности**:
-  1. Портирование Discord Dark Theme в тему `gpui-kit` (`Theme` / `ActiveTheme`).
-  2. Маппинг иконок Lucide / Discord в `gpui-kit-assets`.
-  3. Настройка контрастности, типографики и фокусов по стандарту AccessKit (WCAG 2.2 AA).
+- **Owner**: G3 Design Lead
+- **Responsibilities**:
+  1. Porting Discord Dark Theme into `gpui-kit` theme system (`Theme` / `ActiveTheme`).
+  2. Mapping Lucide / Discord icons into `gpui-kit-assets`.
+  3. Configuring contrast ratios, typography, and keyboard focus outlines according to AccessKit (WCAG 2.2 AA).
 
 ### 3.5. G4 QA (Automation & Test Harness Lead)
-- **Ответственный**: G4 QA Lead
-- **Обязанности**:
-  1. Построение нативного тест-харнесса на `gpui::TestAppContext` (тестирование интерфейса в headless-режиме без необходимости браузера Chromium и Xvfb!).
-  2. Проверка инвариантов бизнес-логики (TDD Red -> Green).
-  3. Обеспечение 100% kill-rate мутационного тестирования (5/5 на каждом слое).
+- **Owner**: G4 QA Lead
+- **Responsibilities**:
+  1. Constructing native test harness on `gpui::TestAppContext` (headless UI testing without requiring Chromium or Xvfb).
+  2. Validating business logic invariants (TDD Red -> Green).
+  3. Guaranteeing 100% mutation test kill-rate (5/5 on each layer).
 
 ### 3.6. G5 Voice / Platform Lead
-- **Ответственный**: G5 Platform Lead
-- **Обязанности**:
-  1. Подключение аудио-подсистемы `cpal` напрямую к сессии `discord-voice`.
-  2. Отрисовка статуса голоса, пинга и индикаторов активности говорящих поверх GPUI.
-  3. Интеграция оверлея видеострима и шорткатов Push-To-Talk.
+- **Owner**: G5 Platform Lead
+- **Responsibilities**:
+  1. Connecting `cpal` audio subsystem directly to `discord-voice` session.
+  2. Rendering voice status, ping indicators, and speaking activity indicators in GPUI.
+  3. Integrating video stream overlay and Push-To-Talk shortcuts.
 
-### 3.7. Product Manager & Reviewer (PM / Tech Review)
-- **Ответственный**: PM Reviewer & DeepSeek Technical Reviewer
-- **Обязанности**:
-  1. Zero-Idle диспетчеризация задач воркерам.
-  2. Двойное ревью каждого PR (`ACCEPT.md` + `REVIEW.md`).
-  3. Контроль чистоты кода и отсутствия регрессий.
+### 3.7. Product Manager & Technical Reviewer (PM / Tech Review)
+- **Owner**: PM Reviewer & Technical Reviewer
+- **Responsibilities**:
+  1. Zero-Idle task dispatching to workers.
+  2. Dual review of every PR (`ACCEPT.md` + `REVIEW.md`).
+  3. Code hygiene enforcement and regression prevention.
 
 ---
 
-## 4. Архитектурная структура нового крейта (`rust/crates/discord-gpui`)
+## 4. Architectural Structure of New Crate (`rust/crates/discord-gpui`)
 
 ```text
 rust/crates/discord-gpui/
-├── Cargo.toml                  # Зависимости: gpui-kit, reqwest, tokio, serde, cpal
+├── Cargo.toml                  # Dependencies: gpui-kit, reqwest, tokio, serde, cpal
 ├── src/
-│   ├── main.rs                 # Точка входа: инициализация GPUI App, окна и ассетов
-│   ├── state/                  # Реактивное состояние
-│   │   ├── mod.rs              # Корневой AppState
-│   │   ├── auth.rs             # Состояние аутентификации и сессии
-│   │   ├── guilds.rs           # Дерево гильдий, папок и каналов
-│   │   ├── messages.rs         # Кэш сообщений и виртуальные страницы
-│   │   ├── members.rs          # Список участников гильдии
-│   │   └── voice.rs            # Состояние голосового подключения
-│   ├── views/                  # Нативные экраны и компоненты GPUI
+│   ├── main.rs                 # Entry point: GPUI App initialization, window, assets
+│   ├── state/                  # Reactive state
+│   │   ├── mod.rs              # Root AppState
+│   │   ├── auth.rs             # Authentication and session state
+│   │   ├── guilds.rs           # Guild tree, folders, and channels
+│   │   ├── messages.rs         # Message cache and virtual pages
+│   │   ├── members.rs          # Guild member roster
+│   │   └── voice.rs            # Voice connection state
+│   ├── views/                  # Native GPUI screens and views
 │   │   ├── mod.rs
-│   │   ├── app_layout.rs       # Главный трехколоночный сплит (Rail + Sidebar + Main)
-│   │   ├── server_rail.rs      # Левая колонка иконок серверов
-│   │   ├── channel_list.rs     # Список текстовых и голосовых каналов
-│   │   ├── chat_view.rs        # Чат: VirtualList + TextView (Markdown) + MessageBar
-│   │   ├── message_item.rs     # Элемент сообщения: аватар, автор, дата, вложения
-│   │   ├── member_list.rs      # Правая колонка: VirtualList участников с ролями
-│   │   └── voice_panel.rs      # Панель управления голосовым соединением
-│   ├── dialogs/                # Модальные окна
+│   │   ├── app_layout.rs       # Three-column layout split (Rail + Sidebar + Main)
+│   │   ├── server_rail.rs      # Left column server icon rail
+│   │   ├── channel_list.rs     # Text and voice channel tree
+│   │   ├── chat_view.rs        # Chat: VirtualList + TextView (Markdown) + MessageBar
+│   │   ├── message_item.rs     # Message item: avatar, author, timestamp, attachments
+│   │   ├── member_list.rs      # Right column: VirtualList of members with roles
+│   │   └── voice_panel.rs      # Voice connection control bar
+│   ├── dialogs/                # Modal dialogs
 │   │   ├── mod.rs
-│   │   ├── captcha_modal.rs    # Окно hCaptcha со встроенным gpui-webview
-│   │   ├── create_server.rs    # Визард создания сервера
-│   │   ├── join_server.rs      # Ввод инвайта и подтверждение
-│   │   └── settings_dialog.rs  # Настройки аккаунта, голоса и темы
-│   ├── theme/                  # Тема оформления
+│   │   ├── captcha_modal.rs    # hCaptcha modal window embedding gpui-webview
+│   │   ├── create_server.rs    # Server creation wizard
+│   │   ├── join_server.rs      # Invite input and confirmation
+│   │   └── settings_dialog.rs  # User settings: account, voice, appearance
+│   ├── theme/                  # Theme configuration
 │   │   ├── mod.rs
-│   │   └── discord_dark.rs     # Цветовая палитра Discord Dark
-│   └── services/               # Фоновые сервисы
-│       ├── gateway_runner.rs   # Запуск и супервизия WebSocket Gateway
-│       └── rest_client.rs      # Клиент REST v9 на базе reqwest
-└── tests/                      # Интеграционные тесты GPUI
-    ├── chat_view_test.rs       # Headless UI-тест виртуального скролла чата
-    ├── navigation_test.rs      # Переключение каналов и серверов
-    └── captcha_dialog_test.rs  # Открытие модалки капчи при 40003
+│   │   └── discord_dark.rs     # Discord Dark color palette
+│   └── services/               # Background services
+│       ├── gateway_runner.rs   # WebSocket Gateway supervision
+│       └── rest_client.rs      # REST v9 client using reqwest
+└── tests/                      # GPUI integration tests
+    ├── chat_view_test.rs       # Headless UI test for virtual scrolling
+    ├── navigation_test.rs      # Channel and guild switching
+    └── captcha_dialog_test.rs  # Captcha modal display on error 40003
 ```

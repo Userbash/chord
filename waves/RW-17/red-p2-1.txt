@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
      Running tests/read_state_selectors.rs (target/debug/deps/read_state_selectors-8f95bd74defd5f50)
 

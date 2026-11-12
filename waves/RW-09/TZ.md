@@ -1,6 +1,6 @@
 # ТЗ RW-09 — X-Super-Properties (P1-08 / T-REST-04): параллельная волна
 
-**Проект:** discord-lab + Rust-клиент. Корень: `/home/sanya/orca/project`; cargo-воркспейс: `rust/`.
+**Проект:** discord-lab + Rust-клиент. Корень: `/home/user/orca/project`; cargo-воркспейс: `rust/`.
 **Карточка:** P1-08 (`docs/rust-client/PLAN.md`) — «генератор X-Super-Properties (22 поля),
 конфигурируемо, политика "честные значения"»; тест T-REST-04 (`docs/rust-client/TEST-PLAN.md`,
 L1: «22 поля, base64 JSON, round-trip»; оракул — `docs/re/rest-d02.md` §6.2).
@@ -14,7 +14,7 @@ L1: «22 поля, base64 JSON, round-trip»; оракул — `docs/re/rest-d02
    `Cargo.lock`, поэтому base64 (RFC 4648), JSON-запись/разбор 22 полей и UUID v4 реализуются
    в волне вручную (маленькие, полностью покрываемые тестами). `Cargo.toml`/`Cargo.lock` не
    трогаем; сеть — только `127.0.0.1` (в этой волне сеть не нужна вовсе).
-2. **Оракулы — живой санитизированный снимок** `/home/sanya/re-deep/d02-snapshot` (чтение):
+2. **Оракулы — живой санитизированный снимок** `reference-oracle/d02-snapshot` (чтение):
    базовый64-значение заголовка `X-Super-Properties` из запроса `95974.2323` и его
    побайтовый JSON. Выдержки заморожены в `rust/crates/discord-core/tests/data/` (§3).
 3. **Политика «свои честные значения»** (§6.1): среда (ОС, ядро, архитектура, локаль,
@@ -51,12 +51,12 @@ L1: «22 поля, base64 JSON, round-trip»; оракул — `docs/re/rest-d02
 
 **Запрещено всем:** `Cargo.toml`/`Cargo.lock`; любые другие `src/`/`tests/`; `docs/`; `fixtures/`;
 `TASKS.md`, `PROCESS.md`, `AGENTS.md`, `waves/` (кроме чтения); `logs/`, `functions/`, `evidence/`,
-`/home/sanya/re-deep` (в этой волне — только чтение уже снятых выдержек); git-мутации;
+`reference-oracle/` (в этой волне — только чтение уже снятых выдержек); git-мутации;
 `cargo clean`; новые зависимости; сеть. Чужие тест-данные и чужие тесты не редактируются.
 
 ## 2. Общие процедуры воркера (strict TDD)
 
-Рабочая папка: `/home/sanya/orca/project`; прогоны — `cd rust && cargo test --offline …`.
+Рабочая папка: `/home/user/orca/project`; прогоны — `cd rust && cargo test --offline …`.
 Логи/артефакты: `/tmp/opencode/rw-09/w9a|w9b|w9c/` (каталоги создать).
 
 1. **Заглушка уже в репозитории** (контракт с пустыми телами; тесты падают ассертами, без
@@ -66,7 +66,7 @@ L1: «22 поля, base64 JSON, round-trip»; оракул — `docs/re/rest-d02
    (не skip). В шапке теста — провенанс: источник (снимок, requestId, md5), команды, счётчики.
 3. **Red + фиксация** (шаблон команд; `w8X` → свой):
    ```bash
-   cd /home/sanya/orca/project/rust
+   cd /home/user/orca/project/rust
    bash -c 'cargo test --offline -p discord-core --test rest_<имя> 2>&1 | tee /tmp/opencode/rw-09/w9X/red.log; echo "# EXIT=${PIPESTATUS[0]}" | tee -a /tmp/opencode/rw-09/w9X/red.log'
    md5sum crates/discord-core/tests/rest_<имя>.rs | tee -a /tmp/opencode/rw-09/w9X/red.log
    cp crates/discord-core/tests/rest_<имя>.rs /tmp/opencode/rw-09/w9X/rest_<имя>-red.rs
@@ -85,7 +85,7 @@ L1: «22 поля, base64 JSON, round-trip»; оракул — `docs/re/rest-d02
 
 ### 3.1 Живой источник
 
-- `/home/sanya/re-deep/d02-snapshot/capture-run2.snap.jsonl`,
+- `reference-oracle/d02-snapshot/capture-run2.snap.jsonl`,
   md5 `abfe14b76cec1e559c3b45522bc44b7a` (сверено с `snapshot-md5.txt`);
 - запрос `requestId = "95974.2323"` (GET `…/api/v9/channels/{id}/messages?limit=12`),
   заголовок `X-Super-Properties`: **1084 символа base64**, декодируется в **811 байт** JSON
@@ -97,7 +97,7 @@ L1: «22 поля, base64 JSON, round-trip»; оракул — `docs/re/rest-d02
 Команды снятия (выполнены координатором, проверены python3 — b64 → JSON → b64 круг сходится):
 
 ```bash
-SNAP=/home/sanya/re-deep/d02-snapshot/capture-run2.snap.jsonl
+SNAP=reference-oracle/d02-snapshot/capture-run2.snap.jsonl
 jq -r 'select(.ev=="req" and .requestId=="95974.2323") | (.headers // {}) | to_entries[]
        | select(.key|ascii_downcase=="x-super-properties") | .value' "$SNAP" > rest-super-properties-2323.b64
 base64 -d < rest-super-properties-2323.b64 > rest-super-properties-2323.json

@@ -16,109 +16,109 @@
   },
   "sources": {
     "LOGIN_CHUNK": {
-      "file": "/home/sanya/re-deep/decoded/dbd05750a1cb3484_0",
+      "file": "/home/user/clean-room-oracle/decoded/dbd05750a1cb3484_0",
       "url": "https://discord.com/assets/ae9016b5ac149349.js",
       "bytes": 149094,
       "md5": "b581000d340631f5ffdada7d6c61797a"
     },
     "MFA_CHUNK": {
-      "file": "/home/sanya/re-deep/decoded/8fed1c84bcaee32d_0",
+      "file": "/home/user/clean-room-oracle/decoded/8fed1c84bcaee32d_0",
       "url": "https://discord.com/assets/9efedacca22a4bc6.js",
       "bytes": 9759,
       "md5": "e0c020f12d8fe0fc6b90925736414f85"
     },
     "WEB": {
-      "file": "/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0",
+      "file": "/home/user/clean-room-oracle/decoded/4d2a64cb5df5fc4e_0",
       "url": "https://discord.com/assets/web.4d4b2f75fdea5470.js",
       "bytes": 12410287,
       "md5": "934b1289b7ebf17bc0fd09569b23b438"
     },
     "QR_CHUNK": {
-      "file": "/home/sanya/re-deep/decoded/f0cac74b6ccdca5e_0",
+      "file": "/home/user/clean-room-oracle/decoded/f0cac74b6ccdca5e_0",
       "url": "https://discord.com/assets/0c2bfaf5557c575e.js",
       "bytes": 22033,
       "md5": "8b11ff1a7f8451fe85b489b6e1310e8c"
     },
     "LOGIN_HTML": {
-      "file": "/home/sanya/re-deep/decoded/43644898c0897078_0",
+      "file": "/home/user/clean-room-oracle/decoded/43644898c0897078_0",
       "url": "https://discord.com/login",
       "bytes": 74817,
       "md5": "4fbb7d4afc37f27d16f65a66ba146d27"
     },
     "CSS_AUTH": {
-      "file": "/home/sanya/re-deep/decoded/a92f46d41f311d85_0",
+      "file": "/home/user/clean-room-oracle/decoded/a92f46d41f311d85_0",
       "url": "https://discord.com/assets/348181.a3b3bc62ee2f1223.css",
       "bytes": 50278,
       "md5": "4f589a8a0ca3305d31aba91564ed3fcf"
     },
     "CSS_LOGINPAGE": {
-      "file": "/home/sanya/re-deep/decoded/68156f1de4207c34_0",
+      "file": "/home/user/clean-room-oracle/decoded/68156f1de4207c34_0",
       "url": "https://discord.com/assets/351200.ec1294199b2e7a31.css",
       "bytes": 1784,
       "md5": "e21b964cebe355ac15b3a7d52a7185d5"
     },
     "CSS_INPUT": {
-      "file": "/home/sanya/re-deep/decoded/9844453f9a221800_0",
+      "file": "/home/user/clean-room-oracle/decoded/9844453f9a221800_0",
       "url": "https://discord.com/assets/964940.62a0e9d626b739d9.css",
       "bytes": 45662,
       "md5": "b3eac679ddf507720e99749d3ceefe3e"
     },
     "CSS_QR": {
-      "file": "/home/sanya/re-deep/decoded/7d04e08304d9e681_0",
+      "file": "/home/user/clean-room-oracle/decoded/7d04e08304d9e681_0",
       "url": "https://discord.com/assets/461123.de02227c725f5838.css",
       "bytes": 2802,
       "md5": "a5f56df860a295b412a728349971a39f"
     },
     "CSS_MFA": {
-      "file": "/home/sanya/re-deep/decoded/33af86ca2e7626d9_0",
+      "file": "/home/user/clean-room-oracle/decoded/33af86ca2e7626d9_0",
       "url": "https://discord.com/assets/715528.a04399038393a931.css",
       "bytes": 1371,
       "md5": "4fe504d86a1852328606138f5019a1cb"
     },
     "CSS_MODAL": {
-      "file": "/home/sanya/re-deep/decoded/0efa31d45bd04ece_0",
+      "file": "/home/user/clean-room-oracle/decoded/0efa31d45bd04ece_0",
       "url": "https://discord.com/assets/555628.eb33ac71a27a7069.css",
       "bytes": 8902,
       "md5": "b8c6782a0edc227b7648eb5c24889b61"
     },
     "CSS_AUTH2": {
-      "file": "/home/sanya/re-deep/decoded/024ca22b022f0c24_0",
+      "file": "/home/user/clean-room-oracle/decoded/024ca22b022f0c24_0",
       "url": "https://discord.com/assets/9c4f0bfdbdf4f0e8.css",
       "bytes": 4959,
       "md5": "e6c6f6109aa2cf8ac829b28102fb0418"
     },
     "CSS_TYPO": {
-      "file": "/home/sanya/re-deep/decoded/058616e449204655_0",
+      "file": "/home/user/clean-room-oracle/decoded/058616e449204655_0",
       "url": "https://discord.com/assets/…058616e449204655.css",
       "bytes": null,
       "md5": null
     },
     "TOKENS": {
-      "file": "/home/sanya/re-deep/ui/tokens.json",
+      "file": "/home/user/clean-room-oracle/ui/tokens.json",
       "url": null,
       "bytes": null,
       "md5": null
     },
     "MAIN_ARCH": {
-      "file": "/home/sanya/orca/project/docs/re/main-arch.md",
+      "file": "/home/user/orca/project/docs/re/main-arch.md",
       "url": null,
       "bytes": null,
       "md5": null
     },
     "I18N_RU": {
-      "file": "/home/sanya/re-deep/ru-catalog.json",
+      "file": "/home/user/clean-room-oracle/ru-catalog.json",
       "url": null,
       "bytes": null,
       "md5": null
     },
     "I18N_EN": {
-      "file": "/home/sanya/re-deep/en-catalog.json",
+      "file": "/home/user/clean-room-oracle/en-catalog.json",
       "url": null,
       "bytes": null,
       "md5": null
     },
     "CAPTCHA_CHUNK": {
-      "file": "/home/sanya/re-deep/decoded/cd0cb5bf249f258f_0",
+      "file": "/home/user/clean-room-oracle/decoded/cd0cb5bf249f258f_0",
       "url": "https://discord.com/assets/ee08a8c7800d06ae.js",
       "bytes": 1487,
       "md5": "6f456f33fe2d0afa0fbc8c37ef244cb0"

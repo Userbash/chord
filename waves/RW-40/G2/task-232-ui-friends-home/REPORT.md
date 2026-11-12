@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-232` (`feature/task-232-ui-friends-home`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0@258005` (`RelationshipType`: `FRIEND = 1`, `BLOCKED = 2`, `PENDING_INCOMING = 3`, `PENDING_OUTGOING = 4`), `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0@243700` (`FRIENDS_SECTIONS`: `ONLINE`, `ALL`, `PENDING`, `BLOCKED`, `ADD_FRIEND`), `waves/RW-40/DM-FRIENDS-RE.md` (§4–§6), `waves/RW-40/DESIGN/DM-FRIENDS-SPEC.md` (§2.3, §4).
+- **Оракулы**: `reference-oracle/decoded/4d2a64cb5df5fc4e_0@258005` (`RelationshipType`: `FRIEND = 1`, `BLOCKED = 2`, `PENDING_INCOMING = 3`, `PENDING_OUTGOING = 4`), `reference-oracle/decoded/4d2a64cb5df5fc4e_0@243700` (`FRIENDS_SECTIONS`: `ONLINE`, `ALL`, `PENDING`, `BLOCKED`, `ADD_FRIEND`), `waves/RW-40/DM-FRIENDS-RE.md` (§4–§6), `waves/RW-40/DESIGN/DM-FRIENDS-SPEC.md` (§2.3, §4).
 
 ## Сделано
 1. `tests/unit/friends-home.test.mjs` (Red → Green, 7 тестов в 2 suites, `// @ts-check` + JSDoc, минимальный DOM-шим):
@@ -20,8 +20,8 @@
    - экспортированы `RELATIONSHIP_TYPES`, `FRIENDS_TABS_RU`, `filterRelationshipsByTab` и `createFriendsHomeController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/friends-home.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-232-ui-friends-home/red.log`.
-- **Green**: `node --test tests/unit/friends-home.test.mjs` → `tests 7, suites 2, pass 7, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-232-ui-friends-home/green.log`.
+- **Red**: `node --test tests/unit/friends-home.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-232-ui-friends-home/red.log`.
+- **Green**: `node --test tests/unit/friends-home.test.mjs` → `tests 7, suites 2, pass 7, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-232-ui-friends-home/green.log`.
 - **Typecheck (targeted)**:
   - `npx tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/friends-home.js tests/unit/friends-home.test.mjs` — `0 errors`;
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` — `0 errors`.
@@ -31,8 +31,8 @@
 ```
 859219bd3678198921343ce71e26dd79  rust/gui-spike/ui/features/friends-home.js
 34e858b2feb44ceea94d1f712e5c7231  tests/unit/friends-home.test.mjs
-fb76c4d4f56b18712c3e0196f53d4916  /home/sanya/orca/project/waves/RW-40/G2/task-232-ui-friends-home/red.log
-5466e83f37d5d899760f3b15ab7dd411  /home/sanya/orca/project/waves/RW-40/G2/task-232-ui-friends-home/green.log
+fb76c4d4f56b18712c3e0196f53d4916  /home/user/orca/project/waves/RW-40/G2/task-232-ui-friends-home/red.log
+5466e83f37d5d899760f3b15ab7dd411  /home/user/orca/project/waves/RW-40/G2/task-232-ui-friends-home/green.log
 ```
 
 ## Риски

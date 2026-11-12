@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-227` (`feature/task-227-ui-context-menu`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/frontend-d03.md` (§5 п.3–4 Menu / ContextMenu: `menu_c1e9c4`, `role="menu"`, `role="menuitem"`, `colorDanger`, `CONTEXT_MENU_OPEN/CLOSE`), `/home/sanya/re-deep/ui/01-msg-menu-items.json`, `01-msg-menu.html`.
+- **Оракулы**: `reference-oracle/frontend-d03.md` (§5 п.3–4 Menu / ContextMenu: `menu_c1e9c4`, `role="menu"`, `role="menuitem"`, `colorDanger`, `CONTEXT_MENU_OPEN/CLOSE`), `reference-oracle/ui/01-msg-menu-items.json`, `01-msg-menu.html`.
 
 ## Сделано
 1. `tests/unit/context-menu.test.mjs` (Red → Green, 10 тестов в 3 suites, `// @ts-check` + JSDoc, минимальный DOM-шим):
@@ -20,8 +20,8 @@
    - экспортированы `buildContextMenuItems`, `clampMenuCoordinates` и `createContextMenuController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/context-menu.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-227-ui-context-menu/red.log`.
-- **Green**: `node --test tests/unit/context-menu.test.mjs` → `tests 10, suites 3, pass 10, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-227-ui-context-menu/green.log`.
+- **Red**: `node --test tests/unit/context-menu.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-227-ui-context-menu/red.log`.
+- **Green**: `node --test tests/unit/context-menu.test.mjs` → `tests 10, suites 3, pass 10, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-227-ui-context-menu/green.log`.
 - **Typecheck (targeted)**: `npx tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/context-menu.js tests/unit/context-menu.test.mjs` — `0 errors`.
 - **Gate**: полный `gate:worker` не запускался (режим ТЗ карточки); чужие файлы не затронуты.
 
@@ -29,8 +29,8 @@
 ```
 0b0dac971c189f3cb1892f30fd2f23ce  rust/gui-spike/ui/features/context-menu.js
 b7b59792189270ef46d19b69746a9a38  tests/unit/context-menu.test.mjs
-e2dd10f21d3e129c163decfd2eb6d0cb  /home/sanya/orca/project/waves/RW-40/G2/task-227-ui-context-menu/red.log
-0dc93127ebb7683028dbde8634aaf831  /home/sanya/orca/project/waves/RW-40/G2/task-227-ui-context-menu/green.log
+e2dd10f21d3e129c163decfd2eb6d0cb  /home/user/orca/project/waves/RW-40/G2/task-227-ui-context-menu/red.log
+0dc93127ebb7683028dbde8634aaf831  /home/user/orca/project/waves/RW-40/G2/task-227-ui-context-menu/green.log
 ```
 
 ## Риски

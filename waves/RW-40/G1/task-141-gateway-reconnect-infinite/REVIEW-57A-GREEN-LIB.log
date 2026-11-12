@@ -1,6 +1,6 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-141-gateway-reconnect-infinite/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-141-gateway-reconnect-infinite/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.48s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
 
 running 6 tests
 test gateway::tests::op_codes_match_protocol_table ... ok

@@ -13,7 +13,7 @@
 | MD5 `rust/gui-spike/src/settings_store.rs` | `md5sum` | `654be49c2b2627baf20b77a67363a01b` — совпал с REPORT §5 |
 | MD5 `rust/gui-spike/tests/settings_contract.rs` | `md5sum` | `62920daa758f3755e66b7bfe663deb56` — совпал с REPORT §5 |
 | MD5 `red.log` / `green.log` / `mutations.log` | `md5sum` | `60bbdeff…`, `75c91f13…`, `30bb3424…` — все совпали с REPORT §5 |
-| Контрактные тесты | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test settings_contract` | `26 passed; 0 failed` (exit 0) |
+| Контрактные тесты | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test settings_contract` | `26 passed; 0 failed` (exit 0) |
 | Clippy | `cargo clippy --manifest-path rust/gui-spike/Cargo.toml --lib --test settings_contract -- -D warnings` | 0 предупреждений (exit 0) |
 | Сборка всех целей крейта | `cargo check --manifest-path rust/gui-spike/Cargo.toml --all-targets` | чисто (exit 0) |
 | Мутации 5/5 | собственный прогон `/tmp/opencode/rw40-43a-mutations.py`, файл восстановлен по MD5 | 5/5 KILLED, MD5 после прогона `654be49c…` |

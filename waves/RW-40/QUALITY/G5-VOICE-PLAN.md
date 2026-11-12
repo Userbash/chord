@@ -47,11 +47,11 @@ HEAD: `0239543` (дерево грязное: чужие правки RW-35/36 �
 | Факт | Значение | Метка |
 |---|---|---|
 | Звуковые устройства | `/dev/snd` есть, 5 card, capture-PCM (`pcmC2D0c` и др.) | `[H]` |
-| Доступ к PCM | `getfacl /dev/snd/pcmC2D0c` → `user:sanya:rw-` (ACL), при этом `id -nG` = `sanya ollama wheel` (**без** `audio`) | `[H]` |
+| Доступ к PCM | `getfacl /dev/snd/pcmC2D0c` → `user:developer:rw-` (ACL), при этом `id -nG` = `developer ollama wheel` (**без** `audio`) | `[H]` |
 | Камера | `/dev/video*` нет, `/sys/class/video4linux` нет, portal `Camera.IsCameraPresent=false` | `[H]` |
 | Сессия | `XDG_SESSION_TYPE=wayland`, `WAYLAND_DISPLAY=wayland-1`, `DISPLAY=:0`, `XDG_CURRENT_DESKTOP=KDE` | `[H]` |
 | PipeWire | демоны `pipewire` (pid 1258), `pipewire-pulse` (1446), `wireplumber` (1260); сокет `/run/user/1000/pipewire-0` | `[H]` |
-| Ввод | `/dev/input/event*` только `root:input` (пользователь не в `input`); `/dev/uinput` доступен `sanya` — **не используем** (инъекция ввода, лишняя поверхность) | `[H]` |
+| Ввод | `/dev/input/event*` только `root:input` (пользователь не в `input`); `/dev/uinput` доступен `developer` — **не используем** (инъекция ввода, лишняя поверхность) | `[H]` |
 | Инструменты | `dbus-daemon`, `python3` + `dbus`/`gi`, `pw-cli`, `wpctl`, `pactl`, `gst-launch-1.0`, `ffmpeg`/`ffprobe` | `[H]` |
 
 ### 1.3 Portal (D-Bus)
@@ -79,7 +79,7 @@ HEAD: `0239543` (дерево грязное: чужие правки RW-35/36 �
    `a{sv}` («empty container has no element type») ⇒ `OpenPipeWireRemote(session, {})` и
    `Camera.OpenPipeWireRemote({})` требуют типизированного вызова `[H]`.
 5. Пользователь не в `audio`, `video`, `input`; доступ к аудио даёт ACL на узлах `/dev/snd`
-   (`user:sanya:rw-`), к камере/evdev такого доступа нет `[H]`.
+   (`user:developer:rw-`), к камере/evdev такого доступа нет `[H]`.
 
 ## 2. Порядок работ
 
@@ -367,7 +367,7 @@ portal» `[A]`. Это **противоречие двух наших же ре�
 
 | Что | Сейчас | Нужно |
 |---|---|---|
-| Микрофон ALSA | ACL `user:sanya:rw-` на `/dev/snd/pcm*` `[H]` | ничего; группа `audio` не нужна |
+| Микрофон ALSA | ACL `user:developer:rw-` на `/dev/snd/pcm*` `[H]` | ничего; группа `audio` не нужна |
 | Экран/камера | согласие портала (интерактивно) | пользователь подтверждает в live |
 | Камера v4l2 (если D-2=v4l2) | нет устройства, нет `video` | железо + группа/ACL — отдельная карточка |
 | PTT evdev (не выбираем) | нет `input` | не требуется при portal GlobalShortcuts |
@@ -461,7 +461,7 @@ batch в integration-лейне (`AGENTS.md` §3). `skip` только с при
 | `busctl --user get-property … ScreenCast version/AvailableSourceTypes/AvailableCursorModes` | 6 / 7 / 7 |
 | `busctl --user get-property … Camera version/IsCameraPresent` | 1 / false |
 | `busctl --user get-property … GlobalShortcuts version` | 2 |
-| `ls -l /dev/snd; getfacl /dev/snd/pcmC2D0c; id -nG` | ACL `user:sanya:rw-`, групп audio/video/input нет |
+| `ls -l /dev/snd; getfacl /dev/snd/pcmC2D0c; id -nG` | ACL `user:developer:rw-`, групп audio/video/input нет |
 | `pgrep -a pipewire; pgrep -a wireplumber` | 1258, 1446, 1260 |
 | `python3 -c "import dbus, gi"` | OK (mock-портал возможен) |
 | `ffmpeg -h encoder=opus; ffmpeg -h decoder=opus` | нативные enc/dec есть |
@@ -472,4 +472,4 @@ batch в integration-лейне (`AGENTS.md` §3). `skip` только с при
 
 Артефакт этой карточки: `waves/RW-40/QUALITY/G5-VOICE-PLAN.md`. Код, тесты, фикстуры, `Cargo.*`,
 `waves/db.jsonl` и `STATE.md` не изменялись; `logs/`, `functions/`, `evidence/`,
-`/home/sanya/re-deep` — только чтение. `git status` до/после — без новых правок, кроме этого файла.
+`reference-oracle/` — только чтение. `git status` до/после — без новых правок, кроме этого файла.

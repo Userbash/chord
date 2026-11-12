@@ -4,7 +4,7 @@
 // с hex-строками, присутствующими в тест-файле (или с рантайм-значениями — для format!-кейсов).
 import { readFileSync } from "node:fs";
 
-const src = readFileSync("/home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.rs", "utf8");
+const src = readFileSync("/home/user/orca/project/rust/crates/discord-codec/tests/etf_properties.rs", "utf8");
 let bad = 0, total = 0;
 function check(name, expected, computed, { inTest = null } = {}) {
   total++;

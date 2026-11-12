@@ -31,7 +31,7 @@
    Compiling futures-task v0.3.34
    Compiling data-encoding v2.11.1
    Compiling twox-hash v2.1.5
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
    Compiling futures-util v0.3.34
    Compiling ruzstd v0.9.1
    Compiling webpki-roots v1.0.9
@@ -39,7 +39,7 @@
    Compiling http v1.5.0
    Compiling syn v3.0.9
    Compiling hybrid-array v0.4.15
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
    Compiling jobserver v0.1.35
    Compiling getrandom v0.2.17
    Compiling mio v1.2.4
@@ -60,7 +60,7 @@
    Compiling tungstenite v0.30.0
    Compiling tokio-rustls v0.26.6
    Compiling tokio-tungstenite v0.30.0
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error[E0432]: unresolved import `discord_core::stream`
   --> crates/discord-core/tests/stream_gateway_contract.rs:14:19
    |

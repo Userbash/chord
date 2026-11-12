@@ -33,7 +33,7 @@
 
 ## 3. Сверка с RE-оракулом
 
-Проверял сам, по `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0` (read-only) и `waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`, не по тексту `REPORT.md`.
+Проверял сам, по `reference-oracle/decoded/3eefa7dae1e2c234_0` (read-only) и `waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`, не по тексту `REPORT.md`.
 
 | Элемент контракта | Оракул (offset в бандле) | Реализация | Итог |
 | --- | --- | --- | --- |

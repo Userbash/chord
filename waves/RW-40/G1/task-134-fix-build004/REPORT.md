@@ -18,13 +18,13 @@
 («убрать `invoke`-fallback и требовать `options.request` явно»), а не регистрация команды в `main.rs`:
 `main.rs` в моём ТЗ отсутствует.
 
-## Red-прогон (до правки, дерево `/home/sanya/orca/project`)
+## Red-прогон (до правки, дерево `/home/user/orca/project`)
 
-Проверял в `/home/sanya/orca/project`, потому что в рабочем worktree задачи нет части untracked-файлов
+Проверял в `/home/user/orca/project`, потому что в рабочем worktree задачи нет части untracked-файлов
 сборки (`attachments.rs`, `notifications.rs`, `pins_threads.rs`, `voice-devices-settings.js`,
 `notifications.js`, `pins-threads.js`, `markdown.js`, `invite-modal.js`, `tests/e2e/m2-*.mjs`), и крейт
 там не компилируется по причинам, не относящимся к task-134. Состояние трёх целевых файлов в
-`/home/sanya/orca/project`, `unstable`, `testing` и в worktree было побайтово одинаковым
+`/home/user/orca/project`, `unstable`, `testing` и в worktree было побайтово одинаковым
 (`lib.rs 155ad039…`, `dm-friends.js be2e2854…`, `TDD-PLAN.md 69a6ee4f…`).
 
 | Команда | Результат | Код |
@@ -35,7 +35,7 @@
 
 Логи: `logs/red-cargo.log`, `logs/red-meta.log`, `logs/red-unit.log`.
 
-## Green-прогон (после правки, дерево `/home/sanya/orca/project`)
+## Green-прогон (после правки, дерево `/home/user/orca/project`)
 
 | Команда | Результат | Код |
 |---|---|---|
@@ -60,12 +60,12 @@
 
 | Дерево | `dm_friends_contract` + `voice_devices_contract` | meta | unit (dm-friends + features + dom) |
 |---|---|---|---|
-| `/home/sanya/orca/workspaces/project/testing` | 6/6 + 15/15, exit 0 | 102/102, exit 0 | 168/168, exit 0 |
-| `/home/sanya/orca/workspaces/project/unstable` | 6/6 + 15/15, exit 0 | 102/102, exit 0 | 168/168, exit 0 |
+| `/home/user/orca/workspaces/project/testing` | 6/6 + 15/15, exit 0 | 102/102, exit 0 | 168/168, exit 0 |
+| `/home/user/orca/workspaces/project/unstable` | 6/6 + 15/15, exit 0 | 102/102, exit 0 | 168/168, exit 0 |
 
 ## Gate
 
-`npm run gate:worker` в `/home/sanya/orca/project` — **passed**, код 0, фазы:
+`npm run gate:worker` в `/home/user/orca/project` — **passed**, код 0, фазы:
 
 ```text
 ✔ typecheck      0.3 с
@@ -99,9 +99,9 @@
 591132b4bb81c0554a2aa210bd2ffaab  TDD-PLAN.md
 ```
 
-Побайтово одинаковы в четырёх деревьях: `/home/sanya/orca/workspaces/project/bugfix-task-134-fix-build004-integration`,
-`/home/sanya/orca/project`, `/home/sanya/orca/workspaces/project/unstable`,
-`/home/sanya/orca/workspaces/project/testing`.
+Побайтово одинаковы в четырёх деревьях: `/home/user/orca/workspaces/project/bugfix-task-134-fix-build004-integration`,
+`/home/user/orca/project`, `/home/user/orca/workspaces/project/unstable`,
+`/home/user/orca/workspaces/project/testing`.
 
 Не трогал: `rust/gui-spike/src/main.rs`, `dm_friends.rs`, `voice_devices.rs`, `tests/dm_friends_contract.rs`,
 `tests/voice_devices_contract.rs`, `tests/unit/dm-friends-ui.test.mjs`, `tests/unit/gui-spike-features.test.mjs`,
@@ -117,7 +117,7 @@
 - **P1-1 не закрыт:** состав BUILD-004 всё ещё не зафиксирован коммитом; коммиты — уровень L1.
 - **Worktree задачи не самодостаточен:** в нём отсутствует часть untracked-файлов сборки, поэтому
   `cargo` и часть node-наборов там красные по чужим причинам. Все прогоны выше сделаны в полном дереве
-  `/home/sanya/orca/project`; перед приёмкой стоит либо досоздать worktree из состава сборки, либо
+  `/home/user/orca/project`; перед приёмкой стоит либо досоздать worktree из состава сборки, либо
   проверять в `testing`.
 - Правка `lib.rs` наложена поверх уже лежавших в рабочем дереве изменений INT-01-RUST-WIRING
   (`attachments`, `notifications`, `pins_threads` и IPC-обёртки) — они не мои и я их не менял.

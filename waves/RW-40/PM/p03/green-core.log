@@ -1,5 +1,5 @@
     Blocking waiting for file lock on package cache
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.69s
      Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
 

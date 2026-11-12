@@ -1,5 +1,5 @@
 === MUTATION 1: unavailable:true -> Ended instead of Reconnecting (T-STREAM-09) ===
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
      Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
 
@@ -36,7 +36,7 @@ error: test failed, to rerun pass `-p discord-core --test stream_gateway_contrac
 M1_EXIT_CODE=101
 
 === MUTATION 2: H-PAUSE incoming None resets paused to false (T-STREAM-12) ===
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s
      Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
 
@@ -73,7 +73,7 @@ error: test failed, to rerun pass `-p discord-core --test stream_gateway_contrac
 M2_EXIT_CODE=101
 
 === MUTATION 3: D-27-5 viewer_ids:[] normalized to None (T-STREAM-08) ===
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
      Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
 
@@ -110,7 +110,7 @@ error: test failed, to rerun pass `-p discord-core --test stream_gateway_contrac
 M3_EXIT_CODE=101
 
 === MUTATION 4: D-27-4 StreamSecret Debug leaks raw token (T-STREAM-07) ===
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
      Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
 
@@ -145,7 +145,7 @@ error: test failed, to rerun pass `-p discord-core --test stream_gateway_contrac
 M4_EXIT_CODE=101
 
 === MUTATION 5: StreamKey::parse allows leading zero (T-STREAM-06) ===
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
      Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
 
@@ -180,7 +180,7 @@ error: test failed, to rerun pass `-p discord-core --test stream_gateway_contrac
 M5_EXIT_CODE=101
 
 === POST-MUTATION RESTORE VERIFICATION ===
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
      Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
 

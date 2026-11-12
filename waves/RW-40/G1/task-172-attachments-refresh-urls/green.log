@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-919f0e9723f79b28)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-919f0e9723f79b28)
 
 running 17 tests
 test attachments::tests::entity_too_large_code_reads_body_code ... ok
@@ -23,7 +23,7 @@ test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
 
 test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/attachments_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/attachments_contract-51496b6253551971)
+     Running tests/attachments_contract.rs (/home/user/orca/project/rust/target/debug/deps/attachments_contract-51496b6253551971)
 
 running 30 tests
 test guild_boost_tier_limits_match_re_oracle ... ok

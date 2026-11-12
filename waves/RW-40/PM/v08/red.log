@@ -5,7 +5,7 @@ $ node --test tests/unit/voice-ui.test.mjs
 
 ✖ tests/unit/voice-ui.test.mjs
 Error [ERR_MODULE_NOT_FOUND]: Cannot find module
-  '/home/sanya/orca/project/rust/gui-spike/ui/features/voice.js'
+  '/home/user/orca/project/rust/gui-spike/ui/features/voice.js'
   imported from tests/unit/voice-ui.test.mjs
 ℹ tests 1
 ℹ pass 0

@@ -1,7 +1,7 @@
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-core)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.18s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_codec-4fb3fcae36fc27af)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_codec-4fb3fcae36fc27af)
 
 running 5 tests
 test tests::etf_tags_are_the_frozen_eleven ... ok

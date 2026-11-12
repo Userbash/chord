@@ -4,7 +4,7 @@ a9b2c9164e121deb3497e5cfac195ad6  rust/gui-spike/src/main.rs
 
 === MUT-1: main.rs::CreateInviteParamsInput::resolve ignores flat max_age ===
 baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=6e7e6792d0ab4fde03fa35d0281c52ec
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: unused variable: `max_age`
    --> src/main.rs:685:9
     |
@@ -82,7 +82,7 @@ restored_md5=a9b2c9164e121deb3497e5cfac195ad6
 
 === MUT-2: main.rs::From<UploadSlotSpecInput> zeroes file_size ===
 baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=3be1c5ef4713f67f8bf309a2671fc97e
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.49s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
 
@@ -150,7 +150,7 @@ restored_md5=a9b2c9164e121deb3497e5cfac195ad6
 
 === MUT-3: main.rs::CreateInviteParamsInput::resolve drops flags ===
 baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=b42a59ab4a3d5e8d1fc5b490cb1612a5
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: unused variable: `flags`
    --> src/main.rs:688:9
     |
@@ -228,7 +228,7 @@ restored_md5=a9b2c9164e121deb3497e5cfac195ad6
 
 === MUT-4: main.rs::threads_list defaults archived to true instead of false ===
 baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=178a8c87e5a23a4c2bd19da187d50132
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.48s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
 
@@ -342,7 +342,7 @@ restored_md5=a9b2c9164e121deb3497e5cfac195ad6
 
 === MUT-5: main.rs omits attachments_upload_slots from tauri::generate_handler! ===
 baseline_md5=a9b2c9164e121deb3497e5cfac195ad6 mutant_md5=490c35dee80a5df736f57b11cd6cc7d5
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: function `attachments_upload_slots` is never used
    --> src/main.rs:758:10
     |
@@ -441,7 +441,7 @@ restored_md5=a9b2c9164e121deb3497e5cfac195ad6
 === Final Restored MD5 & Post-Mutation Green Verification ===
 a9b2c9164e121deb3497e5cfac195ad6  rust/gui-spike/src/main.rs
 2c6efc012048d839b26b95cffdc18edc  rust/gui-spike/tests/ipc_wiring_contract.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.40s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
 

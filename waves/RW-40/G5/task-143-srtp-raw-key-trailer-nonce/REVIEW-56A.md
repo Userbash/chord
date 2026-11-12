@@ -9,7 +9,7 @@
 
 ## 1. Сверка диффа и RE-оракула (`F-VC-01`)
 
-Независимо проверены отчёт `REPORT.md`, находка `F-VC-01` в `RE-GAP-BACKEND-PROTOCOL.md` (§6.2), дампы `/home/sanya/re-deep/voice-deep.json` / `voice-deep.md` и дизассемблирование нативного модуля `discord_voice.node` (`objdump -d -C`):
+Независимо проверены отчёт `REPORT.md`, находка `F-VC-01` в `RE-GAP-BACKEND-PROTOCOL.md` (§6.2), дампы `reference-oracle/voice-deep.json` / `voice-deep.md` и дизассемблирование нативного модуля `discord_voice.node` (`objdump -d -C`):
 
 1. **Прямой 32-байтный `secret_key` из OP 4 `SESSION_DESCRIPTION` без HKDF:**
    - Оракул (`discord::SocketClient::SetEncryptionSettings` @ `0x3f84f0`): проверяет `secret_key.size() == 0x20` (32 Б), копирует 32 байта ключа напрямую в состояние `PacketCrypter` (`offset 0x04..0x24`) без KDF/соли и инициализирует исходящий счётчик `0x80000000` (`movl $0x80000000, 0x24(%rsp)`).
@@ -27,8 +27,8 @@
 
 | Команда | Результат |
 |---|---|
-| `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-voice` | **144 passed; 0 failed; 0 ignored** (9 unit + 135 integration в 10 тест-раннерах), exit `0` |
-| `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-voice --all-targets -- -D warnings` | exit `0`, предупреждений нет |
+| `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-voice` | **144 passed; 0 failed; 0 ignored** (9 unit + 135 integration в 10 тест-раннерах), exit `0` |
+| `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-voice --all-targets -- -D warnings` | exit `0`, предупреждений нет |
 | `cd rust && cargo fmt --check` | exit `0` |
 | `grep -n "ignore\|\.only\|todo!\|unimplemented!\|skip" rust/crates/discord-voice/src/srtp.rs` | пусто (нарушений `TEST-POLICY.md` нет) |
 

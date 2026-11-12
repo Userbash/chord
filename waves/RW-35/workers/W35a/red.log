@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
 error[E0432]: unresolved import `discord_platform::power`
   --> crates/discord-platform/tests/power_contract.rs:16:23
    |

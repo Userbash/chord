@@ -8,7 +8,7 @@
 
 | ID | Поток | Владелец | Вход | Выход | Зависит |
 |---|---|---|---|---|---|
-| W1 | RE login-окна, captcha, 2FA | **NET-R2** | дамп `/home/sanya/re-deep` | `LOGIN-UI-RE.md` + json — **готово (D-38)** | — |
+| W1 | RE login-окна, captcha, 2FA | **NET-R2** | дамп `reference-oracle/` | `LOGIN-UI-RE.md` + json — **готово (D-38)** | — |
 | W2 | Дизайн окна входа «как в оригинале» | **NET-DESIGN** | W1, `REFERENCES`, `tokens.css` | `LOGIN-SPEC.md` + json | W1 |
 | W3 | Core-примитивы | NET-C1/E1 (готово) + NET-F1 (`post`) | `ADR-3` | `ApiClient::post`, `Me`, `GatewayUrl`, op40 | — |
 | W4 | Backend auth-flow | **NET-F1** | `AUTH-RE`, W3 | Tauri: password/mfa/sms/token/status/logout — **готово (D-35)** | W3 |

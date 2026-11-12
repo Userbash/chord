@@ -3,7 +3,7 @@
 - **Карточка:** `task-167` (`BE-P2-08`)
 - **Волна:** `RW-40`
 - **Роль:** Воркер G5 Platform / Voice
-- **Оракул:** `/home/sanya/re-deep/voice-deep.json` (`udp.rtcp`: `sr` 60 Б, интервал 2998–6326 мс, медиана 5231 мс; `rr_server` 52 Б; RC=1; `[8B hdr][ssrc][24B cipher report block][tag16][counter4]`), `strace-media-s3.jsonl` (out packet #0 `80c80006000023f8...08000080` 60 Б; in packet #0 `81c90007000023f8...00000000` 52 Б), `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (§BE-P2-08).
+- **Оракул:** `reference-oracle/voice-deep.json` (`udp.rtcp`: `sr` 60 Б, интервал 2998–6326 мс, медиана 5231 мс; `rr_server` 52 Б; RC=1; `[8B hdr][ssrc][24B cipher report block][tag16][counter4]`), `strace-media-s3.jsonl` (out packet #0 `80c80006000023f8...08000080` 60 Б; in packet #0 `81c90007000023f8...00000000` 52 Б), `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (§BE-P2-08).
 
 ---
 
@@ -72,7 +72,7 @@ error[E0599]: no associated function or constant named `from_report_block` found
 Лог зафиксирован в `waves/RW-40/G5/task-167-voice-rtcp-sr-rr-stats/green.log`.
 Команда целевого прогона:
 ```bash
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice --test stats_contract --test rtcp_contract --lib
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice --test stats_contract --test rtcp_contract --lib
 ```
 Результаты:
 - `unittests src/lib.rs`: 14 passed, 0 failed

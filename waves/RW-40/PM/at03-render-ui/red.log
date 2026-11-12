@@ -28,10 +28,10 @@ test at tests/unit/attachments-render.test.mjs:137:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:175:31
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:138:5)
+      at only (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:175:31
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:138:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -52,10 +52,10 @@ test at tests/unit/attachments-render.test.mjs:277:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:321:22
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:278:5)
+      at only (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:321:22
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:278:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -76,10 +76,10 @@ test at tests/unit/attachments-render.test.mjs:358:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:384:24
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:359:5)
+      at only (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:384:24
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:359:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -100,9 +100,9 @@ test at tests/unit/attachments-render.test.mjs:430:3
   
   0 !== 2
   
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:468:14
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:431:5)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:468:14
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:431:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -123,9 +123,9 @@ test at tests/unit/attachments-render.test.mjs:501:3
   
   0 !== 2
   
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:546:14
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:502:5)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:546:14
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:502:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -146,9 +146,9 @@ test at tests/unit/attachments-render.test.mjs:602:3
   
   0 !== 2
   
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:639:14
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:603:5)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:639:14
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:603:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -169,9 +169,9 @@ test at tests/unit/attachments-render.test.mjs:685:3
   
   0 !== 2
   
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:707:14
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:686:5)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:707:14
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:686:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -192,10 +192,10 @@ test at tests/unit/attachments-render.test.mjs:755:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:769:25
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:756:5)
+      at only (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:769:25
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:756:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -216,10 +216,10 @@ test at tests/unit/attachments-render.test.mjs:819:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:829:20
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:820:5)
+      at only (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:829:20
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:820:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -240,10 +240,10 @@ test at tests/unit/attachments-render.test.mjs:874:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:105:10)
-      at file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:927:24
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:88:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:875:11)
+      at only (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:105:10)
+      at file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:927:24
+      at withChatDoc (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:88:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:875:11)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -261,7 +261,7 @@ test at tests/unit/attachments-render.test.mjs:874:3
 test at tests/unit/attachments-render.test.mjs:953:3
 ✖ T-AT03-12: chat.css содержит все селекторы AT-03 и использует исключительно токены из rust/gui-spike/ui/tokens.css (0.280721ms)
   AssertionError [ERR_ASSERTION]: в chat.css отсутствует обязательный селектор .message-attachments
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/attachments-render.test.mjs:977:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/attachments-render.test.mjs:977:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

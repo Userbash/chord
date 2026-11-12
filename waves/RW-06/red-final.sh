@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Red на финальной редакции тестов: временно «заглушить» реализацию, прогнать, восстановить.
 set -eu
-SRC=/home/sanya/orca/project/rust/crates/discord-core/src
+SRC=/home/user/orca/project/rust/crates/discord-core/src
 B=/tmp/opencode/rw-06/impl-backup
 mkdir -p "$B"
 cp "$SRC/resume.rs" "$SRC/ws.rs" "$SRC/lib.rs" "$B/"
@@ -42,7 +42,7 @@ open(ws, 'w', encoding='utf-8').write(w)
 print("заглушки применены")
 PY
 
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 { cargo test --offline -p discord-core --test resume_reconnect 2>&1 | grep -E "^test |test result|^error" | head -20; echo "# EXIT=${PIPESTATUS[0]}"; md5sum crates/discord-core/tests/resume_reconnect.rs; } | tee /tmp/opencode/rw-06/red.txt
 
 cp "$B/resume.rs" "$B/ws.rs" "$B/lib.rs" "$SRC/"

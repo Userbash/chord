@@ -1,7 +1,7 @@
 EXIT=101
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
 
 running 5 tests
 test gateway::supervisor::tests::resume_ttl_preserves_session_up_to_180s_and_resets_to_identify_after_180s ... FAILED

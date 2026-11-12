@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved imports `discord_gui_spike::net::etf_to_json`, `discord_gui_spike::net::map_dispatch`, `discord_gui_spike::net::DispatchChannel`, `discord_gui_spike::net::DispatchEmitter`, `discord_gui_spike::net::DispatchError`, `discord_gui_spike::net::DispatchPayload`, `discord_gui_spike::net::DispatchStats`, `discord_gui_spike::net::CORE_DISPATCH_AVAILABLE`, `discord_gui_spike::net::DISPATCH_EVENT`, `discord_gui_spike::net::FORWARDED_DISPATCHES`
   --> tests/net_contract.rs:17:5
    |

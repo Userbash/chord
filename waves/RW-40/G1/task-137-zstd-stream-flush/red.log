@@ -1,4 +1,4 @@
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
 warning: unused variable: `message`
    --> crates/discord-codec/src/zstd.rs:298:28
     |
@@ -9,7 +9,7 @@ warning: unused variable: `message`
 
 warning: `discord-codec` (lib test) generated 1 warning (run `cargo fix --lib -p discord-codec --tests` to apply 1 suggestion)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_codec-6056909c2a4ce066)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_codec-6056909c2a4ce066)
 
 running 5 tests
 test tests::etf_tags_are_the_frozen_eleven ... ok

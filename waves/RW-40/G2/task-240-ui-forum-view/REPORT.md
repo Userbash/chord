@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-240` (`feature/task-240-ui-forum-view`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/gateway-schema.md` (`default_sort_order`, `default_forum_layout`), `rust/gui-spike/src/forum.rs` (`MAX_FORUM_APPLIED_TAGS = 5`, `ForumSortOrder`).
+- **Оракулы**: `reference-oracle/gateway-schema.md` (`default_sort_order`, `default_forum_layout`), `rust/gui-spike/src/forum.rs` (`MAX_FORUM_APPLIED_TAGS = 5`, `ForumSortOrder`).
 
 ## Сделано
 1. `tests/unit/forum-view.test.mjs` (`// @ts-check`, Strict TDD: Red → Green, 7 unit-тестов в 2 suites):
@@ -21,8 +21,8 @@
    - реализованы и экспортированы `FORUM_SORT_ORDERS`, `FORUM_LAYOUT_VIEWS`, `MAX_FORUM_POST_TAGS`, `sortAndFilterForumPosts` и `createForumViewController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/forum-view.test.mjs` → `exit=1` (`SyntaxError: The requested module '../../rust/gui-spike/ui/features/forum-view.js' does not provide an export named 'FORUM_LAYOUT_VIEWS'`, `tests 1, pass 0, fail 1`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-240-ui-forum-view/red.log`.
-- **Green**: `node --test tests/unit/forum-view.test.mjs` → `exit=0` (`tests 7, suites 2, pass 7, fail 0`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-240-ui-forum-view/green.log`.
+- **Red**: `node --test tests/unit/forum-view.test.mjs` → `exit=1` (`SyntaxError: The requested module '../../rust/gui-spike/ui/features/forum-view.js' does not provide an export named 'FORUM_LAYOUT_VIEWS'`, `tests 1, pass 0, fail 1`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-240-ui-forum-view/red.log`.
+- **Green**: `node --test tests/unit/forum-view.test.mjs` → `exit=0` (`tests 7, suites 2, pass 7, fail 0`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-240-ui-forum-view/green.log`.
 - **Typecheck**:
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `exit=0` (0 ошибок);
   - `tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/forum-view.js tests/unit/forum-view.test.mjs` → `exit=0` (0 ошибок).
@@ -32,8 +32,8 @@
 ```
 9c076101ba72900431651e4620af3e66  rust/gui-spike/ui/features/forum-view.js
 0dc4cf045ad4dbb6fd31d42d1a17c26b  tests/unit/forum-view.test.mjs
-29f6bae140d468f8f0c525f932ba73ca  /home/sanya/orca/project/waves/RW-40/G2/task-240-ui-forum-view/red.log
-46a7a1d506c0b167a7ca43bd98d809ee  /home/sanya/orca/project/waves/RW-40/G2/task-240-ui-forum-view/green.log
+29f6bae140d468f8f0c525f932ba73ca  /home/user/orca/project/waves/RW-40/G2/task-240-ui-forum-view/red.log
+46a7a1d506c0b167a7ca43bd98d809ee  /home/user/orca/project/waves/RW-40/G2/task-240-ui-forum-view/green.log
 ```
 
 ## Риски

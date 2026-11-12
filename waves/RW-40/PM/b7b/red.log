@@ -108,7 +108,7 @@ test at tests/unit/gui-spike-features.test.mjs:1003:3
   
   'false' !== 'true'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1043:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1043:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -122,9 +122,9 @@ test at tests/unit/gui-spike-features.test.mjs:1003:3
 test at tests/unit/gui-spike-features.test.mjs:1816:3
 ✖ зовёт search_remote с guildId и подтверждёнными params; рисует total_results (9.436694ms)
   AssertionError [ERR_ASSERTION]: search_remote не вызван
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1845:16
-      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1819:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1845:16
+      at async withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1819:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -143,9 +143,9 @@ test at tests/unit/gui-spike-features.test.mjs:1870:3
   
   6 !== 2
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1893:16
-      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1873:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1893:16
+      at async withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1873:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -162,9 +162,9 @@ test at tests/unit/gui-spike-features.test.mjs:1908:3
   
   'ok' !== 'error'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1917:16
-      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1909:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1917:16
+      at async withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1909:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -181,9 +181,9 @@ test at tests/unit/gui-spike-features.test.mjs:1931:3
   
   'ok' !== 'error'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1946:18
-      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1938:7)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1946:18
+      at async withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1938:7)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -200,9 +200,9 @@ test at tests/unit/gui-spike-features.test.mjs:1954:3
   
   'ok' !== 'loading'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1975:16
-      at withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1779:13)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1960:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1975:16
+      at withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1779:13)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1960:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -219,9 +219,9 @@ test at tests/unit/gui-spike-features.test.mjs:1985:3
   
   'найдено 0 из 400 загруженных (всего 100 000) · локально: сетевая команда поиска недоступна'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1995:16
-      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1986:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1995:16
+      at async withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1986:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -238,9 +238,9 @@ test at tests/unit/gui-spike-features.test.mjs:2025:3
   
   6 !== 2
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2043:16
-      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2028:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2043:16
+      at async withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2028:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,

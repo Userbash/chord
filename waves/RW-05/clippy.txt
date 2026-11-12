@@ -1,6 +1,6 @@
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-    Checking discord-media v0.1.0 (/home/sanya/orca/project/rust/crates/discord-media)
-    Checking discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
-    Checking discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+    Checking discord-media v0.1.0 (/home/user/orca/project/rust/crates/discord-media)
+    Checking discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
+    Checking discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.26s
 # EXIT=0

@@ -1,6 +1,6 @@
 # ТЗ W22c — P7-04: read-only API surface
 
-Волна: RW-22 / B03. Владелец: W22c. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-22 / B03. Владелец: W22c. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -20,7 +20,7 @@
 Strict TDD. Сначала тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources \
   2>&1 | tee ../waves/RW-22/red-w22c.log
 ```

@@ -2,8 +2,8 @@
 
 - **Волна / Отдел**: `RW-40` (Отдел G2 Frontend: WebView UI & DOM/A11y)
 - **Карточка**: `task-159` (`FE-P1-04` из `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md`)
-- **Спецификации и оракулы**: `ui/06-profile-popout.html`, `voice/ui7/15-popout.json` / `15-popout.html`, `re-deep/frontend-d03.md` (§5 п.5 Modal, §5 п.6 Popover, §3 Участники)
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-159-user-popout-profile-modal`
+- **Спецификации и оракулы**: `ui/06-profile-popout.html`, `voice/ui7/15-popout.json` / `15-popout.html`, `reference-oracle/frontend-d03.md` (§5 п.5 Modal, §5 п.6 Popover, §3 Участники)
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-159-user-popout-profile-modal`
 
 ---
 
@@ -38,7 +38,7 @@
 
 - **Команда**: `node --test tests/unit/user-popout.test.mjs`
 - **Результат**: `ERR_MODULE_NOT_FOUND` (модуль не существовал)
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/red.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/red.log`
 
 ---
 
@@ -48,7 +48,7 @@
   - `node --test tests/unit/user-popout.test.mjs tests/unit/gui-spike-dom.test.mjs` → **56 pass, 0 fail** (exit 0)
   - `npm run typecheck` (`tsc -p tsconfig.json && tsc -p tsconfig.agent.json`) → **0 ошибок** (exit 0)
   - `node --test --test-name-pattern="INT-07" tests/unit/gui-spike-features.test.mjs` → **11 pass, 0 fail** (exit 0)
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/green.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/green.log`
 
 ---
 
@@ -64,7 +64,7 @@
 | 4 | Переключение вкладок полного профиля | Ранний выход из `switchTab` | **KILLED** (`AssertionError: 'false' !== 'true'`) |
 | 5 | Возврат фокуса на триггер при закрытии модалки | Отключение `lastTriggerEl.focus()` в `closeProfileModal` | **KILLED** (`AssertionError: фокус не вернулся на триггер`) |
 
-- **Лог мутаций**: `/home/sanya/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/mutations.log`
+- **Лог мутаций**: `/home/user/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/mutations.log`
 
 ---
 
@@ -74,9 +74,9 @@
 |---|---|
 | `rust/gui-spike/ui/features/user-popout.js` | `4e42d066c9bb0dd43529018a40db4048` |
 | `tests/unit/user-popout.test.mjs` | `56d71784e67245fe5e1ce0421e7acdea` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/red.log` | `9e8283be2f2b20a84490b5222d877400` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/green.log` | `790f2832af6578a73ea59be8e7ae158c` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/mutations.log` | `72a97d0eef548ac4566e78172b0bf9e8` |
+| `/home/user/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/red.log` | `9e8283be2f2b20a84490b5222d877400` |
+| `/home/user/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/green.log` | `790f2832af6578a73ea59be8e7ae158c` |
+| `/home/user/orca/project/waves/RW-40/G2/task-159-user-popout-profile-modal/mutations.log` | `72a97d0eef548ac4566e78172b0bf9e8` |
 
 ---
 

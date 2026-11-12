@@ -63,7 +63,7 @@ md5 в `PM/g05-ui/REPORT.md` §5 **устарели** (файлы менялис
 
 | Метка | Значение |
 |---|---|
-| `[M]` | измерено по пикселям: `/home/sanya/re-deep/ui2/D1-guild-menu.png` (2560×1383, dpr 1.25) |
+| `[M]` | измерено по пикселям: `reference-oracle/ui2/D1-guild-menu.png` (2560×1383, dpr 1.25) |
 | `[T]` | токен `rust/gui-spike/ui/tokens.css` |
 | `[D]` | факт дампа: `ui2/D1-guild-menu-items.json`, `ru-catalog.json`, DOM-фикстуры, `fixtures/gateway/by-type/002-READY.json` |
 | `[S]` | код клиента (`NETWORK-CONTRACTS.md` §1, `fixtures/rest/rest-static.json`) |

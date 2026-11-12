@@ -1,5 +1,5 @@
 $ cargo test --offline -p discord-core --test ready_read_state
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
      Running tests/ready_read_state.rs (target/debug/deps/ready_read_state-cd12d825edf9c25b)
 
@@ -20,7 +20,7 @@ test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 # EXIT=0
 $ cargo test --offline -p discord-core
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.69s
      Running unittests src/lib.rs (target/debug/deps/discord_core-013ef6b2760c3c7c)
 

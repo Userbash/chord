@@ -9,7 +9,7 @@
     "A": "наше допущение"
   },
   "sources": {
-    "root": "/home/sanya/re-deep (read-only)",
+    "root": "/home/user/clean-room-oracle (read-only)",
     "ui": "ui/00-app.png, ui/tokens.json, ui8/*.json/*.html",
     "bundles": "decoded/<hash>_0 (веб-чанки: JS и CSS), modules-index.json",
     "i18n": "ru-catalog.json, en-catalog.json (ключ → AST)",

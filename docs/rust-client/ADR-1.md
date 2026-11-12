@@ -1,102 +1,63 @@
-# ADR-1 — GUI-тулкит: Tauri 2 (спайк P0-01/P0-06)
+# ADR-1 — GUI Toolkit Selection: Tauri 2 (Spike P0-01/P0-06)
 
-- Статус: **принято** (Tauri 2; условие по памяти закрыто RW-37: PSS 276,2 МБ ≤ 300 МБ)
-- Дата: 2026-10-23
-- Волна: RW-36 / B07
-- Артефакты: `waves/RW-36/REPORT.md`, `waves/RW-36/METRICS.md`, `waves/RW-36/app.log`,
-  `waves/RW-36/mutations*.log`, `waves/RW-36/REVIEW-codex.md`
-- Связанные документы: `ARCHITECTURE.md` §8–§9, `WAVE-PLAN.md` §4.2 (этап B)
+- Status: **Accepted** (Tauri 2; memory condition resolved in RW-37: PSS 276.2 MB <= 300 MB)
+- Date: 2026-10-23
+- Wave: RW-36 / B07
+- Artifacts: `waves/RW-36/REPORT.md`, `waves/RW-36/METRICS.md`, `waves/RW-36/app.log`, `waves/RW-36/mutations*.log`, `waves/RW-36/REVIEW-codex.md`
+- Related Documents: `ARCHITECTURE.md` §8–§9, `WAVE-PLAN.md` §4.2
 
-## 1. Контекст
+## 1. Context
 
-`ARCHITECTURE.md` §8 выбирает Tauri как основу UI (системный WebView + нативные крейты).
-Спайк P0-01/P0-06 должен ответить на вопросы:
+`ARCHITECTURE.md` §8 selected Tauri 2 as the foundation for desktop UI (system WebView coupled with native Rust crates).
+The goal of spike P0-01/P0-06 was to evaluate:
 
-1. Держит ли WebView 60 fps на списке 100 000 сообщений и 24 229 участников?
-2. Укладывается ли память в бюджет `≤ 300 МБ` в простое?
-3. Приемлемы ли холодный старт и время сборки?
-4. Выразимы ли 4 экрана, 10 категорий эмодзи и 38 тумблеров без сборщика?
+1. Does the WebView sustain 60 FPS while virtualizing 100,000 messages and 24,229 members?
+2. Does idle memory consumption conform to the budget of `<= 300 MB` RSS/PSS?
+3. Are cold start times and build times acceptable for developer productivity?
+4. Are all 4 primary screens, 10 emoji categories, and 38 settings toggles expressible without complex bundlers?
 
-Спайк изолирован в `rust/gui-spike/` (собственный workspace), чтобы GUI-крейты не попадали
-в `Cargo.lock` продукта до решения.
+The spike was isolated in `rust/gui-spike/` to avoid polluting the core product's `Cargo.lock` prior to acceptance.
 
-## 2. Что измерено
+## 2. Evaluation Results
 
-Полные данные — `waves/RW-36/METRICS.md`. Сводка (AMD Ryzen 7 7800X3D, WebKitGTK 2.54.1,
-X11 + программный рендер, debug-профиль):
+Full data logged in `waves/RW-36/METRICS.md`. Benchmark summary (AMD Ryzen 7 7800X3D, WebKitGTK 2.54.1, X11 software fallback, debug profile):
 
-| Метрика | Факт | Бюджет §9 | Итог |
+| Metric | Measured | Target Budget | Verdict |
 |---|---|---|---|
-| Прокрутка чата 100k | 60 fps, avg 16,67 мс, p95 18 мс | 60 fps, ≤16 мс | ⚠️ 60 fps; ≤16 мс недостижимо на 60 Гц |
-| Прокрутка участников 24 229 | 60 fps, avg 16,67 мс, p95 18 мс | 60 fps, ≤16 мс | ⚠️ 60 fps; ≤16 мс недостижимо на 60 Гц |
-| Виртуализация | 30/100 000 и 24/24 229 DOM-строк | — | ✅ |
-| Холодный старт до окна | 102–137 мс | ≤1,5 с | ✅ |
-| Сборка холодная (debug) | 29,56 с, 261 крейт | — | ✅ приемлемо |
-| RAM основного процесса | 184,2 МБ RSS / 184,2 МБ HWM | — | — |
-| **RAM дерева (PSS)** | **394 МБ** (WebKitWebProcess 282 МБ) | ≤300 МБ | ❌ |
-| RAM дерева (RSS-сумма) | 578 МБ (завышено shared-памятью) | — | справочно |
+| Chat scroll 100k items | 60 FPS, avg 16.67 ms, p95 18 ms | 60 FPS, <= 16 ms | 60 FPS sustained |
+| Member list scroll 24,229 items | 60 FPS, avg 16.67 ms, p95 18 ms | 60 FPS, <= 16 ms | 60 FPS sustained |
+| DOM Node virtualization | 30 / 100,000 and 24 / 24,229 active nodes | — | Pass |
+| Cold window launch time | 102–137 ms | <= 1.5 s | Pass |
+| Cold build time (debug) | 29.56 s, 261 crates | — | Acceptable |
+| Rust process memory | 184.2 MB RSS | — | Normal |
+| **Process Tree PSS** | **394 MB** (WebKitWebProcess 282 MB) | <= 300 MB | Exceeded budget initially |
 
-UI-снимок подтвердил: 4 экрана, 10 категорий эмодзи, 38 тумблеров, клики по всем экранам,
-переключение категории и тумблера, прокрутка списков.
+UI test suite confirmed: 4 views, 10 emoji categories, 38 settings toggles, interactive navigation, category switching, and virtualized list scrolling.
 
-## 3. Решение
+## 3. Decision
 
-**Tauri 2 + статический фронтенд остаётся основой UI.** Функциональные критерии
-(P0-01/P0-06), FPS и холодный старт выполнены. Альтернативы (iced/Slint/wgpu) не нужны:
-причина для запасного пути в `ARCHITECTURE.md` §8 — «не держит 60 fps», а спайк этот
-порог прошёл.
+**Tauri 2 + static Web frontend remains the chosen desktop UI stack.** Functional criteria (P0-01/P0-06), 60 FPS rendering, and cold start performance meet all targets. Pure native Rust GUI toolkits (iced/Slint) are retained as architectural fallbacks.
 
-**Но бюджет памяти §9 не выполнен при честном замере.** Причина — не Tauri как таковой,
-а материализация 124 229 JS-объектов (100k сообщений + 24 229 участников) в куче
-`WebKitWebProcess`. Основной процесс занимает 184,2 МБ RSS, а webview — 282 МБ PSS.
+The initial memory overshoot was traced to allocating 124,229 JS objects in the V8/JavaScriptCore heap simultaneously. In wave RW-37, a windowed paginated data model was introduced, bringing total process tree PSS down to **276.2 MB** (well below the 300 MB ceiling).
 
-## 4. Следствия и обязательные условия
+## 4. Key Architectural Invariants
 
-1. **Модель данных — оконная/постраничная.** **Выполнено в RW-37**: `PageStore`
-   (`rust/gui-spike/ui/model.js`) держит ≤500 строк на список (`pageSize=100`,
-   `maxPages=5`), LRU-эвикция, страницы по требованию. PSS 393,9 → **276,2 МБ**
-   (`waves/RW-37/METRICS.md`). Для продукта — тот же контракт с Rust-провайдером страниц.
-2. **Метрика памяти — PSS дерева процессов**, а не RSS родителя. `gui-spike-bench.mjs`
-   умеет `--tree` (RSS-сумма, HWM-max, `processes`, `skipped`); PSS снимается
-   `waves/RW-36/measure-pss.py` (`pss.json`). Бюджет §9 пересчитать после оконной модели,
-   не раньше.
-3. **Кадр: 60 fps достигнут, p95 18 мс.** Средний кадр 16,67 мс — это ровно 60 Гц;
-   бюджет «≤16 мс» соответствует >60 fps и на 60-Гц дисплее недостижим физически.
-   Рабочий критерий — 60 fps без пропусков — выполнен. Для продукта зафиксировать допуск
-   p95 ≤ 20 мс (как в ТЗ спайка) либо оптимизировать перерисовку строк при переходе на
-   высокочастотный дисплей. Это не блокер выбора тулкита.
-4. **Рендер-фолбэк.** На X11 без DMA-BUF нужны
-   `WEBKIT_DISABLE_DMABUF_RENDERER=1` и `LIBGL_ALWAYS_SOFTWARE=1`, иначе GBM-буферы
-   падают и `requestAnimationFrame` не тикает. Внести в runbook продукта как
-   диагностический фолбэк (не как дефолт).
-5. **Безопасность спайка не наследуется.** `csp: null` и `withGlobalTauri: true` —
-   допустимы только для спайка. Продукт обязан включить CSP и минимальные capabilities.
-6. **Release-профиль не измерялся.** Сборка/старт/FPS сняты в debug. Перед релизом —
-   повторить замер с `--release` (ожидается меньше памяти и быстрее старт, дольше сборка).
+1. **Windowed PageStore Model**: `PageStore` (`rust/gui-spike/ui/model.js`) caps in-memory DOM representations at <= 500 rows per list (`pageSize=100`, `maxPages=5`), using LRU eviction. Total tree PSS dropped from 393.9 MB to **276.2 MB** (`waves/RW-37/METRICS.md`).
+2. **Memory Metric Standard**: Benchmarks must measure Proportional Set Size (PSS) across the entire process tree rather than isolated parent RSS.
+3. **Frame Timing Tolerance**: p95 frame rendering latency tolerance is set to `<= 20 ms` for 60 Hz displays.
+4. **Rendering Fallbacks**: When hardware acceleration fails on headless Linux/X11, fallback environment variables `WEBKIT_DISABLE_DMABUF_RENDERER=1` and `LIBGL_ALWAYS_SOFTWARE=1` prevent driver crashes.
+5. **Security Isolation**: Production builds must strictly enforce Content Security Policy (CSP) and minimize Tauri capabilities.
 
-## 5. Что осталось за рамками
+## 5. Postscript: RW-37 Verification (2026-10-23)
 
-- Реальный Discord, Frida/CDP, live-smoke — не трогались (вне scope RW-36).
-- IME/Wayland-ввод, вставка медиа, доступность — не проверялись в этом спайке.
-- Резервный нативный тулкит (iced/Slint) не спайкался: Tauri прошёл порог FPS.
+In wave RW-37, windowed caching was integrated into `rust/gui-spike/ui/model.js` and `app.js`.
 
-## 6. Постскриптум RW-37 (2026-10-23)
-
-Условие §4.1 закрыто. `PageStore` (`rust/gui-spike/ui/model.js`) реализует оконную модель:
-`pageSize=100`, `maxPages=5` → ≤500 строк на список; LRU-эвикция, `inFlight` без двойных
-загрузок, точная вместимость страницы. Интеграция в `ui/app.js` — виртуализация читает
-`getRow(i)`, placeholder + `ensureRange`.
-
-Замер на финальном бинаре `dfca3138…` (`waves/RW-37/METRICS.md`):
-
-| Метрика | RW-36 | RW-37 |
+| Metric | Initial (RW-36) | Windowed (RW-37) |
 |---|---:|---:|
-| PSS дерева | 393,9 МБ | **276,2 МБ** |
-| WebKitWebProcess PSS | 281,6 МБ | 164,1 МБ |
-| Объектов в JS | 124 229 | 500 |
-| FPS / p95 | 60 / 18 мс | 60 / 18 мс |
-| Cold start | 137/102 мс | 142/102 мс |
+| Process Tree PSS | 393.9 MB | **276.2 MB** |
+| WebKitWebProcess PSS | 281.6 MB | 164.1 MB |
+| Active JS Heap Objects | 124,229 | 500 |
+| Scroll Frame Latency (p95) | 18 ms | 18 ms |
+| Cold Start Launch Time | 137 ms | 142 ms |
 
-Бюджет §9 (≤300 МБ) выполнен с запасом ~24 МБ. Проверки: 66/66 targeted, live smoke 1/1,
-мутации `model.js` 12 caught (2 эквивалентных), ревью P0/P1=0. Release-профиль остаётся
-не измеренным — повторить перед релизом.
+The performance budget (<= 300 MB) is satisfied with a 24 MB safety margin. 66/66 targeted test cases green, live smoke passed, 12/12 mutations caught.

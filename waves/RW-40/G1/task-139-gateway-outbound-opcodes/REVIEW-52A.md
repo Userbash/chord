@@ -28,7 +28,7 @@
 ### 2. Оракул: сверка с клиентом 1.0.162 (бандл `discord.com_assets_web.4d4b2f75fdea5470.js`)
 
 Проверял не по отчёту, а по самому бандлу (`dd` по байтовым смещениям) и
-`/home/sanya/re-deep/gateway-protocol.json`:
+`reference-oracle/gateway-protocol.json`:
 
 | Что | Смещение | Факт |
 |---|---:|---|
@@ -130,7 +130,7 @@ CARGO_TARGET_DIR=<worktree>/rust/target cargo test --offline \
 
 ## Замечание по инфраструктуре ревью (важно для batch)
 
-Общий `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target` используется несколькими
+Общий `CARGO_TARGET_DIR=/home/user/orca/project/rust/target` используется несколькими
 worktree, и имя тестового бинаря `discord_core-<hash>` у них совпадает. Первый прогон в этом
 каталоге выполнил **чужой** бинарь (8 тестов `identify`/`rest`, которых в этом дереве нет),
 а параллельная сборка другого агента перезаписала бинарь между компиляцией и запуском (полный

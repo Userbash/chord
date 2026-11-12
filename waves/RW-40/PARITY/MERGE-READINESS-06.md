@@ -7,7 +7,7 @@
 > **Путь.** Отчёт лежит в `waves/RW-40/PARITY/`, как MERGE-READINESS-05: корневых
 > `PARITY/`/`PM/`/`QUALITY/` в смысле ТЗ нет. Вход этого прохода: `PM/g01b-contract/ACCEPT.md`,
 > `waves/RW-40/PM/l02-core/ACCEPT.md`, `waves/RW-40/PM/l02-ui/ACCEPT.md`,
-> `waves/RW-40/RE-DEEP-REA.md`, `waves/RW-40/ATTACH-RE.md`,
+> `waves/RW-40/reference-oracle-REA.md`, `waves/RW-40/ATTACH-RE.md`,
 > `waves/RW-40/QUALITY/TSC-FIX.md`, `QUALITY/{SEC-L02,QA-M2-04,QA-M2-02}.md`, `TDD-PLAN.md §8`.
 
 Что **не** запускалось (запрет ТЗ): `cargo`, `node --test`, `npx tsc`, `npm run gate:*`, e2e,
@@ -38,7 +38,7 @@
    — commit `0239543`, `verdict: passed_with_skips`, meta 65 тестов; он **старше** L-02-CORE/UI,
    TSC-FIX, `§8` и всех трёх ACCEPT. Ни один gate-артефакт не покрывает принимаемые байты.
 6. **Заглушки разблокированы оракулом:** `STUB-13`, `STUB-12`, `STUB-14`, `STUB-27` переведены
-   `blocked/unknown → ready` со ссылкой на `RE-DEEP-REA.md`; `blocked` в трекере стало **0**
+   `blocked/unknown → ready` со ссылкой на `reference-oracle-REA.md`; `blocked` в трекере стало **0**
    (см. `waves/RW-40/STUB-TRACKER.md`).
 
 ---
@@ -209,9 +209,9 @@ READY — их стоит решать вместе с SEC-L02-01, одним ф
 | 6 | **ACCEPT на остаток окна**: PLAT-11a, C-02-UI-OLDER, M-07-BE3 (после фикса P2), QA-M2-02 (после браузера), QA-M2-04 (после Actions) | PM (+Codex) | accepted set без них неполон | у каждого среза ACCEPT.md с md5 = дерево |
 | 7 | **Перевыпуск/суперсид** пинов: `app.js` (G-01b UI), `PM/l02/ACCEPT.md` | PM | 1 файл разошёлся, старый ACCEPT 0/4 | строка «superseded by …» + md5-лист на freeze |
 | 8 | **`MERGE-MANIFEST`**: файловый список с md5 (включая `rust/gui-spike/**`, `CONTRACTS/`, `tests/e2e/m2-*`, `scripts/gate.mjs`, `ci.yml`), ссылка D-128 → D-150 | PM/TL | манифест от 14:20 не знает ни L-02, ни G-01b (0 упоминаний) **[V]** | каждый файл integration имеет md5; §4 актуален |
-| 9 | **`PARITY-MATRIX`**: `AT-01` («blocked»), `M-13` («4/7 фильтров»), `S-02` («STREAM [A]») — синхронизировать с `RE-DEEP-REA` | G6 Lead | матрица противоречит оракулу и трекеру | 3 строки переписаны, счётчики §14 пересчитаны |
+| 9 | **`PARITY-MATRIX`**: `AT-01` («blocked»), `M-13` («4/7 фильтров»), `S-02` («STREAM [A]») — синхронизировать с `reference-oracle-REA` | G6 Lead | матрица противоречит оракулу и трекеру | 3 строки переписаны, счётчики §14 пересчитаны |
 | 10 | **Реестры**: `TASKS.md`, `QUEUE.md`, `STATE.md`, `waves/db.jsonl` (RW-40 = 0 событий), `BUGS.md` G6-D-03 | PM/TL | честность журнала — условие приёмки | `grep -c RW-40 waves/db.jsonl` > 0 |
-| 11 | **Commit + merge** (L1): все dirty-пути на момент freeze (79+) + ACCEPT/логи | координатор | в git нет ни ACCEPT, ни `RE-DEEP-REA`, ни `TSC-FIX` | `git status` пуст, HEAD содержит ACCEPT-файлы |
+| 11 | **Commit + merge** (L1): все dirty-пути на момент freeze (79+) + ACCEPT/логи | координатор | в git нет ни ACCEPT, ни `reference-oracle-REA`, ни `TSC-FIX` | `git status` пуст, HEAD содержит ACCEPT-файлы |
 
 После 1–5 снимается блок «гейт + P1». Шаги 6–11 — бумажная часть, но без неё merge нальёт
 код, у которого нет md5-актуального ACCEPT: в этом проходе 8/8 успело стать 7/8 за три минуты.
@@ -256,7 +256,7 @@ READY — их стоит решать вместе с SEC-L02-01, одним ф
 ## 8. Как перепроверить (read-only, ~1 мин)
 
 ```bash
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 git log --oneline -1 && git status --porcelain -uall | wc -l
 md5sum rust/gui-spike/src/settings_store.rs rust/gui-spike/tests/settings_contract.rs \
        rust/crates/discord-core/src/ws.rs rust/crates/discord-core/tests/gateway_supervisor.rs \

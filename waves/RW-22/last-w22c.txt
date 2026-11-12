@@ -2,7 +2,7 @@
 
 - Red: `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources` → exit `101` (не было `rest::resources`). Лог: `/tmp/opencode/red-w22c.log`.
 - Green: та же команда → exit `0`, 5 passed. Лог: `/tmp/opencode/green-w22c.log`.
-- Изменены: [resources.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
+- Изменены: [resources.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
 - MD5: `resources.rs` `7386ad1ffcdb4c4423ceeb686aa2d975`; `mod.rs` `a0da7735fe4db138f60f4cc4ffdba031`; `rest_resources.rs` `e03c31d2ead036dba6520bf6bf83894f`.
 - `discord-core/Cargo.toml` не менял; он уже был изменён до начала работы. `rest/mod.rs` тоже содержал предыдущие изменения; я сохранил их и добавил только экспорт нового модуля.
 - Риск/ограничение: batch gate не запускал; red/green-логи лежат в `/tmp/opencode`, поскольку изменение `waves/*` запрещено.

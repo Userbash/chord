@@ -1,15 +1,15 @@
 # task-145 — Живые проекции событий шлюза в `dispatch-model.js`
 
 - **batch/карточка:** RW-40 / G2 Frontend / `task-145` (продолжение `task-138` / F-GW-03: перевод живых событий чата, голоса и тредов из `skipped` в типизированные проекции модели).
-- **worktree:** `/home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections` (база синхронизирована с `/home/sanya/orca/project` после PR-22).
+- **worktree:** `/home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections` (база синхронизирована с `/home/user/orca/project` после PR-22).
 - **файлы (write-scope):**
   - `rust/gui-spike/ui/features/dispatch-model.js`;
   - `tests/unit/dispatch_ui.test.mjs`;
-  - этот отчёт и логи рядом в `/home/sanya/orca/project/waves/RW-40/G2/task-145-dispatch-live-projections/`.
+  - этот отчёт и логи рядом в `/home/user/orca/project/waves/RW-40/G2/task-145-dispatch-live-projections/`.
 
 ## Сделано
 
-1. **Синхронизация с PR-22:** скопированы актуальные версии `rust/gui-spike/ui/features/dispatch-model.js` и `tests/unit/dispatch_ui.test.mjs` из `/home/sanya/orca/project`.
+1. **Синхронизация с PR-22:** скопированы актуальные версии `rust/gui-spike/ui/features/dispatch-model.js` и `tests/unit/dispatch_ui.test.mjs` из `/home/user/orca/project`.
 2. **Red-тесты (Strict TDD):**
    - Расширен `PROJECTED_KINDS` в `tests/unit/dispatch_ui.test.mjs` с 6 до 13 типов (`+ MESSAGE_CREATE`, `MESSAGE_UPDATE`, `MESSAGE_ACK`, `TYPING_START`, `VOICE_STATE_UPDATE`, `VOICE_SERVER_UPDATE`, `THREAD_LIST_SYNC`), благодаря чему мета-тест `A4` и таблица битых данных `B13` автоматически проверяют все новые проекции.
    - Добавлены целевые контрактные тесты `B18–B23` на реальных фикстурах `fixtures/gateway/by-type/*`:

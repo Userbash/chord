@@ -1,6 +1,6 @@
 # Mutation run — G-01b-UI-SETTINGS-MUTATIONS pass 3 (RW-40, INT-03-UI-APP-PANELS-MODALS)
 
-Repository: /home/sanya/orca/project
+Repository: /home/user/orca/project
 Target test: tests/unit/guild-rail.test.mjs
 Mutation targets: rust/gui-spike/ui/app.js, rust/gui-spike/ui/components/server-menu.css
 Node: v26.13.0

@@ -1,6 +1,6 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
 
 running 5 tests
 test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... ok

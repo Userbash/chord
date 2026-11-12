@@ -3,7 +3,7 @@
 Задача: `task-130` (RE-1, DeepSeek). Дата: 2026-10-30.
 Режим: **read-only** по продуктовому коду. `cargo build/test` не запускались, продуктовая
 сеть не трогалась; все утверждения — по файлам репозитория и по артефактам
-`/home/sanya/re-deep/`.
+`reference-oracle/`.
 
 Скоуп сверки: `rust/gui-spike/src/*.rs`, `rust/crates/discord-core/src/**`,
 `rust/crates/discord-voice/src/**`, `rust/crates/discord-platform/src/**`
@@ -46,7 +46,7 @@
 
 ## 1. Оракулы
 
-Все пути — от `/home/sanya/re-deep/` (далее `RE/`). md5 снят в этой сессии.
+Все пути — от `reference-oracle/` (далее `RE/`). md5 снят в этой сессии.
 
 | Артефакт | Размер | md5 | Что берём |
 |---|---:|---|---|
@@ -831,38 +831,38 @@ P3 = 11 (F-GW-10, F-RS-08…12 — 5, F-VC-06/07/08 — 3, F-PL-04/05 — 2). И
 
 ```bash
 # 1. Целостность оракулов
-cd /home/sanya/re-deep && md5sum README.md rest-d02.json rest-static.json \
+cd reference-oracle/ && md5sum README.md rest-d02.json rest-static.json \
   gateway-protocol.json gateway-schema.json backend-ipc.json main-arch.json \
   voice-deep.json decoded-index.json out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js
 
 # 2. Таблица опкодов и тела исходящих кадров клиента
 python3 - <<'PY'
-b=open('/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js','rb').read()
+b=open('reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js','rb').read()
 i=b.find(b'DISPATCH=0'); print(i); print(b[i-40:i+1500].decode('utf-8','replace'))
 j=b.find(b'requestGuildMembers(e,t){'); print(b[j:j+600].decode('utf-8','replace'))
 PY
 
 # 3. Ретраи и retry-after
 python3 - <<'PY'
-b=open('/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js','rb').read()
+b=open('reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js','rb').read()
 i=b.find(b'E=new Set([502,504,507,598,599,522,523,524])'); print(b[i-40:i+2000].decode('utf-8','replace'))
 PY
 
 # 4. Живые голосовые кадры (формы op0/1/2/3/4/6/8/16)
-cat /home/sanya/re-deep/voice/rtc1-frames.jsonl
+cat reference-oracle/voice/rtc1-frames.jsonl
 
 # 5. Сколько термов теряет наш zstd
 #    эталон: 137 термов / 824 816 Б для 95974.1389
 python3 - <<'PY'
 import json
-d=json.load(open('/home/sanya/re-deep/gateway-protocol.json'))
+d=json.load(open('reference-oracle/gateway-protocol.json'))
 print([ (s['key'], s['terms'], s['decompressedBytes']) for s in d['zstd']['perSocket'] ])
 PY
 
 # 6. Частоты диспатчей (для приоритета моста)
 python3 - <<'PY'
 import json
-d=json.load(open('/home/sanya/re-deep/gateway-protocol.json'))
+d=json.load(open('reference-oracle/gateway-protocol.json'))
 print(d['opcodes']['dispatchTypes'])
 PY
 ```

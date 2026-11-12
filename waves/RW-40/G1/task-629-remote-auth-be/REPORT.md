@@ -4,11 +4,11 @@
 - **Задача:** `task-629-remote-auth-be` (`task_8bf8fe5e68e3` / `ctx_ae8967dae545`)
 - **Ветка:** `feature/task-629-remote-auth-be` (база: `unstable`)
 - **Отдел:** `G1 Backend (Rust Core & Tauri BFF)`
-- **RE-оракулы (`/home/sanya/re-deep/`, read-only):**
-  - `/home/sanya/re-deep/decoded/f0cac74b6ccdca5e_0` (`QR_CHUNK`, модуль `52423`):
+- **RE-оракулы (`reference-oracle/`, read-only):**
+  - `reference-oracle/decoded/f0cac74b6ccdca5e_0` (`QR_CHUNK`, модуль `52423`):
     - `@2730..@4258`: генерация ключей WebCrypto `RSA-OAEP` (`modulusLength: 2048`, `publicExponent: [1, 0, 1]` = `65537`, `hash: "SHA-256"`), экспорт `spki` DER (`294` Б), `serializePublicKey` (`btoa`), `publicKeyFingerprint` (`base64url_nopad(SHA-256(spki_der))` = `43` символа), `decryptNonce` (`base64url_nopad(RSA-OAEP-SHA256-decrypt(atob(encrypted_nonce)))`), `decryptEncodedCiphertext`, разбор `pending_ticket` по регулярному выражению `^(\d+):(\d{1,4}):([a-zA-Z0-9_]+):(.*)$` (при `avatar === "0"` -> `None`).
     - `@6328..@9860`: протокол WebSocket `wss://remote-auth.discord.gg/?v=2` и `wss://remote-auth-gateway.discord.gg/?v=2` (`PROTOCOL_VERSION = 2`), `Backoff(1500, 30000)`, джиттер первого `heartbeat` `Math.floor(heartbeat_interval * rand)`, состояния `RemoteAuthStep` (`0..=4`), кадры `init`, `hello`, `nonce_proof`, `pending_remote_init`, `pending_ticket`, `pending_login`, `cancel`, `heartbeat`, `heartbeat_ack`, а также `POST /users/@me/remote-auth/login` (`{ "ticket": "..." }` -> `{ "encrypted_token": "..." }`).
-  - `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` (`@275654..@275802`, `@11800708`):
+  - `reference-oracle/decoded/4d2a64cb5df5fc4e_0` (`@275654..@275802`, `@11800708`):
     - маршруты мобильного сканера `REMOTE_AUTH_INITIALIZE = "/users/@me/remote-auth"`, `REMOTE_AUTH_FINISH = "/users/@me/remote-auth/finish"`, `REMOTE_AUTH_CANCEL = "/users/@me/remote-auth/cancel"`, `REMOTE_AUTH_LOGIN = "/users/@me/remote-auth/login"` и шаблон QR `https://discord.com/ra/{fingerprint}`.
   - Спецификация: `waves/RW-39/NET/LOGIN-UI-RE.md`.
 
@@ -29,10 +29,10 @@
 
 ## 3. Strict TDD: RED и GREEN прогоны
 - **RED-прогон (`waves/RW-40/G1/task-629-remote-auth-be/red.log`):**
-  - Команда: `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test remote_auth_contract`
+  - Команда: `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test remote_auth_contract`
   - Результат: `RED_EXIT=101` (`error[E0583]: file not found for module remote_auth`).
 - **GREEN-прогон (`waves/RW-40/G1/task-629-remote-auth-be/green.log`):**
-  - Команда: `(CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test remote_auth_contract --test ipc_wiring_contract --bin discord-gui-spike && node --test tests/meta/ipc-path.test.mjs)`
+  - Команда: `(CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test remote_auth_contract --test ipc_wiring_contract --bin discord-gui-spike && node --test tests/meta/ipc-path.test.mjs)`
   - Результаты:
     - `remote_auth_contract`: **9 passed; 0 failed**
     - `ipc_wiring_contract`: **9 passed; 0 failed**

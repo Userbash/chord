@@ -2,7 +2,7 @@
 
 **Дата и время записи:** 2026-11-11 00:11:54 – 00:20:00 (МСК) / 485 секунд (8 минут 5 секунд)  
 **Параметры видео:** 2560x1440 @ 60 FPS, h264/avc1, Opus audio 48 kHz  
-**Исходный файл:** `/home/sanya/Видео/Video_2026-11-11_00-11-54.mp4`  
+**Исходный файл:** `/home/user/Видео/Video_2026-11-11_00-11-54.mp4`  
 **Связанные телеметрические артефакты:**  
 - `/tmp/discord-full-user-activity.log` (126 пользовательских кликов и событий UI)  
 - `/tmp/gdb-native-trace.log` (64 нативных брейкпоинта GDB)  
@@ -130,7 +130,7 @@ TASK-829 (P0): Автоматические регрессионные конт�
 - **Файлы:** `rust/crates/discord-core/src/rest/invites.rs`, `rust/gui-spike/src/invites.rs`
 - **Проблема:** Discord отклоняет hCaptcha токен с 401/unauthorized, если запрос отправлен без заголовков клиентского контекста.
 - **Инструкция по решению:**
-  1. Сверить с эталоном `/home/sanya/re-deep/rest-d02.md`: Discord при принятии инвайта отправляет:
+  1. Сверить с эталоном `reference-oracle/rest-d02.md`: Discord при принятии инвайта отправляет:
      - `X-Context-Properties`: base64-encoded JSON `{"location":"Join Guild"}`
      - `Referer`: `https://discord.com/channels/@me`
      - `X-Super-Properties`: свойства клиента Electron/Tauri

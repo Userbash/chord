@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -13,21 +13,21 @@ session id: 01a15d9a-5c8f-79c2-a8ea-021c50865e6f
 user
 Ты REV-A, независимый read-only ревьюер batch RW-24 (P7-01). НЕ правь файлы, не запускай команды, которые пишут в target. Изучи waves/RW-24/WAVE-PLAN.md, TZ-W25a.md, docs/re/i18n-deep.md §2/5-7, rust/crates/discord-i18n/src/{locale,plural,format,format_data,lib}.rs и tests/{locale,plural,format,i18n}_contract.rs. Проверь: точность CLDR cardinal/ordinal для всех 36 (включая дроби/offset/exact), реальные date/time паттерны и UTC/эру th, число/группировку/percent/currency, fallback requested→default и disabled-локали, AST Date/Time/Number/Plural, сохранение 8 старых lib-тестов, отсутствие паник/секретов/сетевых вызовов. Не доверяй комментариям и зелёным тестам: ищи пропущенные случаи и ложные ожидания. Дай список только реальных находок P0/P1/P2/P3 с file:line, почему это баг и минимальный reproducer/тест; если находок нет — явно скажи. Верни вердикт: ACCEPT / CHANGES.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала сверю обязательный контекст batch и заданные источники, затем прослежу реализации и независимые контрактные ожидания по каждому пункту. Останусь в read-only режиме и не буду запускать cargo или другие команды, способные писать в `target`.
 exec
-/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'WAVE-PLAN.md' -g 'TZ-W25a.md' -g 'i18n-deep.md' -g 'locale.rs' -g 'plural.rs' -g 'format.rs' -g 'format_data.rs' -g 'lib.rs' -g '*contract.rs'" in /home/sanya/orca/project
+/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'WAVE-PLAN.md' -g 'TZ-W25a.md' -g 'i18n-deep.md' -g 'locale.rs' -g 'plural.rs' -g 'format.rs' -g 'format_data.rs' -g 'lib.rs' -g '*contract.rs'" in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/orca/project
+/home/user/orca/project
 TDD-PLAN.md
 TASKS.md
 docs/rust-client/WAVE-PLAN.md
@@ -116,11 +116,11 @@ waves/RW-03/nits-mut/rust/crates/discord-codec/src/lib.rs
 codex
 Файлы на месте. Теперь читаю процессные ограничения, план/ТЗ волны и контрактную документацию рядом с кодом, чтобы отличить заявленную область P7-01 от более старых требований.
 exec
-/usr/bin/bash -lc "sed -n '1,260p' 'docs/re/i18n-deep.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' 'docs/re/i18n-deep.md'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' 'PROCESS.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' 'PROCESS.md'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' 'TASKS.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' 'TASKS.md'" in /home/user/orca/project
  succeeded in 0ms:
 # PROCESS.md — производственный процесс discord-lab
 
@@ -189,7 +189,7 @@ exec
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -394,7 +394,7 @@ DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; фай�
 
 | Что | Значение |
 |---|---|
-| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
 | i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
 | Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
 | Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -670,7 +670,7 @@ P1-02, P0-04, P0-07); B03/RW-22 принят (P3-15, P4-01, P7-04, P8-03); B04/R
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -895,13 +895,13 @@ shell, `JSON.parse` недоверенного ввода в try, пути са�
 
 
 exec
-/usr/bin/bash -lc "sed -n '1,260p' 'waves/STATE.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' 'waves/STATE.md'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' 'docs/rust-client/TEAM.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' 'docs/rust-client/TEAM.md'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' 'waves/RW-24/WAVE-PLAN.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' 'waves/RW-24/WAVE-PLAN.md'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' 'TDD-PLAN.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' 'TDD-PLAN.md'" in /home/user/orca/project
  succeeded in 0ms:
 # STATE — где мы и что дальше
 
@@ -919,7 +919,7 @@ exec
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-22, I1,
   P2-01/P2-02/P2-04…P2-11, B01/B02/B03 accepted, удаление legacy `ready_data` и правки доков
   **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -1424,7 +1424,7 @@ P2-09 accept — отдельная review-лейна REV-1 + TL-1, не тре�
 
 Статус: **заморожен до кода** (Team Lead, 2026-10-21). Источник: `docs/re/i18n-deep.md`
 §1–3, §5–7; `docs/rust-client/PLAN.md` P7-01; `docs/rust-client/TEST-PLAN.md`
-T-I18N-04…08, T-MSG-01; реальные каталоги `/home/sanya/re-deep/{ru,en}-catalog.json`
+T-I18N-04…08, T-MSG-01; реальные каталоги `/home/user/clean-room-oracle/{ru,en}-catalog.json`
 (только чтение).
 
 ## 1. DoD
@@ -1605,7 +1605,7 @@ unsafe URL `javascript:` allow; list depth 11 → 12; escape `\*` → literal `*
 - `<t:...:R>` обновление по таймеру — UI-слой, не i18n.
 
 exec
-/usr/bin/bash -lc "sed -n '1,260p' 'waves/RW-24/TZ-W25a.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' 'waves/RW-24/TZ-W25a.md'" in /home/user/orca/project
  succeeded in 0ms:
 # План: `discord-lab` — полноценное CLI-приложение на строгом TDD
 
@@ -2016,13 +2016,13 @@ UTC; timestamp — Unix **секунды**. `timestamp_secs.div_euclid(86_400)` 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `format_data.rs`,
   `tests/data/*`, `Cargo.lock`.
 - Не «зеленить» тесты правкой ожиданий; oracle — источник истины.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle`.
 - Не коммитить.
 
 exec
-/usr/bin/bash -lc "cat 'waves/RW-24/TZ-W25a.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "cat 'waves/RW-24/TZ-W25a.md'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "cat 'waves/RW-24/WAVE-PLAN.md'" in /home/sanya/orca/project
+/usr/bin/bash -lc "cat 'waves/RW-24/WAVE-PLAN.md'" in /home/user/orca/project
  succeeded in 0ms:
 # TZ-W25a — locale / CLDR plural / number-date-time (P7-01)
 
@@ -2171,7 +2171,7 @@ UTC; timestamp — Unix **секунды**. `timestamp_secs.div_euclid(86_400)` 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `format_data.rs`,
   `tests/data/*`, `Cargo.lock`.
 - Не «зеленить» тесты правкой ожиданий; oracle — источник истины.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle`.
 - Не коммитить.
 
  succeeded in 0ms:
@@ -2179,7 +2179,7 @@ UTC; timestamp — Unix **секунды**. `timestamp_secs.div_euclid(86_400)` 
 
 Статус: **заморожен до кода** (Team Lead, 2026-10-21). Источник: `docs/re/i18n-deep.md`
 §1–3, §5–7; `docs/rust-client/PLAN.md` P7-01; `docs/rust-client/TEST-PLAN.md`
-T-I18N-04…08, T-MSG-01; реальные каталоги `/home/sanya/re-deep/{ru,en}-catalog.json`
+T-I18N-04…08, T-MSG-01; реальные каталоги `/home/user/clean-room-oracle/{ru,en}-catalog.json`
 (только чтение).
 
 ## 1. DoD
@@ -2362,9 +2362,9 @@ unsafe URL `javascript:` allow; list depth 11 → 12; escape `\*` → literal `*
 codex
 Нашёл важное расхождение между замороженным API и языковыми правилами в TZ: проверю его против сгенерированного oracle, затем прочитаю реализацию и тесты с нумерацией строк. Интеграционный `lib.rs` рассматриваю отдельно как требуемый объект проверки, хотя матрица отдавала его TL.
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/plural.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/plural.rs' | sed -n '1,320p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/lib.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/lib.rs' | sed -n '1,320p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! CLDR cardinal and ordinal plural categories (P7-01).
      2	//!
@@ -3008,9 +3008,9 @@ exec
    320	
 
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/tests/plural_contract.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/tests/plural_contract.rs' | sed -n '1,320p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/format.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/format.rs' | sed -n '1,320p'" in /home/user/orca/project
  succeeded in 0ms:
      1	use discord_i18n::locale::SUPPORTED_LOCALES;
      2	use discord_i18n::plural::{PluralCategory, PluralType, cardinal, ordinal};
@@ -3084,11 +3084,11 @@ exec
     70	}
 
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/tests/format_contract.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/tests/format_contract.rs' | sed -n '1,320p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/format_data.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/format_data.rs' | sed -n '1,320p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/locale.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/src/locale.rs' | sed -n '1,320p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! Locale-aware number, date and time formatting (P7-01).
      2	
@@ -3412,7 +3412,7 @@ exec
    320	#[must_use]
 
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/tests/locale_contract.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/tests/locale_contract.rs' | sed -n '1,320p'" in /home/user/orca/project
  succeeded in 0ms:
      1	use discord_i18n::format::{
      2	    DateStyle, NumberOptions, NumberStyle, format_currency, format_date, format_date_skeleton,
@@ -3986,12 +3986,12 @@ exec
     33	}
 
 exec
-/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/tests/i18n_contract.rs' | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba 'rust/crates/discord-i18n/tests/i18n_contract.rs' | sed -n '1,320p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! T-I18N-07/08 integration contract: registry, real catalogs, fallback and AST wiring.
      2	//!
      3	//! Oracle: `tests/data/cldr-oracle.json` (Node ICU, UTC) and the real ru/en catalogs
-     4	//! under `/home/sanya/re-deep` (read-only, skip-aware when absent).
+     4	//! under `/home/user/clean-room-oracle` (read-only, skip-aware when absent).
      5	
      6	use std::collections::BTreeMap;
      7	
@@ -4146,8 +4146,8 @@ exec
    156	#[test]
    157	fn real_catalogs_still_parse_and_keep_link_control_backlog() {
    158	    for (path, count) in [
-   159	        ("/home/sanya/re-deep/ru-catalog.json", 23_836usize),
-   160	        ("/home/sanya/re-deep/en-catalog.json", 23_903usize),
+   159	        ("/home/user/clean-room-oracle/ru-catalog.json", 23_836usize),
+   160	        ("/home/user/clean-room-oracle/en-catalog.json", 23_903usize),
    161	    ] {
    162	        let Ok(raw) = std::fs::read_to_string(path) else {
    163	            eprintln!("skip: unavailable oracle {path}");
@@ -4163,7 +4163,7 @@ exec
    173	}
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-i18n/src/format.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-i18n/src/format.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! Locale-aware number, date and time formatting (P7-01).
      2	
@@ -4517,11 +4517,11 @@ exec
    350	}
 
 exec
-/usr/bin/bash -lc "rg -n '#\\[test\\]|fn .*' rust/crates/discord-i18n/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '#\\[test\\]|fn .*' rust/crates/discord-i18n/src/lib.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,5p' rust/crates/discord-i18n/tests/data/cldr-oracle.json" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,5p' rust/crates/discord-i18n/tests/data/cldr-oracle.json" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,90p' rust/crates/discord-i18n/src/format_data.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,90p' rust/crates/discord-i18n/src/format_data.rs" in /home/user/orca/project
  succeeded in 0ms:
 26:pub fn xxh64(input: &[u8], seed: u64) -> u64 {
 32:    fn round(acc: u64, lane: u64) -> u64 {
@@ -4661,9 +4661,9 @@ static D_EN_GB: LocaleFormatData = LocaleFormatData {
 codex
 Реализация форматирования дат нормализует NBSP/NNBSP в обычный пробел уже после рендеринга, что может расходиться с ICU-оракулом. В проверке точности правил также проявились потенциальные пропуски по Hebrew cardinal и точному формату неизвестной валюты; сверяю конкретные строковые результаты, требуемые тестами, и интеграционные ветки AST.
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '560,860p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '560,860p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '328,560p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '328,560p'" in /home/user/orca/project
  succeeded in 0ms:
    560	    #[test]
    561	    fn hash_vectors_and_locale_selection() {
@@ -4904,8 +4904,8 @@ exec
    796	    #[test]
    797	    fn real_catalogs_match_independent_inventory() {
    798	        for (path, count) in [
-   799	            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-   800	            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+   799	            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+   800	            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
    801	        ] {
    802	            let Ok(raw) = std::fs::read_to_string(path) else {
    803	                eprintln!("skip: unavailable oracle {path}");
@@ -5183,7 +5183,7 @@ exec
    560	    #[test]
 
 exec
-/usr/bin/bash -lc "rg -n '\"he\"|\"fr\"|\"en-US\"|\"dates\"|\"times\"' rust/crates/discord-i18n/tests/data/cldr-oracle.json | head -20" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '\"he\"|\"fr\"|\"en-US\"|\"dates\"|\"times\"' rust/crates/discord-i18n/tests/data/cldr-oracle.json | head -20" in /home/user/orca/project
  succeeded in 0ms:
 6:  "en-US": {
 133:   "dates": {
@@ -5207,7 +5207,7 @@ exec
 1259:   "times": {
 
 exec
-/usr/bin/bash -lc "sed -n '130,146p' rust/crates/discord-i18n/tests/data/cldr-oracle.json && sed -n '1110,1128p' rust/crates/discord-i18n/tests/data/cldr-oracle.json && rg -n 'TODO|unwrap\\(|expect\\(|std::process|Tcp|http|https|secret|token|password' rust/crates/discord-i18n/src/{locale,plural,format,format_data,lib}.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '130,146p' rust/crates/discord-i18n/tests/data/cldr-oracle.json && sed -n '1110,1128p' rust/crates/discord-i18n/tests/data/cldr-oracle.json && rg -n 'TODO|unwrap\\(|expect\\(|std::process|Tcp|http|https|secret|token|password' rust/crates/discord-i18n/src/{locale,plural,format,format_data,lib}.rs" in /home/user/orca/project
  succeeded in 0ms:
     "1.5": "1.5",
     "1234567.89": "1,234,567.89"
@@ -5302,29 +5302,29 @@ rust/crates/discord-i18n/src/lib.rs:814:                let link_message = catal
 codex
 **CHANGES**
 
-- **P1 — [lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:515): exact plural selectors are checked after applying `offset`.** The contract checks `=N` against the original value, then subtracts the offset only for category selection. Minimal reproducer: plural node with `offset = 2` and branches `=3` / `other`, rendered with `n = 3`; it should choose `=3`, but this implementation checks `=1`.
+- **P1 — [lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:515): exact plural selectors are checked after applying `offset`.** The contract checks `=N` against the original value, then subtracts the offset only for category selection. Minimal reproducer: plural node with `offset = 2` and branches `=3` / `other`, rendered with `n = 3`; it should choose `=3`, but this implementation checks `=1`.
 
-- **P2 — [plural.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs:288): Hebrew cardinal `many` is missing.** CLDR selects `many` for nonzero integer multiples of 10; this code returns `other`. Reproducer: `cardinal("he", 10)` should be `many`. Add oracle samples for 10 and 20.
+- **P2 — [plural.rs](/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs:288): Hebrew cardinal `many` is missing.** CLDR selects `many` for nonzero integer multiples of 10; this code returns `other`. Reproducer: `cardinal("he", 10)` should be `many`. Add oracle samples for 10 and 20.
 
-- **P2 — [format.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:295): date/time output replaces NBSP and narrow NBSP with ordinary spaces.** That discards ICU spacing present in locale patterns and timezone names, so exact oracle strings can differ. Reproducer: compare French or English short-time output with the ICU oracle where the pattern contains U+202F; assert exact separator preservation.
+- **P2 — [format.rs](/home/user/orca/project/rust/crates/discord-i18n/src/format.rs:295): date/time output replaces NBSP and narrow NBSP with ordinary spaces.** That discards ICU spacing present in locale patterns and timezone names, so exact oracle strings can differ. Reproducer: compare French or English short-time output with the ICU oracle where the pattern contains U+202F; assert exact separator preservation.
 
-- **P2 — [format.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:185): unknown currency output does not match the frozen fallback contract.** It formats using the locale’s separators and fraction digits, while the contract requires `"1234.50 XXX"`. Reproducer: `format_currency(1234.5, "en-US", "XXX")` should return `"1234.50 XXX"`.
+- **P2 — [format.rs](/home/user/orca/project/rust/crates/discord-i18n/src/format.rs:185): unknown currency output does not match the frozen fallback contract.** It formats using the locale’s separators and fraction digits, while the contract requires `"1234.50 XXX"`. Reproducer: `format_currency(1234.5, "en-US", "XXX")` should return `"1234.50 XXX"`.
 
-- **P2 — [lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:471): Number AST nodes silently accept string arguments.** The integration contract specifies `InvalidArgument` for non-numeric values, but strings are returned unchanged. Reproducer: render `[2,"n"]` with `n = Value::Str("abc")`; expect `TranslateError::InvalidArgument`.
+- **P2 — [lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:471): Number AST nodes silently accept string arguments.** The integration contract specifies `InvalidArgument` for non-numeric values, but strings are returned unchanged. Reproducer: render `[2,"n"]` with `n = Value::Str("abc")`; expect `TranslateError::InvalidArgument`.
 
 No commands or tests were run. Read-only inspection found no network calls or embedded secrets in the reviewed implementation. The code retains eight `lib.rs` unit tests, but I did not execute them; exact oracle coverage for currency fallback, string-valued Number nodes, and plural exact selectors with offset is absent.
 tokens used
 83 934
 **CHANGES**
 
-- **P1 — [lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:515): exact plural selectors are checked after applying `offset`.** The contract checks `=N` against the original value, then subtracts the offset only for category selection. Minimal reproducer: plural node with `offset = 2` and branches `=3` / `other`, rendered with `n = 3`; it should choose `=3`, but this implementation checks `=1`.
+- **P1 — [lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:515): exact plural selectors are checked after applying `offset`.** The contract checks `=N` against the original value, then subtracts the offset only for category selection. Minimal reproducer: plural node with `offset = 2` and branches `=3` / `other`, rendered with `n = 3`; it should choose `=3`, but this implementation checks `=1`.
 
-- **P2 — [plural.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs:288): Hebrew cardinal `many` is missing.** CLDR selects `many` for nonzero integer multiples of 10; this code returns `other`. Reproducer: `cardinal("he", 10)` should be `many`. Add oracle samples for 10 and 20.
+- **P2 — [plural.rs](/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs:288): Hebrew cardinal `many` is missing.** CLDR selects `many` for nonzero integer multiples of 10; this code returns `other`. Reproducer: `cardinal("he", 10)` should be `many`. Add oracle samples for 10 and 20.
 
-- **P2 — [format.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:295): date/time output replaces NBSP and narrow NBSP with ordinary spaces.** That discards ICU spacing present in locale patterns and timezone names, so exact oracle strings can differ. Reproducer: compare French or English short-time output with the ICU oracle where the pattern contains U+202F; assert exact separator preservation.
+- **P2 — [format.rs](/home/user/orca/project/rust/crates/discord-i18n/src/format.rs:295): date/time output replaces NBSP and narrow NBSP with ordinary spaces.** That discards ICU spacing present in locale patterns and timezone names, so exact oracle strings can differ. Reproducer: compare French or English short-time output with the ICU oracle where the pattern contains U+202F; assert exact separator preservation.
 
-- **P2 — [format.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:185): unknown currency output does not match the frozen fallback contract.** It formats using the locale’s separators and fraction digits, while the contract requires `"1234.50 XXX"`. Reproducer: `format_currency(1234.5, "en-US", "XXX")` should return `"1234.50 XXX"`.
+- **P2 — [format.rs](/home/user/orca/project/rust/crates/discord-i18n/src/format.rs:185): unknown currency output does not match the frozen fallback contract.** It formats using the locale’s separators and fraction digits, while the contract requires `"1234.50 XXX"`. Reproducer: `format_currency(1234.5, "en-US", "XXX")` should return `"1234.50 XXX"`.
 
-- **P2 — [lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:471): Number AST nodes silently accept string arguments.** The integration contract specifies `InvalidArgument` for non-numeric values, but strings are returned unchanged. Reproducer: render `[2,"n"]` with `n = Value::Str("abc")`; expect `TranslateError::InvalidArgument`.
+- **P2 — [lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:471): Number AST nodes silently accept string arguments.** The integration contract specifies `InvalidArgument` for non-numeric values, but strings are returned unchanged. Reproducer: render `[2,"n"]` with `n = Value::Str("abc")`; expect `TranslateError::InvalidArgument`.
 
 No commands or tests were run. Read-only inspection found no network calls or embedded secrets in the reviewed implementation. The code retains eight `lib.rs` unit tests, but I did not execute them; exact oracle coverage for currency fallback, string-valued Number nodes, and plural exact selectors with offset is absent.

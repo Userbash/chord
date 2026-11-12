@@ -37,9 +37,9 @@ test at tests/unit/gui-spike-dom.test.mjs:203:3
   
     assert.ok(bottomRows.length > 0 && bottomRows.length < MAX_DOM_ROWS)
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:211:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:204:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:211:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:204:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -53,10 +53,10 @@ test at tests/unit/gui-spike-dom.test.mjs:203:3
 test at tests/unit/gui-spike-dom.test.mjs:226:3
 ✖ чат: top строки = индекс*44 (rowHeight и totalRows подтверждены из DOM) (3.87379ms)
   AssertionError [ERR_ASSERTION]: у строки чата нет .text
-      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:235:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:227:5)
+      at chatRowIndex (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:235:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:227:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -70,9 +70,9 @@ test at tests/unit/gui-spike-dom.test.mjs:226:3
 test at tests/unit/gui-spike-dom.test.mjs:268:3
 ✖ скролл участников: окно меняется, старые строки удалены, DOM не растёт (3.72346ms)
   AssertionError [ERR_ASSERTION]: верхние строки остались в окне после скролла
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:284:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:269:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:284:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:269:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -86,11 +86,11 @@ test at tests/unit/gui-spike-dom.test.mjs:268:3
 test at tests/unit/gui-spike-dom.test.mjs:300:3
 ✖ скролл чата: окно меняется, старые строки удалены, DOM не растёт (3.99595ms)
   AssertionError [ERR_ASSERTION]: у строки чата нет .text
-      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
+      at chatRowIndex (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
       at Array.map (<anonymous>)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:310:28
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:301:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:310:28
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:301:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -104,10 +104,10 @@ test at tests/unit/gui-spike-dom.test.mjs:300:3
 test at tests/unit/gui-spike-dom.test.mjs:481:3
 ✖ нет дублей: строка чата всегда ровно с одним .author и одним .text (6.52745ms)
   AssertionError [ERR_ASSERTION]: у строки чата нет .text
-      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:507:24
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:482:5)
+      at chatRowIndex (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:507:24
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:482:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -124,9 +124,9 @@ test at tests/unit/gui-spike-dom.test.mjs:517:3
   
     assert.ok(all(app, "#chat-list .row").length <= MAX_DOM_ROWS)
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:526:16
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:518:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:526:16
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:518:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -140,10 +140,10 @@ test at tests/unit/gui-spike-dom.test.mjs:517:3
 test at tests/unit/gui-spike-dom.test.mjs:546:3
 ✖ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.36654ms)
   AssertionError [ERR_ASSERTION]: у строки чата нет .text
-      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:560:20
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:547:5)
+      at chatRowIndex (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:119:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:560:20
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:547:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -157,9 +157,9 @@ test at tests/unit/gui-spike-dom.test.mjs:546:3
 test at tests/unit/gui-spike-dom.test.mjs:572:3
 ✖ скрытый экран рисует только overscan, показ экрана перерисовывает окно (3.98977ms)
   AssertionError [ERR_ASSERTION]: скрытый экран нарисовал 28 строк
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:579:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:573:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:579:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:573:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

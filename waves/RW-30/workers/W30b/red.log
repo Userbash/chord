@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
 error[E0599]: no method named `server_information` found for struct `Notifier` in the current scope
    --> crates/discord-platform/tests/notifications_contract.rs:268:18
     |

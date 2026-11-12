@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-216` (`BE-P1-18` / `polls`) — контракт голосования в опросах и подсчёта результатов (`PollAnswerOption`, `PollVoteRequest`, `PollResultEntry`, `validate_poll_vote_request`, `build_poll_answer_put_route`, `compute_poll_results`).
-- **Ветка / worktree**: `feature/task-216-be-polls-contract`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-216-be-polls-contract`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/polls.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/polls_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-216-be-polls-contract/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-216-be-polls-contract/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`, `/home/sanya/re-deep/pretty/mod-652215.pretty.js` и модулями `ipc_ext.rs`, `poll-progress.js`:
+Сверено с `reference-oracle/rest-static.json`, `reference-oracle/pretty/mod-652215.pretty.js` и модулями `ipc_ext.rs`, `poll-progress.js`:
 
 - `POLL_ANSWERS` (`rest-static.json:10525`): `PUT /channels/{channel_id}/polls/{message_id}/answers/@me`, тело `{"answer_ids": [...]}` (`<= 10` ответов).
 - `POLL_ANSWER_VOTERS` (`rest-static.json:10552`, `mod-652215.pretty.js:97`): `/channels/{channel_id}/polls/{message_id}/answers/{answer_id}`.
@@ -39,7 +39,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-216-be-polls-contract/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-216-be-polls-contract/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::polls`
@@ -54,7 +54,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-216-be-polls-contract/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-216-be-polls-contract/green.log`:
 
 ```text
 running 9 tests

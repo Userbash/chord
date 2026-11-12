@@ -1,7 +1,7 @@
 # B2a-ATTACH-TIER-FIX-PASS2 green (после restore мутаций) — 2026-10-30T17:49:53+05:00
 
 ## CARGO_TARGET_DIR=/tmp/target-g1-b2a2 cargo test --offline -p discord-gui-spike --test attachments_contract
-Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.04s
      Running tests/attachments_contract.rs (/tmp/target-g1-b2a2/debug/deps/attachments_contract-10b1b5f3f7986118)
 
@@ -28,7 +28,7 @@ test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 exit=0
 
 ## CARGO_TARGET_DIR=/tmp/target-g1-b2a2 cargo test --offline -p discord-gui-spike --lib attachments
-Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.06s
      Running unittests src/lib.rs (/tmp/target-g1-b2a2/debug/deps/discord_gui_spike-69b2bc60abd98420)
 
@@ -239,13 +239,13 @@ Compiling equivalent v1.0.3
     Checking serialize-to-javascript v0.1.2
     Checking getrandom v0.3.4
     Checking mime v0.3.17
-    Checking discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
-    Checking discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
-    Checking discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+    Checking discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
+    Checking discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
+    Checking discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
     Checking tungstenite v0.30.0
     Checking tokio-rustls v0.26.6
     Checking tokio-tungstenite v0.30.0
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Checking gio v0.18.4
     Checking cairo-rs v0.18.5
     Checking atk v0.18.2
@@ -254,7 +254,7 @@ Compiling equivalent v1.0.3
    Compiling tauri-codegen v2.7.4
    Compiling tauri v2.12.5
    Compiling tauri-macros v2.7.4
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Checking gdk-pixbuf v0.18.5
     Checking pango v0.18.3
     Checking soup3 v0.5.0

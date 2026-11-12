@@ -137,5 +137,5 @@ pub fn render_markdown(node: &MarkdownNode) -> String;
 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `Cargo.toml`, `waves/*`.
 - Не «зеленить» тесты правкой ожиданий; таблица — контракт.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `reference-oracle/`.
 - Не коммитить.

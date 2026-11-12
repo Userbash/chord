@@ -2,7 +2,7 @@
 
 - **batch/карточка:** `RW-40 / TASK-612` (G2 Frontend — Визард шаблонов создания серверов)
 - **Ветка:** `feature/task-612-create-guild-wizard`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-612-create-guild-wizard`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-612-create-guild-wizard`
 - **Дата:** 2026-11-07
 - **Коммитов нет:** `git commit` / `git push` не выполнялись (согласно правилам `AGENTS.md` §6).
 
@@ -28,10 +28,10 @@
   - `npm run typecheck` → `0 errors` (`exit code = 0`);
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `0 errors` (`exit code = 0`);
 - **oracle:**
-  - `/home/sanya/re-deep/frontend-d03.md` §5.5 (`CreateGuildModal`: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, focus trap модуль `617986`, `--modal-width-small: 442px`);
-  - `/home/sanya/re-deep/decoded/a72f8c0298aeb52e_0` (модуль `819638`: шаги визарда `guild-templates` и `customize-guild`);
-  - `/home/sanya/re-deep/decoded/9164065a2404f2fe_0` и `/home/sanya/re-deep/ru-catalog.json` (`H3+6BK`: `'Свой шаблон'`, `uE7zcu`: `'Для меня и друзей'`, `fYwSi2`: `'Учебная группа'`, `h9Q1lG`: `'Клуб или сообщество'`);
-  - `/home/sanya/re-deep/decoded/496925fc1facf986_0` (модуль `356343`: загрузчик значка сервера base64 DataURI);
+  - `reference-oracle/frontend-d03.md` §5.5 (`CreateGuildModal`: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, focus trap модуль `617986`, `--modal-width-small: 442px`);
+  - `reference-oracle/decoded/a72f8c0298aeb52e_0` (модуль `819638`: шаги визарда `guild-templates` и `customize-guild`);
+  - `reference-oracle/decoded/9164065a2404f2fe_0` и `reference-oracle/ru-catalog.json` (`H3+6BK`: `'Свой шаблон'`, `uE7zcu`: `'Для меня и друзей'`, `fYwSi2`: `'Учебная группа'`, `h9Q1lG`: `'Клуб или сообщество'`);
+  - `reference-oracle/decoded/496925fc1facf986_0` (модуль `356343`: загрузчик значка сервера base64 DataURI);
   - `rust/gui-spike/src/guilds.rs` (`create_guild`: валидация `1..=100` символов после `trim`, поля `name`, `icon`, `template`);
 - **генерация:** не применимо (статические модули UI и таблица стилей);
 - **мутации:** `5/5 KILLED` (`0 survivors`, `0 INCONCLUSIVE`, лог: `waves/RW-40/G2/task-612-create-guild-wizard/mutations.log`):

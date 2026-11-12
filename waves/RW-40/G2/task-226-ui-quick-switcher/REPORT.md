@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-226` (`feature/task-226-ui-quick-switcher`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/frontend-d03.md` (§1 `mod+k` — модуль `675704` QuickSwitcher), `/home/sanya/re-deep/ui/03-quickswitcher.html`, `/home/sanya/re-deep/ui/03-quickswitcher-input.html` (`placeholder="Куда отправимся?"`, `autocompleteQuerySymbol_ac6cb0`: `@` пользователи, `#` текстовые каналы, `!` голосовые каналы, `*` серверы).
+- **Оракулы**: `reference-oracle/frontend-d03.md` (§1 `mod+k` — модуль `675704` QuickSwitcher), `reference-oracle/ui/03-quickswitcher.html`, `reference-oracle/ui/03-quickswitcher-input.html` (`placeholder="Куда отправимся?"`, `autocompleteQuerySymbol_ac6cb0`: `@` пользователи, `#` текстовые каналы, `!` голосовые каналы, `*` серверы).
 
 ## Сделано
 1. `tests/unit/quick-switcher.test.mjs` (Red → Green, 8 тестов в 2 suites, `// @ts-check` + JSDoc, минимальный DOM-шим):
@@ -20,8 +20,8 @@
    - экспортированы `QUICK_SWITCHER_PREFIXES`, `MAX_QUICK_SWITCHER_RESULTS`, `QUICK_SWITCHER_PLACEHOLDER_RU`, `scoreAndFilterQuickSwitcherItems`, `createQuickSwitcherController` при полном сохранении совместимости с существующим `createQuickSwitcher({ router })`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/quick-switcher.test.mjs` → `tests 1, pass 0, fail 1` (`SyntaxError: ... does not provide an export named 'MAX_QUICK_SWITCHER_RESULTS'`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-226-ui-quick-switcher/red.log`.
-- **Green**: `node --test tests/unit/quick-switcher.test.mjs` → `tests 8, suites 2, pass 8, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-226-ui-quick-switcher/green.log`.
+- **Red**: `node --test tests/unit/quick-switcher.test.mjs` → `tests 1, pass 0, fail 1` (`SyntaxError: ... does not provide an export named 'MAX_QUICK_SWITCHER_RESULTS'`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-226-ui-quick-switcher/red.log`.
+- **Green**: `node --test tests/unit/quick-switcher.test.mjs` → `tests 8, suites 2, pass 8, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-226-ui-quick-switcher/green.log`.
 - **Targeted & Typecheck**: `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` (`0 errors`), `0 errors` в `quick-switcher.js` / `quick-switcher.test.mjs` при проверке `tsconfig.json`, `node --test tests/unit/gui-spike-regressions.test.mjs` (`13/13 pass`).
 - **Gate**: полный `gate:worker` не запускался (режим ТЗ карточки); чужие файлы не затронуты.
 
@@ -29,8 +29,8 @@
 ```
 9fa592ae1447d5c6c7615d313b12c503  rust/gui-spike/ui/features/quick-switcher.js
 e7e57f435ac6fe5172c791773b516198  tests/unit/quick-switcher.test.mjs
-f7952108e90bd6c1d35e83c33d017d90  /home/sanya/orca/project/waves/RW-40/G2/task-226-ui-quick-switcher/red.log
-6d2e466bf6cc8587161971211ec4ded1  /home/sanya/orca/project/waves/RW-40/G2/task-226-ui-quick-switcher/green.log
+f7952108e90bd6c1d35e83c33d017d90  /home/user/orca/project/waves/RW-40/G2/task-226-ui-quick-switcher/red.log
+6d2e466bf6cc8587161971211ec4ded1  /home/user/orca/project/waves/RW-40/G2/task-226-ui-quick-switcher/green.log
 ```
 
 ## Риски

@@ -42,7 +42,7 @@ test at tests/unit/app-shell-wiring.test.mjs:486:1
   -   'createComposerPopoversBridge'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:489:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:489:10)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

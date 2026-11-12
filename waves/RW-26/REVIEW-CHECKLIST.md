@@ -8,7 +8,7 @@
       `tests/{rtcp,reception,stats,regions}_contract.rs` и интеграционный `src/lib.rs`
       (только `pub mod`).
 - [ ] `Cargo.toml`/`Cargo.lock` не менялись; внешних зависимостей нет.
-- [ ] Golden (`logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`) не изменялся.
+- [ ] Golden (`logs/`, `functions/`, `evidence/`, `reference-oracle/`) не изменялся.
 - [ ] Доки до accepted не правились.
 
 ## 2. P4-07 — RTCP/RTP/stats

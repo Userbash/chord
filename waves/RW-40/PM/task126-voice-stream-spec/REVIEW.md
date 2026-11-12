@@ -7,12 +7,12 @@
 - **Оракулы:** `VOICE-STREAM-UI-SPEC.md` (`md5 44daa51a3c8bf953a428edebf9f67bf8`, 1438 строк),
   `REPORT.md`, `rust/crates/discord-core/src/stream.rs`, `rust/crates/discord-voice/src/session.rs`,
   `waves/RW-40/VOICE/STREAM-GATEWAY-CONTRACT.md`, `stream-opcodes-fixtures.json`,
-  `rust/gui-spike/ui/tokens.css`, `TEST-POLICY.md` §13, `/home/sanya/re-deep/{voice-deep,frontend-d03}.md`.
+  `rust/gui-spike/ui/tokens.css`, `TEST-POLICY.md` §13, `reference-oracle/{voice-deep,frontend-d03}.md`.
 - **Режим:** read-only. Записан только этот файл. Продуктовый код, тесты и гейт не менялись.
 
 Код-оракул в ветке отсутствует: `rust/crates/discord-core/src/stream.rs`, `session.rs`,
 `STREAM-GATEWAY-CONTRACT.md`, `stream_gateway_contract.rs` и `session_contract.rs` есть в рабочем дереве
-`/home/sanya/orca/project` (main, dirty), но не в `design/task-126`. Поэтому сверка кода шла по main;
+`/home/user/orca/project` (main, dirty), но не в `design/task-126`. Поэтому сверка кода шла по main;
 ссылки спеки (`stream.rs:423`, `session.rs:1333` и т. д.) указывают именно туда и совпадают.
 
 ---
@@ -33,7 +33,7 @@
 | Маскирование | `StreamKey` `Debug`/`Display`, `StreamSecret` | `<redacted>` для guild/token; §6/D9 выполним |
 | Запрещённые API в UI | `grep` по `rust/gui-spike/ui/` | 0 вхождений `getDisplayMedia`, `getUserMedia`, `presentNativeScreenSharePicker` и т. п. |
 
-`/home/sanya/re-deep/voice-deep.md` и `frontend-d03.md` не противоречат спеке: опкодов `18..=22` в них нет
+`reference-oracle/voice-deep.md` и `frontend-d03.md` не противоречат спеке: опкодов `18..=22` в них нет
 (там RTC-опкоды 0…16 и UI-дамп), поэтому протокольная часть опирается на контракт и код, а не на дамп.
 Это корректно оговорено в §0.1 и §0.2.
 

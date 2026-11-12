@@ -28,8 +28,8 @@
 test at tests/unit/channel-paging.test.mjs:325:3
 ✖ открытие канала — без cursor, limit=100, без token (32.543464ms)
   AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-more
-      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:263:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:337:9)
+      at firstNode (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:263:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:337:9)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -48,7 +48,7 @@ test at tests/unit/channel-paging.test.mjs:349:3
   
   1 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:359:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:359:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -67,7 +67,7 @@ test at tests/unit/channel-paging.test.mjs:412:3
   
   1 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:425:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:425:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -81,8 +81,8 @@ test at tests/unit/channel-paging.test.mjs:412:3
 test at tests/unit/channel-paging.test.mjs:441:5
 ✖ ошибка 404 второй страницы видна, строки первой не пропадают, retry работает (10.461916ms)
   AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-more
-      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:263:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:456:24)
+      at firstNode (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:263:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:456:24)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -98,8 +98,8 @@ test at tests/unit/channel-paging.test.mjs:441:5
 test at tests/unit/channel-paging.test.mjs:441:5
 ✖ ошибка 401 второй страницы видна, строки первой не пропадают, retry работает (9.46904ms)
   AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-more
-      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:263:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:456:24)
+      at firstNode (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:263:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:456:24)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -113,8 +113,8 @@ test at tests/unit/channel-paging.test.mjs:441:5
 test at tests/unit/channel-paging.test.mjs:492:3
 ✖ окно истории не растёт сверх 500 строк (loaded_rows_limit) (12.524324ms)
   AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-more
-      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:263:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:549:9)
+      at firstNode (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:263:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:549:9)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

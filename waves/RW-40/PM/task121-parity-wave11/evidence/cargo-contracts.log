@@ -1,8 +1,8 @@
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-json)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/gui-spike)
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-platform)
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-codec)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-core)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-json)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/gui-spike)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-platform)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 18.73s
      Running tests/ipc_wiring_contract.rs (rust/gui-spike/target/debug/deps/ipc_wiring_contract-753abf523feb46d5)
 

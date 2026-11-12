@@ -36,7 +36,7 @@ PM принимает волну только при выполнении все
 
 - [ ] `waves/RW-37/RE/RESEARCH.md` + `layout.json` существуют.
 - [ ] Каждое число имеет провенанс (путь к артефакту); `assumption` помечены.
-- [ ] Нет изменений в `/home/sanya/re-deep` (golden read-only).
+- [ ] Нет изменений в `reference-oracle/` (golden read-only).
 
 ## F. Гейт и ревью
 

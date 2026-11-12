@@ -1,6 +1,6 @@
 # Task 1 mutation run — STUB-14-UI-SEARCH-FIX
 
-Repository: /home/sanya/orca/project
+Repository: /home/user/orca/project
 Target test: tests/unit/search-remote-real-index.test.mjs
 Node: v26.13.0
 

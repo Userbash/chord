@@ -40,9 +40,9 @@ test at tests/unit/gui-spike-dom.test.mjs:244:3
   + 4400000
   - 3375060
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:247:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:245:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:247:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:245:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -59,9 +59,9 @@ test at tests/unit/gui-spike-dom.test.mjs:268:3
   
   '44px' !== '48px'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:284:16
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:269:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:284:16
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:269:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -78,9 +78,9 @@ test at tests/unit/gui-spike-dom.test.mjs:360:3
   
     assert.ok(Math.min(...indices) <= 60_000 && Math.max(...indices) >= 60_000)
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:371:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:361:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:371:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:361:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,

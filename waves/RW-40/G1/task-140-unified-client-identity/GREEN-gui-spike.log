@@ -1,10 +1,10 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/gui-spike)
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-json)
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-platform)
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-codec)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/gui-spike)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-json)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-platform)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 8.36s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-4c72dd5e3b8c00bf)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-4c72dd5e3b8c00bf)
 
 running 6 tests
 test messages::tests::api_error_is_classified_by_the_shared_module ... ok
@@ -16,7 +16,7 @@ test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-22bee70ec16d2f63)
+     Running unittests src/main.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-22bee70ec16d2f63)
 
 running 9 tests
 test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
@@ -31,7 +31,7 @@ test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
 
-     Running tests/auth_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/auth_contract-69eacfa07315d8a8)
+     Running tests/auth_contract.rs (/home/user/orca/project/rust/target/debug/deps/auth_contract-69eacfa07315d8a8)
 
 running 44 tests
 test auth_state_events_are_redacted_and_cover_phases ... ok
@@ -81,7 +81,7 @@ test threaded_store_times_out_instead_of_waiting_forever ... ok
 
 test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
 
-     Running tests/channels_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/channels_contract-46705b25c8a6d985)
+     Running tests/channels_contract.rs (/home/user/orca/project/rust/target/debug/deps/channels_contract-46705b25c8a6d985)
 
 running 6 tests
 test channels_keep_absent_fields_as_null_and_order_private_last ... ok
@@ -93,7 +93,7 @@ test channels_filter_by_guild_returns_only_that_guild ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
 
-     Running tests/core_bridge.rs (/home/sanya/orca/project/rust/target/debug/deps/core_bridge-36613bf052092058)
+     Running tests/core_bridge.rs (/home/user/orca/project/rust/target/debug/deps/core_bridge-36613bf052092058)
 
 running 6 tests
 test non_numeric_id_is_parse_error_not_panic ... ok
@@ -105,7 +105,7 @@ test pagination_is_stable_forward_and_on_repeat ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
 
-     Running tests/data_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/data_contract-ebfabc78964cae74)
+     Running tests/data_contract.rs (/home/user/orca/project/rust/target/debug/deps/data_contract-ebfabc78964cae74)
 
 running 30 tests
 test errors_serialize_to_typed_json ... ok
@@ -141,7 +141,7 @@ test search_page_matches_fixture_fields_and_paginates ... ok
 
 test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
 
-     Running tests/guilds_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/guilds_contract-9c58e0ff137008ad)
+     Running tests/guilds_contract.rs (/home/user/orca/project/rust/target/debug/deps/guilds_contract-9c58e0ff137008ad)
 
 running 24 tests
 test empty_or_blank_token_is_missing_token ... ok
@@ -171,7 +171,7 @@ test module_enter_and_join_are_equivalent ... ok
 
 test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/history_before_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/history_before_contract-48c4106855446a43)
+     Running tests/history_before_contract.rs (/home/user/orca/project/rust/target/debug/deps/history_before_contract-48c4106855446a43)
 
 running 12 tests
 test older_page_dedups_by_id_and_applies_update_without_duplicate_rows ... ok
@@ -189,7 +189,7 @@ test before_page_rows_match_forward_rows_exactly ... ok
 
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
 
-     Running tests/invites_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/invites_contract-598aa805684b3ff4)
+     Running tests/invites_contract.rs (/home/user/orca/project/rust/target/debug/deps/invites_contract-598aa805684b3ff4)
 
 running 14 tests
 test empty_or_blank_token_is_missing_token ... ok
@@ -209,7 +209,7 @@ test success_without_parsable_invite_object_is_invalid_response ... ok
 
 test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/ipc_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_contract-0e7ee08415efe284)
+     Running tests/ipc_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_contract-0e7ee08415efe284)
 
 running 20 tests
 test accepts_bench_payload_with_chat_and_members_objects ... ok
@@ -235,14 +235,14 @@ test rejects_wrong_types ... ok
 
 test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/launch.rs (/home/sanya/orca/project/rust/target/debug/deps/launch-edc929d3c8eb808d)
+     Running tests/launch.rs (/home/user/orca/project/rust/target/debug/deps/launch-edc929d3c8eb808d)
 
 running 1 test
 test launches_real_window_and_reports_ui_snapshot ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.46s
 
-     Running tests/messages_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/messages_contract-552f2d12d4c88f86)
+     Running tests/messages_contract.rs (/home/user/orca/project/rust/target/debug/deps/messages_contract-552f2d12d4c88f86)
 
 running 12 tests
 test ack_message_delegates_counter_and_nullable_token_verbatim ... ok
@@ -260,7 +260,7 @@ test sender_debug_does_not_reveal_token ... ok
 
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/net_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/net_contract-669d5467ef086f54)
+     Running tests/net_contract.rs (/home/user/orca/project/rust/target/debug/deps/net_contract-669d5467ef086f54)
 
 running 23 tests
 test connect_reads_token_and_reaches_ready ... ok
@@ -289,7 +289,7 @@ test ready_payload_drops_session_secrets_and_keeps_data ... ok
 
 test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
 
-     Running tests/reactions_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/reactions_contract-b5d54a0a8bf6ec70)
+     Running tests/reactions_contract.rs (/home/user/orca/project/rust/target/debug/deps/reactions_contract-b5d54a0a8bf6ec70)
 
 running 6 tests
 test emoji_path_uses_percent_encoding_without_plain_unicode ... ok
@@ -301,7 +301,7 @@ test typed_failures_are_preserved ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/read_state_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/read_state_contract-3ffb12ad0431e470)
+     Running tests/read_state_contract.rs (/home/user/orca/project/rust/target/debug/deps/read_state_contract-3ffb12ad0431e470)
 
 running 15 tests
 test broken_ready_json_is_parse ... ok
@@ -322,7 +322,7 @@ test serializes_exactly_nine_camel_case_fields_typed_like_ready ... ok
 
 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_ack.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_ack-b7d35fe3baad7e43)
+     Running tests/rest_ack.rs (/home/user/orca/project/rust/target/debug/deps/rest_ack-b7d35fe3baad7e43)
 
 running 9 tests
 test ack_is_available_through_a_trait_object ... ok
@@ -337,7 +337,7 @@ test ack_maps_http_statuses_to_typed_errors ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_failure_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_failure_contract-6c56707bc9dd59d9)
+     Running tests/rest_failure_contract.rs (/home/user/orca/project/rust/target/debug/deps/rest_failure_contract-6c56707bc9dd59d9)
 
 running 6 tests
 test absurd_retry_after_saturates_instead_of_panicking ... ok
@@ -349,7 +349,7 @@ test new_kinds_serialize_with_camel_case_and_have_display ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-521ea971be771369)
+     Running tests/search_contract.rs (/home/user/orca/project/rust/target/debug/deps/search_contract-521ea971be771369)
 
 running 12 tests
 test decodes_hits_and_deep_index_flag ... ok
@@ -367,7 +367,7 @@ test tauri_command_reads_token_from_backend_and_is_registered ... ok
 
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/settings_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/settings_contract-24719bda95edd5b4)
+     Running tests/settings_contract.rs (/home/user/orca/project/rust/target/debug/deps/settings_contract-24719bda95edd5b4)
 
 running 23 tests
 test last_guild_id_defaults_to_none_and_stays_out_of_canonical_file ... ok
@@ -396,7 +396,7 @@ test save_rejects_more_than_size_limit_without_touching_disk ... ok
 
 test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
-     Running tests/typing_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/typing_contract-3dd79a836790e28e)
+     Running tests/typing_contract.rs (/home/user/orca/project/rust/target/debug/deps/typing_contract-3dd79a836790e28e)
 
 running 13 tests
 test empty_or_blank_token_is_unauthorized ... ok

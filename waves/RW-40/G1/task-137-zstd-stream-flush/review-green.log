@@ -1,7 +1,7 @@
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-core)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.13s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_codec-4fb3fcae36fc27af)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_codec-4fb3fcae36fc27af)
 
 running 5 tests
 test tests::etf_tags_are_the_frozen_eleven ... ok
@@ -12,7 +12,7 @@ test zstd::tests::flush_releases_each_message_immediately ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/etf_full.rs (/home/sanya/orca/project/rust/target/debug/deps/etf_full-b889a8275f585ee0)
+     Running tests/etf_full.rs (/home/user/orca/project/rust/target/debug/deps/etf_full-b889a8275f585ee0)
 
 running 6 tests
 test prefix_truncation_is_bounded_and_never_reports_overread ... ok
@@ -24,7 +24,7 @@ test fuzz_50k_random_and_all_single_bytes_never_panic ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
-     Running tests/etf_properties.rs (/home/sanya/orca/project/rust/target/debug/deps/etf_properties-d4b941ed76607ff9)
+     Running tests/etf_properties.rs (/home/user/orca/project/rust/target/debug/deps/etf_properties-d4b941ed76607ff9)
 
 running 9 tests
 test accessors_keep_types_strict ... ok
@@ -39,7 +39,7 @@ test fuzz_lite_never_panics_on_garbage ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
-     Running tests/etf_vectors.rs (/home/sanya/orca/project/rust/target/debug/deps/etf_vectors-230727415f440535)
+     Running tests/etf_vectors.rs (/home/user/orca/project/rust/target/debug/deps/etf_vectors-230727415f440535)
 
 running 13 tests
 test atom_nil_is_a_string_and_not_nil_ext ... ok
@@ -58,7 +58,7 @@ test vector_lengths_match_capture_bytes_field ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/zstd_stream.rs (/home/sanya/orca/project/rust/target/debug/deps/zstd_stream-e00e4db27d8e11f2)
+     Running tests/zstd_stream.rs (/home/user/orca/project/rust/target/debug/deps/zstd_stream-e00e4db27d8e11f2)
 
 running 13 tests
 test fresh_stream_is_not_finished_and_not_dead ... ok
@@ -77,7 +77,7 @@ test lab_stream_1389_matches_oracle ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
 
 running 3 tests
 test gateway::tests::op_codes_match_protocol_table ... ok
@@ -86,7 +86,7 @@ test tests::gateway_constants_match_capture ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/dispatch_router.rs (/home/sanya/orca/project/rust/target/debug/deps/dispatch_router-79d355f1b0ba988a)
+     Running tests/dispatch_router.rs (/home/user/orca/project/rust/target/debug/deps/dispatch_router-79d355f1b0ba988a)
 
 running 12 tests
 test kind_from_name_exact_roundtrip ... ok
@@ -104,7 +104,7 @@ test lab_real_stream_routes_known_kinds ... ok
 
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/gateway_session.rs (/home/sanya/orca/project/rust/target/debug/deps/gateway_session-8a2b9d7a307c83a1)
+     Running tests/gateway_session.rs (/home/user/orca/project/rust/target/debug/deps/gateway_session-8a2b9d7a307c83a1)
 
 running 15 tests
 test ack_measures_rtt_and_reschedules ... ok
@@ -125,7 +125,7 @@ test lab_hello_via_zstd_pipeline ... ok
 
 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
-     Running tests/gateway_supervisor.rs (/home/sanya/orca/project/rust/target/debug/deps/gateway_supervisor-fd86ea8221425cca)
+     Running tests/gateway_supervisor.rs (/home/user/orca/project/rust/target/debug/deps/gateway_supervisor-fd86ea8221425cca)
 
 running 14 tests
 test backoff_doubles_caps_and_resets ... ok
@@ -145,7 +145,7 @@ test supervisor_cancels ... ok
 
 test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
 
-     Running tests/history_pagination.rs (/home/sanya/orca/project/rust/target/debug/deps/history_pagination-cc994ccc27b55081)
+     Running tests/history_pagination.rs (/home/user/orca/project/rust/target/debug/deps/history_pagination-cc994ccc27b55081)
 
 running 5 tests
 test h07_effect_mapping_and_queries ... ok
@@ -156,7 +156,7 @@ test h09_after_and_around_windows ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/history_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/history_selectors-e40b001d71ca8527)
+     Running tests/history_selectors.rs (/home/user/orca/project/rust/target/debug/deps/history_selectors-e40b001d71ca8527)
 
 running 8 tests
 test s02_bounds_tri_state ... ok
@@ -170,7 +170,7 @@ test s08_real_fixtures_order ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/history_types.rs (/home/sanya/orca/project/rust/target/debug/deps/history_types-e0c19a349a470851)
+     Running tests/history_types.rs (/home/user/orca/project/rust/target/debug/deps/history_types-e0c19a349a470851)
 
 running 7 tests
 test h01_config_and_validation ... ok
@@ -183,7 +183,7 @@ test h04_update_upserts_full_message ... ok
 
 test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/identify.rs (/home/sanya/orca/project/rust/target/debug/deps/identify-003bd256afcd08ca)
+     Running tests/identify.rs (/home/user/orca/project/rust/target/debug/deps/identify-003bd256afcd08ca)
 
 running 5 tests
 test build_identify_rejects_empty_token ... ok
@@ -194,7 +194,7 @@ test identify_properties_keep_launch_id_current ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/identify_ready.rs (/home/sanya/orca/project/rust/target/debug/deps/identify_ready-611e05dd74b6427b)
+     Running tests/identify_ready.rs (/home/user/orca/project/rust/target/debug/deps/identify_ready-611e05dd74b6427b)
 
 running 16 tests
 test identify_debug_redacts_token ... ok
@@ -216,7 +216,7 @@ test ws_identify_only_after_hello ... ok
 
 test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
 
-     Running tests/member_chunk_reducer.rs (/home/sanya/orca/project/rust/target/debug/deps/member_chunk_reducer-f93f9c7e81b78409)
+     Running tests/member_chunk_reducer.rs (/home/user/orca/project/rust/target/debug/deps/member_chunk_reducer-f93f9c7e81b78409)
 
 running 13 tests
 test r12_single_chunk_without_nonce_is_new_response_without_duplicate ... ok
@@ -235,7 +235,7 @@ test r10_existing_guild_member_is_updated_not_duplicated ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
 
-     Running tests/member_chunk_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/member_chunk_selectors-925f4dd0204cd701)
+     Running tests/member_chunk_selectors.rs (/home/user/orca/project/rust/target/debug/deps/member_chunk_selectors-925f4dd0204cd701)
 
 running 11 tests
 test s10_member_chunk_count ... ok
@@ -252,7 +252,7 @@ test s09_presence_effect_missing_list_or_bad_range_is_none ... ok
 
 test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
 
-     Running tests/member_chunk_types.rs (/home/sanya/orca/project/rust/target/debug/deps/member_chunk_types-e5e7a504123a97dd)
+     Running tests/member_chunk_types.rs (/home/user/orca/project/rust/target/debug/deps/member_chunk_types-e5e7a504123a97dd)
 
 running 19 tests
 test c05_members_null_is_empty_without_diagnostics ... ok
@@ -277,7 +277,7 @@ test c19_missing_members_is_empty_without_diagnostics ... ok
 
 test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/member_list_reducer.rs (/home/sanya/orca/project/rust/target/debug/deps/member_list_reducer-6c600de2282f23e0)
+     Running tests/member_list_reducer.rs (/home/user/orca/project/rust/target/debug/deps/member_list_reducer-6c600de2282f23e0)
 
 running 17 tests
 test m09_update_out_of_range_creates_stub ... ok
@@ -300,7 +300,7 @@ test m14_member_list_has_no_cross_state_side_effects ... ok
 
 test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/member_list_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/member_list_selectors-6a28765fd2fd2215)
+     Running tests/member_list_selectors.rs (/home/user/orca/project/rust/target/debug/deps/member_list_selectors-6a28765fd2fd2215)
 
 running 9 tests
 test s05_missing_list_is_empty_and_safe ... ok
@@ -315,7 +315,7 @@ test s08_member_list_count_counts_lists ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
-     Running tests/member_list_types.rs (/home/sanya/orca/project/rust/target/debug/deps/member_list_types-34b7a229eb324b4f)
+     Running tests/member_list_types.rs (/home/user/orca/project/rust/target/debug/deps/member_list_types-34b7a229eb324b4f)
 
 running 14 tests
 test m11_root_reexports_are_available ... ok
@@ -335,7 +335,7 @@ test m12_legacy_005_006_shape_with_corrected_guild_id ... ok
 
 test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/presence_reducer.rs (/home/sanya/orca/project/rust/target/debug/deps/presence_reducer-cdf0b0d12a7754f2)
+     Running tests/presence_reducer.rs (/home/user/orca/project/rust/target/debug/deps/presence_reducer-cdf0b0d12a7754f2)
 
 running 19 tests
 test r06_offline_unknown_is_noop ... ok
@@ -360,7 +360,7 @@ test r10_member_list_presence_integration ... ok
 
 test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/presence_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/presence_selectors-de7107e5103608ee)
+     Running tests/presence_selectors.rs (/home/user/orca/project/rust/target/debug/deps/presence_selectors-de7107e5103608ee)
 
 running 18 tests
 test s01_status_and_defaults ... ok
@@ -384,7 +384,7 @@ test s14_member_presence_activities ... ok
 
 test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/presence_types.rs (/home/sanya/orca/project/rust/target/debug/deps/presence_types-804941fbc7c1b897)
+     Running tests/presence_types.rs (/home/user/orca/project/rust/target/debug/deps/presence_types-804941fbc7c1b897)
 
 running 18 tests
 test a01_fixture_010_fields_and_empty_diagnostics ... ok
@@ -408,7 +408,7 @@ test a15_supplemental_merged_presences_fixture ... ok
 
 test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/read_state_reducer.rs (/home/sanya/orca/project/rust/target/debug/deps/read_state_reducer-dab94e39d1a81c11)
+     Running tests/read_state_reducer.rs (/home/user/orca/project/rust/target/debug/deps/read_state_reducer-dab94e39d1a81c11)
 
 running 17 tests
 test r16_version_is_assigned_without_max_guard ... ok
@@ -431,7 +431,7 @@ test r17_unknown_channel_version_has_no_max_guard ... ok
 
 test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
 
-     Running tests/read_state_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/read_state_selectors-5b275aa7d4c2260b)
+     Running tests/read_state_selectors.rs (/home/user/orca/project/rust/target/debug/deps/read_state_selectors-5b275aa7d4c2260b)
 
 running 11 tests
 test s02_synthetic_mentions_clamp_and_filter ... ok
@@ -448,7 +448,7 @@ test s03_guild_mentions_include_channels_and_threads_only ... ok
 
 test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/read_state_types.rs (/home/sanya/orca/project/rust/target/debug/deps/read_state_types-7e08f06ab6e41625)
+     Running tests/read_state_types.rs (/home/user/orca/project/rust/target/debug/deps/read_state_types-7e08f06ab6e41625)
 
 running 12 tests
 test a02_minimal_ack_defaults_optional_fields ... ok
@@ -466,7 +466,7 @@ test a10_broken_ack_is_malformed_without_state_change ... ok
 
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/ready_core.rs (/home/sanya/orca/project/rust/target/debug/deps/ready_core-849d54acc4b6cecd)
+     Running tests/ready_core.rs (/home/user/orca/project/rust/target/debug/deps/ready_core-849d54acc4b6cecd)
 
 running 14 tests
 test a11_negative_ids_are_rejected ... ok
@@ -486,7 +486,7 @@ test a3_large_guild_matches_capture ... ok
 
 test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/ready_fixture.rs (/home/sanya/orca/project/rust/target/debug/deps/ready_fixture-bc3bba2d095ce7ad)
+     Running tests/ready_fixture.rs (/home/user/orca/project/rust/target/debug/deps/ready_fixture-bc3bba2d095ce7ad)
 
 running 3 tests
 test ready_parse_rejects_top_level_user_with_bad_id ... ok
@@ -495,7 +495,7 @@ test adapter_reads_ready_fixture_and_matches_oracle_counts ... ok
 
 test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
-     Running tests/ready_read_state.rs (/home/sanya/orca/project/rust/target/debug/deps/ready_read_state-0ab38694269c78e1)
+     Running tests/ready_read_state.rs (/home/user/orca/project/rust/target/debug/deps/ready_read_state-0ab38694269c78e1)
 
 running 11 tests
 test c10_broken_ids_skip_elements_with_malformed ... ok
@@ -512,7 +512,7 @@ test c5_channel_override_optionals_match_oracle ... ok
 
 test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/ready_review.rs (/home/sanya/orca/project/rust/target/debug/deps/ready_review-9ea25b0ab73e06fb)
+     Running tests/ready_review.rs (/home/user/orca/project/rust/target/debug/deps/ready_review-9ea25b0ab73e06fb)
 
 running 7 tests
 test r2_non_map_d_is_not_ready ... ok
@@ -525,7 +525,7 @@ test r7_duplicate_guild_keeps_last_member_group ... ok
 
 test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/ready_social.rs (/home/sanya/orca/project/rust/target/debug/deps/ready_social-c00509dc83fce595)
+     Running tests/ready_social.rs (/home/user/orca/project/rust/target/debug/deps/ready_social-c00509dc83fce595)
 
 running 13 tests
 test b07_merged_members_length_mismatch_synthetic ... ok
@@ -544,7 +544,7 @@ test b02_top_level_user_fixture ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/rest_ack.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_ack-f395a7f9e759f31f)
+     Running tests/rest_ack.rs (/home/user/orca/project/rust/target/debug/deps/rest_ack-f395a7f9e759f31f)
 
 running 9 tests
 test case1_target_matches_oracle_path ... ok
@@ -559,7 +559,7 @@ test case6_u64_max_has_no_loss ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_base64.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_base64-8b70845620bc8286)
+     Running tests/rest_base64.rs (/home/user/orca/project/rust/target/debug/deps/rest_base64-8b70845620bc8286)
 
 running 5 tests
 test errors_are_typed ... ok
@@ -570,7 +570,7 @@ test live_header_roundtrip ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_client.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_client-2a18cc6e66b1af6e)
+     Running tests/rest_client.rs (/home/user/orca/project/rust/target/debug/deps/rest_client-2a18cc6e66b1af6e)
 
 running 26 tests
 test debug_redacts_authorization ... ok
@@ -602,7 +602,7 @@ test transport_read_timeout_is_not_retried_for_post ... ok
 
 test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
 
-     Running tests/rest_headers.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_headers-e24613736bd2bb39)
+     Running tests/rest_headers.rs (/home/user/orca/project/rust/target/debug/deps/rest_headers-e24613736bd2bb39)
 
 running 5 tests
 test auth_counts_match_capture ... ok
@@ -613,7 +613,7 @@ test classify_status_observed_and_other ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_http1.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_http1-29e7e898fd1c0a71)
+     Running tests/rest_http1.rs (/home/user/orca/project/rust/target/debug/deps/rest_http1-29e7e898fd1c0a71)
 
 running 16 tests
 test content_length_rules ... ok
@@ -635,7 +635,7 @@ test parse_head_incomplete_and_limit ... ok
 
 test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_identity.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_identity-6d204a2f7f4c9565)
+     Running tests/rest_identity.rs (/home/user/orca/project/rust/target/debug/deps/rest_identity-6d204a2f7f4c9565)
 
 running 8 tests
 test config_overrides_win ... ok
@@ -649,7 +649,7 @@ test integration_base64_headers ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_rate_limit.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_rate_limit-2708a725c4fd3b7c)
+     Running tests/rest_rate_limit.rs (/home/user/orca/project/rust/target/debug/deps/rest_rate_limit-2708a725c4fd3b7c)
 
 running 10 tests
 test case1_retry_after_header ... ok
@@ -665,7 +665,7 @@ test case8_should_retry_by_method ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_resources.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_resources-08a63e9ea2bd5252)
+     Running tests/rest_resources.rs (/home/user/orca/project/rust/target/debug/deps/rest_resources-08a63e9ea2bd5252)
 
 running 6 tests
 test catalog_matches_d02_and_get_routes ... ok
@@ -677,7 +677,7 @@ test catalog_matches_independent_d02_json_oracle ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
-     Running tests/rest_retry.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_retry-7fd1e99ef9d42367)
+     Running tests/rest_retry.rs (/home/user/orca/project/rust/target/debug/deps/rest_retry-7fd1e99ef9d42367)
 
 running 11 tests
 test is_idempotent_table ... ok
@@ -694,7 +694,7 @@ test stub_all_timeout_exhausts ... ok
 
 test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
 
-     Running tests/rest_routes.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_routes-2d22ade7450fc362)
+     Running tests/rest_routes.rs (/home/user/orca/project/rust/target/debug/deps/rest_routes-2d22ade7450fc362)
 
 running 9 tests
 test body_keys_only_on_six_routes ... ok
@@ -709,7 +709,7 @@ test crossref_static_confirms_catalog ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_super_properties.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_super_properties-c0bbba99feca4744)
+     Running tests/rest_super_properties.rs (/home/user/orca/project/rust/target/debug/deps/rest_super_properties-c0bbba99feca4744)
 
 running 8 tests
 test p1_fields_are_22_in_order ... ok
@@ -723,7 +723,7 @@ test p4_live_base64_roundtrip ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_telemetry.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_telemetry-b9dc8f0ca35995c9)
+     Running tests/rest_telemetry.rs (/home/user/orca/project/rust/target/debug/deps/rest_telemetry-b9dc8f0ca35995c9)
 
 running 4 tests
 test allows_lookalikes_and_other_paths ... ok
@@ -733,7 +733,7 @@ test guard_target_blocks_and_passes_through ... ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rest_transport.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_transport-ca67ac26424b2bf4)
+     Running tests/rest_transport.rs (/home/user/orca/project/rust/target/debug/deps/rest_transport-ca67ac26424b2bf4)
 
 running 14 tests
 test endpoint_rejects_bad_base_and_target ... ok
@@ -753,7 +753,7 @@ test read_timeout_is_enforced ... ok
 
 test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
 
-     Running tests/rest_user.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_user-fe7043f2526912fd)
+     Running tests/rest_user.rs (/home/user/orca/project/rust/target/debug/deps/rest_user-fe7043f2526912fd)
 
 running 10 tests
 test me_debug_does_not_hide_public_fields ... ok
@@ -769,7 +769,7 @@ test parse_me_rejects_wrong_field_types ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/resume_reconnect.rs (/home/sanya/orca/project/rust/target/debug/deps/resume_reconnect-5ef9890223c6bab5)
+     Running tests/resume_reconnect.rs (/home/user/orca/project/rust/target/debug/deps/resume_reconnect-5ef9890223c6bab5)
 
 running 13 tests
 test plan_reconnect_policy ... ok
@@ -788,7 +788,7 @@ test ws_resume_not_before_hello ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
 
-     Running tests/settings_proto.rs (/home/sanya/orca/project/rust/target/debug/deps/settings_proto-f6c37ec7c7c6ebdc)
+     Running tests/settings_proto.rs (/home/user/orca/project/rust/target/debug/deps/settings_proto-f6c37ec7c7c6ebdc)
 
 running 18 tests
 test p08t11_unsupported_type_preserves_wire ... ok
@@ -812,7 +812,7 @@ test p08t18_max_fields_boundary ... ok
 
 test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
-     Running tests/state_reducer.rs (/home/sanya/orca/project/rust/target/debug/deps/state_reducer-dda1fcc193c948e2)
+     Running tests/state_reducer.rs (/home/user/orca/project/rust/target/debug/deps/state_reducer-dda1fcc193c948e2)
 
 running 19 tests
 test r06_channel_info_upserts_and_creates_stub_guild ... ok
@@ -837,7 +837,7 @@ test r09_ready_resets_sequence_and_state ... ok
 
 test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
 
-     Running tests/state_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/state_selectors-20288302c90fef1d)
+     Running tests/state_selectors.rs (/home/user/orca/project/rust/target/debug/deps/state_selectors-20288302c90fef1d)
 
 running 8 tests
 test s06_missing_lookups ... ok
@@ -851,7 +851,7 @@ test s05_threads_in_guild_sorted ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/state_types.rs (/home/sanya/orca/project/rust/target/debug/deps/state_types-0cfcd84c1f08efd7)
+     Running tests/state_types.rs (/home/user/orca/project/rust/target/debug/deps/state_types-0cfcd84c1f08efd7)
 
 running 15 tests
 test t03_sessions_replace_parses_array ... ok
@@ -872,7 +872,7 @@ test t01_ready_event_parses_real_fixture ... ok
 
 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/typing_reducer.rs (/home/sanya/orca/project/rust/target/debug/deps/typing_reducer-b2047425c3c329b1)
+     Running tests/typing_reducer.rs (/home/user/orca/project/rust/target/debug/deps/typing_reducer-b2047425c3c329b1)
 
 running 5 tests
 test t07_repeat_restarts_ttl ... ok
@@ -883,7 +883,7 @@ test t08_fixture_28_starts_two_pairs ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/typing_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/typing_selectors-d442840225d1ee8b)
+     Running tests/typing_selectors.rs (/home/user/orca/project/rust/target/debug/deps/typing_selectors-d442840225d1ee8b)
 
 running 5 tests
 test t13_guild_split ... ok
@@ -894,7 +894,7 @@ test t15_fixture_final_state ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/typing_types.rs (/home/sanya/orca/project/rust/target/debug/deps/typing_types-ce690583bba68edd)
+     Running tests/typing_types.rs (/home/user/orca/project/rust/target/debug/deps/typing_types-ce690583bba68edd)
 
 running 5 tests
 test t01_capture_117_fields ... ok
@@ -905,7 +905,7 @@ test t02_fixture_28_events_pairs_and_timestamps ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/voice_state_reducer.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_state_reducer-d362a0b47e721a6b)
+     Running tests/voice_state_reducer.rs (/home/user/orca/project/rust/target/debug/deps/voice_state_reducer-d362a0b47e721a6b)
 
 running 8 tests
 test v10_timer_and_status_boundaries ... ok
@@ -919,7 +919,7 @@ test v09_supplemental_snapshot_then_ready_reset ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/voice_state_selectors.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_state_selectors-70de2beda16d99dc)
+     Running tests/voice_state_selectors.rs (/home/user/orca/project/rust/target/debug/deps/voice_state_selectors-70de2beda16d99dc)
 
 running 4 tests
 test v14_connected_duration_boundaries ... ok
@@ -929,7 +929,7 @@ test v13_channel_users_sorted_and_counts ... ok
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/voice_state_types.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_state_types-2ad65d12151a76bd)
+     Running tests/voice_state_types.rs (/home/user/orca/project/rust/target/debug/deps/voice_state_types-2ad65d12151a76bd)
 
 running 6 tests
 test v02_live_join_111 ... ok
@@ -941,7 +941,7 @@ test v01_snapshot_003_exact_fields ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/ws_transport.rs (/home/sanya/orca/project/rust/target/debug/deps/ws_transport-f0acdecf80584772)
+     Running tests/ws_transport.rs (/home/user/orca/project/rust/target/debug/deps/ws_transport-f0acdecf80584772)
 
 running 19 tests
 test gateway_url_builds_canonical_endpoint ... ok

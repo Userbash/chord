@@ -30,7 +30,7 @@ fn synth_payload() -> Vec<u8> {
 }
 
 fn lab_root() -> PathBuf {
-    PathBuf::from(std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".into()))
+    PathBuf::from(std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".into()))
 }
 
 fn load_lab(path: &Path) -> Option<Vec<Vec<u8>>> {

@@ -1,171 +1,140 @@
-# AGENTS.md — правила агентов и координатора в discord-lab
+# AGENTS.md — Agent and Coordinator Rules for discord-lab
 
-Для быстрого входа сначала прочитай `PROJECT-CONTEXT.md`; затем открывай полные документы
-только по необходимости и для конкретной карточки. Не загружай целиком историю волн и большие
-планы без прямой нужды.
+For quick onboarding, first read `PROJECT-CONTEXT.md`; open full documents only as needed for a specific task card. Do not load entire sprint histories or massive wave plans without direct need.
 
-Ты работаешь в репозитории `discord-lab` (локальный CLI: анализ Discord через Frida/CDP + Rust Tauri клиент `discord-gui-spike`).
-Перед работой проверь HEAD и состояние назначенных файлов, затем открой только нужные выдержки:
-своё ТЗ, строку карточки из `TASKS.md`, относящиеся к контракту разделы `TDD-PLAN.md`,
-соответствующие правила `PROCESS.md` / `TEAM.md` / `TEST-POLICY.md` и краткое актуальное состояние из `waves/STATE.md`.
-`PROCESS.md` — источник истины по процессу; `TEAM.md` — по распределению ролей, маршрутизации моделей и запуску
-параллельных воркеров; `TEST-POLICY.md` (и `waves/RW-40/QUALITY/TEST-STRATEGY-V2.md`) — по тестовой стратегии.
+You are working in the `discord-lab` repository (local CLI: Discord protocol analysis via Frida/CDP + native Rust GPUI client `discord-gpui`).
+Before starting work, check HEAD and the status of your assigned files. Then review only the required excerpts:
+your specification, your task card row from `TASKS.md`, the contract sections of `TDD-PLAN.md`,
+relevant rules in `PROCESS.md` / `TEAM.md` / `TEST-POLICY.md`, and the current state summary in `waves/STATE.md`.
+`PROCESS.md` is the source of truth for process; `TEAM.md` for role distribution, model routing, and worker parallelism; `TEST-POLICY.md` (and `waves/RW-40/QUALITY/TEST-STRATEGY-V2.md`) for testing strategy.
 
 ---
 
-## 1. Базовые правила разработки (TDD, Файлы, Гейты)
+## 1. Core Development Rules (TDD, Files, Gates)
 
-1. **Strict TDD.** Сначала тест (red), прогони и зафиксируй падение командой. Затем минимальный
-   код (green). Без теста продуктовый код не пишется. Тесты сверяют контракт с независимым
-   оракулом (реальный артефакт, jq/awk/md5), а не с текущей реализацией.
-2. **Только свои файлы** из ТЗ. Множества файлов воркеров не пересекаются. Чужие тесты, чужие
-   модули, доки и §8 без разрешения Team Lead не трогаются. Общие файлы (`state/types.rs`,
-   `state/reducer.rs`, `state/mod.rs`, `src/lib.rs`, `PLAN.md`, `STATUS.md`, `ROADMAP.md`,
-   `TASKS.md`, `docs/map.md`, `waves/*`) правит только Team Lead/Tech Lead.
-3. **Гейт по уровню.** В batch воркер запускает только targeted-тесты своего модуля (`T0`: `node scripts/test-impact.mjs` / целевой `--test <mod>_contract`) и сохраняет
-   red/green-логи. Полный `cargo fmt`/`clippy`/`test --workspace`/`npm run gate:worker` (`T1`) — один
-   раз на batch в integration-лейне. Если работаешь один (вне batch) — полный `gate:worker`
-   обязателен. Если упал e2e — гейт сам делает повтор и сохраняет оба результата; флаки не
-   замалчиваются.
-4. **Отчёт** по шаблону `PROCESS.md` §4.2: batch/карточка, сделано, red-прогон, green-прогон,
-   targeted, gate, файлы+md5, риски. Задача закрывается приёмкой Team Lead + PM + Технического ревьюера, а не отчётом.
-5. **Вопросы** — Team Lead (оркестрация/ask), не догадки. При неясности ТЗ — остановись и
-   спроси. Если файл уже занят другим воркером — стоп, не «договаривайся» правкой.
-6. **Журнал волн.** Артефакты batch (ТЗ, red/green-логи, отчёт, копии тестов) сохраняются в
-   `waves/<ID>/`; после приёмки Team Lead дописывает `waves/db.jsonl` (append-only, события
-   схемы v1) и обновляет `waves/STATE.md`. Журнал стережёт мета-тест `waves-sync`.
-7. **Доки — после accepted.** Не обновляй `STATUS`/`ROADMAP`/`TASKS`/`map`/`STATE` в red-фазе;
-   Team Lead синхронизирует их один раз после приёмки batch.
+1. **Strict TDD.** Test first (red), execute and record failure with a command. Then write minimal code (green). No production code is written without a test. Tests verify the contract against an independent oracle (real artifact, jq/awk/md5), never against the current implementation.
+2. **Only Assigned Files** from your task spec. Worker file scopes must never overlap. Do not touch others' tests, modules, documentation, or §8 without Team Lead approval. Shared files (`state/types.rs`, `state/reducer.rs`, `state/mod.rs`, `src/lib.rs`, `PLAN.md`, `STATUS.md`, `ROADMAP.md`, `TASKS.md`, `docs/map.md`, `waves/*`) are edited solely by the Team Lead / Tech Lead.
+3. **Level-Appropriate Gate.** In batch mode, a worker runs only targeted tests for their module (`T0`: `node scripts/test-impact.mjs` / targeted `--test <mod>_contract`) and preserves red/green logs. Full `cargo fmt`/`clippy`/`test --workspace`/`npm run gate:worker` (`T1`) runs once per batch in the integration lane. When working solo (outside a batch), full `gate:worker` is required. If e2e fails, the gate retries automatically and records both attempts; flaky tests must never be silenced.
+4. **Report Format** matching `PROCESS.md` §4.2: batch/card, completed work, red run, green run, targeted, gate, files+md5, risks. A task is closed upon acceptance by Team Lead + PM + Technical Reviewer, not merely by filing a report.
+5. **Questions Go to Team Lead** (orchestration/ask), never guess. If a spec is ambiguous, stop and ask. If a file is locked by another worker, stop — do not attempt to resolve via concurrent edits.
+6. **Wave Journal.** Batch artifacts (spec, red/green logs, report, test copies) are stored in `waves/<ID>/`; upon acceptance, Team Lead appends to `waves/db.jsonl` (append-only, v1 schema events) and updates `waves/STATE.md`. The journal is guarded by the `waves-sync` meta-test.
+7. **Docs Updated Post-Acceptance.** Do not update `STATUS`/`ROADMAP`/`TASKS`/`map`/`STATE` in the red phase; Team Lead synchronizes them once after batch acceptance.
 
 ---
 
-## 2. Организация командной разработки, Отделы и Непрерывная загрузка (Zero-Idle)
+## 2. Team Organization, Departments, and Zero-Idle Policy
 
-1. **Независимые отделы специалистов:**
-   - **G1 Backend (Rust Core & Tauri BFF):** `rust/crates/*`, `rust/gui-spike/src/*.rs`, `rust/gui-spike/tests/*_contract.rs`.
-   - **G2 Frontend (WebView UI & DOM/A11y):** `rust/gui-spike/ui/**`, `tests/unit/*.test.mjs`.
-   - **G3 Design (UX/UI & Specs):** `docs/specs/*.md`, `waves/RW-*/DESIGN/*.md`, CSS-токены и брейкпоинты.
-   - **G4 QA (Test Automation & Verification):** централизованное тестирование сборок `testing`, `scripts/test-impact.mjs`, `tests/{unit,smoke,e2e,meta}/`, отчёты `QA-BUILD-*.md`.
-   - **G5 Voice / Platform:** `discord-voice`, `discord-platform`, `voice_devices.rs`, аудио/стриминг опкоды `18..=22`.
-   - **G6 Tech Writer / Parity:** `MERGE-READINESS-*.md`, `RELEASE-NOTES-*.md`, матрицы паритета и документация.
-   - **G7 Reverse Engineering & Parity Discovery (`G7 RE / REA`):** непрерывный поиск и сравнение функций с эталонным дампом `/home/sanya/re-deep/` и отдельно запущенной сессией Discord через инструменты `rea` (`reverse-engineer-anything`), выявление несовпадений и недостающих функций оригинальной программы, документирование в `waves/RW-*/RE-AUDIT/RE-GAP-*.md` и передача карточек модернизации Продуктовому менеджеру (PM) в `waves/RW-*/PM/BACKLOG-RE-*.md`.
-   - **DevOps / Integration:** `scripts/{release.sh,ci.sh,gate.mjs}`, `SHA256SUMS`, SBOM, сборка `unstable -> testing -> beta -> main`.
-   - **Product Manager (PM) & Technical Reviewer (DeepSeek):** приёмка находок от отдела `G7 RE / REA` с формированием задач на разработку/модернизацию и двухэтапная приёмка каждого PR (`ACCEPT.md` + `REVIEW.md` с проверкой 5/5 мутаций).
-2. **Строгое разделение ответственности:** Каждый воркер отвечает только за свою назначенную задачу и не берёт чужие задачи самостоятельно. Распределение задач между воркерами не меняется без согласования координатора.
-3. **Запрет простоя отделов и воркеров (Zero-Idle Policy):**
-   - Ни один отдел и ни один воркер не должен простаивать без задач или ждать завершения работы смежного отдела, если в пуле/бэклоге есть независимые задачи, ревью, фиксы замечаний или подготовка контрактов/тестов.
-   - Как только воркер завершил задачу (`worker_done`), координатор немедленно передаёт результат на ревью, а освободившемуся воркеру/отделу делегирует следующую задачу из пула в новой рабочей ветке.
-   - Не запускай несколько `cargo` одновременно на одном `target-dir` (используй общий `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target` последовательно или изолированно).
-
----
-
-## 3. Маршрутизация агентов и политика моделей (Orca Routing & Cost Policy)
-
-1. **Запуск воркеров через Orca Orchestration:**
-   - Все воркеры запускаются как видимые супервизируемые терминалы в собственных рабочих деревьях через `orca worktree create --name <name> --base-branch unstable --branch <type>/task-<id>-<slug>` и `orca orchestration worker-start --run <run_id> --worktree branch:<type>/task-<id>-<slug> ...`.
-2. **Полный запрет `codex` и `deepseek`:**
-   - На `codex` закончились лимиты/средства — **никогда не используй `--agent codex`**.
-   - По указанию пользователя **запрещено использовать DeepSeek (`deepseek/deepseek-v4.1-flash`)**. Все ревью, QA, мутационное тестирование и рефакторинг выполняются на линейке Gemini (`antigravity`).
-3. **Политика моделей линейки Gemini (`--agent antigravity`):**
-   - **`gemini-4-carbon-high` (`--effort high` / `xhigh`):** исключительно для самых сложных задач (P0 ядра, атомарный zero-copy Ring Buffer, DAVE MLS v1 криптография, AppState Tokio↔GPUI).
-   - **`gemini-4-argon-high` / `medium`:** для валидации, проверок, технического ревью, мутационного тестирования (QA / DevOps верификация), а также для стандартных BFF REST сервисов и WebRTC.
-   - **`gemini-3.8-flash-high` / `medium` / `low`:** для UI компонентов, верстки, модалок, настроек, системного трея и документации.
-4. **Политика для первичной разработки новых фич и спецификаций:**
-   - Для сложнейших P0 задач ядра используй флагманскую модель `--agent antigravity --model gemini-4-carbon-high --effort high`, для обычных фич — `gemini-4-argon-high` / `gemini-3.8-flash-high`.
+1. **Independent Specialist Departments:**
+   - **G1 Backend (Rust Core & Native BFF):** `rust/crates/*`, `rust/discord-gpui/src/*.rs`, `rust/discord-gpui/tests/*_contract.rs`.
+   - **G2 Frontend (UI Views & A11y):** `rust/discord-gpui/src/views/**`, `tests/unit/*.test.mjs`.
+   - **G3 Design (UX/UI & Specs):** `docs/specs/*.md`, `waves/RW-*/DESIGN/*.md`, CSS tokens and breakpoints.
+   - **G4 QA (Test Automation & Verification):** Centralized testing of `testing` branch builds, `scripts/test-impact.mjs`, `tests/{unit,smoke,e2e,meta}/`, reports `QA-BUILD-*.md`.
+   - **G5 Voice / Platform:** `discord-voice`, `discord-platform`, audio/streaming opcodes `18..=22`.
+   - **G6 Tech Writer / Parity:** `MERGE-READINESS-*.md`, `RELEASE-NOTES-*.md`, parity matrices, and documentation.
+   - **G7 Reverse Engineering & Parity Discovery (`G7 RE / REA`):** Continuous discovery and comparison against clean-room oracle `docs/re/` and running Discord sessions via `rea` tools (`reverse-engineer-anything`), documenting gaps in `waves/RW-*/RE-AUDIT/RE-GAP-*.md` and filing modernization cards for the Product Manager (PM) in `waves/RW-*/PM/BACKLOG-RE-*.md`.
+   - **DevOps / Integration:** `scripts/{release.sh,ci.sh,gate.mjs}`, `SHA256SUMS`, SBOM, release pipeline `unstable -> testing -> beta -> main`.
+   - **Product Manager (PM) & Technical Reviewer:** Acceptance of RE findings into development backlogs, and dual-review acceptance of every PR (`ACCEPT.md` + `REVIEW.md` with 5/5 mutation gate).
+2. **Strict Separation of Concerns:** Each worker is responsible solely for their assigned task. Reallocation of tasks occurs only through coordinator assignment.
+3. **Zero-Idle Policy:**
+   - No department or worker may remain idle waiting for adjacent teams when independent tasks, code reviews, defect fixes, or contract/test definitions are available in the backlog.
+   - When a worker finishes a task (`worker_done`), the coordinator immediately routes the result to review and delegates the next queue item to the freed worker in a fresh worktree.
+   - Never run multiple concurrent `cargo` builds against the same `target-dir` (use shared `CARGO_TARGET_DIR=./rust/target` sequentially or in isolation).
 
 ---
 
-## 4. Иерархия веток, Pull Request и 13 статусов задачи
+## 3. Agent Routing and Model Policy (Orca Routing & Cost Policy)
 
-### 4.1. Иерархия веток (`worker branch -> unstable -> testing -> beta -> main`)
-1. **Рабочая ветка воркера:** создаётся строго от актуальной ветки `unstable` для каждой новой задачи. Имя ветки: `<type>/task-<id>-<short-slug>`, например:
+1. **Worker Spawning via Orca Orchestration:**
+   - Workers run as supervised terminal processes in dedicated worktrees via `orca worktree create --name <name> --base-branch unstable --branch <type>/task-<id>-<slug>` and `orca orchestration worker-start --run <run_id> --worktree branch:<type>/task-<id>-<slug> ...`.
+2. **Model Selection Policy:**
+   - **`gemini-4-carbon-high` (`--effort high` / `xhigh`):** Reserved for the most demanding core P0 challenges (zero-copy ring buffers, DAVE MLS v1 cryptography, AppState Tokio<->GPUI async sync).
+   - **`gemini-4-argon-high` / `medium`:** Standard for validation, code reviews, mutation testing (QA / DevOps verification), and standard BFF REST services.
+   - **`gemini-3.8-flash-high` / `medium` / `low`:** Used for UI layout, modal dialogues, preferences, tray integrations, and documentation sync.
+
+---
+
+## 4. Branch Hierarchy, Pull Requests, and 13 Task Statuses
+
+### 4.1. Branch Hierarchy (`worker branch -> unstable -> testing -> beta -> main`)
+1. **Worker Branch:** Created strictly from current `unstable` for each task. Branch naming: `<type>/task-<id>-<short-slug>`, for example:
    - `feature/task-123-reactions-extended-be`
    - `bugfix/task-109-ipc-oracle-strict`
    - `design/task-114-reactions-picker-spec`
    - `qa/task-125-test-impact-v2`
    - `devops/task-119-fix-release-sha256`
    - `docs/task-121-parity-wave11`
-2. **Локальные проверки и PR в `unstable`:** после завершения воркер выполняет локальные тесты, сборку, линтер и `typecheck`, оформляет отчёт и подаёт PR в `unstable`. Воркер **не имеет права** сам сливать код в общие/защищённые ветки.
-3. **Двойное ревью (PM + Technical Reviewer):**
-   - **Продуктовый менеджер (PM)** сверяет результат с ТЗ, пользовательскими сценариями, макетами и DoD. При несоответствии возвращает PR с конкретными ошибками, ожидаемым результатом и способом проверки.
-   - **Технический ревьюер (DeepSeek)** проверяет архитектуру, безопасность, качество кода, тесты, обработку ошибок, совместимость, отсутствие лишних правок и убивает `5/5` мутаций.
-   - Слияние в `unstable` разрешено **только после** зелёного CI, одобрения PM, одобрения Технического ревьюера, закрытия блокирующих замечаний (`P0=0, P1=0`) и разрешения конфликтов.
-4. **Удаление ветки после слияния:** сразу после merge в `unstable` рабочая ветка воркера удаляется. Продолжать разработку новой задачи в старой ветке запрещено.
-5. **Ветка `testing` (Централизованная сборка для QA):**
-   - Изменения отдельных воркеров **запрещено** передавать в QA напрямую из рабочих веток. Прямые коммиты в `testing` запрещены.
-   - Ответственный за интеграцию (DevOps/Coordinator) собирает проверенные задачи из `unstable` в `testing` и выпускает манифест сборки `BUILD-00X` (список задач, номер сборки, инструкции по проверке, тестовые данные, известные ограничения).
-   - QA фиксирует версию сборки, окружение, шаги воспроизведения, фактический/ожидаемый результат, логи, скриншоты и критичность (`P0–P3`). При дефекте создаётся отдельная `bugfix/task-*` ветка от `unstable` -> PR -> `unstable` -> следующая сборка `testing`.
-6. **Ветка `beta` (Предрелизная проверка):** после `QA Passed` и регрессии в `testing` сборка переносится в `beta` для финальной проверки окружения, критических сценариев, производительности (`perf_contract`), `SHA256SUMS`/SBOM и плана отката.
-7. **Ветка `main` (Стабильный релиз) и `hotfix/*`:**
-   - Прямые коммиты в `main` запрещены. После успешной проверки `beta` создаётся PR `beta -> main`, после релиза выставляется версия и Git-тег, а изменения синхронизируются обратно в `unstable`.
-   - Срочные исправления выполняются через `hotfix/task-<id>-<slug>` с обязательными тестами, ревью, проверкой QA, выкладкой в `main` и немедленной обратной синхронизацией в `unstable`, `testing`, `beta`.
+2. **Local Verification and PR to `unstable`:** Upon completion, the worker runs local tests, build, linter, and typecheck, compiles a report, and submits a PR to `unstable`. Workers are never permitted to merge directly into shared or protected branches.
+3. **Dual Review (PM + Technical Reviewer):**
+   - **Product Manager (PM)** validates results against specifications, user journeys, mockups, and DoD.
+   - **Technical Reviewer** checks architecture, memory safety, code quality, test rigor, error handling, backward compatibility, and kills **5/5 mutations**.
+   - Merging into `unstable` requires green CI, PM approval, Technical Reviewer sign-off, zero blocking defects (`P0=0, P1=0`), and clean conflict resolution.
+4. **Branch Cleanup:** Immediately after merging into `unstable`, the worker branch is deleted.
+5. **Branch `testing` (Centralized QA Integration):**
+   - Individual worker changes are never merged into QA directly from task branches. Direct commits to `testing` are forbidden.
+   - Integration lead compiles verified tasks from `unstable` into `testing` and issues a `BUILD-00X` manifest.
+6. **Branch `beta` (Pre-Release Validation):** Following `QA Passed` status in `testing`, the build advances to `beta` for final environment validation, soak testing, performance verification (`perf_contract`), and `SHA256SUMS`/SBOM generation.
+7. **Branch `main` (Stable Release) and `hotfix/*`:**
+   - Direct commits to `main` are strictly forbidden. Following successful `beta` qualification, a PR merges `beta -> main`, a release version tag is created, and changes are backported to `unstable`.
+   - Emergency hotfixes follow `hotfix/task-<id>-<slug>` with mandatory tests, dual review, and immediate multi-branch sync.
 
-### 4.2. Обязательные 13 статусов задачи
-Каждая задача проходит строго по цепочке статусов без пропуска обязательных этапов:
+### 4.2. Mandatory 13 Task Statuses
+Every task follows this sequential lifecycle without skipping stages:
 `Backlog` → `Ready for Development` → `In Progress` → `Ready for Product Review` → `Ready for Technical Review` → `Ready for Merge` → `Merged to Unstable` → `In Testing` → (`QA Failed` | `QA Passed`) → `In Beta` → `Ready for Release` → `Released`.
 
 ---
 
-## 5. Тестовая стратегия (12 уровней, `P0–P3`, `T0–T4`, 9 измерений)
+## 5. Testing Strategy (12 Tiers, `P0–P3`, `T0–T4`, 9 Dimensions)
 
-Подробная спецификация: `TEST-POLICY.md` (§11–§15) и `waves/RW-40/QUALITY/TEST-STRATEGY-V2.md`.
-- **Запрет понижения приоритета:** ни один существующий тест (`102 meta`, `879+ unit`, `1142+ workspace`, `24 gui-spike contract`, `22 smoke`, `9 e2e`) никогда не понижается в критичности (`P0/P1`).
-- **12 уровней:** `Unit`, `Integration`, `Contract` (`38/38 IPC`, `Stream Opcodes 18..22`, `002-READY.json`), `API` (REST mock `200/202/204/400/401/403/404/413/429/5xx`), `E2E`, `UI`, `Visual`, `Accessibility` (WCAG/ARIA/Keyboard), `Performance`, `Security` (Keyring, XSS, SRTP, SBOM/`SHA256SUMS`), `Regression`, `Smoke`.
-- **9 обязательных измерений на каждый срез:** позитивные, негативные, граничные (Snowflake `0`/`u64::MAX`, 2000 символов, 10 файлов/25 МБ, `offset=9975`, громкость `0..200`, бейдж `99+`), ошибки (`401/403/404/413/429 retry_after_ms/5xx`), пустые (`empty`), загрузочные (`skeleton`/`HTTP 202`), права доступа (`capabilities`/`AGE_GATED_SPACES`), восстановление (`reconnect`/`fallback`), совместимость и наблюдаемость (`.gate/*.json`, `window-runs.jsonl`, маскирование токенов).
-- **Пороги CI:** `Pass P0/P1 = 100%`, `lines >= 90%`, `branches >= 90%`, `functions >= 80%`, `mutations = 5/5 (100%)`, `flaky_rate = 0%` на `beta`/`main` (`failOnSkips: true`).
-
----
-
-## 6. Запреты и Стиль
-
-### Запреты
-- `logs/`, `functions/`, `evidence/` — golden: **только чтение**. Никаких записей/переименований.
-- Никаких `git commit/push` из воркеров в общие ветки — слияние и релизные коммиты делает координатор/интегратор по правилам пайплайна.
-- Никаких сетевых вызовов, установок пакетов и изменений `package.json` без разрешения.
-- Не спавнить Discord (`device.spawn`) и не делать attach/walk на живом Discord без окна, согласованного координатором.
-- Не «зеленить» тесты правкой тестов под код. Ослаблять тесты, отключать проверки и принимать решения мимо тестов/гейта — запрещено (`TEST-POLICY.md`, нарушение = `P0` и возврат работы).
-
-### Стиль
-- Node ≥ 24, ESM, `// @ts-check` + JSDoc в каждом модуле; `npx tsc -p tsconfig.json` — чисто.
-- Сообщения CLI и доки — на русском; коды выхода: `0` успех, `1` ошибка аргументов, `2` среда недоступна.
-- Тесты skip-aware: отсутствие внешней среды → skip с причиной (в `gate:release` — `failOnSkips: true`).
-- Ошибки не глотать молча: либо последствие (код/счётчик/сообщение), либо явный комментарий, почему это best-effort.
-
+Detailed specification: `TEST-POLICY.md` (§11–§15) and `waves/RW-40/QUALITY/TEST-STRATEGY-V2.md`.
+- **No Severity Downgrades:** Existing tests (`147 meta`, `879+ unit`, `1142+ workspace`, `50 gpui e2e contract`, `22 smoke`) must never be demoted in priority (`P0/P1`).
+- **12 Tiers:** `Unit`, `Integration`, `Contract`, `API` (REST mock `200..5xx`), `E2E`, `UI`, `Visual`, `Accessibility` (WCAG/ARIA/Keyboard), `Performance`, `Security` (Keyring, XSS, SRTP, SBOM/`SHA256SUMS`), `Regression`, `Smoke`.
+- **9 Mandatory Dimensions per Slice:** Positive, negative, edge boundaries (Snowflake `0`/`u64::MAX`, 2000 chars, 10 files/25 MB, volume `0..200`), error handling (`401/403/404/413/429/5xx`), empty states, loading skeletons, capability permissions, recovery/fallback, and observable telemetry.
+- **CI Quality Thresholds:** `Pass P0/P1 = 100%`, `lines >= 90%`, `branches >= 90%`, `functions >= 80%`, `mutations = 5/5 (100%)`, `flaky_rate = 0%`.
 
 ---
 
-## 7. Обязательная сверка с эталонным RE-дампом `/home/sanya/re-deep` и инструментами `rea`
+## 6. Prohibitions and Engineering Conventions
 
-1. **Запрет догадок при реализации и специфицировании:**
-   - Если неизвестна или непонятна точная логика функции, формат payload/ошибки, константа, лимит, i18n-ключ, опкод шлюза/голоса или поведение UI-компонента — **строго запрещено придумывать поведение наугад**.
-   - Сначала выполни поиск и сверку по эталонному RE-дампу **`/home/sanya/re-deep/`** (read-only оракул) или примени инструменты обратного инжиниринга **`rea`** (скилл `reverse-engineer-anything`) к артефактам дампа либо к отдельно запущенному экземпляру Discord.
-2. **Карта оракулов в `/home/sanya/re-deep/`:**
-   - `decoded/` и `decoded-index.json` (759 КБ), `app-asar/`, `core-asar/` — декодированные JS/Webpack-чанки и модули Electron.
-   - `gateway-protocol.md`/`.json`, `gateway-schema.md`/`.json`, `gw-proto/`, `capture-ready.jsonl`, `capture-run2.jsonl` — реальные трассы шлюза, ETF big-int, zstd-стримы и `READY`.
-   - `rest-d02.md`/`.json`, `rest-static.md`/`.json`, `d02-snapshot/` — маршруты REST v9, заголовки, `X-Super-Properties`, коды ошибок и ответы.
-   - `frontend-d03.md`/`.json`, `ui/`..`ui8/`, `voice/ui7/` — контракты 12 UI-компонентов, DOM-селекторы, поиск, эмодзи-пикер, настройки, попапы и голосовая панель.
-   - `main-arch.md`/`.json`, `backend-ipc.md`/`.json`, `native-re.md`/`.json`, `voice-deep.md`/`.json`, `voice/` — IPC-каналы `DISCORD_*`, `DiscordNative`, нативные модули (`discord_voice.node`), сигнализация RTC, RTP/RTCP и крипто-режимы.
-   - `i18n-deep.md`/`.json`, `ru-catalog.json`, `en-catalog.json` — хеши ключей локализации (`xxh64 -> base64[0..6]`) и русские/английские строки.
-   - `rea-evidence.json`, `rea-web-observations.json`, `rea-web-digest.json` — собранные Evidence-бандлы REA.
-3. **Применение всех инструментов `rea` (`reverse-engineer-anything`):**
-   - Для статического и графового анализа JS/Electron/ASAR: `analyze_javascript_application`, `trace_javascript_semantics`, `trace_application_feature`, `trace_web_module_imports`, `recover_javascript_sources`, `compare_source_to_bundle`, `build_reconstruction_obligation_ledger`, `evaluate_reconstruction_coverage`.
-   - Для анализа нативных бинарников и `.node`-модулей: `open_binary`, `binary_overview`, `list_procedures`, `search_procedures`, `procedure_pseudo_code`, `procedure_assembly`, `analyze_function`, `search_strings`, `xrefs`, `trace_call_path`, `correlate_static_and_runtime`.
-   - Для динамического анализа отдельно запущенного приложения Discord (Electron/CDP/Frida/pcap): `list_electron_targets`, `inspect_electron_page`, `capture_electron_scenario`, `observe_javascript_runtime`, `reconcile_javascript_runtime`, `start_frida_session`, `instrument_with_frida`, `inspect_pcap_capture`, `inspect_web_network_capture`.
-   - Каждая найденная функция, константа или контракт фиксируется в спецификации/отчёте с точной ссылкой на чанк/смещение в `/home/sanya/re-deep/` или Evidence-запись `rea`.
+### Prohibitions
+- `logs/`, `functions/`, `evidence/` are golden artifacts: **read-only**. No writing or renaming.
+- No direct `git commit/push` from worker terminals into shared branches.
+- No arbitrary network calls or package installations without prior coordination.
+- Never green tests by modifying tests to fit buggy code. Weakening assertions is treated as a P0 blocker (`TEST-POLICY.md`).
 
+### Conventions
+- Modern Rust 2021 edition, `#![forbid(unsafe_code)]`, strict typing.
+- CLI diagnostics and logs in English; exit codes: `0` success, `1` argument error, `2` environment unavailable.
+- Tests must be skip-aware: missing external dependencies yield an explicit skip with justification (in `gate:release`, `failOnSkips: true`).
+- Never swallow errors silently: return explicit Results or log appropriate contextual errors.
 
 ---
 
-## 8. Предел памяти воркеров до 25 GB RAM (`WORKER_RAM_LIMIT <= 25 GB`), защита от OOM Killer и фиксированный пул (`3–4 Dev/Review + 1–2 G7 RE = max 5–6`)
+## 7. Clean-Room Oracle Verification (`docs/re/`) and REA Tools
 
-1. **Жёсткий предел ОЗУ на всех воркеров — до 25 GB RAM (`WORKER_RAM_LIMIT = 25 GB`):**
-   - На хосте 48 GB RAM (`Swap: 0B`). **Суммарное потребление памяти всеми воркерами и их дочерними процессами (`opencode`, `agy`, `cargo`, `rustc`, `node`, `rea`) никогда не должно превышать `25 GB RAM`**, оставляя не менее 20–23 GB системе и базовому окружению.
-   - Чтобы гарантированно держаться в пределах **до 25 GB RAM** и исключить срабатывание OOM Killer, используется фиксированный пул из **5–6 активных слотов** (`3–4` слота разработки/ревью/QA + `1–2` выделенных read-only слота отдела `G7 RE / REA`).
-   - Запрещено создавать воркеров сверх лимита. Zero-Idle обеспечивается **непрерывной ротацией внутри этих слотов (1-в-1)**: как только воркер завершил задачу (`worker_done`), его терминал освобождается (`worker-release`), и на этот освободившийся слот сразу назначается следующая задача из очереди.
-2. **Непрерывный конвейер обратной разработки (`G7 RE / REA -> PM -> Разработка`):**
-   - Выделенные `1–2` воркера отдела **`G7 RE / REA`** непрерывно сравнивают наш код (`rust/crates/*`, `rust/gui-spike/*`) с дампом `/home/sanya/re-deep/` и живой сессией Discord (CDP `9223` / Electron / ASAR) через инструменты `rea`, документируют недостающие части кода и несовпадения в `waves/RW-*/RE-AUDIT/RE-GAP-*.md` и передают их PM (`waves/RW-*/PM/BACKLOG-RE-*.md`) для постановки задач на разработку, улучшение и модернизацию.
-3. **Обязательное освобождение терминалов (`worker-release`) и замер RSS воркеров (`<= 25 GB`):**
-   - Перед любым запуском нового воркера сначала выполни:
+1. **No Guesswork in Implementation or Specification:**
+   - If exact behavior, payload formats, constants, limits, i18n keys, or voice opcodes are unknown, **never invent behavior**.
+   - Consult the clean-room reverse-engineering references in **`docs/re/`** or use **`rea`** tools (`reverse-engineer-anything`) against clean-room artifacts.
+2. **Clean-Room Oracle Map in `docs/re/`:**
+   - `gateway-protocol.md`, `gateway-schema.md`: Gateway protocol traces, ETF big-int handling, and zstd stream specs.
+   - `rest-d02.md`, `rest-static.md`: REST API v9 routes, headers, rate limits, and error payloads.
+   - `frontend-d03.md`: UI component contracts, CSS tokens, emoji picker, settings, and voice panel behaviors.
+   - `main-arch.md`, `backend-ipc.md`, `native-re.md`, `voice-deep.md`: RTC signaling, RTP/RTCP handling, and crypto modes.
+   - `i18n-deep.md`: Localization key hashes and string catalogs.
+3. **REA Tool Integration (`reverse-engineer-anything`):**
+   - Static analysis: `analyze_javascript_application`, `trace_javascript_semantics`, `trace_application_feature`, `trace_web_module_imports`.
+   - Native binaries: `open_binary`, `binary_overview`, `list_procedures`, `search_procedures`, `analyze_function`, `search_strings`.
+   - Every identified function, constant, or wire contract must be documented with an exact reference to `docs/re/`.
+
+---
+
+## 8. Worker Memory Ceiling (`WORKER_RAM_LIMIT <= 25 GB`), OOM Prevention, and Fixed Pool
+
+1. **Strict RAM Ceiling Across All Workers — up to 25 GB RAM (`WORKER_RAM_LIMIT = 25 GB`):**
+   - The host system has 48 GB RAM (`Swap: 0B`). Total memory usage across all active workers and child processes (`cargo`, `rustc`, `node`, `rea`) must never exceed **25 GB RAM**, leaving at least 20–23 GB for the OS and base environment.
+   - To guarantee safety against OOM Killer, development uses a fixed pool of **5–6 active worker slots** (`3–4` dev/review/QA slots + `1–2` read-only RE slots).
+   - Zero-Idle operates by **continuous 1-to-1 slot rotation**: once a worker finishes (`worker_done`), its terminal is released (`worker-release`) and the slot immediately receives the next task from the backlog.
+2. **Mandatory Terminal Release (`worker-release`) and RSS Monitoring:**
+   - Before launching a new worker, always reclaim freed terminals:
      `for ctx in $(orca orchestration worker-list --run <run_id> | awk '/terminal=reclaimable/ {print $1}'); do orca orchestration worker-release --dispatch "$ctx"; done`
-   - Проверь суммарный RSS процессов воркеров (`ps -eo rss,comm | awk '/opencode|agy|cargo|rustc/ {s+=$1} END {printf "%.2f GiB\n", s/1024/1024}'` — должен быть строго `< 25 GiB`) и `free -h`.
-   - Не более 1 процесса `cargo` одновременно на общем `CARGO_TARGET_DIR`.
+   - Verify aggregate RSS across worker processes (`ps -eo rss,comm | awk '/opencode|agy|cargo|rustc/ {s+=$1} END {printf "%.2f GiB\n", s/1024/1024}'` — must remain `< 25 GiB`).
+   - Run at most 1 active `cargo` process at a time on the shared `CARGO_TARGET_DIR`.

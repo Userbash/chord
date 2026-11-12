@@ -150,7 +150,7 @@ rg -n "rail|tree|header|composer|members" waves/RW-39/DESIGN/layout.json | head
    жёлтый в UI будут отличаться от референса на Δ 13–26 по каналу. Решение нужно до вёрстки.
 2. `tokens.json` — производный файл: любая правка `tokens.css` (владелец W39b) требует
    `node .../gen-tokens.mjs` + `--check` в гейте, иначе артефакт устареет.
-3. `measure.py` требует Pillow и доступ к `/home/sanya/re-deep`; при переносе golden скрипт
+3. `measure.py` требует Pillow и доступ к `reference-oracle/`; при переносе golden скрипт
    упадёт явно (пути не зашиты молча) — замеры придётся повторить.
 4. Шаг строки участника измерен по JPEG: ±1 CSS. Для вёрстки используется `[L]` 42 и
    `[F]` 40 — расхождение с пикселями в допуске.
@@ -162,7 +162,7 @@ rg -n "rail|tree|header|composer|members" waves/RW-39/DESIGN/layout.json | head
 - Изменены только `waves/RW-39/DESIGN/{REFERENCES.md,tokens.json,layout.json,README.md}` и
   `waves/RW-39/PM/w39a/*` (скрипты, логи, этот отчёт).
 - `SPEC.md`, `tokens.css`, `DOM-CONTRACT.md` не тронуты (md5 `tokens.css` не изменился).
-- PNG/JPG/шрифты/иконки/спрайты в репозиторий не копировались; `/home/sanya/re-deep` — read-only.
+- PNG/JPG/шрифты/иконки/спрайты в репозиторий не копировались; `reference-oracle/` — read-only.
 - Сеть не использовалась, пакеты не ставились, `git commit/push` не выполнялись.
 
 ---

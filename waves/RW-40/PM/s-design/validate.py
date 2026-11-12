@@ -26,7 +26,7 @@ ROOT = HERE.parents[3]  # waves/RW-40/PM/s-design -> project root
 DOC = ROOT / "waves/RW-40/DESIGN/STREAM.md"
 SPEC = ROOT / "waves/RW-40/DESIGN/stream-spec.json"
 TOKENS = ROOT / "waves/RW-39/DESIGN/tokens.css"
-CATALOG = Path("/home/sanya/re-deep/ru-catalog.json")
+CATALOG = Path("/home/user/clean-room-oracle/ru-catalog.json")
 LOG = HERE / "validate.log"
 
 LABELS = ("[T]", "[M]", "[D]", "[A]", "[F]", "[L]", "[S]")

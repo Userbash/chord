@@ -6,7 +6,7 @@
   - `waves/RW-40/DESIGN/VOICE-DEVICES-SETTINGS-SPEC.md` (§2, §3.1–§3.5, §5, §8)
   - `waves/RW-40/DESIGN/voice-spec.json` (`devices.sliders`: `OX2Bnr` `0..100 = 100`, `aUJ062` `0..200 = 100`, `copy`)
   - `rust/crates/discord-voice/src/devices.rs` (`DEFAULT_INPUT_VOLUME`, `MAX_INPUT_VOLUME`, `DEFAULT_OUTPUT_VOLUME`, `MAX_OUTPUT_VOLUME`, `DEFAULT_VAD_THRESHOLD_DB`)
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings` (`HEAD = 4e24048`)
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-144-mount-voice-devices-settings` (`HEAD = 4e24048`)
 
 ---
 
@@ -33,7 +33,7 @@
 
 - **Команда**: `node --test tests/unit/voice-devices-settings.test.mjs`
 - **Код выхода**: `1` (`tests 23, pass 17, fail 6`)
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/red.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/red.log`
 
 Выдержка из `red.log`:
 ```text
@@ -54,7 +54,7 @@
 
 - **Команда**: `node --test tests/unit/voice-devices-settings.test.mjs`
 - **Код выхода**: `0` (`tests 23, pass 23, fail 0`)
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/green.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/green.log`
 
 Выдержка из `green.log`:
 ```text
@@ -75,7 +75,7 @@
 ## 4. Targeted & TypeScript проверки
 
 - `npx tsc -p rust/gui-spike/ui/tsconfig.json` → **exit 0** (чисто)
-- `npx tsc -p tsconfig.json` → **exit 0** по всем файлам задачи (в ветке worktree от `4e24048` устаревшая копия чужого файла `tests/unit/dispatch_ui.test.mjs` содержала до-базовые TS-предупреждения, исправленные в `/home/sanya/orca/project/tests/unit/dispatch_ui.test.mjs`; с актуальным `dispatch_ui.test.mjs` полный `npx tsc -p tsconfig.json` даёт `exit 0`).
+- `npx tsc -p tsconfig.json` → **exit 0** по всем файлам задачи (в ветке worktree от `4e24048` устаревшая копия чужого файла `tests/unit/dispatch_ui.test.mjs` содержала до-базовые TS-предупреждения, исправленные в `/home/user/orca/project/tests/unit/dispatch_ui.test.mjs`; с актуальным `dispatch_ui.test.mjs` полный `npx tsc -p tsconfig.json` даёт `exit 0`).
 - Смежные DOM/feature-инварианты:
   - `node --test tests/unit/gui-spike-dom.test.mjs` → **29/29 pass** (`exit 0`)
   - `node --test tests/unit/gui-spike-features.test.mjs` → **100/100 pass** (`exit 0`)
@@ -84,7 +84,7 @@
 
 ## 5. Проверка мутациями (TEST-POLICY §5)
 
-Проведены 4 целевые мутации с фиксацией в `/home/sanya/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/mutations.log`:
+Проведены 4 целевые мутации с фиксацией в `/home/user/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/mutations.log`:
 1. **M1 (`settings.js`)**: пропуск `unmountVoiceDevices()` при смене вкладки в `showPane()` → **KILLED** (`exit=1`, `AssertionError: при уходе на Внешний вид контроллер уничтожается`).
 2. **M2 (`settings.js`)**: пропуск `unmountVoiceDevices()` при закрытии модалки в `close()` → **KILLED** (`exit=1`, `AssertionError: destroy() вызван при close() модалки настроек`).
 3. **M3 (`voice-devices-settings.js`)**: отсутствие UI-границ `-100..0` дБ в `createVoiceDevicesSettingsController` → **KILLED** (`exit=1`).
@@ -101,7 +101,7 @@
 | `rust/gui-spike/ui/features/settings.js` | modified | `12144dbf2d4ce592b8c9dc91f5e80138` |
 | `rust/gui-spike/ui/features/voice-devices-settings.js` | modified/added | `dce9faaca993a0ae72f2f5a3a4746d87` |
 | `tests/unit/voice-devices-settings.test.mjs` | modified/added | `8f09e2751e110df44496c2c4ee0063dc` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/REPORT.md` | report | — |
+| `/home/user/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/REPORT.md` | report | — |
 
 Файлы `rust/gui-spike/ui/app.js` и `rust/gui-spike/ui/index.html` **не затрагивались**.
 

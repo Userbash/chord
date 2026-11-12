@@ -2,7 +2,7 @@
 
 Дата: 2026-10-24. Автор: G6 Lead (RE Parity), subagent PM DeepSeek.
 Режим: **read-only**. Не запускались: Discord, окно, CDP/AT-SPI, сеть, `cargo`, `npm`, commit.
-Источники — только `app.asar` 1.0.166, dump `/home/sanya/re-deep/**`, `docs/re/**`,
+Источники — только `app.asar` 1.0.166, dump `reference-oracle/**`, `docs/re/**`,
 `waves/RW-40/**` и текущий код `rust/gui-spike/**` (чтение).
 Код и чужие документы не изменялись; выход — этот отчёт + `REA-SESSION.md` §11.
 
@@ -429,7 +429,7 @@ fake-`Notifier` фиксирует поля; клик по `ActionInvoked` → �
 **Что делает.** Полный список разделов настроек с подпунктами; «Выйти» из аккаунта.
 
 **Источник / evidence.** `[M]` `F162:63-70` («63 строки») + **независимый оракул**
-`/home/sanya/re-deep/ui8/23-settings-categories.json`: `count: 63`, 63 записи с `text`,
+`reference-oracle/ui8/23-settings-categories.json`: `count: 63`, 63 записи с `text`,
 `depth`, `cls`.
 Разбор 63 записей: **2** строки профиля (`ShadowByte / Редактировать профиль`) +
 **19 × 3** обёртки (`itemContainer`/`item`/`itemContent`) = 57 +
@@ -623,7 +623,7 @@ G2 G-05/G-04).
 |---|---|---|
 | **ST-01** Gap | «нет 45 подпунктов/панелей» | «63 DOM-строки = профиль 2 + 18 разделов/Выйти ×3 + 4 подпункта «Учётной записи»; отсутствуют профиль, 4 подпункта, «Выйти»; подпункты 17 разделов не сняты (свёрнуты) → `[A]`» |
 | **ST-01** WSJF | 4.0 | пересчитать (объём S); G6-оценка ≈ 6.0; P2 сохранить |
-| **ST-01** Test | `gui-spike-features.test.mjs` | + фикстура-оракул `tests/fixtures/settings-nav-63.tsv` из `re-deep/ui8/23-settings-categories.json` |
+| **ST-01** Test | `gui-spike-features.test.mjs` | + фикстура-оракул `tests/fixtures/settings-nav-63.tsv` из `reference-oracle/ui8/23-settings-categories.json` |
 | **G-01** Ref | `UI6:01` · `[M]` | добавить `[L] READY.guilds[]` (источник списка), `[M]` оставить за визуалом |
 | **G-01** DoD | «restore» | «restore — G-01b (нужно поле в `UiSettings`); первый срез без persist» |
 | **G-03** DoD | «RE-payload → join» | «тело `[S]`; `session_id`/`invite_instance_id`/`received_installation_id` nullable; live-коды RE-2» |
@@ -672,7 +672,7 @@ G2 G-05/G-04).
 | core.asar 1.0.166 sha256 | `e24a5b8393384dc885f5e1dabb48d8b6833731f01c40460c99815a9169a12770` |
 | Discord ELF 1.0.166 sha256 | `37d7e3540277d878985c8f973e2313ada9601adb5bd8116e29f5bb4201ca2809` |
 | READY-фикстура | `fixtures/gateway/by-type/002-READY.json` (7 гильдий, 272 канала, 17 ЛС, 3 read_state) |
-| Settings-оракул | `/home/sanya/re-deep/ui8/23-settings-categories.json` (`count:63`, 5 455 Б) |
+| Settings-оракул | `reference-oracle/ui8/23-settings-categories.json` (`count:63`, 5 455 Б) |
 | Ack-оракул | `docs/re/rest-d02.md §4` (`{"token":null,"last_viewed":4310}`) |
 | Typing/invite-оракул | `NETWORK-CONTRACTS.md §1.2, §1.6` (anchor + цитата) |
 
@@ -680,7 +680,7 @@ G2 G-05/G-04).
 
 ```bash
 # 63 строки настроек
-python3 -c "import json;d=json.load(open('/home/sanya/re-deep/ui8/23-settings-categories.json'));print(d['count'],len(d['rows']))"
+python3 -c "import json;d=json.load(open('reference-oracle/ui8/23-settings-categories.json'));print(d['count'],len(d['rows']))"
 
 # каналы/типы в READY
 python3 - <<'PY'

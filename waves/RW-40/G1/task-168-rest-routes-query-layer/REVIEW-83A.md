@@ -25,11 +25,11 @@
 
 ## 2. Сборка, тесты и статический анализ (Clippy)
 
-Запуск выполнен в общем каталоге артефактов `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Запуск выполнен в общем каталоге артефактов `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 
 1. **Компиляция и прогон тестов**:
    ```bash
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib
    ```
    **Результат**:
    - `discord-core` lib unittests: `33 passed; 0 failed; finished in 0.42s`.
@@ -38,7 +38,7 @@
 
 2. **Статический анализ Clippy**:
    ```bash
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib -- -D warnings
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib -- -D warnings
    ```
    **Результат**: `0 warnings`, чистый прогон с флагом `-D warnings`.
 

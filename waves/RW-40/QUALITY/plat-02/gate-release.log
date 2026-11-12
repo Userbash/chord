@@ -60,7 +60,7 @@
      + ]
      - []
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:148:12)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/plan-sync.test.mjs:148:12)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -72,8 +72,8 @@
      }
    
 ✖ unit — 1.5 с (тесты 539: pass 529, fail 10, skip 0)
-         at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:262:10)
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:661:9)
+         at channelButton (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:262:10)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:661:9)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -87,8 +87,8 @@
    test at tests/unit/channel-switch.test.mjs:652:5
    ✖ ошибка 401 видна как alert, а не пустой список (10.743447ms)
      AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
-         at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:262:10)
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:661:9)
+         at channelButton (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:262:10)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:661:9)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -102,7 +102,7 @@
    test at tests/unit/channel-switch.test.mjs:680:3
    ✖ клавиатура дерева: ↓ двигает фокус, Enter открывает канал и ставит aria-current (7.100677ms)
      AssertionError [ERR_ASSERTION]: в гильдии меньше двух открываемых каналов
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:685:14)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:685:14)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -119,7 +119,7 @@
      
      null !== 'error'
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:719:14)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:719:14)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Promise.all (index 0)
          at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -177,7 +177,7 @@
      
      1 !== 0
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/smoke/gui-window.smoke.test.mjs:38:14)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/smoke/gui-window.smoke.test.mjs:38:14)
          at Test.runInAsyncScope (node:async_hooks:227:14)
          at Test.run (node:internal/test_runner/test:1402:25)
          at Test.start (node:internal/test_runner/test:1262:17)
@@ -197,8 +197,8 @@
    
 ✔ e2e — 0.1 с (тесты 4: pass 0, fail 0, skip 4)
 ✖ coverage — 1.7 с (тесты 539: pass 529, fail 10, skip 0)
-         at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:262:10)
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:661:9)
+         at channelButton (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:262:10)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:661:9)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -212,8 +212,8 @@
    test at tests/unit/channel-switch.test.mjs:652:5
    ✖ ошибка 401 видна как alert, а не пустой список (12.204937ms)
      AssertionError [ERR_ASSERTION]: в дереве нет канала 1163408591315812392
-         at channelButton (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:262:10)
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:661:9)
+         at channelButton (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:262:10)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:661:9)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -227,7 +227,7 @@
    test at tests/unit/channel-switch.test.mjs:680:3
    ✖ клавиатура дерева: ↓ двигает фокус, Enter открывает канал и ставит aria-current (16.15667ms)
      AssertionError [ERR_ASSERTION]: в гильдии меньше двух открываемых каналов
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:685:14)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:685:14)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -244,7 +244,7 @@
      
      null !== 'error'
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-switch.test.mjs:719:14)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-switch.test.mjs:719:14)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Promise.all (index 0)
          at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -320,7 +320,7 @@
    
 ✔ golden — 0.3 с
 
-Отчёт гейта: /home/sanya/orca/project/.gate/release-2026-10-24T08-48-35-183Z.json
+Отчёт гейта: /home/user/orca/project/.gate/release-2026-10-24T08-48-35-183Z.json
 ⚠ workspace-rust: пропущено 12 тестов — пропуск прохождением не считается
 ⚠ e2e: пропущено 4 тестов — пропуск прохождением не считается
 Вердикт: failed

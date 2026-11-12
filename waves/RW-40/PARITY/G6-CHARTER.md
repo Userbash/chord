@@ -20,9 +20,9 @@ G6 не пишет продуктовый код и не принимает ре
 
 | Источник | Что даёт | Режим |
 |---|---|---|
-| `/home/sanya/.config/discord/app-1.0.166/resources/app.asar` | JS-приложение эталона (1.0.166) | read-only, REA static |
-| `/home/sanya/.config/discord/app-1.0.166/Discord` | native ELF, версия/строки | read-only, REA |
-| `/home/sanya/re-deep/**` | dump 1.0.162: UI, tokens, REST, voice, gateway | read-only |
+| `/home/user/.config/discord/app-1.0.166/resources/app.asar` | JS-приложение эталона (1.0.166) | read-only, REA static |
+| `/home/user/.config/discord/app-1.0.166/Discord` | native ELF, версия/строки | read-only, REA |
+| `reference-oracle/**` | dump 1.0.162: UI, tokens, REST, voice, gateway | read-only |
 | `docs/re/**` | RE-отчёты прошлых волн | read-only |
 | `logs/`, `functions/`, `evidence/` | golden evidence | read-only |
 | live capture | только по окну PM, тестовый аккаунт | 1 окно/приёмка |
@@ -50,7 +50,7 @@ G6 не пишет продуктовый код и не принимает ре
 
 Каждая строка матрицы имеет:
 
-- `source`: `app.asar:<module>`, `re-deep:<file>`, `live:<capture-id>`, `docs/re:<file>`;
+- `source`: `app.asar:<module>`, `reference-oracle:<file>`, `live:<capture-id>`, `docs/re:<file>`;
 - `evidence`: `E0` нет / `E1` статический источник / `E2` E1 + тест / `E3` live;
 - `level`: **[L]** live-захват / **[S]** call-site в коде эталона / **[D]** только Enum-запись дампа / **[M]** модель/измерение / **[A]** авторское решение или нет подтверждения;
 - `confirmed`: **не использовать поле `confirmed` из `rest-static.json`** (оно `false` у всех 904 записей и не является оценкой достоверности); вместо него — `level` + `source`;
@@ -147,14 +147,14 @@ PM **не принимает** задачу, если:
 
 - не запускать Discord live без окна PM;
 - не захватывать чужие микрофон/экран/данные;
-- не писать в `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`, установленный Discord;
+- не писать в `logs/`, `functions/`, `evidence/`, `reference-oracle/`, установленный Discord;
 - не выдумывать endpoint/поле/размер без источника;
 - не коммитить (координатор);
 - не объявлять функцию готовой по одному парсеру.
 
 ## 11. Source-only: только дамп или рабочее приложение
 
-1. Источник поведения — **только** `app.asar`/ELF установленного Discord, dump `re-deep`
+1. Источник поведения — **только** `app.asar`/ELF установленного Discord, dump `reference-oracle`
    или live-захват. Не память модели, не сторонние сайты, не «в Discord обычно так».
 2. Каждая функция получает `source` и `level`; без этого строка не попадает в матрицу.
 3. `[D]` (Enum-запись) подтверждает только наличие endpoint, не payload/поведение.

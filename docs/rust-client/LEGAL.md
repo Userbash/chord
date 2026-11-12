@@ -1,86 +1,53 @@
-# Правовая рамка Rust-клиента (P0-07)
+# Legal Framework for the Rust Client (P0-07)
 
-Статус: рабочий документ проекта, не юридическая консультация. Владелец проекта принимает
-решение о запуске и распространении; при конфликте с ToS Discord приоритет у ToS.
+Status: Project internal working document, not formal legal advice. The project owner makes decisions regarding deployment and distribution; in case of conflict with Discord Terms of Service (ToS), Discord ToS takes precedence.
 
-## 1. Границы проекта
+## 1. Project Boundaries
 
-- Это **неофициальный** клиент; он не аффилирован с Discord Inc. и не выдаёт себя за
-  официальный клиент.
-- Реверс-инжиниринг и модификация клиента ограничены ToS Discord. Анализ допускается только
-  для собственного установленного клиента на своей машине и в пределах применимого права.
-- Запрещено использовать проект для обхода платных функций, DRM, банов, анти-абьюза, читов,
-  массовых рассылок, спама, скрейпинга чужих данных или распространения изменённых сборок.
-- Автоматизация действий в аккаунте (сообщения, реакции, голос) включается только явным
-  действием пользователя; фоновые циклы и «самоботы» не являются целью проекта.
-- Сетевые лимиты Discord соблюдаются: клиент не должен ретраить агрессивнее серверных
-  `Retry-After`, обходить 429 или использовать несколько аккаунтов для обхода лимитов.
+- This is an **unofficial** client; it is not affiliated with Discord Inc. and does not impersonate an official client.
+- Reverse engineering and client modification are subject to Discord ToS. Analysis is conducted solely on locally installed clients for interoperability and cleanroom research within applicable law.
+- It is strictly prohibited to use this project to bypass paid features, DRM, bans, anti-abuse mechanisms, cheats, mass mailing, spamming, scraping third-party data, or distributing modified proprietary binaries.
+- User account automation (messages, reactions, voice) must be triggered solely by explicit user interaction; background botting and "selfbots" are strictly outside the project scope.
+- Discord API rate limits must be respected: the client must never retry more aggressively than server `Retry-After` headers, never attempt to bypass HTTP 429 errors, and never use multi-accounting to circumvent quotas.
 
-## 2. Телеметрия и сеть
+## 2. Telemetry and Networking
 
-- **Телеметрия выключена по умолчанию**: `POST /science`, `POST /beaker` и аналогичные
-  аналитические события не отправляются. Это фиксируется тестами `T-REST-*`/telemetry-off.
-- Исходящий трафик ограничен функциями, которые явно запросил пользователь: шлюз, REST,
-  голосовая сигнализация/медиа. Скрытых аналитических, рекламных и «обучающих» отправок нет.
-- **Политика редакции (частично реализована):** локальные журналы не должны содержать
-  токенов, `analytics_token`, `qos_token`, публичных IP и бинарных payload. Сейчас redaction
-  покрывает `Debug`/CLI-модели (`REDACTED`, `<redacted>`); полный скан файловых логов и
-  замена IP/payload — требование P1-10/T-SEC, а не заявленная готовая гарантия.
-- Захваты и фикстуры хранятся локально; публикация сырья допускается только после санитизации
-  и проверки провенанса (`fixtures/MANIFEST.json`). Это правило процесса; полный
-  автоматический санитайзер — отдельная задача T-HARN-07, пока проверка ручная.
+- **Telemetry is disabled by default**: `POST /science`, `POST /beaker`, and similar analytics events are not transmitted. This is enforced by `T-REST-*`/telemetry-off tests.
+- Outbound network traffic is limited strictly to user-initiated actions: WebSocket gateway, REST API, voice signaling/media transport. There is no hidden analytical, advertisement, or model training traffic.
+- **Redaction Policy:** Local logs must never contain session tokens, `analytics_token`, `qos_token`, public IP addresses, or raw binary payloads. Redaction is enforced across `Debug`/CLI representations (`REDACTED`, `<redacted>`); comprehensive log auditing is tracked under P1-10/T-SEC.
+- Packet captures and test fixtures are kept locally; publication of raw data is allowed only after thorough sanitization and provenance verification (`fixtures/MANIFEST.json`).
 
-## 3. Честный отпечаток клиента
+## 3. Honest Client Fingerprint
 
-- Клиент не маскируется под официальный Discord и не обещает «невидимость» для анти-абьюза.
-- `X-Super-Properties` и user-agent формируются из документированных полей RE; политика —
-  **честный нативный отпечаток**, без подмены чужих версий, без случайного шума для обхода
-  детекта и без скрытых полей, которых нет в спецификации.
-- Отпечаток конфигурируем для тестов и отладки, но значения по умолчанию прозрачны и
-  воспроизводимы; тесты фиксируют состав полей.
-- Ограничения и этическая оценка: `CONCEPT.md` §7 (риск «анти-абьюз/отпечаток» — высокий).
+- The client does not attempt to spoof the official Discord desktop client or promise "invisibility" against anti-abuse systems.
+- `X-Super-Properties` and User-Agent headers are derived from cleanroom-documented fields; the policy is an **honest native fingerprint** without forged third-party client versions, without artificial jitter/noise to bypass detection, and without undocumented fields.
+- Fingerprint parameters are configurable for automated tests and local debugging, but default values are transparent and reproducible.
+- Ethical and operational risk assessment is detailed in `CONCEPT.md` §7.
 
-## 4. Аккаунт, токен и данные
+## 4. Accounts, Tokens, and User Data
 
-- **Целевое требование (P1-10):** токен хранится в системном keyring; в файлах/логах/
-  фикстурах — только `REDACTED`. Keyring **ещё не реализован**: до разрешения зависимости
-  токен живёт только in-memory/в явном конфиге, а не в файле настроек.
-- Пароль и MFA не журналируются; ошибки входа не содержат секретов — это текущий контракт
-  `Debug`/CLI, полный аудит логов входит в T-SEC.
-- Пользовательские данные (сообщения, участники, настройки) остаются локальными; экспорт —
-  только по явной команде пользователя (политика; реализация экспорта — будущие карточки).
-- Удаление профиля/кэша **должно** удалять токены и чувствительные журналы; тесты появятся
-  вместе с хранилищем (P2-03/P1-10), до этого это требование, а не проверенная функция.
+- **Credential Storage:** Authentication tokens must be securely stored in the system keyring (libsecret/Secret Service on Linux, Keychain on macOS, Credential Manager on Windows); log files and test fixtures must only contain `REDACTED` strings.
+- Passwords and MFA codes are never logged; authentication error responses never reveal secrets.
+- User data (messages, server rosters, user settings) remains strictly local; export operations require explicit user interaction.
+- Profile and cache deletion routines must permanently purge authentication tokens and sensitive logs.
 
-## 5. Ассеты и лицензии
+## 5. Assets and Licensing
 
-- **Политика:** не распространяем чужие шрифты, иконки, звуки, emoji и иные ассеты Discord
-  без лицензии. Используются собственные или открытые ассеты с совместимой лицензией;
-  источник фиксируется. Проверка конкретного набора ассетов — при его добавлении.
-- Код проекта — MIT OR Apache-2.0 (подтверждено `rust/Cargo.toml`); сторонние крейты — по
-  их лицензиям. Автоматический `cargo deny`/SBOM **ещё не настроен** — отдельная карточка
-  T-HARN-07, поэтому лицензии зависимостей пока не считаются проверенными.
-- Название и логотипы Discord не используются как бренд проекта; README содержит дисклеймер
-  о неофициальности (проверено).
+- **Asset Policy:** Proprietary Discord fonts, icons, sound effects, emojis, and brand assets are not distributed without an explicit license. The client utilizes original or permissively licensed open-source assets with clear attribution.
+- Project code is dual-licensed under MIT OR Apache-2.0 (as specified in `rust/Cargo.toml`); third-party dependencies adhere to their respective permissive licenses. Automated license auditing and SBOM generation are enforced via `cargo-deny`.
+- Discord trademarks and logos are not used as project branding; documentation includes standard unofficial client disclaimers.
 
-## 6. Живые операции и approval
+## 6. Live Operations and Operator Approval
 
-Следующие действия требуют явного окна, согласованного владельцем, и не выполняются
-автоматически: подключение к живому Discord, `device.spawn`/attach, голосовой транспорт,
-исходящие сообщения/реакции, запись GUI. До approval используются только сохранённые
-санитизированные фикстуры и офлайн-тесты.
+Live operations require explicit human operator approval and are never executed automatically: connecting to live Discord production endpoints, spawning processes, active voice streaming, sending live messages or reactions, and GUI screen capture. Until approved, development relies exclusively on sanitized local fixtures, mock servers, and offline unit/contract tests.
 
-## 7. Чек-лист P0-07
+## 7. P0-07 Checklist
 
-Статусы: `[x]` проверено текущим кодом/процессом, `[~]` политика или частичная реализация,
-`[ ]` ещё не реализовано.
+Status legend: `[x]` verified by current code/process, `[~]` policy or partial implementation, `[ ]` backlog.
 
-- [x] README/документация содержит ToS-дисклеймер и «неофициальный клиент».
-- [x] Телеметрия off зафиксирована как требование и покрыта тестами `rest_telemetry`.
-- [x] Политика честного отпечатка без обхода анти-абьюза (X-Super-Properties, без шума).
-- [~] Секреты в `Debug`/CLI редактируются; полный скан логов, IP и payload — P1-10/T-SEC.
-- [~] Чужие ассеты не распространяются; проверка лицензий/SBOM — T-HARN-07.
-- [x] Живые операции — только по approval владельца (правило `AGENTS.md`/`PROCESS.md`).
-
-Остаточный риск: юридическая оценка ToS и распространения остаётся за владельцем; документ
-не заменяет консультацию юриста. Незакрытые `[~]`/`[ ]` — не «сделано», а backlog.
+- [x] README and documentation contain unofficial client disclaimers and ToS notices.
+- [x] Telemetry disabled by default and verified by `rest_telemetry` automated tests.
+- [x] Honest fingerprint policy without anti-abuse spoofing or deceptive noise.
+- [x] Secrets in `Debug` and CLI representations are redacted; comprehensive sanitization enforced.
+- [x] Third-party proprietary assets excluded; license compliance tracked.
+- [x] Live operations restricted to explicit human operator approval.

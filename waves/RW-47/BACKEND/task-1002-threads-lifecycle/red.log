@@ -20,7 +20,7 @@
 test at tests/unit/threads-lifecycle-1002.test.mjs:151:3
 ✖ SUB-1002-0: модуль rust/discord-gpui/src/channels/threads.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений (0.751461ms)
   AssertionError [ERR_ASSERTION]: Модуль rust/discord-gpui/src/channels/threads.rs должен существовать
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:152:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:152:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Promise.all (index 0)
@@ -37,7 +37,7 @@ test at tests/unit/threads-lifecycle-1002.test.mjs:151:3
 test at tests/unit/threads-lifecycle-1002.test.mjs:213:3
 ✖ SUB-1002-1: сверяет карточку TASK-1002, дизайн-токены, геометрию Thread Split View (360px sidebar, padding 8px, spacing 8px), маршруты REST и модули RE-дампа с независимыми оракулами (0.182465ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:214:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:214:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -52,7 +52,7 @@ test at tests/unit/threads-lifecycle-1002.test.mjs:213:3
 test at tests/unit/threads-lifecycle-1002.test.mjs:305:3
 ✖ SUB-1002-2: создаёт треды типов 11 (PUBLIC_THREAD) и 12 (PRIVATE_THREAD), формирует REST-запрос POST /channels/{id}/messages/{msg_id}/threads, проверяет права и синхронизирует участников THREAD_MEMBERS_UPDATE (0.118367ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:306:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:306:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -67,7 +67,7 @@ test at tests/unit/threads-lifecycle-1002.test.mjs:305:3
 test at tests/unit/threads-lifecycle-1002.test.mjs:336:3
 ✖ SUB-1002-3: обеспечивает независимый скролл боковой панели треда (360px sidebar) от основного чата и обрабатывает таймеры автоархивации (60/1440/4320/10080 мин) с защитой locked-тредов (0.107678ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:337:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:337:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -82,7 +82,7 @@ test at tests/unit/threads-lifecycle-1002.test.mjs:336:3
 test at tests/unit/threads-lifecycle-1002.test.mjs:368:3
 ✖ SUB-1002-4: покрывает все 9 обязательных измерений TEST-POLICY.md (граничные Snowflake 0/u64::MAX, 59/60..10079/10080 мин, 100 символов имени, 2000 символов, 10 файлов/25 МБ, offset=9975, громкость 0..200%, бейдж 99+, коды 400/401/403/404/413/429/5xx, skeleton/202, права, THREAD_LIST_SYNC и маскирование секретов) (0.111557ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:369:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:369:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -97,7 +97,7 @@ test at tests/unit/threads-lifecycle-1002.test.mjs:368:3
 test at tests/unit/threads-lifecycle-1002.test.mjs:395:3
 ✖ SUB-1002-5: убивает 5/5 контрольных мутаций модуля threads.rs (100% mutation kill rate) (0.122697ms)
   AssertionError [ERR_ASSERTION]: Исходник модуля должен существовать
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:396:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/threads-lifecycle-1002.test.mjs:396:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {

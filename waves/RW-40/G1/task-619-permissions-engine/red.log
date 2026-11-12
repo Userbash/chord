@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-619-permissions-engine/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-619-permissions-engine/rust/crates/discord-core)
 error[E0432]: unresolved import `discord_core::permissions`
   --> crates/discord-core/tests/permissions_resolution_contract.rs:17:19
    |

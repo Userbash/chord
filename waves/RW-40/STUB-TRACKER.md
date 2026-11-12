@@ -6,7 +6,7 @@
 - `ready` — контракт подтверждён независимым оракулом (дамп/live/схема), блокеров нет,
   реализации ещё нет; карточка может идти в работу.
 - Ссылки: `STUB-MAP.md`, `STUB-IMPLEMENTATION-PLAN.md`, `PARITY-MATRIX.md`,
-  оракул волны — `RE-DEEP-REA.md` (+ `ATTACH-RE.md`), срез — `PARITY/MERGE-READINESS-06.md`.
+  оракул волны — `reference-oracle-REA.md` (+ `ATTACH-RE.md`), срез — `PARITY/MERGE-READINESS-06.md`.
 
 ## Сводка
 
@@ -62,11 +62,11 @@ STUB-01/15/22 остаются открытыми.
 | STUB-01 | rail из READY | G2+G1 | **accepted (D-112) + G-01b/L-02** | G-01b restore принят; live READY — P0-01 |
 | STUB-02 | guild menu | G2+G3 | **accepted (D-92)** | invite/owner C2 |
 | STUB-04 | enter guild UI | G2+G1 | **accepted (D-128)** | live 204 |
-| STUB-05 | invite join | G1+G2 | **accepted (D-116/D-122)** | тела/коды подтверждены `RE-DEEP-REA §4`; G-03a UI |
+| STUB-05 | invite join | G1+G2 | **accepted (D-116/D-122)** | тела/коды подтверждены `reference-oracle-REA §4`; G-03a UI |
 | STUB-06 | leave server | G1+G2 | **accepted (D-89/D-92)** | invite/owner C2 |
 | STUB-08 | channel tree | G2+G1 | open | C-01 |
 | STUB-09 | channel switch | G2+G1 | **accepted (D-120)** | history paging |
-| STUB-14 | search filters | G2+G1 | **ready** | оракул `RE-DEEP-REA §2`: GET guild/channel search, все 7 фильтров (`author_id`, `mentions`, `has`, `channel_id`, `pinned`, `author_type`, `min_id`/`max_id`) + `link_hostname`/`attachment_extension`/`attachment_filename`/`include_nsfw`; страница 25, вкладки = пресеты, `202`+`retry-after` (≤5), `total_results`. Gap: максимальный `offset` `[A]` |
+| STUB-14 | search filters | G2+G1 | **ready** | оракул `reference-oracle-REA §2`: GET guild/channel search, все 7 фильтров (`author_id`, `mentions`, `has`, `channel_id`, `pinned`, `author_type`, `min_id`/`max_id`) + `link_hostname`/`attachment_extension`/`attachment_filename`/`include_nsfw`; страница 25, вкладки = пресеты, `202`+`retry-after` (≤5), `total_results`. Gap: максимальный `offset` `[A]` |
 | STUB-21 | read state/unread | G1+G2 | **accepted (D-126)** | badge/live (read_state не входит в 6 форвардящихся типов) |
 | STUB-22 | typing/presence | G1+G2 | **partial** | `PRESENCE_UPDATE` идёт в UI (L-02 принят); `TYPING_START` не форвардится (`FORWARDED_DISPATCHES` = 6 без TYPING) → P-01…03 |
 | DP-02 | 26/48/+22, member 42 | G2+G4 | **accepted (D-102)** | legacy tokens P2 |
@@ -75,12 +75,12 @@ STUB-01/15/22 остаются открытыми.
 
 | ID | Задача | Owner | Статус | Next |
 |---|---|---|---|---|
-| STUB-03 | create server | G1+G2+G3 | open | `RE-DEEP-REA §3`: маршрут `GUILDS:"/guilds"` есть, вызов в ленивом чанке, тело `[A]`; нужен live-захват создания |
-| STUB-07 | invites | G1+G2 | open | тела/коды подтверждены `RE-DEEP-REA §4` (create/list/revoke); G-06 |
+| STUB-03 | create server | G1+G2+G3 | open | `reference-oracle-REA §3`: маршрут `GUILDS:"/guilds"` есть, вызов в ленивом чанке, тело `[A]`; нужен live-захват создания |
+| STUB-07 | invites | G1+G2 | open | тела/коды подтверждены `reference-oracle-REA §4` (create/list/revoke); G-06 |
 | STUB-10 | pins/threads | G2+G1 | open | M-10/11 |
 | STUB-11 | inbox | G2+G1 | open | N-03 |
-| STUB-12 | gift | G6+G2 | **ready** | оракул `RE-DEEP-REA §5`: кнопка + `openGiftModal` + `POST /users/@me/entitlements/gift-codes` `{sku_id,subscription_plan_id,gift_style}`, плюс GET/revoke/resolve/redeem. Gap: разметка модалки `806677` и выбор SKU `[A]` |
-| STUB-13 | attachments | G1+G2 | **ready** (было `blocked`) | оракул `RE-DEEP-REA §1` + `ATTACH-RE §2`: `POST /channels/{id}/attachments` `{files:[…]}` → `upload_url`/`upload_filename` → `PUT` (+`Content-Range`/`308`) → `uploaded_filename` в `POST /channels/{id}/messages`; лимиты 10 файлов, `max(20 МиБ, tier)`, 500 МБ/1 ГиБ, коды `40005/40006/50035`, `429`+`retry-after`. Не входит: сжатие/превью |
+| STUB-12 | gift | G6+G2 | **ready** | оракул `reference-oracle-REA §5`: кнопка + `openGiftModal` + `POST /users/@me/entitlements/gift-codes` `{sku_id,subscription_plan_id,gift_style}`, плюс GET/revoke/resolve/redeem. Gap: разметка модалки `806677` и выбор SKU `[A]` |
+| STUB-13 | attachments | G1+G2 | **ready** (было `blocked`) | оракул `reference-oracle-REA §1` + `ATTACH-RE §2`: `POST /channels/{id}/attachments` `{files:[…]}` → `upload_url`/`upload_filename` → `PUT` (+`Content-Range`/`308`) → `uploaded_filename` в `POST /channels/{id}/messages`; лимиты 10 файлов, `max(20 МиБ, tier)`, 500 МБ/1 ГиБ, коды `40005/40006/50035`, `429`+`retry-after`. Не входит: сжатие/превью |
 | STUB-16 | profile popover | G2 | open | MB-03 |
 | STUB-19 | settings sections | G2+G3 | partial | ST-01…08 |
 | STUB-28 | notifications | G5+G2 | partial | N-01/02 |
@@ -94,7 +94,7 @@ STUB-01/15/22 остаются открытыми.
 | STUB-26 | voice session | G1+G5 | partial | V-01…06, live voice |
 | STUB-17 | mute/deafen/PTT | G5+G2 | open | V-07; VOICE spec D-94 |
 | STUB-18 | voice UI | G2+G3 | **partial** (UI accepted D-115) | voice live-gate |
-| STUB-27 | video/Go Live | G5+G1 | **ready** (design D-109) | оракул `RE-DEEP-REA §6`: opcodes 18 `STREAM_CREATE` / 19 `DELETE` / 20 `WATCH` / 21 `PING` / 22 `SET_PAUSED` с полями; 4 входящих пакета; REST `/streams/{id}/{preview,notify,stream}`. Блокирует не контракт, а media-путь (capture/encode/RTP) и live-окно |
+| STUB-27 | video/Go Live | G5+G1 | **ready** (design D-109) | оракул `reference-oracle-REA §6`: opcodes 18 `STREAM_CREATE` / 19 `DELETE` / 20 `WATCH` / 21 `PING` / 22 `SET_PAUSED` с полями; 4 входящих пакета; REST `/streams/{id}/{preview,notify,stream}`. Блокирует не контракт, а media-путь (capture/encode/RTP) и live-окно |
 | STUB-20 | QR/passkey | G1+G5 | open | A-04/05 |
 | STUB-15 | live members | G1+G2 | **partial** | `GUILD_MEMBERS_CHUNK` + `GUILD_MEMBER_LIST_UPDATE` идут в UI (L-02 принят); лимиты/догрузка — MB-01 |
 | STUB-23 | live history | G1+G2 | partial | M-01 |
@@ -115,7 +115,7 @@ STUB-01/15/22 остаются открытыми.
 
 Следствие для `PARITY-MATRIX.md` (правит G6 Lead, не этот файл): строки `AT-01`
 («blocked»), `M-13` («4/7 фильтров»), `S-02` («STREAM [A]») устарели и требуют
-синхронизации по `RE-DEEP-REA.md`.
+синхронизации по `reference-oracle-REA.md`.
 
 ## Правило обновления
 

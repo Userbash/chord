@@ -1,6 +1,6 @@
 # E1 — выдержки из установленного эталона 1.0.166
 
-Источник: `/home/sanya/.config/discord/app-1.0.166/resources/app.asar` (bundle.js) и
+Источник: `/home/user/.config/discord/app-1.0.166/resources/app.asar` (bundle.js) и
 `.../modules/discord_desktop_core-1/discord_desktop_core/core.asar` (mainScreenPreload.js).
 Смещения — байты от начала распакованного файла. Артефакты распакованы в `/tmp/opencode/ref166`
 только для чтения/цитирования; исходные asar не изменялись.

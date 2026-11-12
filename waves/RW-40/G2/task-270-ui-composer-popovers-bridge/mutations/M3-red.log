@@ -29,8 +29,8 @@
 test at tests/unit/composer-popovers-bridge.test.mjs:150:3
 ✖ openPopover открывает допустимые слои из COMPOSER_POPOVER_LAYERS, а closePopover сбрасывает activePopover (0.17331ms)
   Error: Неизвестный поповер композера: slash-command-picker
-      at Object.openPopover (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/rust/gui-spike/ui/features/composer-popovers-bridge.js:170:13)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:154:31)
+      at Object.openPopover (file:///home/user/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/rust/gui-spike/ui/features/composer-popovers-bridge.js:170:13)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:154:31)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -41,8 +41,8 @@ test at tests/unit/composer-popovers-bridge.test.mjs:150:3
 test at tests/unit/composer-popovers-bridge.test.mjs:164:3
 ✖ openPopover бросает Error при неизвестном или невалидном идентификаторе поповера и не меняет состояние (0.099141ms)
   Error: Неизвестный поповер композера: emoji-picker
-      at Object.openPopover (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/rust/gui-spike/ui/features/composer-popovers-bridge.js:170:13)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:166:12)
+      at Object.openPopover (file:///home/user/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/rust/gui-spike/ui/features/composer-popovers-bridge.js:170:13)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:166:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

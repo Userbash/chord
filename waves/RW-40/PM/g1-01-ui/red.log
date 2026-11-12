@@ -135,9 +135,9 @@ test at tests/unit/gui-spike-features.test.mjs:1958:3
   
   'ok' !== 'error'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1983:18
-      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1975:7)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1983:18
+      at async withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1779:7)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1975:7)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

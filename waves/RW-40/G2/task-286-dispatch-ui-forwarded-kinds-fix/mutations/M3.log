@@ -81,7 +81,7 @@ test at tests/unit/dispatch_ui.test.mjs:288:3
   
   29 !== 30
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:295:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:295:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -104,7 +104,7 @@ test at tests/unit/dispatch_ui.test.mjs:311:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:324:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:324:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -122,7 +122,7 @@ test at tests/unit/dispatch_ui.test.mjs:311:3
 test at tests/unit/dispatch_ui.test.mjs:565:3
 ✖ B11: REACTION ADD/REMOVE — ±1, me по selfUserId, повтор ADD — no-op (0.157131ms)
   TypeError [Error]: Cannot read properties of undefined (reading 'count')
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:587:25)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:587:25)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -133,7 +133,7 @@ test at tests/unit/dispatch_ui.test.mjs:565:3
 test at tests/unit/dispatch_ui.test.mjs:598:3
 ✖ B13: malformed-таблица (null/[]/"x"/{}) для каждого kind с проекцией (0.1809ms)
   AssertionError [ERR_ASSERTION]: MESSAGE_REACTION_REMOVE с проекцией отсутствует в FORWARDED_KINDS
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:600:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:600:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -154,7 +154,7 @@ test at tests/unit/dispatch_ui.test.mjs:1513:3
   
   '2' !== '1'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:1536:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:1536:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -171,7 +171,7 @@ test at tests/unit/dispatch_ui.test.mjs:1551:3
   
   '3' !== '2'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:1566:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:1566:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

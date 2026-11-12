@@ -7,9 +7,9 @@
 - `rust/gui-spike/ui/features/app-shell-wiring.js`
 - `tests/unit/app-shell-wiring.test.mjs`
 - `rust/gui-spike/ui/tsconfig.json`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-276-ui-shell-wiring-pass2-hardening/red.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-276-ui-shell-wiring-pass2-hardening/green.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-276-ui-shell-wiring-pass2-hardening/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/G2/task-276-ui-shell-wiring-pass2-hardening/red.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-276-ui-shell-wiring-pass2-hardening/green.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-276-ui-shell-wiring-pass2-hardening/REPORT.md`
 
 ## Требования (Strict TDD: Red -> Green)
 1. **Сначала добавь тесты (Red) в `tests/unit/app-shell-wiring.test.mjs` и запиши `red.log`:**

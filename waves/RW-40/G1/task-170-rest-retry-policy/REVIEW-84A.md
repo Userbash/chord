@@ -24,7 +24,7 @@
 
 1. **Targeted cargo test**:
    ```bash
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_retry --test rest_client --test rest_rate_limit --lib
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_retry --test rest_client --test rest_rate_limit --lib
    ```
    - `lib.rs`: 33 passed, 0 failed.
    - `tests/rest_client.rs`: 31 passed, 0 failed.
@@ -34,7 +34,7 @@
 
 2. **Cargo clippy**:
    ```bash
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_retry --lib -- -D warnings
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_retry --lib -- -D warnings
    ```
    - Статус: Clean (0 warnings, 0 errors).
 

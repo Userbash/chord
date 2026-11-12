@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """S-D / STREAM: воспроизводимый замер ряда действий голосовой панели.
 
-Источник: /home/sanya/re-deep/voice/ui/01-joined.png (2560x1383, dpr 1.25).
+Источник: /home/user/clean-room-oracle/voice/ui/01-joined.png (2560x1383, dpr 1.25).
 Метод: ищем точный цвет заливки кнопок #2e2e33 = rgb(46,46,51) в области панели,
 группируем по столбцам/строкам, делим на dpr. Никаких «на глаз».
 
@@ -13,7 +13,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-PNG = Path("/home/sanya/re-deep/voice/ui/01-joined.png")
+PNG = Path("/home/user/clean-room-oracle/voice/ui/01-joined.png")
 LOG = Path(__file__).with_name("measure.log")
 DPR = 1.25
 FILL = (46, 46, 51)  # #2e2e33

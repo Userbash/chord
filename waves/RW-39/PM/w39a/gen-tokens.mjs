@@ -21,11 +21,11 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '../../../..');
 const CSS = resolve(ROOT, 'waves/RW-39/DESIGN/tokens.css');
 const OUT = resolve(ROOT, 'waves/RW-39/DESIGN/tokens.json');
-const DUMP = '/home/sanya/re-deep/ui/tokens.json';
+const DUMP = '/home/user/clean-room-oracle/ui/tokens.json';
 
 const STATUS_CODES = {
-  '[M]': 'измерено на референсе (/home/sanya/re-deep/ui/00-app.png, ui8/*.jpg)',
-  '[T]': 'токен из /home/sanya/re-deep/ui/tokens.json (dark, сборка 1.0.162)',
+  '[M]': 'измерено на референсе (/home/user/clean-room-oracle/ui/00-app.png, ui8/*.jpg)',
+  '[T]': 'токен из /home/user/clean-room-oracle/ui/tokens.json (dark, сборка 1.0.162)',
   '[L]': 'RE-контракт waves/RW-37/RE/layout.json (rw37/re-layout-v1)',
   '[A]': 'assumption, обоснование в SPEC.md',
   '[F]': 'frozen тестами RW-38 (tests/unit/gui-spike-dom.test.mjs)',
@@ -267,7 +267,7 @@ const out = {
     aliases: aliasCount,
     owner: 'W39b (значения менять только там)',
   },
-  dump: { path: '/home/sanya/re-deep/ui/tokens.json', variables: Object.keys(dump).length, build: '1.0.162', theme: 'dark', read_only: true },
+  dump: { path: '/home/user/clean-room-oracle/ui/tokens.json', variables: Object.keys(dump).length, build: '1.0.162', theme: 'dark', read_only: true },
   status_codes: STATUS_CODES,
   verification: {
     method: 'node waves/RW-39/PM/w39a/verify-tokens.mjs — имена и значения сверяются с tokens.css программно',

@@ -93,7 +93,7 @@ node --test tests/unit/thread-badge.test.mjs tests/unit/chat-helpers-bridge.test
 
 1. **Гигиена коммита.** В рабочем дереве кроме семи файлов лежат `package-lock.json`
    (`bin`/`engines` досинхронизированы из `package.json` — побочный эффект `npm install`) и
-   удалённый симлинк `node_modules` → `/home/sanya/orca/project/node_modules`. В Write-Scope
+   удалённый симлинк `node_modules` → `/home/user/orca/project/node_modules`. В Write-Scope
    `TASK.md` их нет. Коммит PR-156 должен содержать **только семь файлов**; `package-lock.json`
    и `node_modules` в коммит не включать — иначе в `unstable` уедет `node_modules` как удалённый.
 2. **Недостижимый `??`** (см. §5) не покрывается мутациями по построению. Если в будущем

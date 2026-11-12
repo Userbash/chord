@@ -24,8 +24,8 @@
 
 | Метка | Значение | Источник |
 |---|---|---|
-| `[D]` | Доказано декодированным бандлом или живым захватом | `waves/RW-40/DM-FRIENDS-RE.md` (`/home/sanya/re-deep`: `decoded/4d2a64cb5df5fc4e_0`, `d38b37e4d52b4495_0`, `e1affb550dd48702_0`, `9f6dccfb41eb44b6_0`, `a8de0187058c21c2_0`, `002-READY.json`, `003-READY_SUPPLEMENTAL.json`) |
-| `[S]` | Статическая схема маршрутов / Rust-типов | `/home/sanya/re-deep/rest-static.json`, `gateway-schema.md`, `rust/crates/discord-core/src/ready/social.rs` |
+| `[D]` | Доказано декодированным бандлом или живым захватом | `waves/RW-40/DM-FRIENDS-RE.md` (`reference-oracle/`: `decoded/4d2a64cb5df5fc4e_0`, `d38b37e4d52b4495_0`, `e1affb550dd48702_0`, `9f6dccfb41eb44b6_0`, `a8de0187058c21c2_0`, `002-READY.json`, `003-READY_SUPPLEMENTAL.json`) |
+| `[S]` | Статическая схема маршрутов / Rust-типов | `reference-oracle/rest-static.json`, `gateway-schema.md`, `rust/crates/discord-core/src/ready/social.rs` |
 | `[T]` | Дизайн-токен проекта | `rust/gui-spike/ui/tokens.css` |
 | `[F]` | Замороженный контракт существующего кода и тестов (включая расширяемые точки task-122: `settings_store.rs`, `readLastGuildId`, `normalizeSettings`/`getEffectiveLastGuildId`) | `rust/gui-spike/ui/index.html`, `rust/gui-spike/ui/app.js`, `rust/gui-spike/ui/features/settings.js`, `rust/gui-spike/src/settings_store.rs`, `tests/unit/guild-rail.test.mjs`, `tests/unit/gui-spike-*.test.mjs` |
 | `[A]` | Проектное решение / адаптация DL (явно отделено от `[D]`) | Данный документ и `DM-FRIENDS-RE.md` §0 п.7, §8, §10 |

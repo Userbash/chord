@@ -21,4 +21,4 @@ restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
 restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
 restore md5=18ba4d9a9404c5979b814363ed1e8de2 OK
 === FINAL ===
-18ba4d9a9404c5979b814363ed1e8de2  /home/sanya/orca/workspaces/project/feature-task-262-ui-onboarding-wizard/rust/gui-spike/ui/features/onboarding-wizard.js
+18ba4d9a9404c5979b814363ed1e8de2  /home/user/orca/workspaces/project/feature-task-262-ui-onboarding-wizard/rust/gui-spike/ui/features/onboarding-wizard.js

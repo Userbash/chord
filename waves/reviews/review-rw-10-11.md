@@ -352,7 +352,7 @@ W10a/W10b/W11c часть доказательств — red2/mutation-red, а �
   `TASKS.md`/`waves/STATE.md` (приёмка RW-10/11, координатор) и появились
   `src/lib.rs` + `src/ready_data.rs`/`tests/ready_data.rs` (RW-12/P2-01) и
   `waves/GUI-AUDIT.md` — это вне области RW-10/11; ревьюер их не создавал и не проверял. Коммитов нет.
-- `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` не изменялись (golden — только
+- `logs/`, `functions/`, `evidence/`, `reference-oracle/` не изменялись (golden — только
   чтение).
 - Ревьюер не менял код, тесты, ТЗ и отчёты; единственный созданный файл — этот отчёт.
 - `Cargo.toml` правил координатор: `tokio-rustls` используется, `httparse` — нет (P3-5).

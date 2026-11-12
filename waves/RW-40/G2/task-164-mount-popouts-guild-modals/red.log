@@ -19,4 +19,4 @@
 test at tests/unit/gui-spike-features.test.mjs:5192:3
 ✖ 1. В app.js импортированы и смонтированы createUserPopoutController и createGuildModalsController, возвращены в currentApp() (2.543451ms)
   AssertionError [ERR_ASSERTION]: в app.js не найден импорт createUserPopoutController
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-164-mount-popouts-guild-modals/tests/unit/gui-spike-features.test.mjs:5194:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-164-mount-popouts-guild-modals/tests/unit/gui-spike-features.test.mjs:5194:12)

@@ -1,17 +1,17 @@
 # RW-21 / RESEARCH-P2-08 — settings-proto
 
 Дата: 2026-10-21. Карточка: P2-08. Зависимость: P2-02 (принята).
-Режим: read-only по `/home/sanya/re-deep`, продукту и тестам; cargo не запускался.
+Режим: read-only по `reference-oracle/`, продукту и тестам; cargo не запускался.
 
 ## 1. Источники
 
 | Источник | Что даёт | Провенанс |
 | --- | --- | --- |
-| `gateway/by-type/002-READY.json` | `d.user_settings_proto` — base64, 4400 символов | `/home/sanya/re-deep`, READY run2, read-only |
+| `gateway/by-type/002-READY.json` | `d.user_settings_proto` — base64, 4400 символов | `reference-oracle/`, READY run2, read-only |
 | сырые байты READY | 3300 B, `sha256=c79fca65e321cae5135401f22ee9041809958a34e52e959d0a1a63a04f7c5672` | `base64 -d`, Python oracle |
-| `gw-proto/msgs-run2-95974_13072.jsonl` | `USER_SETTINGS_PROTO_UPDATE`: `settings.type=2`, `partial="false"`, base64 17 436 | `/home/sanya/re-deep`, read-only |
+| `gw-proto/msgs-run2-95974_13072.jsonl` | `USER_SETTINGS_PROTO_UPDATE`: `settings.type=2`, `partial="false"`, base64 17 436 | `reference-oracle/`, read-only |
 | сырые байты UPDATE | 13 077 B, `sha256=8cd02970195054bbf5bfc481486264df9027213101432548f4a1b26a8d1531e5` | `base64 -d`, Python oracle |
-| `flatpak-hits/fd741e5db8758fbe_0` | минифицированный JS-бандл Discord; модуль `761821` — `Y5/Gd`, модуль `873298` — `PreloadedUserSettings`, модуль `803805` — `FrecencyUserSettings` | `/home/sanya/re-deep`, read-only |
+| `flatpak-hits/fd741e5db8758fbe_0` | минифицированный JS-бандл Discord; модуль `761821` — `Y5/Gd`, модуль `873298` — `PreloadedUserSettings`, модуль `803805` — `FrecencyUserSettings` | `reference-oracle/`, read-only |
 | `docs/re/rest-d02.md` §4 | PATCH `settings-proto/2` body обрезан на 4001 символе; полного JSON/protobuf-оракула нет | уже в репозитории |
 
 **Ограничение:** версия клиентского бандла не подтверждена отдельным манифестом. Имена полей

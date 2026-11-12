@@ -1,7 +1,7 @@
-▶ HASHED_RU_KEYS и RU_CATALOG (оракул /home/sanya/re-deep/ru-catalog.json)
+▶ HASHED_RU_KEYS и RU_CATALOG (оракул /home/user/clean-room-oracle/ru-catalog.json)
   ✔ экспортирует замороженную карту >= 25 канонических 6-символьных base64 xxh64 ключей Discord (0.519507ms)
   ✔ содержит точные русские строки из ru-catalog.json по всем 10 категориям UI (0.132239ms)
-✔ HASHED_RU_KEYS и RU_CATALOG (оракул /home/sanya/re-deep/ru-catalog.json) (1.227143ms)
+✔ HASHED_RU_KEYS и RU_CATALOG (оракул /home/user/clean-room-oracle/ru-catalog.json) (1.227143ms)
 ▶ tHashed и t — разрешение ключей, плейсхолдеры и русские плюральные формы
   ✔ разрешает канонические 6-символьные хеш-ключи и семантические ключи RU_CATALOG (0.279618ms)
   ✔ подставляет {param} плейсхолдеры (включая повторяющиеся вхождения и числа) (0.1078ms)

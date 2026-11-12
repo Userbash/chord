@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 5 mandated mutations + exploratory probes for REVIEW-195A (task-286)
 set -u
-cd /home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix || exit 1
+cd /home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix || exit 1
 SRC=rust/gui-spike/ui/features/dispatch-model.js
 ORIG=/tmp/opencode/tr195a/dispatch-model.js.orig
 OUT=/tmp/opencode/tr195a

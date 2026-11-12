@@ -2,7 +2,7 @@
   "task_id": "TASK-961",
   "status": "passed",
   "version": "1.0.0-beta.1",
-  "appimage_path": "/home/sanya/orca/project/rust/dist/discord-gpui-v1.0.0-beta.1-x86_64.AppImage",
+  "appimage_path": "/home/user/orca/project/rust/dist/discord-gpui-v1.0.0-beta.1-x86_64.AppImage",
   "appimage_size_bytes": 17299078,
   "appimage_sha256": "7b7a415ab0a8daaac77c21f7faccc738c70104db4445197676d35219410c2b8c",
   "elf_type2_magic_ok": true,

@@ -27,7 +27,7 @@
   - Регрессионный контроль: `tests/unit/gui-spike-dom.test.mjs` + `tests/unit/gui-spike-features.test.mjs` — 129 тестов (все pass).
 - **oracle:**
   - `waves/RW-40/DESIGN/ATTACHMENTS-SPEC.md` §1…§5.
-  - `waves/RW-40/RE-DEEP-REA.md` §1 (STUB-13 вложения), §5 (STUB-12 подарок).
+  - `waves/RW-40/reference-oracle-REA.md` §1 (STUB-13 вложения), §5 (STUB-12 подарок).
   - `rust/gui-spike/src/attachments.rs` (`MAX_UPLOAD_FILE_BYTES = 10485760`, `MAX_ATTACHMENTS_PER_MESSAGE = 10`, структура слотов `AttachmentUploadSlot`).
 - **генерация:** не применимо.
 - **мутации:**

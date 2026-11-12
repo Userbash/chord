@@ -7,7 +7,7 @@
     "theme": "dark",
     "locale": "ru",
     "captures": ["ui/", "ui2/", "ui3/", "ui5/", "ui6/", "ui8/"],
-    "note": "golden /home/sanya/re-deep — read-only; сеть не использовалась"
+    "note": "golden /home/user/clean-room-oracle — read-only; сеть не использовалась"
   },
 
   "viewport": { "w": 2048, "h": 1106, "dpr": 1.25, "screenshot_px": { "w": 2560, "h": 1383 } },

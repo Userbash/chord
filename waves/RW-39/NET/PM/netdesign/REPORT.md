@@ -87,7 +87,7 @@ JSON.parse(login-spec.json)                             → valid json
 
 ## 6. md5
 
-Вход (read-only, `/home/sanya/re-deep`):
+Вход (read-only, `reference-oracle/`):
 
 ```
 4fbb7d4afc37f27d16f65a66ba146d27  decoded/43644898c0897078_0   (login html)

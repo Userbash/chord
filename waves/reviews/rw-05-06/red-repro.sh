@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Independent red-first reproduction on the current tests, using temporary stubs.
 set -u
-SRC=/home/sanya/orca/project/rust/crates/discord-core/src
+SRC=/home/user/orca/project/rust/crates/discord-core/src
 OUT=/tmp/opencode/review-rw-0506
 BK=$OUT/red-backup
 mkdir -p "$BK"
@@ -46,7 +46,7 @@ for start in ('    pub fn resume_state(&self) -> Option<ResumeState> {',
     w = w[:i] + start + '\n        todo!("review red reproduction")\n' + w[j:]
 open(ws, 'w', encoding='utf-8').write(w)
 PY
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 { cargo test --offline -p discord-core --test resume_reconnect 2>&1; echo "# EXIT=$?"; md5sum crates/discord-core/tests/resume_reconnect.rs; } > "$OUT/red-repro-rw06.txt"
 restore
 

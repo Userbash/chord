@@ -26,7 +26,7 @@ test at tests/unit/chat-reactions.test.mjs:205:3
   
   0 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:229:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:229:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -42,8 +42,8 @@ test at tests/unit/chat-reactions.test.mjs:205:3
 test at tests/unit/chat-reactions.test.mjs:260:3
 ✖ клик ставит и снимает через toggle_reaction с реальными channelId/messageId (11.170118ms)
   AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
-      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:276:19)
+      at pillOf (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:276:19)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -57,8 +57,8 @@ test at tests/unit/chat-reactions.test.mjs:260:3
 test at tests/unit/chat-reactions.test.mjs:323:5
 ✖ откатывает optimistic состояние при 401 и не теряет строку (7.281351ms)
   AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
-      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
+      at pillOf (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -72,8 +72,8 @@ test at tests/unit/chat-reactions.test.mjs:323:5
 test at tests/unit/chat-reactions.test.mjs:323:5
 ✖ откатывает optimistic состояние при 429 и не теряет строку (6.915997ms)
   AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
-      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
+      at pillOf (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -87,8 +87,8 @@ test at tests/unit/chat-reactions.test.mjs:323:5
 test at tests/unit/chat-reactions.test.mjs:323:5
 ✖ откатывает optimistic состояние при сеть и не теряет строку (6.674311ms)
   AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
-      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
+      at pillOf (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:335:22)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -102,8 +102,8 @@ test at tests/unit/chat-reactions.test.mjs:323:5
 test at tests/unit/chat-reactions.test.mjs:354:3
 ✖ двойной клик до ответа IPC — один toggle_reaction (5.873124ms)
   AssertionError [ERR_ASSERTION]: у строки 1163408592000000001 нет пилюли ✅
-      at pillOf (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:368:20)
+      at pillOf (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:192:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:368:20)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -120,7 +120,7 @@ test at tests/unit/chat-reactions.test.mjs:385:3
   
   '' !== null
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:402:16)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:402:16)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -137,7 +137,7 @@ test at tests/unit/chat-reactions.test.mjs:425:3
   
   0 !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:455:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:455:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -151,8 +151,8 @@ test at tests/unit/chat-reactions.test.mjs:425:3
 test at tests/unit/chat-reactions.test.mjs:470:3
 ✖ состояние реального канала не смешивается с bench-индексом (0.308914ms)
   Error [UIError]: toggleReaction: индекс channel:1163408591315812392:1163408592000000001 вне окна
-      at toggleReaction (file:///home/sanya/orca/project/rust/gui-spike/ui/features/reactions.js:60:11)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/chat-reactions.test.mjs:477:5)
+      at toggleReaction (file:///home/user/orca/project/rust/gui-spike/ui/features/reactions.js:60:11)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/chat-reactions.test.mjs:477:5)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {

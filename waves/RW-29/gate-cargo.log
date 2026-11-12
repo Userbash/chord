@@ -1,10 +1,10 @@
 FMT_EXIT=0
-    Checking discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
-    Checking discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Checking discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
+    Checking discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.24s
 CLIPPY_EXIT=0
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
      Running unittests src/main.rs (target/debug/deps/discord_rs-d56b5f24e58ead0a)
 

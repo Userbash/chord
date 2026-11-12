@@ -19,7 +19,7 @@ import re
 import subprocess
 import sys
 
-ROOT = pathlib.Path("/home/sanya/orca/project")
+ROOT = pathlib.Path("/home/user/orca/project")
 RUST = ROOT / "rust"
 SRC = RUST / "crates/discord-voice/src/reconnect.rs"
 TEST = RUST / "crates/discord-voice/tests/reconnect_contract.rs"

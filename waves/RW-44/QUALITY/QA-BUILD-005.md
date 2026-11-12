@@ -53,8 +53,8 @@ $ time bash scripts/ci.sh
     test result: ok. (1444 passed; 0 failed; 12 ignored across 10 workspace crates)
 ==> release build + verify
 ==> building discord-rs (release, offline)
-==> staging artifacts in /home/sanya/orca/project/rust/dist
-==> generating SBOM (/home/sanya/orca/project/rust/dist/sbom.spdx.json)
+==> staging artifacts in /home/user/orca/project/rust/dist
+==> generating SBOM (/home/user/orca/project/rust/dist/sbom.spdx.json)
 ==> writing SHA256SUMS
 d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e  discord-gpui
 18a6aa8066ce0b6722c8b83a61bf0c43939d5cee7696c7cd6d282ac1167a349e  discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz

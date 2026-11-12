@@ -12,7 +12,7 @@
 
 Общий файл (только TL-2): `discord-voice/src/lib.rs` — добавляет `pub mod`.
 Запрещено: чужие модули и тесты, `Cargo.toml`/`Cargo.lock`, доки, golden (`logs/`,
-`functions/`, `evidence/`, `/home/sanya/re-deep`), сеть, `git commit/push`, `unsafe`.
+`functions/`, `evidence/`, `reference-oracle/`), сеть, `git commit/push`, `unsafe`.
 
 ## 2. Замороженный контракт
 
@@ -49,9 +49,9 @@
 
 ```sh
 # worker targeted (свой target-dir, чтобы не блокировать соседа)
-CARGO_TARGET_DIR=/home/sanya/.cache/discord-lab-target-rw26a \
+CARGO_TARGET_DIR=/home/user/.cache/discord-lab-target-rw26a \
   cargo test --offline -p discord-voice --test rtcp_contract --test reception_contract --test stats_contract
-CARGO_TARGET_DIR=/home/sanya/.cache/discord-lab-target-rw26b \
+CARGO_TARGET_DIR=/home/user/.cache/discord-lab-target-rw26b \
   cargo test --offline -p discord-voice --test regions_contract
 
 # batch gate (один раз, TL-2/OPS-1, после green обоих)

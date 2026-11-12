@@ -48,7 +48,7 @@ workspace, `Cargo.lock`, `src/lib.rs` крейтов, `waves/*`, доки) пр�
   `aead_aes256_gcm_rtpsize` (выбран), `aead_aes256_gcm`, `aead_xchacha20_poly1305_rtpsize`,
   `xsalsa20_poly1305*`. Выбранный режим — `aead_aes256_gcm_rtpsize` ⇒ AAD = RTP-пакет
   (заголовок + payload) целиком.
-- `docs/re/voice-deep.md` §5 + `/home/sanya/re-deep/voice/` (только чтение) — разрывы:
+- `docs/re/voice-deep.md` §5 + `reference-oracle/voice/` (только чтение) — разрывы:
   первые 2 пакета talkspurt (43 Б) без валидного расширения и без трейлера-счётчика.
   Контракт W26a обязан это отражать (корректная ошибка, а не паника).
 - `docs/re/main-arch.md`, `docs/re/native-re.json` — контекст клиента.
@@ -77,7 +77,7 @@ workspace, `Cargo.lock`, `src/lib.rs` крейтов, `waves/*`, доки) пр�
 - Только свои файлы из §1. `Cargo.toml`/`Cargo.lock`/`src/lib.rs`/доки/`waves/*` — не трогать.
 - Никаких сетевых вызовов, `cargo` без `--offline`, `git commit/push`, установки пакетов.
 - Никакого доступа к живому Discord (`device.spawn`/attach) и к `logs/`, `functions/`,
-  `evidence/` (golden, только чтение). `/home/sanya/re-deep` — только чтение.
+  `evidence/` (golden, только чтение). `reference-oracle/` — только чтение.
 - Тесты сверяются с независимым оракулом (KAT-векторы RFC/NIST, RE-константы), а не с
   собственной реализацией; тест под код не «зеленить».
 - Каждый воркер: `CARGO_TARGET_DIR=/tmp/opencode/target-<лейн>` (отдельный target-dir —

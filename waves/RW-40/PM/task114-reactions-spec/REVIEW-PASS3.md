@@ -3,7 +3,7 @@
 Дата: 2026-10-30
 Объект: `waves/RW-40/DESIGN/REACTIONS-EXTENDED-SPEC.md`, ревизия 3, 1741 строка,
 md5 `d4f5e5be142c6f2c792946a9ff50e105` (ветка `design/task-114-reactions-picker-spec`,
-worktree `/home/sanya/orca/workspaces/project/design-task-114-reactions-picker-spec`, HEAD `4e24048`).
+worktree `/home/user/orca/workspaces/project/design-task-114-reactions-picker-spec`, HEAD `4e24048`).
 База сравнения: `waves/RW-40/PM/task114-reactions-spec/REVIEW-PASS2.md` (Review 38B, 228 строк).
 Режим: независимый read-only аудит; записан только этот файл.
 

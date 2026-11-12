@@ -27,7 +27,7 @@ test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 
 
 --- stderr ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
-     Running tests/reception_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/reception_contract-fd7fc5e0e62019fd)
+     Running tests/reception_contract.rs (/home/user/.cache/discord-lab-target-rw26-mut/debug/deps/reception_contract-fd7fc5e0e62019fd)
 error: test failed, to rerun pass `-p discord-voice --test reception_contract`

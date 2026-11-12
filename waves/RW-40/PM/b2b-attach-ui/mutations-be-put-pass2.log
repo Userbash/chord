@@ -6,7 +6,7 @@ bc38ac5943b929e7a620ef911cb208a5  rust/gui-spike/src/lib.rs
 
 === M1: Remove id: Option<String> from #[tauri::command] async fn attachments_upload_put in src/main.rs ===
 667a66e9436e73ccb3a2c4e171b0c185  rust/gui-spike/src/main.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.60s
      Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
 
@@ -43,7 +43,7 @@ M1_EXIT_CODE=101
 
 === M2: Replace args.slot_id.or(args.id) with args.slot_id in execute_attachments_upload_put (src/main.rs) ===
 0c75b381f9bdeaeea53e53a42fc5609f  rust/gui-spike/src/main.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.96s
      Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
 
@@ -81,7 +81,7 @@ M2_EXIT_CODE=101
 === M3: Replace self.slot_id.or(self.id) with self.slot_id in UploadPutCommandArgs::into_input (src/attachments.rs) ===
 cb8b87a01572d53579d4886e773a33f4  rust/gui-spike/src/attachments.rs
 8a71f311bf0ab47ff24450eaf389b2d4  rust/gui-spike/src/main.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.96s
      Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
 
@@ -131,7 +131,7 @@ M3_EXIT_CODE=101
 
 === M4: Drop data/bytes extraction in UploadPutCommandArgs::from_tauri_ipc (src/attachments.rs) ===
 b9dfc6e6d64013000acb52c37a9f0831  rust/gui-spike/src/attachments.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.92s
      Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
 
@@ -169,7 +169,7 @@ M4_EXIT_CODE=101
 === M5: Replace (&input.content_type, input.payload_bytes()) with ("", &[0]) in execute_attachments_upload_put (src/main.rs) ===
 75f50c624ab5a6b21a67281235f4b289  rust/gui-spike/src/attachments.rs
 80aab2c79285bbf14f40c87d9eebb089  rust/gui-spike/src/main.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.45s
      Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
 
@@ -211,7 +211,7 @@ bc38ac5943b929e7a620ef911cb208a5  rust/gui-spike/src/lib.rs
 77157aadf4267ded8c225d8891c71a9f  rust/gui-spike/tests/attachments_contract.rs
 
 === POST-MUTATION GREEN VERIFICATION ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.41s
      Running unittests src/lib.rs (/tmp/target-int01/debug/deps/discord_gui_spike-69b2bc60abd98420)
 
@@ -311,7 +311,7 @@ EXIT_CODE_CARGO_TEST=0
 ℹ todo 0
 ℹ duration_ms 55.240797
 EXIT_CODE_IPC_PATH=0
-    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Checking discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.57s
 EXIT_CODE_CLIPPY=0
 EXIT_CODE_RUSTFMT=0

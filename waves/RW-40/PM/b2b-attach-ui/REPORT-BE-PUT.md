@@ -39,7 +39,7 @@
 
 ## 2. Независимый оракул (`oracle`)
 
-- **`waves/RW-40/RE-DEEP-REA.md` §1.1–§1.7 (`CloudUploader.upload` / двухфазная загрузка вложений)**:
+- **`waves/RW-40/reference-oracle-REA.md` §1.1–§1.7 (`CloudUploader.upload` / двухфазная загрузка вложений)**:
   - §1.4: шаг 2 двухфазного протокола — `PUT {upload_url}` с заголовком `Content-Type: file.type || "application/octet-stream"` и сырыми байтами файла в теле запроса;
   - §1.1: лимиты размера по `GuildBoostTier` (`None = 25 MiB = 26_214_400`, `Tier2 = 50 MiB = 52_428_800`, `Tier3 = 100 MiB = 104_857_600`);
   - §1.6: классификация ошибок (`413` и `400 + code=40005` → `EntityTooLarge`, `429` → `RateLimited { retry_after_ms }` из заголовка `retry-after`, `5xx` → `Server { status }`).

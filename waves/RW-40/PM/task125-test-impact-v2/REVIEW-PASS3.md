@@ -1,7 +1,7 @@
 # Независимое ревью Pass 3 — task-125-test-impact-v2 (Review 44C)
 
 Дата: **2026-10-30, 21:38 +05**. Ревьюер: `DeepSeek V4.1 Flash` (`Review 44C`), независимая сессия.
-Репозиторий: `/home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2`, HEAD `4e24048`
+Репозиторий: `/home/user/orca/workspaces/project/qa-task-125-test-impact-v2`, HEAD `4e24048`
 (`RW-40: integrate Discord GUI spike, dispatch, paging and QA evidence`), ветка `qa/task-125-test-impact-v2`.
 Проверялись исправления прохода 3 против `PM/task125-test-impact-v2/REVIEW-PASS2.md` (Review 44B).
 
@@ -14,7 +14,7 @@
 | `waves/RW-40/G4/task-125-test-impact-v2/REPORT.md` (проход 3) | совпадает с указанными в нём MD5 |
 
 Оракул: `TEST-STRATEGY-V2.md` §5.2.1–§5.2.3; реальный layout `unstable`/целевого дерева
-(`/home/sanya/orca/project`: `rust/gui-spike/ui/features/*.js`, `tests/unit/*.test.mjs`),
+(`/home/user/orca/project`: `rust/gui-spike/ui/features/*.js`, `tests/unit/*.test.mjs`),
 `rust/gui-spike/tests/*.rs`, `rust/gui-spike/src/lib.rs`, `package.json`.
 Продуктовый код и тесты ревьюер не менял. Созданы этот файл и шесть логов в `evidence/`.
 

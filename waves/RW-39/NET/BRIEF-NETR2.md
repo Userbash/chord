@@ -1,7 +1,7 @@
 # BRIEF NET-R2 — RE окна входа, captcha и 2FA по дампу
 
 Владелец: NET-R2 (RE). PM: DeepSeek. Read-only, без сети/окна.
-Вход: `/home/sanya/re-deep/app-asar/`, `asar-extract/`, `ui/`, `backend-ipc.json/md`,
+Вход: `reference-oracle/app-asar/`, `asar-extract/`, `ui/`, `backend-ipc.json/md`,
 `docs/re/main-arch.md`; `NET/AUTH-RE.md` (A-02…A-08); REA при необходимости.
 
 ## Задачи

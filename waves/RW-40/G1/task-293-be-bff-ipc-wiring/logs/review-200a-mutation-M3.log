@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-293-be-bff-ipc-wiring/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-293-be-bff-ipc-wiring/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.06s
-     Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-ec4bcc86c6ada46a)
+     Running unittests src/main.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-ec4bcc86c6ada46a)
 
 running 13 tests
 test wiring_tests::channels_command_is_local_and_carries_no_token ... ok

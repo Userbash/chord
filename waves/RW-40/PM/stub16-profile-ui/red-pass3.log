@@ -40,9 +40,9 @@ test at tests/unit/gui-spike-regressions.test.mjs:292:3
   + 'button'
   - 'listitem'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:306:16
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:306:16
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -77,7 +77,7 @@ test at tests/smoke/gui-window.smoke.test.mjs:16:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/smoke/gui-window.smoke.test.mjs:35:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/smoke/gui-window.smoke.test.mjs:35:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)

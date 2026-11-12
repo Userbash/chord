@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s
      Running tests/messages_contract.rs (target/debug/deps/messages_contract-398d4b80b44a2c30)
 
@@ -26,7 +26,7 @@ test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 === final re-run after restore ===
 md5(messages.rs) before run: c449a06c783c795effb33c7fc763614e
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.63s
      Running tests/messages_contract.rs (target/debug/deps/messages_contract-398d4b80b44a2c30)
 

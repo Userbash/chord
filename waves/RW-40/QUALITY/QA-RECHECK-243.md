@@ -3,7 +3,7 @@
 Дата: 2026-11-05. Роль: **G4 QA**. Задание: повторный QA-гейт после фиксов
 `tokio::sync`, `core_bridge` (`flags`/`sticker_items`), экспорт `tray`.
 
-Проверяемое дерево: `/home/sanya/orca/project` (main, dirty), `HEAD 4e24048`.
+Проверяемое дерево: `/home/user/orca/project` (main, dirty), `HEAD 4e24048`.
 Worktree `g4-task-243-qa-recheck` стоит на том же `4e24048`, но **не содержит**
 трёх фиксов: они есть только в рабочем дереве main. Поэтому все команды ниже
 выполнены в main; иначе гейт проверял бы старый код.
@@ -27,8 +27,8 @@ Worktree `g4-task-243-qa-recheck` стоит на том же `4e24048`, но **
 
 | # | Команда | Exit | Результат |
 |---|---|---|---|
-| 1 | `cd rust && CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --workspace --exclude discord-voice` | **101** | Компиляция `discord-core` упала: 21 ошибка в `tests/dispatch_types.rs`; тесты не запускались |
-| 2 | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test -p discord-core --lib` | **0** | `33 passed; 0 failed` |
+| 1 | `cd rust && CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --workspace --exclude discord-voice` | **101** | Компиляция `discord-core` упала: 21 ошибка в `tests/dispatch_types.rs`; тесты не запускались |
+| 2 | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test -p discord-core --lib` | **0** | `33 passed; 0 failed` |
 | 3 | `cd .. && npm run typecheck` | **1** | 159 ошибок `tsc`; `tsconfig.agent.json` не запускался из-за `&&` |
 | 4 | `node --test tests/meta/*.test.mjs` | **1** | `tests 102`, `pass 96`, `fail 6` |
 | 5 | `node --test tests/unit/*.test.mjs` | **1** | `tests 1794`, `pass 1790`, `fail 4` |

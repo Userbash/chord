@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error[E0433]: cannot find `typing` in `state`
   --> crates/discord-core/tests/typing_selectors.rs:12:26
    |

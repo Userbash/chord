@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-221-be-profile-ext/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-221-be-profile-ext/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 5.39s
-     Running tests/profile_ext_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/profile_ext_contract-8c250b3beb23594b)
+     Running tests/profile_ext_contract.rs (/home/user/orca/project/rust/target/debug/deps/profile_ext_contract-8c250b3beb23594b)
 
 running 8 tests
 test build_user_profile_route_formats_query_with_and_without_guild_id ... ok

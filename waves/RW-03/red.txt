@@ -18,7 +18,7 @@ warning: field `jitter_seed` is never read
    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
 
 warning: `discord-core` (lib) generated 2 warnings (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 warning: `discord-core` (lib test) generated 2 warnings (2 duplicates)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
      Running unittests src/lib.rs (target/debug/deps/discord_core-ae4f4ce862df07ec)

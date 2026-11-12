@@ -4,9 +4,9 @@
 ok: оба JSON парсятся
 
 ## rg layout
-7:    "M": "измерено — /home/sanya/re-deep/ui/00-app.png, ui8/22-members.jpg, ui8/*.json (DOM rect)",
-15:    "jpg": "/home/sanya/re-deep/ui8/22-members.jpg (JPEG-кроп 320×1281 = 256×1025 CSS, допуск ±1)",
-16:    "dom": "/home/sanya/re-deep/ui8/{22-members,23-settings-categories,23-settings-voice,20a-searchbar}.json (getBoundingClientRect)",
+7:    "M": "измерено — /home/user/clean-room-oracle/ui/00-app.png, ui8/22-members.jpg, ui8/*.json (DOM rect)",
+15:    "jpg": "/home/user/clean-room-oracle/ui8/22-members.jpg (JPEG-кроп 320×1281 = 256×1025 CSS, допуск ±1)",
+16:    "dom": "/home/user/clean-room-oracle/ui8/{22-members,23-settings-categories,23-settings-voice,20a-searchbar}.json (getBoundingClientRect)",
 43:      "rail": {
 44:        "id": "shell-rail",
 51:          "--layout-rail-w",
@@ -24,6 +24,6 @@ ok: layout.json — 54 блоков с source, 22 ссылок на токены
 
 ## measure
 
-written /home/sanya/orca/project/waves/RW-39/PM/w39a/measure.json
+written /home/user/orca/project/waves/RW-39/PM/w39a/measure.json
 {'titlebar': {'px': 40, 'css': 32.0, 'source': 'столбец x=1500: полоса #121214 до первой смены цвета'}}
 header 48.0 composer 56.0 tree 311.2 member_pitch 43.2

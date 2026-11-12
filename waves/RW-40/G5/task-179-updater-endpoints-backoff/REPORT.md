@@ -3,7 +3,7 @@
 ## batch/карточка
 
 - task-179 (`BE-P3-07`), волна RW-40, отдел G5 Platform/Updater.
-- Оракул: `/home/sanya/re-deep/main-arch.md` §5.1–§5.4 (строки 525–595 фактического файла):
+- Оракул: `reference-oracle/main-arch.md` §5.1–§5.4 (строки 525–595 фактического файла):
   `app #19192 @3231` (`NEW_UPDATE_ENDPOINT`/`UPDATE_ENDPOINT`), `app #55405 @26169`
   (`disableUpdater`), `app #53006 @97270..@99200` (`updateUntilCurrent`, `ScheduledBackoff`,
   `Math.round(delayMs / 1e3)`), `app #2278` (Linux `update-manually`),
@@ -41,7 +41,7 @@
 ## red
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml \
   -p discord-updater --test updater_contract --lib
 ```
 → `E0432: no \`NEW_UPDATE_ENDPOINT\`/\`ReleaseChannel\`/\`ScheduledUpdateBackoff\`/… in the root`,
@@ -52,14 +52,14 @@ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path
 ## green
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml \
   -p discord-updater --test updater_contract --lib
 ```
 → `running 46 tests`, `test result: ok. 46 passed; 0 failed; 0 ignored`, **exit 0**. Лог: `green.log`
 (там же `--all-targets` и финальный прогон после восстановления мутантов).
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml \
   -p discord-updater --test updater_contract --lib -- -D warnings
 ```
 → `Finished \`dev\` profile`, **exit 0**. Лог: `clippy.log`.
@@ -84,7 +84,7 @@ rustfmt --edition 2021 --check rust/crates/discord-updater/src/lib.rs \
 
 ## oracle
 
-- `/home/sanya/re-deep/main-arch.md` §5.1–§5.4 — единственный источник значений: эндпоинты,
+- `reference-oracle/main-arch.md` §5.1–§5.4 — единственный источник значений: эндпоинты,
   точный массив `ScheduledBackoff`, формула `disableUpdater`, шаблоны Linux-URL, имя
   `update-manually` в нижнем регистре (единственное такое среди событий).
 - Формула секунд сверена с JS-семантикой: `Math.round(2500 / 1000) = 3` зафиксировано тестом на

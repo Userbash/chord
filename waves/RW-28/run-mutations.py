@@ -6,7 +6,7 @@ import pathlib
 import re
 import subprocess
 
-ROOT = pathlib.Path("/home/sanya/orca/project")
+ROOT = pathlib.Path("/home/user/orca/project")
 SRC = ROOT / "rust/crates/discord-i18n/src/relative.rs"
 RUST = ROOT / "rust"
 TARGET = "/tmp/opencode/target-w28"

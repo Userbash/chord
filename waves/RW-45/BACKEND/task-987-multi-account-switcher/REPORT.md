@@ -7,7 +7,7 @@
 - **Краткое описание:** Хранение до 5 профилей пользователей (`MAX_MULTI_ACCOUNTS = 5`) с криптографической изоляцией токенов разных аккаунтов (`SafeStorageTokenVault`, `com.discordlab.Token`, `dQw4w9WgXcQ:`) и мгновенным переключением Gateway и REST сессий (`< 300 мс`) без перезапуска GPUI клиента.
 
 ## 2. Сделано
-1. **Сверка с эталонным RE-дампом `/home/sanya/re-deep/` и независимыми оракулами (`AGENTS.md` §7):**
+1. **Сверка с эталонным RE-дампом `reference-oracle/` и независимыми оракулами (`AGENTS.md` §7):**
    - Модуль `274303` (`MultiAccountStore` в `6640343be900b315.js`): жёсткий лимит `MAX_MULTI_ACCOUNTS = 5` с автоматическим вытеснением `splice(5).forEach(e => removeToken(e.id))` и статусы токенов `INVALID = 0`, `VALIDATING = 1`, `VALID = 2`.
    - Модуль `376463` (`MultiAccountSwitchStore`): отслеживание состояния переключения (`is_switching_account`, `target_user_id`, `switch_origin`), защита от коллизии токенов между разными аккаунтами и обработка кодов закрытия шлюза `4004` / `40004` с откатом к предыдущей сессии.
    - Модуль `429707` (`MultiAccountActionCreators`): валидация токена через `GET /api/v9/users/@me` (`docs/re/rest-d02.json`) с инвалидацией при `401`/`403` или несовпадении `user_id` (`PerUserTokenMismatch`) и сохранением валидности при `429` (`retry_after_ms`) / `5xx`.

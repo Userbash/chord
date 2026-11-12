@@ -2,7 +2,7 @@
 
 - **batch/карточка:** `RW-40 / TASK-618` (G2 Frontend — UI Поискового попапа с подсказками)
 - **Ветка:** `feature/task-618-search-popover-ui`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-618-search-popover-ui`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-618-search-popover-ui`
 - **Дата:** 2026-11-07
 - **Коммитов нет:** `git commit` / `git push` не выполнялись (согласно правилам `AGENTS.md` §6).
 
@@ -27,8 +27,8 @@
   - `npm run typecheck` → `0 errors` (`exit code = 0`);
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `0 errors` (`exit code = 0`);
 - **oracle:**
-  - `/home/sanya/re-deep/frontend-d03.md` §1.1–§1.3 и `docs/re/frontend-d03.md` §1.1–§1.3 (`searchResultsWrap_a98f3b`, `id="search-result-<id>"`, секции и фильтр-токены `from:`, `mentions:`, `has:`, `in:`, `before:`, `after:`, `pinned:`);
-  - `/home/sanya/re-deep/ui8/20-search-results.json`, `20a-searchbar.json`, `20b-search-filters.json`;
+  - `reference-oracle/frontend-d03.md` §1.1–§1.3 и `docs/re/frontend-d03.md` §1.1–§1.3 (`searchResultsWrap_a98f3b`, `id="search-result-<id>"`, секции и фильтр-токены `from:`, `mentions:`, `has:`, `in:`, `before:`, `after:`, `pinned:`);
+  - `reference-oracle/ui8/20-search-results.json`, `20a-searchbar.json`, `20b-search-filters.json`;
   - `waves/RW-40/DESIGN/SEARCH-202-NSFW-SPEC.md` §2, §5, §6 и `rust/gui-spike/ui/tokens.css`;
 - **генерация:** не применимо (статические модули UI и таблица стилей);
 - **мутации:** `5/5 KILLED` (`0 survivors`, `0 INCONCLUSIVE`, лог: `waves/RW-40/G2/task-618-search-popover-ui/mutations.log`):

@@ -80,7 +80,7 @@ test at tests/unit/dispatch_ui.test.mjs:1832:3
   
   1 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:1852:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:1852:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -99,7 +99,7 @@ test at tests/unit/dispatch_ui.test.mjs:1897:3
   + 'строка для live-реакций'
   - 'обновлённый текст сообщения'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:1913:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:1913:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -116,7 +116,7 @@ test at tests/unit/dispatch_ui.test.mjs:1931:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:1951:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:1951:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -133,7 +133,7 @@ test at tests/unit/dispatch_ui.test.mjs:1971:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:1990:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:1990:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -150,7 +150,7 @@ test at tests/unit/dispatch_ui.test.mjs:2012:3
   
   undefined !== '1'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:2029:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:2029:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -167,7 +167,7 @@ test at tests/unit/dispatch_ui.test.mjs:2053:3
   
   undefined !== '1'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:2066:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-153-dispatch-view-live-dom/tests/unit/dispatch_ui.test.mjs:2066:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

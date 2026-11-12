@@ -2,4 +2,4 @@
 
 Red завершился с exit 101, green и targeted-повтор прошли **9/9**. Новая мутация на запрет ненулевого request port поймана. Мутацию truncation выполнил, но loopback-проверка была пропущена из-за `PermissionDenied`, поэтому она не засчитана как caught.
 
-Отчёт и логи находятся в [report-W24a-fix.txt](/home/sanya/orca/project/waves/RW-23/report-W24a-fix.txt). Loopback-тесты в этой среде не проверили сетевое поведение; workspace gate не запускал. Коммитов нет.
+Отчёт и логи находятся в [report-W24a-fix.txt](/home/user/orca/project/waves/RW-23/report-W24a-fix.txt). Loopback-тесты в этой среде не проверили сетевое поведение; workspace gate не запускал. Коммитов нет.

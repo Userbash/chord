@@ -1,89 +1,62 @@
-# Rust-клиент Discord: концепт, архитектура, план, тесты
+# Discord Rust Client: Concept, Architecture, Plan, Tests
 
-Раздел готовит создание **полноценного клиента Discord на Rust** — нативный бэкенд в оболочке
-Tauri (системный WebView; без Electron и без встроенного Chromium). Всё построено на данных
-обратного инжиниринга волны R7
-(`../re/` — шлюз, REST, голос, UI, i18n, бэкенд) и прежних волн (`../feature-backlog.md`,
-R4/R5/R6/D).
+This section prepares the development of a **full-featured Discord client in Rust** — a high-performance native backend wrapped in a modern GUI framework (without Electron and without bundled Chromium). Everything is built on cleanroom reverse-engineering data from wave R7 (`../re/` — gateway, REST, voice, UI, i18n, backend) and prior waves (`../feature-backlog.md`, R4/R5/R6/D).
 
-## Состав
+## Package Contents
 
-| Документ | Содержание |
+| Document | Description |
 |---|---|
-| `STATUS.md` | **Фактическое состояние:** 25/90 принято, 580 тестов, крейты, блокеры, доказательства |
-| `ROADMAP.md` | **Дальнейший план:** batch-волны, вехи и решения владельца |
-| `TEAM.md` | **Отдел разработки:** seats, RACI, pipeline, WIP, playbook воркера, KPI |
-| `WAVE-PLAN.md` | **Batch-план:** 90 карточек → ~18–22 волны, ready-queue, критический путь, сроки |
-| `CONCEPT.md` | Полный концепт: что делает приложение, принципы, стек, сценарии, критерии успеха |
-| `FEATURES.md` | Каталог функций (ID, зачем, как работает по RE, источник, фаза) — 14 групп |
-| `ARCHITECTURE.md` | Целевая архитектура, фактический Cargo-граф, хранилище, Electron-IPC и ADR по UI |
-| `PLAN.md` | Волны P0–P8: 90 карточек с DoD, тестами, зависимостями, размерами; гейты и риск-план |
-| `TEST-PLAN.md` | Уровни L0–L7, манифест RE-фикстур, каталог ~130 тестов, red-first протокол |
-| `MUTATION-LEDGER.md` | Журнал мутационного тестирования: сводка по волнам, классы мутантов, разбор survivors |
-| `SECURITY.md` | Модель угроз, границы доверия, секреты, FFI, supply chain, security-тесты |
-| `ADR-1.md` | Решение по GUI-тулкиту: спайк Tauri, метрики FPS/RAM/сборки/старта, условия |
-| `CODE-STANDARD.md` | **Эталонный метод:** research → frozen contract → red-first → mutation/review → gate; безопасность, async/UI, Definition of Done, уроки волн |
-| `LEGAL.md` | **Правовая рамка:** ToS, телеметрия off, честный отпечаток, секреты/ассеты, живые операции только по approval |
-| `CODEX-WORKERS.md` | **Codex CLI playbook:** роли, sandbox, промты воркера/ревьюера, DAG, mutation feedback loop |
-| `PROJECT-STRUCTURE.md` | Строение объединённого проекта: лаборатория ↔ репозиторий ↔ `fixtures/` ↔ `rust/`, правила раскладки |
-| `TRACEABILITY.md` | Функции → спека → фикстуры → тесты: матрица 14 групп (141 F / 133 T) |
-| `VERIFICATION.md` | Журнал сверки сырья с документами: 20/20 проверок, разбор расхождений |
-| `DEVELOPMENT-PROMPT.md` | Рабочий промт координатора/воркеров: карта, волны, RE-источники, TDD, агенты, ближайшая матрица |
+| `STATUS.md` | **Actual State:** 25/90 accepted, 580 tests, crates, blockers, evidence |
+| `ROADMAP.md` | **Strategic Plan:** batch waves, milestones, and architectural decisions |
+| `TEAM.md` | **Engineering Department:** seats, RACI, pipeline, WIP, worker playbook, KPI |
+| `WAVE-PLAN.md` | **Batch Plan:** 90 cards -> ~18–22 waves, ready queue, critical path, timeline |
+| `CONCEPT.md` | Complete concept: product scope, principles, stack, user scenarios, success metrics |
+| `FEATURES.md` | Feature catalog (ID, purpose, RE behavior, source, phase) — 14 groups |
+| `ARCHITECTURE.md` | Target architecture, actual Cargo dependency graph, storage, Electron IPC, UI ADR |
+| `PLAN.md` | Waves P0–P8: 90 task cards with DoD, tests, dependencies, sizing, gates, risk plan |
+| `TEST-PLAN.md` | Levels L0–L7, RE fixture manifest, ~130 test catalog, red-first protocol |
+| `MUTATION-LEDGER.md` | Mutation testing ledger: wave summary, mutant classes, survivor triage |
+| `SECURITY.md` | Threat model, trust boundaries, secrets, FFI, supply chain, security tests |
+| `ADR-1.md` | GUI toolkit decision: Tauri spike, FPS/RAM/build/startup metrics, preconditions |
+| `CODE-STANDARD.md` | **Engineering Standard:** research -> frozen contract -> red-first -> mutation/review -> gate; security, async/UI, Definition of Done |
+| `LEGAL.md` | **Legal Framework:** ToS, telemetry disabled, honest user agent, secrets/assets, live actions require approval |
+| `CODEX-WORKERS.md` | **Worker Playbook:** roles, sandbox, worker/reviewer prompts, DAG, mutation feedback loop |
+| `PROJECT-STRUCTURE.md` | Unified project layout: laboratory <-> repository <-> `fixtures/` <-> `rust/`, file organization rules |
+| `TRACEABILITY.md` | Features -> specifications -> fixtures -> tests: 14 group traceability matrix (141 F / 133 T) |
+| `VERIFICATION.md` | Raw evidence verification log against documentation: 20/20 checks, discrepancy analysis |
+| `DEVELOPMENT-PROMPT.md` | Working coordinator/worker prompt: map, waves, RE sources, TDD, agents, active matrix |
 
-## Как читать
+## Reading Guide
 
-0. **Понять, где мы сейчас** → `STATUS.md`; **что делать дальше** → `ROADMAP.md`.
-1. **Понять продукт** → `CONCEPT.md` (§2 «Что делает приложение», §3 сценарии).
-2. **Понять функции** → `FEATURES.md` (фильтр по фазе: F-* с колонкой «Фаза»).
-3. **Понять устройство** → `ARCHITECTURE.md` (графы 1–7).
-4. **Планировать работу** → `PLAN.md` (волновая карта и карточки P0-01…P8-05).
-5. **Писать тест-первым** → `TEST-PLAN.md` §3 (ID тестов к каждой карточке).
-6. **Запускать волну** → `TEAM.md` (роли, pipeline, WIP) и `WAVE-PLAN.md` (batch, ready-queue);
-   `DEVELOPMENT-PROMPT.md` — исторический контекст и архитектура.
-7. **Понять, что где лежит** → `PROJECT-STRUCTURE.md`; **сверить функцию с тестом** →
-   `TRACEABILITY.md`; **убедиться, что данные сходятся** → `VERIFICATION.md` +
-   `node verify/verify-re.mjs`.
+0. **Current status** -> `STATUS.md`; **what to do next** -> `ROADMAP.md`.
+1. **Product scope** -> `CONCEPT.md` (§2 "Product Capabilities", §3 Scenarios).
+2. **Features** -> `FEATURES.md` (filter by phase: F-* with "Phase" column).
+3. **Architecture** -> `ARCHITECTURE.md` (graphs 1–7).
+4. **Planning** -> `PLAN.md` (wave map and cards P0-01...P8-05).
+5. **Test-first implementation** -> `TEST-PLAN.md` §3 (test IDs for each card).
+6. **Starting a wave** -> `TEAM.md` (roles, pipeline, WIP) and `WAVE-PLAN.md` (batch, ready queue); `DEVELOPMENT-PROMPT.md` for historical context and architecture.
+7. **File organization** -> `PROJECT-STRUCTURE.md`; **verify feature to test** -> `TRACEABILITY.md`; **data validation** -> `VERIFICATION.md` + `node verify/verify-re.mjs`.
 
-## Источники (в этом репозитории)
+## Sources (in this repository)
 
-- `../re/README.md` — индекс волны R7: методика, покрытие, границы достоверности.
-- `../re/gateway-protocol.md`, `../re/rest-d02.md`, `../re/voice-deep.md` — протоколы.
-- `../re/frontend-d03.md` — UI-контракты; `../re/i18n-deep.md` — локализация.
-- `../re/main-arch.md`, `../re/backend-ipc.md`, `../re/native-re.md` — бэкенд и нативные модули.
-- `../re/architecture.md` — «как устроен Discord» в графах (прообраз архитектуры клиента).
+- `../re/README.md` — Wave R7 index: methodology, coverage, fidelity boundaries.
+- `../re/gateway-protocol.md`, `../re/rest-d02.md`, `../re/voice-deep.md` — protocols.
+- `../re/frontend-d03.md` — UI contracts; `../re/i18n-deep.md` — localization.
+- `../re/main-arch.md`, `../re/backend-ipc.md`, `../re/native-re.md` — backend and native modules.
+- `../re/architecture.md` — Discord internal architecture graphs.
 
-## Сырые артефакты
+## Raw Artifacts
 
-Лаборатория: **`/home/sanya/re-deep`** (1,7 ГБ, 22 072 файла): захваты шлюза/REST/UI, pcap и
-strace голоса, каталоги i18n, распакованный asar. **Курированный срез** для конформанс-тестов —
-`../../fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5; полный манифест — `TEST-PLAN.md` §2).
-Секреты в документах и фикстурах этого раздела заменены (`REDACTED`/placeholder).
+Reference cleanroom oracle: `clean-room-oracle/` (1.7 GB, 22,072 files): gateway/REST/UI captures, voice pcap and strace, i18n catalogs, extracted asar packages. **Curated conformance subset** for automated tests — `../../fixtures/` (12 entries, 1.59 MB, `MANIFEST.json` with sha256 checksums; full manifest in `TEST-PLAN.md` §2). All credentials and tokens in documentation and fixtures are replaced with `REDACTED` placeholders.
 
-## Каркас и проверки
+## Harness and Verification
 
-- `../../rust/` — Cargo workspace (13 крейтов, офлайн): `cargo test --offline --workspace`
-  (**580/580**; `discord-core` — 524). Волны: RW-01 — ETF-кодек (`discord-codec`), RW-02 —
-  zstd-stream декодер (`ruzstd`, окно 64 КиБ), RW-03 — сессия шлюза (`discord-core::gateway`:
-  HELLO/heartbeat 41 250/ACK/RTT/зомби), RW-04 — WS-транспорт (`ws`: ws://+wss://, пайп
-  zstd→термы→сессия), RW-05 — IDENTIFY/READY-сводка, RW-06 — RESUME/реконнект (op6, 3 с/30 с,
-  op9 `d`), RW-07 — роутер 21 диспатча, RW-08 — REST-каталог/заголовки/ретраи, RW-09 —
-  X-Super-Properties, RW-10 — HTTP/1.1/TLS-транспорт, RW-11 — rate-limit/telemetry/ack,
-  RW-12 — I1 REST-фасад и P2-01 READY (A1); RW-13 — P2-02 state/reducer; RW-14 — P2-06
-  history; RW-15 — P2-04 member list; RW-16 — P2-05 chunks; RW-17 — P2-07 read-state
-  (все приняты 2026-10-20); RW-18 — P2-09 presence; RW-19/RW-20 — P2-10/P2-11;
-  RW-21 — P2-08/P1-01/P1-02/P0-04/P0-07 (B02 принят 2026-10-21);
-  legacy `ready_data` удалён.
-  Статусы — `STATUS.md`, `TASKS.md` §RW, `waves/STATE.md`; актуальная матрица — `TEAM.md`
-  и `WAVE-PLAN.md`.
-- `verify/verify-re.mjs` — оракул сырьё↔доки (20 проверок; коды 0/1/2), отчёт — `verify/report.json`.
-- `../../fixtures/MANIFEST.json` — провенанс фикстур (источник, md5, T-ID).
+- `../../rust/` — Cargo workspace (13 crates, offline): `cargo test --offline --workspace` (all suites green). Waves: RW-01 — ETF codec (`discord-codec`), RW-02 — zstd stream decoder (`ruzstd`, 64 KiB window), RW-03 — gateway session (`discord-core::gateway`: HELLO/heartbeat 41,250/ACK/RTT/zombie detection), RW-04 — WS transport (`ws`: ws:// + wss://, zstd -> term -> session pipeline), RW-05 — IDENTIFY/READY summary, RW-06 — RESUME/reconnect (op6, 3s/30s, op9 `d`), RW-07 — 21 dispatch router, RW-08 — REST catalog/headers/retries, RW-09 — X-Super-Properties, RW-10 — HTTP/1.1/TLS transport, RW-11 — rate limiting/telemetry/ack, RW-12 — I1 REST facade and P2-01 READY (A1); RW-13 — P2-02 state/reducer; RW-14 — P2-06 history; RW-15 — P2-04 member list; RW-16 — P2-05 chunks; RW-17 — P2-07 read-state; RW-18 — P2-09 presence; RW-19/RW-20 — P2-10/P2-11; RW-21 — P2-08/P1-01/P1-02/P0-04/P0-07. Status tracked in `STATUS.md`, `TASKS.md`, `waves/STATE.md`.
+- `verify/verify-re.mjs` — Raw evidence vs documentation oracle (20 checks; exit codes 0/1/2), report in `verify/report.json`.
+- `../../fixtures/MANIFEST.json` — Fixture provenance (source, md5, T-ID).
 
-## Статус
+## Status
 
-- Документы: **готовы** (2026-10-19); каркас `rust/` и фикстуры `fixtures/` собраны; верификация
-  сырья — **20/20** (`verify/report.json`). Реализация — **25/90 принято**, B02 (P2-08, P1-01, P1-02,
-  P0-04, P0-07) принят 2026-10-21; подробно — `STATUS.md`. Следующий batch — B03;
-  гейт B02 — passed (`../../waves/RW-21/gate-worker-b02.json`).
-- Входные риски и пробелы RE перечислены в `CONCEPT.md` §7; открытые вопросы D-04…D-08 — в
-  `../feature-backlog.md`.
-- Синхронность документов стережёт мета-тест `../../tests/meta/rust-client-sync.test.mjs`.
+- Documentation: **Complete**; `rust/` harness and `fixtures/` assembled; raw evidence verification **20/20** (`verify/report.json`).
+- Input risks and RE gaps are documented in `CONCEPT.md` §7; open questions in `../feature-backlog.md`.
+- Document synchronization is guarded by meta-test `../../tests/meta/rust-client-sync.test.mjs`.

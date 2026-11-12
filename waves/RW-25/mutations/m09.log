@@ -56,7 +56,7 @@ failures:
 
 test result: FAILED. 33 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+   Compiling discord-updater v0.1.0 (/home/user/orca/project/rust/crates/discord-updater)
 warning: function `is_safe_component` is never used
    --> crates/discord-updater/src/plan.rs:243:4
     |

@@ -32,7 +32,7 @@ Ev: E0 нет источника · E1 статика · E2 E1+тест · E3 li
 
 | Код | Источник | Версия |
 |---|---|---|
-| `S162` | `/home/sanya/re-deep/rest-static.md` (static endpoint map web-бандла) | 1.0.162 |
+| `S162` | `reference-oracle/rest-static.md` (static endpoint map web-бандла) | 1.0.162 |
 | `D2` | `docs/re/rest-d02.md` (live REST) | 1.0.162 |
 | `G162` | `docs/re/gateway-protocol.md` + `gateway-schema.md` (live gateway) | 1.0.162 |
 | `V162` | `docs/re/voice-deep.md` (live RTC/UDP/движок) | 1.0.162 |
@@ -41,11 +41,11 @@ Ev: E0 нет источника · E1 статика · E2 E1+тест · E3 li
 | `M162` | `docs/re/main-arch.md` (main/preload, deep links, tray, updater) | 1.0.162 |
 | `A166` | `app.asar:bundle.js` 1.0.166, смещение в байтах | 1.0.166 |
 | `C166` | `core.asar:mainScreenPreload.js` 1.0.166, смещение | 1.0.166 |
-| `UI2` | `/home/sanya/re-deep/ui2/` (live DOM) | 1.0.162 |
-| `UI6` | `/home/sanya/re-deep/ui6/01-guild-channels.json` | 1.0.162 |
-| `VUI` | `/home/sanya/re-deep/voice/ui/01-*` (live voice panel) | 1.0.162 |
-| `CAT` | `/home/sanya/re-deep/ru-catalog.json` (строка i18n) | 1.0.162 |
-| `B162` | `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (web-бандл эталона) | 1.0.162 |
+| `UI2` | `reference-oracle/ui2/` (live DOM) | 1.0.162 |
+| `UI6` | `reference-oracle/ui6/01-guild-channels.json` | 1.0.162 |
+| `VUI` | `reference-oracle/voice/ui/01-*` (live voice panel) | 1.0.162 |
+| `CAT` | `reference-oracle/ru-catalog.json` (строка i18n) | 1.0.162 |
+| `B162` | `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (web-бандл эталона) | 1.0.162 |
 | `NC` | `waves/RW-40/NETWORK-CONTRACTS.md` | 1.0.162 |
 
 `version-gap`: UI-функции подтверждены на 1.0.162, desktop/IPC — на 1.0.166. Это фиксируется,

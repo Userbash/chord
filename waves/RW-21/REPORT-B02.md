@@ -55,9 +55,9 @@
 
 ## 4. Проверка по RE-дампам
 
-- `/home/sanya/re-deep/gw-proto/zstd-frames-95974_1389.hexl`: 137 кадров, 104 066 сжатых,
+- `reference-oracle/gw-proto/zstd-frames-95974_1389.hexl`: 137 кадров, 104 066 сжатых,
   выход 759 280 Б; удержание окна 65 536 = 824 816 − 759 280; HELLO 138 Б совпал.
-- `/home/sanya/re-deep/gw-proto/msgs-run2-95974_1389.jsonl`: 44 полных терма, смещение
+- `reference-oracle/gw-proto/msgs-run2-95974_1389.jsonl`: 44 полных терма, смещение
   758 576, остаток 704 Б — тест `lab_stream_1389_matches_oracle`.
 - READY/UPDATE settings: base64 4400/17 436, raw 3300/13 077, sha256 зафиксированы в
   `REPORT-P2-08.md`; type 2 versions 7545/7546/7547.
@@ -94,7 +94,7 @@ P2-08 product md5 (wire/frecency/mod/lib) — в `REPORT-P2-08.md` §5; посл
 - **P1-01/P1-02** (Codex CLI, read-only): accepted with P3 — устаревший статус zstd в
   `lib.rs`; исправлен, P0/P1/P2=0 (`reviews/review-codec-codex.md`).
 - **P0-04/P0-07**: round 1 — 3 P2. (1) «манифест не там» — **retracted** после `realpath`:
-  путь `/home/sanya/orca/project/fixtures/MANIFEST.json`, тест 6/6; (2) lab-skip —
+  путь `/home/user/orca/project/fixtures/MANIFEST.json`, тест 6/6; (2) lab-skip —
   добавлен `RE_REQUIRE_LAB=1` (red 101 без lab, green 6/6 с lab); (3) LEGAL — гарантии
   keyring/скана/SBOM переведены в policy/backlog, чек-лист `[x]/[~]/[ ]`. Round 2 —
   accepted with P3 (`RE_REQUIRE_LAB=0` считался включённым), P3 закрыт: проверяется

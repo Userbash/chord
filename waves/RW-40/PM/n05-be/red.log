@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 4.49s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
 

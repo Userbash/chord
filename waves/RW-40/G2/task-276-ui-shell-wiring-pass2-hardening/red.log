@@ -51,7 +51,7 @@ test at tests/unit/app-shell-wiring.test.mjs:54:1
   -   activeModalStack: []
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:56:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:56:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -80,7 +80,7 @@ test at tests/unit/app-shell-wiring.test.mjs:63:1
   -   ]
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:70:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:70:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -108,7 +108,7 @@ test at tests/unit/app-shell-wiring.test.mjs:86:1
   -   ]
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:96:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:96:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -134,7 +134,7 @@ test at tests/unit/app-shell-wiring.test.mjs:104:1
   -   activeModalStack: []
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:111:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:111:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -160,7 +160,7 @@ test at tests/unit/app-shell-wiring.test.mjs:225:1
   -   activeModalStack: []
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:235:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:235:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -190,7 +190,7 @@ test at tests/unit/app-shell-wiring.test.mjs:251:1
   -   ]
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:260:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:260:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -217,7 +217,7 @@ test at tests/unit/app-shell-wiring.test.mjs:267:1
   -   activeModalStack: []
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:275:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:275:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -235,7 +235,7 @@ test at tests/unit/app-shell-wiring.test.mjs:267:1
 test at tests/unit/app-shell-wiring.test.mjs:282:1
 ✖ после destroy() мутаторы бросают Error и оверлеи не открываются (0.12694ms)
   AssertionError [ERR_ASSERTION]: Missing expected exception (Error).
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:287:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:287:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -260,7 +260,7 @@ test at tests/unit/app-shell-wiring.test.mjs:299:1
   -   'search-panel'
   - ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:310:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-276-ui-shell-wiring-pass2-hardening/tests/unit/app-shell-wiring.test.mjs:310:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)

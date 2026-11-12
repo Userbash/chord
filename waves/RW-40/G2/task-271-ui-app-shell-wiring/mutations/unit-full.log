@@ -1310,10 +1310,10 @@
   ✔ по таймауту снимает слушателей, последующий сигнал не меняет исход (0.656231ms)
   ✔ сигнал раньше таймера очищает таймер (0.39105ms)
 ✔ waitForStop (1.955751ms)
-▶ HASHED_RU_KEYS и RU_CATALOG (оракул /home/sanya/re-deep/ru-catalog.json)
+▶ HASHED_RU_KEYS и RU_CATALOG (оракул /home/user/clean-room-oracle/ru-catalog.json)
   ✔ экспортирует замороженную карту >= 25 канонических 6-символьных base64 xxh64 ключей Discord (0.82996ms)
   ✔ содержит точные русские строки из ru-catalog.json по всем 10 категориям UI (0.17668ms)
-✔ HASHED_RU_KEYS и RU_CATALOG (оракул /home/sanya/re-deep/ru-catalog.json) (2.044951ms)
+✔ HASHED_RU_KEYS и RU_CATALOG (оракул /home/user/clean-room-oracle/ru-catalog.json) (2.044951ms)
 ▶ tHashed и t — разрешение ключей, плейсхолдеры и русские плюральные формы
   ✔ разрешает канонические 6-символьные хеш-ключи и семантические ключи RU_CATALOG (0.46292ms)
   ✔ подставляет {param} плейсхолдеры (включая повторяющиеся вхождения и числа) (0.16778ms)
@@ -2741,7 +2741,7 @@
 test at tests/unit/dispatch_ui.test.mjs:264:3
 ✖ A2: FORWARDED_KINDS — 21 имя DispatchKind::as_str + MESSAGE_REACTION_REMOVE (1.427201ms)
   AssertionError [ERR_ASSERTION]: CHANNEL_CREATE форвардится бэкендом, но отбрасывается UI
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/dispatch_ui.test.mjs:279:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/dispatch_ui.test.mjs:279:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -2761,7 +2761,7 @@ test at tests/unit/dispatch_ui.test.mjs:264:3
 test at tests/unit/test-impact.test.mjs:494:3
 ✖ каждый pub mod из lib.rs покрыт правилом (1.178521ms)
   AssertionError [ERR_ASSERTION]: lib.rs: pub mod forum без таргета --test forum_contract: npm run typecheck | cargo test --offline --manifest-path rust/gui-spike/Cargo.toml
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/test-impact.test.mjs:504:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-271-ui-app-shell-wiring/tests/unit/test-impact.test.mjs:504:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

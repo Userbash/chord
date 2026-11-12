@@ -1,422 +1,201 @@
-# PROCESS.md — производственный процесс discord-lab
+# PROCESS.md — Production Process for discord-lab
 
-Адаптация производственного процесса проекта (задача → концепт → декомпозиция → воркеры → ревью →
-сборка → kit → полный gate → qualification → выкладка → включения → push) к реалиям `discord-lab`:
-локальный CLI (Node ≥ 24, Frida 17, CDP), без собственного сервера, без денег. Роль «денег» —
-**golden-данные** (`logs/`, `functions/`, `evidence/`) и **живые операции** с Discord.
+Adaptation of the engineering process (task → concept → decomposition → workers → review →
+build → kit → full gate → qualification → rollout → feature toggle → push) for `discord-lab`:
+local CLI (Node ≥ 24, Frida 17, CDP) + native Rust GPUI client (`discord-gpui`).
+The equivalent of critical currency assets is **golden baseline data** (`logs/`, `functions/`, `evidence/`) and **live Discord interactions**.
 
-Источники истины: этот файл (процесс); `TDD-PLAN.md` (план M0–M6, контракты §6–§8);
-`TASKS.md` (карточки, статусы, backlog); `AGENTS.md` (краткие правила агентам).
-При конфликте: PROCESS.md → TDD-PLAN.md → TASKS.md.
+Sources of truth: this file (process); `TDD-PLAN.md` (phases M0–M6, contracts §6–§8);
+`TASKS.md` (task cards, statuses, backlog); `AGENTS.md` (core agent guidelines).
+In case of conflict: PROCESS.md → TDD-PLAN.md → TASKS.md.
 
-## 0. Принципы
+---
 
-1. **Владелец решает.** Что увидит пользователь CLI (команды, флаги, вывод, коды) — утверждает
-   владелец («Да»/«Доработать»). В код едет только одобренное; остальное — в backlog.
-2. **Strict TDD.** Красный тест → минимальный код → зелёный. Без теста продуктовый код не пишется.
-   Мета-инфраструктура (гейты, доки, скрипты процесса) проверяется прогоном.
-3. **Маленькие куски.** Волна → воркеры с непересекающимися файлами → гейт воркера → приёмка.
-   Ошибка ловится, пока она в одном маленьком куске.
-4. **Golden неприкосновенен.** `logs/`, `functions/`, `evidence/` — только чтение. Запись вне
-   штатных команд (`hook`, `inventory`) — инцидент; в git они не попадают (приватные).
-5. **Живые операции — по согласию.** Frida attach/spawn и UI-walk на живом Discord — только с
-   разрешения владельца (окно). По умолчанию — безопасное поведение (skip / код 2).
-6. **Второй взгляд на чувствительное.** Изменения живых путей (attach/hook/walk/spawn), форматов
-   golden или удаляющие данные — дополнительно смотрит вторая модель (§4.4).
-7. **Skip ≠ pass.** Пропуск теста не считается прохождением: он попадает в отчёт гейта
-   (`passed_with_skips`) и должен быть объяснён до выкладки.
-8. **Русский язык** — доки, сообщения CLI, отчёты. Код — ESM, `// @ts-check` + JSDoc, Node ≥ 24.
+## 0. Core Principles
 
-## 1. Карта соответствия (их процесс → наш проект)
+1. **User / Owner Decision Authority.** What CLI users observe (commands, flags, terminal output, exit codes) must be confirmed by the owner ("Accept" / "Revise"). Only approved behavior reaches production code; everything else stays in the backlog.
+2. **Strict TDD.** Red test → minimal implementation → green. Production code is never written without a preceding test. Meta-infrastructure (gates, docs, process scripts) is verified through automated test suites.
+3. **Small Atomic Slices.** Wave → workers with disjoint file boundaries → worker gate → acceptance. Bugs are caught while isolated within an atomic unit.
+4. **Golden Data Inviolability.** `logs/`, `functions/`, `evidence/` are strictly read-only. Writes outside designated logging commands are considered incidents; these artifacts are never committed to git.
+5. **Consensual Live Operations.** Attaching Frida or running UI-walk operations against a running Discord process occurs only with explicit user permission. Default behavior is always fail-safe (skip / exit code 2).
+6. **Dual Review for Sensitive Paths.** Modifications affecting live attachment, golden formats, or destructive operations require independent review by a secondary model (§4.4).
+7. **Skip ≠ Pass.** Test skips never count as passing: they are flagged in the gate summary (`passed_with_skips`) and must be justified before release.
+8. **Engineering Language Standards.** Documentation, CLI diagnostics, and commit messages are in English. Code: ESM with `// @ts-check` + JSDoc, Node ≥ 24, and modern Rust 2021.
 
-| Этап | Эквивалент в discord-lab |
+---
+
+## 1. Process Alignment Map
+
+| Stage | discord-lab Equivalent |
 | --- | --- |
-| 1. Задача, issue, карточка | Карточка в `TASKS.md`: ID, микрозадача, владелец, статус `[ ]/[~]/[x]`; срок = волна; история решений — TASKS + отчёты `.gate/*.json` |
-| 2. Концепт (видит игрок) | Видимый контракт CLI: команды/флаги/вывод/коды (TDD-PLAN §6, ТЗ). Стенд = прогон после реализации; владелец говорит «Да»/«Доработать» |
-| 3. Декомпозиция | Волна `W<N>`: матрица непересекающихся файлов + ТЗ каждому воркеру (§4.1). «Проверки денег» → оракулы golden (jq/awk/md5, реальные артефакты) |
-| 4. Воркер: ветка, миграции, gate, отчёт | TDD в своих файлах; «миграции» → совместимость форматов (§6); `npm run gate:worker`; отчёт (§4.2). Изоляция: общая папка + непересекающиеся файлы (уровень L1), orca-worktree + ветка `w/<task>` (уровень L2 — при включённом remote/CI) |
-| 5. Ревью; вторая модель на деньги | Приёмка координатором (§4.3); чувствительные изменения — вторая модель (§4.4) |
-| 6. Сборка ветки выпуска | Приёмка волны в общий master-поток: `gate:release`, md5-аудит области, дубли §8/нумерации (ловит meta-тест) |
-| 7. Kit | `npm pack` tarball + план выкладки/откат (§4.5) + fallback (предыдущий tarball/тег). Kit руками не правится: правка → новая версия и новый `gate:qualify` |
-| 8. Полный gate (~22 шага, 2,5 ч) | `npm run gate:release`: typecheck → meta → unit → smoke → e2e (повтор при падении) → coverage → golden-сверка (≈6 фаз, минуты) |
-| 9. Qualification | `npm run gate:qualify`: сборка tarball, изолированный прогон пакета, файл `.gate/qualification-<version>-<ts>.json` (sha256 + коммит). После записи пакет не пересобирается; выкладка сверяет `--verify-qualification` |
-| 10. Выкладка по шагам | Мини-версия (§3.10): preflight → install (temp) → check (живой smoke) → switch (по решению владельца) → rollback (fallback). Окна: живые операции только по согласованию |
-| 11. Включения по решению | Новшества едут выключенными: заглушки «появится в Mx» (код 2); живые возможности — за флагами (`DISCORD_LAB_LIVE_CDP`, `--spawn`, `CDP_ENDPOINT`). Выключение — без выпуска. Повтор не дублирует данные (уникальные имена `pid-NNN`) |
-| 12. Push | `master` + аннотированные теги `v<version>`; ветки `wave/<N>`. Коммиты — координатор (L1). Remote (GitHub) и push — только по решению владельца |
+| 1. Task / Issue Card | Card in `TASKS.md`: ID, microtask, owner, status `[ ]/[~]/[x]`; deadline = wave; audit trail = TASKS + `.gate/*.json` |
+| 2. Concept (User Contract) | Observable CLI/GUI contract: commands, flags, output, exit codes (TDD-PLAN §6, spec). Owner gives sign-off |
+| 3. Decomposition | Wave `W<N>`: matrix of disjoint files + specification for each worker (§4.1). Invariant checks verified against independent oracles (jq/awk/md5) |
+| 4. Worker Execution | TDD in dedicated files; format compatibility checks (§6); `npm run gate:worker`; report (§4.2). Isolation via disjoint files and dedicated worktrees |
+| 5. Review | Coordinator acceptance (§4.3); sensitive changes undergo dual review (§4.4) |
+| 6. Release Branch Assembly | Wave acceptance into integration stream: `gate:release`, MD5 diff audits, meta-test sync |
+| 7. Distribution Kit | Release tarball + deployment/rollback plan (§4.5). Kits are never edited manually: modifications trigger a new version and new `gate:qualify` |
+| 8. Full Release Gate | `npm run gate:release`: typecheck → meta → unit → smoke → e2e (auto-retry on failure) → coverage → golden verification |
+| 9. Qualification | `npm run gate:qualify`: tarball assembly, isolated package execution, checksum log `.gate/qualification-<version>-<ts>.json` |
+| 10. Stepwise Rollout | Preflight → install (temp) → smoke check → switch → rollback fallback |
+| 11. Feature Toggles | New capabilities ship disabled by default behind flags (`DISCORD_LAB_LIVE_CDP`, `--spawn`, `CDP_ENDPOINT`). Disabling requires no rebuild |
+| 12. Push / Git Sync | Branch pipeline `unstable -> testing -> beta -> main` with signed tags |
 
-## 2. Роли
+---
 
-С 2026-10-20 действует модель **«отдел разработки»**: роли — это посадочные места (seats), а не
-обязательно отдельные процессы. Один агент может занимать несколько мест в разных волнах, но
-**автор карточки не ревьюит её**, а безопасность live-путей не проверяет автор. Подробная
-организация, RACI и протокол запуска — `docs/rust-client/TEAM.md`.
+## 2. Department Roles and Seats
 
-| Роль | Кто | Отвечает за | Не делает |
+Roles represent distinct seats rather than isolated developer silos. An agent may fill multiple seats across waves, but **authors never review their own code**, and live security paths are checked by an independent reviewer.
+
+| Role | Responsibility | Exclusions |
+| --- | --- | --- |
+| Owner | Priorities, contract approvals, live testing windows, release authorization | Does not write application code or specs |
+| Team Lead (L1) | Queue management, batch planning, contracts, acceptance, final release gates | Never reviews own code; never edits worker files without assignment |
+| Tech Lead (L2) | Architecture, shared integration patches, contract conflict resolution | Does not accept task cards unilaterally |
+| Research Engineer | Clean-room RE, fixtures, provenance validation, oracle verification | Does not write production code |
+| Module Worker | Module implementation + tests: red → green → targeted report; strictly assigned files | Never touches shared `types.rs`/`reducer.rs`/`mod.rs`/`lib.rs`, never touches docs |
+| Test / Oracle Engineer | Independent test suites, fixtures, contract assertions, test budget | Never bends tests to fit implementation |
+| Mutation / QA Engineer | Control mutations, flaky test elimination, batch gate verification | Never modifies contracts to pass mutations |
+| Independent Reviewer | Code quality, file boundaries, TDD verification, security inspection | Never modifies code during review |
+| Security Reviewer | Secrets management, untrusted inputs, live IPC boundaries, timeouts | Never reviews own sensitive implementations |
+| Integration / Build Engineer | Batch integration, `cargo` workspace runs, `gate:worker`, build manifests | Never rewrites author business logic |
+| Docs / Journal Engineer | Synchronizes `STATE`, `ROADMAP`, `TASKS`, and `db.jsonl` **after** acceptance | Never updates documentation during red phase |
+| Release Engineer | `gate:release`, `gate:qualify`, package tarballs, rollback management | Never issues releases without formal acceptance |
+| Golden Keeper | Read-only maintenance of `logs/`, `functions/`, `evidence/`, `docs/re/` | Never normalizes or modifies golden records |
+
+---
+
+## 3. Detailed Execution Stages
+
+### 3.1. Task Initiation
+The owner establishes the goal → coordinator creates a card in `TASKS.md` (ID, microtask, owner, DoD, status).
+
+### 3.2. User Interface Contract
+For any CLI or GUI changes, a contract is established: command, parameters, UI state, exit codes (0/1/2), and error diagnostics.
+
+### 3.3. Task Decomposition
+Batch wave: 3–6 microtasks with disjoint file boundaries and a formal specification (§4.1).
+
+### 3.4. Worker TDD Execution
+- **Red-first:** Test is committed and executed to prove failure before writing implementation code.
+- **Green:** Minimal implementation written to satisfy the test.
+- **Targeted verification:** Local test execution for the specific module.
+- **Report generation:** Completion report compiled according to §4.2.
+
+### 3.5. Code Review and Implementation Quality
+Team Lead reviews the batch post-gate: file boundaries, strict TDD adherence, independent oracles, error propagation, complexity limits, and memory safety.
+
+Review Checklist:
+- **Rust Memory Safety:** `#![forbid(unsafe_code)]`, strict ownership semantics, thread safety, and explicit error handling.
+- **State & Concurrency:** Isolated shared state, deterministic locking order, timeouts on socket/process I/O.
+- **Maintainability:** Minimal cohesive diffs, functions `< 50 lines`, files `< 800 lines`.
+
+### 3.6. Release Branch Assembly
+Merge into integration baseline: `gate:release`, MD5 file integrity audit, and meta-test verification.
+
+### 3.7. Distribution Packaging (Kit)
+Release package `vX.Y.Z`:
+- Tarball built via standard packaging scripts;
+- Deployment and rollback plan (§4.5);
+- Verified fallback archive.
+
+### 3.8. Release Gate (`gate:release`)
+Phases: typecheck → meta → unit → smoke → e2e (automatic retry on transient failures) → test coverage thresholds (`lines >= 90%`, `branches >= 90%`, `functions >= 80%`).
+
+### 3.9. Qualification Gate (`gate:qualify`)
+Builds standalone release packages, validates execution in a clean sandbox, and records checksums in `.gate/qualification-<version>-<ts>.json`.
+
+### 3.10. Rollout Sequence
+1. **Preflight:** Git working tree clean, golden baseline verified, version and tags aligned.
+2. **Install:** Deploy archive into temporary directory; verify diagnostic flags (`--help`, `--version`).
+3. **Check:** Run smoke verification on the target machine.
+4. **Switch:** Atomic symlink or binary installation.
+5. **Rollback:** Automated revert to fallback archive upon unexpected behavior.
+
+### 3.11. Feature Toggles
+New features ship inactive behind configuration flags or command-line switches. Toggling features requires no binary rebuilds.
+
+### 3.12. Git Synchronization
+All feature work flows through `unstable` → `testing` → `beta` → `main` with annotated semantic tags.
+
+---
+
+## 4. Operational Templates
+
+### 4.1. Worker Specification Template
+
+```markdown
+### Spec <batch>/<ID> — <Title>
+Role / Seat: <G1-Backend / G2-Frontend / etc.>
+Batch: <RW-NN>; Dependencies: <Accepted prerequisite cards>
+Goal: <1–3 lines; user-observable contract>
+Files (Strict Scope): <Explicit file paths; shared files labeled as Tech Lead only>
+Forbidden: <All other files, shared state, docs, or golden directories>
+Test Cases (Red-First): <Test IDs, expected assertions, boundaries>
+Oracle / Provenance: <jq / awk / md5 / reference artifact>
+Implementation Invariants: <Error handling, ownership, limits, timeouts, concurrency>
+Verification Command: <Targeted test command>
+DoD: Red run with failure exit code; green targeted run; report §4.2; file checksums.
+```
+
+### 4.2. Worker Completion Report Template
+
+```markdown
+- Batch / Card: <RW-NN / TASK-XXX>;
+- Summary: <What was implemented and verified>;
+- Red Phase: <Command> → <Failure output, exit code>;
+- Green Phase: <Command> → <Success output, exit code>;
+- Targeted Tests: <Log file / number of passing assertions>;
+- Independent Oracle: <Provenance reference, paths, contract claims>;
+- Control Mutations: <KILLED / total; 5/5 killed>;
+- Baseline Restore: <Verification of clean working tree>;
+- Gate Status: <Local gate execution result>;
+- Files and Checksums: <List of modified files + SHA-256>;
+- Residual Risks: <Identified edge cases or follow-up items>;
+- Hand-off Target: <Assigned reviewer>
+```
+
+### 4.3. Review Checklist (Coordinator)
+
+- [ ] Batch gate completed successfully prior to review.
+- [ ] File boundaries respected (diff audit against spec).
+- [ ] Strict TDD confirmed via red/green logs.
+- [ ] Assertions validated against independent clean-room oracles.
+- [ ] Mutation testing verified (5/5 control mutations killed).
+- [ ] Concurrent execution safety verified for shared resources.
+- [ ] Explicit error handling (no unhandled errors or unlogged silent fallbacks).
+- [ ] Memory safety verified: `#![forbid(unsafe_code)]` intact.
+- [ ] Complexity ceilings respected (`< 50 lines/fn`, `< 800 lines/file`).
+- [ ] Meta-tests passing 100%.
+
+---
+
+## 5. Summary of Quality Gates
+
+| Gate | Contents | Timing | Target Artifact |
 | --- | --- | --- | --- |
-| Владелец | пользователь | приоритеты, одобрение контрактов/зависимостей, окна живых прогонов, выкладка | не пишет код и ТЗ |
-| Team Lead (L1) | ведущая сессия | очередь карточек, batch-план, контракты, приёмка, журнал, финальный gate, выпуск | не ревьюит свой код; не правит чужие файлы без назначения |
-| Rust Tech Lead (L2) | старший агент | архитектура, общий integration-патч, разрешение контрактных конфликтов, разблокировка воркеров | не принимает карточку единолично |
-| Research engineer | агент | read-only RE, фикстуры, провенанс, oracle-команды | не пишет продуктовый код |
-| Module worker | агент | один модуль + его тесты: red → green → targeted-отчёт; только свои файлы | не трогает общие `types.rs`/`reducer.rs`/`mod.rs`/`lib.rs`, не обновляет доки |
-| Test/oracle engineer | агент | независимые тесты, фикстуры, проверка контракта, test budget | не «зеленит» тест под код |
-| Mutation/QA engineer | агент | мутации, флейки, восстановление исходников, batch-гейт | не меняет контракт под мутант |
-| Independent reviewer | агент, не автор | P0/P1/P2/P3, границы файлов, red-first, безопасность | не правит код во время ревью |
-| Security reviewer | отдельный агент | секреты, недоверенный ввод, live-пути, отмена/таймауты | не совмещает с авторством чувствительного пути |
-| Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
-| Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
-| Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
-
-Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
-общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
-
-
-## 3. Этапы детально
-
-3.1 **Задача.** Владелец ставит задачу → координатор заводит карточку в `TASKS.md` (ID, микрозадача,
-владелец, DoD, статус). Крупные задачи режутся на микрозадачи при старте волны.
-
-3.2 **Концепт.** Для всего, что видит пользователь CLI, координатор пишет короткий контракт:
-команда, флаги, вывод, коды 0/1/2, тексты сообщений. Контракт идёт в ТЗ и (по мере сил) в TDD-PLAN §6.
-Только после «Да» владельца пишется код.
-
-3.3 **Декомпозиция.** Batch-волна `RW-NN`: 3–6 микрозадач, матрица «файлы воркера / запрещено»,
-ТЗ по шаблону §4.1. Требования: множества файлов не пересекаются; у каждой задачи — red-кейсы и
-оракул; у batch — один integration-патч общих файлов и приёмочный прогон.
-
-3.4 **Воркер.** Строго по ТЗ:
-- red-first: тест написан и **прогнан** до реализации (падение зафиксировано командой и результатом);
-- минимальная реализация; зелёный **targeted**-прогон;
-- полный `npm run gate:worker` — один раз на batch в integration/QA, не каждым воркером;
-- изменения форматов артефактов — только обратно совместимые (§6);
-- генераторы, fixture builders и mutation runners включаются в файловую матрицу ТЗ; generated
-  outputs проверяются повторной генерацией и сравнением хешей;
-- отчёт по шаблону §4.2. Задача закрывается не отчётом, а приёмкой Team Lead.
-
-3.5 **Ревью и качество реализации.** Team Lead принимает batch после gate: границы файлов,
-red-first, независимые оракулы (не подгонка), ошибки, время/память, tsc/meta и пункты ниже.
-Ревью — независимыми от автора, после batch-гейта и параллельно по карточкам.
-Чувствительные изменения дополнительно проходят вторую модель (§4.4).
-
-Для каждой карточки проверяется применимая часть матрицы, а неприменимые пункты помечаются
-«не применимо» с короткой причиной:
-- **Контракт и объём:** публичное поведение и каждый новый путь связаны с тестом; нет незапрошенной
-  функциональности, дублирования логики, временных заглушек или изменения соседнего API.
-- **Ввод и ошибки:** валидация происходит на границе; недопустимое/обрезанное значение не
-  исправляется молча; ошибки имеют устойчивый тип/контекст и не теряются через пустой `catch`,
-  `unwrap`/fallback или чрезмерно широкий `Ok(None)`.
-- **Владение и жизненный цикл:** каждому fd/указателю/таймеру/listener/процессу соответствует один
-  владелец и определённое освобождение; проверены ранний выход, ошибка, отмена и `Drop`. Владение
-  ресурсом нельзя делать `Clone` без явной семантики дублирования.
-- **FFI/unsafe:** unsafe изолирован; для каждого блока указаны проверяемые предпосылки pointer,
-  length, NUL, alignment, lifetime, ownership, thread-safety и error-path cleanup. Проверено
-  соответствие C ABI/сигнатур и перенос только нужных байтов. `allow(unsafe_code)` не расширяется
-  на весь crate без отдельного обоснования.
-- **Состояние и конкурентность:** глобальное/shared state ограничено или синхронизировано;
-  тестовые ресурсы изолированы либо сериализованы; повторы под параллельным запуском стабильны.
-  Для чтения из сокета/процесса проверены пределы буфера, таймаут/deadline и поведение при EOF.
-- **Поддерживаемость:** diff минимален и локален; сложные инварианты объяснены у места действия;
-  нет мёртвых ветвей, случайного экспорта, дублированной константы протокола или зависимости,
-  не согласованной в ТЗ.
-
-Если пункт выявлен при ревью, автор либо добавляет red-тест и минимально исправляет код, либо
-оформляет проверяемый backlog item с владельцем и причиной defer. «Зафиксировано в рисках» само
-по себе не закрывает P0/P1/P2.
-
-3.6 **Сборка волны.** Приёмка в общий master-поток: `gate:release`, md5-аудит области изменений
-против базлайна, отсутствие дублей §8. Конфликты (две строки §8 на файл и т.п.) разбираются руками.
-
-3.7 **Kit.** Пакет версии `vX.Y.Z`:
-- `discord-lab-<version>.tgz` (`npm pack`; состав — только `files` из package.json);
-- план выкладки и откат (§4.5);
-- fallback — предыдущий tarball/тег.
-Kit не правится руками: любая правка → новый `npm run gate:qualify` (новый sha256).
-
-3.8 **gate:release.** Фазы: typecheck (2 tsconfig) → meta (§8) → unit → smoke → e2e (при падении —
-автоматический повтор; в отчёте оба результата) → coverage (пороги 90/80/90) → golden-сверка (если
-заморожен манифест: `npm run golden:freeze`).
-
-3.9 **Qualification.** `npm run gate:qualify`: то же + сборка tarball, проверка содержимого (нет
-`logs/`, `functions/`, `node_modules`), изолированный прогон (`--help`, `--version`,
-`inventory --pid 99999999` → код 2), запись `.gate/qualification-<version>-<ts>.json`. Перед
-выкладкой: `node scripts/gate.mjs --verify-qualification <файл>` (sha256 + коммит).
-
-3.10 **Выкладка (для CLI).** Шаги, у каждого — результат:
-1) **preflight:** `git status` чист; golden-манифест проходит; версия = тег = package.json;
-2) **install:** tarball в temp-каталог; `--help`/`--version`/`inventory --pid 99999999` (код 2);
-3) **check:** живой smoke на машине владельца (`pids` — реальные процессы; live-прогоны — опционально,
-по окну);
-4) **switch:** установка для пользователя (`npm i -g`/симлинк) — по решению владельца;
-5) **rollback:** установка fallback-tarball предыдущей версии.
-Окна живых операций: только по согласованию с владельцем и не в момент его активной работы;
-`--spawn` (спавн Discord) — всегда вручную. После switch откат — только fallback; «корректирующий
-выпуск» = новый patch-номер через полный цикл.
-
-3.11 **Включения.** Новые функции едут выключенными: заглушки отвечают «появится в Mx» (код 2);
-живые возможности — за флагами (`DISCORD_LAB_LIVE_CDP=1`, `--spawn`, `CDP_ENDPOINT`). Включение:
-пробный прогон → включение → проверка; известна обратная операция (снять флаг). Повтор операции не
-дублирует данные (уникальные имена файлов, не перезапись golden).
-
-3.12 **Push.** Ветки `wave/<N>` → `master`; тег `vX.Y.Z` — после qualification. Remote (GitHub)
-и push — только по решению владельца; сообщения коммитов: `<волна>: <суть>`.
-
-3.13 **Параллелизм и ускорение (пожелания владельца, 2026-10-19).** Владелец: использовать больше
-возможностей распараллеливания; где задача хорошо делится — не писать последовательно, а
-запускать асинхронно; код-ревью и рефакторинг передавать агентам и отдельным воркерам; создавать
-столько воркеров, сколько нужно для скорости.
-- Волна режется на максимально независимые куски (пересечение файлов — пусто); куски
-  запускаются **одновременно**, а не по очереди.
-- Контракты (типы, сигнатуры, общие каркасы, тест-данные) координатор замораживает до старта —
-  воркеры не блокируют друг друга; общие файлы правит только координатор.
-- Код-ревью — отдельному агенту-ревьюеру (не автору кода; §4.4), координатор — финальная приёмка.
-- Рефакторинг — отдельному воркеру после зелёного: только не-поведенческие правки; тесты-спека
-  заморожены (md5 до/после); повторные прогоны + гейт.
-- Число **активных кодовых** воркеров — два: по одному на карточку пары. Остальные seats
-  (research, QA, review, gate, docs) работают параллельно, но не конкурируют за `target-dir`
-  и shared-файлы. Третий code worker — только после green пары и явного решения TL-1.
-
-3.14 **Batch-волна и конвейер (2026-10-20).** Волна больше не равна одной карточке. Единица
-учёта — **batch** из 3–6 карточек, у которого один замороженный контракт, один integration-патч
-общих файлов и один общий gate. Карточки внутри batch идут параллельно, если их файлы не
-пересекаются.
-
-Конвейер (перекрытие стадий — главный источник скорости):
-
-```text
-B(n)   research → freeze → integration → [CORE-1 ∥ CORE-2] a → b → c
-B(n-1)                                                   → QA/mutation → gate → review
-B(n-2)                                                                       → accepted → docs
-```
-
-Правила конвейера:
-- в кодовой фазе — **два активных воркера** (пара: W19 voice ∥ W20 typing), а не 4–6;
-  подволны `a` (types/parser) → `b` (reducer) → `c` (selectors) стартуют только после green
-  предыдущей пары;
-- одновременно **не более двух batch** (один code, один gate/review) и не более двух фоновых
-  запусков агентов;
-- следующий фоновый агент стартует после завершения одного из текущих (защита от rate limit);
-- общие файлы (`state/types.rs`, `state/reducer.rs`, `state/mod.rs`, `src/lib.rs`, `PLAN.md`,
-  `STATUS.md`, `ROADMAP.md`, `TASKS.md`, `docs/map.md`, `waves/*`) правит только Team Lead или
-  назначенный Tech Lead; воркеру они запрещены;
-- полный `cargo test --workspace` / `clippy` / `gate:worker` запускается **один раз на batch**
-  в integration-лейне, а не каждым воркером; воркер сдаёт targeted red/green;
-- ревью — после batch-гейта и параллельно по карточкам; P0/P1/P2 закрываются red-first, после
-  фиксов — **повторный batch gate**; P3 уходят в backlog и не тормозят batch;
-- доки и журнал обновляются **один раз после accepted**, а не в каждой итерации.
-
-3.15 **Пропускная способность и KPI.** Не обещать throughput до замера: старый ориентир
-2–3 batch/день и 6–8 карточек/день не подтверждён фактическими RW-28…35. После двух следующих
-последовательных batch зафиксировать медиану cycle time и долю повторных циклов; пересматривать
-план только по этим данным. Скорость не компенсирует незакрытые дефекты и не является DoD.
-
-Метрики (обновляются в `waves/STATE.md` после batch):
-- cycle time от red до accepted; отдельно время ожидания зависимости/среды и повторного ревью;
-- first-pass gate и review return rate; причины возврата по категориям;
-- P0/P1/P2 на ревью и количество повторно открытых дефектов;
-- валидные `KILLED`, survivors, `INCONCLUSIVE`, equivalent и причина последнего;
-- тестовые пробелы, превращённые в test ID; флаки и число повторов до стабильности;
-- соблюдение файловой матрицы, число незапланированных изменений и ошибочных/устаревших артефактов.
-
-Не ранжировать batch по числу тестов или проценту мутаций без знаменателя и качества oracle.
-Принятые keyring/SQLite/fd-passing не считать текущими blocker-ами; на 2026-10-23 главный
-инфраструктурный blocker — решение по GUI-тулкиту и отдельный выбор audio/media backend.
-
-## 4. Шаблоны
-
-4.1 **ТЗ воркера**
-
-Готовые заготовки — `waves/_TEMPLATES/BATCH-TZ.md`, `TEST-MATRIX.md`, `WORKER-REPORT.md`,
-`MUTATIONS.md`.
-
-```
-### ТЗ <batch>/<ID> — <название>
-Роль/место: <CORE-1 / TEST-1 / REV-1 …; кто владелец файлов>
-Batch: <RW-NN>; зависимости: <какие карточки уже accepted / какой контракт заморожен>
-Цель: <1–3 строки; видимый контракт, если меняется поведение CLI>
-Файлы (только эти): <точные пути; общие файлы перечислены как «только Tech Lead»>
-Запрещено: <всё остальное: чужие тесты, src вне списка, доки, golden, shared-файлы>
-Кейсы (red-first): <ID тестов, ожидание, границы; бюджет — TEST-PLAN §1.1>
-Оракул/провенанс: <jq/awk/md5/реальный артефакт/строка фикстуры>
-Инварианты реализации: <ошибки; владение/cleanup; limits/timeouts; unsafe/FFI; concurrency;
-какие пункты неприменимы и почему>
-Как проверять: <targeted-команда; cargo — только в своём слоте, не параллельно>
-DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; файлы+md5; §8-строка;
-     полный gate — у Integration/QA на batch, не у воркера
-```
-
-4.2 **Отчёт воркера**
-
-```
-- batch/карточка: <RW-NN / P2-xx>;
-- сделано: <что, где, чем проверено>;
-- red: <команда> → <результат до реализации, exit code>;
-- green: <команда> → <результат, exit code>;
-- targeted: <файл лога / число тестов>;
-- oracle: <независимый источник, версия/путь, утверждения контракта>;
-- генерация: <генератор/входы в матрице; два запуска; совпадение хешей> или «не применимо»;
-- мутации: <KILLED/всего; эквивалентные с обоснованием; INCONCLUSIVE; survivors;
-  mutant → test ID>;
-- baseline/restore: <команда, exit, skip по ID и причине; product+test md5 до/после каждого
-  мутанта и финальное восстановление>;
-- стабильность: <повторы для гонок/ресурсов, число повторов и результат> или «не требовалось»;
-- gate:worker: <batch-вердикт Integration/QA; воркер полный gate не запускает>;
-- файлы: <список + md5>;
-- риски/вопросы: <...>;
-- следующий шаг: <кому передать>
-```
-
-`KILLED` допустим только при зелёном baseline и падении ожидаемого targeted-теста. Ошибка
-компиляции, timeout, ошибка harness, неожиданный `SKIP` или отсутствие ожидаемого теста —
-`INCONCLUSIVE`. Намеренные live/environment skips перечисляются по test ID и разрешаются только
-если они не покрывают утверждение мутанта; эвристика по подстроке `live`/`skip` не считается
-классификатором. Эквивалентные мутанты учитываются отдельно с обоснованием.
-
-4.3 **Чек-лист ревью (координатор)**
-
-- [ ] batch-гейт уже прошёл; review идёт после него, а не вместо него;
-- [ ] границы: изменения только в файлах ТЗ (md5-аудит / `git status`);
-- [ ] red-first подтверждён прогоном, а не словами;
-- [ ] тесты сверяют контракт с независимым оракулом, а не подгонку под код;
-- [ ] ключевые риски контракта связаны с test ID и oracle либо исключение объяснено;
-- [ ] mutation baseline зелёный; skips классифицированы по ID; `KILLED` вызван ожидаемым тестом;
-- [ ] survivors и inconclusive разобраны, эквивалентные мутанты обоснованы;
-- [ ] генераторы включены в матрицу и детерминированы при повторном запуске;
-- [ ] после исправлений логи, md5 и отчёт пересняты на финальных байтах;
-- [ ] тесты ресурсов/глобального состояния устойчивы к параллельному запуску;
-- [ ] у каждого ресурса определены владелец, cleanup на ошибке/отмене и Clone-семантика;
-- [ ] unsafe/FFI проверен по ABI, указателям, длинам, NUL, lifetime, ownership и cleanup;
-- [ ] неверный ввод, EOF/timeout и отказ зависимости не маскируются широким fallback/успешным None;
-- [ ] новые exports, зависимости, константы протокола и изменения API согласованы с ТЗ;
-- [ ] бюджет тестов §TEST-PLAN 1.1 соблюдён или исключение объяснено;
-- [ ] новые пути не глотают ошибки молча (catch либо с последствием, либо с комментарием);
-- [ ] нет утечек: таймеры очищены, массивы не растут без границ, слушатели одноразовые;
-- [ ] `npm run gate:worker` зелёный; tsc чистый; meta зелёная;
-- [ ] §8/статусы/доки обновлены там, где положено;
-- [ ] для чувствительных изменений пройден §4.4.
-
-4.4 **Чек-лист чувствительных изменений (вторая модель)**
-
-- [ ] live-пути (attach/hook/walk/spawn): нет автоспавна, есть отмена/таймаут;
-- [ ] golden-форматы: чтение старых файлов сохранено (обратная совместимость);
-- [ ] удаления/перезаписи: есть откат или явный отказ;
-- [ ] безопасность: spawn без shell, JSON.parse в try, пути через safeName;
-- [ ] сигналы: Ctrl-C не оставляет хвостов (unhook/detach/итоговый отчёт).
-
-4.5 **Чек-лист выпуска/выкладки**
-
-- [ ] `gate:release` зелёный на слитом коммите;
-- [ ] `gate:qualify` записан; `--verify-qualification` совпадает;
-- [ ] fallback-tarball предыдущей версии на месте;
-- [ ] план выкладки и откат заполнены;
-- [ ] версия = тег = package.json; `git status` чист.
-
-4.6 **Чек-лист включения функции**
-
-- [ ] пробный прогон на одном объекте;
-- [ ] повтор не дублирует данные;
-- [ ] известна обратная операция (снять флаг/остановить процесс);
-- [ ] владелец сказал «включаю».
-
-4.7 **Чек-лист Team Lead (batch).**
-
-- [ ] в batch 3–6 карточек; у каждой есть роль, файлы, оракул и targeted-команда;
-- [ ] общие файлы назначены одному владельцу (Tech Lead), пересечений нет;
-- [ ] запущено не более 2 фоновых агентов; остальные — в очереди;
-- [ ] интеграция и полный gate выполнены один раз;
-- [ ] ревьюеры не авторы; P0/P1/P2 закрыты red-first;
-- [ ] доки/журнал обновлены после accepted, события `review`/`gate`/`accepted` дописаны;
-- [ ] в `STATE.md` обновлены KPI и следующий batch.
-
-## 5. Гейты — сводка
-
-| Гейт | Состав | Когда | Артефакт |
-| --- | --- | --- | --- |
-| targeted worker | только тесты своего модуля + md5; без полного `gate:worker` | каждый воркер после green | `waves/<batch>/workers/<id>/` |
-| batch gate | `cargo fmt` → `clippy` → `cargo test` core → workspace → `npm run gate:worker` | один раз на batch, Integration/QA | `.gate/worker-<ts>.json` |
-| `npm run gate:release` | worker + e2e (повтор 1 раз) + coverage + golden | сборка волны/выпуска | `.gate/release-<ts>.json` |
-| `npm run gate:qualify` | release + pack + изоляция + qualification | перед выкладкой | `.gate/qualification-<version>-<ts>.json` |
-| `npm run golden:freeze` | md5-манифест `logs/`, `functions/`, `evidence/` | перед серией изменений | `.gate/golden.manifest` |
-
-Воркер, работающий один (вне batch), сам запускает `gate:worker`; в batch это делает
-integration-лейн, чтобы не дублировать полный прогон 4–6 раз.
-
-«Пропуск прохождением не считается»: skip-и фиксируются в отчёте и в warnings гейта.
-
-## 6. Совместимость форматов (наши «миграции»)
-
-Контракты паритета: `functions/pid-*.json/.csv`, `logs/calls-*.jsonl`, `logs/ui-*.jsonl`
-(эталон — `scripts/logger.mjs` и golden-артефакты).
-
-- Изменение формата = миграция: **новое чтение обязано читать старые файлы** (тест на реальном
-  golden), запись — только новые файлы с уникальными именами; golden не перезаписывается.
-- «Откат» формата: старый код должен уметь читать новые файлы; иначе изменение отклоняется.
-- Накат/откат проверяются на **заполненных** данных (реальные `functions/`, `logs/`), а не на пустых.
-
-## 7. Словарь
-
-**Волна (batch)** — пакет из 3–6 карточек с одним контрактом и одним общим gate, запускаемый
-параллельно. **Лейн** — дорожка batch (core, client, quality, integration). **Seat** — роль в
-отделе разработки (`TEAM.md`). **Team Lead** — владелец поставки; **Tech Lead** — владелец
-архитектуры и общих файлов. **ТЗ** — задание воркеру (§4.1).
-**Гейт** — прогон проверок (§5). **Kit** — собранный tarball + план выкладки/откат (§3.7).
-**Qualification** — прогон на собранном пакете с записью хешей (§3.9). **Golden** — реальные
-артефакты `logs/`/`functions/`/`evidence/`. **Чувствительное изменение** — live-пути, форматы
-golden, удаления (§4.4). **Приёмка** — проверка отчёта координатором с независимым прогоном.
-
+| Targeted Worker | Module-specific unit and contract tests | After green implementation | `waves/<batch>/workers/<id>/` |
+| Batch Gate | Formatting, linter, workspace tests | Once per batch in integration lane | `.gate/worker-<ts>.json` |
+| `npm run gate:release` | Full unit, smoke, E2E, and coverage suite | Release assembly | `.gate/release-<ts>.json` |
+| `npm run gate:qualify` | Sandboxed archive build and verification | Pre-deployment qualification | `.gate/qualification-<ts>.json` |
+| `npm run golden:freeze` | Integrity manifest of golden baselines | Prior to major refactoring | `.gate/golden.manifest` |
 
 ---
 
-## 8. Иерархия веток и релизный конвейер (`worker branch -> unstable -> testing -> beta -> main`)
+## 6. Format Compatibility and Schema Migrations
 
-1. **Рабочая ветка задачи (`<type>/task-<id>-<slug>`):**
-   - Создаётся строго от актуальной ветки `unstable` для каждой новой задачи (`feature/task-123-login`, `bugfix/task-124-payment-error`, `design/task-125-profile-layout`, `qa/task-126-...`, `devops/task-127-...`, `docs/task-128-...`).
-   - Воркер обязан выполнить локальные тесты, сборку, линтер (`cargo clippy -D warnings`), проверку типов (`npm run typecheck`) и мета-тесты, после чего создаёт Pull Request в `unstable`.
-   - Самостоятельное слияние кода воркером в `unstable`, `testing`, `beta`, `main` запрещено.
-2. **Двухэтапное ревью перед `unstable` (PM + Technical Reviewer):**
-   - **Product Manager (PM):** проверяет соответствие результата требованиям задачи, пользовательским сценариям, макетам (`DESIGN/*.md`) и критериям готовности (DoD). При возврате указывает конкретные ошибки, ожидаемый результат и способ проверки.
-   - **Technical Reviewer (DeepSeek):** проверяет архитектуру, безопасность, качество кода, тесты, обработку ошибок, совместимость, отсутствие лишних правок и уничтожение `5/5` мутаций.
-   - Слияние PR в `unstable` разрешено только после: зелёного CI, одобрения PM, одобрения Технического ревьюера, устранения блокирующих замечаний (`P0=0, P1=0`) и разрешения конфликтов.
-   - Сразу после слияния в `unstable` рабочая ветка воркера удаляется. Продолжать новую задачу в старой ветке запрещено.
-3. **Централизованная сборка `testing` и QA:**
-   - Передача изменений в QA напрямую из рабочих веток воркеров запрещена. Прямые коммиты в `testing` запрещены.
-   - Ответственный за интеграцию собирает проверенные задачи из `unstable` в `testing` с манифестом `BUILD-00X` (список включённых задач, номер сборки, инструкции по проверке, тестовые данные, известные ограничения).
-   - QA фиксирует версию сборки, окружение, шаги воспроизведения, фактический и ожидаемый результат, логи, скриншоты и критичность дефекта (`P0–P3`). При дефекте заводится отдельная задача в новой ветке `bugfix/task-<id>-<slug>` от `unstable` -> PR в `unstable` -> следующая сборка `testing`.
-4. **Предрелизная ветка `beta` и продуктивная ветка `main`:**
-   - После `QA Passed` и регрессии в `testing` сборка переносится в `beta` для проверки окружения, критических пользовательских сценариев, производительности (`perf_contract`), `SHA256SUMS`/SBOM и плана отката.
-   - После успешной проверки `beta` создаётся PR `beta -> main` (прямые коммиты в `main` запрещены). После выпуска создаётся версия и Git-тег, а изменения из `main` синхронизируются обратно в `unstable`.
-5. **Процедура `hotfix/*`:**
-   - Для срочного исправления создаётся ветка `hotfix/task-<id>-<slug>`, которая проходит обязательные тесты, ревью и проверку QA, сливается в `main` и немедленно синхронизируется обратно в `unstable`, `testing` и `beta`.
+Data formats (`functions/pid-*.json`, `logs/*.jsonl`, SQLite stores):
+- Forward Compatibility: New reader implementations must parse older historical data formats.
+- Backward Compatibility: Older client versions should gracefully handle or ignore unknown new fields.
+- Migration verification is always tested against real populated datasets.
 
 ---
 
-## 9. Тринадцать обязательных статусов задачи
+## 7. Process Glossary
 
-Жизненный цикл каждой задачи проходит строго по цепочке без пропуска обязательных этапов:
-`Backlog` → `Ready for Development` → `In Progress` → `Ready for Product Review` → `Ready for Technical Review` → `Ready for Merge` → `Merged to Unstable` → `In Testing` → (`QA Failed` | `QA Passed`) → `In Beta` → `Ready for Release` → `Released`.
-
----
-
-## 10. Политика маршрутизации моделей и нулевого простоя (Zero-Idle & Model Policy)
-
-1. **Запрет `codex`:** использование `--agent codex` полностью запрещено (исчерпан лимит).
-2. **Расписание и роль DeepSeek (`--agent opencode --model deepseek/deepseek-v4.1-flash`):**
-   - Используется для валидации, технического ревью кода/спецификаций, тестирования (QA / DevOps / мутации) и рефакторинга (Pass 2/3 по ревью).
-   - Разрешён **в будние дни (Пн–Пт) строго с 18:00 по пекинскому времени (`TZ=Asia/Shanghai`) и в выходные дни (Сб–Вс) без ограничений**.
-3. **Первичная разработка:** `--agent antigravity --model gemini-4-argon-high --effort high`.
-4. **Нулевой простой (Zero-Idle):** ни один отдел (`G1–G6`, `DevOps`, `PM`, `Tech Review`) и ни один воркер не должен простаивать без задачи или ждать смежный отдел — координатор равномерно загружает все отделы параллельными задачами из пула через `orca worktree create` + `orca orchestration worker-start`.
-
-
----
-
-## 11. Сверка с дампом `/home/sanya/re-deep` и применение `rea` (Reverse Engineering Oracle)
-
-- Любая неизвестная или непонятная функция, формула, константа, маршрут REST, опкод шлюза/голоса или поведение UI перед реализацией обязательно сверяется с эталонным дампом `/home/sanya/re-deep/` (`decoded/`, `decoded-index.json`, `gateway-protocol.*`, `rest-d02.*`, `rest-static.*`, `frontend-d03.*`, `backend-ipc.*`, `main-arch.*`, `voice-deep.*`, `i18n-deep.*`, `ru-catalog.json`, `capture-run2.jsonl`, `rea-evidence.json`).
-- Если данных в готовых индексах недостаточно, применяются инструменты обратного инжиниринга MCP `rea` (`reverse-engineer-anything`) как к статическим бандлам/нативным модулям в `/home/sanya/re-deep/`, так и к отдельно запущенному приложению Discord (`analyze_javascript_application`, `trace_javascript_semantics`, `trace_application_feature`, `open_binary`, `procedure_pseudo_code`, `list_electron_targets`, `inspect_electron_page`, `observe_javascript_runtime`, `instrument_with_frida`, `verify_reconstruction`).
-
-
----
-
-## 12. Ограничение по памяти (48 GB RAM) и управление пулом терминалов
-
-- Хост имеет **48 GB RAM (`Swap: 0B`)**. Координатор держит не более **4–6 активных воркеров (`terminal=active`) одновременно**, ставя следующие задачи в очередь до освобождения слота.
-- Сразу после `worker_done` терминал завершённого воркера обязательно выгружается из памяти через `orca orchestration worker-release --dispatch <ctx_id>`, поддерживая `available >= 10 GiB` по `free -h`.
+- **Wave (Batch):** A cohesive collection of 3–6 task cards sharing a frozen contract and integration gate.
+- **Lane:** An execution track (backend core, UI frontend, voice/platform, QA integration).
+- **Seat:** A defined operational role within the development department.
+- **Golden Baseline:** Immutable reference data gathered from clean-room experiments.
+- **Zero-Idle:** Engineering operating model ensuring continuous developer and review throughput.
+- **DoD (Definition of Done):** Mandatory criteria required for a task card to transition to accepted status.

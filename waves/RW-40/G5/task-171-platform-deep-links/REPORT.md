@@ -35,8 +35,8 @@
 
 ## 2. TDD-прогоны
 
-- **Red-прогон:** сохранён в `/home/sanya/orca/project/waves/RW-40/G5/task-171-platform-deep-links/red.log` (10 ошибок компиляции до реализации новых типов и методов).
-- **Green-прогон:** сохранён в `/home/sanya/orca/project/waves/RW-40/G5/task-171-platform-deep-links/green.log` (17/17 контрактных тестов прошли успешно).
+- **Red-прогон:** сохранён в `/home/user/orca/project/waves/RW-40/G5/task-171-platform-deep-links/red.log` (10 ошибок компиляции до реализации новых типов и методов).
+- **Green-прогон:** сохранён в `/home/user/orca/project/waves/RW-40/G5/task-171-platform-deep-links/green.log` (17/17 контрактных тестов прошли успешно).
 - **Targeted-проверки:**
   - `cargo test --manifest-path rust/Cargo.toml -p discord-platform --test deep_link_contract --lib`: 17 passed (0 failed).
   - `cargo clippy --manifest-path rust/Cargo.toml -p discord-platform --tests -- -D warnings`: 0 warnings, clean.

@@ -206,7 +206,7 @@ describe("TASK-958: Релизный пакет бета-версии, конт�
 
     // 2. Быстрый старт: проверка SHA256SUMS и запуск в 1 команду (./discord-gpui)
     assert.match(guide, /discord-gpui-v1\.0\.0-beta\.1-linux-x86_64\.tar\.gz/, "Должно быть указано точное имя релизного архива");
-    assert.match(guide, /sha256sum -c SHA256SUMS/, "Должна быть приведена команда проверки контрольных сумм");
+    assert.match(guide, /sha256sum -c (?:rust\/dist\/)?SHA256SUMS/, "Должна быть приведена команда проверки контрольных сумм");
     assert.match(guide, /\.\/discord-gpui\b/, "Должна быть приведена команда быстрого запуска ./discord-gpui");
     assert.match(guide, /--headless-smoke/, "Должна быть описана быстрая самодиагностика --headless-smoke");
 
@@ -219,7 +219,7 @@ describe("TASK-958: Релизный пакет бета-версии, конт�
     assert.match(guide, /mfa\.\*+|mfa\.\[REDACTED\]/i, "Должно быть описано автоматическое маскирование токенов в логах");
 
     // 4. Шаблон репорта о найденной ошибке (версия Linux, GPU, логи)
-    assert.match(guide, /Шаблон\s+(репорта|отчёта|баг-репорта)/i, "Должен присутствовать раздел с шаблоном баг-репорта");
+    assert.match(guide, /Шаблон\s+(репорта|отчёта|баг-репорта)|Bug Report Template/i, "Должен присутствовать раздел с шаблоном баг-репорта");
     assert.match(guide, /GPU|видеокарт|драйвер/i, "В шаблоне баг-репорта должно быть поле GPU / драйвера");
     assert.match(guide, /gdb -batch -ex "thread apply all bt full"/, "В шаблоне должна быть команда снятия GDB backtrace");
     assert.match(guide, /P0[\s\S]*P1[\s\S]*P2[\s\S]*P3/, "Должна быть описана классификация критичности дефектов P0–P3");
@@ -243,6 +243,6 @@ describe("TASK-958: Релизный пакет бета-версии, конт�
     assert.match(notes, /PipeWire|ScreenCast/i, "Должна быть описана демонстрация экрана через PipeWire Portal и X11 fallback");
     assert.match(notes, /AT-SPI|org\.a11y\.Bus/i, "Должна быть описана поддержка доступности AT-SPI и WCAG 2.2");
     assert.match(notes, /SQLite\s+FTS5|WAL/i, "Должно быть описано локальное хранилище SQLite WAL / FTS5");
-    assert.match(notes, /5\/5\s*(мутац|mutations)/i, "Должна быть отражена верификация 5/5 мутационного гейта");
+    assert.match(notes, /5\/5\s*(мутац|mutation)/i, "Должна быть отражена верификация 5/5 мутационного гейта");
   });
 });

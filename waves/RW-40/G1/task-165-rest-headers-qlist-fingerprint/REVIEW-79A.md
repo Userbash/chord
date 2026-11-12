@@ -21,7 +21,7 @@
 
 ## 2. Результаты запуска целевых тестов
 
-Команда запуска с общим кэшем сборки `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Команда запуска с общим кэшем сборки `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 ```sh
 cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_client --test rest_headers --lib
 ```

@@ -1,6 +1,6 @@
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-291-voice-stats-re22/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-291-voice-stats-re22/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_voice-37c479f94835c760)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_voice-37c479f94835c760)
 
 running 36 tests
 test reception::tests::extension_sequence_wraps_forward ... ok

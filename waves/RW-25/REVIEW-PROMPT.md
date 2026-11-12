@@ -4,8 +4,8 @@
 находит дефекты. Запуск:
 
 ```bash
-cd /home/sanya/orca/project
-codex exec --sandbox read-only -C /home/sanya/orca/project -o waves/RW-25/codex-review.md - <<'EOF'
+cd /home/user/orca/project
+codex exec --sandbox read-only -C /home/user/orca/project -o waves/RW-25/codex-review.md - <<'EOF'
 <текст промпта ниже>
 EOF
 ```

@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:20:
+Diff in /home/user/orca/project/rust/gui-spike/src/auth.rs:20:
  //! `spawn_blocking` (`main.rs`).
  
  use std::fmt;
@@ -7,7 +7,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:20:
 (B[m use std::thread::{self, JoinHandle};
  
  use discord_core::rest::client::{
-Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:29:
+Diff in /home/user/orca/project/rust/gui-spike/src/auth.rs:29:
  use discord_core::rest::identity::{self, IdentityConfig, SystemSources};
  use discord_core::rest::super_properties::SuperProperties;
  use discord_core::rest::transport::HttpClientConfig;
@@ -16,7 +16,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:29:
 (B[m use discord_platform::keyring::{Keyring, KeyringError};
  use serde::ser::SerializeStruct;
  use serde::{Serialize, Serializer};
-Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:443:
+Diff in /home/user/orca/project/rust/gui-spike/src/auth.rs:443:
              http: HttpClientConfig::default(),
              retry: ApiRetryPolicy::default(),
          };
@@ -26,7 +26,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:443:
 (B[m 
          let runtime = tokio::runtime::Builder::new_current_thread()
              .enable_all()
-Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:670:
+Diff in /home/user/orca/project/rust/gui-spike/src/auth.rs:670:
  impl AuthBackend {
      /// Боевой backend: keyring в потоке-владельце, сеть — `discord-core`.
      pub fn keyring() -> Self {
@@ -38,7 +38,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/auth.rs:670:
 (B[m     }
  
      /// Backend с identity из среды.
-Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:133:
+Diff in /home/user/orca/project/rust/gui-spike/src/main.rs:133:
  
  /// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
  #[tauri::command]
@@ -49,7 +49,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:133:
 (B[m     let backend = Arc::clone(backend.inner());
      blocking(move || backend.status())
          .await
-Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:157:
+Diff in /home/user/orca/project/rust/gui-spike/src/main.rs:157:
  
  /// Явное восстановление из keyring — единственный путь к сети при старте.
  #[tauri::command]
@@ -60,7 +60,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:157:
 (B[m     let backend = Arc::clone(backend.inner());
      blocking(move || backend.restore())
          .await
-Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:168:
+Diff in /home/user/orca/project/rust/gui-spike/src/main.rs:168:
  
  /// Выход: keyring.clear + сброс сессии; повторный вызов идемпотентен.
  #[tauri::command]

@@ -4,7 +4,7 @@
 Целевой файл: `rust/crates/discord-core/src/ws.rs` (исходный и восстановленный `md5 = 9976b056a9ff18559867c1ad110a290f`).
 Команда прогона каждого мутанта:
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
 ```
 
 | # | Мутация | Место в `ws.rs` | Статус | Код возврата | Какими тестами убита | Лог |

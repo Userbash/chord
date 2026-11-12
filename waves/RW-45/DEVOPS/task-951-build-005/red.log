@@ -21,7 +21,7 @@ test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:28:3
   
   'no' !== 'yes'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:43:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:43:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -42,7 +42,7 @@ test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:28:3
 test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:50:3
 ✖ 951.2: файл waves/BUILD-005.json существует и соответствует JSON-схеме манифеста сборки (0.214351ms)
   AssertionError [ERR_ASSERTION]: Файл waves/BUILD-005.json должен существовать
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:51:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:51:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -62,7 +62,7 @@ test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:50:3
 test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:80:3
 ✖ 951.2: манифест waves/BUILD-005.json содержит полный реестр всех 128 выполненных задач (0.186111ms)
   AssertionError [ERR_ASSERTION]: waves/BUILD-005.json отсутствует
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:81:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:81:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -83,7 +83,7 @@ test at waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:122:3
   
   'no' !== 'yes'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:134:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/waves/RW-45/DEVOPS/task-951-build-005/verify-build-005.test.mjs:134:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

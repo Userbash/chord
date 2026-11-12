@@ -29,7 +29,7 @@
 | `tests/data/rest-super-properties-2323.b64` | `b9e8f8430d8b496df50da9419e760a2d` |
 | `tests/data/rest-super-properties-2323.json` | `90b06ded88a98dd05d3b821f6bedc52b` |
 
-Провенанс выдержек: `/home/sanya/re-deep/d02-snapshot/capture-run2.snap.jsonl`
+Провенанс выдержек: `reference-oracle/d02-snapshot/capture-run2.snap.jsonl`
 (md5 `abfe14b76cec1e559c3b45522bc44b7a`), запрос `95974.2323`; команды снятия — ТЗ §3.1.
 
 Сопутствующее: ТЗ `waves/RW-09/TZ.md` `5dc281581e7c0ee88be77ac39e373ce3`; ревью

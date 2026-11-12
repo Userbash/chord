@@ -1,13 +1,13 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-176-keyring-safestorage-migration/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/feature-task-176-keyring-safestorage-migration/rust/crates/discord-platform)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_platform-c5c656a7d2cc4967)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_platform-c5c656a7d2cc4967)
 
 running 1 test
 test tests::legacy_channel_counts_match_re ... ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/keyring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/keyring_contract-08983f2bacdcafa3)
+     Running tests/keyring_contract.rs (/home/user/orca/project/rust/target/debug/deps/keyring_contract-08983f2bacdcafa3)
 
 running 25 tests
 test k01_connect_to_default_collection ... ignored, live-keyring: нужен DISCORD_LAB_KEYRING_LIVE=1 и org.freedesktop.secrets

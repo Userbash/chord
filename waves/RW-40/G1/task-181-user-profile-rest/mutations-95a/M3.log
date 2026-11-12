@@ -73,8 +73,8 @@ failures:
 
 test result: FAILED. 25 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-181-user-profile-rest/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-181-user-profile-rest/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.61s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-225e1ecc24b7c0ff)
-     Running tests/profile_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/profile_contract-b5572a930a88bc30)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-225e1ecc24b7c0ff)
+     Running tests/profile_contract.rs (/home/user/orca/project/rust/target/debug/deps/profile_contract-b5572a930a88bc30)
 error: test failed, to rerun pass `--test profile_contract`

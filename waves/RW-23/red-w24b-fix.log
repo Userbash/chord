@@ -1,4 +1,4 @@
-   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+   Compiling discord-conformance v0.1.0 (/home/user/orca/project/rust/crates/discord-conformance)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
      Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
 

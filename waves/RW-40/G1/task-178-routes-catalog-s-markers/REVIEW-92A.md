@@ -35,7 +35,7 @@
 
 ## 2. Тесты и линтер
 
-Команды из ТЗ, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Команды из ТЗ, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 
 ```
 cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib
@@ -75,11 +75,11 @@ cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_routes 
 
 Проверено вручную, помимо тестов:
 
-- `md5sum docs/re/rest-d02.json` = `87d7a05d8cd11f3b8ae37aa5c9811c9e`, `md5sum /home/sanya/re-deep/rest-d02.json` = `9b450c34a2277b04989830b53b02f012` — совпадает с константами теста.
+- `md5sum docs/re/rest-d02.json` = `87d7a05d8cd11f3b8ae37aa5c9811c9e`, `md5sum reference-oracle/rest-d02.json` = `9b450c34a2277b04989830b53b02f012` — совпадает с константами теста.
 - `diff` копий — **ровно одна строка** (`1528c1528`), и это `"reqBodySample"` с `REDACTED…` в копии репозитория против реального base64 тела `settings-proto` в лаборатории. Политика замены зафиксирована в `docs/re/README.md` («пример тела `settings-proto` заменён на `REDACTED`»), то есть расхождение санкционировано, а не «подогнано».
 - `jq '.endpoints | length' docs/re/rest-d02.json` = **47**; пары `(method, path)` из оракула (со срезом `/api/v9`) побайтово совпадают с выдержкой `rust/crates/discord-core/tests/data/rest-routes-47.tsv` — `diff` пустой. Существующий тест `catalog_matches_live_capture` держит соответствие TSV ↔ `ROUTES`, значит 47 «нерасширенных» строк `ROUTES` действительно равны захвату D-02, а не просто посчитаны.
 - Классификация расширений подтверждена по оракулу: в 47 endpoints **нет** `POST /channels/{id}/messages`, `GET /guilds/{id}/messages/search`, `/typing`, `/invites/{code}`, `/channels/{id}/messages/search`; есть только `GET /channels/{id}/messages` (история). То есть 6 промаркированных пар не пересекаются с D-02, а `GET /channels/{id}/messages` корректно остаётся `false` (проверяется отдельным assert).
-- Провенанс guild-поиска «сырой `capture-run2.jsonl`» не выдуман: в `/home/sanya/re-deep/capture-run2.jsonl` 22 вхождения `/guilds/<id>/messages/search?...` с параметрами `content/sort_by/sort_order/search_session_id/search_query_id/offset` — ровно тот набор, что в `MESSAGES_SEARCH_QUERY_PARAMS`.
+- Провенанс guild-поиска «сырой `capture-run2.jsonl`» не выдуман: в `reference-oracle/capture-run2.jsonl` 22 вхождения `/guilds/<id>/messages/search?...` с параметрами `content/sort_by/sort_order/search_session_id/search_query_id/offset` — ровно тот набор, что в `MESSAGES_SEARCH_QUERY_PARAMS`.
 
 `docs/re/rest-d02.json` в этом PR не менялся (md5 копии тот же, что и до задачи) — BE-P3-09 закрыт именно тестом-стражем, а не правкой оракула.
 

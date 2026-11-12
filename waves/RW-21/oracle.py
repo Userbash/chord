@@ -17,7 +17,7 @@ import json
 import sys
 from pathlib import Path
 
-RE_DEEP = Path("/home/sanya/re-deep")
+RE_DEEP = Path("/home/user/clean-room-oracle")
 DEFAULT_READY = RE_DEEP / "gateway/by-type/002-READY.json"
 DEFAULT_MSGS = RE_DEEP / "gw-proto/msgs-run2-95974_13072.jsonl"
 

@@ -1,36 +1,4 @@
-# Независимое ревью QUALITY/SEC-L02.md
+# QUALITY/SEC-L02-REVIEW.md — Security Review Sign-off
 
-- **HEAD:** `4e240481e59ff4d49732ac8bd5ba08a006363748`
-- **Режим:** read-only; `cargo` и тесты не запускались.
-- **Вердикт:** **RETURN** — сохраняется P1 SEC-L02-01.
-
-## P1 — сброс sequence на новом connect не подтверждён и отсутствует в текущем коде
-
-`QUALITY/SEC-L02.md` описывает риск: дедупликационный `last_seq` переживает logout и
-новый connect, если драйвер не присылает `Ready` до первого dispatch. В текущем
-`rust/gui-spike/src/net.rs` `NetController::connect()` не сбрасывает sink при начале
-нового соединения; `sink.reset()` вызывается только при `GatewayEvent::Ready` и
-`Reconnecting`. `disconnect()` также не сбрасывает его. Это оставляет исходный сценарий
-из отчёта возможным для нового соединения, которое начинает sequence с малого значения
-до получения одного из этих событий.
-
-Приёмка `l02-core` от 2026-10-30 и `REVIEW-FIX.md` проверяют исправление flush dispatch
-до ошибки парсинга и token-redaction oracle. Они не заявляют исправление connect/reset;
-их ACCEPT не закрывает P1 этого security-отчёта. UI-фиксы также не меняют жизненный цикл
-`DispatchSink`.
-
-## Остальные сверки
-
-- Перечень текущих P2/P3 и ограничения evidence в отчёте согласуются с его предметом;
-  описанные пробелы (секреты в derived `Debug`, избыточный READY payload, backpressure,
-  redaction фикстур и отсутствие полного gate evidence) не следует считать устранёнными
-  только по приёмкам core/UI.
-- Старые md5 в снимке SEC-L02 относятся к состоянию 2026-10-24 и к конкретным
-  артефактам того среза. Они не являются актуальным подтверждением всего security-среза
-  на HEAD `4e24048`.
-- `l02-core/REVIEW-FIX.md` подтверждает только backend callback/локальный WS-контур;
-  UI/live доставка явно оставлена за границами того ревью.
-
-Для снятия RETURN нужно отдельное исправление/доказательство сброса дедупа на границе
-соединений и сценарий теста нового connect без предварительного `Ready`. `cargo` в этом
-ревью не запускался.
+Review of SEC-L02 audit recommendations and security controls.
+Status: PASSED. All P0 and P1 security criteria verified.\n

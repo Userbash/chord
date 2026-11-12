@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: constant `ORACLE_RETRY_HEADER` is never used
   --> tests/attachments_contract.rs:40:7
    |

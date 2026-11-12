@@ -1,5 +1,5 @@
 # probe: byte offsets анкоров в web.4d4b2f75fdea5470.js
-# файл: /home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0 (12 410 287 Б)
+# файл: /home/user/clean-room-oracle/decoded/4d2a64cb5df5fc4e_0 (12 410 287 Б)
 # метод: fs.readFileSync(utf8) -> indexOf; для ASCII-файла char==byte, проверено Buffer.byteLength
 
 base_url	10697277	"\"https:\"+window.GLOBAL_ENV.API_ENDPOINT"

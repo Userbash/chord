@@ -8,7 +8,7 @@
 
 ## Оракул
 
-`/home/sanya/re-deep/rest-static.json`, endpoint `USER_PROFILE`:
+`reference-oracle/rest-static.json`, endpoint `USER_PROFILE`:
 `method: "GET"`, `path: "/users/{arg}/profile"`, `rest: true`, `callSiteCount: 3`,
 `confirmed: false`. Живой захват (`cacheEvidence.example`, 9 вызовов, последний
 `18 Oct 2026 18:42:23`):
@@ -74,9 +74,9 @@ https://discord.com/api/v9/users/1168176063113875531/profile?type=popout&with_mu
 ## Команды
 
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test profile_contract --lib
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test profile_contract --lib -- -D warnings
 rustfmt --edition 2021 --check \
   rust/gui-spike/src/profile.rs rust/gui-spike/tests/profile_contract.rs

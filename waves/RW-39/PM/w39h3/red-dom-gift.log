@@ -15,9 +15,9 @@
 test at tests/unit/gui-spike-dom.test.mjs:250:3
 ✖ подарок в композере: disabled-affordance в index.html и в шиме (P1 REVIEW-W39h) (20.344431ms)
   AssertionError [ERR_ASSERTION]: подарок не disabled-affordance (Phase 3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:255:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:251:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:255:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:251:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 2)
       at async Suite.run (node:internal/test_runner/test:1905:7)

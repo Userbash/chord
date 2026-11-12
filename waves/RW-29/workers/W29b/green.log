@@ -1,4 +1,4 @@
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
      Running tests/media_contract.rs (/tmp/opencode/target-w29b/debug/deps/media_contract-752b5da35a0dbccf)
 

@@ -11,7 +11,7 @@
   `{ZstdError, ZstdStream}`, обновить строку статуса (ныне строки 9–10).
 - `rust/crates/discord-codec/tests/zstd_stream.rs` — новый тест-файл.
 - `rust/crates/discord-codec/tests/data/synth-zstd-frame.hexl` — новая строка тест-данных (hex;
-  скопировать из `/home/sanya/re-deep/gw-proto/synth-zstd-frame.hexl`, сверить md5
+  скопировать из `reference-oracle/gw-proto/synth-zstd-frame.hexl`, сверить md5
   `0a7742ae83a58088f3f80a16be77ad83`).
 
 **Запрещено**: любые другие файлы (другие крейты, `tests/etf_*.rs`, `Cargo.toml`/`Cargo.lock` —
@@ -86,7 +86,7 @@ impl std::error::Error for ZstdError;
 7. `trailing_bytes_after_finished_frame` — push кадра → `Ok`; `push(&[0])` →
    `Err(TrailingData { bytes: 1 })`.
 8. `lab_stream_1389_matches_oracle` (skip-aware) — файл
-   `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/zstd-frames-95974_1389.hexl`; нет файла →
+   `{RE_LAB_ROOT:-reference-oracle/}/gw-proto/zstd-frames-95974_1389.hexl`; нет файла →
    `eprintln!("skip: …")` + return (не падать). Подать все 137 кадров; проверить: строк 137;
    кадр 0 с магией, среди 136 остальных — 0; `out.len() == 759_280`;
    `compressed_consumed() == 104_066`; `!is_finished()`; `out[..138]` == HELLO-hex (ниже);
@@ -100,12 +100,12 @@ impl std::error::Error for ZstdError;
 
 **Оракул/провенанс**:
 - `zstd-frames-95974_1389.hexl` — снимок из `capture-run2.jsonl` скриптом
-  `/home/sanya/re-deep/gw-extract-frames.mjs`; md5 `9199431aabbb31f0b85145373908826a`;
+  `reference-oracle/gw-extract-frames.mjs`; md5 `9199431aabbb31f0b85145373908826a`;
   сжато 104 066 Б.
 - Распаковано 824 816 Б = Σ`bytes` (`gw-proto/msgs-run2-95974_1389.jsonl`) 824 679 + 137 фрейм-байт
   `0x83`; совпало с Node `createZstdDecompress` (независимый оракул).
 - 44 терма / граница 758 576 / остаток 704 — из того же msgs (границы термов).
-- Синтетика — `/home/sanya/re-deep/gw-make-synth-zstd.mjs` (Node `zstdCompressSync`, payload без
+- Синтетика — `reference-oracle/gw-make-synth-zstd.mjs` (Node `zstdCompressSync`, payload без
   данных Discord); кадр 67 Б, payload 139 264 Б, md5 payload `4dbd601d877520056a7bcc3ca534ad4a`.
 - `zstd-frames-95974_8158.hexl` — 1 кадр (74 Б) из `capture-run2.jsonl`: первое сообщение
   захвачено не с начала потока (референс Node: «Unknown frame descriptor»).

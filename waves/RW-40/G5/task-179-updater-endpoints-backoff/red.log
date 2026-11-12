@@ -3,7 +3,7 @@
     Blocking waiting for file lock on build directory
    Compiling typenum v1.20.1
    Compiling libc v0.2.191
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-json)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-json)
    Compiling ring v0.17.14
    Compiling generic-array v0.14.7
    Compiling crypto-common v0.1.7
@@ -11,7 +11,7 @@
    Compiling digest v0.10.7
    Compiling getrandom v0.2.17
    Compiling sha2 v0.10.9
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
+   Compiling discord-updater v0.1.0 (/home/user/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
 error: struct literals are not allowed here
     --> crates/discord-updater/tests/updater_contract.rs:1160:11
      |

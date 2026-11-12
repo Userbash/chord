@@ -178,9 +178,9 @@ e6157cf5a5fb0f63df350277b07e5613  waves/RW-30/run-mutations-w30b.py
 ## 9. Замечания по инфраструктуре
 
 - В ходе работы tmpfs `/tmp` упирался в квоту (`EDQUOT`): промежуточные сборки шли в
-  `/home/sanya/.cache/target-w30b`, финальные red/green/мутации — на предписанном
+  `/home/user/.cache/target-w30b`, финальные red/green/мутации — на предписанном
   `CARGO_TARGET_DIR=/tmp/opencode/target-w30b` (после освобождения места). На результат это не
-  влияет; каталог `/home/sanya/.cache/target-w30b` можно удалить.
+  влияет; каталог `/home/user/.cache/target-w30b` можно удалить.
 - `gen-golden.py` требует GLib ≥ 2.80 (`Gio.DBusMessage.to_blob()`); `mock_service.py` требует
   `python3-dbus` + `gi`. Оба инструмента skip-aware по окружению; фикстуры закоммичены, тесты
   от их регенерации не зависят (кроме пересчёта hex).

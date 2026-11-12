@@ -1,7 +1,7 @@
 // Независимая симуляция семантики ТЗ RW-03 на реальном таймлайне (проверка ожиданий тестов).
 import fs from 'node:fs';
 
-const path = '/home/sanya/re-deep/gw-proto/timeline-95974_1389.tsv';
+const path = '/home/user/clean-room-oracle/gw-proto/timeline-95974_1389.tsv';
 const rows = fs
   .readFileSync(path, 'utf8')
   .split('\n')

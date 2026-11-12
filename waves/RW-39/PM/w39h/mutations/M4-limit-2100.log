@@ -21,9 +21,9 @@ test at tests/unit/gui-spike-features.test.mjs:543:3
   - '1800/2000'
            ^
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:563:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:544:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:563:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:544:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

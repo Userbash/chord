@@ -1,6 +1,6 @@
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved import `discord_gui_spike::dm_friends`
   --> tests/dm_friends_contract.rs:17:24
    |

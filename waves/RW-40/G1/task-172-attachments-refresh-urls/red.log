@@ -1,5 +1,5 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/crates/discord-core)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-172-attachments-refresh-urls/rust/gui-spike)
 error[E0432]: unresolved imports `discord_gui_spike::attachments::refresh_attachment_urls`, `discord_gui_spike::attachments::RefreshedAttachmentUrl`, `discord_gui_spike::attachments::MAX_REFRESH_URLS_PER_REQUEST`, `discord_gui_spike::attachments::REFRESH_ATTACHMENT_URLS_PATH`
   --> tests/attachments_contract.rs:20:32
    |

@@ -1,7 +1,7 @@
 # B2a-ATTACH-TIER-FIX-PASS2 — отчёт воркера (pass 3, закрытие P1 из REVIEW-PASS2.md)
 
 - **batch/карточка:** RW-40 / Wave 7 / `B2a-ATTACH-TIER-FIX-PASS2`, отдел G1 Rust Backend.
-- **основание:** `waves/RW-40/PM/b2a-attach/REVIEW-PASS2.md` (P1 — по независимому оракулу `waves/RW-40/RE-DEEP-REA.md:122-125` формула лимита файла равна `Math.max(0x1400000, tierLimit)`, то есть базовый пол для `None` и `Tier1` равен 20 MiB (`0x1400000` = `20 * 1024 * 1024` = `20_971_520` байт), для `Tier2` — 50 MiB (`0x3200000` = `52_428_800` байт), для `Tier3` — 100 MiB (`0x6400000` = `104_857_600` байт)).
+- **основание:** `waves/RW-40/PM/b2a-attach/REVIEW-PASS2.md` (P1 — по независимому оракулу `waves/RW-40/reference-oracle-REA.md:122-125` формула лимита файла равна `Math.max(0x1400000, tierLimit)`, то есть базовый пол для `None` и `Tier1` равен 20 MiB (`0x1400000` = `20 * 1024 * 1024` = `20_971_520` байт), для `Tier2` — 50 MiB (`0x3200000` = `52_428_800` байт), для `Tier3` — 100 MiB (`0x6400000` = `104_857_600` байт)).
 - **сделано:**
   1. В `rust/gui-spike/tests/attachments_contract.rs` обновлены контрактные тесты `oracle_constants_match_re`, `guild_boost_tier_limits_match_re_oracle` и `enforces_exact_upload_size_boundaries_for_each_guild_boost_tier` на базовый лимит 20 MiB (`0x140_0000` = `20_971_520`) для `MAX_UPLOAD_FILE_BYTES`, `GuildBoostTier::None` и `GuildBoostTier::Tier1`, а также добавлена явная проверка прохождения файлов в диапазоне `(10 MiB + 1 ..= 20 MiB)` (`10_485_761`, `15_728_640`, `20_971_520` байт) и отсечения `20 MiB + 1` (`20_971_521` байт) до обращения к сети.
   2. Зафиксирован RED-прогон до изменения реализации в `waves/RW-40/PM/b2a-attach/red-pass3.log` (`14 passed; 3 failed`, `EXIT_CODE=101`).
@@ -12,9 +12,9 @@
 
 | Элемент | Контракт (RE) |
 |---|---|
-| `MAX_UPLOAD_FILE_BYTES = 20 * 1024 * 1024` (`0x1400000` = `20_971_520`) | `RE-DEEP-REA.md:122-123` (`Math.max(0x1400000, tierLimit)` для `NONE` / `TIER_1`) |
-| `MAX_UPLOAD_FILE_BYTES_TIER2 = 50 * 1024 * 1024` (`0x3200000` = `52_428_800`) | `RE-DEEP-REA.md:124` (`TIER_2` = `0x3200000`) |
-| `MAX_UPLOAD_FILE_BYTES_TIER3 = 100 * 1024 * 1024` (`0x6400000` = `104_857_600`) | `RE-DEEP-REA.md:125` (`TIER_3` = `0x6400000`) |
+| `MAX_UPLOAD_FILE_BYTES = 20 * 1024 * 1024` (`0x1400000` = `20_971_520`) | `reference-oracle-REA.md:122-123` (`Math.max(0x1400000, tierLimit)` для `NONE` / `TIER_1`) |
+| `MAX_UPLOAD_FILE_BYTES_TIER2 = 50 * 1024 * 1024` (`0x3200000` = `52_428_800`) | `reference-oracle-REA.md:124` (`TIER_2` = `0x3200000`) |
+| `MAX_UPLOAD_FILE_BYTES_TIER3 = 100 * 1024 * 1024` (`0x6400000` = `104_857_600`) | `reference-oracle-REA.md:125` (`TIER_3` = `0x6400000`) |
 | `GuildBoostTier::{None, Tier1, Tier2, Tier3}::max_upload_bytes()` | `None`/`Tier1` → 20 MiB (`20_971_520`), `Tier2` → 50 MiB (`52_428_800`), `Tier3` → 100 MiB (`104_857_600`) |
 
 ## red
@@ -54,7 +54,7 @@ CARGO_TARGET_DIR=/tmp/target-g1-b2a2 cargo clippy --offline -p discord-gui-spike
 
 ## oracle
 
-- `waves/RW-40/RE-DEEP-REA.md:122-125` (`[D] 4d2a64cb5df5fc4e_0@6011428`, `@314301`, `@6804500`, `@6805978`):
+- `waves/RW-40/reference-oracle-REA.md:122-125` (`[D] 4d2a64cb5df5fc4e_0@6011428`, `@314301`, `@6804500`, `@6805978`):
   - Базовый лимит на файл: `Math.max(0x1400000, tierLimit)` = не ниже **20 МиБ** (`0x1400000` = `20_971_520` байт);
   - Для `NONE` / `TIER_1` (`tierLimit = 0xa00000` = 10 МиБ): `max(0x1400000, 0xa00000) = 0x1400000` (20 МиБ);
   - Для `TIER_2`: `0x3200000` = 50 МиБ (`52_428_800` байт);

@@ -5,7 +5,7 @@
 Воркер: **G6 Parity**, отдел G6, карточка **G6-PARITY-SYNC-07**. Режим — **read-only по коду**.
 
 > **Путь.** Отчёт лежит в `waves/RW-40/PARITY/`, как MERGE-READINESS-05/06. Вход прохода:
-> `RE-DEEP-REA.md`, `VOICE/STREAM-GATEWAY-CONTRACT.md`, отчёты Wave 2
+> `reference-oracle-REA.md`, `VOICE/STREAM-GATEWAY-CONTRACT.md`, отчёты Wave 2
 > (`PM/b2a-attach`, `PM/m07-ui-badge`, `PM/g01b-ui`, `PM/stub14-search-ui`),
 > `PM/m07-be3/{ACCEPT,REVIEW-PASS2}.md`, `QUALITY/QA-M2-04-ACCEPT.md`,
 > `QUALITY/{SEC-L02,QA-M2-04-md5.txt}`, `MERGE-POLICY.md`, `TDD-PLAN.md §8`.
@@ -208,9 +208,9 @@ exit-код нечем, а новый тестовый файл от 16:36:22 в
 
 | Строка | Было | Стало | Основание |
 |---|---|---|---|
-| **AT-01** | `absent (кнопка disabled)`, gap «**blocked**: метод/поля/лимиты», conf 0.45 | `partial: backend слотов (B2a, на ревью)`; RE снят; gap — нет `PUT`/докачки 308/прогресса/UI, лимиты tier не параметризованы; conf 0.8 | `RE-DEEP-REA §1.1–1.8`, `ATTACH-RE §2`, `PM/b2a-attach/REPORT.md` |
-| **M-13** | `implemented (4/7 фильтров)`, gap «6 фильтров/лимиты не подтверждены» | `implemented (7/7 UI-фильтров)`; gap — backend `search.rs` читает 5 полей, фильтры применяются локально, нет `202`-ретрая/`include_nsfw`; conf 0.9 | `RE-DEEP-REA §2.1–2.4`, `PM/stub14-search-ui/REPORT.md`, `src/search.rs` |
-| **S-02** | `STREAM [A]`, gap «нет capture/сигнализации», conf 0.45 | статус `absent`, но RE-STUB-27 подтверждён и контракт шлюза заморожен (op 18…22, поля, `stream_key`, 6 фаз); живых событий 0; conf 0.75 | `RE-DEEP-REA §6`, `VOICE/STREAM-GATEWAY-CONTRACT.md` |
+| **AT-01** | `absent (кнопка disabled)`, gap «**blocked**: метод/поля/лимиты», conf 0.45 | `partial: backend слотов (B2a, на ревью)`; RE снят; gap — нет `PUT`/докачки 308/прогресса/UI, лимиты tier не параметризованы; conf 0.8 | `reference-oracle-REA §1.1–1.8`, `ATTACH-RE §2`, `PM/b2a-attach/REPORT.md` |
+| **M-13** | `implemented (4/7 фильтров)`, gap «6 фильтров/лимиты не подтверждены» | `implemented (7/7 UI-фильтров)`; gap — backend `search.rs` читает 5 полей, фильтры применяются локально, нет `202`-ретрая/`include_nsfw`; conf 0.9 | `reference-oracle-REA §2.1–2.4`, `PM/stub14-search-ui/REPORT.md`, `src/search.rs` |
+| **S-02** | `STREAM [A]`, gap «нет capture/сигнализации», conf 0.45 | статус `absent`, но RE-STUB-27 подтверждён и контракт шлюза заморожен (op 18…22, поля, `stream_key`, 6 фаз); живых событий 0; conf 0.75 | `reference-oracle-REA §6`, `VOICE/STREAM-GATEWAY-CONTRACT.md` |
 | **G-01** | gap «restore `lastGuildId` — G-01b», test `(8)` | restore реализован (G-01b-UI, на ревью), добавлен риск «`settings.js` теряет поле при `persist()`»; test `(11 = 8 + 3)` | `PM/g01b-ui/REPORT.md` §6.1 |
 | **C-07** | `implemented (B6)`, gap одна строка | `implemented (B6, live unverified)`; C-07-FIX: `data-guild-id`, legacy `data-guild` не читается; выбор не пишет `lastGuildId` | `PM/g01b-ui/REPORT.md` |
 | **M-07** | `read_state_contract.rs (12)`, `read-state-ui.test.mjs (8)`, conf 0.85 | 9 полей проекции, UI выводит `badgeCount`/`flags` канала; тесты `(15)` и `(13)`; conf 0.9 | `PM/m07-be3/ACCEPT.md`, `PM/m07-ui-badge/REPORT.md` |
@@ -297,7 +297,7 @@ upload-контракт» — расхождение с обновлённой �
 ## 9. Как перепроверить (read-only, ~1 мин)
 
 ```bash
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 git log --oneline -1 && git status --porcelain -uall | wc -l
 md5sum rust/gui-spike/ui/app.js rust/gui-spike/ui/features/chat.js \
        rust/gui-spike/src/attachments.rs rust/gui-spike/src/lib.rs \

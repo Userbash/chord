@@ -1,7 +1,7 @@
 # REPORT — task-293 (`G1 Backend L1 / P1`, `BE-INT-16`): регистрация `invoke_bff_domain` в `rust/gui-spike/src/main.rs`
 
 - **Карточка:** `task-293` / `BE-INT-16` — единый Tauri IPC-роутер BFF `#[tauri::command] fn invoke_bff_domain`.
-- **Ветка / дерево:** `feature/task-293-be-bff-ipc-wiring`, `/home/sanya/orca/workspaces/project/feature-task-293-be-bff-ipc-wiring`, база `unstable` = `648ba83`.
+- **Ветка / дерево:** `feature/task-293-be-bff-ipc-wiring`, `/home/user/orca/workspaces/project/feature-task-293-be-bff-ipc-wiring`, база `unstable` = `648ba83`.
 - **Статус:** green, готово к приёмке. `git commit/push` не выполнялись.
 
 ## Изменённый файл (ровно один)
@@ -20,7 +20,7 @@
 Тест добавлен первым, до реализации. Прогон:
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline \
   --manifest-path rust/gui-spike/Cargo.toml --bin discord-gui-spike \
   wiring_tests::invoke_handler_registers_invoke_bff_domain_for_seven_domains
 ```
@@ -39,7 +39,7 @@ exit=101
 ### Green (`green.log`)
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline \
   --manifest-path rust/gui-spike/Cargo.toml --bin discord-gui-spike
 test result: ok. 13 passed; 0 failed; 0 ignored
 ```
@@ -92,4 +92,4 @@ fn invoke_bff_domain(
 ## Риски
 
 - `BffResolvedAction.body` — `serde_json::Value`, поэтому «нет тела» выражается `null`, а не `None`. Когда появится домен-чтение (`GET`, без тела), контракт `BffResolvedAction` придётся менять на `Option<Value>` — это отдельная карточка в `bff_domains_router`, не в `main.rs`.
-- Shared `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`: прогоны делались последовательно, без параллельного `cargo`; lock-дрейф базы (см. выше) следующий прогон снова перезапишет.
+- Shared `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`: прогоны делались последовательно, без параллельного `cargo`; lock-дрейф базы (см. выше) следующий прогон снова перезапишет.

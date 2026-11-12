@@ -1,5 +1,5 @@
 --- md5 after restore ---
-211448f7051afcf5af78a7411b9c94dc  /home/sanya/orca/project/rust/crates/discord-core/src/resume.rs
-b822d6a6790f11a306a442c6a58c975c  /home/sanya/orca/project/rust/crates/discord-core/src/ws.rs
-17f2f3102c3c1b9fcedcb3cc9e1f3cc6  /home/sanya/orca/project/rust/crates/discord-core/src/identify.rs
-c7c984890895eaca1214ac3705b34019  /home/sanya/orca/project/rust/crates/discord-core/src/ready.rs
+211448f7051afcf5af78a7411b9c94dc  /home/user/orca/project/rust/crates/discord-core/src/resume.rs
+b822d6a6790f11a306a442c6a58c975c  /home/user/orca/project/rust/crates/discord-core/src/ws.rs
+17f2f3102c3c1b9fcedcb3cc9e1f3cc6  /home/user/orca/project/rust/crates/discord-core/src/identify.rs
+c7c984890895eaca1214ac3705b34019  /home/user/orca/project/rust/crates/discord-core/src/ready.rs

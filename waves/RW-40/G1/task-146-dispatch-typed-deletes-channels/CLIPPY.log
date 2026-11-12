@@ -1,5 +1,5 @@
-    Checking discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-json)
-    Checking discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-codec)
-    Checking discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-core)
+    Checking discord-json v0.1.0 (/home/user/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-json)
+    Checking discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-codec)
+    Checking discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels/rust/crates/discord-core)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.36s
 EXIT=0

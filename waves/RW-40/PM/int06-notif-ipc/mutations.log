@@ -5,7 +5,7 @@ Baseline MD5: ae573539a9b8a8cc6e355c3975edaff0
 [MUT-1] Удаление регистрации update_guild_notification_settings из tauri::generate_handler![...]
 Mutant MD5: 9f0ceede9031e92ed53ff1529581f5f2
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: function `update_guild_notification_settings` is never used
    --> src/main.rs:863:10
     |
@@ -54,7 +54,7 @@ Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
 [MUT-2] Удаление регистрации update_channel_notification_override из tauri::generate_handler![...]
 Mutant MD5: 97d70510e94493b12a6abbe193ba9cee
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: enum `ChannelOverrideInput` is never used
    --> src/main.rs:828:6
     |
@@ -120,7 +120,7 @@ Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
 [MUT-3] Удаление вызова token_or в update_guild_notification_settings
 Mutant MD5: ecd31872d3c561ed60e6f7614264731e
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.55s
      Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 
@@ -174,7 +174,7 @@ Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
 [MUT-4] Подмена делегата discord_gui_spike::update_guild_notification_settings в update_guild_notification_settings
 Mutant MD5: 98def869a74a2f6eebff8f1e38c2afc5
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.73s
      Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 
@@ -230,7 +230,7 @@ Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
 [MUT-5] Подмена делегата discord_gui_spike::update_channel_notification_override в update_channel_notification_override
 Mutant MD5: 59fe38656d478068f18a0c4c5a2c7cd7
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.94s
      Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 
@@ -303,7 +303,7 @@ Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (match=True)
 Summary: 5/5 KILLED, 0 survived
 Final Restored MD5: ae573539a9b8a8cc6e355c3975edaff0 (baseline=ae573539a9b8a8cc6e355c3975edaff0, match=True)
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.94s
      Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 

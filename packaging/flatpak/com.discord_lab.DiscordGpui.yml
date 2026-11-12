@@ -1,6 +1,6 @@
 # Манифест Flatpak для нативного клиента Discord GPUI (TASK-962)
-# Оракул RE: /home/sanya/re-deep/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, ScreenCast)
-# Оракул RE: /home/sanya/re-deep/main-arch.md (@143136, FLATPAK_ID runtime environment)
+# Оракул RE: /home/user/clean-room-oracle/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, ScreenCast)
+# Оракул RE: /home/user/clean-room-oracle/main-arch.md (@143136, FLATPAK_ID runtime environment)
 # Оракул Keyring: rust/crates/discord-platform/src/keyring.rs (org.freedesktop.secrets / Secret portal)
 app-id: com.discord_lab.DiscordGpui
 runtime: org.freedesktop.Platform

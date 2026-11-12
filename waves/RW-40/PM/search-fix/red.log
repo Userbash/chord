@@ -19,7 +19,7 @@ test at tests/unit/search-remote-real-index.test.mjs:129:3
   
   0 !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:160:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/search-remote-real-index.test.mjs:160:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -38,7 +38,7 @@ test at tests/unit/search-remote-real-index.test.mjs:171:3
   
   0 !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:184:16)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/search-remote-real-index.test.mjs:184:16)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

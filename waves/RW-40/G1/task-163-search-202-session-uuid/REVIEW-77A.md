@@ -43,19 +43,19 @@
 
 ### 3.1. Контрактные тесты (`search_contract.rs`)
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test search_contract
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test search_contract
 ```
 - **Результат:** 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s.
 
 ### 3.2. Unit-тесты библиотеки (`src/search.rs`)
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --lib search
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --lib search
 ```
 - **Результат:** 4 passed; 0 failed; 0 ignored; 0 measured; finished in 0.00s.
 
 ### 3.3. Clippy
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test search_contract -- -D warnings
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test search_contract -- -D warnings
 ```
 - **Результат:** 0 warnings, exit code 0.
 
@@ -79,7 +79,7 @@ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-pa
 
 ## 5. Итоговое заключение
 
-- Код полностью соответствует спецификации `SEARCH-202-NSFW-SPEC.md` и оракулам `re-deep`.
+- Код полностью соответствует спецификации `SEARCH-202-NSFW-SPEC.md` и оракулам `reference-oracle`.
 - Все 34 теста (30 контрактных + 4 unit) зелёные.
 - Clippy проходит без замечаний.
 - Мутационный тест 5/5 пройден.

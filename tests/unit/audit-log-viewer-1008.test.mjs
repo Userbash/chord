@@ -502,7 +502,7 @@ describe("TASK-1008: Журнал аудита сервера (Server Audit Log 
     // 3. Нормализация сырой записи ответа GET /guilds/{id}/audit-logs с сопоставлением users[], channels[], roles[]
     const context = {
       users: new Map([
-        ["479659568322969611", { id: "479659568322969611", username: "sanya_admin", globalName: "Саня Админ" }],
+        ["479659568322969611", { id: "479659568322969611", username: "admin_user", globalName: "Админ" }],
         ["606781270382346250", { id: "606781270382346250", username: "bob_user", globalName: "Боб" }],
       ]),
       channels: new Map([
@@ -526,11 +526,11 @@ describe("TASK-1008: Журнал аудита сервера (Server Audit Log 
       },
       context,
     );
-    assert.equal(normalized.actorName, "Саня Админ");
+    assert.equal(normalized.actorName, "Админ");
     assert.equal(normalized.targetName, "Боб");
     assert.equal(
       normalized.summaryRu,
-      "Саня Админ: Бан участника (Боб) — Причина: Флуд в канале",
+      "Админ: Бан участника (Боб) — Причина: Флуд в канале",
     );
     assert.equal(normalized.changes.length, 1);
     assert.equal(normalized.changes[0]?.formattedRu, "nick: BobOld → BobBanned");

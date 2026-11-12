@@ -1,6 +1,6 @@
 # TEST-MATRIX P2-11 — typing TTL
 
-Оракулы: 28 `TYPING_START` из `/home/sanya/re-deep/gw-proto/msgs-*.jsonl`, счётчики
+Оракулы: 28 `TYPING_START` из `reference-oracle/gw-proto/msgs-*.jsonl`, счётчики
 `RESEARCH-P2-11.md` §1–§2; fixture `tests/data/typing-run2.jsonl` — 28 минимизированных
 строк (копия `waves/RW-20/tests-data/typing-run2.jsonl`, создана из capture). TTL —
 `10_000` мс (28/28; `TypingStore` bundle).

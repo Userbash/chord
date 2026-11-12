@@ -4,11 +4,11 @@
       Adding zstd v0.14.3
       Adding zstd-safe v8.2.0
       Adding zstd-sys v2.1.2+zstd.1.5.7
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-228-be-invites-contract/rust/crates/discord-codec)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-228-be-invites-contract/rust/gui-spike)
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-228-be-invites-contract/rust/crates/discord-json)
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-228-be-invites-contract/rust/crates/discord-platform)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-228-be-invites-contract/rust/crates/discord-core)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-228-be-invites-contract/rust/crates/discord-codec)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-228-be-invites-contract/rust/gui-spike)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/feature-task-228-be-invites-contract/rust/crates/discord-json)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/feature-task-228-be-invites-contract/rust/crates/discord-platform)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-228-be-invites-contract/rust/crates/discord-core)
 error[E0432]: unresolved imports `discord_gui_spike::invites::build_create_channel_invite_route_and_body`, `discord_gui_spike::invites::build_invite_resolve_route`, `discord_gui_spike::invites::validate_invite_code`, `discord_gui_spike::invites::CreateChannelInviteRequest`, `discord_gui_spike::invites::ALLOWED_INVITE_MAX_AGES`, `discord_gui_spike::invites::ALLOWED_INVITE_MAX_USES`
     --> tests/invites_contract.rs:1261:5
      |

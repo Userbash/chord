@@ -4,7 +4,7 @@
 - **Отдел:** `g4_qa`
 - **Статус верификации:** **SOAK TEST PASSED (ГОТОВ К BETA)**
 - **Дата формирования:** `2026-11-11T10:53:43.503Z`
-- **Проверяемый бинарник:** `/home/sanya/orca/project/rust/dist/discord-gpui`
+- **Проверяемый бинарник:** `/home/user/orca/project/rust/dist/discord-gpui`
 
 ---
 

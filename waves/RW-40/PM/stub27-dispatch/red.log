@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error[E0432]: unresolved imports `discord_core::dispatch::RoutedStreamDispatch`, `discord_core::dispatch::StreamDispatchKind`, `discord_core::dispatch::route_stream_dispatch`, `discord_core::dispatch::route_stream_dispatch_with_diagnostics`
   --> crates/discord-core/tests/dispatch_types.rs:20:19
    |

@@ -52,4 +52,4 @@ node --test tests/unit/reactions.test.mjs tests/unit/reactions-picker.test.mjs
 npm run typecheck
 npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit
 ```
-Запиши краткий отчёт в `/home/sanya/orca/project/waves/RW-40/G2/task-298-fe-reactions-invoke-alias-fix/REPORT.md`. Не делай git merge в `unstable`.
+Запиши краткий отчёт в `/home/user/orca/project/waves/RW-40/G2/task-298-fe-reactions-invoke-alias-fix/REPORT.md`. Не делай git merge в `unstable`.

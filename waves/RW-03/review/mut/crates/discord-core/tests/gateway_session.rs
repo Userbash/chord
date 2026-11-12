@@ -6,7 +6,7 @@
 //!   `95974.1389`); ведущий `0x83` — маркер варианта провода, `etf::decode` его пропускает.
 //! - Таймлайн `{RE_LAB_ROOT}/gw-proto/timeline-95974_1389.tsv` (md5 `23f38750227ae79166748323199054d7`):
 //!   137 событий; источники — `capture-run2.jsonl` (ts) и `gw-proto/msgs-run2-95974_1389.jsonl`
-//!   (op/s/t); генератор `/home/sanya/re-deep/gw-make-timeline.mjs`.
+//!   (op/s/t); генератор `/home/user/clean-room-oracle/gw-make-timeline.mjs`.
 //! - Симуляция координатора той же семантики: для всех 41 250 сидов зомби не срабатывает
 //!   ни разу, число ударов 11–12 (сид 1214 → 12).
 //!
@@ -69,10 +69,10 @@ fn op_value(code: i64) -> EtfValue {
     map(vec![("op", EtfValue::Int(code))])
 }
 
-/// Lab-корень: `RE_LAB_ROOT` или `/home/sanya/re-deep` (как в тестах RW-02).
+/// Lab-корень: `RE_LAB_ROOT` или `/home/user/clean-room-oracle` (как в тестах RW-02).
 fn lab_root() -> PathBuf {
     PathBuf::from(
-        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
     )
 }
 

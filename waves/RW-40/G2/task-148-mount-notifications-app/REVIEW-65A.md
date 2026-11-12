@@ -4,7 +4,7 @@
 - **Компонент**: `rust/gui-spike/ui/app.js` (монтирование `createNotificationsController`), `rust/gui-spike/ui/index.html`, `tests/support/gui-dom-harness.mjs`
 - **Ревьюер**: `term_29d48c1c-0fe9-478d-a56f-b99127b084ad` (Technical Reviewer 65A)
 - **Воркер**: `term_746391ae-6bbf-4ce0-82ea-75e9fc260cb2`
-- **Отчёт воркера**: `/home/sanya/orca/project/waves/RW-40/G2/task-148-mount-notifications-app/REPORT.md`
+- **Отчёт воркера**: `/home/user/orca/project/waves/RW-40/G2/task-148-mount-notifications-app/REPORT.md`
 - **Вердикт**: **PASS / Ready for Merge** (Дефекты: P0=0, P1=0, P2=0, P3=0)
 
 ---

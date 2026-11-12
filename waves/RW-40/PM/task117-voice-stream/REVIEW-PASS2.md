@@ -8,8 +8,8 @@
 
 | Команда | Результат |
 |---|---|
-| `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline -p discord-voice --test session_contract` | `20 passed; 0 failed; 0 ignored`, exit 0 |
-| `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline -p discord-voice --all-targets -- -D warnings` | exit 0, предупреждений нет |
+| `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline -p discord-voice --test session_contract` | `20 passed; 0 failed; 0 ignored`, exit 0 |
+| `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline -p discord-voice --all-targets -- -D warnings` | exit 0, предупреждений нет |
 | `cargo test --offline -p discord-voice` (13 бинарников) | 6+16+5+13+10+10+10+16+20+11+22+12+15 = **166 passed**, 0 failed |
 | `rustfmt --edition 2021/2024 --check session.rs session_contract.rs` | exit 0 оба |
 | `grep -n "ignore\|\.only\|todo!\|unimplemented!\|skip"` по `session.rs` и `session_contract.rs` | пусто |

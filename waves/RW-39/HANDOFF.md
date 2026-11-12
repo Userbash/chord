@@ -8,7 +8,7 @@ backend (W39i). Все числа — из `DESIGN/tokens.css` / `layout.json` /
 
 | ID | Файл | Что смотреть | Куда идёт |
 |---|---|---|---|
-| R-01 | `/home/sanya/re-deep/ui/00-app.png` | главный экран: рейл, дерево, чат, участники; 20+ новых, composer | shell + chat |
+| R-01 | `reference-oracle/ui/00-app.png` | главный экран: рейл, дерево, чат, участники; 20+ новых, composer | shell + chat |
 | R-02 | `ui/00-app.png` | цвета поверхностей (точечные пробы) | tokens (уже снято) |
 | R-04 | `ui/00-app.png` | полоса «20+ новых сообщений» 32 px, `#5865f2` | unread divider |
 | R-06 | `ui/06-profile-popout.png` | попаут профиля 268.8×408, `#2c2d32` | profile popout |

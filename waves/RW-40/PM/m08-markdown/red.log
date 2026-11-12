@@ -72,8 +72,8 @@
 test at tests/unit/gui-spike-model.test.mjs:652:3
 ✖ parseMessageMarkdown: форматы становятся токенами, DOM не требуется (0.194121ms)
   Error: M-08: parseMessageMarkdown не реализован
-      at parseMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:19:9)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:654:7)
+      at parseMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:19:9)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:654:7)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -86,9 +86,9 @@ test at tests/unit/gui-spike-model.test.mjs:652:3
 test at tests/unit/gui-spike-model.test.mjs:672:3
 ✖ сырой HTML остаётся текстом: <script>, <img onerror> не создают узлов (0.098451ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:674:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:674:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -100,9 +100,9 @@ test at tests/unit/gui-spike-model.test.mjs:672:3
 test at tests/unit/gui-spike-model.test.mjs:684:3
 ✖ ссылки: http(s) получают rel=noopener noreferrer и target=_blank (0.067711ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:685:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:685:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -113,9 +113,9 @@ test at tests/unit/gui-spike-model.test.mjs:684:3
 test at tests/unit/gui-spike-model.test.mjs:700:3
 ✖ опасные схемы не становятся ссылкой (0.061111ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:711:25)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:711:25)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -126,9 +126,9 @@ test at tests/unit/gui-spike-model.test.mjs:700:3
 test at tests/unit/gui-spike-model.test.mjs:717:3
 ✖ код: markdown и упоминания внутри не парсятся (0.06584ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:719:20)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:719:20)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -139,9 +139,9 @@ test at tests/unit/gui-spike-model.test.mjs:717:3
 test at tests/unit/gui-spike-model.test.mjs:735:3
 ✖ спойлер: data-spoiler=hidden, клик/Enter/Space раскрывают (0.083491ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:736:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:736:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -152,9 +152,9 @@ test at tests/unit/gui-spike-model.test.mjs:735:3
 test at tests/unit/gui-spike-model.test.mjs:756:3
 ✖ цитата > quote → blockquote, остальной текст не съеден (0.054641ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:757:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:757:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -165,9 +165,9 @@ test at tests/unit/gui-spike-model.test.mjs:756:3
 test at tests/unit/gui-spike-model.test.mjs:763:3
 ✖ упоминания: пользователи, каналы, роли из context (0.08412ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:769:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:769:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -178,9 +178,9 @@ test at tests/unit/gui-spike-model.test.mjs:763:3
 test at tests/unit/gui-spike-model.test.mjs:790:3
 ✖ @everyone и @here — только целым словом (0.056471ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:791:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:791:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -191,9 +191,9 @@ test at tests/unit/gui-spike-model.test.mjs:790:3
 test at tests/unit/gui-spike-model.test.mjs:802:3
 ✖ неизвестные id → fallback, битые упоминания остаются текстом (0.0565ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:803:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:803:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -204,9 +204,9 @@ test at tests/unit/gui-spike-model.test.mjs:802:3
 test at tests/unit/gui-spike-model.test.mjs:813:3
 ✖ данные context не инжектят HTML (0.055601ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:814:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:814:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -217,9 +217,9 @@ test at tests/unit/gui-spike-model.test.mjs:813:3
 test at tests/unit/gui-spike-model.test.mjs:825:3
 ✖ жирный/курсив/зачёркнутый рендерятся элементами (0.03885ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:826:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:826:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -230,9 +230,9 @@ test at tests/unit/gui-spike-model.test.mjs:825:3
 test at tests/unit/gui-spike-model.test.mjs:832:3
 ✖ ссылка с форматированием: anchor содержит strong, href проверен (0.044221ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:833:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:833:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -243,9 +243,9 @@ test at tests/unit/gui-spike-model.test.mjs:832:3
 test at tests/unit/gui-spike-model.test.mjs:840:3
 ✖ пустой текст не создаёт узлов, нестроковый вход → TypeError (0.04108ms)
   Error: M-08: renderMessageMarkdown не реализован
-      at renderMessageMarkdown (file:///home/sanya/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
-      at renderMarkdown (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:841:23)
+      at renderMessageMarkdown (file:///home/user/orca/project/rust/gui-spike/ui/features/markdown.js:29:9)
+      at renderMarkdown (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:633:3)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:841:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

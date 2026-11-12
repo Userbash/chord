@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved imports `discord_gui_spike::guilds::leave_guild`, `discord_gui_spike::guilds::GuildLeaving`, `discord_gui_spike::guilds::LeaveGuildError`
   --> tests/guilds_contract.rs:18:30
    |

@@ -28,7 +28,7 @@ PROMPT="$(cat <<EOF
 Ты — независимый reference analyst / designer (CODEX-DESIGN) в репозитории $ROOT.
 Читай роль и правила: waves/RW-39/PM/CODEX-DESIGN.md.
 
-Источники (read-only): /home/sanya/re-deep (ui/, ui8/, ui/tokens.json, ui/log.json),
+Источники (read-only): /home/user/clean-room-oracle (ui/, ui8/, ui/tokens.json, ui/log.json),
 waves/RW-39/DESIGN/{ref-manifest.json,SPEC.md,SPEC-P3-02.md,REFERENCES.md,layout.json,tokens.css,DOM-CONTRACT.md}.
 
 ЗАДАЧА ($TASK): $FOCUS

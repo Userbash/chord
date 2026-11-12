@@ -3,7 +3,7 @@ import {
   evaluatePingQuality,
   formatPopoutMetricsRu,
   RTC_DEBUG_SECTIONS,
-} from '/home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js';
+} from '/home/user/orca/workspaces/project/feature-task-290-fe-voice-diagnostics/rust/gui-spike/ui/features/voice-diagnostics.js';
 
 const c = createVoiceDiagnosticsController();
 c.updateSnapshot({ privacyCodeChunks: ['abc', 'de'] });

@@ -86,7 +86,7 @@ notifications_contract --lib`, файл восстанавливался из б
    отсутствует, но `is_dm=false`), `discord://-/channels/{guild_id}/{channel_id}` для гильдий.
    Формат совпадает с каноническим парсером `deep_link.rs` (`/channels/@me/...`, `/channels/{g}/{c}`,
    контракт `deep_link_contract.rs` §100–124) и с наблюдаемым в RE-дампе маршрутом
-   `/home/sanya/re-deep/rest-d02.json:1810-1811` (`https://discord.com/channels/@me/<id>`).
+   `reference-oracle/rest-d02.json:1810-1811` (`https://discord.com/channels/@me/<id>`).
 4. **Обработка событий:** `Action`/`ActionInvoked` возвращают зарегистрированный URL без удаления
    (повторный клик по тому же уведомлению работает), `Closed`/`NotificationClosed` удаляют запись и
    возвращают `None`. Неизвестный id → `None` (`r09`).
@@ -147,7 +147,7 @@ rust/Cargo.toml -p discord-platform --check` → 13 diff-блоков: 2 в `not
 ## 6. Процессные риски (вне кода PR-59, требуют решения координатора)
 
 **6.1. Общий `CARGO_TARGET_DIR` даёт ложные red/green между рабочими деревьями.**
-Первый прогон ровно команды из ТЗ с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target` упал:
+Первый прогон ровно команды из ТЗ с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target` упал:
 
 ```
 error[E0432]: unresolved imports `discord_platform::notifications::Event`,

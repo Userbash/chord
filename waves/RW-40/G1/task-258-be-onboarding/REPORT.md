@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-258` (`BE-P1-30` / `onboarding`) — BFF-контракт онбординга и экрана приветствия гильдии (`ONBOARDING_MODE_DEFAULT`, `ONBOARDING_MODE_ADVANCED`, `MAX_WELCOME_DESCRIPTION_CHARS`, `MAX_WELCOME_CHANNELS`, `MAX_WELCOME_CHANNEL_DESC_CHARS`, `WelcomeScreenChannelEntry`, `UpdateWelcomeScreenRequest`, `validate_welcome_screen_request`, `build_guild_welcome_screen_route`, `build_guild_onboarding_route`).
-- **Ветка / worktree**: `feature/task-258-be-onboarding`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-258-be-onboarding`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/onboarding.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/onboarding_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-258-be-onboarding/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-258-be-onboarding/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`:
+Сверено с `reference-oracle/rest-static.json`:
 
 - `GUILD_ONBOARDING` (`rest-static.json:1001-1015`): `GET|PUT /guilds/{arg}/onboarding` (`https://discord.com/api/v9/guilds/{guild_id}/onboarding`).
 - `GUILD_WELCOME_SCREEN` (`rest-static.json:1542-1558`): `GET|PATCH /guilds/{arg}/welcome-screen` (`https://discord.com/api/v9/guilds/{guild_id}/welcome-screen`).
@@ -40,7 +40,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-258-be-onboarding/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-258-be-onboarding/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::onboarding`
@@ -55,7 +55,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-258-be-onboarding/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-258-be-onboarding/green.log`:
 
 ```text
 running 5 tests

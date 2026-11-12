@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,21 +11,21 @@ reasoning summaries: none
 session id: 01a164b3-0baf-71a3-8c8c-0adefd3eb8b1
 --------
 user
-Повторное независимое ревью RW-30/P7-01d DurationFormat с возможностью писать ТОЛЬКО в /tmp/opencode (репозиторий не изменять!). Правила: (1) не редактируй файлы в /home/sanya/orca/project, (2) все копии/цели/cargo — в /tmp/opencode/**, CARGO_TARGET_DIR=/tmp/opencode/target-codex-w30a, (3) без сети и git commit. Проверь: waves/RW-30/TZ-W30a.md; src/duration.rs, duration_data.rs; tests/duration_contract.rs; tests/data/duration-oracle.json; waves/RW-30/gen-duration-data.mjs; workers/W30a/{red.log,green.log}; run-mutations-w30a.py; REPORT-W30a.md. Воспроизведи мутационный прогон в копии workspace в /tmp/opencode (подмени ROOT/TARGET на копию) и подтверди 8/8 + restore по md5; прогони targeted cargo-тесты в копии. Независимо сверь оракул с Node 24 Intl.DurationFormat (>=100 кейсов, все 8 единиц, ru/de/ja/zh, выключенная ar), проверь инварианты, red-first (EXIT=101), md5 теста, отсутствие unsafe/panic/unwrap, тавтологий, качество doc/стиля. В конце — вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
+Повторное независимое ревью RW-30/P7-01d DurationFormat с возможностью писать ТОЛЬКО в /tmp/opencode (репозиторий не изменять!). Правила: (1) не редактируй файлы в /home/user/orca/project, (2) все копии/цели/cargo — в /tmp/opencode/**, CARGO_TARGET_DIR=/tmp/opencode/target-codex-w30a, (3) без сети и git commit. Проверь: waves/RW-30/TZ-W30a.md; src/duration.rs, duration_data.rs; tests/duration_contract.rs; tests/data/duration-oracle.json; waves/RW-30/gen-duration-data.mjs; workers/W30a/{red.log,green.log}; run-mutations-w30a.py; REPORT-W30a.md. Воспроизведи мутационный прогон в копии workspace в /tmp/opencode (подмени ROOT/TARGET на копию) и подтверди 8/8 + restore по md5; прогони targeted cargo-тесты в копии. Независимо сверь оракул с Node 24 Intl.DurationFormat (>=100 кейсов, все 8 единиц, ru/de/ja/zh, выключенная ar), проверь инварианты, red-first (EXIT=101), md5 теста, отсутствие unsafe/panic/unwrap, тавтологий, качество doc/стиля. В конце — вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Применю локальный контекст discord-lab, затем сверю указанные артефакты и состояние HEAD. Для воспроизведения создам рабочую копию только в `/tmp/opencode` и направлю Cargo target туда; исходный репозиторий останется без изменений.
 exec
-/usr/bin/bash -lc "sed -n '1,220p' .agents/skills/discord-lab-context/SKILL.md && sed -n '1,180p' PROJECT-CONTEXT.md && git status --short && git rev-parse HEAD" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' .agents/skills/discord-lab-context/SKILL.md && sed -n '1,180p' PROJECT-CONTEXT.md && git status --short && git rev-parse HEAD" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -62,7 +62,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -88,7 +88,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 
 ## Состояние
 
-- `/home/sanya/orca/project`, `main`, HEAD `0163945`; дерево dirty (принятые волны не
+- `/home/user/orca/project`, `main`, HEAD `0163945`; дерево dirty (принятые волны не
   закоммичены; commit/push — только координатор).
 - **Принято 43 / 90** карточек. Последние волны 2026-10-22:
   - **RW-28**: P7-01c RelativeTimeFormat — ICU-паритет ±2, точные i64 > 2^53 (headless);
@@ -116,7 +116,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Правила (кратко)
 
 - Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
-- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение.
 - Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
 - Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
 
@@ -139,8 +139,8 @@ MCP: rea, socraticode, github, basic-memory, context7.
   `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
   ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
 - RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
-  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
-  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+  `/home/user/clean-room-oracle/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/user/qwen-uncens` из запроса не существует.
 - P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
   `ru-RU`-fallback) — в `waves/STATE.md` §7.
  M .agents/skills/discord-lab-context/SKILL.md
@@ -359,17 +359,17 @@ MCP: rea, socraticode, github, basic-memory, context7.
 0163945eeb5ab48223a498cd101712d1ed2c9b1a
 
 exec
-/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-i18n/tests/duration_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-i18n/tests/duration_contract.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' waves/RW-30/TZ-W30a.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' waves/RW-30/TZ-W30a.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,220p' .opencode/skills/discord-lab-review/SKILL.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' .opencode/skills/discord-lab-review/SKILL.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,220p' waves/RW-30/run-mutations-w30a.py" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' waves/RW-30/run-mutations-w30a.py" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,200p' waves/RW-30/REPORT-W30a.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,200p' waves/RW-30/REPORT-W30a.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-i18n/src/duration.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-i18n/src/duration.rs" in /home/user/orca/project
  succeeded in 0ms:
 //! Contract tests for `Intl.DurationFormat`-compatible formatting (P7-01d, RW-30).
 //!
@@ -1171,11 +1171,11 @@ d11 весь оракул; d12 инварианты таблицы; d13 дете
 codex
 В репозитории много уже существующих изменений, поэтому ограничиваю чтение заявленной карточкой и проверяемыми файлами. Скрипт мутаций в оригинале по умолчанию пишет в исходник и лог, поэтому буду запускать только его копию в `/tmp/opencode/workspace` с target-dir из вашего запроса.
 exec
-/usr/bin/bash -lc "sed -n '220,520p' rust/crates/discord-i18n/tests/duration_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '220,520p' rust/crates/discord-i18n/tests/duration_contract.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' waves/RW-30/gen-duration-data.mjs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' waves/RW-30/gen-duration-data.mjs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,140p' waves/RW-30/workers/W30a/red.log && sed -n '1,100p' waves/RW-30/workers/W30a/green.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,140p' waves/RW-30/workers/W30a/red.log && sed -n '1,100p' waves/RW-30/workers/W30a/green.log" in /home/user/orca/project
  succeeded in 0ms:
         format_duration("en-US", &duration(&[("days", 1)]), DurationStyle::Long),
         "1 day"
@@ -1628,8 +1628,8 @@ for (const locale of enabled) {
     }
 
  succeeded in 0ms:
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: fields `locale`, `style`, `unit`, and `patterns` are never read
   --> crates/discord-i18n/src/duration_data.rs:9:9
    |
@@ -1768,7 +1768,7 @@ assertion `left == right` failed: en-US/long: Object({"d": Object({"days": Numbe
   left: ""
  right: "289,260 years, 779,121 months, 660,941 weeks, 789,201 days, 223,817 hours, 673,898 minutes, 940,270 seconds"
 
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
      Running tests/duration_contract.rs (/tmp/opencode/target-w30a/debug/deps/duration_contract-0b171ea35742d2c7)
 
@@ -1792,9 +1792,9 @@ test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 # EXIT=0
 
 exec
-/usr/bin/bash -lc "sed -n '1,180p' rust/crates/discord-i18n/src/duration_data.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,180p' rust/crates/discord-i18n/src/duration_data.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'find /tmp/opencode -maxdepth 2 -mindepth 1 -type d -print 2>/dev/null | head -40' in /home/sanya/orca/project
+/usr/bin/bash -lc 'find /tmp/opencode -maxdepth 2 -mindepth 1 -type d -print 2>/dev/null | head -40' in /home/user/orca/project
  succeeded in 0ms:
 //! Сгенерированные данные `Intl.DurationFormat` (P7-01d).
 //!
@@ -2020,7 +2020,7 @@ pub(crate) static DURATION_ROWS: &[DurationRow] = &[
 /tmp/opencode/target-w29b/tmp
 
 exec
-/usr/bin/bash -lc "node --version && node -e 'console.log(typeof Intl.DurationFormat, Intl.DateTimeFormat().resolvedOptions().locale, process.versions.icu)'" in /home/sanya/orca/project
+/usr/bin/bash -lc "node --version && node -e 'console.log(typeof Intl.DurationFormat, Intl.DateTimeFormat().resolvedOptions().locale, process.versions.icu)'" in /home/user/orca/project
  succeeded in 0ms:
 v24.21.0
 function en-US 78.3
@@ -2028,7 +2028,7 @@ function en-US 78.3
 codex
 Первые материалы подтверждают red-лог с `EXIT=101` и green-лог с 13 тестами. Сейчас проверю сами данные непосредственно через доступный Node v24/ICU 78, затем создам полную копию текущего dirty workspace под `/tmp/opencode` и выполню в ней targeted тест и мутации.
 exec
-/usr/bin/bash -lc "mkdir -p /tmp/opencode/review-w30a && cp -a /home/sanya/orca/project/. /tmp/opencode/review-w30a/ && sed -i 's|TARGET_DIR = \"/tmp/opencode/target-w30a\"|TARGET_DIR = \"/tmp/opencode/target-codex-w30a\"|' /tmp/opencode/review-w30a/waves/RW-30/run-mutations-w30a.py && grep -n 'TARGET_DIR\\|ROOT =' /tmp/opencode/review-w30a/waves/RW-30/run-mutations-w30a.py && md5sum rust/crates/discord-i18n/tests/duration_contract.rs /tmp/opencode/review-w30a/rust/crates/discord-i18n/tests/duration_contract.rs && md5sum rust/crates/discord-i18n/src/duration.rs /tmp/opencode/review-w30a/rust/crates/discord-i18n/src/duration.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "mkdir -p /tmp/opencode/review-w30a && cp -a /home/user/orca/project/. /tmp/opencode/review-w30a/ && sed -i 's|TARGET_DIR = \"/tmp/opencode/target-w30a\"|TARGET_DIR = \"/tmp/opencode/target-codex-w30a\"|' /tmp/opencode/review-w30a/waves/RW-30/run-mutations-w30a.py && grep -n 'TARGET_DIR\\|ROOT =' /tmp/opencode/review-w30a/waves/RW-30/run-mutations-w30a.py && md5sum rust/crates/discord-i18n/tests/duration_contract.rs /tmp/opencode/review-w30a/rust/crates/discord-i18n/tests/duration_contract.rs && md5sum rust/crates/discord-i18n/src/duration.rs /tmp/opencode/review-w30a/rust/crates/discord-i18n/src/duration.rs" in /home/user/orca/project
  exited 1 in 7418ms:
 cp: error writing '/tmp/opencode/review-w30a/./rust/target/debug/deps/resume_reconnect-3cc26edf8222ed64': Disk quota exceeded
 cp: error writing '/tmp/opencode/review-w30a/./rust/target/debug/deps/libdiscord_updater-9b9648cd3e36cb87.rmeta': Disk quota exceeded

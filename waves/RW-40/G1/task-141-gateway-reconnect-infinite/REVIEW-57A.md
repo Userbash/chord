@@ -2,7 +2,7 @@
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер, Review 57A.
 Ветка: `feature/task-141-gateway-reconnect-infinite`, worktree
-`/home/sanya/orca/workspaces/project/feature-task-141-gateway-reconnect-infinite`,
+`/home/user/orca/workspaces/project/feature-task-141-gateway-reconnect-infinite`,
 HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 Режим: сверка с RE-оракулом + чтение диффа + целевые и интеграционные тесты + 5/5 мутационных прогонов.
 
@@ -18,7 +18,7 @@ HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 ## Что проверено
 
 - **Файловый скоуп:** в продуктовом коде изменён ровно один разрешённый файл — `rust/crates/discord-core/src/gateway/supervisor.rs` (md5 `ffa734a6b168880f14fe5cc7e601f940`, совпадает с `REPORT.md` §5). Чужие модули (`gateway.rs`, `resume.rs`, `ws.rs`, `tests/gateway_supervisor.rs`) не затронуты. В `git status` висит не связанная с задачей модификация `package-lock.json` (общая для worktree волны, в коммит карточки включать не нужно).
-- **Сверка с независимым оракулом:** проверены байтовые смещения в `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (md5 `934b1289b7ebf17bc0fd09569b23b438`):
+- **Сверка с независимым оракулом:** проверены байтовые смещения в `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (md5 `934b1289b7ebf17bc0fd09569b23b438`):
   - `@5 013 000` (`_handleDispatch`): и `"READY"===t`, и `"RESUMED"===t` выставляют `this.connectionState = v.A.SESSION_ESTABLISHED` и вызывают `this.gatewayBackoff.succeed()`;
   - `@5 014 326..5 015 050` (`_handleClose`): на `4004===t` выставляет `connectionState = CLOSED` и вызывает `this._reset(e, t, n)` без ретрая; на остальных кодах вызывает `let i = this.gatewayBackoff.fail(() => this._connect())` и проверяет `this.gatewayBackoff.fails > 4 && this._reset(e, t, n)`;
   - `@5 015 390` (`_reset`): `this.sessionId = null, this.seq = 0` — сбрасывает идентификатор сессии и seq (не трогая `this.resumeUrl`), поэтому следующая попытка уходит со свежим `IDENTIFY` (`op=2`).
@@ -29,13 +29,13 @@ HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 
 ## Прогоны
 
-Все команды запускались последовательно с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target` после принудительной пересборки `supervisor.rs` из исходников текущей ветки.
+Все команды запускались последовательно с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target` после принудительной пересборки `supervisor.rs` из исходников текущей ветки.
 
 | Прогон | Команда | Результат | Лог |
 |---|---|---|---|
-| Targeted unit (`--lib`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib` | **6 passed, 0 failed** (`EXIT=0`) | `REVIEW-57A-GREEN-LIB.log` |
-| Интеграционные тесты супервайзера | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test gateway_supervisor` | **14 passed, 0 failed** (`EXIT=0`) | `REVIEW-57A-SUPERVISOR-IT.log` |
-| Clippy (`discord-core`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `REVIEW-57A-CLIPPY.log` |
+| Targeted unit (`--lib`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib` | **6 passed, 0 failed** (`EXIT=0`) | `REVIEW-57A-GREEN-LIB.log` |
+| Интеграционные тесты супервайзера | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test gateway_supervisor` | **14 passed, 0 failed** (`EXIT=0`) | `REVIEW-57A-SUPERVISOR-IT.log` |
+| Clippy (`discord-core`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `REVIEW-57A-CLIPPY.log` |
 | Форматирование (`rustfmt`) | `(cd rust && cargo fmt --all -- --check)` | **чисто** (`EXIT=0`) | `REVIEW-57A-FMT.log` |
 
 Контрольные суммы артефактов воркера проверены и совпадают с `REPORT.md` §5:

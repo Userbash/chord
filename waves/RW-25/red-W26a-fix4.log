@@ -2,7 +2,7 @@
 дата: 2026-10-22T11:07:40+05:00
 
 $ cargo test --offline -p discord-voice --test crypto_vectors
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 error[E0432]: unresolved imports `discord_voice::crypto::CHACHA_MAX_MESSAGE_LEN`, `discord_voice::crypto::GCM_MAX_MESSAGE_LEN`
   --> crates/discord-voice/tests/crypto_vectors.rs:18:22
    |

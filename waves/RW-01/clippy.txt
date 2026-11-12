@@ -1,2 +1,2 @@
-    Checking discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+    Checking discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s

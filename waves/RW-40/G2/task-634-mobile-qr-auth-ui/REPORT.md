@@ -5,7 +5,7 @@
 - **Ветка**: `feature/task-634-mobile-qr-auth-ui`
 - **Модули**: `rust/gui-spike/ui/features/qr-auth-modal.js`, `rust/gui-spike/ui/styles/qr-auth-modal.css`
 - **Тесты**: `tests/unit/qr-auth-modal.test.mjs`
-- **RE-оракул**: `/home/sanya/re-deep/` (модули 52423 `QR_CHUNK`, `4d2a64cb5df5fc4e_0`) и `rust/crates/discord-core/src/remote_auth.rs`
+- **RE-оракул**: `reference-oracle/` (модули 52423 `QR_CHUNK`, `4d2a64cb5df5fc4e_0`) и `rust/crates/discord-core/src/remote_auth.rs`
 
 ### 2. Реализованный функционал
 1. Чистые функции парсинга QR-ссылок (`parseQrAuthUrl`), сверки отпечатка публичного ключа SPKI (`verifyFingerprintMatch`), форматирования дайджеста и валидации IP (`validateDeviceIpAddress`).

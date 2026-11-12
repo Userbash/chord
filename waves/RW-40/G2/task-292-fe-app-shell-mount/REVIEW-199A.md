@@ -2,7 +2,7 @@
 
 - **Ревьюер:** Технический ревьюер (DeepSeek), TR-199A
 - **Проверяемая ветка:** `feature/task-292-fe-app-shell-mount`, HEAD `d7eff40` (Merge PR-168)
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount`
 - **Дата:** 2026-10-31
 - **Вердикт:** **APPROVED** — `P0 = 0`, `P1 = 0`, мутации `5/5` убиты, `app.js` после каждой мутации восстановлен побайтно (`a97d997ba0578e184cc491fa4db4b3e9` до и после цикла)
 - **Объект:** `rust/gui-spike/ui/app.js` (`+28 / −1`) и `tests/unit/app-shell-wiring.test.mjs` (`+176 / −0`)
@@ -70,7 +70,7 @@ Red-first подтверждён независимо: я подменил `app.
 | `node --test tests/unit` | exit `0`: **1941/1941**, skip `0` | `logs/review-199a-unit-all.log` |
 | `npm run typecheck` (`tsc -p tsconfig.json && tsc -p tsconfig.agent.json`) | exit `0`, 0 ошибок | `logs/review-199a-typecheck-root.log` |
 | `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` | exit `0`, 0 ошибок | — |
-| `npm run gate:worker` (с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`) | verdict `failed`: `typecheck`, `ui-tsc` ✅, `meta` 102/102 ✅, `unit` 1941/1941 ✅, `smoke` 19 pass / 2 fail / 1 skip (2 fail — нет бинарника GUI), `spike-rust`/`workspace-rust` — красные на базе | `logs/review-199a-gate-worker.log`, `.gate/worker-2026-10-31T07-20-45-799Z.json` |
+| `npm run gate:worker` (с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`) | verdict `failed`: `typecheck`, `ui-tsc` ✅, `meta` 102/102 ✅, `unit` 1941/1941 ✅, `smoke` 19 pass / 2 fail / 1 skip (2 fail — нет бинарника GUI), `spike-rust`/`workspace-rust` — красные на базе | `logs/review-199a-gate-worker.log`, `.gate/worker-2026-10-31T07-20-45-799Z.json` |
 
 Что реально проверяют 3 новых теста (по исходнику `app.js` через `readFile`):
 

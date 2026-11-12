@@ -2,7 +2,7 @@
 
 - **batch/карточка:** RW-40 / BE-P1-02 (task-136, находка F-GW-03 из
   `waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL.md` §3.3).
-- **worktree:** `/home/sanya/orca/workspaces/project/feature-task-136-net-forwarded-dispatches`
+- **worktree:** `/home/user/orca/workspaces/project/feature-task-136-net-forwarded-dispatches`
   (HEAD `4e24048`).
 - **сделано:**
   - `FORWARDED_DISPATCHES` расширен с 6 до 22 имён: все 21 имя `DispatchKind::ALL`
@@ -12,7 +12,7 @@
     `FORWARDED_DISPATCHES`, поэтому список типов и фильтр не разъезжаются.
   - Секреты READY, дедуп по `s`, `try_send` и счётчики не тронуты.
   - Обновлены doc-комментарии модуля, константы и `DispatchStats::filtered`.
-- **red:** `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test net_contract`
+- **red:** `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test net_contract`
   → 24 passed, 3 failed, exit 101. Падают:
   `forwarded_dispatches_cover_every_core_kind_and_the_raw_reaction_remove`
   (`CHANNEL_INFO не форвардится`),
@@ -58,7 +58,7 @@
      содержит 6 имён; без его расширения новые события дойдут до Tauri-канала, но будут
      отброшены моделью UI. Это отдельная карточка UI-лейна (BE-P1-02, write-scope UI).
   4. `CONTRACTS/dispatch.md` §4 описывает 6 имён и требует правки Team Lead (не мой файл).
-  5. В основном чекауте `/home/sanya/orca/project` файл `net.rs` уже содержит незакоммиченные
+  5. В основном чекауте `/home/user/orca/project` файл `net.rs` уже содержит незакоммиченные
      правки SEC-L02-01 (`sink.reset()` в `connect`/`disconnect`); при интеграции возможен
      конфликт в области `NetController`, не в `FORWARDED_DISPATCHES`.
 - **следующий шаг:** приёмка Team Lead → интеграция worktree, обновление

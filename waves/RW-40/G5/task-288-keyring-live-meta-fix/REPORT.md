@@ -3,7 +3,7 @@
 - **Карточка:** `task-288` — вынос `k13..k26` из `rust/crates/discord-platform/tests/keyring_contract.rs`
   в новый контракт `rust/crates/discord-platform/tests/safe_storage_contract.rs`.
 - **Ветка / worktree:** `bugfix/task-288-keyring-live-meta-fix`,
-  `/home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix`
+  `/home/user/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix`
 - **База:** `06d89e4` (Merge PR-167, task-287), HEAD не менялся — коммитов нет.
 - **Исполнитель:** G5 Voice / Platform, `deepseek/deepseek-v4.1-flash`.
 
@@ -33,7 +33,7 @@ node --test tests/meta/keyring-live.test.mjs   → EXIT=1, 5 падений
 
 Фактический вывод cargo до правки: `test result: ok. 13 passed; 0 failed; 13 ignored`,
 `--list --ignored` отдавал 13 имён (лишний `k25_migrator_with_live_keyring`).
-Полный лог: `/home/sanya/orca/project/waves/RW-40/G5/task-288-keyring-live-meta-fix/red.log`.
+Полный лог: `/home/user/orca/project/waves/RW-40/G5/task-288-keyring-live-meta-fix/red.log`.
 
 ## 3. Green-прогон (`green.log`)
 
@@ -44,7 +44,7 @@ node --test tests/meta/keyring-live.test.mjs   → EXIT=1, 5 падений
 | 2 | `node --test tests/meta/keyring-live.test.mjs` | `tests 13 / pass 13 / fail 0 / skipped 0`, EXIT=0 |
 | 3 | `npm run test:meta` | `tests 102 / pass 102 / fail 0 / skipped 0`, EXIT=0 |
 
-Все три запуска с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+Все три запуска с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 Дополнительно: `cargo clippy -p discord-platform --tests` — 0 warning/0 error;
 `cargo fmt --check -p discord-platform` — чисто по обоим файлам задачи
 (`notifications_contract.rs` в diff остаётся, это предсуществующее состояние базы, файл не трогался).

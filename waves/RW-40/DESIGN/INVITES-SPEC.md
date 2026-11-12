@@ -7,7 +7,7 @@
 - `STUB-07`: карточка превью инвайта в чате (`.invite-card`) и модалка принятия инвайта (`#invite-accept-dialog`).
 
 Нормативные документы:
-- `waves/RW-40/RE-DEEP-REA.md` §3 (создание сервера и join) и §4 (STUB-05/STUB-07: создание `POST /channels/{id}/invites`, резолв `GET /invites/{code}`, принятие `POST /invites/{code}`, коды ошибок);
+- `waves/RW-40/reference-oracle-REA.md` §3 (создание сервера и join) и §4 (STUB-05/STUB-07: создание `POST /channels/{id}/invites`, резолв `GET /invites/{code}`, принятие `POST /invites/{code}`, коды ошибок);
 - `waves/RW-40/DESIGN/G05-REST-SPEC.md` (контракт меню сервера, пункт 2 `guild-invite`, диалоги `.dialog-backdrop`, `.dialog`, паттерны ошибок D7, a11y, фокус D2/D3);
 - `rust/gui-spike/ui/tokens.css` (источник дизайн-токенов DL: поверхности, акценты, типографика, радиусы, тени, z-index).
 
@@ -17,7 +17,7 @@
 
 | Метка | Значение | Источник |
 |---|---|---|
-| `[D]` | Факт из дампа / live-бандла | `RE-DEEP-REA.md` §4 (`[D] 4d2a64cb5df5fc4e_0@632264`, `@1933819`, `@635659`, `@5764857`) |
+| `[D]` | Факт из дампа / live-бандла | `reference-oracle-REA.md` §4 (`[D] 4d2a64cb5df5fc4e_0@632264`, `@1933819`, `@635659`, `@5764857`) |
 | `[T]` | Токен проекта из `ui/tokens.css` | `rust/gui-spike/ui/tokens.css` |
 | `[A]` | Проектное решение / адаптация под архитектуру DL | Данный документ (проверяемо до кода) |
 | `[F]` | Зафиксировано тестом | DOM-контракт |
@@ -53,7 +53,7 @@
   }
   ```
   > **Канонический [D] контракт vs проектное расширение [A]:**  
-  > В обязательном каноническом RE-контракте Discord (`RE-DEEP-REA.md §3` и §4.3 схема `ck.e$.CREATE_CHANNEL_INVITE`) вызов создания инвайта включает **исключительно** поля: `channel_id`, `max_age`, `max_uses`, `temporary`, `unique` и target-поля (`target_type`, `target_user_id`, `target_application_id`). Поле `flags` и значение `IS_GUEST_INVITE` **НЕ входят** в обязательный `[D]` контракт RE.  
+  > В обязательном каноническом RE-контракте Discord (`reference-oracle-REA.md §3` и §4.3 схема `ck.e$.CREATE_CHANNEL_INVITE`) вызов создания инвайта включает **исключительно** поля: `channel_id`, `max_age`, `max_uses`, `temporary`, `unique` и target-поля (`target_type`, `target_user_id`, `target_application_id`). Поле `flags` и значение `IS_GUEST_INVITE` **НЕ входят** в обязательный `[D]` контракт RE.  
   > Поле `flags` и битовая маска `IS_GUEST_INVITE = 1 << 0` (значение `1`) — это **опциональное проектное расширение `[A]`** (условная проектная адаптация клиента для гостевого доступа к конкретным каналам). При штатном создании инвайта поле `flags` не является обязательным и не передаётся (либо передаётся равным `0`).
 - **Параметры полей и доступные опции**:
   - `max_age` (число, секунды действия): **7 вариантов** из Discord RE (1800, 3600, 21600, 43200, 86400, 604800, 0):

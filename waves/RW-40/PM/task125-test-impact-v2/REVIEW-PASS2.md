@@ -1,7 +1,7 @@
 # Независимое ревью Pass 2 — task-125-test-impact-v2 (Review 44B)
 
 Дата: **2026-10-30, 21:16 +05**. Ревьюер: `DeepSeek V4.1 Flash` (`Review 44B`, слот 4 из 4), независимая сессия.
-Репозиторий: `/home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2`, HEAD `4e24048`
+Репозиторий: `/home/user/orca/workspaces/project/qa-task-125-test-impact-v2`, HEAD `4e24048`
 (`RW-40: integrate Discord GUI spike, dispatch, paging and QA evidence`), ветка `qa/task-125-test-impact-v2`.
 Проверялись исправления прохода 2 против `PM/task125-test-impact-v2/REVIEW.md` (Review 44A).
 

@@ -1,4 +1,4 @@
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
 error[E0432]: unresolved imports `etf::EtfEncodeError`, `etf::encode_checked`, `etf::encode_term_checked`
   --> crates/discord-codec/src/lib.rs:16:5
    |

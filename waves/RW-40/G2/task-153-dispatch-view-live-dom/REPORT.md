@@ -1,15 +1,15 @@
 # task-153 — Подключение живых проекций B18..B23 к DOM-отрисовке в `dispatch-view.js`
 
 - **batch/карточка:** RW-40 / G2 Frontend / `task-153` (FE-P1-01: подключение живых проекций B18..B23 из `dispatch-model.js` к DOM-отрисовке в `rust/gui-spike/ui/features/dispatch-view.js`).
-- **worktree:** `/home/sanya/orca/workspaces/project/feature-task-153-dispatch-view-live-dom`.
+- **worktree:** `/home/user/orca/workspaces/project/feature-task-153-dispatch-view-live-dom`.
 - **файлы (write-scope):**
   - `rust/gui-spike/ui/features/dispatch-view.js`;
   - `tests/unit/dispatch_ui.test.mjs`;
-  - отчёт и логи в `/home/sanya/orca/project/waves/RW-40/G2/task-153-dispatch-view-live-dom/`.
+  - отчёт и логи в `/home/user/orca/project/waves/RW-40/G2/task-153-dispatch-view-live-dom/`.
 
 ## Сделано
 
-1. **Синхронизация актуальной базы:** перед стартом скопированы актуальные версии файлов из `/home/sanya/orca/project` (PR-22 и PR-31: `dispatch-model.js`, `dispatch-view.js`, `dispatch_ui.test.mjs`).
+1. **Синхронизация актуальной базы:** перед стартом скопированы актуальные версии файлов из `/home/user/orca/project` (PR-22 и PR-31: `dispatch-model.js`, `dispatch-view.js`, `dispatch_ui.test.mjs`).
 2. **Red-тесты (Strict TDD):**
    - Написаны падающие тесты `C17–C22` в секции `L-02-UI: интеграция dispatch → DOM` файла `tests/unit/dispatch_ui.test.mjs`:
      - `C17`: живой `MESSAGE_CREATE` для активного канала добавляет новую строку сообщения в `#message-list` / `#chat-list` без перезагрузки истории (`callsOf("messages_page")` не растёт), а для неактивного канала увеличивает `unread`/`mention` индикатор в дереве каналов.

@@ -1,5 +1,5 @@
 === GREEN: cargo test --offline -p discord-voice --test session_contract ===
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
      Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
 
@@ -27,7 +27,7 @@ test t_v01_15_every_prefix_of_hello_ready_session_description_and_heartbeat_ack_
 test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 === GREEN: cargo test --offline -p discord-voice (all crate tests) ===
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.46s
      Running unittests src/lib.rs (/tmp/target-task117/debug/deps/discord_voice-37c479f94835c760)
 

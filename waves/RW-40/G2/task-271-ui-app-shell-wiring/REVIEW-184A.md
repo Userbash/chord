@@ -25,7 +25,7 @@ MD5 сняты дважды: до начала проверки и после м
 ```
 
 - `??` — два deliverable-файла задачи, оба в scope PR-155, оба новые.
-- `D node_modules` и `M package-lock.json` — **не часть PR-155**. В `unstable` `node_modules` хранится как симлинк `120000 -> /home/sanya/orca/project/node_modules`, в рабочем дереве он развёрнут в пустой каталог; `package-lock.json` рассинхронизирован с `package.json` (`bin`, `engines`), потому что lock в git устарел, а `npm install` его перегенерировал. Это описано в §6 как `P2-4`, в коммит попасть не должно.
+- `D node_modules` и `M package-lock.json` — **не часть PR-155**. В `unstable` `node_modules` хранится как симлинк `120000 -> /home/user/orca/project/node_modules`, в рабочем дереве он развёрнут в пустой каталог; `package-lock.json` рассинхронизирован с `package.json` (`bin`, `engines`), потому что lock в git устарел, а `npm install` его перегенерировал. Это описано в §6 как `P2-4`, в коммит попасть не должно.
 - Изменений в чужих модулях (`shell-bridge.js`, `shell-controllers-registry.js`, `chat-helpers-bridge.js`), в `app.js`, в `docs/`, в `waves/` нет. `git diff --name-status unstable` показывает только два перечисленных шумовых пути, новых отслеживаемых правок нет.
 
 ## 3. Функциональная сверка с зависимостями

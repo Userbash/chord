@@ -35,9 +35,9 @@
 test at tests/unit/gui-spike-dom.test.mjs:395:3
 ✖ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (4.217109ms)
   AssertionError [ERR_ASSERTION]: сетка не перерисовалась на другую категорию
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:418:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:396:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:418:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:396:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

@@ -14,7 +14,7 @@ AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
 +   'rust/gui-spike/ui/features/voice-devices-settings.js'
   ]
 
-    at file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/[eval1]:13:8
+    at file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/[eval1]:13:8
     at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
     at async node:internal/modules/esm/loader:226:26
     at async ModuleLoader.executeModuleJob (node:internal/modules/esm/loader:223:20)

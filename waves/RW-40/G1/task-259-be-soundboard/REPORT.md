@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-259` (`BE-P1-31` / `soundboard`) — BFF-контракт голосового саундборда и кастомных звуков гильдии (`MIN_SOUND_NAME_CHARS`, `MAX_SOUND_NAME_CHARS`, `MAX_SOUND_BYTES`, `MIN_SOUND_VOLUME`, `MAX_SOUND_VOLUME`, `SendSoundboardSoundRequest`, `CreateGuildSoundRequest`, `validate_create_guild_sound`, `build_send_soundboard_route_and_body`).
-- **Ветка / worktree**: `feature/task-259-be-soundboard`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-259-be-soundboard`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/soundboard.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/soundboard_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-259-be-soundboard/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-259-be-soundboard/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`:
+Сверено с `reference-oracle/rest-static.json`:
 
 - `GUILD_SOUNDBOARD_SOUNDS` (`rest-static.json:9268-9281`): `POST /guilds/{arg}/soundboard-sounds`.
 - `SEND_SOUNDBOARD_SOUND` (`rest-static.json:9348-9358`): `POST /channels/{arg}/send-soundboard-sound`.
@@ -42,7 +42,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-259-be-soundboard/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-259-be-soundboard/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::soundboard`
@@ -57,7 +57,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-259-be-soundboard/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-259-be-soundboard/green.log`:
 
 ```text
 running 6 tests

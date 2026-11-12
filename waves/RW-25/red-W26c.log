@@ -2,10 +2,10 @@
 Дата: 2026-10-22
 target-dir: /tmp/opencode/target-w26c
 
-$ cd /home/sanya/orca/project/rust
+$ cd /home/user/orca/project/rust
 $ export CARGO_TARGET_DIR=/tmp/opencode/target-w26c
 $ cargo test --offline -p discord-updater --test updater_contract
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+   Compiling discord-updater v0.1.0 (/home/user/orca/project/rust/crates/discord-updater)
 error[E0432]: unresolved imports `discord_updater::manifest::Manifest`, `discord_updater::manifest::ManifestError`, `discord_updater::manifest::Version`, `discord_updater::manifest::parse_manifest`, `discord_updater::manifest::sha256_hex`, `discord_updater::manifest::sign_manifest`, `discord_updater::manifest::verify_manifest`
   --> crates/discord-updater/tests/updater_contract.rs:21:5
    |

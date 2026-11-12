@@ -80,7 +80,7 @@ failures:
 
 test result: FAILED. 10 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
      Running tests/crypto_vectors.rs (/tmp/opencode/target-mut/debug/deps/crypto_vectors-4b0e96f0f4a9a18b)
 error: test failed, to rerun pass `-p discord-voice --test crypto_vectors`

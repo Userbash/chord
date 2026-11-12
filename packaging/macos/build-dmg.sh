@@ -5,9 +5,9 @@
 # Hardened Runtime Entitlements / нотаризации и Portable-раскладки Windows (TASK-1016 / TASK-1016B).
 #
 # Оракул фич: docs/feature-backlog.md (R6-03 Windows-специфика, R6-04 macOS-специфика).
-# Оракул RE: /home/sanya/re-deep/main-arch.md (@23588 open-url / continue-activity,
+# Оракул RE: /home/user/clean-room-oracle/main-arch.md (@23588 open-url / continue-activity,
 #   @24154 disclip://, #5544 @105305 discord_webauthn macOS >= 21),
-#   /home/sanya/re-deep/backend-ipc.json (DISCORD_APP_DOCK_SET_BADGE,
+#   /home/user/clean-room-oracle/backend-ipc.json (DISCORD_APP_DOCK_SET_BADGE,
 #   DISCORD_WINDOW_SET_TRAFFIC_LIGHT_APPEARANCE, DISCORD_WINDOW_SET_TRAFFIC_LIGHT_POSITION).
 #
 # Коды выхода:

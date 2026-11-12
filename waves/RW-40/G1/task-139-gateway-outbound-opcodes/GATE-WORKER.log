@@ -76,7 +76,7 @@
      + ]
      - []
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-139-gateway-outbound-opcodes/tests/meta/plan-sync.test.mjs:148:12)
+         at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-139-gateway-outbound-opcodes/tests/meta/plan-sync.test.mjs:148:12)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -92,7 +92,7 @@
 ✔ workspace-rust — 23.0 с (тесты 1124: pass 1112, fail 0, skip 12)
 ✔ smoke — 15.5 с (тесты 22: pass 21, fail 0, skip 1)
 
-Отчёт гейта: /home/sanya/orca/workspaces/project/feature-task-139-gateway-outbound-opcodes/.gate/worker-2026-10-30T16-55-51-106Z.json
+Отчёт гейта: /home/user/orca/workspaces/project/feature-task-139-gateway-outbound-opcodes/.gate/worker-2026-10-30T16-55-51-106Z.json
 ⚠ workspace-rust: ignored 12 — ожидаемый ignored-набор (live-кейсы гоняет отдельная фаза), не e2e-skip
 ⚠ smoke: пропущено 1 тестов — пропуск прохождением не считается
 Вердикт: failed

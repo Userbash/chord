@@ -20,8 +20,8 @@
 ## Файлы и md5
 - `rust/gui-spike/ui/features/role-editor.js` — `ea1895e9d69862d360cab7a9642ddf81`
 - `tests/unit/role-editor.test.mjs` — `0ae566c525758d9e16e134bd6f81f788`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-248-ui-role-editor/red.log` — `21b492ce325d32f9219a2eb2907005f5`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-248-ui-role-editor/green.log` — `da59374a0dd2f3da6351ea06a496679c`
+- `/home/user/orca/project/waves/RW-40/G2/task-248-ui-role-editor/red.log` — `21b492ce325d32f9219a2eb2907005f5`
+- `/home/user/orca/project/waves/RW-40/G2/task-248-ui-role-editor/green.log` — `da59374a0dd2f3da6351ea06a496679c`
 
 ## Риски
 - Контроллер не зависит от глобального `window.document`, если `options.container` предоставляет `ownerDocument.createElement` или `createElement`.

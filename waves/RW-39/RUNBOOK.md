@@ -21,7 +21,7 @@ npm run gate:worker
 
 ## Визуальная сверка
 
-- Референс: `/home/sanya/re-deep/ui/00-app.png` (read-only).
+- Референс: `reference-oracle/ui/00-app.png` (read-only).
 - Своё окно: `scripts/gui-window-probe.py` сохраняет `/tmp/opencode/gui-window.png`.
 - Сверять: rail 64–72, tree ~240, header ~48, composer ~56, member panel ~240;
   цвета/типографика — из `DESIGN/tokens.css`; системные шрифты/emoji.

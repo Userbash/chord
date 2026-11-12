@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.58s
      Running tests/stream_gateway_contract.rs (/tmp/target-g1-core/debug/deps/stream_gateway_contract-f7e00aebd2e7de10)
 

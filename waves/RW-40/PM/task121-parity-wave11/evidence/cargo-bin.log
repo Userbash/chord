@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.91s
      Running unittests src/main.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-b59ff6fb9b484f77)
 

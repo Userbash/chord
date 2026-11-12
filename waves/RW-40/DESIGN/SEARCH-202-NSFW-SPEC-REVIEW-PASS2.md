@@ -100,7 +100,7 @@
    Сверено с файлом построчно.
 2. **`DEFAULT_SEARCH_LIMIT`.** Упоминаний 0; в `§1.1:66` — `MAX_SEARCH_LIMIT:
    i64 = 25`, что совпадает с `search.rs:19`.
-3. **i18n-таблица.** Все 22 ключа сверены с `/home/sanya/re-deep/{en,ru}-catalog.json`
+3. **i18n-таблица.** Все 22 ключа сверены с `reference-oracle/{en,ru}-catalog.json`
    побайтово. Токеновые строки без двоеточия (`1TUdFo` `"from"/"от"`,
    `0B74eY` `"pinned"/"закреплённые"`, `us8IQi` `"authorType"/"ТипАвтора"`);
    `2kHZes`, `4Y3O+O`, `E+2azY`, `E4Cd5I` процитированы точно, включая
@@ -183,8 +183,8 @@
 | `rust/gui-spike/ui/features/search-overlay.js` | `860e9237a00e4eacd66e343bbeb5ab45` |
 | `rust/gui-spike/ui/index.html` | `417bd6687f54a2063232390e579ffe39` |
 | `tests/unit/search-remote-real-index.test.mjs` | `b2692ff1bb6b0fb107e998ac2f5b2c2d` |
-| `/home/sanya/re-deep/en-catalog.json` | `dfdb70bb7e4b2146a481319c95387e9c` |
-| `/home/sanya/re-deep/ru-catalog.json` | `09272320cecfa79d479a2b03df7adce1` |
+| `reference-oracle/en-catalog.json` | `dfdb70bb7e4b2146a481319c95387e9c` |
+| `reference-oracle/ru-catalog.json` | `09272320cecfa79d479a2b03df7adce1` |
 
 ## Итог
 

@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/identify.rs:429:
+Diff in /home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/identify.rs:429:
          );
          assert_eq!(properties.browser_user_agent, sp.browser_user_agent);
          assert_eq!(properties.browser_version, sp.browser_version);
@@ -10,7 +10,7 @@ Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-iden
 (B[m         assert_eq!(properties.client_app_state, sp.client_app_state);
          assert_eq!(
              properties.launch_signature, sp.launch_signature,
-Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/identify.rs:485:
+Diff in /home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/identify.rs:485:
              );
          }
          assert_eq!(
@@ -21,7 +21,7 @@ Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-iden
 (B[m             Some(i64::from(sp.client_build_number))
          );
          assert_eq!(
-Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/rest/identity.rs:414:
+Diff in /home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/rest/identity.rs:414:
              self
          }
  
@@ -33,7 +33,7 @@ Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-iden
 (B[m             table
                  .iter()
                  .find(|(key, _)| *key == name)
-Diff in /home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/rest/identity.rs:485:
+Diff in /home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core/src/rest/identity.rs:485:
              3,
              "ровно три UUID: client_launch_id, launch_signature, client_heartbeat_session_id"
          );

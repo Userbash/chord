@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-173-settings-proto-http/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-173-settings-proto-http/rust/crates/discord-core)
 error[E0432]: unresolved imports `discord_core::settings::SettingsProtoHttpError`, `discord_core::settings::build_get_settings_proto_request`, `discord_core::settings::build_patch_settings_proto_body`, `discord_core::settings::parse_settings_proto_response`, `discord_core::settings::settings_proto_path`
   --> crates/discord-core/tests/settings_proto_http.rs:9:52
    |

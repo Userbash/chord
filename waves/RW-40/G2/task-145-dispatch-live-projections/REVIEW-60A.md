@@ -1,7 +1,7 @@
 # Review 60A — task-145: Живые проекции событий шлюза в `dispatch-model.js`
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер (Review 60A), не автор кода.
-Worktree: `/home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-projections`,
+Worktree: `/home/user/orca/workspaces/project/feature-task-145-dispatch-live-projections`,
 ветка `feature/task-145-dispatch-live-projections`, HEAD `4e24048` (база синхронизирована с PR-22).
 
 Ревьюер не менял ни продуктовый код, ни тесты в итоговом состоянии: выполнены чтение отчёта и диффа, контрольные прогоны тестов и `tsc`, серия из 6 независимых мутаций во временной правке `dispatch-model.js` с полным восстановлением исходника и сверкой `md5` до и после.
@@ -21,7 +21,7 @@ Worktree: `/home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-pr
 | `npx tsc -p rust/gui-spike/ui/tsconfig.json` | exit 0, 0 ошибок (вывод пуст) |
 | Мутации на `rust/gui-spike/ui/features/dispatch-model.js` (M1..M5 + бонус M6) | **6/6 убиты** (`review-60a-mutation.log`) |
 | Сверка `md5` с `REPORT.md` до и после мутаций | совпали: `67c6dda6480a4dc8c25db1ecd9d1c1b1` (`dispatch-model.js`), `6b61e8a2a70d751d2e5771e6fd7634b0` (`dispatch_ui.test.mjs`) |
-| Сохранение 45 тестов и `FORWARDED_KINDS` из PR-22 | подтверждено диффом против `/home/sanya/orca/project`: 22 имени в `FORWARDED_KINDS` неприкосновенны, `PROJECTED_KINDS` расширен с 6 до 13 |
+| Сохранение 45 тестов и `FORWARDED_KINDS` из PR-22 | подтверждено диффом против `/home/user/orca/project`: 22 имени в `FORWARDED_KINDS` неприкосновенны, `PROJECTED_KINDS` расширен с 6 до 13 |
 | Проверка запретов (`.only` / `.skip` / `it.todo`) | 0 совпадений (`grep -nE '\.(only\|skip)\(\|it\.todo'` пуст) |
 | Граница write-scope (`git status -s`) | изменены только `rust/gui-spike/ui/features/dispatch-model.js` и `tests/unit/dispatch_ui.test.mjs`; golden-каталоги не тронуты |
 
@@ -42,7 +42,7 @@ Worktree: `/home/sanya/orca/workspaces/project/feature-task-145-dispatch-live-pr
 
 ## 3. Мутационное тестирование (M1..M5 + бонус M6)
 
-Лог прогона сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-145-dispatch-live-projections/review-60a-mutation.log`. После серии мутаций исходный файл восстановлен байт-в-байт (`md5 = 67c6dda6480a4dc8c25db1ecd9d1c1b1`).
+Лог прогона сохранён в `/home/user/orca/project/waves/RW-40/G2/task-145-dispatch-live-projections/review-60a-mutation.log`. После серии мутаций исходный файл восстановлен байт-в-байт (`md5 = 67c6dda6480a4dc8c25db1ecd9d1c1b1`).
 
 | # | Мутация в `rust/gui-spike/ui/features/dispatch-model.js` | Статус | Кем убит |
 |---|---|---|---|

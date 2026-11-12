@@ -2,7 +2,7 @@
 
 Статус: дизайн-контракт (документы; код не менялся). Дата: 2026-10-24. Владелец: G3 Design.
 Карточка: C3a (`waves/RW-40/TASKS.md`, «темы light/cozy»).
-Вход: `/home/sanya/re-deep/ui/tokens.json` (4795 переменных), `ui/00-app.png`, `ui/log.json`,
+Вход: `reference-oracle/ui/tokens.json` (4795 переменных), `ui/00-app.png`, `ui/log.json`,
 `waves/RW-39/DESIGN/{tokens.css,SPEC.md,REFERENCES.md}`, `waves/RW-37/RE/layout.json`,
 `waves/RW-40/DESIGN/DESIGN-MSG.md`, `rust/gui-spike/ui/{tokens.css,index.html,features/settings.js}`.
 Машиночитаемая версия: `waves/RW-40/theme-spec.json` (schema `rw40/theme-spec-v1`).
@@ -12,8 +12,8 @@
 
 | Метка | Значение | Источник |
 |-|-|-|
-| `[T]` | токен дампа | `/home/sanya/re-deep/ui/tokens.json` (4795 переменных, тёмное состояние, сборка 1.0.162) |
-| `[M]` | измерено на пикселях | `/home/sanya/re-deep/ui/00-app.png` (+ `ui8/*`) |
+| `[T]` | токен дампа | `reference-oracle/ui/tokens.json` (4795 переменных, тёмное состояние, сборка 1.0.162) |
+| `[M]` | измерено на пикселях | `reference-oracle/ui/00-app.png` (+ `ui8/*`) |
 | `[L]` | RE-контракт раскладки | `waves/RW-37/RE/layout.json` |
 | `[F]` | заморожено тестами RW-38 | `tests/unit/gui-spike-dom.test.mjs` |
 | `[A]` | решение/пробел контракта | этот документ; подтверждение до реализации |

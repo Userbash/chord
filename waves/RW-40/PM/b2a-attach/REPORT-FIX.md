@@ -8,9 +8,9 @@
 
 | Элемент | Контракт (RE) |
 |---|---|
-| `MAX_UPLOAD_FILE_BYTES = 10 * 1024 * 1024` | RE-DEEP-REA §1.5 (`NONE` / `TIER_1` = `0xa00000`) |
-| `MAX_UPLOAD_FILE_BYTES_TIER2 = 50 * 1024 * 1024` | RE-DEEP-REA §1.5 (`TIER_2` = `0x3200000`) |
-| `MAX_UPLOAD_FILE_BYTES_TIER3 = 100 * 1024 * 1024` | RE-DEEP-REA §1.5 (`TIER_3` = `0x6400000`) |
+| `MAX_UPLOAD_FILE_BYTES = 10 * 1024 * 1024` | reference-oracle-REA §1.5 (`NONE` / `TIER_1` = `0xa00000`) |
+| `MAX_UPLOAD_FILE_BYTES_TIER2 = 50 * 1024 * 1024` | reference-oracle-REA §1.5 (`TIER_2` = `0x3200000`) |
+| `MAX_UPLOAD_FILE_BYTES_TIER3 = 100 * 1024 * 1024` | reference-oracle-REA §1.5 (`TIER_3` = `0x6400000`) |
 | `GuildBoostTier::{None, Tier1, Tier2, Tier3}::max_upload_bytes()` | `None`/`Tier1` → 10 MiB, `Tier2` → 50 MiB, `Tier3` → 100 MiB |
 | `request_upload_slots_with_tier(&transport, channel_id, tier, files)` + метод `DiscordAttachments` | Предпроверка размера по `tier.max_upload_bytes()` до обращения к сети |
 | `request_upload_slots(&transport, channel_id, files)` | Вызов `request_upload_slots_with_tier` с `GuildBoostTier::None` |
@@ -50,7 +50,7 @@ CARGO_TARGET_DIR=/tmp/target-g1-attach cargo clippy --offline -p discord-gui-spi
 
 ## oracle
 
-- `waves/RW-40/RE-DEEP-REA.md` §1.5 (`[D] @314301`, `@6804500`, `@6805978`):
+- `waves/RW-40/reference-oracle-REA.md` §1.5 (`[D] @314301`, `@6804500`, `@6805978`):
   - `NONE` / `TIER_1` = `10 МиБ` (`0xa00000` = `10_485_760`);
   - `TIER_2` = `50 МиБ` (`0x3200000` = `52_428_800`);
   - `TIER_3` = `100 МиБ` (`0x6400000` = `104_857_600`).

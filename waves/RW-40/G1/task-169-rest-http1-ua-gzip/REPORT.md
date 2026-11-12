@@ -10,7 +10,7 @@
 ## 1. Что сделано
 
 1. **Константа `DEFAULT_USER_AGENT` из клиентской идентичности Discord 1.0.162**:
-   - Значение зафиксировано по оракулу `/home/sanya/re-deep/rest-d02.json` (`auth.superProperties.browser_user_agent`):
+   - Значение зафиксировано по оракулу `reference-oracle/rest-d02.json` (`auth.superProperties.browser_user_agent`):
      `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.162 Chrome/148.0.7778.280 Electron/42.11.12 Safari/537.36`.
    - Константа объявлена в `rust/crates/discord-core/src/rest/http1.rs` и реэкспортирована в `rust/crates/discord-core/src/rest/transport.rs`.
 

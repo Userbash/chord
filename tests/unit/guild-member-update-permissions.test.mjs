@@ -44,7 +44,7 @@ describe("TASK-765: dispatch-model проекции ролей и прав уч�
         roles: ["201", "202"],
         nick: "Модератор",
         pending: false,
-        user: { id: "999", username: "sanya", global_name: "Саня" },
+        user: { id: "999", username: "test_member", global_name: "Test Member" },
       },
     });
     assert.equal(grantRes.ok, true);
@@ -67,7 +67,7 @@ describe("TASK-765: dispatch-model проекции ролей и прав уч�
         roles: ["201", "202"],
         nick: "Модератор",
         pending: false,
-        user: { id: "999", username: "sanya", global_name: "Саня" },
+        user: { id: "999", username: "test_member", global_name: "Test Member" },
       },
     });
     assert.equal(dupRes.counters.duplicate, 1);
@@ -81,7 +81,7 @@ describe("TASK-765: dispatch-model проекции ролей и прав уч�
         roles: [],
         nick: "Модератор",
         pending: false,
-        user: { id: "999", username: "sanya", global_name: "Саня" },
+        user: { id: "999", username: "test_member", global_name: "Test Member" },
       },
     });
     assert.equal(revokeRes.counters.applied, 1);
@@ -98,7 +98,7 @@ describe("TASK-765: dispatch-model проекции ролей и прав уч�
       data: {
         guild_id: "100",
         roles: ["r_mod", "r_keep"],
-        user: { id: "999", username: "sanya" },
+        user: { id: "999", username: "test_member" },
       },
     });
 

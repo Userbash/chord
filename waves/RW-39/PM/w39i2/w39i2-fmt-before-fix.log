@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:273:
+Diff in /home/user/orca/project/rust/gui-spike/src/main.rs:273:
          };
  
          // query обрезается в слое данных: команда не должна добавлять свою логику.
@@ -16,7 +16,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:273:
 (B[m         let actual = search_page("  call of duty  ".to_string(), None, None, None)
              .expect("команда search_page");
          assert_eq!(actual, expected);
-Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:302:
+Diff in /home/user/orca/project/rust/gui-spike/src/main.rs:302:
              Some(5),
          )
          .expect("фильтрованная выборка");
@@ -27,7 +27,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:302:
 (B[m         assert_eq!(actual_filtered, expected_filtered);
  
          // Курсор следующей страницы — id последнего результата, без пересечений.
-Diff in /home/sanya/orca/project/rust/gui-spike/src/main.rs:313:
+Diff in /home/user/orca/project/rust/gui-spike/src/main.rs:313:
              .expect("при limit 5 и total 13 есть следующая страница");
          let second = search_page(String::new(), None, Some(cursor.clone()), Some(5))
              .expect("вторая страница");

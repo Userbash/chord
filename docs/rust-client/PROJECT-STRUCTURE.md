@@ -1,122 +1,110 @@
-# Строение объединённого проекта (RE + Rust-клиент)
+# Unified Project Structure (RE + Rust Client)
 
-Структура, в которой результаты обратной разработки Discord **соединены** с планом и каркасом
-Rust-клиента в один проект. Зафиксирована волной RC (карточки RC-07/RC-08, `TASKS.md` §RC).
+This document describes the unified structure uniting cleanroom reverse engineering artifacts with the implementation plan and Rust client workspace. Established in wave RC (cards RC-07/RC-08, `TASKS.md` §RC).
 
-## 1. Три опоры
+## 1. Three Pillars
 
-| Опора | Где живёт | В git | Роль |
+| Pillar | Location | Tracked in Git | Role |
 |---|---|---|---|
-| **Лаборатория** | `/home/sanya/re-deep` (1,7 ГБ, 22 072 файла) | нет | Единственное место сырья: захваты, pcap, strace, дампы, каталоги локалей |
-| **Репозиторий** | этот git-репозиторий | да | Нормативная спека (`docs/`), курированные фикстуры (`fixtures/`), каркас (`rust/`), инструменты (`src/`, `bin/`, `tests/`) |
-| **План-пакет** | `docs/rust-client/` | да | Концепт, функции, архитектура, P0–P8, тесты, структура, трассировка, верификация |
+| **Cleanroom Lab** | `cleanroom-oracle/` | No | Authoritative raw evidence: network captures, pcap, strace, dumps, locale catalogs |
+| **Repository** | Git repository root | Yes | Normative specs (`docs/`), curated fixtures (`fixtures/`), crate scaffold (`rust/`), tooling (`src/`, `bin/`, `tests/`) |
+| **Plan Package** | `docs/rust-client/` | Yes | Concept, features, architecture, P0–P8 waves, tests, structure, traceability, verification |
 
 ```mermaid
 flowchart LR
-    subgraph LAB["Лаборатория (вне git): /home/sanya/re-deep"]
-        raw["Сырьё: capture-run2, pcap/strace голоса, gw-proto, native-re, каталоги i18n"]
+    subgraph LAB["Cleanroom Lab (external): cleanroom-oracle/"]
+        raw["Raw data: capture-run2, voice pcap/strace, gw-proto, native-re, i18n catalogs"]
     end
-    subgraph REPO["Репозиторий discord-lab (git)"]
-        spec["docs/re/ — нормативная спека R7 (шлюз, REST, голос, UI, i18n, бэкенд)"]
-        rc["docs/rust-client/ — концепт, функции, архитектура, план, тесты, структура, трассировка, верификация"]
-        fx["fixtures/ — курированный срез (12 записей, 1,59 МБ, MANIFEST.json)"]
-        rs["rust/ — Cargo workspace (13 крейтов: реализованные модули и каркасы)"]
-        cli["src/ bin/ tests/ scripts/ — CLI анализа, мета-тесты, гейты"]
+    subgraph REPO["Repository discord-lab (git)"]
+        spec["docs/re/ — normative R7 specifications (gateway, REST, voice, UI, i18n, backend)"]
+        rc["docs/rust-client/ — concept, features, architecture, plan, tests, structure, traceability"]
+        fx["fixtures/ — curated test fixtures (12 entries, 1.59 MB, MANIFEST.json)"]
+        rs["rust/ — Cargo workspace (13 crates: active modules and scaffold)"]
+        cli["src/ bin/ tests/ scripts/ — CLI tooling, meta-tests, quality gates"]
     end
-    raw -->|"извлечение фактов (методики R7)"| spec
-    raw -->|"копирование минимального среза + md5"| fx
+    raw -->|"fact extraction (R7 methodology)"| spec
+    raw -->|"curated minimal snapshot + md5"| fx
     spec --> rc
-    fx -->|"конформанс L1–L3"| rs
-    rc -->|"карточки P1–P8"| rs
-    cli -.->|"verify-re.mjs: 20 сверок сырьё↔доки"| raw
+    fx -->|"conformance L1–L3"| rs
+    rc -->|"work cards P1–P8"| rs
+    cli -.->|"verify-re.mjs: 20 raw-to-spec checks"| raw
     cli -.-> fx
     cli -.-> rs
 ```
 
-## 2. Дерево
+## 2. Directory Tree
 
 ```
-discord-lab/                         (git-репозиторий)
+discord-lab/                         (git repository)
 ├─ docs/
-│  ├─ map.md                         карта проекта, слои 1–8 (Mermaid)
-│  ├─ re/                            спека R7: 26 файлов + JSON-доказательства
-│  ├─ rust-client/                   пакет плана Rust-клиента
+│  ├─ map.md                         project knowledge map, layers 1–8 (Mermaid)
+│  ├─ re/                            R7 specifications: 26 files + JSON evidence bundles
+│  ├─ rust-client/                   Rust client plan package
 │  │  ├─ CONCEPT.md  FEATURES.md  ARCHITECTURE.md  PLAN.md  TEST-PLAN.md
-│  │  ├─ PROJECT-STRUCTURE.md        (этот файл)
-│  │  ├─ TRACEABILITY.md             функции → спека → фикстуры → тесты
-│  │  ├─ VERIFICATION.md             журнал сверки сырья с документами
+│  │  ├─ PROJECT-STRUCTURE.md        (this document)
+│  │  ├─ TRACEABILITY.md             features -> specs -> fixtures -> tests
+│  │  ├─ VERIFICATION.md             raw-to-doc verification ledger
 │  │  └─ verify/
-│  │     ├─ verify-re.mjs            оракул: 20 автоматических проверок
-│  │     └─ report.json              машинный отчёт последнего прогона
-│  └─ feature-backlog.md             карточки R4/R5/R6/D (41)
-├─ fixtures/                         курированные конформанс-фикстуры (git)
-│  ├─ MANIFEST.json                  провенанс: источник, md5, назначение, тесты
-│  ├─ tools/make-fixtures.mjs        сборщик: копирование + санитизация + манифест
-│  ├─ gateway/{by-type/×164, ready-stats, summary}
+│  │     ├─ verify-re.mjs            oracle: 20 automated verifications
+│  │     └─ report.json              machine-readable report of latest run
+│  └─ feature-backlog.md             feature transfer cards R4/R5/R6/D (41)
+├─ fixtures/                         curated conformance fixtures (git)
+│  ├─ MANIFEST.json                  provenance: source, md5, purpose, tests
+│  ├─ tools/make-fixtures.mjs        builder: copy + sanitize + manifest update
+│  ├─ gateway/{by-type/x164, ready-stats, summary}
 │  ├─ gw-proto/{facts-frozen, msgs-run2-…-13072}
 │  ├─ rest/rest-static.json
 │  ├─ i18n/i18n-stats.json
 │  └─ voice/{rtc*-frames, rtc*-summary, session3.timing}
-├─ rust/                             нативный клиент: workspace из 13 crate-ов
+├─ rust/                             native client: workspace of 13 crates
 │  ├─ Cargo.toml                     workspace: crates/*
 │  └─ crates/{discord-app, -codec, -core, -json, -store, -voice, -media,
 │             -platform, -i18n, -ui, -conformance, -perf, -updater}
-├─ waves/                            журнал волн: db.jsonl + STATE.md + логи RW-01…RW-35
-├─ src/ bin/ scripts/ tests/         CLI discord-lab + мета-тесты + гейты
-└─ logs/ functions/ evidence/        golden: только чтение
+├─ waves/                            wave journal: db.jsonl + STATE.md + logs RW-01…RW-35
+├─ src/ bin/ scripts/ tests/         CLI tools + meta-tests + quality gates
+└─ logs/ functions/ evidence/        golden data: read-only
 
-/home/sanya/re-deep/                 лаборатория (вне git)
-├─ capture-run2.jsonl  9,4 МБ        санитизированный захват WS/REST
-├─ gateway/ 164×by-type, схема       декод шлюза (D-01)
-├─ gw-proto/ 1544 кадра, facts       ETF/zstd-разбор (7 сокетов)
-├─ d02-snapshot/                     снимки REST D-02 (md5-провенанс)
-├─ rest-static.json 904 эндпоинта    реестр веб-бандла
-├─ voice/ pcap, strace, RTC, движок  голос: сигнализация + UDP + ротация
-├─ i18n-* / ru|en-catalog / locale-*  локали: 36 кодов, включено 31
-├─ native-re.json 9 модулей          нативные .node + md5/sha256
-├─ backend-ipc.json 168 каналов      бэкенд main-процесса
-├─ ui*/ decoded/                     UI-трассы и декоды экранов
-├─ flatpak-hits/ nm/ cc-text/        статические находки по сборке
-└─ README.md                         индекс лаборатории
+cleanroom-oracle/                    cleanroom lab (external)
+├─ capture-run2.jsonl  9.4 MB        sanitized WS/REST traffic trace
+├─ gateway/ 164x by-type, schema     Gateway schema decode (D-01)
+├─ gw-proto/ 1544 frames, facts      ETF/zstd protocol analysis (7 sockets)
+├─ d02-snapshot/                     REST D-02 snapshots (md5 provenance)
+├─ rest-static.json 904 endpoints    web bundle route registry
+├─ voice/ pcap, strace, RTC          voice: signaling + UDP + socket rotation
+├─ i18n-* / ru|en-catalog            locale catalogs: 36 codes, 31 active
+├─ native-re.json 9 modules          native .node binaries + md5/sha256
+├─ backend-ipc.json 168 channels     Electron main process IPC map
+├─ ui*/ decoded/                     UI traces and screen decodes
+├─ flatpak-hits/ nm/ cc-text/        static build findings
+└─ README.md                         lab index
 ```
 
-## 3. Правила раскладки
+## 3. Storage and Workflow Rules
 
-1. **Сырьё — только в лаборатории.** Никакие новые захваты/pcap/дампы в git не попадают;
-   в репозитории допустимы лишь JSON-сводки доказательств (`docs/re/*.json`).
-2. **Нормативные выводы — в `docs/`** с ссылкой на артефакт-источник (файл + строка/поле).
-   Числа в документах обязаны воспроизводиться из сырья (см. `verify-re.mjs`).
-3. **Тестовый срез — в `fixtures/`**: только санитизированные файлы, только с записью
-   в `MANIFEST.json` (источник, размер, md5, назначение, T-ID). Бюджет — единицы МБ.
-   Сборка — `fixtures/tools/make-fixtures.mjs`: вырезает значения чувствительных ключей
-   (`analytics_token`, `session_id` и др. → `REDACTED`) и сканирует набор на токены.
-4. **Код — в `rust/`** (каркас и развитие по P0–P8). Крейты не пересекают границы из
-   `ARCHITECTURE.md` §2; UI-оболочка — Tauri (ADR-1; спайк P0-01 уточняет метрики).
-5. **Golden-каталоги** (`logs/`, `functions/`, `evidence/`) — только чтение, вне волн.
-6. **Секреты не сохраняются нигде**: токены/сессии → `REDACTED`, публичные IP → `<PUB_IP>`,
-   бинарные исходящие WS-кадры → sha256 (`docs/re/README.md`).
-7. **Журнал волн — `waves/`** (в git): `db.jsonl` (append-only события схемы v1), `STATE.md`
-   (где остановились), артефакты `RW-XX/` (ТЗ, red/green, отчёт, копии тестов). Бинарники,
-   сборки и сырьё — не в журнал (лаборатория `/home/sanya/re-deep/` или `/tmp`-черновики).
+1. **Raw data stays in cleanroom lab.** No raw network captures/pcap dumps are committed to git; repository contains only curated JSON evidence summaries (`docs/re/*.json`).
+2. **Normative specifications live in `docs/`** with references to source artifacts (file + offset/field). Numerical figures in docs must reproduce from raw data (see `verify-re.mjs`).
+3. **Test fixtures reside in `fixtures/`**: only sanitized files with entries in `MANIFEST.json` (source, size, md5, purpose, T-ID). Maximum total budget: single-digit megabytes. Fixture generator — `fixtures/tools/make-fixtures.mjs`: redacts sensitive credentials (`analytics_token`, `session_id` -> `REDACTED`) and verifies token absence.
+4. **Implementation code lives in `rust/`** (scaffold and progression across P0–P8). Crates strictly respect boundaries in `ARCHITECTURE.md` §2; UI shell is Tauri 2 (ADR-1).
+5. **Golden directories** (`logs/`, `functions/`, `evidence/`) remain read-only.
+6. **Zero secret persistence**: session tokens -> `REDACTED`, public IPs -> `<PUB_IP>`, outbound binary frames -> sha256 (`docs/re/README.md`).
+7. **Wave journal lives in `waves/`** (in git): `db.jsonl` (append-only v1 schema events), `STATE.md` (progress checkpoint), and artifacts in `RW-XX/` (task specs, red/green logs, reports, test copies). Binaries and raw dumps are never stored in the journal.
 
-## 4. Проверки (как убедиться, что всё сходится)
+## 4. Verification Commands
 
 ```sh
-node docs/rust-client/verify/verify-re.mjs --write   # 20 сверок сырьё↔доки (код 0/1/2)
-node fixtures/tools/make-fixtures.mjs                # пересборка фикстур (копирование + санитизация)
-cd rust && cargo test --offline --workspace         # workspace из 13 крейтов, офлайн
-npm run check                                        # Node-тесты + мета-контроль
-npm run gate:worker                                  # гейт воркера (перед отчётом)
+node docs/rust-client/verify/verify-re.mjs --write   # 20 raw-to-doc verification checks
+node fixtures/tools/make-fixtures.mjs                # rebuild fixtures (copy + sanitize)
+cd rust && cargo test --offline --workspace         # test workspace of 13 crates offline
+npm run check                                        # Node tests + meta-control
+npm run gate:worker                                  # worker quality gate (pre-report)
 ```
 
-- `verify-re.mjs` — оракул расхождений: md5 снапшотов, счётчики READY, кадры gw-proto,
-  ETF-теги, REST, i18n, IPC, нативные модули, RTC-опы, санитизация, целостность `fixtures/`.
-- `tests/meta/rust-client-sync.test.mjs` — стережёт структуру пакета, фикстуры и каркас
-  (краснеет при расползании).
-- `docs/rust-client/VERIFICATION.md` — журнал прогона и разбор расхождений.
+- `verify-re.mjs` — deviation oracle: snapshot md5, READY counters, gw-proto frames, ETF tags, REST routes, i18n metrics, IPC channels, native modules, RTC opcodes, sanitization, `fixtures/` integrity.
+- `tests/meta/rust-client-sync.test.mjs` — guards plan package structure, fixtures, and workspace scaffold.
+- `docs/rust-client/VERIFICATION.md` — verification execution log and deviation analysis.
 
-## 5. Дальше
+## 5. Next Steps
 
-- Следующие этапы сверять по `STATUS.md`, `TASKS.md` и `WAVE-PLAN.md`; keyring и SQLite уже реализованы.
-- GUI-стек и оставшиеся headless-карточки описаны в `ROADMAP.md` и `WAVE-PLAN.md`.
-- RC-07/RC-08 закрыты этим пакетом; новые артефакты RE добавлять по правилам §3.
+- Track subsequent phases in `STATUS.md`, `TASKS.md`, and `WAVE-PLAN.md`; keyring and SQLite store are complete.
+- GUI stack and remaining headless work cards are detailed in `ROADMAP.md` and `WAVE-PLAN.md`.
+- Milestone RC-07/RC-08 is completed by this documentation package; future reverse engineering artifacts must follow §3 rules.

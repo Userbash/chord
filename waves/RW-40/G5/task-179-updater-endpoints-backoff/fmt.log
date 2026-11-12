@@ -3,12 +3,12 @@
 # 1) rustfmt --edition 2021 --check <3 файла>  (буквальная команда из ТЗ)
 # exit=1
 error: let chains are only allowed in Rust 2024 or later
-  --> /home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater/src/manifest.rs:58:12
+  --> /home/user/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater/src/manifest.rs:58:12
    |
 58 |         if let Some(pre) = pre
    |            ^^^^^^^^^^^^^^^^^^^
 
-Error writing files: failed to resolve mod `manifest`: cannot parse /home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater/src/manifest.rs
+Error writing files: failed to resolve mod `manifest`: cannot parse /home/user/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater/src/manifest.rs
 error: let chains are only allowed in Rust 2024 or later
 # ПРИЧИНА: парсер 2021 не понимает let-chain в manifest.rs:58 (код уже на edition 2024 из rust/Cargo.toml); файл не тронут.
 

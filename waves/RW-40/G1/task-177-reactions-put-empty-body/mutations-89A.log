@@ -1,7 +1,7 @@
 # Мутационные прогоны Review 89A — task-177 (BE-P3-01)
 #
 # Метод: мутация в rust/gui-spike/src/reactions.rs, прогон
-#   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test \
+#   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test \
 #     --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract
 # восстановление файла из бэкапа (/tmp/opencode/mut177/reactions.rs.bak), сверка md5.
 # Итог после всех прогонов: 1cb0952e95d5c237add7b4b16332bcb2 (совпадает с REPORT.md).

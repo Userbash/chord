@@ -2,7 +2,7 @@
 
 Статус: **заморожен до кода** (Team Lead, 2026-10-21). Источник: `docs/re/i18n-deep.md`
 §1–3, §5–7; `docs/rust-client/PLAN.md` P7-01; `docs/rust-client/TEST-PLAN.md`
-T-I18N-04…08, T-MSG-01; реальные каталоги `/home/sanya/re-deep/{ru,en}-catalog.json`
+T-I18N-04…08, T-MSG-01; реальные каталоги `reference-oracle/{ru,en}-catalog.json`
 (только чтение).
 
 ## 1. DoD

@@ -351,7 +351,7 @@ RE-гейтов §5, не строки очереди **[V]**.
 ## 9. Как перепроверить (read-only, ~1 мин)
 
 ```bash
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 git log --oneline -1 && git status --porcelain -uall | wc -l
 find waves/RW-40 -name '*ACCEPT*.md' | wc -l; ls PM/g01b-contract/ACCEPT.md QUALITY/QA-M2-04-ACCEPT.md
 

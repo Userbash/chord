@@ -2,7 +2,7 @@
 # Мутационное само-ревью RW-05: ломаем реализацию — смотрим, ловят ли тесты.
 # Каждая мутация: применить → cargo test -p discord-core → восстановить из бэкапа.
 set -u
-SRC=/home/sanya/orca/project/rust/crates/discord-core/src
+SRC=/home/user/orca/project/rust/crates/discord-core/src
 B=/tmp/opencode/rw-05/mut
 mkdir -p "$B"
 cp "$SRC/identify.rs" "$SRC/ready.rs" "$SRC/ws.rs" "$B/"
@@ -28,7 +28,7 @@ PY
 
 run() { # $1=id $2=desc
     local log="$B/$1.txt"
-    ( cd /home/sanya/orca/project/rust && cargo test --offline -p discord-core ) > "$log" 2>&1
+    ( cd /home/user/orca/project/rust && cargo test --offline -p discord-core ) > "$log" 2>&1
     local status
     if grep -qE "^(error(\[|:)|error\[)" "$log"; then status="COMPILE-FAIL"
     elif grep -q "test result: FAILED" "$log"; then status="CAUGHT"

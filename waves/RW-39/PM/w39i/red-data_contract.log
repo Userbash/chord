@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved import `discord_gui_spike::data::SearchFilters`
   --> tests/data_contract.rs:20:22
    |
@@ -375,7 +375,7 @@ help: `usize` implements trait `PartialEq<Rhs>`
     |
     = note: in this macro invocation
     |
-   ::: /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/partial_eq.rs:76:13
+   ::: /home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/partial_eq.rs:76:13
     |
  76 |               impl PartialEq<Value> for $ty {
     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `PartialEq<Value>`

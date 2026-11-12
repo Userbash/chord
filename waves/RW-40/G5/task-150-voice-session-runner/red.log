@@ -1,4 +1,4 @@
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-150-voice-session-runner/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-150-voice-session-runner/rust/crates/discord-voice)
 warning: multiple fields are never read
    --> crates/discord-voice/src/session.rs:510:5
     |
@@ -30,7 +30,7 @@ warning: multiple fields are never read
 
 warning: `discord-voice` (lib test) generated 1 warning
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_voice-37c479f94835c760)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_voice-37c479f94835c760)
 
 running 14 tests
 test reception::tests::extension_sequence_wraps_forward ... ok

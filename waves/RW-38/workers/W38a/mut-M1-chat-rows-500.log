@@ -37,9 +37,9 @@ test at tests/unit/gui-spike-dom.test.mjs:203:3
   
   22000 !== 4400000
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:206:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:204:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:206:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:204:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -56,9 +56,9 @@ test at tests/unit/gui-spike-dom.test.mjs:226:3
   
     assert.ok(rows.length >= 10)
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:231:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:227:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:231:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:227:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -75,9 +75,9 @@ test at tests/unit/gui-spike-dom.test.mjs:300:3
   
   491 !== 99999
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:306:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:301:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:306:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:301:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -94,9 +94,9 @@ test at tests/unit/gui-spike-dom.test.mjs:426:3
   
   500 !== 100000
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:434:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:427:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:434:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:427:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -110,9 +110,9 @@ test at tests/unit/gui-spike-dom.test.mjs:426:3
 test at tests/unit/gui-spike-dom.test.mjs:481:3
 ✖ нет дублей: строка чата всегда ровно с одним .author и одним .text (4.73862ms)
   TypeError: Cannot read properties of undefined (reading 'querySelector')
-      at chatRowIndex (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:118:20)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:507:24
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:482:5)
+      at chatRowIndex (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:118:20)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:507:24
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:482:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

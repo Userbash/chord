@@ -2,7 +2,7 @@
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер (DeepSeek), Review 50A.
 Ветка: `feature/task-136-net-forwarded-dispatches`, worktree
-`/home/sanya/orca/workspaces/project/feature-task-136-net-forwarded-dispatches`,
+`/home/user/orca/workspaces/project/feature-task-136-net-forwarded-dispatches`,
 HEAD `4e24048`. Режим: чтение кода + целевые тесты + мутационные прогоны.
 
 ## Вердикт
@@ -45,7 +45,7 @@ UI-фильтр — см. P2-1.
 Команда:
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline \
   --manifest-path rust/gui-spike/Cargo.toml --test net_contract --test ipc_contract
 ```
 

@@ -1,7 +1,7 @@
 # BUILD-004 — Централизованная сборка `testing` для отдела G4 QA
 
 - **Номер сборки:** `BUILD-004`
-- **Целевая ветка интеграции:** `testing` (`/home/sanya/orca/workspaces/project/testing`)
+- **Целевая ветка интеграции:** `testing` (`/home/user/orca/workspaces/project/testing`)
 - **Источник:** `unstable` (после слияния `PR-13`..`PR-17`)
 - **Дата выпуска сборки:** `2026-10-30`
 - **Статус:** `In Testing` (ожидает слота G4 QA)

@@ -3,9 +3,9 @@
 import fs from "node:fs";
 
 const SOCK = "95974.1389";
-const CAP = "/home/sanya/re-deep/capture-run2.jsonl";
-const MSGS = "/home/sanya/re-deep/gw-proto/msgs-run2-95974_1389.jsonl";
-const TSV = "/home/sanya/re-deep/gw-proto/timeline-95974_1389.tsv";
+const CAP = "/home/user/clean-room-oracle/capture-run2.jsonl";
+const MSGS = "/home/user/clean-room-oracle/gw-proto/msgs-run2-95974_1389.jsonl";
+const TSV = "/home/user/clean-room-oracle/gw-proto/timeline-95974_1389.tsv";
 
 // 1) ts из захвата: все wsrecv этого сокета, в порядке файла.
 const ts = [];

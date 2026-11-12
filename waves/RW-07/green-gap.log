@@ -3,7 +3,7 @@ d929b0229def68b378ed2212320aa162  crates/discord-core/src/dispatch.rs
 fa6e051a9b3f1c8bdeb18c101514d639  crates/discord-core/src/ws.rs
 fbb4e1bfe4f102523db32dfd6f567f41  crates/discord-core/tests/dispatch_router.rs
 == 1. dispatch_router (green) ==
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
      Running tests/dispatch_router.rs (target/debug/deps/dispatch_router-6dd6cbc392eab80a)
 
@@ -40,7 +40,7 @@ passed: 71
 passed: 113
 # EXIT=0 (workspace)
 == 5. clippy -D warnings ==
-    Checking discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+    Checking discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
 # EXIT=0 (clippy)
 == 6. fmt --check ==

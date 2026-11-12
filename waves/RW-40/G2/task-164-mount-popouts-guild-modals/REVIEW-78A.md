@@ -1,7 +1,7 @@
 # Technical Review: task-164 (`FE-P1-06` Mount `userPopout` & `guildModals` in `app.js`)
 
 - **Карточка**: `RW-40` / `G2` / `task-164` (`FE-P1-06`)
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-164-mount-popouts-guild-modals`
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-164-mount-popouts-guild-modals`
 - **Ветка**: `feature/task-164-mount-popouts-guild-modals`
 - **Проверяемые файлы**:
   - `rust/gui-spike/ui/app.js` (`debe47e288cf689c700050050eea4b9b`)

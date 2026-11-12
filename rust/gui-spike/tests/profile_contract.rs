@@ -126,8 +126,8 @@ fn full_profile_body() -> &'static str {
     r#"{
         "user": {
             "id": "1168176063113875531",
-            "username": "sanya",
-            "global_name": "Sanya",
+            "username": "testuser",
+            "global_name": "TestUser",
             "avatar": "a_abc123",
             "bio": "привет",
             "pronouns": "он/его",
@@ -141,17 +141,17 @@ fn full_profile_body() -> &'static str {
         ],
         "guild_member": {
             "guild_id": "1014537851418980372",
-            "nick": "Sanya",
+            "nick": "TestUser",
             "bio": "guild bio",
             "pronouns": "он",
             "roles": ["1", "2"]
         },
         "connected_accounts": [
-            {"type": "github", "id": "42", "name": "sanya", "verified": true},
-            {"type": "steam", "id": "7", "name": "sanya", "verified": false}
+            {"type": "github", "id": "42", "name": "testuser", "verified": true},
+            {"type": "steam", "id": "7", "name": "testuser", "verified": false}
         ],
         "mutual_guilds": [
-            {"id": "1014537851418980372", "nick": "Sanya"},
+            {"id": "1014537851418980372", "nick": "TestUser"},
             {"id": "2"}
         ],
         "mutual_friends_count": 3
@@ -315,8 +315,8 @@ fn full_response_body_maps_every_documented_field() {
         Ok(UserProfileResponse {
             user: ProfileUser {
                 id: USER_ID.to_string(),
-                username: "sanya".to_string(),
-                global_name: Some("Sanya".to_string()),
+                username: "testuser".to_string(),
+                global_name: Some("TestUser".to_string()),
                 avatar: Some("a_abc123".to_string()),
                 bio: Some("привет".to_string()),
                 pronouns: Some("он/его".to_string()),
@@ -339,7 +339,7 @@ fn full_response_body_maps_every_documented_field() {
             ],
             guild_member: Some(GuildMemberProfile {
                 guild_id: Some(GUILD_ID.to_string()),
-                nick: Some("Sanya".to_string()),
+                nick: Some("TestUser".to_string()),
                 bio: Some("guild bio".to_string()),
                 pronouns: Some("он".to_string()),
                 roles: vec!["1".to_string(), "2".to_string()],
@@ -348,20 +348,20 @@ fn full_response_body_maps_every_documented_field() {
                 ConnectedAccount {
                     account_type: "github".to_string(),
                     id: "42".to_string(),
-                    name: "sanya".to_string(),
+                    name: "testuser".to_string(),
                     verified: true,
                 },
                 ConnectedAccount {
                     account_type: "steam".to_string(),
                     id: "7".to_string(),
-                    name: "sanya".to_string(),
+                    name: "testuser".to_string(),
                     verified: false,
                 },
             ],
             mutual_guilds: vec![
                 MutualGuild {
                     id: GUILD_ID.to_string(),
-                    nick: Some("Sanya".to_string()),
+                    nick: Some("TestUser".to_string()),
                 },
                 MutualGuild {
                     id: "2".to_string(),

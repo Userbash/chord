@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/list_data.rs:12:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/list_data.rs:12:
  }
  
  pub(crate) static LIST_PATTERNS: &[(&str, &str, &str, ListPatterns)] = &[

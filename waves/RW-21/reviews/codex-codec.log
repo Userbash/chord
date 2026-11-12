@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -13,19 +13,19 @@ session id: 01a15cff-17e8-76a0-bd90-93009a270e47
 user
 Independent read-only review of B02 cards P1-01 (ETF full) and P1-02 (zstd strict). Do not edit files. Ignore all waves/RW-21/mutations/*.log: they are intentional mutant failures, not current product failures. Sources: rust/crates/discord-codec/src/etf.rs, zstd.rs, lib.rs, tests/etf_full.rs, tests/zstd_stream.rs, existing codec tests, waves/RW-21/DESIGN-P1-01.md, DESIGN-P1-02.md, REPORT-B02.md, docs/re/gateway-protocol.md. Check: all EtfValue variants and exact byte compatibility; checked encoder depth/length/atom/u32/u16 limits and no silent truncation; infallible encode contract; decoder depth/limits; fuzz/truncation independence; zstd terminal errors set dead for every Err, Poisoned for every later push including empty, fresh is_finished=false, completed-frame behavior, trailing data, compressed_consumed, window-retention oracle; no unsafe, unbounded allocation, network, new deps, or test-to-code fitting. Return verdict accepted / accepted with P3 / changes required, findings with file:line and severity P0/P1/P2/P3, explicitly list P0/P1/P2 counts. You cannot run cargo in the read-only sandbox; static review is expected.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Я сверю правила репозитория и материалы B02, затем статически пройду контракты реализаций и тестов. Файлы и логи мутантов останутся нетронутыми; `cargo` запускать не буду.
 exec
-/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md && printf '\\n--- PROCESS ---\\n' && sed -n '1,260p' PROCESS.md && printf '\\n--- TEAM ---\\n' && sed -n '1,240p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md && printf '\\n--- PROCESS ---\\n' && sed -n '1,260p' PROCESS.md && printf '\\n--- TEAM ---\\n' && sed -n '1,240p' docs/rust-client/TEAM.md" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -60,7 +60,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -148,7 +148,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -587,11 +587,11 @@ P2-09 accept — отдельная review-лейна REV-1 + TL-1, не тре�
 codex
 Контекст подтверждает роль независимого ревьюера и batch-правило: оценка должна опираться на замороженные контракты и отчёт. Сейчас читаю конкретные исходники, тесты и протокольный oracle; mutant logs исключены из анализа.
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/lib.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/lib.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/zstd_stream.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/zstd_stream.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P1-02.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P1-02.md' in /home/user/orca/project
  succeeded in 0ms:
      1	//! # discord-codec
      2	//!
@@ -702,10 +702,10 @@ exec
      3	//!
      4	//! **Провенанс оракулов** (независимые артефакты, не подгонка под реализацию):
      5	//! - синтетический кадр `tests/data/synth-zstd-frame.hexl` (67 Б) собран Node-скриптом
-     6	//!   `/home/sanya/re-deep/gw-make-synth-zstd.mjs` (`zstdCompressSync`, payload без данных
+     6	//!   `/home/user/clean-room-oracle/gw-make-synth-zstd.mjs` (`zstdCompressSync`, payload без данных
      7	//!   Discord); md5 файла `0a7742ae83a58088f3f80a16be77ad83`; распаковка — терм 34 Б × 4096 =
      8	//!   139 264 Б, md5 payload `4dbd601d877520056a7bcc3ca534ad4a`;
-     9	//! - lab-поток `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/zstd-frames-95974_1389.hexl` —
+     9	//! - lab-поток `{RE_LAB_ROOT:-/home/user/clean-room-oracle}/gw-proto/zstd-frames-95974_1389.hexl` —
     10	//!   снимок из `capture-run2.jsonl` (`gw-extract-frames.mjs`), 137 кадров, 104 066 Б сжатых;
     11	//!   распаковка 824 816 Б, из них ruzstd отдаёт 759 280 Б (удержание окна 65 536 = 824 816 −
     12	//!   759 280), совпало с Node `createZstdDecompress`; границы термов — из
@@ -746,10 +746,10 @@ exec
     47	    bytes.iter().map(|b| format!("{b:02x}")).collect()
     48	}
     49	
-    50	/// Lab-корень: `RE_LAB_ROOT` или `/home/sanya/re-deep`.
+    50	/// Lab-корень: `RE_LAB_ROOT` или `/home/user/clean-room-oracle`.
     51	fn lab_root() -> PathBuf {
     52	    PathBuf::from(
-    53	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+    53	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
     54	    )
     55	}
     56	
@@ -1043,9 +1043,9 @@ exec
    344	}
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/zstd.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/zstd.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/REPORT-B02.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/REPORT-B02.md' in /home/user/orca/project
  succeeded in 0ms:
      1	# RW-21 / B02 — отчёт batch
      2	
@@ -1102,9 +1102,9 @@ exec
     53	
     54	## 4. Проверка по RE-дампам
     55	
-    56	- `/home/sanya/re-deep/gw-proto/zstd-frames-95974_1389.hexl`: 137 кадров, 104 066 сжатых,
+    56	- `/home/user/clean-room-oracle/gw-proto/zstd-frames-95974_1389.hexl`: 137 кадров, 104 066 сжатых,
     57	  выход 759 280 Б; удержание окна 65 536 = 824 816 − 759 280; HELLO 138 Б совпал.
-    58	- `/home/sanya/re-deep/gw-proto/msgs-run2-95974_1389.jsonl`: 44 полных терма, смещение
+    58	- `/home/user/clean-room-oracle/gw-proto/msgs-run2-95974_1389.jsonl`: 44 полных терма, смещение
     59	  758 576, остаток 704 Б — тест `lab_stream_1389_matches_oracle`.
     60	- READY/UPDATE settings: base64 4400/17 436, raw 3300/13 077, sha256 зафиксированы в
     61	  `REPORT-P2-08.md`; type 2 versions 7545/7546/7547.
@@ -1360,9 +1360,9 @@ exec
    212	}
 
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P1-01.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P1-01.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/etf.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/etf.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	# B02 / P1-01 — ETF full (contract)
      2	
@@ -2070,9 +2070,9 @@ exec
    648	}
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/etf_full.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/etf_full.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba docs/re/gateway-protocol.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba docs/re/gateway-protocol.md' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P1-01: полный контракт ETF-энкодера (checked-путь, границы, глубина) и усиленный fuzz.
      2	//!
@@ -2252,7 +2252,7 @@ exec
  succeeded in 0ms:
      1	# Транспорт шлюза Discord: WS + ETF + zstd-stream
      2	
-     3	**RE-отчёт** (волна RE-DEEP, 2026-10-19). Работа только с артефактами: доки репозитория —
+     3	**RE-отчёт** (волна clean-room-oracle, 2026-10-19). Работа только с артефактами: доки репозитория —
      4	чтение; сеть не использовалась, Discord не запускался (все данные — из уже снятых CDP-захватов).
      5	
      6	- **Снимок фактов:** `gw-proto/facts-frozen.json` — прогон **2026-10-19 13:07:00 +05**.
@@ -2536,17 +2536,17 @@ exec
    284	`facts-frozen.json` (13:07:00 +05).*
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/etf_full.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/etf_full.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/REPORT-B02.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/REPORT-B02.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/src/etf.rs | sed -n '254,540p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/src/etf.rs | sed -n '254,540p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P1-02.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P1-02.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P1-01.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P1-01.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/zstd.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/zstd.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P1-01: полный контракт ETF-энкодера (checked-путь, границы, глубина) и усиленный fuzz.
      2	//!
@@ -2779,9 +2779,9 @@ exec
     53	
     54	## 4. Проверка по RE-дампам
     55	
-    56	- `/home/sanya/re-deep/gw-proto/zstd-frames-95974_1389.hexl`: 137 кадров, 104 066 сжатых,
+    56	- `/home/user/clean-room-oracle/gw-proto/zstd-frames-95974_1389.hexl`: 137 кадров, 104 066 сжатых,
     57	  выход 759 280 Б; удержание окна 65 536 = 824 816 − 759 280; HELLO 138 Б совпал.
-    58	- `/home/sanya/re-deep/gw-proto/msgs-run2-95974_1389.jsonl`: 44 полных терма, смещение
+    58	- `/home/user/clean-room-oracle/gw-proto/msgs-run2-95974_1389.jsonl`: 44 полных терма, смещение
     59	  758 576, остаток 704 Б — тест `lab_stream_1389_matches_oracle`.
     60	- READY/UPDATE settings: base64 4400/17 436, raw 3300/13 077, sha256 зафиксированы в
     61	  `REPORT-P2-08.md`; type 2 versions 7545/7546/7547.
@@ -3431,19 +3431,19 @@ exec
     47	`TARGET_CAPACITY`. Все red-first, restore по md5.
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/zstd_stream.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/zstd_stream.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/lib.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/lib.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! Инкрементальный декодер zstd-потока шлюза Discord (волна RW-02, P0-03 / T-ENC-04;
      2	//! strict-контракт ошибок — P1-02/B02).
      3	//!
      4	//! **Провенанс оракулов** (независимые артефакты, не подгонка под реализацию):
      5	//! - синтетический кадр `tests/data/synth-zstd-frame.hexl` (67 Б) собран Node-скриптом
-     6	//!   `/home/sanya/re-deep/gw-make-synth-zstd.mjs` (`zstdCompressSync`, payload без данных
+     6	//!   `/home/user/clean-room-oracle/gw-make-synth-zstd.mjs` (`zstdCompressSync`, payload без данных
      7	//!   Discord); md5 файла `0a7742ae83a58088f3f80a16be77ad83`; распаковка — терм 34 Б × 4096 =
      8	//!   139 264 Б, md5 payload `4dbd601d877520056a7bcc3ca534ad4a`;
-     9	//! - lab-поток `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/zstd-frames-95974_1389.hexl` —
+     9	//! - lab-поток `{RE_LAB_ROOT:-/home/user/clean-room-oracle}/gw-proto/zstd-frames-95974_1389.hexl` —
     10	//!   снимок из `capture-run2.jsonl` (`gw-extract-frames.mjs`), 137 кадров, 104 066 Б сжатых;
     11	//!   распаковка 824 816 Б, из них ruzstd отдаёт 759 280 Б (удержание окна 65 536 = 824 816 −
     12	//!   759 280), совпало с Node `createZstdDecompress`; границы термов — из
@@ -3484,10 +3484,10 @@ exec
     47	    bytes.iter().map(|b| format!("{b:02x}")).collect()
     48	}
     49	
-    50	/// Lab-корень: `RE_LAB_ROOT` или `/home/sanya/re-deep`.
+    50	/// Lab-корень: `RE_LAB_ROOT` или `/home/user/clean-room-oracle`.
     51	fn lab_root() -> PathBuf {
     52	    PathBuf::from(
-    53	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+    53	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
     54	    )
     55	}
     56	
@@ -3836,11 +3836,11 @@ exec
     53	}
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/lib.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/src/lib.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/src/zstd.rs | sed -n '73,260p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/src/zstd.rs | sed -n '73,260p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/tests/etf_full.rs | sed -n '1,300p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/tests/etf_full.rs | sed -n '1,300p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! # discord-codec
      2	//!
@@ -4215,9 +4215,9 @@ exec
    174	}
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/src/etf.rs | sed -n '517,650p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/src/etf.rs | sed -n '517,650p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/tests/zstd_stream.rs | sed -n '1,240p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/tests/zstd_stream.rs | sed -n '1,240p'" in /home/user/orca/project
  succeeded in 0ms:
    517	/// Канонический энкод терма в буфер.
    518	fn write_term(value: &EtfValue, out: &mut Vec<u8>, depth: usize) -> Result<(), EtfEncodeError> {
@@ -4358,10 +4358,10 @@ exec
      3	//!
      4	//! **Провенанс оракулов** (независимые артефакты, не подгонка под реализацию):
      5	//! - синтетический кадр `tests/data/synth-zstd-frame.hexl` (67 Б) собран Node-скриптом
-     6	//!   `/home/sanya/re-deep/gw-make-synth-zstd.mjs` (`zstdCompressSync`, payload без данных
+     6	//!   `/home/user/clean-room-oracle/gw-make-synth-zstd.mjs` (`zstdCompressSync`, payload без данных
      7	//!   Discord); md5 файла `0a7742ae83a58088f3f80a16be77ad83`; распаковка — терм 34 Б × 4096 =
      8	//!   139 264 Б, md5 payload `4dbd601d877520056a7bcc3ca534ad4a`;
-     9	//! - lab-поток `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/zstd-frames-95974_1389.hexl` —
+     9	//! - lab-поток `{RE_LAB_ROOT:-/home/user/clean-room-oracle}/gw-proto/zstd-frames-95974_1389.hexl` —
     10	//!   снимок из `capture-run2.jsonl` (`gw-extract-frames.mjs`), 137 кадров, 104 066 Б сжатых;
     11	//!   распаковка 824 816 Б, из них ruzstd отдаёт 759 280 Б (удержание окна 65 536 = 824 816 −
     12	//!   759 280), совпало с Node `createZstdDecompress`; границы термов — из
@@ -4402,10 +4402,10 @@ exec
     47	    bytes.iter().map(|b| format!("{b:02x}")).collect()
     48	}
     49	
-    50	/// Lab-корень: `RE_LAB_ROOT` или `/home/sanya/re-deep`.
+    50	/// Lab-корень: `RE_LAB_ROOT` или `/home/user/clean-room-oracle`.
     51	fn lab_root() -> PathBuf {
     52	    PathBuf::from(
-    53	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+    53	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
     54	    )
     55	}
     56	
@@ -4595,7 +4595,7 @@ exec
    240	
 
 exec
-/usr/bin/bash -lc 'rg --files rust/crates/discord-codec/tests' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg --files rust/crates/discord-codec/tests' in /home/user/orca/project
  succeeded in 0ms:
 rust/crates/discord-codec/tests/etf_full.rs
 rust/crates/discord-codec/tests/zstd_stream.rs
@@ -4606,16 +4606,16 @@ rust/crates/discord-codec/tests/etf_vectors.rs
 codex
 Проверки основных путей выглядят согласованно: кодек сохраняет отдельные `Atom`/`Str` и map-порядок, а zstd отмечает терминальными все три класса ошибок. Досматриваю унаследованные ETF byte vectors, crate lint/dependencies и точные условия граничных тестов, чтобы отличить реальные пробелы контракта от уже закрытых пунктов.
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/etf_properties.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/etf_properties.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/etf_vectors.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/tests/etf_vectors.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! Эталонные векторы ETF: реальные термы шлюза Discord (волна RW-1, P0-02, крейт `discord-codec`).
      2	//!
      3	//! **Провенанс** (независимый оракул, все значения сверены с артефактами):
      4	//! - сырые байты термов — `capture-run2.jsonl`, сокет `requestId 95974.1389`, вырезаны
      5	//!   `gw-slice-terms.mjs` (копия проверенного `gw-decode.mjs`);
-     6	//! - ожидаемые значения — `/home/sanya/re-deep/gw-proto/msgs-run2-95974_1389.jsonl`
+     6	//! - ожидаемые значения — `/home/user/clean-room-oracle/gw-proto/msgs-run2-95974_1389.jsonl`
      7	//!   (поле `term`, индекс `idx`); длины термов совпадают с полем `bytes` (длина без `0x83`):
      8	//!   138→137, 43→42, 210→209, 148→147, 257→256;
      9	//! - спека: `docs/re/gateway-protocol.md` §2 (11 фактических тегов, big-int — знак ДО цифр,
@@ -5524,7 +5524,7 @@ exec
    477	const MEMBER_LIST_HEX: &str = "83740000000464000164740000000664000667726f7570736c000000027400000002640005636f756e74610364000269646e0800795084b7b7a1bf0e7400000002640005636f756e74610c64000269646400066f6e6c696e656a6400086775696c645f69646e0800143004f5cc5c140e64000269646d0000000a3136353936303636343764000c6d656d6265725f636f756e746200005ea464000c6f6e6c696e655f636f756e7462000002c46400036f70736c000000017400000002640005696e646578610b6400026f7064000644454c4554456a6400026f70610064000173613a640001746400184755494c445f4d454d4245525f4c4953545f555044415445";
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/Cargo.toml' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-codec/Cargo.toml' in /home/user/orca/project
  succeeded in 0ms:
      1	[package]
      2	name = "discord-codec"
@@ -5540,9 +5540,9 @@ exec
     12	ruzstd = "0.9.1"
 
 exec
-/usr/bin/bash -lc "rg -n \"encode\\(|encode_checked|decode_term|decode\\(|MAX_DEPTH|BIG_INT|ListTail|Float|Atom|Tuple|Map\" rust/crates/discord-codec/tests" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n \"encode\\(|encode_checked|decode_term|decode\\(|MAX_DEPTH|BIG_INT|ListTail|Float|Atom|Tuple|Map\" rust/crates/discord-codec/tests" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'rg -n "unsafe|ruzstd|zstd" rust/crates/discord-codec/src rust/crates/discord-codec/Cargo.toml rust/Cargo.toml' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg -n "unsafe|ruzstd|zstd" rust/crates/discord-codec/src rust/crates/discord-codec/Cargo.toml rust/Cargo.toml' in /home/user/orca/project
  succeeded in 0ms:
 rust/crates/discord-codec/tests/etf_full.rs:3://! Оракул: `docs/re/gateway-protocol.md` §2, канонические байты RW-01 и `MAX_DEPTH=64`
 rust/crates/discord-codec/tests/etf_full.rs:5://! `encode_checked` обязан давать ровно те же байты, что принятый `encode`.
@@ -5707,151 +5707,151 @@ rust/crates/discord-codec/src/zstd.rs:119:    /// 6. ошибка `ruzstd` → [
 rust/crates/discord-codec/src/zstd.rs:161:            // `min` — страховка от паники `drain` на будущих версиях ruzstd.
 
 exec
-/usr/bin/bash -lc 'rg -n "window_size|window.*limit|Vec::with_capacity|decode_from_to|MAX_WINDOW" /home/sanya/.cargo/registry/src/*/ruzstd-0.9.1/src' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg -n "window_size|window.*limit|Vec::with_capacity|decode_from_to|MAX_WINDOW" /home/user/.cargo/registry/src/*/ruzstd-0.9.1/src' in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:130:fn test_decode_from_to() {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:145:        .decode_from_to(source1, target.as_mut_slice())
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:151:        .decode_from_to(source2, &mut target[written1..])
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:160:        .decode_from_to(chksum_source, &mut target[written1 + written2..])
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:394:        .decode_from_to(unread_compressed_content, &mut output)
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:589:/// `zstd --long=23` (an 8 MiB window descriptor), below the default limit.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:598:fn test_large_window_decodes_when_limit_raised() {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:601:    // 256 MiB window, above the default 128 MiB limit.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:606:    decoder.set_max_window_size(300 * 1024 * 1024);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:607:    assert_eq!(decoder.max_window_size(), 300 * 1024 * 1024);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:616:fn test_large_window_rejected_at_default_limit() {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:618:    use crate::decoding::{FrameDecoder, DEFAULT_MAX_WINDOW_SIZE};
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:623:    assert_eq!(decoder.max_window_size(), DEFAULT_MAX_WINDOW_SIZE);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:632:                if requested == 256 * 1024 * 1024 && max == DEFAULT_MAX_WINDOW_SIZE
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:658:    decoder.set_max_window_size(300 * 1024 * 1024);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:674:    // First frame: a single 256 MiB-window frame is rejected under the default limit.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:703:fn test_streaming_decoder_max_window_size() {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:720:        StreamingDecoder::new_with_max_window_size(compressed.as_slice(), 300 * 1024 * 1024)
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:728:fn test_max_window_size_clamped_to_format_maximum() {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:729:    use crate::common::MAX_WINDOW_SIZE;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:735:    decoder.set_max_window_size(2 * 1024 * 1024 * 1024);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:736:    assert_eq!(decoder.max_window_size(), 2 * 1024 * 1024 * 1024);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:739:    decoder.set_max_window_size(u64::MAX);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:740:    assert_eq!(decoder.max_window_size(), MAX_WINDOW_SIZE);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_encoder.rs:197:        let mut sorted = Vec::with_capacity(weights.len());
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_encoder.rs:221:            codes: Vec::with_capacity(weights.len()),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_decoder.rs:82:            weights: Vec::with_capacity(256),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_decoder.rs:84:            bits: Vec::with_capacity(256),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_decoder.rs:85:            bit_ranks: Vec::with_capacity(11),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_decoder.rs:86:            rank_indexes: Vec::with_capacity(11),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/fse/fse_decoder.rs:90:            symbol_probabilities: Vec::with_capacity(256), //will never be more than 256 symbols because u8
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/fse/fse_decoder.rs:91:            symbol_counter: Vec::with_capacity(256), //will never be more than 256 symbols because u8
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/streaming_decoder.rs:70:    /// window limit to `max_window_size`. See [FrameDecoder::set_max_window_size]
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/streaming_decoder.rs:72:    pub fn new_with_max_window_size(
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/streaming_decoder.rs:74:        max_window_size: u64,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/streaming_decoder.rs:77:        decoder.set_max_window_size(max_window_size);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/mod.rs:100:    fn window_size(&self) -> u64;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:52:    fn window_size(&self) -> u64 {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:53:        self.match_generator.max_window_size as u64
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:170:    max_window_size: usize,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:174:    window_size: usize,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:187:            max_window_size: max_size,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:189:            window_size: 0,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:198:        self.window_size = 0;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:383:        self.window_size += len;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:391:        assert!(self.max_window_size >= amount);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:392:        while self.window_size + amount > self.max_window_size {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:394:            self.window_size -= removed.data.len();
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/scratch.rs:30:    pub fn new(window_size: usize) -> DecoderScratch {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/scratch.rs:43:            buffer: DecodeBuffer::new(window_size),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/scratch.rs:52:    pub fn reset(&mut self, window_size: usize) {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/scratch.rs:58:        self.buffer.reset(window_size);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/mod.rs:8:pub use frame_decoder::{BlockDecodingStrategy, FrameDecoder, DEFAULT_MAX_WINDOW_SIZE};
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:13:    pub window_size: usize,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:21:        let max_amount = self.can_drain_to_window_size().unwrap_or(0);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:35:    pub fn new(window_size: usize) -> DecodeBuffer {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:39:            window_size,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:46:    pub fn reset(&mut self, window_size: usize) {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:47:        self.window_size = window_size;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:49:        self.buffer.reserve(self.window_size);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:149:        if self.total_output_counter <= self.window_size as u64 {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:182:    pub fn can_drain_to_window_size(&self) -> Option<usize> {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:183:        if self.buffer.len() > self.window_size {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:184:            Some(self.buffer.len() - self.window_size)
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:190:    //How many bytes can be drained if the window_size does not have to be maintained
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:195:    /// Drain as much as possible while retaining enough so that decoding si still possible with the required window_size
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:196:    /// At best call only if can_drain_to_window_size reports a 'high' number of bytes to reduce allocations
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:197:    pub fn drain_to_window_size(&mut self) -> Option<Vec<u8>> {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:199:        match self.can_drain_to_window_size() {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:202:                let mut vec = Vec::with_capacity(can_drain);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:213:    pub fn drain_to_window_size_writer(&mut self, mut sink: impl Write) -> Result<usize, Error> {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:214:        match self.can_drain_to_window_size() {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:229:        let mut vec = Vec::with_capacity(slice1.len() + slice2.len());
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:376:                .drain_to_window_size_writer(&mut short_writer)
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:426:                match decode_buf.drain_to_window_size_writer(&mut short_writer) {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/block_decoder.rs:54:        let max_block_len = (workspace.buffer.window_size).min(MAX_BLOCK_SIZE as usize);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/block_decoder.rs:236:            BlockType::Compressed => 0, //unknown but will be smaller than 128kb (or window_size if that is smaller than 128kb)
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:20:/// spec permits far larger windows, so raise the limit with
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:21:/// [FrameDecoder::set_max_window_size] for input you trust.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:25:pub const DEFAULT_MAX_WINDOW_SIZE: u64 = 1024 * 1024 * 128;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:83:    max_window_size: u64,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:105:        max_window_size: u64,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:108:        let window_size = frame.window_size()?;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:109:        Self::check_window_size(window_size, max_window_size)?;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:114:            decoder_scratch: DecoderScratch::new(window_size as usize),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:121:    fn reset(&mut self, source: impl Read, max_window_size: u64) -> Result<(), FrameDecoderError> {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:123:        let window_size = frame_header.window_size()?;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:124:        Self::check_window_size(window_size, max_window_size)?;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:129:        self.decoder_scratch.reset(window_size as usize);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:136:    /// Reject a frame whose declared window exceeds the limit, before allocation.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:137:    fn check_window_size(window_size: u64, max_window_size: u64) -> Result<(), FrameDecoderError> {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:138:        if window_size > max_window_size {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:140:                requested: window_size,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:141:                max: max_window_size,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:162:            max_window_size: DEFAULT_MAX_WINDOW_SIZE,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:170:    /// The default ([DEFAULT_MAX_WINDOW_SIZE], 100mb) bounds allocation for
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:175:    pub fn set_max_window_size(&mut self, max_window_size: u64) {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:176:        self.max_window_size = max_window_size.min(crate::common::MAX_WINDOW_SIZE);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:180:    pub fn max_window_size(&self) -> u64 {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:181:        self.max_window_size
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:204:                s.reset(source, self.max_window_size)?;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:208:                self.state = Some(FrameDecoderState::new(source, self.max_window_size)?);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:379:    /// Collect bytes and retain window_size bytes while decoding is still going on.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:387:            state.decoder_scratch.buffer.drain_to_window_size()
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:391:    /// Collect bytes and retain window_size bytes while decoding is still going on.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:402:            state.decoder_scratch.buffer.drain_to_window_size_writer(w)
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:407:    /// because window_size bytes need to be retained for decoding.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:421:                .can_drain_to_window_size()
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:439:    pub fn decode_from_to(
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:469:                    //this block is needed if the checksum were the only 4 bytes that were not included in the last decode_from_to call for a frame
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:614:/// this will retain window_size bytes, else it will drain it completely
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/levels/fastest_tests.rs:30:    let mut data = Vec::with_capacity(len);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:1:use crate::common::{MAGIC_NUM, MAX_WINDOW_SIZE, MIN_WINDOW_SIZE};
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:116:    pub fn window_size(&self) -> Result<u64, FrameHeaderError> {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:127:            let window_size = window_base + window_add;
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:129:            if window_size >= MIN_WINDOW_SIZE {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:130:                if window_size < MAX_WINDOW_SIZE {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:131:                    Ok(window_size)
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:133:                    Err(FrameHeaderError::WindowTooBig { got: window_size })
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:136:                Err(FrameHeaderError::WindowTooSmall { got: window_size })
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:13:    /// If not present, `window_size` must be set.
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:27:    pub window_size: Option<u64>,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:46:            if let Some(window_size) = self.window_size {
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:47:                let log = window_size.next_power_of_two().ilog2();
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:123:                self.window_size.is_some(),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:176:            window_size: None,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:192:            window_size: None,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:210:            window_size: Some(1),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:225:            window_size: None,
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/errors.rs:49:                "window_size bigger than allowed maximum. Is: {}, Should be lower than: {}",
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/errors.rs:51:                crate::common::MAX_WINDOW_SIZE
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/errors.rs:55:                "window_size smaller than allowed minimum. Is: {}, Should be greater than: {}",
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/errors.rs:524:                    "Specified window_size is too big; Requested: {requested}, Max: {max}",
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/common/mod.rs:14:pub const MAX_WINDOW_SIZE: u64 = (1 << 41) + 7 * (1 << 38);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:142:        let output: &mut Vec<u8> = &mut Vec::with_capacity(1024 * 130);
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:149:            window_size: Some(self.state.matcher.window_size()),
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:325:        let mut decoded = Vec::with_capacity(mock_data.len());
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:345:        let mut decoded = Vec::with_capacity(mock_data.len());
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:361:        let mut decoded = Vec::with_capacity(mock_data.len());
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/dictionary/reservoir.rs:82:        let mut dumpster = Vec::with_capacity(self.k as usize);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:130:fn test_decode_from_to() {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:145:        .decode_from_to(source1, target.as_mut_slice())
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:151:        .decode_from_to(source2, &mut target[written1..])
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:160:        .decode_from_to(chksum_source, &mut target[written1 + written2..])
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:394:        .decode_from_to(unread_compressed_content, &mut output)
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:589:/// `zstd --long=23` (an 8 MiB window descriptor), below the default limit.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:598:fn test_large_window_decodes_when_limit_raised() {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:601:    // 256 MiB window, above the default 128 MiB limit.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:606:    decoder.set_max_window_size(300 * 1024 * 1024);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:607:    assert_eq!(decoder.max_window_size(), 300 * 1024 * 1024);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:616:fn test_large_window_rejected_at_default_limit() {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:618:    use crate::decoding::{FrameDecoder, DEFAULT_MAX_WINDOW_SIZE};
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:623:    assert_eq!(decoder.max_window_size(), DEFAULT_MAX_WINDOW_SIZE);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:632:                if requested == 256 * 1024 * 1024 && max == DEFAULT_MAX_WINDOW_SIZE
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:658:    decoder.set_max_window_size(300 * 1024 * 1024);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:674:    // First frame: a single 256 MiB-window frame is rejected under the default limit.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:703:fn test_streaming_decoder_max_window_size() {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:720:        StreamingDecoder::new_with_max_window_size(compressed.as_slice(), 300 * 1024 * 1024)
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:728:fn test_max_window_size_clamped_to_format_maximum() {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:729:    use crate::common::MAX_WINDOW_SIZE;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:735:    decoder.set_max_window_size(2 * 1024 * 1024 * 1024);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:736:    assert_eq!(decoder.max_window_size(), 2 * 1024 * 1024 * 1024);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:739:    decoder.set_max_window_size(u64::MAX);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/tests/mod.rs:740:    assert_eq!(decoder.max_window_size(), MAX_WINDOW_SIZE);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_encoder.rs:197:        let mut sorted = Vec::with_capacity(weights.len());
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_encoder.rs:221:            codes: Vec::with_capacity(weights.len()),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_decoder.rs:82:            weights: Vec::with_capacity(256),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_decoder.rs:84:            bits: Vec::with_capacity(256),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_decoder.rs:85:            bit_ranks: Vec::with_capacity(11),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/huff0/huff0_decoder.rs:86:            rank_indexes: Vec::with_capacity(11),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/fse/fse_decoder.rs:90:            symbol_probabilities: Vec::with_capacity(256), //will never be more than 256 symbols because u8
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/fse/fse_decoder.rs:91:            symbol_counter: Vec::with_capacity(256), //will never be more than 256 symbols because u8
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/streaming_decoder.rs:70:    /// window limit to `max_window_size`. See [FrameDecoder::set_max_window_size]
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/streaming_decoder.rs:72:    pub fn new_with_max_window_size(
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/streaming_decoder.rs:74:        max_window_size: u64,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/streaming_decoder.rs:77:        decoder.set_max_window_size(max_window_size);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/mod.rs:100:    fn window_size(&self) -> u64;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:52:    fn window_size(&self) -> u64 {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:53:        self.match_generator.max_window_size as u64
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:170:    max_window_size: usize,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:174:    window_size: usize,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:187:            max_window_size: max_size,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:189:            window_size: 0,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:198:        self.window_size = 0;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:383:        self.window_size += len;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:391:        assert!(self.max_window_size >= amount);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:392:        while self.window_size + amount > self.max_window_size {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/match_generator.rs:394:            self.window_size -= removed.data.len();
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/scratch.rs:30:    pub fn new(window_size: usize) -> DecoderScratch {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/scratch.rs:43:            buffer: DecodeBuffer::new(window_size),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/scratch.rs:52:    pub fn reset(&mut self, window_size: usize) {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/scratch.rs:58:        self.buffer.reset(window_size);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/mod.rs:8:pub use frame_decoder::{BlockDecodingStrategy, FrameDecoder, DEFAULT_MAX_WINDOW_SIZE};
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:13:    pub window_size: usize,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:21:        let max_amount = self.can_drain_to_window_size().unwrap_or(0);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:35:    pub fn new(window_size: usize) -> DecodeBuffer {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:39:            window_size,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:46:    pub fn reset(&mut self, window_size: usize) {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:47:        self.window_size = window_size;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:49:        self.buffer.reserve(self.window_size);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:149:        if self.total_output_counter <= self.window_size as u64 {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:182:    pub fn can_drain_to_window_size(&self) -> Option<usize> {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:183:        if self.buffer.len() > self.window_size {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:184:            Some(self.buffer.len() - self.window_size)
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:190:    //How many bytes can be drained if the window_size does not have to be maintained
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:195:    /// Drain as much as possible while retaining enough so that decoding si still possible with the required window_size
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:196:    /// At best call only if can_drain_to_window_size reports a 'high' number of bytes to reduce allocations
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:197:    pub fn drain_to_window_size(&mut self) -> Option<Vec<u8>> {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:199:        match self.can_drain_to_window_size() {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:202:                let mut vec = Vec::with_capacity(can_drain);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:213:    pub fn drain_to_window_size_writer(&mut self, mut sink: impl Write) -> Result<usize, Error> {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:214:        match self.can_drain_to_window_size() {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:229:        let mut vec = Vec::with_capacity(slice1.len() + slice2.len());
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:376:                .drain_to_window_size_writer(&mut short_writer)
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/decode_buffer.rs:426:                match decode_buf.drain_to_window_size_writer(&mut short_writer) {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/block_decoder.rs:54:        let max_block_len = (workspace.buffer.window_size).min(MAX_BLOCK_SIZE as usize);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/block_decoder.rs:236:            BlockType::Compressed => 0, //unknown but will be smaller than 128kb (or window_size if that is smaller than 128kb)
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:20:/// spec permits far larger windows, so raise the limit with
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:21:/// [FrameDecoder::set_max_window_size] for input you trust.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:25:pub const DEFAULT_MAX_WINDOW_SIZE: u64 = 1024 * 1024 * 128;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:83:    max_window_size: u64,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:105:        max_window_size: u64,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:108:        let window_size = frame.window_size()?;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:109:        Self::check_window_size(window_size, max_window_size)?;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:114:            decoder_scratch: DecoderScratch::new(window_size as usize),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:121:    fn reset(&mut self, source: impl Read, max_window_size: u64) -> Result<(), FrameDecoderError> {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:123:        let window_size = frame_header.window_size()?;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:124:        Self::check_window_size(window_size, max_window_size)?;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:129:        self.decoder_scratch.reset(window_size as usize);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:136:    /// Reject a frame whose declared window exceeds the limit, before allocation.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:137:    fn check_window_size(window_size: u64, max_window_size: u64) -> Result<(), FrameDecoderError> {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:138:        if window_size > max_window_size {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:140:                requested: window_size,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:141:                max: max_window_size,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:162:            max_window_size: DEFAULT_MAX_WINDOW_SIZE,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:170:    /// The default ([DEFAULT_MAX_WINDOW_SIZE], 100mb) bounds allocation for
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:175:    pub fn set_max_window_size(&mut self, max_window_size: u64) {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:176:        self.max_window_size = max_window_size.min(crate::common::MAX_WINDOW_SIZE);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:180:    pub fn max_window_size(&self) -> u64 {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:181:        self.max_window_size
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:204:                s.reset(source, self.max_window_size)?;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:208:                self.state = Some(FrameDecoderState::new(source, self.max_window_size)?);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:379:    /// Collect bytes and retain window_size bytes while decoding is still going on.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:387:            state.decoder_scratch.buffer.drain_to_window_size()
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:391:    /// Collect bytes and retain window_size bytes while decoding is still going on.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:402:            state.decoder_scratch.buffer.drain_to_window_size_writer(w)
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:407:    /// because window_size bytes need to be retained for decoding.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:421:                .can_drain_to_window_size()
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:439:    pub fn decode_from_to(
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:469:                    //this block is needed if the checksum were the only 4 bytes that were not included in the last decode_from_to call for a frame
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs:614:/// this will retain window_size bytes, else it will drain it completely
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/levels/fastest_tests.rs:30:    let mut data = Vec::with_capacity(len);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:1:use crate::common::{MAGIC_NUM, MAX_WINDOW_SIZE, MIN_WINDOW_SIZE};
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:116:    pub fn window_size(&self) -> Result<u64, FrameHeaderError> {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:127:            let window_size = window_base + window_add;
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:129:            if window_size >= MIN_WINDOW_SIZE {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:130:                if window_size < MAX_WINDOW_SIZE {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:131:                    Ok(window_size)
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:133:                    Err(FrameHeaderError::WindowTooBig { got: window_size })
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame.rs:136:                Err(FrameHeaderError::WindowTooSmall { got: window_size })
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:13:    /// If not present, `window_size` must be set.
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:27:    pub window_size: Option<u64>,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:46:            if let Some(window_size) = self.window_size {
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:47:                let log = window_size.next_power_of_two().ilog2();
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:123:                self.window_size.is_some(),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:176:            window_size: None,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:192:            window_size: None,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:210:            window_size: Some(1),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_header.rs:225:            window_size: None,
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/errors.rs:49:                "window_size bigger than allowed maximum. Is: {}, Should be lower than: {}",
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/errors.rs:51:                crate::common::MAX_WINDOW_SIZE
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/errors.rs:55:                "window_size smaller than allowed minimum. Is: {}, Should be greater than: {}",
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/errors.rs:524:                    "Specified window_size is too big; Requested: {requested}, Max: {max}",
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/common/mod.rs:14:pub const MAX_WINDOW_SIZE: u64 = (1 << 41) + 7 * (1 << 38);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:142:        let output: &mut Vec<u8> = &mut Vec::with_capacity(1024 * 130);
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:149:            window_size: Some(self.state.matcher.window_size()),
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:325:        let mut decoded = Vec::with_capacity(mock_data.len());
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:345:        let mut decoded = Vec::with_capacity(mock_data.len());
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/encoding/frame_compressor.rs:361:        let mut decoded = Vec::with_capacity(mock_data.len());
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/dictionary/reservoir.rs:82:        let mut dumpster = Vec::with_capacity(self.k as usize);
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/tests/etf_properties.rs | sed -n '180,440p' && nl -ba /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs | sed -n '150,185p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-codec/tests/etf_properties.rs | sed -n '180,440p' && nl -ba /home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ruzstd-0.9.1/src/decoding/frame_decoder.rs | sed -n '150,185p'" in /home/user/orca/project
  succeeded in 0ms:
    180	        "unicode-атом ≤255 Б идёт тегом 0x77"
    181	    );
@@ -6156,7 +6156,7 @@ codex
 
 **P0: 0 · P1: 0 · P2: 0**
 
-- **P3** — [lib.rs](/home/sanya/orca/project/rust/crates/discord-codec/src/lib.rs:9) всё ещё описывает zstd как прототип и P1-02 как незавершённую доработку. Это расходится с контрактом и итогом B02 в `REPORT-B02.md`.
+- **P3** — [lib.rs](/home/user/orca/project/rust/crates/discord-codec/src/lib.rs:9) всё ещё описывает zstd как прототип и P1-02 как незавершённую доработку. Это расходится с контрактом и итогом B02 в `REPORT-B02.md`.
 
 Статически проверил ETF-варианты, сохранение канонических байтов по существующим векторам, checked-лимиты и явный отказ вместо усечения. Декодер проверяет границы до выделений и ограничивает глубину; fuzz и усечения охвачены новыми и прежними тестами. Для zstd каждый путь `Err` выставляет `dead`, включая последующие пустые `push`; проверены свежий и завершённый кадры, хвостовые данные, `compressed_consumed` и oracle удержания окна. В исходниках не обнаружил `unsafe`, новых зависимостей или сетевых действий; библиотека `ruzstd` задаёт предел окна.
 
@@ -6167,7 +6167,7 @@ tokens used
 
 **P0: 0 · P1: 0 · P2: 0**
 
-- **P3** — [lib.rs](/home/sanya/orca/project/rust/crates/discord-codec/src/lib.rs:9) всё ещё описывает zstd как прототип и P1-02 как незавершённую доработку. Это расходится с контрактом и итогом B02 в `REPORT-B02.md`.
+- **P3** — [lib.rs](/home/user/orca/project/rust/crates/discord-codec/src/lib.rs:9) всё ещё описывает zstd как прототип и P1-02 как незавершённую доработку. Это расходится с контрактом и итогом B02 в `REPORT-B02.md`.
 
 Статически проверил ETF-варианты, сохранение канонических байтов по существующим векторам, checked-лимиты и явный отказ вместо усечения. Декодер проверяет границы до выделений и ограничивает глубину; fuzz и усечения охвачены новыми и прежними тестами. Для zstd каждый путь `Err` выставляет `dead`, включая последующие пустые `push`; проверены свежий и завершённый кадры, хвостовые данные, `compressed_consumed` и oracle удержания окна. В исходниках не обнаружил `unsafe`, новых зависимостей или сетевых действий; библиотека `ruzstd` задаёт предел окна.
 

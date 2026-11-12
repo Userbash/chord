@@ -1,6 +1,6 @@
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_voice-8ed9f05ffa6c7cf0)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_voice-8ed9f05ffa6c7cf0)
 
 running 35 tests
 test media::rtp::tests::av1_obu_aggregation_single_multi_and_fragmented_reassembly ... ok
@@ -41,7 +41,7 @@ test srtp::tests::two_layer_dave_and_srtp_rtpsize_pipeline_preserves_unencrypted
 
 test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
-     Running tests/crypto_vectors.rs (/home/sanya/orca/project/rust/target/debug/deps/crypto_vectors-c658919c774a4f37)
+     Running tests/crypto_vectors.rs (/home/user/orca/project/rust/target/debug/deps/crypto_vectors-c658919c774a4f37)
 
 running 16 tests
 test aead_rejects_overlong_message_k ... ok
@@ -63,7 +63,7 @@ test hkdf_sha1_limits_k ... ok
 
 test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/devices_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/devices_contract-a48487d65292e4e1)
+     Running tests/devices_contract.rs (/home/user/orca/project/rust/target/debug/deps/devices_contract-a48487d65292e4e1)
 
 running 5 tests
 test t_v07_01_initial_state_and_device_selection_by_kind ... ok
@@ -74,7 +74,7 @@ test t_v07_05_volume_clamping_and_privacy_redaction ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/media_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/media_contract-159dedd632794824)
+     Running tests/media_contract.rs (/home/user/orca/project/rust/target/debug/deps/media_contract-159dedd632794824)
 
 running 16 tests
 test m07_parse_strips_padding_and_rejects_out_of_range ... ok
@@ -96,7 +96,7 @@ test m01_parse_captured_valid_packets ... ok
 
 test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/noise_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/noise_contract-7bd2c70536d38c5f)
+     Running tests/noise_contract.rs (/home/user/orca/project/rust/target/debug/deps/noise_contract-7bd2c70536d38c5f)
 
 running 4 tests
 test t_noise_01_constants_and_krisp_model_tier_oracle ... ok
@@ -106,7 +106,7 @@ test t_noise_04_skip_when_muted_cpu_overuse_fallback_and_session_stats_json ... 
 
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/ptt_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
+     Running tests/ptt_contract.rs (/home/user/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
 
 running 5 tests
 test t_ptt_01_constants_and_audio_mode_type_oracle ... ok
@@ -117,7 +117,7 @@ test t_ptt_04_hardware_keybind_handler_focus_portal_and_combo_matching ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/reception_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/reception_contract-d15a9dafae10e78e)
+     Running tests/reception_contract.rs (/home/user/orca/project/rust/target/debug/deps/reception_contract-d15a9dafae10e78e)
 
 running 10 tests
 test empty_stats_are_zeroed ... ok
@@ -133,7 +133,7 @@ test zero_clock_rate_does_not_panic ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/reconnect_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/reconnect_contract-0157ed669e7ff0ed)
+     Running tests/reconnect_contract.rs (/home/user/orca/project/rust/target/debug/deps/reconnect_contract-0157ed669e7ff0ed)
 
 running 10 tests
 test r01_first_resumable_disconnect_resumes_after_one_second ... ok
@@ -149,7 +149,7 @@ test r10_backoff_table_is_the_frozen_contract ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/regions_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/regions_contract-b8b930ebee5e81de)
+     Running tests/regions_contract.rs (/home/user/orca/project/rust/target/debug/deps/regions_contract-b8b930ebee5e81de)
 
 running 10 tests
 test fixture_preserves_regions_and_endpoints ... ok
@@ -165,7 +165,7 @@ test ranking_matches_engine_log_and_ties_use_geo_then_lexical ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rtcp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtcp_contract-a1cd41c3ba1d9e3d)
+     Running tests/rtcp_contract.rs (/home/user/orca/project/rust/target/debug/deps/rtcp_contract-a1cd41c3ba1d9e3d)
 
 running 16 tests
 test compound_at_the_limit_is_accepted ... ok
@@ -187,7 +187,7 @@ test wrong_version_on_first_packet_is_an_error ... ok
 
 test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rtp_video_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtp_video_contract-5fe954a15df55808)
+     Running tests/rtp_video_contract.rs (/home/user/orca/project/rust/target/debug/deps/rtp_video_contract-5fe954a15df55808)
 
 running 8 tests
 test h264_rtx_packet_generation_and_restoration ... ok
@@ -201,7 +201,7 @@ test dave_mls_v1_two_layer_video_encryption_roundtrip_h264_and_av1 ... ok
 
 test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
 
-     Running tests/signaling.rs (/home/sanya/orca/project/rust/target/debug/deps/signaling-98faf8c277b1c8c6)
+     Running tests/signaling.rs (/home/user/orca/project/rust/target/debug/deps/signaling-98faf8c277b1c8c6)
 
 running 18 tests
 test all_observed_ops_round_trip_and_unknown_is_preserved ... ok
@@ -225,7 +225,7 @@ test every_prefix_of_frame_is_panic_free ... ok
 
 test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.24s
 
-     Running tests/srtp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/srtp_contract-4bee6a5030e73b99)
+     Running tests/srtp_contract.rs (/home/user/orca/project/rust/target/debug/deps/srtp_contract-4bee6a5030e73b99)
 
 running 24 tests
 test crypto_error_k ... ok
@@ -255,7 +255,7 @@ test dave_mls_key_ratchet_forward_securing_out_of_order_cache_and_generation_gap
 
 test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
-     Running tests/stats_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/stats_contract-7f90be4e3018b82b)
+     Running tests/stats_contract.rs (/home/user/orca/project/rust/target/debug/deps/stats_contract-7f90be4e3018b82b)
 
 running 20 tests
 test clear_sender_report_28_byte_builder_and_compound_parse ... ok
@@ -281,7 +281,7 @@ test zero_capacity_window_is_treated_as_one ... ok
 
 test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/udp.rs (/home/sanya/orca/project/rust/target/debug/deps/udp-05c1f2655b5824ca)
+     Running tests/udp.rs (/home/user/orca/project/rust/target/debug/deps/udp-05c1f2655b5824ca)
 
 running 15 tests
 test discovery_matches_strace_request_and_response_oracles ... ok
@@ -302,7 +302,7 @@ test loopback_send_receive_discovery_keepalive_and_timeout ... ok
 
 test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
-     Running tests/voice_call_state_machine_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_call_state_machine_contract-183efe6733e7fa53)
+     Running tests/voice_call_state_machine_contract.rs (/home/user/orca/project/rust/target/debug/deps/voice_call_state_machine_contract-183efe6733e7fa53)
 
 running 7 tests
 test v1_negotiation_15s_timeout_returns_send_gateway_leave_op4_and_clears_phantom_session ... ok

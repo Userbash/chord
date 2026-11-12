@@ -1,13 +1,13 @@
 # DM-FRIENDS-RE — личные сообщения, групповые DM и друзья
 
 Карточка: **RE-N1-07-DM-FRIENDS** (`TASKS.md` N1-07, владельцы G1+G2, приоритет P3).
-Дата: 2026-10-30. Источник — read-only разбор `/home/sanya/re-deep`:
+Дата: 2026-10-30. Источник — read-only разбор `reference-oracle/`:
 `decoded/4d2a64cb5df5fc4e_0` (`web.4d4b2f75fdea5470.js`, Discord 1.0.162, 12 410 287 Б,
 md5 `934b1289b7ebf17bc0fd09569b23b438`), `decoded/d38b37e4d52b4495_0`
 (`07cac0073fc4f6e3.js`), `decoded/e1affb550dd48702_0` (`e51d4232a1a23440.js`),
 `gateway/by-type/*`, `gateway-schema.md`, `gateway-protocol.md`, `rest-static.*`.
 
-`logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` не изменялись. Код, тесты и
+`logs/`, `functions/`, `evidence/`, `reference-oracle/` не изменялись. Код, тесты и
 `cargo` не трогались; изменён только этот документ.
 
 Метки: `[D]` — цитата декодированного бандла/дампа; `[S]` — статическая схема или индекс;
@@ -831,34 +831,34 @@ e.relationship.type===FRIEND&&t===PENDING_OUTGOING&&r.h.dispatch({
 
 ## 9. Оракулы для тестов
 
-Живые данные (read-only, `/home/sanya/re-deep/gateway/by-type/002-READY.json`):
+Живые данные (read-only, `reference-oracle/gateway/by-type/002-READY.json`):
 
 ```bash
 # 17 ЛС, все type=1
 jq -c '[.d.private_channels[]|.type]|group_by(.)|map({type:.[0],n:length})' \
-  /home/sanya/re-deep/gateway/by-type/002-READY.json
+  reference-oracle/gateway/by-type/002-READY.json
 # => [{"type":1,"n":17}]
 
 # 60 связей: 18 друзей, 42 блока
 jq -c '[.d.relationships[]|.type]|group_by(.)|map({type:.[0],n:length})' \
-  /home/sanya/re-deep/gateway/by-type/002-READY.json
+  reference-oracle/gateway/by-type/002-READY.json
 # => [{"type":1,"n":18},{"type":2,"n":42}]
 
 # id == user_id у всех 60
 jq '[.d.relationships[]|select(.id!=.user_id)]|length' \
-  /home/sanya/re-deep/gateway/by-type/002-READY.json
+  reference-oracle/gateway/by-type/002-READY.json
 # => 0
 
 # у всех ЛС ровно один получатель
 jq '[.d.private_channels[]|select((.recipient_ids|length)!=1)]|length' \
-  /home/sanya/re-deep/gateway/by-type/002-READY.json
+  reference-oracle/gateway/by-type/002-READY.json
 # => 0
 
 # все получатели и все друзья есть в users[]
 jq '(.d.users|map(.id)|unique) as $u
   | ([.d.relationships[].user_id,.d.private_channels[].recipient_ids[]]
      | map(select(. as $x | ($u|index($x))|not)) | length)' \
-  /home/sanya/re-deep/gateway/by-type/002-READY.json
+  reference-oracle/gateway/by-type/002-READY.json
 # => 0
 ```
 
@@ -869,7 +869,7 @@ jq -r '.endpoints[]
   | select(.key=="USER_CHANNELS" or .key=="USER_RELATIONSHIPS"
         or .key=="USER_RELATIONSHIP" or .key=="CHANNEL_RECIPIENT_ME")
   | [.key,.method,.path,.callSiteCount,(.bodyKeys|join("|"))] | @tsv' \
-  /home/sanya/re-deep/rest-static.json
+  reference-oracle/rest-static.json
 ```
 
 Ожидаемо: `USER_CHANNELS POST /users/@me/channels 2 {recipients}`,
@@ -901,19 +901,19 @@ jq -r '.endpoints[]
 
 | Файл | Размер | md5 |
 |---|---|---|
-| `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` (`web.4d4b2f75fdea5470.js`) | 12 410 287 | `934b1289b7ebf17bc0fd09569b23b438` |
-| `/home/sanya/re-deep/decoded/d38b37e4d52b4495_0` (`07cac0073fc4f6e3.js`) | 243 622 | `6d955e8002cd78eff7a020e0e91d6c37` |
-| `/home/sanya/re-deep/decoded/e1affb550dd48702_0` (`e51d4232a1a23440.js`) | 1 005 | `db8743b8759449f5f9490be90c7158a9` |
-| `/home/sanya/re-deep/decoded/9f6dccfb41eb44b6_0` (чанк `229787`, заметки) | 716 | `d1d33c3c0b1070c5790b0307cdbcd826` |
-| `/home/sanya/re-deep/decoded/a8de0187058c21c2_0` (модуль `629403`, `updateNote`) | 152 376 | `7e479cd685aadd7998ab0e5a2cbdf54d` |
-| `/home/sanya/re-deep/gateway/by-type/002-READY.json` | 579 438 | `5e1e4c2c9ee5c5a0b1495335dde555f5` |
-| `/home/sanya/re-deep/gateway/by-type/003-READY_SUPPLEMENTAL.json` | 50 869 | `991264101aed0cb088ef077abb3ab696` |
-| `/home/sanya/re-deep/gateway/ready-stats.json` | 1 221 | `972065245b4f215b76314fbd7e89b573` |
-| `/home/sanya/re-deep/gateway-schema.md` | — | `1b6615d8d6524e9cd1339775a484a0bb` |
-| `/home/sanya/re-deep/gateway-protocol.md` | — | `a766e52a585faf5eba2bf2dd2cde8abf` |
-| `/home/sanya/re-deep/rest-static.json` | — | `8e0ead46addbb2f54f143343d0de2108` |
+| `reference-oracle/decoded/4d2a64cb5df5fc4e_0` (`web.4d4b2f75fdea5470.js`) | 12 410 287 | `934b1289b7ebf17bc0fd09569b23b438` |
+| `reference-oracle/decoded/d38b37e4d52b4495_0` (`07cac0073fc4f6e3.js`) | 243 622 | `6d955e8002cd78eff7a020e0e91d6c37` |
+| `reference-oracle/decoded/e1affb550dd48702_0` (`e51d4232a1a23440.js`) | 1 005 | `db8743b8759449f5f9490be90c7158a9` |
+| `reference-oracle/decoded/9f6dccfb41eb44b6_0` (чанк `229787`, заметки) | 716 | `d1d33c3c0b1070c5790b0307cdbcd826` |
+| `reference-oracle/decoded/a8de0187058c21c2_0` (модуль `629403`, `updateNote`) | 152 376 | `7e479cd685aadd7998ab0e5a2cbdf54d` |
+| `reference-oracle/gateway/by-type/002-READY.json` | 579 438 | `5e1e4c2c9ee5c5a0b1495335dde555f5` |
+| `reference-oracle/gateway/by-type/003-READY_SUPPLEMENTAL.json` | 50 869 | `991264101aed0cb088ef077abb3ab696` |
+| `reference-oracle/gateway/ready-stats.json` | 1 221 | `972065245b4f215b76314fbd7e89b573` |
+| `reference-oracle/gateway-schema.md` | — | `1b6615d8d6524e9cd1339775a484a0bb` |
+| `reference-oracle/gateway-protocol.md` | — | `a766e52a585faf5eba2bf2dd2cde8abf` |
+| `reference-oracle/rest-static.json` | — | `8e0ead46addbb2f54f143343d0de2108` |
 
-Бандл 1.0.162 — тот же, что в `RE-DEEP-REA` §10; живой бандл 2026-10-30
+Бандл 1.0.162 — тот же, что в `reference-oracle-REA` §10; живой бандл 2026-10-30
 (`web.b2b84438f3c83e84.js`) для этого контракта не привлекался: экран логина не грузит
 ленивые чанки друзей, а статический дамп содержит все call-sites.
 

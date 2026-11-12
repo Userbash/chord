@@ -302,7 +302,7 @@ describe("TASK-1001: Форумные каналы GUILD_FORUM (type 15), фил
         parentChannelId: "110022003300440055",
         title: "Падение шейдера на Wayland 150%",
         authorId: "7001",
-        authorName: "sanya",
+        authorName: "developer",
         createdAtMs: 1_700_000_100_000,
         lastActivityMs: 1_700_000_500_000,
         appliedTags: ["101"],

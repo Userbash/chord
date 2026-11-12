@@ -11,7 +11,7 @@
 ✔ workspace-rust — 26.0 с (тесты 1402: pass 1390, fail 0, skip 12)
 ✔ smoke — 1.1 с (тесты 22: pass 19, fail 0, skip 3)
 
-Отчёт гейта: /home/sanya/orca/workspaces/project/task-630-qa-e2e-regression/.gate/worker-2026-11-07T14-57-13-931Z.json
+Отчёт гейта: /home/user/orca/workspaces/project/task-630-qa-e2e-regression/.gate/worker-2026-11-07T14-57-13-931Z.json
 ⚠ workspace-rust: ignored 12 — ожидаемый ignored-набор (live-кейсы гоняет отдельная фаза), не e2e-skip
 ⚠ smoke: пропущено 3 тестов — пропуск прохождением не считается
 Вердикт: passed_with_skips

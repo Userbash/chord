@@ -1,7 +1,7 @@
 # RW-21 / TEST-MATRIX-P2-08 — settings-proto
 
 Дата: 2026-10-21. Контракт: `DESIGN-P2-08.md` §2–§4. Оракул: `oracle.py`, READY/UPDATE
-из `/home/sanya/re-deep` (read-only). Бюджет M: 16 тестов, 10 мутаций.
+из `reference-oracle/` (read-only). Бюджет M: 16 тестов, 10 мутаций.
 
 ## Фикстуры
 

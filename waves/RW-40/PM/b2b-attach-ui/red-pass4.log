@@ -58,7 +58,7 @@ test at tests/unit/composer.test.mjs:97:3
   + 10485760
   - 20971520
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:98:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/composer.test.mjs:98:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -82,7 +82,7 @@ test at tests/unit/composer.test.mjs:202:3
   
   'Файл больше 10 МиБ. Уменьшите размер и попробуйте снова.'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:222:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/composer.test.mjs:222:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -98,7 +98,7 @@ test at tests/unit/composer.test.mjs:226:3
   AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
   
   'error-size'
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:239:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/composer.test.mjs:239:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,

@@ -15,7 +15,7 @@
 
 | Что | Как |
 |---|---|
-| Основной вход | `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` = `web.4d4b2f75fdea5470.js` (12 410 287 Б), декодирован из HTTP-кэша клиента; это **тот же** бандл, что в `out/bundles/` |
+| Основной вход | `reference-oracle/decoded/4d2a64cb5df5fc4e_0` = `web.4d4b2f75fdea5470.js` (12 410 287 Б), декодирован из HTTP-кэша клиента; это **тот же** бандл, что в `out/bundles/` |
 | Минифицированный код | один файл без переводов строк → цитирую **байтовый offset** (`@NNNN`), не строку. Все файлы ниже — ASCII-only, поэтому byte offset == позиция в UTF-8 строке (проверено `Buffer.byteLength(s.slice(0,i))`) |
 | MFA-UI | `decoded/8fed1c84bcaee32d_0` (chunk `290966`, 9 759 Б) |
 | Страница входа | `decoded/43644898c0897078_0` (`/login`, `window.GLOBAL_ENV`), `decoded/dbd05750a1cb3484_0` (login-чанк) |

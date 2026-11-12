@@ -19,7 +19,7 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path("/home/sanya/orca/project")
+ROOT = Path("/home/user/orca/project")
 RUST = ROOT / "rust"
 OUT = ROOT / "waves/RW-25/mutations"
 TARGET_DIR = "/tmp/opencode/target-mut"

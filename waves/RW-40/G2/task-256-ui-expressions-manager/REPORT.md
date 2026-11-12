@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-256` (`feature/task-256-ui-expressions-manager`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/rest-static.md` (`GUILD_EMOJIS`, `GUILD_EMOJI`, `GUILD_STICKER_PACKS`, `GUILD_STICKER`, лимиты имени эмодзи `2..=32` символов `[A-Za-z0-9_]`).
+- **Оракулы**: `reference-oracle/rest-static.md` (`GUILD_EMOJIS`, `GUILD_EMOJI`, `GUILD_STICKER_PACKS`, `GUILD_STICKER`, лимиты имени эмодзи `2..=32` символов `[A-Za-z0-9_]`).
 
 ## Сделано
 1. `tests/unit/expressions-manager.test.mjs` (`// @ts-check`, Strict TDD: Red → Green, 9 unit-тестов в 4 suites):
@@ -24,8 +24,8 @@
    - реализованы и экспортированы `EXPRESSION_MANAGER_TABS_RU`, `isValidCustomEmojiName`, `filterCustomExpressions` и `createExpressionsManagerController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/expressions-manager.test.mjs > /home/sanya/orca/project/waves/RW-40/G2/task-256-ui-expressions-manager/red.log 2>&1` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`).
-- **Green**: `node --test tests/unit/expressions-manager.test.mjs > /home/sanya/orca/project/waves/RW-40/G2/task-256-ui-expressions-manager/green.log 2>&1` → `exit=0` (`tests 9, suites 4, pass 9, fail 0`).
+- **Red**: `node --test tests/unit/expressions-manager.test.mjs > /home/user/orca/project/waves/RW-40/G2/task-256-ui-expressions-manager/red.log 2>&1` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`).
+- **Green**: `node --test tests/unit/expressions-manager.test.mjs > /home/user/orca/project/waves/RW-40/G2/task-256-ui-expressions-manager/green.log 2>&1` → `exit=0` (`tests 9, suites 4, pass 9, fail 0`).
 - **Typecheck**:
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `exit=0` (0 ошибок);
   - `npx tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --noUncheckedIndexedAccess --skipLibCheck --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/expressions-manager.js tests/unit/expressions-manager.test.mjs` → `exit=0` (0 ошибок).
@@ -35,8 +35,8 @@
 ```
 386ffc7915824c9ea2286aea2281b3e0  rust/gui-spike/ui/features/expressions-manager.js
 b5841f715ff257616a2ce19055d74fe4  tests/unit/expressions-manager.test.mjs
-df41251890c18c809d2936fa9cf46bbf  /home/sanya/orca/project/waves/RW-40/G2/task-256-ui-expressions-manager/red.log
-9078175b7e00faf45b0fd29b0a64d3ba  /home/sanya/orca/project/waves/RW-40/G2/task-256-ui-expressions-manager/green.log
+df41251890c18c809d2936fa9cf46bbf  /home/user/orca/project/waves/RW-40/G2/task-256-ui-expressions-manager/red.log
+9078175b7e00faf45b0fd29b0a64d3ba  /home/user/orca/project/waves/RW-40/G2/task-256-ui-expressions-manager/green.log
 ```
 
 ## Риски

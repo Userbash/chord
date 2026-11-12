@@ -2,7 +2,7 @@
 
 Оракулы: `fixtures/gateway/by-type/003-READY_SUPPLEMENTAL.json` (md5
 `55983830547abaf8d1b122798fdcf568`), live-события из
-`/home/sanya/re-deep/gw-proto/msgs-*.jsonl` (точные значения в
+`reference-oracle/gw-proto/msgs-*.jsonl` (точные значения в
 `RESEARCH-P2-10.md` §2), замороженный `DESIGN-P2-10.md` §4–§6.
 
 Правило: тест сначала падает (compile-red или behavior-red) с сохранённым exit 101; зелёный

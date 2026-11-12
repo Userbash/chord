@@ -13,7 +13,7 @@
 
 | Проверка | Команда | Результат |
 |---|---|---|
-| Контрактные тесты | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test voice_devices_contract` | **15 passed, 0 failed** (лог `REVIEW-PASS2-test.log`), повторено после мутационных прогонов — снова 15/15 |
+| Контрактные тесты | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test voice_devices_contract` | **15 passed, 0 failed** (лог `REVIEW-PASS2-test.log`), повторено после мутационных прогонов — снова 15/15 |
 | Clippy по карточке | `cargo clippy … --test voice_devices_contract -- -D warnings` | **EXIT=0**, чисто (лог `REVIEW-PASS2-clippy.log`) |
 | Форматирование | `rustfmt --edition 2021 --check …` | **EXIT=0** |
 | Мутации | 7 новых + 3 из ревью 46A, каждая на копии baseline с восстановлением и сверкой md5 | **10/10 KILLED** (лог `REVIEW-PASS2-mutations.log`) |

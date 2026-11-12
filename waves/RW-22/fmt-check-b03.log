@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/crates/discord-codec/examples/etf_bench.rs:11:
+Diff in /home/user/orca/project/rust/crates/discord-codec/examples/etf_bench.rs:11:
  
  fn sample() -> EtfValue {
      EtfValue::Map(vec![
@@ -10,7 +10,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-codec/examples/etf_bench.rs
 (B[m         (
              EtfValue::Atom("d".into()),
              EtfValue::Map(vec![
-Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:26:
+Diff in /home/user/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:26:
  #[test]
  fn ci_dry_run_prints_full_plan_without_running_tools() {
      let output = run("scripts/ci.sh", &["--dry-run"]);
@@ -23,7 +23,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contra
 (B[m     let stdout = String::from_utf8(output.stdout).unwrap();
      for expected in [
          "cargo fmt",
-Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:36:
+Diff in /home/user/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:36:
          "etf_bench",
          "release.sh",
      ] {
@@ -41,7 +41,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contra
 (B[m     assert!(!stdout.contains("wget"));
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:45:
+Diff in /home/user/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:45:
  #[test]
  fn release_dry_run_is_offline_and_writes_dist_only() {
      let output = run("scripts/release.sh", &["--dry-run"]);
@@ -54,7 +54,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contra
 (B[m     let stdout = String::from_utf8(output.stdout).unwrap();
      assert!(stdout.contains("cargo build --offline --release -p discord-app"));
      assert!(stdout.contains("dist"));
-Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:69:
+Diff in /home/user/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:69:
              String::from_utf8_lossy(&output.stderr)
          );
          let text = std::fs::read_to_string(root.join(script)).unwrap();
@@ -71,7 +71,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contra
 (B[m             assert!(!text.contains(forbidden), "{script} содержит {forbidden:?}");
          }
      }
-Diff in /home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs:13:
+Diff in /home/user/orca/project/rust/crates/discord-core/src/rest/mod.rs:13:
  pub mod http1;
  pub mod identity;
  pub mod rate_limit;
@@ -82,7 +82,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs:13:
 (B[m pub mod super_properties;
  pub mod telemetry;
  pub mod transport;
-Diff in /home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs:110:
+Diff in /home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs:110:
  }
  
  /// Builds a relative route path, validating the sole supported path parameter.
@@ -94,7 +94,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs:
 (B[m     let entry = resource(kind);
      let parts = match (kind, application_id) {
          (ResourceKind::ApplicationEntitlements, None) => return Err(ResourceError::MissingId),
-Diff in /home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs:127:
+Diff in /home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs:127:
          (_, None) => Vec::new(),
      };
  
@@ -105,13 +105,13 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs:
 (B[m     routes::render_path(route, &parts).map_err(|_| ResourceError::RouteRender)
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:1:
+Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:1:
 [31m-use discord_core::rest::resources::{path, resource, ResourceError, ResourceKind, RESOURCES};
 (B[m[32m+use discord_core::rest::resources::{RESOURCES, ResourceError, ResourceKind, path, resource};
 (B[m use discord_core::rest::routes::{self, HttpMethod};
  
  const EXPECTED: [(ResourceKind, &str, &[u16]); 8] = [
-Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:5:
+Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:5:
      (ResourceKind::Quest, "/quests/@me", &[200]),
      (ResourceKind::QuestDecision, "/quests/decision", &[200]),
 [31m-    (ResourceKind::QuestGetDecisions, "/quests/get-decisions", &[200]),
@@ -131,7 +131,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.r
 (B[m         ResourceKind::ApplicationEntitlements,
          "/users/@me/applications/{id}/entitlements",
          &[200],
-Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:39:
+Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:39:
      }
  
      for (index, left) in RESOURCES.iter().enumerate() {
@@ -161,7 +161,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.r
 (B[m     }
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:52:
+Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:52:
  #[test]
  fn path_renders_only_the_application_id() {
      assert_eq!(
@@ -173,7 +173,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.r
 (B[m         Ok("/users/@me/applications/12345678901234567890/entitlements".to_owned())
      );
      for (kind, template, _) in EXPECTED {
-Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:76:
+Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:76:
  
  #[test]
  fn saved_messages_404_is_not_a_success_payload() {
@@ -185,7 +185,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.r
 (B[m     assert_eq!(resource(ResourceKind::Quest).observed_statuses, &[200]);
      assert!(path(ResourceKind::SavedMessages, None).is_ok());
  }
-Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:98:
+Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:98:
      assert!(!RESOURCES.is_empty());
      for (kind, _, _) in EXPECTED {
          assert_eq!(resource(kind), resource(kind));
@@ -219,7 +219,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.r
 (B[m     }
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:316:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:316:
                  return Err(AstError {
                      path,
                      kind: "unknown node type",
@@ -228,7 +228,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:316:
 (B[m             }
          });
      }
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:818:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:818:
      #[test]
      fn number_formatting_uses_locale_separators_and_keeps_fraction() {
          use super::{Catalog, I18n, Value};
@@ -241,7 +241,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:818:
 (B[m         let catalog = Catalog::parse(&json).unwrap();
          let mut i18n = I18n::new("en-US");
          i18n.insert_catalog("en-US", catalog.clone()).unwrap();
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:839:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:839:
              "1,5"
          );
          assert_eq!(
@@ -255,7 +255,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:839:
 (B[m             "1\u{00a0}234\u{00a0}567"
          );
          // Ключ есть только в en-US: requested (ru) → default (en-US).
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:847:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:847:
 [31m-        assert_eq!(i18n.translate("fallback", &BTreeMap::new()).unwrap(), "en fallback");
 (B[m[32m+        assert_eq!(
 (B[m[32m+            i18n.translate("fallback", &BTreeMap::new()).unwrap(),
@@ -264,7 +264,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:847:
 (B[m     }
  
      #[test]
-Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:382:
+Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:382:
              self.pos += literal.len();
              Ok(())
          } else {
@@ -275,7 +275,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:382:
 (B[m         }
      }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:500:
+Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:500:
          self.expect(b'"')?;
          let mut out = Vec::new();
          loop {
@@ -286,7 +286,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:500:
 (B[m             match byte {
                  b'"' => {
                      self.pos += 1;
-Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:527:
+Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:527:
                              let first = self.parse_hex4(escape_offset)?;
                              let code = if (0xd800..=0xdbff).contains(&first) {
                                  if self.bytes.get(self.pos..self.pos + 2) != Some(b"\\u") {
@@ -300,7 +300,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:527:
 (B[m                                 }
                                  self.pos += 2;
                                  let second = self.parse_hex4(escape_offset)?;
-Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:537:
+Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:537:
                                  if !(0xdc00..=0xdfff).contains(&second) {
 [31m-                                    return Err(self.error_at(
 (B[m[31m-                                        escape_offset,
@@ -312,7 +312,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:537:
 (B[m                                 }
                                  let code = 0x1_0000
                                      + ((u32::from(first) - 0xd800) << 10)
-Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:567:
+Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:567:
                      return Err(self.error(JsonErrorKind::ControlCharacter));
                  }
                  _ => {
@@ -326,7 +326,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:567:
 (B[m                     let mut buffer = [0u8; 4];
                      out.extend_from_slice(ch.encode_utf8(&mut buffer).as_bytes());
                      self.pos += ch.len_utf8();
-Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:30:
+Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:30:
      assert_eq!(parse("null").unwrap(), JsonValue::Null);
      assert_eq!(parse("true").unwrap(), JsonValue::Bool(true));
      assert_eq!(parse("false").unwrap(), JsonValue::Bool(false));
@@ -338,7 +338,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs
 (B[m 
      let value = parse(r#"{"a":[1,-2,3.5,true,false,null,"x"],"b":{"c":"d"}}"#).unwrap();
      let object = value.as_object().expect("object");
-Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:37:
+Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:37:
      assert_eq!(object.len(), 2);
 [31m-    let array = object.get("a").and_then(JsonValue::as_array).expect("array");
 (B[m[32m+    let array = object
@@ -348,7 +348,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs
 (B[m     assert_eq!(array.len(), 7);
      assert_eq!(array[0].as_i64(), Some(1));
      assert_eq!(array[1].as_i64(), Some(-2));
-Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:48:
+Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:48:
      let cases = [
          ("0", Some(0), Some(0)),
          ("-0", Some(0), None),
@@ -361,7 +361,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs
 (B[m         ("-42", Some(-42), None),
          ("1.0", None, None),
          ("1e3", None, None),
-Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:188:
+Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:188:
      let mut seen = Vec::new();
      for line in text.lines().filter(|line| !line.trim().is_empty()) {
          let wrapper = parse(line).expect("voice wrapper JSON");
@@ -377,7 +377,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs
 (B[m         let op = frame.get("op").and_then(JsonValue::as_u64).expect("op") as u8;
          seen.push(op);
          if op == 2 {
-Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:196:
+Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:196:
              let payload = frame.get("d").expect("op2 d");
              assert_eq!(payload.get("ssrc").and_then(JsonValue::as_u64), Some(7142));
 [31m-            assert_eq!(payload.get("port").and_then(JsonValue::as_u64), Some(19_334));
@@ -389,7 +389,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs
 (B[m                 payload.get("modes").and_then(JsonValue::as_array).unwrap()[0].as_str(),
                  Some("aead_aes256_gcm_rtpsize")
              );
-Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:220:
+Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:220:
  
  #[test]
  fn writer_round_trips_unicode_escapes_and_numbers() {
@@ -400,7 +400,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs
 (B[m     let text = discord_json::to_json_string(&value);
      assert!(text.contains("\\n"));
      assert!(text.contains("\\u0001"));
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:187:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:187:
              ("video", JsonValue::Bool(self.video)),
              ("streams", JsonValue::Array(streams)),
          ]);
@@ -412,7 +412,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:187:
 (B[m     }
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:239:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:239:
              ("data", data),
              ("codecs", JsonValue::Array(codecs)),
          ]);
@@ -424,7 +424,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:239:
 (B[m     }
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:285:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:285:
  
  impl fmt::Display for SessionDescription {
      fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -437,7 +437,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:285:
 (B[m     }
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:311:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:311:
  /// Parse an internal RTC payload of the form `{ "op": ..., "d": ... }`.
  pub fn parse_frame(input: &str) -> Result<VoiceFrame, VoiceError> {
      let root = discord_json::parse(input).map_err(|_| VoiceError::invalid("invalid voice JSON"))?;
@@ -453,7 +453,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:311:
 (B[m     let seq = optional_u64(&root, "seq")?;
      let payload = match op {
          VoiceOp::Hello => VoicePayload::Hello(Hello {
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:320:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:320:
 [31m-            version: required_u64(data, "v")?.try_into().map_err(|_| VoiceError::invalid("invalid Hello version"))?,
 (B[m[32m+            version: required_u64(data, "v")?
 (B[m[32m+                .try_into()
@@ -461,7 +461,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:320:
 (B[m             heartbeat_interval_ms: required_u64(data, "heartbeat_interval")?,
          }),
          VoiceOp::Identify => VoicePayload::Identify(parse_identify(data)?),
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:324:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:324:
          VoiceOp::SelectProtocol => VoicePayload::SelectProtocol(parse_select_protocol(data)?),
          VoiceOp::Ready => VoicePayload::Ready(parse_ready(data)?),
 [31m-        VoiceOp::SessionDescription => VoicePayload::SessionDescription(parse_session_description(data)?),
@@ -476,7 +476,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:324:
 (B[m     };
      Ok(VoiceFrame { op, payload, seq })
  }
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:331:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:331:
  
  fn parse_identify(data: &JsonValue) -> Result<Identify, VoiceError> {
      let max_dave_protocol_version = required_u64(data, "max_dave_protocol_version")?
@@ -486,7 +486,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:331:
 (B[m     let video = required_bool(data, "video")?;
      if max_dave_protocol_version != 1 || !video {
          return Err(VoiceError::invalid("unsupported Identify parameters"));
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:350:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:350:
  
  fn parse_select_protocol(data: &JsonValue) -> Result<SelectProtocol, VoiceError> {
      let protocol = nonempty_string(data, "protocol")?;
@@ -529,7 +529,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:350:
 (B[m     {
          return Err(VoiceError::invalid("required codecs missing"));
      }
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:366:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:366:
      Ok(SelectProtocol {
          protocol,
          address: nonempty_string(nested, "address")?,
@@ -540,7 +540,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:366:
 (B[m         mode: nonempty_string(nested, "mode")?,
          codecs,
      })
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:375:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:375:
  fn parse_ready(data: &JsonValue) -> Result<Ready, VoiceError> {
      Ok(Ready {
          ssrc: required_u64(data, "ssrc")?,
@@ -551,7 +551,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:375:
 (B[m         ip: nonempty_string(data, "ip")?,
          modes: required_strings(data, "modes")?,
          experiments: required_strings(data, "experiments")?,
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:392:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:392:
          mode: nonempty_string(data, "mode")?,
          secret_key,
          media_session_id: nonempty_string(data, "media_session_id")?,
@@ -566,7 +566,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:392:
 (B[m         audio_codec: optional_string(data, "audio_codec")?,
          video_codec: optional_string(data, "video_codec")?,
      })
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:400:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:400:
  }
  
  fn parse_streams(value: Option<&JsonValue>) -> Result<Vec<StreamSpec>, VoiceError> {
@@ -605,7 +605,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:400:
 (B[m }
  
  fn required_u64(value: &JsonValue, key: &str) -> Result<u64, VoiceError> {
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:415:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:415:
 [31m-    value.get(key).and_then(JsonValue::as_u64).ok_or_else(|| VoiceError::invalid("missing or invalid integer field"))
 (B[m[32m+    value
 (B[m[32m+        .get(key)
@@ -679,7 +679,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:415:
 (B[m }
  
  fn decode_base64(input: &str) -> Result<Vec<u8>, VoiceError> {
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:442:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:442:
      let mut output = Vec::with_capacity(bytes.len() / 4 * 3);
      for (index, chunk) in bytes.chunks_exact(4).enumerate() {
          let last = index + 1 == bytes.len() / 4;
@@ -692,7 +692,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:442:
 (B[m         let c_pad = chunk[2] == b'=';
          let d_pad = chunk[3] == b'=';
          if c_pad && (!d_pad || !last) || d_pad && !last {
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:450:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:450:
              return Err(VoiceError::invalid("invalid base64 key"));
          }
 [31m-        let c = if c_pad { 0 } else { base64_value(chunk[2]).ok_or_else(|| VoiceError::invalid("invalid base64 key"))? as u32 };
@@ -710,7 +710,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:450:
 (B[m         if (c_pad && b & 0x0f != 0) || (d_pad && !c_pad && c & 0x03 != 0) {
              return Err(VoiceError::invalid("invalid base64 key"));
          }
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:457:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:457:
          let bits = (a << 18) | (b << 12) | (c << 6) | d;
          output.push((bits >> 16) as u8);
 [31m-        if !c_pad { output.push((bits >> 8) as u8); }
@@ -724,7 +724,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:457:
 (B[m     }
      Ok(output)
  }
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:493:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:493:
  
  impl VoiceServerUpdate {
      pub fn parse(input: &str) -> Result<Self, VoiceError> {
@@ -734,7 +734,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:493:
 (B[m         let data = root.get("d").unwrap_or(&root);
          let update = Self {
              token: nonempty_string(data, "token")?,
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:506:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:506:
  
      pub fn websocket_url(&self) -> Result<String, VoiceError> {
          self.validate_endpoint()?;
@@ -746,7 +746,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:506:
 (B[m         Ok(format!("wss://{}/?v=9", host.trim_end_matches('/')))
      }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:516:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:516:
              return Err(VoiceError::invalid("invalid voice endpoint"));
          }
          let host = if let Some(host) = endpoint.strip_prefix("wss://") {
@@ -770,7 +770,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:516:
 (B[m             return Err(VoiceError::invalid("invalid voice endpoint host"));
          }
          Ok(())
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:529:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:529:
  }
  
  /// Choose a region by measured latency, geographic order, then lexical order.
@@ -783,7 +783,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:529:
 (B[m     if let Some(region) = manual {
          if geo.iter().any(|item| item == region) || samples.iter().any(|(item, _)| item == region) {
              return Ok(region.to_owned());
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:537:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:537:
          return Err(VoiceError::invalid("manual region is unavailable"));
      }
      if samples.is_empty() {
@@ -795,7 +795,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:537:
 (B[m     }
      let mut best: BTreeMap<&str, u32> = BTreeMap::new();
      for (region, latency) in samples {
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:544:
+Diff in /home/user/orca/project/rust/crates/discord-voice/src/lib.rs:544:
 [31m-        best.entry(region).and_modify(|current| *current = (*current).min(*latency)).or_insert(*latency);
 (B[m[32m+        best.entry(region)
 (B[m[32m+            .and_modify(|current| *current = (*current).min(*latency))
@@ -827,7 +827,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:544:
 (B[m }
  
  fn json_u64(value: u64) -> JsonValue {
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:1:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:1:
 [31m-use discord_json::{parse, JsonValue};
 (B[m[32m+use discord_json::{JsonValue, parse};
 (B[m use discord_voice::{
@@ -838,7 +838,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:1:
 (B[m };
  use std::fmt::Debug;
  
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:18:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:18:
      contents
          .lines()
          .filter_map(|line| parse(line).ok())
@@ -852,7 +852,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:18
 (B[m         .collect()
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:49:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:49:
          .iter()
          .map(|payload| {
              let sanitized = payload
@@ -874,7 +874,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:49
 (B[m                 .replace("\"token\":\"REDACTED\"", "\"token\":\"fixture-token\"");
              parse_frame(&sanitized).expect("capture frame parses")
          })
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:58:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:58:
          .collect::<Vec<_>>();
  
 [31m-    assert!(parsed.iter().any(|frame| matches!(frame.payload, VoicePayload::Hello(Hello { version: 8, heartbeat_interval_ms: 13_750 }))));
@@ -912,7 +912,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:58
 (B[m     assert_eq!(description.mode, "aead_aes256_gcm_rtpsize");
      assert_eq!(description.secret_key.len(), 32);
      assert_eq!(description.dave_protocol_version, 1);
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:74:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:74:
      assert_eq!(description.secure_frames_version, 1);
 [31m-    assert!(parsed.iter().any(|frame| frame.op == VoiceOp::Unknown(15) || frame.op.as_u8() == 15));
 (B[m[32m+    assert!(
@@ -942,7 +942,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:74
 (B[m     assert_eq!(identify.server_id, "1014537851418980372");
      assert_eq!(identify.channel_id, "1176785373989445703");
      assert_eq!(identify.user_id, "384299970632876032");
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:105:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:105:
      assert_eq!(value.address, "127.0.0.1");
      assert_eq!(value.port, 19309);
      assert_eq!(value.codecs.len(), 2);
@@ -963,7 +963,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:10
 (B[m }
  
  #[test]
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:136:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:136:
      assert_eq!(frame.seq, Some(9));
      assert!(matches!(frame.payload, VoicePayload::Other { .. }));
      assert!(parse_frame(r#"{"op":0}"#).is_err());
@@ -975,7 +975,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:13
 (B[m }
  
  #[test]
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:143:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:143:
  fn voice_server_update_builds_valid_websocket_url_without_leaking_token() {
 [31m-    let update = VoiceServerUpdate::parse(r#"{"token":"private-token","guild_id":"123","endpoint":"c-fra19.discord.media:2053"}"#).unwrap();
 (B[m[31m-    assert_eq!(update.websocket_url().unwrap(), "wss://c-fra19.discord.media:2053/?v=9");
@@ -1018,7 +1018,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:14
 (B[m     }
  }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:154:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:154:
  #[test]
  fn region_selection_orders_latency_ties_and_manual_choice() {
 [31m-    let samples = vec![("paris".to_owned(), 20), ("frankfurt".to_owned(), 10), ("stockholm".to_owned(), 10)];
@@ -1042,7 +1042,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:15
 (B[m     assert!(select_region(&samples, &geo, Some("milan")).is_err());
      assert_eq!(select_region(&[], &geo, None).unwrap(), "stockholm");
      assert!(select_region(&[], &[], None).is_err());
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:163:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:163:
 [31m-    assert_eq!(select_region(&[("paris".into(), 4), ("paris".into(), 2), ("frankfurt".into(), 3)], &geo, None).unwrap(), "paris");
 (B[m[32m+    assert_eq!(
 (B[m[32m+        select_region(
@@ -1060,7 +1060,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:16
 (B[m     // Географический порядок важнее лексикографического при равной задержке.
      let tie = [("amsterdam".to_owned(), 10), ("zurich".to_owned(), 10)];
      assert_eq!(
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:229:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:229:
  #[test]
  fn every_prefix_of_frame_is_panic_free() {
      let padding = "x".repeat(12_000);
@@ -1077,7 +1077,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:22
 (B[m     }
      for byte in 0..10_000usize {
          let malformed = format!("{{\"op\":{},\"d\":{{}}}}", byte % 256);
-Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:238:
+Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:238:
          let _ = parse_frame(&malformed);
      }
  }

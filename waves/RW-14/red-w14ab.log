@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error[E0432]: unresolved import `discord_core::history`
  --> crates/discord-core/tests/history_pagination.rs:8:19
   |

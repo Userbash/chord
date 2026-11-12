@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -13,21 +13,21 @@ session id: 01a15d36-c316-77e3-9ccf-535ea01ef078
 user
 Ты — независимый код-ревьюер волны RW-22 (авторы кода: другие агенты). Только чтение, ничего не редактируй, не создавай, не коммить. Проверь P3-15 i18n и foundation discord-json: rust/crates/discord-i18n/src/lib.rs, rust/crates/discord-json/src/lib.rs, их тесты, docs/re/i18n-deep.md, waves/RW-22/WAVE-PLAN.md и TZ-W22a. Ищи P0/P1/P2 баги: корректность xxh64/message_key, локаль/fallback, AST-парсинг, plural/offset/#, форматирование чисел, rich-теги, markdown XSS/паники, JSON RFC 8259/duplicate keys/глубина/сурогаты/утечки. Для каждой находки: severity, file:line, конкретный вход/сценарий, почему тест не ловит. Проверь также, что тесты — независимые оракулы, а не тавтология реализации. Верни только отчёт, без правок.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала сверю обязательный процесс и замороженный контракт волны RW-22, затем независимо пройду реализации и тесты по указанным классам ошибок. Ничего менять или запускать с побочными эффектами не буду.
 exec
-/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'WAVE-PLAN.md' -g 'TZ-W22a*' -g 'lib.rs' -g '*i18n*' -g '*json*' | head -200" in /home/sanya/orca/project
+/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'WAVE-PLAN.md' -g 'TZ-W22a*' -g 'lib.rs' -g '*i18n*' -g '*json*' | head -200" in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/orca/project
+/home/user/orca/project
 TDD-PLAN.md
 TASKS.md
 skills-lock.json
@@ -230,9 +230,9 @@ fixtures/gateway/by-type/092-MESSAGE_CREATE.json
 fixtures/gateway/by-type/093-GUILD_MEMBER_LIST_UPDATE.json
 
 exec
-/usr/bin/bash -lc "sed -n '1,260p' waves/RW-22/WAVE-PLAN.md && sed -n '1,260p' waves/RW-22/TZ-W22a.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' waves/RW-22/WAVE-PLAN.md && sed -n '1,260p' waves/RW-22/TZ-W22a.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,220p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,220p' docs/rust-client/TEAM.md" in /home/user/orca/project
  succeeded in 0ms:
 # RW-22 / B03 — план волны
 
@@ -341,7 +341,7 @@ unicode (включая `\uD83D\uDE00`). Ошибка содержит байт�
 5. Только после accepted — синхронизация `STATE/STATUS/ROADMAP/TASKS/map` и `waves/db.jsonl`.
 # ТЗ W22a — P3-15: i18n runtime base
 
-Волна: RW-22 / B03. Владелец: W22a. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-22 / B03. Владелец: W22a. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -358,7 +358,7 @@ unicode (включая `\uD83D\uDE00`). Ошибка содержит байт�
 Strict TDD. Сначала тесты (сейчас в крейте только тривиальный lib-тест), зафиксируй red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n \
   2>&1 | tee ../waves/RW-22/red-w22a.log
 ```
@@ -385,10 +385,10 @@ pub fn resolve_locale(requested: &str, available: &[&str]) -> String;
 - `message_key`: `xxh64(id.as_bytes(), 0)` → 8 байт **LE** → стандартный base64 → первые 6
   символов. Проверочные векторы: `ru → +irF5O`, `en-US → +dXJII`, `AKA → l1QVfj`,
   `OK → TyCVIq`, `PS4 → fJyyQn`, `PS5 → oElqN5`. Дополнительно сверь с
-  `/home/sanya/re-deep/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
+  `/home/user/clean-room-oracle/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
   «Закрыть всплывающее окно»; обратный хеш от id проверять не нужно.
 - `xxh64` — реализация xxHash64 (seed, little-endian чтение, avalanche); без `unsafe`.
-- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/sanya/re-deep/inline/lang-list.json`;
+- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/user/clean-room-oracle/inline/lang-list.json`;
   отключённые ровно `["pt-PT","sk","he","ar","id"]`.
 - `resolve_locale`: exact → case-insensitive → язык (`ru-RU`→`ru`) → default → `en-US`;
   отключённая/неизвестная не выбирается; пустой requested → default. Функция возвращает код
@@ -449,7 +449,7 @@ pub fn translate(&self, key: &str, args: &BTreeMap<String, Value>) -> Result<Str
    недоступен — пропустить с причиной, не выдумывать. Достаточно 6 эталонов + known-answer
    для пустой строки.
 2. locale: 36/31/5, exact/case/base/fallback/disabled.
-3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/sanya/re-deep` (skip если
+3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/user/clean-room-oracle` (skip если
    нет), 23 836/23 903 ключей, `hPBScv`, `323362` AST с `$link`, plural `r/EUap`.
 4. translate: literal, argument, fallback requested→en, missing arg, missing message.
 5. plural ru: 1/2/5/11/21/22/101 для `r/EUap`; `=0`; `#`; offset; en one/other.
@@ -531,7 +531,7 @@ pub fn translate(&self, key: &str, args: &BTreeMap<String, Value>) -> Result<Str
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -926,7 +926,7 @@ next: <TL-2 интеграция / QA / review>
 
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' TASKS.md && sed -n '1,240p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' TASKS.md && sed -n '1,240p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/user/orca/project
  succeeded in 0ms:
 # TASKS.md — микро-декомпозиция работ `discord-lab`
 
@@ -963,7 +963,7 @@ P1-02, P0-04, P0-07); следующий batch — B03/RW-22.
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -1423,7 +1423,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-21, I1,
   P2-01/P2-02/P2-04…P2-11, B01/B02 accepted, удаление legacy `ready_data` и правки доков
   **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -1590,7 +1590,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 - Legacy `ready_data` удалён из сборки и публичного API (P-4): было 9 тестов; core 242 → 233,
 
 exec
-/usr/bin/bash -lc 'wc -l rust/crates/discord-i18n/src/lib.rs rust/crates/discord-json/src/lib.rs rust/crates/discord-json/tests/json_contract.rs docs/re/i18n-deep.md && rg --files rust/crates/discord-i18n rust/crates/discord-json' in /home/sanya/orca/project
+/usr/bin/bash -lc 'wc -l rust/crates/discord-i18n/src/lib.rs rust/crates/discord-json/src/lib.rs rust/crates/discord-json/tests/json_contract.rs docs/re/i18n-deep.md && rg --files rust/crates/discord-i18n rust/crates/discord-json' in /home/user/orca/project
  succeeded in 0ms:
   951 rust/crates/discord-i18n/src/lib.rs
   599 rust/crates/discord-json/src/lib.rs
@@ -1606,11 +1606,11 @@ rust/crates/discord-json/src/lib.rs
 codex
 Контракт задаёт строгие точки проверки: xxHash/base64, 36 кодов локали, keyless AST, plural с offset и безопасный markdown; foundation JSON отдельно требует RFC 8259 и лимиты. Сейчас сопоставляю каждую из них с ветками реализации и конкретными тестовыми векторами/фикстурами.
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '341,700p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '341,700p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '701,1000p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '701,1000p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '1,340p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '1,340p'" in /home/user/orca/project
  succeeded in 0ms:
    341	    Float(f64),
    342	}
@@ -2183,8 +2183,8 @@ exec
    907	    #[test]
    908	    fn real_catalogs_match_independent_inventory() {
    909	        for (path, count) in [
-   910	            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-   911	            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+   910	            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+   911	            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
    912	        ] {
    913	            let Ok(raw) = std::fs::read_to_string(path) else {
    914	                eprintln!("skip: unavailable oracle {path}");
@@ -2569,11 +2569,11 @@ exec
    340	    Int(i64),
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '341,650p'; nl -ba rust/crates/discord-json/tests/json_contract.rs | sed -n '1,320p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '341,650p'; nl -ba rust/crates/discord-json/tests/json_contract.rs | sed -n '1,320p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '1,340p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '1,340p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba docs/re/i18n-deep.md | sed -n '1,270p'; nl -ba waves/RW-22/WAVE-PLAN.md | sed -n '1,200p'; nl -ba waves/RW-22/TZ-W22a.md | sed -n '1,230p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba docs/re/i18n-deep.md | sed -n '1,270p'; nl -ba waves/RW-22/WAVE-PLAN.md | sed -n '1,200p'; nl -ba waves/RW-22/TZ-W22a.md | sed -n '1,230p'" in /home/user/orca/project
  succeeded in 0ms:
    341	    fn expect(&mut self, byte: u8) -> Result<(), JsonError> {
    342	        if self.peek() == Some(byte) {
@@ -2837,7 +2837,7 @@ exec
      1	//! Контракт foundation-парсера JSON (RW-22).
      2	//!
      3	//! Оракулы: реальные `ru-catalog.json`/`en-catalog.json` и `voice/rtc*-frames.jsonl`
-     4	//! из `/home/sanya/re-deep` (если лаборатория доступна), плюс независимые грамматические
+     4	//! из `/home/user/clean-room-oracle` (если лаборатория доступна), плюс независимые грамматические
      5	//! кейсы RFC 8259. Тесты не подстраиваются под реализацию.
      6	
      7	use std::panic::{AssertUnwindSafe, catch_unwind};
@@ -2852,7 +2852,7 @@ exec
     16	            return Some(root);
     17	        }
     18	    }
-    19	    let fallback = Path::new("/home/sanya/re-deep");
+    19	    let fallback = Path::new("/home/user/clean-room-oracle");
     20	    fallback.is_dir().then(|| fallback.to_path_buf())
     21	}
     22	
@@ -3007,7 +3007,7 @@ exec
    171	#[test]
    172	fn parses_real_catalogs_when_lab_is_available() {
    173	    let Some(path) = lab_file("ru-catalog.json") else {
-   174	        eprintln!("skip: нет /home/sanya/re-deep/ru-catalog.json");
+   174	        eprintln!("skip: нет /home/user/clean-room-oracle/ru-catalog.json");
    175	        return;
    176	    };
    177	    let text = std::fs::read_to_string(path).unwrap();
@@ -3027,7 +3027,7 @@ exec
    191	#[test]
    192	fn parses_real_voice_frames_when_lab_is_available() {
    193	    let Some(path) = lab_file("voice/rtc1-frames.jsonl") else {
-   194	        eprintln!("skip: нет /home/sanya/re-deep/voice/rtc1-frames.jsonl");
+   194	        eprintln!("skip: нет /home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
    195	        return;
    196	    };
    197	    let text = std::fs::read_to_string(path).unwrap();
@@ -3468,7 +3468,7 @@ exec
      8	
      9	| Что | Значение |
     10	|---|---|
-    11	| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+    11	| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
     12	| i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
     13	| Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
     14	| Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -3812,7 +3812,7 @@ exec
    105	5. Только после accepted — синхронизация `STATE/STATUS/ROADMAP/TASKS/map` и `waves/db.jsonl`.
      1	# ТЗ W22a — P3-15: i18n runtime base
      2	
-     3	Волна: RW-22 / B03. Владелец: W22a. Работать в `/home/sanya/orca/project`, не коммитить.
+     3	Волна: RW-22 / B03. Владелец: W22a. Работать в `/home/user/orca/project`, не коммитить.
      4	
      5	## 0. Обязательное чтение
      6	
@@ -3829,7 +3829,7 @@ exec
     17	Strict TDD. Сначала тесты (сейчас в крейте только тривиальный lib-тест), зафиксируй red-лог:
     18	
     19	```bash
-    20	cd /home/sanya/orca/project/rust
+    20	cd /home/user/orca/project/rust
     21	flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n \
     22	  2>&1 | tee ../waves/RW-22/red-w22a.log
     23	```
@@ -3856,10 +3856,10 @@ exec
     44	- `message_key`: `xxh64(id.as_bytes(), 0)` → 8 байт **LE** → стандартный base64 → первые 6
     45	  символов. Проверочные векторы: `ru → +irF5O`, `en-US → +dXJII`, `AKA → l1QVfj`,
     46	  `OK → TyCVIq`, `PS4 → fJyyQn`, `PS5 → oElqN5`. Дополнительно сверь с
-    47	  `/home/sanya/re-deep/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
+    47	  `/home/user/clean-room-oracle/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
     48	  «Закрыть всплывающее окно»; обратный хеш от id проверять не нужно.
     49	- `xxh64` — реализация xxHash64 (seed, little-endian чтение, avalanche); без `unsafe`.
-    50	- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/sanya/re-deep/inline/lang-list.json`;
+    50	- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/user/clean-room-oracle/inline/lang-list.json`;
     51	  отключённые ровно `["pt-PT","sk","he","ar","id"]`.
     52	- `resolve_locale`: exact → case-insensitive → язык (`ru-RU`→`ru`) → default → `en-US`;
     53	  отключённая/неизвестная не выбирается; пустой requested → default. Функция возвращает код
@@ -3920,7 +3920,7 @@ exec
    108	   недоступен — пропустить с причиной, не выдумывать. Достаточно 6 эталонов + known-answer
    109	   для пустой строки.
    110	2. locale: 36/31/5, exact/case/base/fallback/disabled.
-   111	3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/sanya/re-deep` (skip если
+   111	3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/user/clean-room-oracle` (skip если
    112	   нет), 23 836/23 903 ключей, `hPBScv`, `323362` AST с `$link`, plural `r/EUap`.
    113	4. translate: literal, argument, fallback requested→en, missing arg, missing message.
    114	5. plural ru: 1/2/5/11/21/22/101 для `r/EUap`; `=0`; `#`; offset; en one/other.
@@ -3935,7 +3935,7 @@ exec
    123	что сознательно отложено в P7-01. Не запускай `cargo test --workspace` (это integration lane).
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '1,240p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '1,240p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! # discord-json
      2	//!
@@ -4179,11 +4179,11 @@ exec
    240	        JsonValue::Number(number) => out.push_str(number.as_str()),
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '449,760p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '449,760p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '760,960p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '760,960p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '241,620p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '241,620p'" in /home/user/orca/project
  succeeded in 0ms:
    449	fn render_ast(
    450	    ast: &Ast,
@@ -4649,8 +4649,8 @@ exec
    907	    #[test]
    908	    fn real_catalogs_match_independent_inventory() {
    909	        for (path, count) in [
-   910	            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-   911	            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+   910	            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+   911	            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
    912	        ] {
    913	            let Ok(raw) = std::fs::read_to_string(path) else {
    914	                eprintln!("skip: unavailable oracle {path}");
@@ -5054,12 +5054,12 @@ exec
    599	}
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-json/tests/json_contract.rs | sed -n '1,300p'; rg --files rust/crates/discord-i18n" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-json/tests/json_contract.rs | sed -n '1,300p'; rg --files rust/crates/discord-i18n" in /home/user/orca/project
  succeeded in 0ms:
      1	//! Контракт foundation-парсера JSON (RW-22).
      2	//!
      3	//! Оракулы: реальные `ru-catalog.json`/`en-catalog.json` и `voice/rtc*-frames.jsonl`
-     4	//! из `/home/sanya/re-deep` (если лаборатория доступна), плюс независимые грамматические
+     4	//! из `/home/user/clean-room-oracle` (если лаборатория доступна), плюс независимые грамматические
      5	//! кейсы RFC 8259. Тесты не подстраиваются под реализацию.
      6	
      7	use std::panic::{AssertUnwindSafe, catch_unwind};
@@ -5074,7 +5074,7 @@ exec
     16	            return Some(root);
     17	        }
     18	    }
-    19	    let fallback = Path::new("/home/sanya/re-deep");
+    19	    let fallback = Path::new("/home/user/clean-room-oracle");
     20	    fallback.is_dir().then(|| fallback.to_path_buf())
     21	}
     22	
@@ -5229,7 +5229,7 @@ exec
    171	#[test]
    172	fn parses_real_catalogs_when_lab_is_available() {
    173	    let Some(path) = lab_file("ru-catalog.json") else {
-   174	        eprintln!("skip: нет /home/sanya/re-deep/ru-catalog.json");
+   174	        eprintln!("skip: нет /home/user/clean-room-oracle/ru-catalog.json");
    175	        return;
    176	    };
    177	    let text = std::fs::read_to_string(path).unwrap();
@@ -5249,7 +5249,7 @@ exec
    191	#[test]
    192	fn parses_real_voice_frames_when_lab_is_available() {
    193	    let Some(path) = lab_file("voice/rtc1-frames.jsonl") else {
-   194	        eprintln!("skip: нет /home/sanya/re-deep/voice/rtc1-frames.jsonl");
+   194	        eprintln!("skip: нет /home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
    195	        return;
    196	    };
    197	    let text = std::fs::read_to_string(path).unwrap();
@@ -5340,7 +5340,7 @@ rust/crates/discord-i18n/Cargo.toml
 rust/crates/discord-i18n/src/lib.rs
 
 exec
-/usr/bin/bash -lc "nl -ba docs/re/i18n-deep.md | sed -n '1,190p'; rg -n 'test|xxh|plural|markdown|json|T-I18N' waves/RW-22 docs/rust-client/TEST-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba docs/re/i18n-deep.md | sed -n '1,190p'; rg -n 'test|xxh|plural|markdown|json|T-I18N' waves/RW-22 docs/rust-client/TEST-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
      1	# Discord 1.0.162 — i18n: рантайм, плурализация, rich-формат
      2	
@@ -5352,7 +5352,7 @@ exec
      8	
      9	| Что | Значение |
     10	|---|---|
-    11	| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+    11	| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
     12	| i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
     13	| Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
     14	| Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -5591,7 +5591,7 @@ waves/RW-22/green-w22b-tie.log:5:running 1 test
 waves/RW-22/green-w22b-tie.log:6:test region_selection_orders_latency_ties_and_manual_choice ... ok
 waves/RW-22/green-w22b-tie.log:8:test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
 waves/RW-22/last-w22c.txt:3:- Red: `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources` → exit `101` (не было `rest::resources`). Лог: `/tmp/opencode/red-w22c.log`.
-waves/RW-22/last-w22c.txt:5:- Изменены: [resources.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
+waves/RW-22/last-w22c.txt:5:- Изменены: [resources.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
 waves/RW-22/green-w22b-keyfix.log:2:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
 waves/RW-22/green-w22b-keyfix.log:3:     Running tests/signaling.rs (target/debug/deps/signaling-1fdd4716a4e4ff87)
 waves/RW-22/green-w22b-keyfix.log:5:running 1 test
@@ -5690,7 +5690,7 @@ waves/RW-22/codex-review-B.log:1166:  `.gate/worker-2026-10-20T13-21-59-680Z.jso
 waves/RW-22/codex-review-B.log:1182:  gate passed `.gate/worker-2026-10-20T12-43-25-346Z.json`.
 waves/RW-22/codex-review-B.log:1188:  `Latest`/`Before`/`After`/`Around`, generation-токены/stale, `Live > Page`, page/page
 waves/RW-22/codex-review-B.log:1240:`rust/crates/discord-json/src/lib.rs`, `rust/crates/discord-voice/src/lib.rs`,
-waves/RW-22/codex-review-B.log:1241:`/home/sanya/re-deep/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
+waves/RW-22/codex-review-B.log:1241:`/home/user/clean-room-oracle/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
 waves/RW-22/codex-review-B.log:1242:`rtc1-summary.json`, `rtc2-summary.json`.
 waves/RW-22/codex-review-B.log:1246:`discord-json = { workspace = true }`.
 waves/RW-22/codex-review-B.log:1254:flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice \
@@ -5698,7 +5698,7 @@ waves/RW-22/codex-review-B.log:1350:что отложено в P4-02 (UDP discov
 waves/RW-22/codex-review-B.log:1364:`rust/crates/discord-core/tests/rest_resources.rs`,
 waves/RW-22/codex-review-B.log:1365:`rust/crates/discord-core/Cargo.toml` (только если нужен `discord-json`; лучше не нужен).
 waves/RW-22/codex-review-B.log:1374:flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources \
-waves/RW-22/codex-review-B.log:1438:/usr/bin/bash -lc 'git status --short && git diff -- rust/crates/discord-voice/src/lib.rs rust/crates/discord-voice/tests/signaling.rs rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs scripts/ci.sh scripts/release.sh .github/workflows/ci.yml rust/deny.toml rust/crates/discord-codec/examples/etf_bench.rs docs/re/voice-deep.md docs/re/rest-d02.md waves/RW-22/TZ-W22b.md waves/RW-22/TZ-W22c.md' in /home/sanya/orca/project
+waves/RW-22/codex-review-B.log:1438:/usr/bin/bash -lc 'git status --short && git diff -- rust/crates/discord-voice/src/lib.rs rust/crates/discord-voice/tests/signaling.rs rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs scripts/ci.sh scripts/release.sh .github/workflows/ci.yml rust/deny.toml rust/crates/discord-codec/examples/etf_bench.rs docs/re/voice-deep.md docs/re/rest-d02.md waves/RW-22/TZ-W22b.md waves/RW-22/TZ-W22c.md' in /home/user/orca/project
 waves/RW-22/codex-review-B.log:1456: M rust/crates/discord-codec/tests/zstd_stream.rs
 waves/RW-22/codex-review-B.log:1468: M waves/db.jsonl
 waves/RW-22/codex-review-B.log:1479:?? rust/crates/discord-codec/tests/etf_full.rs
@@ -5775,7 +5775,7 @@ waves/RW-22/codex-review-B.log:2312:+    JsonValue::Number(discord_json::JsonNum
 waves/RW-22/codex-review-B.log:2324: #[cfg(test)]
 waves/RW-22/codex-review-B.log:2325: mod tests {
 waves/RW-22/codex-review-B.log:2326:     #[test]
-waves/RW-22/codex-w22c.log:14:Ты — кодовый воркер W22c волны RW-22 в репозитории /home/sanya/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22c.md. Выполни P7-04 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-core/src/rest/resources.rs, rust/crates/discord-core/src/rest/mod.rs (минимально), rust/crates/discord-core/tests/rest_resources.rs и при необходимости rust/crates/discord-core/Cargo.toml. Не трогай routes.rs, lib.rs, другие крейты, workspace Cargo.toml/Cargo.lock, доки и waves/*. Для cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, риски.
+waves/RW-22/codex-w22c.log:14:Ты — кодовый воркер W22c волны RW-22 в репозитории /home/user/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22c.md. Выполни P7-04 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-core/src/rest/resources.rs, rust/crates/discord-core/src/rest/mod.rs (минимально), rust/crates/discord-core/tests/rest_resources.rs и при необходимости rust/crates/discord-core/Cargo.toml. Не трогай routes.rs, lib.rs, другие крейты, workspace Cargo.toml/Cargo.lock, доки и waves/*. Для cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, риски.
 waves/RW-22/codex-w22c.log:40:| P3-15 | i18n runtime base: xxh64→base64[0..6], выбор locale, en/ru, AST, fallback, rich-теги/базовый markdown | T-I18N-01…03 | `rust/crates/discord-i18n/**` (W22a) |
 waves/RW-22/codex-w22c.log:42:| P7-04 | read-only API surface: quests/promotions/entitlements/library/saved messages, только GET, безопасные query | T-REST-09 | `rust/crates/discord-core/src/rest/resources.rs`, `rest/mod.rs`, `tests/rest_resources.rs`, `discord-core/Cargo.toml` (W22c) |
 waves/RW-22/codex-w22c.log:43:| P8-03 | CI: fmt/clippy/test/deny-if-available/bench/release artifact, без сети по умолчанию | T-HARN-06 | `scripts/ci.sh`, `scripts/release.sh`, `rust/deny.toml`, `.github/workflows/ci.yml`, `rust/crates/discord-codec/examples/etf_bench.rs` (C) |
@@ -5956,7 +5956,7 @@ waves/RW-22/codex-w22c.log:1742:- `VoiceFrame::parse(&str)` через `discord-
 waves/RW-22/codex-w22c.log:1768:- `scripts/ci.sh`: `fmt → clippy → test → bench-example → release-build`; `cargo-deny` только
 waves/RW-22/codex-w22c.log:1779:2. Targeted-прогоны — через `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p <crate>`.
 waves/RW-22/codex-w22c.log:1782:5. Только после accepted — синхронизация `STATE/STATUS/ROADMAP/TASKS/map` и `waves/db.jsonl`.
-waves/RW-22/codex-w22c.log:1790:/usr/bin/bash -lc 'git diff -- rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/Cargo.toml rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs; rg --files rust/crates/discord-core/src/rest rust/crates/discord-core/tests | sort' in /home/sanya/orca/project
+waves/RW-22/codex-w22c.log:1790:/usr/bin/bash -lc 'git diff -- rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/Cargo.toml rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs; rg --files rust/crates/discord-core/src/rest rust/crates/discord-core/tests | sort' in /home/user/orca/project
 waves/RW-22/codex-w22c.log:1846:rust/crates/discord-core/tests/data/rest-auth-6.tsv
 waves/RW-22/codex-w22c.log:1847:rust/crates/discord-core/tests/data/rest-base64-vectors.tsv
 waves/RW-22/codex-w22c.log:1848:rust/crates/discord-core/tests/data/rest-crossref-47.tsv
@@ -6054,7 +6054,7 @@ waves/RW-22/codex-w22c.log:2551:124-| T-DATA-12 | L2 | VOICE_STATE/START_TIME/ST
 waves/RW-22/codex-w22c.log:2552:125-| T-DATA-13 | L2 | typing: TYPING_START (28) → таймаут индикатора | `capture-run2.jsonl` |
 waves/RW-22/codex-w22c.log:2558:131-| T-MSG-01 | L1 | markdown-разметка: 23 правила, экранирование | `../re/i18n-deep.md` §3 |
 waves/RW-22/codex-w22c.log:2564:137-| T-MSG-07 | L2 | треды: THREAD_LIST_SYNC (7), панель, архив | `capture-run2.jsonl` |
-waves/RW-22/codex-w22c.log:2570:/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs
+waves/RW-22/codex-w22c.log:2570:/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:2571:diff --git a/rust/crates/discord-core/tests/rest_resources.rs b/rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:2575:+++ b/rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:2599:+#[test]
@@ -6069,7 +6069,7 @@ waves/RW-22/codex-w22c.log:2740:+#[test]
 waves/RW-22/codex-w22c.log:2765:+#[test]
 waves/RW-22/codex-w22c.log:2772:+#[test]
 waves/RW-22/codex-w22c.log:2784:+#[test]
-waves/RW-22/codex-w22c.log:2802:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/red-w22c.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22c.log:2802:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/red-w22c.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22c.log:2806: --> crates/discord-core/tests/rest_resources.rs:1:25
 waves/RW-22/codex-w22c.log:2812:error: could not compile `discord-core` (test "rest_resources") due to 1 previous error
 waves/RW-22/codex-w22c.log:2814:diff --git a/rust/crates/discord-core/tests/rest_resources.rs b/rust/crates/discord-core/tests/rest_resources.rs
@@ -6104,7 +6104,7 @@ waves/RW-22/codex-w22c.log:3603:+#[test]
 waves/RW-22/codex-w22c.log:3628:+#[test]
 waves/RW-22/codex-w22c.log:3635:+#[test]
 waves/RW-22/codex-w22c.log:3647:+#[test]
-waves/RW-22/codex-w22c.log:3665:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/green-w22c.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22c.log:3665:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/green-w22c.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22c.log:3668:    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
 waves/RW-22/codex-w22c.log:3669:     Running tests/rest_resources.rs (target/debug/deps/rest_resources-975afccad9277313)
 waves/RW-22/codex-w22c.log:3671:running 5 tests
@@ -6121,7 +6121,7 @@ waves/RW-22/codex-w22c.log:3886:+#[test]
 waves/RW-22/codex-w22c.log:3911:+#[test]
 waves/RW-22/codex-w22c.log:3918:+#[test]
 waves/RW-22/codex-w22c.log:3930:+#[test]
-waves/RW-22/codex-w22c.log:3951:/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs
+waves/RW-22/codex-w22c.log:3951:/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:4103:diff --git a/rust/crates/discord-core/tests/rest_resources.rs b/rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:4107:+++ b/rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:4131:+#[test]
@@ -6136,7 +6136,7 @@ waves/RW-22/codex-w22c.log:4429:+#[test]
 waves/RW-22/codex-w22c.log:4454:+#[test]
 waves/RW-22/codex-w22c.log:4461:+#[test]
 waves/RW-22/codex-w22c.log:4473:+#[test]
-waves/RW-22/codex-w22c.log:4491:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/green-w22c.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22c.log:4491:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/green-w22c.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22c.log:4494:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
 waves/RW-22/codex-w22c.log:4495:     Running tests/rest_resources.rs (target/debug/deps/rest_resources-975afccad9277313)
 waves/RW-22/codex-w22c.log:4497:running 5 tests
@@ -6164,7 +6164,7 @@ waves/RW-22/codex-w22c.log:4793:test errors_are_stable_and_do_not_disclose_input
 waves/RW-22/codex-w22c.log:4794:test path_renders_only_the_application_id ... ok
 waves/RW-22/codex-w22c.log:4795:test saved_messages_404_is_not_a_success_payload ... ok
 waves/RW-22/codex-w22c.log:4797:test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-waves/RW-22/codex-w22c.log:4801:/usr/bin/bash -lc 'md5sum rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/tests/rest_resources.rs; git status --short -- rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/tests/rest_resources.rs rust/crates/discord-core/Cargo.toml; git diff -- rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs' in /home/sanya/orca/project
+waves/RW-22/codex-w22c.log:4801:/usr/bin/bash -lc 'md5sum rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/tests/rest_resources.rs; git status --short -- rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/tests/rest_resources.rs rust/crates/discord-core/Cargo.toml; git diff -- rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs' in /home/user/orca/project
 waves/RW-22/codex-w22c.log:4805:e03c31d2ead036dba6520bf6bf83894f  rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:4809:?? rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:4991:diff --git a/rust/crates/discord-core/tests/rest_resources.rs b/rust/crates/discord-core/tests/rest_resources.rs
@@ -6175,7 +6175,7 @@ waves/RW-22/codex-w22c.log:5073:+#[test]
 waves/RW-22/codex-w22c.log:5080:+#[test]
 waves/RW-22/codex-w22c.log:5092:+#[test]
 waves/RW-22/codex-w22c.log:5112:- Red: `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources` → exit `101` (не было `rest::resources`). Лог: `/tmp/opencode/red-w22c.log`.
-waves/RW-22/codex-w22c.log:5114:- Изменены: [resources.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
+waves/RW-22/codex-w22c.log:5114:- Изменены: [resources.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
 waves/RW-22/codex-w22c.log:5269:diff --git a/rust/crates/discord-core/tests/rest_resources.rs b/rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:5273:+++ b/rust/crates/discord-core/tests/rest_resources.rs
 waves/RW-22/codex-w22c.log:5297:+#[test]
@@ -6184,7 +6184,7 @@ waves/RW-22/codex-w22c.log:5351:+#[test]
 waves/RW-22/codex-w22c.log:5358:+#[test]
 waves/RW-22/codex-w22c.log:5370:+#[test]
 waves/RW-22/codex-w22c.log:5391:- Red: `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources` → exit `101` (не было `rest::resources`). Лог: `/tmp/opencode/red-w22c.log`.
-waves/RW-22/codex-w22c.log:5393:- Изменены: [resources.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
+waves/RW-22/codex-w22c.log:5393:- Изменены: [resources.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
 waves/RW-22/green-w22b.log:2:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
 waves/RW-22/green-w22b.log:3:     Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
 waves/RW-22/green-w22b.log:5:running 1 test
@@ -6204,7 +6204,7 @@ waves/RW-22/green-w22b.log:22:test result: ok. 8 passed; 0 failed; 0 ignored; 0 
 waves/RW-22/green-w22b.log:24:   Doc-tests discord_voice
 waves/RW-22/green-w22b.log:26:running 0 tests
 waves/RW-22/green-w22b.log:28:test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-waves/RW-22/red-json-writer.log:1:   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+waves/RW-22/red-json-writer.log:1:   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
 waves/RW-22/red-json-writer.log:2:error[E0425]: cannot find function `to_json_string` in crate `discord_json`
 waves/RW-22/red-json-writer.log:3:   --> crates/discord-json/tests/json_contract.rs:225:30
 waves/RW-22/red-json-writer.log:5:225 |     let text = discord_json::to_json_string(&value);
@@ -6221,7 +6221,7 @@ waves/RW-22/red-json-writer.log:21:error: could not compile `discord-json` (test
 waves/RW-22/red-w22b.log:3: --> crates/discord-voice/tests/signaling.rs:3:5
 waves/RW-22/red-w22b.log:25:error: could not compile `discord-voice` (test "signaling") due to 1 previous error
 waves/RW-22/codex-review-A.log:14:Ты — независимый код-ревьюер волны RW-22 (авторы кода: другие агенты). Только чтение, ничего не редактируй, не создавай, не коммить. Проверь P3-15 i18n и foundation discord-json: rust/crates/discord-i18n/src/lib.rs, rust/crates/discord-json/src/lib.rs, их тесты, docs/re/i18n-deep.md, waves/RW-22/WAVE-PLAN.md и TZ-W22a. Ищи P0/P1/P2 баги: корректность xxh64/message_key, локаль/fallback, AST-парсинг, plural/offset/#, форматирование чисел, rich-теги, markdown XSS/паники, JSON RFC 8259/duplicate keys/глубина/сурогаты/утечки. Для каждой находки: severity, file:line, конкретный вход/сценарий, почему тест не ловит. Проверь также, что тесты — независимые оракулы, а не тавтология реализации. Верни только отчёт, без правок.
-waves/RW-22/codex-review-A.log:28:/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'WAVE-PLAN.md' -g 'TZ-W22a*' -g 'lib.rs' -g '*i18n*' -g '*json*' | head -200" in /home/sanya/orca/project
+waves/RW-22/codex-review-A.log:28:/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'WAVE-PLAN.md' -g 'TZ-W22a*' -g 'lib.rs' -g '*i18n*' -g '*json*' | head -200" in /home/user/orca/project
 waves/RW-22/codex-review-A.log:33:skills-lock.json
 waves/RW-22/codex-review-A.log:36:docs/rust-client/verify/report.json
 waves/RW-22/codex-review-A.log:37:waves/RW-22/green-json-writer.log
@@ -6374,15 +6374,15 @@ waves/RW-22/codex-review-A.log:354:`discord-json = { workspace = true }`.
 waves/RW-22/codex-review-A.log:362:flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n \
 waves/RW-22/codex-review-A.log:380:pub fn xxh64(input: &[u8], seed: u64) -> u64;
 waves/RW-22/codex-review-A.log:385:- `message_key`: `xxh64(id.as_bytes(), 0)` → 8 байт **LE** → стандартный base64 → первые 6
-waves/RW-22/codex-review-A.log:388:  `/home/sanya/re-deep/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
+waves/RW-22/codex-review-A.log:388:  `/home/user/clean-room-oracle/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
 waves/RW-22/codex-review-A.log:390:- `xxh64` — реализация xxHash64 (seed, little-endian чтение, avalanche); без `unsafe`.
-waves/RW-22/codex-review-A.log:391:- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/sanya/re-deep/inline/lang-list.json`;
+waves/RW-22/codex-review-A.log:391:- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/user/clean-room-oracle/inline/lang-list.json`;
 waves/RW-22/codex-review-A.log:399:`Catalog::parse(&discord_json::JsonValue) -> Result<Catalog, AstError>` для keyless AST:
 waves/RW-22/codex-review-A.log:437:## 5. Базовый rich-markdown
 waves/RW-22/codex-review-A.log:439:Добавь безопасный парсер/рендер сообщений (не HTML): `MarkdownNode` + `parse_markdown` +
 waves/RW-22/codex-review-A.log:440:`render_markdown` (или эквивалент). Минимум: `**bold**`, `*em*`, `_em_`, `__underline__`,
 waves/RW-22/codex-review-A.log:448:1. hash: 6 векторов + `message_key` длина/алфавит + 81 сверка xxh64 с `xxhsum`? Если `xxhsum`
-waves/RW-22/codex-review-A.log:452:3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/sanya/re-deep` (skip если
+waves/RW-22/codex-review-A.log:452:3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/user/clean-room-oracle` (skip если
 waves/RW-22/codex-review-A.log:453:   нет), 23 836/23 903 ключей, `hPBScv`, `323362` AST с `$link`, plural `r/EUap`.
 waves/RW-22/codex-review-A.log:455:5. plural ru: 1/2/5/11/21/22/101 для `r/EUap`; `=0`; `#`; offset; en one/other.
 waves/RW-22/codex-review-A.log:457:7. markdown: strong/em/underline/strike/spoiler/code/fence/link/escape/XSS; no panic on 10k
@@ -6476,7 +6476,7 @@ waves/RW-22/codex-review-A.log:1505:  passed `.gate/worker-2026-10-20T15-10-13-5
 waves/RW-22/codex-review-A.log:1525:  `.gate/worker-2026-10-20T13-21-59-680Z.json`. Мутации 3/3 пойманы (`is_complete`,
 waves/RW-22/codex-review-A.log:1541:  gate passed `.gate/worker-2026-10-20T12-43-25-346Z.json`.
 waves/RW-22/codex-review-A.log:1547:  `Latest`/`Before`/`After`/`Around`, generation-токены/stale, `Live > Page`, page/page
-waves/RW-22/codex-review-A.log:1593:/usr/bin/bash -lc 'wc -l rust/crates/discord-i18n/src/lib.rs rust/crates/discord-json/src/lib.rs rust/crates/discord-json/tests/json_contract.rs docs/re/i18n-deep.md && rg --files rust/crates/discord-i18n rust/crates/discord-json' in /home/sanya/orca/project
+waves/RW-22/codex-review-A.log:1593:/usr/bin/bash -lc 'wc -l rust/crates/discord-i18n/src/lib.rs rust/crates/discord-json/src/lib.rs rust/crates/discord-json/tests/json_contract.rs docs/re/i18n-deep.md && rg --files rust/crates/discord-i18n rust/crates/discord-json' in /home/user/orca/project
 waves/RW-22/codex-review-A.log:1596:  599 rust/crates/discord-json/src/lib.rs
 waves/RW-22/codex-review-A.log:1597:  280 rust/crates/discord-json/tests/json_contract.rs
 waves/RW-22/codex-review-A.log:1601:rust/crates/discord-json/Cargo.toml
@@ -6520,8 +6520,8 @@ waves/RW-22/codex-review-A.log:2171:   895	        assert_eq!(render_markdown(&p
 waves/RW-22/codex-review-A.log:2172:   896	        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-review-A.log:2177:   901	                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-review-A.log:2183:   907	    #[test]
-waves/RW-22/codex-review-A.log:2186:   910	            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-review-A.log:2187:   911	            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-review-A.log:2186:   910	            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-review-A.log:2187:   911	            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-review-A.log:2193:   917	            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-review-A.log:2207:   931	    #[test]
 waves/RW-22/codex-review-A.log:2216:   940	    #[test]
@@ -6542,8 +6542,8 @@ waves/RW-22/codex-review-A.log:2503:   274	                    .and_then(discord
 waves/RW-22/codex-review-A.log:2510:   281	                        .and_then(discord_json::JsonValue::as_i64)
 waves/RW-22/codex-review-A.log:2530:   301	                            .and_then(discord_json::JsonValue::as_i64)
 waves/RW-22/codex-review-A.log:2533:   304	                            .and_then(discord_json::JsonValue::as_str)
-waves/RW-22/codex-review-A.log:2572:/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '341,650p'; nl -ba rust/crates/discord-json/tests/json_contract.rs | sed -n '1,320p'" in /home/sanya/orca/project
-waves/RW-22/codex-review-A.log:2574:/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '1,340p'" in /home/sanya/orca/project
+waves/RW-22/codex-review-A.log:2572:/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '341,650p'; nl -ba rust/crates/discord-json/tests/json_contract.rs | sed -n '1,320p'" in /home/user/orca/project
+waves/RW-22/codex-review-A.log:2574:/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '1,340p'" in /home/user/orca/project
 waves/RW-22/codex-review-A.log:2839:     3	//! Оракулы: реальные `ru-catalog.json`/`en-catalog.json` и `voice/rtc*-frames.jsonl`
 waves/RW-22/codex-review-A.log:2846:    10	use discord_json::{JsonErrorKind, JsonValue, MAX_DEPTH, parse};
 waves/RW-22/codex-review-A.log:2864:    28	#[test]
@@ -6554,11 +6554,11 @@ waves/RW-22/codex-review-A.log:2966:   130	#[test]
 waves/RW-22/codex-review-A.log:2988:   152	#[test]
 waves/RW-22/codex-review-A.log:3007:   171	#[test]
 waves/RW-22/codex-review-A.log:3009:   173	    let Some(path) = lab_file("ru-catalog.json") else {
-waves/RW-22/codex-review-A.log:3010:   174	        eprintln!("skip: нет /home/sanya/re-deep/ru-catalog.json");
+waves/RW-22/codex-review-A.log:3010:   174	        eprintln!("skip: нет /home/user/clean-room-oracle/ru-catalog.json");
 waves/RW-22/codex-review-A.log:3022:   186	    let en_path = lab_file("en-catalog.json").expect("en catalog рядом с ru");
 waves/RW-22/codex-review-A.log:3027:   191	#[test]
 waves/RW-22/codex-review-A.log:3029:   193	    let Some(path) = lab_file("voice/rtc1-frames.jsonl") else {
-waves/RW-22/codex-review-A.log:3030:   194	        eprintln!("skip: нет /home/sanya/re-deep/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-review-A.log:3030:   194	        eprintln!("skip: нет /home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
 waves/RW-22/codex-review-A.log:3075:   239	#[test]
 waves/RW-22/codex-review-A.log:3079:   243	    let text = discord_json::to_json_string(&value);
 waves/RW-22/codex-review-A.log:3085:   249	        discord_json::to_json_string(&JsonValue::String("a/b\"c".into())),
@@ -6614,15 +6614,15 @@ waves/RW-22/codex-review-A.log:3825:    13	`discord-json = { workspace = true }`
 waves/RW-22/codex-review-A.log:3833:    21	flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n \
 waves/RW-22/codex-review-A.log:3851:    39	pub fn xxh64(input: &[u8], seed: u64) -> u64;
 waves/RW-22/codex-review-A.log:3856:    44	- `message_key`: `xxh64(id.as_bytes(), 0)` → 8 байт **LE** → стандартный base64 → первые 6
-waves/RW-22/codex-review-A.log:3859:    47	  `/home/sanya/re-deep/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
+waves/RW-22/codex-review-A.log:3859:    47	  `/home/user/clean-room-oracle/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
 waves/RW-22/codex-review-A.log:3861:    49	- `xxh64` — реализация xxHash64 (seed, little-endian чтение, avalanche); без `unsafe`.
-waves/RW-22/codex-review-A.log:3862:    50	- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/sanya/re-deep/inline/lang-list.json`;
+waves/RW-22/codex-review-A.log:3862:    50	- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/user/clean-room-oracle/inline/lang-list.json`;
 waves/RW-22/codex-review-A.log:3870:    58	`Catalog::parse(&discord_json::JsonValue) -> Result<Catalog, AstError>` для keyless AST:
 waves/RW-22/codex-review-A.log:3908:    96	## 5. Базовый rich-markdown
 waves/RW-22/codex-review-A.log:3910:    98	Добавь безопасный парсер/рендер сообщений (не HTML): `MarkdownNode` + `parse_markdown` +
 waves/RW-22/codex-review-A.log:3911:    99	`render_markdown` (или эквивалент). Минимум: `**bold**`, `*em*`, `_em_`, `__underline__`,
 waves/RW-22/codex-review-A.log:3919:   107	1. hash: 6 векторов + `message_key` длина/алфавит + 81 сверка xxh64 с `xxhsum`? Если `xxhsum`
-waves/RW-22/codex-review-A.log:3923:   111	3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/sanya/re-deep` (skip если
+waves/RW-22/codex-review-A.log:3923:   111	3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/user/clean-room-oracle` (skip если
 waves/RW-22/codex-review-A.log:3924:   112	   нет), 23 836/23 903 ключей, `hPBScv`, `323362` AST с `$link`, plural `r/EUap`.
 waves/RW-22/codex-review-A.log:3926:   114	5. plural ru: 1/2/5/11/21/22/101 для `r/EUap`; `=0`; `#`; offset; en one/other.
 waves/RW-22/codex-review-A.log:3928:   116	7. markdown: strong/em/underline/strike/spoiler/code/fence/link/escape/XSS; no panic on 10k
@@ -6709,7 +6709,7 @@ waves/RW-22/green-w22c.log:8:test errors_are_stable_and_do_not_disclose_input ..
 waves/RW-22/green-w22c.log:9:test path_renders_only_the_application_id ... ok
 waves/RW-22/green-w22c.log:10:test saved_messages_404_is_not_a_success_payload ... ok
 waves/RW-22/green-w22c.log:12:test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-waves/RW-22/targeted-b03-a.log:1:   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+waves/RW-22/targeted-b03-a.log:1:   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
 waves/RW-22/targeted-b03-a.log:4:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
 waves/RW-22/targeted-b03-a.log:5:     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 waves/RW-22/targeted-b03-a.log:7:running 7 tests
@@ -6783,7 +6783,7 @@ waves/RW-22/mutations/m-ci-01.log:14:thread 'scripts_are_syntactically_valid_and
 waves/RW-22/mutations/m-ci-01.log:22:thread 'ci_dry_run_prints_full_plan_without_running_tools' (77855) panicked at crates/discord-conformance/tests/ci_contract.rs:29:5:
 waves/RW-22/mutations/m-ci-01.log:31:test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 waves/RW-22/mutations/m-ci-01.log:33:error: test failed, to rerun pass `-p discord-conformance --test ci_contract`
-waves/RW-22/red-w22b-wire.log:1:   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+waves/RW-22/red-w22b-wire.log:1:   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
 waves/RW-22/red-w22b-wire.log:3:error[E0599]: no method named `to_json` found for struct `discord_voice::Identify` in the current scope
 waves/RW-22/red-w22b-wire.log:4:   --> crates/discord-voice/tests/signaling.rs:191:25
 waves/RW-22/red-w22b-wire.log:6:191 |     let wire = identify.to_json();
@@ -6800,8 +6800,8 @@ waves/RW-22/red-w22a.log:46:41 |         assert_eq!(super::xxh64(b"", 0), 0xef46
 waves/RW-22/red-w22a.log:87:error: could not compile `discord-i18n` (lib test) due to 13 previous errors
 waves/RW-22/last-w22b.txt:1:- **RW-22 / W22b, P4-01:** добавлены RTC-типы и разбор кадров через `discord-json`, выбор региона, обработка `VOICE_SERVER_UPDATE` и локальная проверка base64-ключа.
 waves/RW-22/last-w22b.txt:2:- **Red:** `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice` → exit 101, ожидаемый compile-red из-за отсутствующего API. Лог: `/tmp/red-w22b.log`.
-waves/RW-22/last-w22b.txt:5:- **Файлы и MD5:** [Cargo.toml](/home/sanya/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
-waves/RW-22/green-json-writer.log:1:   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+waves/RW-22/last-w22b.txt:5:- **Файлы и MD5:** [Cargo.toml](/home/user/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/user/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
+waves/RW-22/green-json-writer.log:1:   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
 waves/RW-22/green-json-writer.log:2:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
 waves/RW-22/green-json-writer.log:3:     Running unittests src/lib.rs (target/debug/deps/discord_json-25f0936865b675ab)
 waves/RW-22/green-json-writer.log:5:running 0 tests
@@ -6866,7 +6866,7 @@ waves/RW-22/red-p8-03.log:27:thread 'release_dry_run_is_offline_and_writes_dist_
 waves/RW-22/red-p8-03.log:33:thread 'ci_dry_run_prints_full_plan_without_running_tools' (75206) panicked at crates/discord-conformance/tests/ci_contract.rs:29:5:
 waves/RW-22/red-p8-03.log:44:test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 waves/RW-22/red-p8-03.log:46:error: test failed, to rerun pass `-p discord-conformance --test ci_contract`
-waves/RW-22/green-json.log:1:   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+waves/RW-22/green-json.log:1:   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
 waves/RW-22/green-json.log:2:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
 waves/RW-22/green-json.log:3:     Running unittests src/lib.rs (target/debug/deps/discord_json-25f0936865b675ab)
 waves/RW-22/green-json.log:5:running 0 tests
@@ -6887,47 +6887,47 @@ waves/RW-22/green-json.log:24:   Doc-tests discord_json
 waves/RW-22/green-json.log:26:running 0 tests
 waves/RW-22/green-json.log:28:test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 waves/RW-22/TZ-W22b.md:9:`rust/crates/discord-json/src/lib.rs`, `rust/crates/discord-voice/src/lib.rs`,
-waves/RW-22/TZ-W22b.md:10:`/home/sanya/re-deep/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
+waves/RW-22/TZ-W22b.md:10:`/home/user/clean-room-oracle/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
 waves/RW-22/TZ-W22b.md:11:`rtc1-summary.json`, `rtc2-summary.json`.
 waves/RW-22/TZ-W22b.md:15:`discord-json = { workspace = true }`.
 waves/RW-22/TZ-W22b.md:23:flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice \
 waves/RW-22/TZ-W22b.md:119:что отложено в P4-02 (UDP discovery/keepalive/ротация). Не запускай `cargo test --workspace`.
-waves/RW-22/red-json.log:1:   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+waves/RW-22/red-json.log:1:   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
 waves/RW-22/red-json.log:2:error[E0432]: unresolved imports `discord_json::JsonErrorKind`, `discord_json::JsonValue`, `discord_json::MAX_DEPTH`, `discord_json::parse`
 waves/RW-22/red-json.log:3:  --> crates/discord-json/tests/json_contract.rs:10:20
 waves/RW-22/red-json.log:5:10 | use discord_json::{JsonErrorKind, JsonValue, MAX_DEPTH, parse};
 waves/RW-22/red-json.log:13:error: could not compile `discord-json` (test "json_contract") due to 1 previous error
-waves/RW-22/fmt-check-b03.log:13:Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:26:
+waves/RW-22/fmt-check-b03.log:13:Diff in /home/user/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:26:
 waves/RW-22/fmt-check-b03.log:14: #[test]
-waves/RW-22/fmt-check-b03.log:26:Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:36:
-waves/RW-22/fmt-check-b03.log:44:Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:45:
+waves/RW-22/fmt-check-b03.log:26:Diff in /home/user/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:36:
+waves/RW-22/fmt-check-b03.log:44:Diff in /home/user/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:45:
 waves/RW-22/fmt-check-b03.log:45: #[test]
-waves/RW-22/fmt-check-b03.log:57:Diff in /home/sanya/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:69:
-waves/RW-22/fmt-check-b03.log:108:Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:1:
-waves/RW-22/fmt-check-b03.log:114:Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:5:
-waves/RW-22/fmt-check-b03.log:134:Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:39:
-waves/RW-22/fmt-check-b03.log:164:Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:52:
+waves/RW-22/fmt-check-b03.log:57:Diff in /home/user/orca/project/rust/crates/discord-conformance/tests/ci_contract.rs:69:
+waves/RW-22/fmt-check-b03.log:108:Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:1:
+waves/RW-22/fmt-check-b03.log:114:Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:5:
+waves/RW-22/fmt-check-b03.log:134:Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:39:
+waves/RW-22/fmt-check-b03.log:164:Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:52:
 waves/RW-22/fmt-check-b03.log:165: #[test]
-waves/RW-22/fmt-check-b03.log:176:Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:76:
+waves/RW-22/fmt-check-b03.log:176:Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:76:
 waves/RW-22/fmt-check-b03.log:178: #[test]
-waves/RW-22/fmt-check-b03.log:188:Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:98:
+waves/RW-22/fmt-check-b03.log:188:Diff in /home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:98:
 waves/RW-22/fmt-check-b03.log:232:     #[test]
 waves/RW-22/fmt-check-b03.log:235:[31m-        let json = discord_json::parse(
 waves/RW-22/fmt-check-b03.log:239:(B[m[32m+        let json =
 waves/RW-22/fmt-check-b03.log:240:(B[m[32m+            discord_json::parse(r#"{"num":[2,"x"],"fallback":[[0,"en fallback"]]}"#).unwrap();
 waves/RW-22/fmt-check-b03.log:241:(B[m         let catalog = Catalog::parse(&json).unwrap();
 waves/RW-22/fmt-check-b03.log:266:     #[test]
-waves/RW-22/fmt-check-b03.log:267:Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:382:
-waves/RW-22/fmt-check-b03.log:278:Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:500:
-waves/RW-22/fmt-check-b03.log:289:Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:527:
-waves/RW-22/fmt-check-b03.log:303:Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:537:
-waves/RW-22/fmt-check-b03.log:315:Diff in /home/sanya/orca/project/rust/crates/discord-json/src/lib.rs:567:
-waves/RW-22/fmt-check-b03.log:329:Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:30:
-waves/RW-22/fmt-check-b03.log:341:Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:37:
-waves/RW-22/fmt-check-b03.log:351:Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:48:
-waves/RW-22/fmt-check-b03.log:364:Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:188:
-waves/RW-22/fmt-check-b03.log:380:Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:196:
-waves/RW-22/fmt-check-b03.log:392:Diff in /home/sanya/orca/project/rust/crates/discord-json/tests/json_contract.rs:220:
+waves/RW-22/fmt-check-b03.log:267:Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:382:
+waves/RW-22/fmt-check-b03.log:278:Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:500:
+waves/RW-22/fmt-check-b03.log:289:Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:527:
+waves/RW-22/fmt-check-b03.log:303:Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:537:
+waves/RW-22/fmt-check-b03.log:315:Diff in /home/user/orca/project/rust/crates/discord-json/src/lib.rs:567:
+waves/RW-22/fmt-check-b03.log:329:Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:30:
+waves/RW-22/fmt-check-b03.log:341:Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:37:
+waves/RW-22/fmt-check-b03.log:351:Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:48:
+waves/RW-22/fmt-check-b03.log:364:Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:188:
+waves/RW-22/fmt-check-b03.log:380:Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:196:
+waves/RW-22/fmt-check-b03.log:392:Diff in /home/user/orca/project/rust/crates/discord-json/tests/json_contract.rs:220:
 waves/RW-22/fmt-check-b03.log:394: #[test]
 waves/RW-22/fmt-check-b03.log:400:(B[m     let text = discord_json::to_json_string(&value);
 waves/RW-22/fmt-check-b03.log:407:[31m-        discord_json::to_json_string(&object(vec![
@@ -6940,24 +6940,24 @@ waves/RW-22/fmt-check-b03.log:443:     let root = discord_json::parse(input).map
 waves/RW-22/fmt-check-b03.log:731:[31m-        let root = discord_json::parse(input).map_err(|_| VoiceError::invalid("invalid voice server JSON"))?;
 waves/RW-22/fmt-check-b03.log:732:(B[m[32m+        let root = discord_json::parse(input)
 waves/RW-22/fmt-check-b03.log:829: fn json_u64(value: u64) -> JsonValue {
-waves/RW-22/fmt-check-b03.log:830:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:1:
+waves/RW-22/fmt-check-b03.log:830:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:1:
 waves/RW-22/fmt-check-b03.log:831:[31m-use discord_json::{parse, JsonValue};
 waves/RW-22/fmt-check-b03.log:832:(B[m[32m+use discord_json::{JsonValue, parse};
-waves/RW-22/fmt-check-b03.log:841:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:18:
-waves/RW-22/fmt-check-b03.log:855:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:49:
-waves/RW-22/fmt-check-b03.log:877:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:58:
-waves/RW-22/fmt-check-b03.log:915:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:74:
-waves/RW-22/fmt-check-b03.log:945:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:105:
+waves/RW-22/fmt-check-b03.log:841:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:18:
+waves/RW-22/fmt-check-b03.log:855:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:49:
+waves/RW-22/fmt-check-b03.log:877:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:58:
+waves/RW-22/fmt-check-b03.log:915:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:74:
+waves/RW-22/fmt-check-b03.log:945:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:105:
 waves/RW-22/fmt-check-b03.log:965: #[test]
-waves/RW-22/fmt-check-b03.log:966:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:136:
+waves/RW-22/fmt-check-b03.log:966:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:136:
 waves/RW-22/fmt-check-b03.log:977: #[test]
-waves/RW-22/fmt-check-b03.log:978:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:143:
-waves/RW-22/fmt-check-b03.log:1021:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:154:
+waves/RW-22/fmt-check-b03.log:978:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:143:
+waves/RW-22/fmt-check-b03.log:1021:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:154:
 waves/RW-22/fmt-check-b03.log:1022: #[test]
-waves/RW-22/fmt-check-b03.log:1045:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:163:
-waves/RW-22/fmt-check-b03.log:1063:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:229:
+waves/RW-22/fmt-check-b03.log:1045:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:163:
+waves/RW-22/fmt-check-b03.log:1063:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:229:
 waves/RW-22/fmt-check-b03.log:1064: #[test]
-waves/RW-22/fmt-check-b03.log:1080:Diff in /home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:238:
+waves/RW-22/fmt-check-b03.log:1080:Diff in /home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:238:
 waves/RW-22/WAVE-PLAN.md:9:| P3-15 | i18n runtime base: xxh64→base64[0..6], выбор locale, en/ru, AST, fallback, rich-теги/базовый markdown | T-I18N-01…03 | `rust/crates/discord-i18n/**` (W22a) |
 waves/RW-22/WAVE-PLAN.md:11:| P7-04 | read-only API surface: quests/promotions/entitlements/library/saved messages, только GET, безопасные query | T-REST-09 | `rust/crates/discord-core/src/rest/resources.rs`, `rest/mod.rs`, `tests/rest_resources.rs`, `discord-core/Cargo.toml` (W22c) |
 waves/RW-22/WAVE-PLAN.md:12:| P8-03 | CI: fmt/clippy/test/deny-if-available/bench/release artifact, без сети по умолчанию | T-HARN-06 | `scripts/ci.sh`, `scripts/release.sh`, `rust/deny.toml`, `.github/workflows/ci.yml`, `rust/crates/discord-codec/examples/etf_bench.rs` (C) |
@@ -6979,15 +6979,15 @@ waves/RW-22/TZ-W22a.md:13:`discord-json = { workspace = true }`.
 waves/RW-22/TZ-W22a.md:21:flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n \
 waves/RW-22/TZ-W22a.md:39:pub fn xxh64(input: &[u8], seed: u64) -> u64;
 waves/RW-22/TZ-W22a.md:44:- `message_key`: `xxh64(id.as_bytes(), 0)` → 8 байт **LE** → стандартный base64 → первые 6
-waves/RW-22/TZ-W22a.md:47:  `/home/sanya/re-deep/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
+waves/RW-22/TZ-W22a.md:47:  `/home/user/clean-room-oracle/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
 waves/RW-22/TZ-W22a.md:49:- `xxh64` — реализация xxHash64 (seed, little-endian чтение, avalanche); без `unsafe`.
-waves/RW-22/TZ-W22a.md:50:- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/sanya/re-deep/inline/lang-list.json`;
+waves/RW-22/TZ-W22a.md:50:- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/user/clean-room-oracle/inline/lang-list.json`;
 waves/RW-22/TZ-W22a.md:58:`Catalog::parse(&discord_json::JsonValue) -> Result<Catalog, AstError>` для keyless AST:
 waves/RW-22/TZ-W22a.md:96:## 5. Базовый rich-markdown
 waves/RW-22/TZ-W22a.md:98:Добавь безопасный парсер/рендер сообщений (не HTML): `MarkdownNode` + `parse_markdown` +
 waves/RW-22/TZ-W22a.md:99:`render_markdown` (или эквивалент). Минимум: `**bold**`, `*em*`, `_em_`, `__underline__`,
 waves/RW-22/TZ-W22a.md:107:1. hash: 6 векторов + `message_key` длина/алфавит + 81 сверка xxh64 с `xxhsum`? Если `xxhsum`
-waves/RW-22/TZ-W22a.md:111:3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/sanya/re-deep` (skip если
+waves/RW-22/TZ-W22a.md:111:3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/user/clean-room-oracle` (skip если
 waves/RW-22/TZ-W22a.md:112:   нет), 23 836/23 903 ключей, `hPBScv`, `323362` AST с `$link`, plural `r/EUap`.
 waves/RW-22/TZ-W22a.md:114:5. plural ru: 1/2/5/11/21/22/101 для `r/EUap`; `=0`; `#`; offset; en one/other.
 waves/RW-22/TZ-W22a.md:116:7. markdown: strong/em/underline/strike/spoiler/code/fence/link/escape/XSS; no panic on 10k
@@ -6995,7 +6995,7 @@ waves/RW-22/TZ-W22a.md:123:что сознательно отложено в P7-
 waves/RW-22/TZ-W22c.md:14:`rust/crates/discord-core/tests/rest_resources.rs`,
 waves/RW-22/TZ-W22c.md:15:`rust/crates/discord-core/Cargo.toml` (только если нужен `discord-json`; лучше не нужен).
 waves/RW-22/TZ-W22c.md:24:flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources \
-waves/RW-22/codex-w22b.log:14:Ты — кодовый воркер W22b волны RW-22 в репозитории /home/sanya/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22b.md. Выполни P4-01 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-voice/** (включая Cargo.toml). Не трогай workspace Cargo.toml/Cargo.lock, другие крейты, доки и waves/*. Используй foundation discord-json через workspace dependency. Для любых cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, DNS/TCP/UDP/TLS/WS-подключений, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, redaction-доказательство, риски, отложенное в P4-02.
+waves/RW-22/codex-w22b.log:14:Ты — кодовый воркер W22b волны RW-22 в репозитории /home/user/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22b.md. Выполни P4-01 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-voice/** (включая Cargo.toml). Не трогай workspace Cargo.toml/Cargo.lock, другие крейты, доки и waves/*. Используй foundation discord-json через workspace dependency. Для любых cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, DNS/TCP/UDP/TLS/WS-подключений, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, redaction-доказательство, риски, отложенное в P4-02.
 waves/RW-22/codex-w22b.log:65:   red/green-логи. Полный `cargo fmt`/`clippy`/`test --workspace`/`npm run gate:worker` — один
 waves/RW-22/codex-w22b.log:74:   `waves/<ID>/`; после приёмки Team Lead дописывает `waves/db.jsonl` (append-only, события
 waves/RW-22/codex-w22b.log:89:- Никаких сетевых вызовов, установок пакетов и изменений `package.json` без разрешения.
@@ -7011,7 +7011,7 @@ waves/RW-22/codex-w22b.log:276:- полный `cargo test --workspace` / `clippy
 waves/RW-22/codex-w22b.log:293:- tests/card и mutation catch rate;
 waves/RW-22/codex-w22b.log:358:- [ ] версия = тег = package.json; `git status` чист.
 waves/RW-22/codex-w22b.log:377:`rust/crates/discord-json/src/lib.rs`, `rust/crates/discord-voice/src/lib.rs`,
-waves/RW-22/codex-w22b.log:378:`/home/sanya/re-deep/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
+waves/RW-22/codex-w22b.log:378:`/home/user/clean-room-oracle/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
 waves/RW-22/codex-w22b.log:379:`rtc1-summary.json`, `rtc2-summary.json`.
 waves/RW-22/codex-w22b.log:383:`discord-json = { workspace = true }`.
 waves/RW-22/codex-w22b.log:391:flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice \
@@ -7082,8 +7082,8 @@ waves/RW-22/codex-w22b.log:687:?? rust/crates/discord-core/tests/voice_state_sel
 waves/RW-22/codex-w22b.log:688:?? rust/crates/discord-core/tests/voice_state_types.rs
 waves/RW-22/codex-w22b.log:689:?? rust/crates/discord-json/
 waves/RW-22/codex-w22b.log:730:В рабочем дереве много заранее существующих изменений, включая незакоммиченные правки workspace и `discord-json`; их оставляю нетронутыми. Есть ограничение: ваше «только discord-voice/**» запрещает писать red/green-логи в `waves/RW-22`, хотя шаблон ТЗ указывает это место, поэтому сохраню логи в `/tmp` и выполню тесты штатной командой.
-waves/RW-22/codex-w22b.log:749:/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-json/src/lib.rs" in /home/sanya/orca/project
-waves/RW-22/codex-w22b.log:753:/usr/bin/bash -lc 'ls -l /home/sanya/re-deep/voice/rtc{1,2}-{frames.jsonl,summary.json}' in /home/sanya/orca/project
+waves/RW-22/codex-w22b.log:749:/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-json/src/lib.rs" in /home/user/orca/project
+waves/RW-22/codex-w22b.log:753:/usr/bin/bash -lc 'ls -l /home/user/clean-room-oracle/voice/rtc{1,2}-{frames.jsonl,summary.json}' in /home/user/orca/project
 waves/RW-22/codex-w22b.log:757://! # discord-json
 waves/RW-22/codex-w22b.log:761://! Foundation волны RW-22: используется i18n-каталогами (`ru-catalog.json`), RTC-кадрами
 waves/RW-22/codex-w22b.log:1056:#[cfg(test)]
@@ -7093,10 +7093,10 @@ waves/RW-22/codex-w22b.log:1079:| `voice/rtc1-frames.jsonl` / `rtc2-frames.jsonl
 waves/RW-22/codex-w22b.log:1082:| `voice/voice-udp3.rtp.json`, `voice-udp4.rtp.json` | классификация и каденция (analyzer) |
 waves/RW-22/codex-w22b.log:1083:| `voice/strace-renderer-s3.log` (37 МБ) + `voice/strace-media-s3.jsonl` | **полные байты** каждого медиа-пакета сессии 3 + сетевые syscalls |
 waves/RW-22/codex-w22b.log:1088:`pcap-dump.mjs`/`hex-offsets.mjs` (hex), `strace-extract-packets.mjs` (декод C-escape из strace → jsonl).
-waves/RW-22/codex-w22b.log:1203:-rw-r--r-- 1 sanya sanya 3370 Oct 19 11:47 /home/sanya/re-deep/voice/rtc1-frames.jsonl
-waves/RW-22/codex-w22b.log:1204:-rw-r--r-- 1 sanya sanya 4540 Oct 19 11:47 /home/sanya/re-deep/voice/rtc1-summary.json
-waves/RW-22/codex-w22b.log:1205:-rw-r--r-- 1 sanya sanya 3217 Oct 19 11:48 /home/sanya/re-deep/voice/rtc2-frames.jsonl
-waves/RW-22/codex-w22b.log:1206:-rw-r--r-- 1 sanya sanya 4267 Oct 19 11:48 /home/sanya/re-deep/voice/rtc2-summary.json
+waves/RW-22/codex-w22b.log:1203:-rw-r--r-- 1 user user 3370 Oct 19 11:47 /home/user/clean-room-oracle/voice/rtc1-frames.jsonl
+waves/RW-22/codex-w22b.log:1204:-rw-r--r-- 1 user user 4540 Oct 19 11:47 /home/user/clean-room-oracle/voice/rtc1-summary.json
+waves/RW-22/codex-w22b.log:1205:-rw-r--r-- 1 user user 3217 Oct 19 11:48 /home/user/clean-room-oracle/voice/rtc2-frames.jsonl
+waves/RW-22/codex-w22b.log:1206:-rw-r--r-- 1 user user 4267 Oct 19 11:48 /home/user/clean-room-oracle/voice/rtc2-summary.json
 waves/RW-22/codex-w22b.log:1220:- tests/card и mutation catch rate;
 waves/RW-22/codex-w22b.log:1285:- [ ] версия = тег = package.json; `git status` чист.
 waves/RW-22/codex-w22b.log:1309:| batch gate | `cargo fmt` → `clippy` → `cargo test` core → workspace → `npm run gate:worker` | один раз на batch, Integration/QA | `.gate/worker-<ts>.json` |
@@ -7118,24 +7118,24 @@ waves/RW-22/codex-w22b.log:1405:docs/rust-client/TEST-PLAN.md-227-| T-I18N-07 | 
 waves/RW-22/codex-w22b.log:1406:docs/rust-client/TEST-PLAN.md-228-| T-I18N-08 | L2 | аргументы: «N участников», падежи | каталоги |
 waves/RW-22/codex-w22b.log:1430:docs/rust-client/PLAN.md-103-| P3-15 | I18N-рантайм (база) | ключ xxh64→base64[0..6], выбор локали, en+ru, rich-разметка базово | T-I18N-01…03 | — | M |
 waves/RW-22/codex-w22b.log:1489:docs/rust-client/PLAN.md-162-| P7-01 | Полный I18N | 36 локалей (31 каталог есть), плурализация CLDR+`=N`, 23 правила, fallback | T-I18N-04…08 | P3-15 | L |
-waves/RW-22/codex-w22b.log:1528:/usr/bin/bash -lc 'head -12 /home/sanya/re-deep/voice/rtc1-frames.jsonl' in /home/sanya/orca/project
-waves/RW-22/codex-w22b.log:1544:/usr/bin/bash -lc 'head -12 /home/sanya/re-deep/voice/rtc2-frames.jsonl' in /home/sanya/orca/project
-waves/RW-22/codex-w22b.log:1560:/usr/bin/bash -lc "rg -n 'discord-json' rust/Cargo.toml rust/crates/*/Cargo.toml" in /home/sanya/orca/project
+waves/RW-22/codex-w22b.log:1528:/usr/bin/bash -lc 'head -12 /home/user/clean-room-oracle/voice/rtc1-frames.jsonl' in /home/user/orca/project
+waves/RW-22/codex-w22b.log:1544:/usr/bin/bash -lc 'head -12 /home/user/clean-room-oracle/voice/rtc2-frames.jsonl' in /home/user/orca/project
+waves/RW-22/codex-w22b.log:1560:/usr/bin/bash -lc "rg -n 'discord-json' rust/Cargo.toml rust/crates/*/Cargo.toml" in /home/user/orca/project
 waves/RW-22/codex-w22b.log:1566:rust/crates/discord-json/Cargo.toml:2:name = "discord-json"
 waves/RW-22/codex-w22b.log:1567:rust/Cargo.toml:17:discord-json = { path = "crates/discord-json" }
 waves/RW-22/codex-w22b.log:1577:docs/rust-client/TEST-PLAN.md:154:| T-VOICE-01 | L2 | сигнализация: ops 8/0/1/2/4/15/16/3/6, поля | `voice/rtc*-frames.jsonl` |
 waves/RW-22/codex-w22b.log:1578:docs/rust-client/TEST-PLAN.md:155:| T-VOICE-02 | L2 | Identify: max_dave_protocol_version 1, streams rid/quality | `voice/rtc1-frames.jsonl` |
 waves/RW-22/codex-w22b.log:1579:docs/rust-client/TEST-PLAN.md:156:| T-VOICE-03 | L2 | Ready/Session Description: modes, secret_key 32 Б, mode | `voice/rtc*-summary.json` |
 waves/RW-22/codex-w22b.log:1582:docs/rust-client/TEST-PLAN.md-159-| T-VOICE-06 | L2 | ротация +60,08 с: discovery → новый порт → пустой RR | `voice/session3.timing`, `strace-media-s3.jsonl` |
-waves/RW-22/codex-w22b.log:1629:/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs
+waves/RW-22/codex-w22b.log:1629:/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs
 waves/RW-22/codex-w22b.log:1639:+discord-json = { workspace = true }
 waves/RW-22/codex-w22b.log:1643:diff --git a/rust/crates/discord-voice/tests/signaling.rs b/rust/crates/discord-voice/tests/signaling.rs
 waves/RW-22/codex-w22b.log:1647:+++ b/rust/crates/discord-voice/tests/signaling.rs
 waves/RW-22/codex-w22b.log:1649:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:1685:+#[test]
 waves/RW-22/codex-w22b.log:1695:+#[test]
-waves/RW-22/codex-w22b.log:1697:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:1698:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:1697:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:1698:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:1748:+#[test]
 waves/RW-22/codex-w22b.log:1764:+#[test]
 waves/RW-22/codex-w22b.log:1784:+#[test]
@@ -7149,8 +7149,8 @@ waves/RW-22/codex-w22b.log:1856:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:1858:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:1894:+#[test]
 waves/RW-22/codex-w22b.log:1904:+#[test]
-waves/RW-22/codex-w22b.log:1906:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:1907:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:1906:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:1907:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:1957:+#[test]
 waves/RW-22/codex-w22b.log:1973:+#[test]
 waves/RW-22/codex-w22b.log:1993:+#[test]
@@ -7158,7 +7158,7 @@ waves/RW-22/codex-w22b.log:2003:+#[test]
 waves/RW-22/codex-w22b.log:2015:+#[test]
 waves/RW-22/codex-w22b.log:2027:+#[test]
 waves/RW-22/codex-w22b.log:2039:+#[test]
-waves/RW-22/codex-w22b.log:2049:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/red-w22b.log'" in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22b.log:2049:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/red-w22b.log'" in /home/user/orca/project/rust
 waves/RW-22/codex-w22b.log:2053: --> crates/discord-voice/tests/signaling.rs:3:5
 waves/RW-22/codex-w22b.log:2075:error: could not compile `discord-voice` (test "signaling") due to 1 previous error
 waves/RW-22/codex-w22b.log:2086:+discord-json = { workspace = true }
@@ -7167,8 +7167,8 @@ waves/RW-22/codex-w22b.log:2094:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:2096:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:2132:+#[test]
 waves/RW-22/codex-w22b.log:2142:+#[test]
-waves/RW-22/codex-w22b.log:2144:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:2145:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:2144:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:2145:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:2195:+#[test]
 waves/RW-22/codex-w22b.log:2211:+#[test]
 waves/RW-22/codex-w22b.log:2231:+#[test]
@@ -7189,8 +7189,8 @@ waves/RW-22/codex-w22b.log:2763:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:2765:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:2801:+#[test]
 waves/RW-22/codex-w22b.log:2811:+#[test]
-waves/RW-22/codex-w22b.log:2813:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:2814:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:2813:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:2814:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:2864:+#[test]
 waves/RW-22/codex-w22b.log:2880:+#[test]
 waves/RW-22/codex-w22b.log:2900:+#[test]
@@ -7210,8 +7210,8 @@ waves/RW-22/codex-w22b.log:3427:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:3429:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:3465:+#[test]
 waves/RW-22/codex-w22b.log:3475:+#[test]
-waves/RW-22/codex-w22b.log:3477:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:3478:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:3477:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:3478:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:3528:+#[test]
 waves/RW-22/codex-w22b.log:3544:+#[test]
 waves/RW-22/codex-w22b.log:3564:+#[test]
@@ -7219,7 +7219,7 @@ waves/RW-22/codex-w22b.log:3574:+#[test]
 waves/RW-22/codex-w22b.log:3586:+#[test]
 waves/RW-22/codex-w22b.log:3598:+#[test]
 waves/RW-22/codex-w22b.log:3610:+#[test]
-waves/RW-22/codex-w22b.log:3620:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22b.log:3620:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/user/orca/project/rust
 waves/RW-22/codex-w22b.log:3636:error: could not compile `discord-voice` (lib test) due to 1 previous error
 waves/RW-22/codex-w22b.log:3649:+discord-json = { workspace = true }
 waves/RW-22/codex-w22b.log:3665:+use discord_json::{self, JsonValue};
@@ -7233,8 +7233,8 @@ waves/RW-22/codex-w22b.log:4112:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:4114:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:4150:+#[test]
 waves/RW-22/codex-w22b.log:4160:+#[test]
-waves/RW-22/codex-w22b.log:4162:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:4163:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:4162:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:4163:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:4213:+#[test]
 waves/RW-22/codex-w22b.log:4229:+#[test]
 waves/RW-22/codex-w22b.log:4249:+#[test]
@@ -7254,8 +7254,8 @@ waves/RW-22/codex-w22b.log:4781:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:4783:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:4819:+#[test]
 waves/RW-22/codex-w22b.log:4829:+#[test]
-waves/RW-22/codex-w22b.log:4831:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:4832:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:4831:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:4832:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:4882:+#[test]
 waves/RW-22/codex-w22b.log:4898:+#[test]
 waves/RW-22/codex-w22b.log:4918:+#[test]
@@ -7275,8 +7275,8 @@ waves/RW-22/codex-w22b.log:5445:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:5447:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:5483:+#[test]
 waves/RW-22/codex-w22b.log:5493:+#[test]
-waves/RW-22/codex-w22b.log:5495:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:5496:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:5495:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:5496:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:5546:+#[test]
 waves/RW-22/codex-w22b.log:5562:+#[test]
 waves/RW-22/codex-w22b.log:5582:+#[test]
@@ -7284,7 +7284,7 @@ waves/RW-22/codex-w22b.log:5592:+#[test]
 waves/RW-22/codex-w22b.log:5604:+#[test]
 waves/RW-22/codex-w22b.log:5616:+#[test]
 waves/RW-22/codex-w22b.log:5628:+#[test]
-waves/RW-22/codex-w22b.log:5638:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22b.log:5638:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/user/orca/project/rust
 waves/RW-22/codex-w22b.log:5642:  --> crates/discord-voice/tests/signaling.rs:10:4
 waves/RW-22/codex-w22b.log:5650:  --> crates/discord-voice/tests/signaling.rs:14:4
 waves/RW-22/codex-w22b.log:5655:warning: `discord-voice` (test "signaling") generated 2 warnings
@@ -7320,8 +7320,8 @@ waves/RW-22/codex-w22b.log:6158:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:6160:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:6196:+#[test]
 waves/RW-22/codex-w22b.log:6206:+#[test]
-waves/RW-22/codex-w22b.log:6208:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:6209:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:6208:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:6209:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:6259:+#[test]
 waves/RW-22/codex-w22b.log:6275:+#[test]
 waves/RW-22/codex-w22b.log:6295:+#[test]
@@ -7329,7 +7329,7 @@ waves/RW-22/codex-w22b.log:6305:+#[test]
 waves/RW-22/codex-w22b.log:6317:+#[test]
 waves/RW-22/codex-w22b.log:6329:+#[test]
 waves/RW-22/codex-w22b.log:6341:+#[test]
-waves/RW-22/codex-w22b.log:6354:/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs
+waves/RW-22/codex-w22b.log:6354:/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs
 waves/RW-22/codex-w22b.log:6364:+discord-json = { workspace = true }
 waves/RW-22/codex-w22b.log:6380:+use discord_json::{self, JsonValue};
 waves/RW-22/codex-w22b.log:6580:+    let root = discord_json::parse(input).map_err(|_| VoiceError::invalid("invalid voice JSON"))?;
@@ -7342,8 +7342,8 @@ waves/RW-22/codex-w22b.log:6827:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:6829:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:6857:+#[test]
 waves/RW-22/codex-w22b.log:6867:+#[test]
-waves/RW-22/codex-w22b.log:6869:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:6870:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:6869:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:6870:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:6924:+#[test]
 waves/RW-22/codex-w22b.log:6940:+#[test]
 waves/RW-22/codex-w22b.log:6960:+#[test]
@@ -7362,15 +7362,15 @@ waves/RW-22/codex-w22b.log:7479:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:7481:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:7509:+#[test]
 waves/RW-22/codex-w22b.log:7519:+#[test]
-waves/RW-22/codex-w22b.log:7521:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:7522:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:7521:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:7522:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:7576:+#[test]
 waves/RW-22/codex-w22b.log:7592:+#[test]
 waves/RW-22/codex-w22b.log:7612:+#[test]
 waves/RW-22/codex-w22b.log:7622:+#[test]
 waves/RW-22/codex-w22b.log:7634:+#[test]
 waves/RW-22/codex-w22b.log:7646:+#[test]
-waves/RW-22/codex-w22b.log:7660:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22b.log:7660:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/user/orca/project/rust
 waves/RW-22/codex-w22b.log:7663:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
 waves/RW-22/codex-w22b.log:7664:     Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
 waves/RW-22/codex-w22b.log:7666:running 1 test
@@ -7402,15 +7402,15 @@ waves/RW-22/codex-w22b.log:8164:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:8166:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:8194:+#[test]
 waves/RW-22/codex-w22b.log:8204:+#[test]
-waves/RW-22/codex-w22b.log:8206:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:8207:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:8206:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:8207:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:8261:+#[test]
 waves/RW-22/codex-w22b.log:8277:+#[test]
 waves/RW-22/codex-w22b.log:8297:+#[test]
 waves/RW-22/codex-w22b.log:8307:+#[test]
 waves/RW-22/codex-w22b.log:8319:+#[test]
 waves/RW-22/codex-w22b.log:8331:+#[test]
-waves/RW-22/codex-w22b.log:8346:/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs
+waves/RW-22/codex-w22b.log:8346:/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs
 waves/RW-22/codex-w22b.log:8356:+discord-json = { workspace = true }
 waves/RW-22/codex-w22b.log:8372:+use discord_json::{self, JsonValue};
 waves/RW-22/codex-w22b.log:8572:+    let root = discord_json::parse(input).map_err(|_| VoiceError::invalid("invalid voice JSON"))?;
@@ -7423,8 +7423,8 @@ waves/RW-22/codex-w22b.log:8819:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:8821:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:8849:+#[test]
 waves/RW-22/codex-w22b.log:8859:+#[test]
-waves/RW-22/codex-w22b.log:8861:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:8862:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:8861:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:8862:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:8916:+#[test]
 waves/RW-22/codex-w22b.log:8932:+#[test]
 waves/RW-22/codex-w22b.log:8952:+#[test]
@@ -7443,15 +7443,15 @@ waves/RW-22/codex-w22b.log:9472:+++ b/rust/crates/discord-voice/tests/signaling.
 waves/RW-22/codex-w22b.log:9474:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:9502:+#[test]
 waves/RW-22/codex-w22b.log:9512:+#[test]
-waves/RW-22/codex-w22b.log:9514:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:9515:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:9514:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:9515:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:9569:+#[test]
 waves/RW-22/codex-w22b.log:9585:+#[test]
 waves/RW-22/codex-w22b.log:9605:+#[test]
 waves/RW-22/codex-w22b.log:9615:+#[test]
 waves/RW-22/codex-w22b.log:9627:+#[test]
 waves/RW-22/codex-w22b.log:9639:+#[test]
-waves/RW-22/codex-w22b.log:9654:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22b.log:9654:/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/user/orca/project/rust
 waves/RW-22/codex-w22b.log:9664:+discord-json = { workspace = true }
 waves/RW-22/codex-w22b.log:9680:+use discord_json::{self, JsonValue};
 waves/RW-22/codex-w22b.log:9880:+    let root = discord_json::parse(input).map_err(|_| VoiceError::invalid("invalid voice JSON"))?;
@@ -7464,8 +7464,8 @@ waves/RW-22/codex-w22b.log:10127:+++ b/rust/crates/discord-voice/tests/signaling
 waves/RW-22/codex-w22b.log:10129:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:10157:+#[test]
 waves/RW-22/codex-w22b.log:10167:+#[test]
-waves/RW-22/codex-w22b.log:10169:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:10170:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:10169:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:10170:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:10224:+#[test]
 waves/RW-22/codex-w22b.log:10240:+#[test]
 waves/RW-22/codex-w22b.log:10260:+#[test]
@@ -7503,8 +7503,8 @@ waves/RW-22/codex-w22b.log:10811:+++ b/rust/crates/discord-voice/tests/signaling
 waves/RW-22/codex-w22b.log:10813:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:10841:+#[test]
 waves/RW-22/codex-w22b.log:10851:+#[test]
-waves/RW-22/codex-w22b.log:10853:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:10854:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:10853:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:10854:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:10908:+#[test]
 waves/RW-22/codex-w22b.log:10924:+#[test]
 waves/RW-22/codex-w22b.log:10944:+#[test]
@@ -7512,7 +7512,7 @@ waves/RW-22/codex-w22b.log:10954:+#[test]
 waves/RW-22/codex-w22b.log:10966:+#[test]
 waves/RW-22/codex-w22b.log:10978:+#[test]
 waves/RW-22/codex-w22b.log:10999:?? rust/crates/discord-voice/tests/
-waves/RW-22/codex-w22b.log:11004:/usr/bin/bash -lc 'md5sum rust/crates/discord-voice/Cargo.toml rust/crates/discord-voice/src/lib.rs rust/crates/discord-voice/tests/signaling.rs' in /home/sanya/orca/project
+waves/RW-22/codex-w22b.log:11004:/usr/bin/bash -lc 'md5sum rust/crates/discord-voice/Cargo.toml rust/crates/discord-voice/src/lib.rs rust/crates/discord-voice/tests/signaling.rs' in /home/user/orca/project
 waves/RW-22/codex-w22b.log:11015:8d9d22eb3dccfe1117dc24787c170202  rust/crates/discord-voice/tests/signaling.rs
 waves/RW-22/codex-w22b.log:11030:+discord-json = { workspace = true }
 waves/RW-22/codex-w22b.log:11046:+use discord_json::{self, JsonValue};
@@ -7526,8 +7526,8 @@ waves/RW-22/codex-w22b.log:11493:+++ b/rust/crates/discord-voice/tests/signaling
 waves/RW-22/codex-w22b.log:11495:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:11523:+#[test]
 waves/RW-22/codex-w22b.log:11533:+#[test]
-waves/RW-22/codex-w22b.log:11535:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:11536:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:11535:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:11536:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:11590:+#[test]
 waves/RW-22/codex-w22b.log:11606:+#[test]
 waves/RW-22/codex-w22b.log:11626:+#[test]
@@ -7536,7 +7536,7 @@ waves/RW-22/codex-w22b.log:11648:+#[test]
 waves/RW-22/codex-w22b.log:11660:+#[test]
 waves/RW-22/codex-w22b.log:11675:- **RW-22 / W22b, P4-01:** добавлены RTC-типы и разбор кадров через `discord-json`, выбор региона, обработка `VOICE_SERVER_UPDATE` и локальная проверка base64-ключа.
 waves/RW-22/codex-w22b.log:11676:- **Red:** `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice` → exit 101, ожидаемый compile-red из-за отсутствующего API. Лог: `/tmp/red-w22b.log`.
-waves/RW-22/codex-w22b.log:11679:- **Файлы и MD5:** [Cargo.toml](/home/sanya/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
+waves/RW-22/codex-w22b.log:11679:- **Файлы и MD5:** [Cargo.toml](/home/user/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/user/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
 waves/RW-22/codex-w22b.log:11690:+discord-json = { workspace = true }
 waves/RW-22/codex-w22b.log:11706:+use discord_json::{self, JsonValue};
 waves/RW-22/codex-w22b.log:11906:+    let root = discord_json::parse(input).map_err(|_| VoiceError::invalid("invalid voice JSON"))?;
@@ -7549,8 +7549,8 @@ waves/RW-22/codex-w22b.log:12153:+++ b/rust/crates/discord-voice/tests/signaling
 waves/RW-22/codex-w22b.log:12155:+use discord_json::{parse, JsonValue};
 waves/RW-22/codex-w22b.log:12183:+#[test]
 waves/RW-22/codex-w22b.log:12193:+#[test]
-waves/RW-22/codex-w22b.log:12195:+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-waves/RW-22/codex-w22b.log:12196:+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
+waves/RW-22/codex-w22b.log:12195:+    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
+waves/RW-22/codex-w22b.log:12196:+    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 waves/RW-22/codex-w22b.log:12250:+#[test]
 waves/RW-22/codex-w22b.log:12266:+#[test]
 waves/RW-22/codex-w22b.log:12286:+#[test]
@@ -7559,12 +7559,12 @@ waves/RW-22/codex-w22b.log:12308:+#[test]
 waves/RW-22/codex-w22b.log:12320:+#[test]
 waves/RW-22/codex-w22b.log:12336:- **RW-22 / W22b, P4-01:** добавлены RTC-типы и разбор кадров через `discord-json`, выбор региона, обработка `VOICE_SERVER_UPDATE` и локальная проверка base64-ключа.
 waves/RW-22/codex-w22b.log:12337:- **Red:** `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice` → exit 101, ожидаемый compile-red из-за отсутствующего API. Лог: `/tmp/red-w22b.log`.
-waves/RW-22/codex-w22b.log:12340:- **Файлы и MD5:** [Cargo.toml](/home/sanya/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
-waves/RW-22/codex-w22a.log:14:Ты — кодовый воркер W22a волны RW-22 в репозитории /home/sanya/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22a.md. Выполни P3-15 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-i18n/** (включая Cargo.toml). Не трогай workspace Cargo.toml/Cargo.lock, другие крейты, доки и waves/*. Для любых cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, риски, отложенное в P7-01.
+waves/RW-22/codex-w22b.log:12340:- **Файлы и MD5:** [Cargo.toml](/home/user/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/user/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
+waves/RW-22/codex-w22a.log:14:Ты — кодовый воркер W22a волны RW-22 в репозитории /home/user/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22a.md. Выполни P3-15 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-i18n/** (включая Cargo.toml). Не трогай workspace Cargo.toml/Cargo.lock, другие крейты, доки и waves/*. Для любых cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, риски, отложенное в P7-01.
 waves/RW-22/codex-w22a.log:52:- `tests/` — `unit/`, `meta/` (форматы: §8, журнал волн), `smoke/`, `e2e/`, `helpers/`.
 waves/RW-22/codex-w22a.log:53:- `waves/` — журнал волн: `STATE.md` (точка восстановления), `db.jsonl` (append-only),
 waves/RW-22/codex-w22a.log:58:  этот компас); `skills-lock.json` — пины установленных скиллов.
-waves/RW-22/codex-w22a.log:63:- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+waves/RW-22/codex-w22a.log:63:- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 waves/RW-22/codex-w22a.log:69:  `gate:qualify` — выпускной; отчёты гейтов — `.gate/*.json`.
 waves/RW-22/codex-w22a.log:70:- `npm run check` — typecheck + все тесты; `cd rust && cargo test --offline` — Rust
 waves/RW-22/codex-w22a.log:73:- После сбоя/сна: `git log --oneline -3` + `git status` → `tail -n 5 waves/db.jsonl` →
@@ -7574,15 +7574,15 @@ waves/RW-22/codex-w22a.log:104:`discord-json = { workspace = true }`.
 waves/RW-22/codex-w22a.log:112:flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n \
 waves/RW-22/codex-w22a.log:130:pub fn xxh64(input: &[u8], seed: u64) -> u64;
 waves/RW-22/codex-w22a.log:135:- `message_key`: `xxh64(id.as_bytes(), 0)` → 8 байт **LE** → стандартный base64 → первые 6
-waves/RW-22/codex-w22a.log:138:  `/home/sanya/re-deep/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
+waves/RW-22/codex-w22a.log:138:  `/home/user/clean-room-oracle/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
 waves/RW-22/codex-w22a.log:140:- `xxh64` — реализация xxHash64 (seed, little-endian чтение, avalanche); без `unsafe`.
-waves/RW-22/codex-w22a.log:141:- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/sanya/re-deep/inline/lang-list.json`;
+waves/RW-22/codex-w22a.log:141:- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/user/clean-room-oracle/inline/lang-list.json`;
 waves/RW-22/codex-w22a.log:149:`Catalog::parse(&discord_json::JsonValue) -> Result<Catalog, AstError>` для keyless AST:
 waves/RW-22/codex-w22a.log:187:## 5. Базовый rich-markdown
 waves/RW-22/codex-w22a.log:189:Добавь безопасный парсер/рендер сообщений (не HTML): `MarkdownNode` + `parse_markdown` +
 waves/RW-22/codex-w22a.log:190:`render_markdown` (или эквивалент). Минимум: `**bold**`, `*em*`, `_em_`, `__underline__`,
 waves/RW-22/codex-w22a.log:198:1. hash: 6 векторов + `message_key` длина/алфавит + 81 сверка xxh64 с `xxhsum`? Если `xxhsum`
-waves/RW-22/codex-w22a.log:202:3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/sanya/re-deep` (skip если
+waves/RW-22/codex-w22a.log:202:3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/user/clean-room-oracle` (skip если
 waves/RW-22/codex-w22a.log:203:   нет), 23 836/23 903 ключей, `hPBScv`, `323362` AST с `$link`, plural `r/EUap`.
 waves/RW-22/codex-w22a.log:205:5. plural ru: 1/2/5/11/21/22/101 для `r/EUap`; `=0`; `#`; offset; en one/other.
 waves/RW-22/codex-w22a.log:207:7. markdown: strong/em/underline/strike/spoiler/code/fence/link/escape/XSS; no panic on 10k
@@ -7612,9 +7612,9 @@ waves/RW-22/codex-w22a.log:543:- `VoiceFrame::parse(&str)` через `discord-j
 waves/RW-22/codex-w22a.log:569:- `scripts/ci.sh`: `fmt → clippy → test → bench-example → release-build`; `cargo-deny` только
 waves/RW-22/codex-w22a.log:580:2. Targeted-прогоны — через `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p <crate>`.
 waves/RW-22/codex-w22a.log:583:5. Только после accepted — синхронизация `STATE/STATUS/ROADMAP/TASKS/map` и `waves/db.jsonl`.
-waves/RW-22/codex-w22a.log:594:/usr/bin/bash -lc "sed -n '1,120p' /home/sanya/re-deep/inline/lang-list.json && ls -l /home/sanya/re-deep/ru-catalog.json /home/sanya/re-deep/en-catalog.json" in /home/sanya/orca/project
-waves/RW-22/codex-w22a.log:716:-rw-r--r-- 1 sanya sanya 1427037 Oct 19 11:39 /home/sanya/re-deep/en-catalog.json
-waves/RW-22/codex-w22a.log:717:-rw-r--r-- 1 sanya sanya 2443841 Oct 19 11:39 /home/sanya/re-deep/ru-catalog.json
+waves/RW-22/codex-w22a.log:594:/usr/bin/bash -lc "sed -n '1,120p' /home/user/clean-room-oracle/inline/lang-list.json && ls -l /home/user/clean-room-oracle/ru-catalog.json /home/user/clean-room-oracle/en-catalog.json" in /home/user/orca/project
+waves/RW-22/codex-w22a.log:716:-rw-r--r-- 1 user user 1427037 Oct 19 11:39 /home/user/clean-room-oracle/en-catalog.json
+waves/RW-22/codex-w22a.log:717:-rw-r--r-- 1 user user 2443841 Oct 19 11:39 /home/user/clean-room-oracle/ru-catalog.json
 waves/RW-22/codex-w22a.log:724:(падает, если фрагмент не найден по смещению). Машиночитаемая версия — `i18n-deep.json`.
 waves/RW-22/codex-w22a.log:731:| i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
 waves/RW-22/codex-w22a.log:733:| Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -7631,8 +7631,8 @@ waves/RW-22/codex-w22a.log:873:| Тег | React | markdown-вывод | AST |
 waves/RW-22/codex-w22a.log:922:- Список в ассете — 36 кодов (`lang-list.json`): `en-US en-GB zh-CN zh-TW cs da nl fr de el hu it ja
 waves/RW-22/codex-w22a.log:954:   с ключами Discord (base64(xxh64(id)) — 6 символов).
 waves/RW-22/codex-w22a.log:958:3. **Разметка:** брать порядок правил simple-markdown (escape 12 → inline-стили 21–25 → text 27),
-waves/RW-22/codex-w22a.log:962:/usr/bin/bash -lc "rg -n -C 3 'P3-15' docs/rust-client/PLAN.md && rg -n -C 4 'T-I18N-0[123]' docs/rust-client/TEST-PLAN.md" in /home/sanya/orca/project
-waves/RW-22/codex-w22a.log:964:/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-json/src/lib.rs && sed -n '1,260p' rust/crates/discord-i18n/src/lib.rs && sed -n '1,120p' rust/crates/discord-i18n/Cargo.toml" in /home/sanya/orca/project
+waves/RW-22/codex-w22a.log:962:/usr/bin/bash -lc "rg -n -C 3 'P3-15' docs/rust-client/PLAN.md && rg -n -C 4 'T-I18N-0[123]' docs/rust-client/TEST-PLAN.md" in /home/user/orca/project
+waves/RW-22/codex-w22a.log:964:/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-json/src/lib.rs && sed -n '1,260p' rust/crates/discord-i18n/src/lib.rs && sed -n '1,120p' rust/crates/discord-i18n/Cargo.toml" in /home/user/orca/project
 waves/RW-22/codex-w22a.log:969:103:| P3-15 | I18N-рантайм (база) | ключ xxh64→base64[0..6], выбор локали, en+ru, rich-разметка базово | T-I18N-01…03 | — | M |
 waves/RW-22/codex-w22a.log:977:162:| P7-01 | Полный I18N | 36 локалей (31 каталог есть), плурализация CLDR+`=N`, 23 правила, fallback | T-I18N-04…08 | P3-15 | L |
 waves/RW-22/codex-w22a.log:981:217-### I18N (T-I18N)
@@ -7681,7 +7681,7 @@ waves/RW-22/codex-w22a.log:1426:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:1427:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:1429:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:1432:+    #[test]
-waves/RW-22/codex-w22a.log:1434:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:1434:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:1436:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:1443:     #[test]
 waves/RW-22/codex-w22a.log:1453: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -7706,10 +7706,10 @@ waves/RW-22/codex-w22a.log:1519:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:1520:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:1522:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:1525:+    #[test]
-waves/RW-22/codex-w22a.log:1527:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:1527:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:1529:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:1536:     #[test]
-waves/RW-22/codex-w22a.log:1541:/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22a.log:1541:/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22a.log:1553:error[E0432]: unresolved imports `super::parse_markdown`, `super::render_markdown`
 waves/RW-22/codex-w22a.log:1556:79 |         use super::{parse_markdown, render_markdown};
 waves/RW-22/codex-w22a.log:1557:   |                     ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^ no `render_markdown` in the root
@@ -7739,10 +7739,10 @@ waves/RW-22/codex-w22a.log:1703:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:1704:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:1706:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:1709:+    #[test]
-waves/RW-22/codex-w22a.log:1711:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:1711:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:1713:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:1720:     #[test]
-waves/RW-22/codex-w22a.log:1727:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22a.log:1727:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22a.log:1739:error[E0432]: unresolved imports `super::parse_markdown`, `super::render_markdown`
 waves/RW-22/codex-w22a.log:1742:79 |         use super::{parse_markdown, render_markdown};
 waves/RW-22/codex-w22a.log:1743:   |                     ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^ no `render_markdown` in the root
@@ -7772,7 +7772,7 @@ waves/RW-22/codex-w22a.log:1889:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:1890:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:1892:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:1895:+    #[test]
-waves/RW-22/codex-w22a.log:1897:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:1897:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:1899:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:1906:     #[test]
 waves/RW-22/codex-w22a.log:1911:Red с `pipefail` подтверждён (exit 101). Добавляю сейчас xxHash64/base64 без зависимостей, локали и AST/каталог, базовый translate для аргументов/select/plural/rich-тегов и безопасный markdown-парсер; Date/Time останутся явной типизированной ошибкой, как отложено в P7-01.
@@ -7817,7 +7817,7 @@ waves/RW-22/codex-w22a.log:2130:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:2131:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:2133:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:2136:+    #[test]
-waves/RW-22/codex-w22a.log:2138:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:2138:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:2140:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:2147:     #[test]
 waves/RW-22/codex-w22a.log:2157: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -7861,10 +7861,10 @@ waves/RW-22/codex-w22a.log:2366:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:2367:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:2369:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:2372:+    #[test]
-waves/RW-22/codex-w22a.log:2374:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:2374:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:2376:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:2383:     #[test]
-waves/RW-22/codex-w22a.log:2388:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22a.log:2388:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22a.log:2391:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
 waves/RW-22/codex-w22a.log:2392:     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 waves/RW-22/codex-w22a.log:2394:running 6 tests
@@ -7929,7 +7929,7 @@ waves/RW-22/codex-w22a.log:2653:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:2654:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:2656:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:2659:+    #[test]
-waves/RW-22/codex-w22a.log:2661:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:2661:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:2663:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:2670:     #[test]
 waves/RW-22/codex-w22a.log:2675:Первый green-прогон выявил четыре реальные ошибки реализации: debug-overflow в хвосте xxHash, разбор списков AST (в каталогах сообщение часто является последовательностью узлов), и небезопасные ссылки пока не сводятся к тексту. Исправляю эти случаи вместе с locale-контекстом plural, затем повторю targeted прогон.
@@ -7976,7 +7976,7 @@ waves/RW-22/codex-w22a.log:2896:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:2897:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:2899:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:2902:+    #[test]
-waves/RW-22/codex-w22a.log:2904:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:2904:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:2906:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:2913:     #[test]
 waves/RW-22/codex-w22a.log:2923: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8022,7 +8022,7 @@ waves/RW-22/codex-w22a.log:3134:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:3135:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:3137:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:3140:+    #[test]
-waves/RW-22/codex-w22a.log:3142:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:3142:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:3144:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:3151:     #[test]
 waves/RW-22/codex-w22a.log:3164: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8067,7 +8067,7 @@ waves/RW-22/codex-w22a.log:3373:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:3374:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:3376:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:3379:+    #[test]
-waves/RW-22/codex-w22a.log:3381:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:3381:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:3383:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:3390:     #[test]
 waves/RW-22/codex-w22a.log:3400: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8112,10 +8112,10 @@ waves/RW-22/codex-w22a.log:3609:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:3610:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:3612:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:3615:+    #[test]
-waves/RW-22/codex-w22a.log:3617:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:3617:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:3619:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:3626:     #[test]
-waves/RW-22/codex-w22a.log:3631:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22a.log:3631:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22a.log:3634:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
 waves/RW-22/codex-w22a.log:3635:     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 waves/RW-22/codex-w22a.log:3637:running 6 tests
@@ -8181,7 +8181,7 @@ waves/RW-22/codex-w22a.log:3898:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:3899:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:3901:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:3904:+    #[test]
-waves/RW-22/codex-w22a.log:3906:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:3906:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:3908:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:3915:     #[test]
 waves/RW-22/codex-w22a.log:3928: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8226,7 +8226,7 @@ waves/RW-22/codex-w22a.log:4138:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:4139:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:4141:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:4144:+    #[test]
-waves/RW-22/codex-w22a.log:4146:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:4146:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:4148:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:4155:     #[test]
 waves/RW-22/codex-w22a.log:4165: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8271,7 +8271,7 @@ waves/RW-22/codex-w22a.log:4375:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:4376:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:4378:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:4381:+    #[test]
-waves/RW-22/codex-w22a.log:4383:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:4383:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:4385:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:4392:     #[test]
 waves/RW-22/codex-w22a.log:4400:        let json = discord_json::parse(r#"{
@@ -8329,7 +8329,7 @@ waves/RW-22/codex-w22a.log:4651:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:4652:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:4654:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:4657:+    #[test]
-waves/RW-22/codex-w22a.log:4659:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:4659:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:4661:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:4668:     #[test]
 waves/RW-22/codex-w22a.log:4681: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8374,7 +8374,7 @@ waves/RW-22/codex-w22a.log:4891:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:4892:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:4894:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:4897:+    #[test]
-waves/RW-22/codex-w22a.log:4899:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:4899:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:4901:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:4908:     #[test]
 waves/RW-22/codex-w22a.log:4918: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8419,7 +8419,7 @@ waves/RW-22/codex-w22a.log:5128:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:5129:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:5131:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:5134:+    #[test]
-waves/RW-22/codex-w22a.log:5136:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:5136:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:5138:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:5145:     #[test]
 waves/RW-22/codex-w22a.log:5158: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8464,7 +8464,7 @@ waves/RW-22/codex-w22a.log:5368:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:5369:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:5371:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:5374:+    #[test]
-waves/RW-22/codex-w22a.log:5376:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:5376:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:5378:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:5385:     #[test]
 waves/RW-22/codex-w22a.log:5395: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8509,10 +8509,10 @@ waves/RW-22/codex-w22a.log:5605:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:5606:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:5608:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:5611:+    #[test]
-waves/RW-22/codex-w22a.log:5613:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:5613:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:5615:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:5622:     #[test]
-waves/RW-22/codex-w22a.log:5627:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22a.log:5627:/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22a.log:5630:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
 waves/RW-22/codex-w22a.log:5631:     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 waves/RW-22/codex-w22a.log:5633:running 6 tests
@@ -8573,7 +8573,7 @@ waves/RW-22/codex-w22a.log:5881:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:5882:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:5884:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:5887:+    #[test]
-waves/RW-22/codex-w22a.log:5889:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:5889:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:5891:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:5898:     #[test]
 waves/RW-22/codex-w22a.log:5913: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8618,7 +8618,7 @@ waves/RW-22/codex-w22a.log:6123:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:6124:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:6126:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:6129:+    #[test]
-waves/RW-22/codex-w22a.log:6131:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:6131:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:6133:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:6140:     #[test]
 waves/RW-22/codex-w22a.log:6150: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8663,7 +8663,7 @@ waves/RW-22/codex-w22a.log:6360:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:6361:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:6363:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:6366:+    #[test]
-waves/RW-22/codex-w22a.log:6368:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:6368:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:6370:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:6377:     #[test]
 waves/RW-22/codex-w22a.log:6390: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8708,7 +8708,7 @@ waves/RW-22/codex-w22a.log:6602:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:6603:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:6605:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:6608:+    #[test]
-waves/RW-22/codex-w22a.log:6610:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:6610:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:6612:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:6619:     #[test]
 waves/RW-22/codex-w22a.log:6629: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8753,10 +8753,10 @@ waves/RW-22/codex-w22a.log:6841:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:6842:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:6844:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:6847:+    #[test]
-waves/RW-22/codex-w22a.log:6849:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:6849:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:6851:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:6858:     #[test]
-waves/RW-22/codex-w22a.log:6863:/usr/bin/bash -lc 'rustfmt --edition 2021 rust/crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project
+waves/RW-22/codex-w22a.log:6863:/usr/bin/bash -lc 'rustfmt --edition 2021 rust/crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project
 waves/RW-22/codex-w22a.log:6873: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
 waves/RW-22/codex-w22a.log:6876:+discord-json = { workspace = true }
 waves/RW-22/codex-w22a.log:6899:+pub fn xxh64(input: &[u8], seed: u64) -> u64 {
@@ -8799,10 +8799,10 @@ waves/RW-22/codex-w22a.log:7085:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:7086:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:7088:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:7091:+    #[test]
-waves/RW-22/codex-w22a.log:7093:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:7093:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:7095:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:7102:     #[test]
-waves/RW-22/codex-w22a.log:7107:/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22a.log:7107:/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22a.log:7114: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
 waves/RW-22/codex-w22a.log:7117:+discord-json = { workspace = true }
 waves/RW-22/codex-w22a.log:7140:+pub fn xxh64(input: &[u8], seed: u64) -> u64 {
@@ -8845,7 +8845,7 @@ waves/RW-22/codex-w22a.log:7326:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:7327:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:7329:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:7332:+    #[test]
-waves/RW-22/codex-w22a.log:7334:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:7334:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:7336:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:7343:     #[test]
 waves/RW-22/codex-w22a.log:7353: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8890,7 +8890,7 @@ waves/RW-22/codex-w22a.log:7565:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:7566:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:7568:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:7571:+    #[test]
-waves/RW-22/codex-w22a.log:7573:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:7573:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:7575:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:7582:     #[test]
 waves/RW-22/codex-w22a.log:7587:Markdown truncation case is doing quadratic work over every prefix of a 30 KB string and has exceeded a minute. I’m stopping that pathological test input and narrowing it to 10,000 short independent truncation samples, preserving the no-panic contract while keeping the crate test practical.
@@ -8945,7 +8945,7 @@ waves/RW-22/codex-w22a.log:7819:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:7820:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:7822:+        for end in 0..s.len() { let _ = parse_markdown(&s[..end]); }
 waves/RW-22/codex-w22a.log:7825:+    #[test]
-waves/RW-22/codex-w22a.log:7827:+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
+waves/RW-22/codex-w22a.log:7827:+        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 waves/RW-22/codex-w22a.log:7829:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:7836:     #[test]
 waves/RW-22/codex-w22a.log:7849: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -8993,8 +8993,8 @@ waves/RW-22/codex-w22a.log:8616:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:8617:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:8622:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:8628:+    #[test]
-waves/RW-22/codex-w22a.log:8631:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:8632:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:8631:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:8632:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:8638:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:8648:     #[test]
 waves/RW-22/codex-w22a.log:8658: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9042,11 +9042,11 @@ waves/RW-22/codex-w22a.log:9425:+        assert_eq!(render_markdown(&parse_markd
 waves/RW-22/codex-w22a.log:9426:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:9431:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:9437:+    #[test]
-waves/RW-22/codex-w22a.log:9440:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:9441:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:9440:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:9441:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:9447:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:9457:     #[test]
-waves/RW-22/codex-w22a.log:9462:/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22a.log:9462:/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22a.log:9465:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
 waves/RW-22/codex-w22a.log:9466:     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 waves/RW-22/codex-w22a.log:9468:running 6 tests
@@ -9105,8 +9105,8 @@ waves/RW-22/codex-w22a.log:10258:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:10259:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:10264:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:10270:+    #[test]
-waves/RW-22/codex-w22a.log:10273:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:10274:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:10273:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:10274:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:10280:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:10290:     #[test]
 waves/RW-22/codex-w22a.log:10295:Targeted-прогон теперь зелёный: 6 unit tests и doc-tests (0). Делаю заключительную проверку diff в разрешённом крейте и контрольных oracle-полей; общий gate и workspace-тесты не запускаю по вашему ТЗ.
@@ -9115,7 +9115,7 @@ waves/RW-22/codex-w22a.log:10309:test result: ok. 6 passed; 0 failed; 0 ignored;
 waves/RW-22/codex-w22a.log:10311:   Doc-tests discord_i18n
 waves/RW-22/codex-w22a.log:10313:running 0 tests
 waves/RW-22/codex-w22a.log:10315:test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
-waves/RW-22/codex-w22a.log:10319:/usr/bin/bash -lc "rg -n '323362|r/EUap|hPBScv' /home/sanya/re-deep/ru-catalog.json" in /home/sanya/orca/project
+waves/RW-22/codex-w22a.log:10319:/usr/bin/bash -lc "rg -n '323362|r/EUap|hPBScv' /home/user/clean-room-oracle/ru-catalog.json" in /home/user/orca/project
 waves/RW-22/codex-w22a.log:10339: M rust/crates/discord-codec/tests/zstd_stream.rs
 waves/RW-22/codex-w22a.log:10351: M waves/db.jsonl
 waves/RW-22/codex-w22a.log:10362:?? rust/crates/discord-codec/tests/etf_full.rs
@@ -9218,11 +9218,11 @@ waves/RW-22/codex-w22a.log:11259:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:11260:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:11265:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:11271:+    #[test]
-waves/RW-22/codex-w22a.log:11274:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:11275:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:11274:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:11275:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:11281:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:11291:     #[test]
-waves/RW-22/codex-w22a.log:11296:/usr/bin/bash -lc "rg -n 'fn format_number|fn parse_md|real_catalogs|catalog_translate_plural' rust/crates/discord-i18n/src/lib.rs" in /home/sanya/orca/project
+waves/RW-22/codex-w22a.log:11296:/usr/bin/bash -lc "rg -n 'fn format_number|fn parse_md|real_catalogs|catalog_translate_plural' rust/crates/discord-i18n/src/lib.rs" in /home/user/orca/project
 waves/RW-22/codex-w22a.log:11300:704:    fn catalog_translate_plural_and_rich_tags() {
 waves/RW-22/codex-w22a.log:11309: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
 waves/RW-22/codex-w22a.log:11312:+discord-json = { workspace = true }
@@ -9269,8 +9269,8 @@ waves/RW-22/codex-w22a.log:12076:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:12077:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:12082:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:12088:+    #[test]
-waves/RW-22/codex-w22a.log:12091:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:12092:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:12091:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:12092:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:12098:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:12108:     #[test]
 waves/RW-22/codex-w22a.log:12115:            let body = render_ast(&Ast::Sequence(kids.clone()), args, plural, locale)?;
@@ -9281,8 +9281,8 @@ waves/RW-22/codex-w22a.log:12230:/// Render markdown as normalized markdown, dro
 waves/RW-22/codex-w22a.log:12232:pub fn render_markdown(node: &MarkdownNode) -> String {
 waves/RW-22/codex-w22a.log:12238:                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:12244:    #[test]
-waves/RW-22/codex-w22a.log:12247:            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:12248:            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:12247:            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:12248:            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:12254:            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:12264:    #[test]
 waves/RW-22/codex-w22a.log:12276: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9330,8 +9330,8 @@ waves/RW-22/codex-w22a.log:13043:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:13044:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:13049:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:13055:+    #[test]
-waves/RW-22/codex-w22a.log:13058:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:13059:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:13058:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:13059:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:13065:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:13075:     #[test]
 waves/RW-22/codex-w22a.log:13088: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9379,8 +9379,8 @@ waves/RW-22/codex-w22a.log:13874:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:13875:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:13880:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:13886:+    #[test]
-waves/RW-22/codex-w22a.log:13889:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:13890:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:13889:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:13890:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:13896:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:13907:     #[test]
 waves/RW-22/codex-w22a.log:13917: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9428,8 +9428,8 @@ waves/RW-22/codex-w22a.log:14703:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:14704:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:14709:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:14715:+    #[test]
-waves/RW-22/codex-w22a.log:14718:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:14719:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:14718:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:14719:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:14725:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:14736:     #[test]
 waves/RW-22/codex-w22a.log:14749: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9477,8 +9477,8 @@ waves/RW-22/codex-w22a.log:15534:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:15535:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:15540:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:15546:+    #[test]
-waves/RW-22/codex-w22a.log:15549:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:15550:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:15549:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:15550:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:15556:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:15567:     #[test]
 waves/RW-22/codex-w22a.log:15577: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9526,8 +9526,8 @@ waves/RW-22/codex-w22a.log:16362:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:16363:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:16368:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:16374:+    #[test]
-waves/RW-22/codex-w22a.log:16377:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:16378:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:16377:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:16378:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:16384:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:16395:     #[test]
 waves/RW-22/codex-w22a.log:16400:        assert_eq!(render_markdown(&parse_markdown("[x](javascript:alert(1))")), "x");
@@ -9576,8 +9576,8 @@ waves/RW-22/codex-w22a.log:17192:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:17193:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:17198:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:17204:+    #[test]
-waves/RW-22/codex-w22a.log:17207:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:17208:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:17207:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:17208:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:17214:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:17225:     #[test]
 waves/RW-22/codex-w22a.log:17233:    #[test]
@@ -9636,8 +9636,8 @@ waves/RW-22/codex-w22a.log:18095:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:18096:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:18101:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:18107:+    #[test]
-waves/RW-22/codex-w22a.log:18110:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:18111:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:18110:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:18111:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:18117:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:18128:     #[test]
 waves/RW-22/codex-w22a.log:18141: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9687,8 +9687,8 @@ waves/RW-22/codex-w22a.log:18935:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:18936:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:18941:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:18947:+    #[test]
-waves/RW-22/codex-w22a.log:18950:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:18951:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:18950:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:18951:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:18957:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:18968:     #[test]
 waves/RW-22/codex-w22a.log:18978: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9738,11 +9738,11 @@ waves/RW-22/codex-w22a.log:19772:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:19773:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:19778:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:19784:+    #[test]
-waves/RW-22/codex-w22a.log:19787:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:19788:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:19787:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:19788:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:19794:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:19805:     #[test]
-waves/RW-22/codex-w22a.log:19810:/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+waves/RW-22/codex-w22a.log:19810:/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
 waves/RW-22/codex-w22a.log:19813:    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
 waves/RW-22/codex-w22a.log:19814:     Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 waves/RW-22/codex-w22a.log:19816:running 6 tests
@@ -9803,8 +9803,8 @@ waves/RW-22/codex-w22a.log:20633:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:20634:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:20639:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:20645:+    #[test]
-waves/RW-22/codex-w22a.log:20648:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:20649:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:20648:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:20649:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:20655:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:20666:     #[test]
 waves/RW-22/codex-w22a.log:20678: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9854,8 +9854,8 @@ waves/RW-22/codex-w22a.log:21472:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:21473:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:21478:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:21484:+    #[test]
-waves/RW-22/codex-w22a.log:21487:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:21488:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:21487:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:21488:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:21494:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:21505:     #[test]
 waves/RW-22/codex-w22a.log:21523: description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
@@ -9905,8 +9905,8 @@ waves/RW-22/codex-w22a.log:22317:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:22318:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:22323:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:22329:+    #[test]
-waves/RW-22/codex-w22a.log:22332:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:22333:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:22332:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:22333:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:22339:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:22350:     #[test]
 waves/RW-22/codex-w22a.log:22357:- Red: `set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log` → exit **101**, compile-red по отсутствующему API.
@@ -9958,15 +9958,15 @@ waves/RW-22/codex-w22a.log:23162:+        assert_eq!(render_markdown(&parse_mark
 waves/RW-22/codex-w22a.log:23163:+        assert_eq!(render_markdown(&parse_markdown("**open")), "**open");
 waves/RW-22/codex-w22a.log:23168:+                    let _ = parse_markdown(&s[..end]);
 waves/RW-22/codex-w22a.log:23174:+    #[test]
-waves/RW-22/codex-w22a.log:23177:+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-waves/RW-22/codex-w22a.log:23178:+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+waves/RW-22/codex-w22a.log:23177:+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+waves/RW-22/codex-w22a.log:23178:+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 waves/RW-22/codex-w22a.log:23184:+            let value = discord_json::parse(&raw).unwrap();
 waves/RW-22/codex-w22a.log:23195:     #[test]
 waves/RW-22/codex-w22a.log:23203:- Red: `set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log` → exit **101**, compile-red по отсутствующему API.
 waves/RW-22/codex-w22a.log:23204:- Green: та же команда с `tee /tmp/green-w22a.log` → exit **0**; **6 unit-тестов прошли**, doc-tests: 0.
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '1,220p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '1,220p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! # discord-json
      2	//!
@@ -10190,7 +10190,7 @@ exec
    220	
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '220,610p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-json/src/lib.rs | sed -n '220,610p'" in /home/user/orca/project
  succeeded in 0ms:
    220	
    221	impl std::error::Error for JsonError {}
@@ -10574,12 +10574,12 @@ exec
    599	}
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-json/tests/json_contract.rs | sed -n '1,280p'; nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '907,960p'; nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '218,335p'; nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '490,577p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-json/tests/json_contract.rs | sed -n '1,280p'; nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '907,960p'; nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '218,335p'; nl -ba rust/crates/discord-i18n/src/lib.rs | sed -n '490,577p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! Контракт foundation-парсера JSON (RW-22).
      2	//!
      3	//! Оракулы: реальные `ru-catalog.json`/`en-catalog.json` и `voice/rtc*-frames.jsonl`
-     4	//! из `/home/sanya/re-deep` (если лаборатория доступна), плюс независимые грамматические
+     4	//! из `/home/user/clean-room-oracle` (если лаборатория доступна), плюс независимые грамматические
      5	//! кейсы RFC 8259. Тесты не подстраиваются под реализацию.
      6	
      7	use std::panic::{AssertUnwindSafe, catch_unwind};
@@ -10594,7 +10594,7 @@ exec
     16	            return Some(root);
     17	        }
     18	    }
-    19	    let fallback = Path::new("/home/sanya/re-deep");
+    19	    let fallback = Path::new("/home/user/clean-room-oracle");
     20	    fallback.is_dir().then(|| fallback.to_path_buf())
     21	}
     22	
@@ -10749,7 +10749,7 @@ exec
    171	#[test]
    172	fn parses_real_catalogs_when_lab_is_available() {
    173	    let Some(path) = lab_file("ru-catalog.json") else {
-   174	        eprintln!("skip: нет /home/sanya/re-deep/ru-catalog.json");
+   174	        eprintln!("skip: нет /home/user/clean-room-oracle/ru-catalog.json");
    175	        return;
    176	    };
    177	    let text = std::fs::read_to_string(path).unwrap();
@@ -10769,7 +10769,7 @@ exec
    191	#[test]
    192	fn parses_real_voice_frames_when_lab_is_available() {
    193	    let Some(path) = lab_file("voice/rtc1-frames.jsonl") else {
-   194	        eprintln!("skip: нет /home/sanya/re-deep/voice/rtc1-frames.jsonl");
+   194	        eprintln!("skip: нет /home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
    195	        return;
    196	    };
    197	    let text = std::fs::read_to_string(path).unwrap();
@@ -10859,8 +10859,8 @@ exec
    907	    #[test]
    908	    fn real_catalogs_match_independent_inventory() {
    909	        for (path, count) in [
-   910	            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-   911	            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+   910	            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+   911	            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
    912	        ] {
    913	            let Ok(raw) = std::fs::read_to_string(path) else {
    914	                eprintln!("skip: unavailable oracle {path}");
@@ -11111,15 +11111,15 @@ exec
 codex
 ## P1
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:646): `parse_fence` can panic on the valid UTF-8 input `"```\n"`. With no closing fence, `open_end` is `3`, then `rest[open_end + 1..]` slices at byte 4 of a 4-byte string. The markdown truncation test does not cover this exact input and does not catch unwinds. This violates the no-panic requirement for untrusted markdown.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:646): `parse_fence` can panic on the valid UTF-8 input `"```\n"`. With no closing fence, `open_end` is `3`, then `rest[open_end + 1..]` slices at byte 4 of a 4-byte string. The markdown truncation test does not cover this exact input and does not catch unwinds. This violates the no-panic requirement for untrusted markdown.
 
 ## P2
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:498): Plural exact selectors are built with `format!("={v:.0}")`, which rounds fractional inputs. For `v = 1.5`, a branch `=2` is selected before CLDR category handling. Exact selectors must compare the original numeric value; the tests exercise integer counts only.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:498): Plural exact selectors are built with `format!("={v:.0}")`, which rounds fractional inputs. For `v = 1.5`, a branch `=2` is selected before CLDR category handling. Exact selectors must compare the original numeric value; the tests exercise integer counts only.
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:510): Russian cardinal selection uses `abs() as i64` and never returns `other` for fractions. For example, `1.5` is classified as `one` instead of CLDR `other`; negative values also lose their sign. The Russian plural tests cover only positive integers.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:510): Russian cardinal selection uses `abs() as i64` and never returns `other` for fractions. For example, `1.5` is classified as `one` instead of CLDR `other`; negative values also lose their sign. The Russian plural tests cover only positive integers.
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:661): Link parsing uses the final `)` in the remaining input and accepts any destination beginning with an allowed scheme. An input such as `[x](https://safe.test) [y](javascript:alert(1))` can be parsed as one link whose destination includes the later markup. The test checks a direct `javascript:` URL but not mixed or delimiter-injection input; if the returned markdown is rendered downstream, this can undermine the link-scheme restriction.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:661): Link parsing uses the final `)` in the remaining input and accepts any destination beginning with an allowed scheme. An input such as `[x](https://safe.test) [y](javascript:alert(1))` can be parsed as one link whose destination includes the later markup. The test checks a direct `javascript:` URL but not mixed or delimiter-injection input; if the returned markdown is rendered downstream, this can undermine the link-scheme restriction.
 
 ## Test Oracle Review
 
@@ -11130,15 +11130,15 @@ tokens used
 92 160
 ## P1
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:646): `parse_fence` can panic on the valid UTF-8 input `"```\n"`. With no closing fence, `open_end` is `3`, then `rest[open_end + 1..]` slices at byte 4 of a 4-byte string. The markdown truncation test does not cover this exact input and does not catch unwinds. This violates the no-panic requirement for untrusted markdown.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:646): `parse_fence` can panic on the valid UTF-8 input `"```\n"`. With no closing fence, `open_end` is `3`, then `rest[open_end + 1..]` slices at byte 4 of a 4-byte string. The markdown truncation test does not cover this exact input and does not catch unwinds. This violates the no-panic requirement for untrusted markdown.
 
 ## P2
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:498): Plural exact selectors are built with `format!("={v:.0}")`, which rounds fractional inputs. For `v = 1.5`, a branch `=2` is selected before CLDR category handling. Exact selectors must compare the original numeric value; the tests exercise integer counts only.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:498): Plural exact selectors are built with `format!("={v:.0}")`, which rounds fractional inputs. For `v = 1.5`, a branch `=2` is selected before CLDR category handling. Exact selectors must compare the original numeric value; the tests exercise integer counts only.
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:510): Russian cardinal selection uses `abs() as i64` and never returns `other` for fractions. For example, `1.5` is classified as `one` instead of CLDR `other`; negative values also lose their sign. The Russian plural tests cover only positive integers.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:510): Russian cardinal selection uses `abs() as i64` and never returns `other` for fractions. For example, `1.5` is classified as `one` instead of CLDR `other`; negative values also lose their sign. The Russian plural tests cover only positive integers.
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:661): Link parsing uses the final `)` in the remaining input and accepts any destination beginning with an allowed scheme. An input such as `[x](https://safe.test) [y](javascript:alert(1))` can be parsed as one link whose destination includes the later markup. The test checks a direct `javascript:` URL but not mixed or delimiter-injection input; if the returned markdown is rendered downstream, this can undermine the link-scheme restriction.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:661): Link parsing uses the final `)` in the remaining input and accepts any destination beginning with an allowed scheme. An input such as `[x](https://safe.test) [y](javascript:alert(1))` can be parsed as one link whose destination includes the later markup. The test checks a direct `javascript:` URL but not mixed or delimiter-injection input; if the returned markdown is rendered downstream, this can undermine the link-scheme restriction.
 
 ## Test Oracle Review
 

@@ -6,7 +6,7 @@ target-dir: /tmp/opencode/target-w26c
 чтобы зафиксировать честное падение тестов FC1 до реализации защиты.
 
 $ cargo test --offline -p discord-updater --test updater_contract
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+   Compiling discord-updater v0.1.0 (/home/user/orca/project/rust/crates/discord-updater)
 warning: function `manifest` is never used
    --> crates/discord-updater/tests/updater_contract.rs:120:4
     |

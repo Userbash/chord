@@ -22,7 +22,7 @@
 
 | Метка | Значение | Источник |
 |---|---|---|
-| `[D]` | Факт дампа / бандла / схемы | `waves/RW-40/NOTIFICATIONS-RE.md` (`/home/sanya/re-deep`: `002-READY.json`, `gateway-schema.md`, `web.4d4b2f75fdea5470.js`, `046406f7a5feb3e2.js`, `mod-652215.pretty.js`) |
+| `[D]` | Факт дампа / бандла / схемы | `waves/RW-40/NOTIFICATIONS-RE.md` (`reference-oracle/`: `002-READY.json`, `gateway-schema.md`, `web.4d4b2f75fdea5470.js`, `046406f7a5feb3e2.js`, `mod-652215.pretty.js`) |
 | `[S]` | Статическая схема маршрутов / типов | `rest-static.json`, `rust/crates/discord-core/src/ready/read_state.rs` |
 | `[T]` | Дизайн-токен проекта | `rust/gui-spike/ui/tokens.css` |
 | `[M]` | Измерено на референсе | `waves/RW-40/DESIGN/SERVER-MENU.md`, `waves/RW-37/RE/layout.json` |

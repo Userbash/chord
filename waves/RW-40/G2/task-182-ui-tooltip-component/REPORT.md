@@ -20,8 +20,8 @@
   `npx tsc -p tsconfig.json` → 0 ошибок (`green.log`).
 - **targeted:** `tests/unit/tooltip.test.mjs` — 20/20; смежные фронтенд-контракты
   (9 файлов из `test-impact`) — 400/400; `waves/RW-39/PM/w39c/geometry-check.mjs` — 31/31 в допуске.
-- **oracle:** `/home/sanya/re-deep/frontend-d03.md` §5 п.7 (`tooltip_c36707`,
-  `tooltipDisablePointerEvents_c36707`); `/home/sanya/re-deep/ru-catalog.json` — 12 из 13 подписей
+- **oracle:** `reference-oracle/frontend-d03.md` §5 п.7 (`tooltip_c36707`,
+  `tooltipDisablePointerEvents_c36707`); `reference-oracle/ru-catalog.json` — 12 из 13 подписей
   совпадают буквально; `tokens.css` — значения стилей; ТЗ FE-P2-01 — задержка 400 мс и перечень
   иконок. Подписи в тесте — извлечённый список (как в `gui-spike-features.test.mjs`), тест не
   зависит от наличия лаборатории и не читает константы модуля.
@@ -37,7 +37,7 @@
 - **стабильность:** гонок и внешних ресурсов нет, таймеры инъецированы; повторный прогон даёт тот же
   результат.
 - **gate:worker:** запущен (работа одиночная, не batch) —
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target npm run gate:worker`, exit 1,
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target npm run gate:worker`, exit 1,
   вердикт `failed` (`gate.log`). Разбор по фазам:
   - `typecheck`, `ui-tsc` — зелёные;
   - `meta` — 96/102: pre-existing (`keyring-live` ждёт 12 тестов, в дереве 13 — `k25_...`) плюс

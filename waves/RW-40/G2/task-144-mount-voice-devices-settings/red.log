@@ -44,7 +44,7 @@ test at tests/unit/voice-devices-settings.test.mjs:701:3
   + 'undefined'
   - 'function'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:702:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:702:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -65,7 +65,7 @@ test at tests/unit/voice-devices-settings.test.mjs:701:3
 test at tests/unit/voice-devices-settings.test.mjs:740:3
 ✖ инициализирует списки устройств ввода, вывода и видео (input / output / video) (1.382198ms)
   TypeError [Error]: settings.getVoiceDevices is not a function
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:743:56)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:743:56)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -78,7 +78,7 @@ test at tests/unit/voice-devices-settings.test.mjs:740:3
 test at tests/unit/voice-devices-settings.test.mjs:782:3
 ✖ инициализирует ползунки громкости микрофона 0..100 и динамика 0..200 в панели настроек (0.44199ms)
   TypeError [Error]: settings.getVoiceDevices is not a function
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:785:56)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:785:56)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -89,7 +89,7 @@ test at tests/unit/voice-devices-settings.test.mjs:782:3
 test at tests/unit/voice-devices-settings.test.mjs:825:3
 ✖ переключатель VAD/PTT и порог чувствительности -100..0 дБ работают в панели настроек (0.626399ms)
   TypeError [Error]: settings.getVoiceDevices is not a function
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:828:56)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:828:56)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -100,7 +100,7 @@ test at tests/unit/voice-devices-settings.test.mjs:825:3
 test at tests/unit/voice-devices-settings.test.mjs:883:3
 ✖ проверка микрофона (mic test): старт/стоп кнопкой, индикатор уровня -100..0 дБ и авто-стоп при destroy() (0.335639ms)
   TypeError [Error]: settings.getVoiceDevices is not a function
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:886:56)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:886:56)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -111,7 +111,7 @@ test at tests/unit/voice-devices-settings.test.mjs:883:3
 test at tests/unit/voice-devices-settings.test.mjs:924:3
 ✖ вызывает destroy() контроллера при смене вкладки настроек или закрытии модалки настроек (0.44897ms)
   TypeError [Error]: s.getVoiceDevices is not a function
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:928:33)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-144-mount-voice-devices-settings/tests/unit/voice-devices-settings.test.mjs:928:33)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

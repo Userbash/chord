@@ -55,12 +55,12 @@ Debug/endpoint/op8, REST id/404/extra-id, CI deny/release/checksum. Продук
 
 ## 4. Проверка по RE-дампам
 
-- `/home/sanya/re-deep/ru-catalog.json` — **23 836** ключей; `hPBScv` = «Закрыть всплывающее
-  окно»; `323362` содержит `$link`. `/home/sanya/re-deep/en-catalog.json` — **23 903**.
-- `/home/sanya/re-deep/voice/rtc1-frames.jsonl` и `rtc2-frames.jsonl`: Hello v8/13 750 мс,
+- `reference-oracle/ru-catalog.json` — **23 836** ключей; `hPBScv` = «Закрыть всплывающее
+  окно»; `323362` содержит `$link`. `reference-oracle/en-catalog.json` — **23 903**.
+- `reference-oracle/voice/rtc1-frames.jsonl` и `rtc2-frames.jsonl`: Hello v8/13 750 мс,
   Ready ssrc 7142/port 19 334/streams 7143/7144/rid 100/quality 100, Session Description
   mode `aead_aes256_gcm_rtpsize`, DAVE 1, secure frames 1, op15/16.
-- `/home/sanya/re-deep/rest-d02.json`: 8 путей, GET, статусы; `saved-messages` — 404.
+- `reference-oracle/rest-d02.json`: 8 путей, GET, статусы; `saved-messages` — 404.
 - `rtc1-summary.json`/`rtc2-summary.json` подтверждают набор op и top-level `address`/
   `port`/`mode` в Select Protocol; сериализатор теперь повторяет эту форму.
 - Ничего не выдумано: UDP/медиа/DAVE (P4-02/P4.5), query-параметры P7-04 и даты/время
@@ -110,7 +110,7 @@ Debug/endpoint/op8, REST id/404/extra-id, CI deny/release/checksum. Продук
   пути относительные, без `/api/v9`, как в `routes::ROUTES` (уточнение к WAVE-PLAN §6).
 - P8-03: `cargo-deny` локально skip, если инструмент не установлен (P8-04/SBOM); bench —
   smoke, порог регрессии 10 % остаётся P7-02/T-HARN-04.
-- Реальные каталоги/кадры в тестах skip-aware: при отсутствии `/home/sanya/re-deep` они
+- Реальные каталоги/кадры в тестах skip-aware: при отсутствии `reference-oracle/` они
   не падают, но и не доказывают RE-контракт; в этом прогоне артефакты были доступны.
 - `VoicePayload::Other.raw` сохранён для диагностики; `Debug` его скрывает, но вызывающий
   код не должен логировать `raw` вручную.

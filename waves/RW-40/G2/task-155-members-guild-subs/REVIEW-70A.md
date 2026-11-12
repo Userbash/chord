@@ -1,8 +1,8 @@
 # Рецензия Technical Reviewer (Review 70A) — task-155
 
 - **Карточка:** `task-155` (FE-P1-03: Guild Subscriptions OP 37 & Role Grouping в `rust/gui-spike/ui/features/members.js`).
-- **Воркер-отчёт:** `/home/sanya/orca/project/waves/RW-40/G2/task-155-members-guild-subs/REPORT.md`.
-- **Рабочая директория:** `/home/sanya/orca/workspaces/project/feature-task-155-members-guild-subs`.
+- **Воркер-отчёт:** `/home/user/orca/project/waves/RW-40/G2/task-155-members-guild-subs/REPORT.md`.
+- **Рабочая директория:** `/home/user/orca/workspaces/project/feature-task-155-members-guild-subs`.
 - **Файлы на ревью:**
   - `rust/gui-spike/ui/features/members.js` (MD5: `6b4e06afe0314b64d8302354fd702291`)
   - `tests/unit/members-subscriptions.test.mjs` (MD5: `2e04c232bb8d4ed643a027e342678215`)

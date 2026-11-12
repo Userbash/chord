@@ -24,7 +24,7 @@
 ## Воспроизведение
 
 ```sh
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 python3 waves/RW-24/run-mutations.py
 ```
 

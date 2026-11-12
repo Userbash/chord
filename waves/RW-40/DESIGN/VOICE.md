@@ -13,7 +13,7 @@
 | `[T]` | значение токена проекта | `rust/gui-spike/ui/tokens.css` (он же `waves/RW-39/DESIGN/tokens.css`) |
 | `[L]` | подтверждено **живым** захватом | `docs/re/voice-deep.md`, `waves/RW-40/NETWORK-CONTRACTS.md` §2 |
 | `[S]` | подтверждено **кодом клиента** | `NETWORK-CONTRACTS.md` §2.2 (опкоды RTC), call-site бандла |
-| `[M]` | измерено на пикселях | `/home/sanya/re-deep/voice/ui/01-joined.png` (2560×1383 @ dpr 1.25 = 2048×1106 CSS) |
+| `[M]` | измерено на пикселях | `reference-oracle/voice/ui/01-joined.png` (2560×1383 @ dpr 1.25 = 2048×1106 CSS) |
 | `[D]` | факт дампа (DOM/JSON/строки/встроенный API), не сеть | `voice/ui/*`, `ui8/23-settings-voice.*`, `ru-catalog.json` |
 | `[A]` | наше решение / не подтверждено | этот документ; требуется подтверждение PM до реализации |
 | `[F]` | заморожено тестами | `ui/model.js`, `tests/unit/gui-*.test.mjs` |

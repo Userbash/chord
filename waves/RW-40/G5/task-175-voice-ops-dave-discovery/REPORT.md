@@ -60,7 +60,7 @@
 
 ## 2. Red-прогон
 
-Лог зафиксирован в `/home/sanya/orca/project/waves/RW-40/G5/task-175-voice-ops-dave-discovery/red.log`.
+Лог зафиксирован в `/home/user/orca/project/waves/RW-40/G5/task-175-voice-ops-dave-discovery/red.log`.
 Тесты в `signaling.rs` падали на этапе компиляции из-за отсутствия новых вариантов `VoiceOp`, методов `name()`, `is_dave_or_mls()`, `DiscoveryPacket::encode_request_with_port` и `UdpMediaSocket::send_discovery_with_local_port`:
 ```text
 error[E0599]: no variant, associated function, or constant named `Speaking` found for enum `VoiceOp`
@@ -74,10 +74,10 @@ error[E0599]: no method named `send_discovery_with_local_port` found for struct 
 
 ## 3. Green-прогон
 
-Лог зафиксирован в `/home/sanya/orca/project/waves/RW-40/G5/task-175-voice-ops-dave-discovery/green.log`.
+Лог зафиксирован в `/home/user/orca/project/waves/RW-40/G5/task-175-voice-ops-dave-discovery/green.log`.
 Команда прогона:
 ```bash
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice
 ```
 Результаты:
 - `unittests src/lib.rs`: 14 passed

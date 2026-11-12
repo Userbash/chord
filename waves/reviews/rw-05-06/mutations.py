@@ -10,7 +10,7 @@ import shutil
 import subprocess
 import sys
 
-ROOT = "/home/sanya/orca/project/rust"
+ROOT = "/home/user/orca/project/rust"
 SRC = os.path.join(ROOT, "crates/discord-core/src")
 OUT = "/tmp/opencode/review-rw-0506"
 BK = os.path.join(OUT, "mut-backup")

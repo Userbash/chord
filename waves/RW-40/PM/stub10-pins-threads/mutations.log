@@ -30,7 +30,7 @@ test at tests/unit/channel-paging.test.mjs:984:3
   
   'true' !== 'false'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1013:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:1013:14)
 ```
 
 ---
@@ -57,7 +57,7 @@ test at tests/unit/channel-paging.test.mjs:1024:3
   
   2 !== 3
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1049:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:1049:14)
 ```
 
 ---
@@ -84,7 +84,7 @@ test at tests/unit/channel-paging.test.mjs:1094:3
   
     assert.ok(items[0]?.textContent.includes("Архитектура Rust"))
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:1165:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:1165:14)
 ```
 
 ---
@@ -136,7 +136,7 @@ test at tests/unit/channel-paging.test.mjs:930:3
   + 'wrong-panel'
   - 'chat-pins-panel'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:949:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:949:14)
 ```
 
 ---

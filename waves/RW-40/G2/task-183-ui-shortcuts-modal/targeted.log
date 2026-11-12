@@ -676,7 +676,7 @@ test at tests/meta/plan-sync.test.mjs:140:3
   + ]
   - []
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/meta/plan-sync.test.mjs:148:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/meta/plan-sync.test.mjs:148:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

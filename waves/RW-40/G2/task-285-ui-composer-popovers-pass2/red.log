@@ -34,7 +34,7 @@ test at tests/unit/composer-popovers-bridge.test.mjs:275:3
   
   3 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-285-ui-composer-popovers-pass2/tests/unit/composer-popovers-bridge.test.mjs:309:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-285-ui-composer-popovers-pass2/tests/unit/composer-popovers-bridge.test.mjs:309:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -55,7 +55,7 @@ test at tests/unit/composer-popovers-bridge.test.mjs:319:3
   
   {} !== null
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-285-ui-composer-popovers-pass2/tests/unit/composer-popovers-bridge.test.mjs:333:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-285-ui-composer-popovers-pass2/tests/unit/composer-popovers-bridge.test.mjs:333:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

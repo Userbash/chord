@@ -22,7 +22,7 @@ failures:
 test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 18 filtered out; finished in 3.17s
 
 
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 warning: unused variable: `first`
    --> crates/discord-core/src/state/presence_reducer.rs:110:9
     |

@@ -7,8 +7,8 @@
 - **Файлы воркера (единственные изменённые)**:
   - `rust/gui-spike/src/reactions.rs`
   - `rust/gui-spike/tests/reactions_contract.rs`
-- **Ветка/worktree**: `feature-task-177-reactions-put-empty-body`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
-- **Оракул** (`/home/sanya/re-deep/rest-d02.json`, `endpoints[38]`, read-only):
+- **Ветка/worktree**: `feature-task-177-reactions-put-empty-body`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
+- **Оракул** (`reference-oracle/rest-d02.json`, `endpoints[38]`, read-only):
   - `method: "PUT"`, `path: "/api/v9/channels/{id}/messages/{id}/reactions/%F0%9F%91%8B/%40me"`;
   - `statuses: [204]`, `statusCounts: {"204": 1}`;
   - `reqBodyKeys: []`, `reqBodySample: null`, `reqBodyRequests: 0`;
@@ -61,7 +61,7 @@ error: could not compile `discord-gui-spike` (test "reactions_contract") due to 
 
 `green.log` (команда из ТЗ):
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --lib
 lib:                 17 passed; 0 failed
 reactions_contract:  16 passed; 0 failed

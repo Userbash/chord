@@ -119,7 +119,7 @@ restore из снимка с проверкой md5.
 ## 7. Воспроизведение фикстуры
 
 ```sh
-cd /home/sanya/orca/project && python3 waves/RW-34/dbus/gen-hints-ext.py
+cd /home/user/orca/project && python3 waves/RW-34/dbus/gen-hints-ext.py
 # hints-ext.json: 6 наборов
 # md5 fixtures/dbus/hints-ext.json = d199e7aaa31248a3e81f6a4f0155b325
 ```

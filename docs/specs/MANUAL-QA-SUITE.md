@@ -1,123 +1,123 @@
-# Регламент, чек-листы и сценарии ручного исследовательского тестирования (`docs/specs/MANUAL-QA-SUITE.md`)
+# Manual Exploratory Testing Regulations, Checklists, and Scenarios (`docs/specs/MANUAL-QA-SUITE.md`)
 
-- **Задача:** `TASK-908` (`G4 QA & Automation`)
-- **Подзадачи:** `SUB-908-1`, `SUB-908-2`, `SUB-908-3`
-- **Связанные регламенты:** [`docs/specs/QA-AUTOMATION-STRATEGY-AND-TASKS.md`](file:///home/sanya/orca/project/docs/specs/QA-AUTOMATION-STRATEGY-AND-TASKS.md), [`TEST-POLICY.md`](file:///home/sanya/orca/project/TEST-POLICY.md), [`docs/specs/STREAM-WAYLAND-GUIDE.md`](file:///home/sanya/orca/project/docs/specs/STREAM-WAYLAND-GUIDE.md)
-- **Программный модуль и контрактные тесты:**
-  - [`rust/discord-gpui/src/manual_qa/mod.rs`](file:///home/sanya/orca/project/rust/discord-gpui/src/manual_qa/mod.rs)
-  - [`rust/discord-gpui/src/manual_qa/checklists.rs`](file:///home/sanya/orca/project/rust/discord-gpui/src/manual_qa/checklists.rs)
-  - [`rust/discord-gpui/src/manual_qa/desktop_matrix.rs`](file:///home/sanya/orca/project/rust/discord-gpui/src/manual_qa/desktop_matrix.rs)
-  - [`rust/discord-gpui/src/manual_qa/exploratory.rs`](file:///home/sanya/orca/project/rust/discord-gpui/src/manual_qa/exploratory.rs)
-  - [`rust/discord-gpui/tests/manual_qa_suite_contract.rs`](file:///home/sanya/orca/project/rust/discord-gpui/tests/manual_qa_suite_contract.rs)
-- **Эталонные RE-оракулы (`/home/sanya/re-deep/`):**
-  - `/home/sanya/re-deep/rest-static.md` (§1 `POST /auth/login`, `/auth/mfa/totp`, `/auth/logout`, лимиты сообщений и вложений)
-  - `/home/sanya/re-deep/gateway-protocol.md` и `/home/sanya/re-deep/gateway-schema.md` (`OP 2 IDENTIFY`, `OP 4 VOICE_STATE_UPDATE`, `OP 6 RESUME`, `OP 18..22 STREAM_*`)
-  - `/home/sanya/re-deep/native-re.md` (`org.freedesktop.portal.ScreenCast`, `BaseCapturerPipeWire`, `XShmGetImage`)
-  - `/home/sanya/re-deep/voice-deep.md` (WebRTC аудиоустройства, Push-to-Talk, DAVE MLS v1)
+- **Task:** `TASK-908` (`G4 QA & Automation`)
+- **Subtasks:** `SUB-908-1`, `SUB-908-2`, `SUB-908-3`
+- **Related Specifications:** [`docs/specs/QA-AUTOMATION-STRATEGY-AND-TASKS.md`](docs/specs/QA-AUTOMATION-STRATEGY-AND-TASKS.md), [`TEST-POLICY.md`](TEST-POLICY.md), [`docs/specs/STREAM-WAYLAND-GUIDE.md`](docs/specs/STREAM-WAYLAND-GUIDE.md)
+- **Code Modules and Contract Tests:**
+  - [`rust/discord-gpui/src/manual_qa/mod.rs`](rust/discord-gpui/src/manual_qa/mod.rs)
+  - [`rust/discord-gpui/src/manual_qa/checklists.rs`](rust/discord-gpui/src/manual_qa/checklists.rs)
+  - [`rust/discord-gpui/src/manual_qa/desktop_matrix.rs`](rust/discord-gpui/src/manual_qa/desktop_matrix.rs)
+  - [`rust/discord-gpui/src/manual_qa/exploratory.rs`](rust/discord-gpui/src/manual_qa/exploratory.rs)
+  - [`rust/discord-gpui/tests/manual_qa_suite_contract.rs`](rust/discord-gpui/tests/manual_qa_suite_contract.rs)
+- **Reference Clean-Room RE Oracles (`docs/re/`):**
+  - `docs/re/rest-static.md` (§1 `POST /auth/login`, `/auth/mfa/totp`, `/auth/logout`, message and attachment limits)
+  - `docs/re/gateway-protocol.md` and `docs/re/gateway-schema.md` (`OP 2 IDENTIFY`, `OP 4 VOICE_STATE_UPDATE`, `OP 6 RESUME`, `OP 18..22 STREAM_*`)
+  - `docs/re/native-re.md` (`org.freedesktop.portal.ScreenCast`, `BaseCapturerPipeWire`, `XShmGetImage`)
+  - `docs/re/voice-deep.md` (WebRTC audio devices, Push-to-Talk, DAVE MLS v1)
 
 ---
 
-## 1. Чек-листы приемочного тестирования — Smoke & Sanity Checklists (`SUB-908-1`)
+## 1. Acceptance Testing Checklists — Smoke & Sanity Checklists (`SUB-908-1`)
 
-Комплект приемочных чек-листов обязателен к прохождению перед переводом сборки из ветки `testing` в `beta` и `main`. Интерактивный жизненный цикл компонента `ManualQA` проходит состояния:
+The acceptance test suite is mandatory before promoting any build candidate from `testing` to `beta` and `main`. The `ManualQA` component lifecycle transitions through the following states:
 `checklist ready` (`ChecklistReady`) → `running bug-bash` (`RunningBugBash`) → `sign-off complete` (`SignOffComplete`).
 
-### 1.1. Шаг 1.1: Чек-лист авторизации (`AuthChecklistValidator`)
+### 1.1. Step 1.1: Authentication Checklist (`AuthChecklistValidator`)
 
-| ID | Сценарий проверки | Шаги выполнения | Ожидаемый результат (Оракул `/home/sanya/re-deep/rest-static.md`) | Статус |
+| ID | Test Scenario | Execution Steps | Expected Result (`docs/re/rest-static.md` Oracle) | Status |
 |---|---|---|---|---|
-| `AUTH-01` | Вход по логину и паролю (`POST /auth/login`) | 1. Открыть окно входа.<br>2. Ввести валидный email и пароль (`>= 8` символов).<br>3. Нажать «Войти». | Запрос `POST /auth/login` возвращает `ticket` для 2FA (`LoginStep::Mfa`) либо сессионный токен. Ошибки валидации отсутствуют. | `[x]` |
-| `AUTH-02` | Вход по QR-коду (Remote Auth WS) | 1. Переключиться на блок QR-кода.<br>2. Проверить генерацию отпечатка `discord-remote-auth-*`.<br>3. Подтвердить вход с мобильного клиента. | Отображается четкий QR-код без обрезки; при невалидном отпечатке возвращается `InvalidQrFingerprint`. | `[x]` |
-| `AUTH-03` | Прохождение капчи и обработка кода `40003` | 1. Сымитировать ответ API с кодом ошибки `40003` / `captcha_key` (`hcaptcha`, `sitekey`, `rqdata`).<br>2. Пройти вызов в `CaptchaModal`. | При получении кода `40003` открывается модальное окно `CaptchaChallenge` с переданным `sitekey` и `rqdata`. | `[x]` |
-| `AUTH-04` | Сохранение токена в системном Keyring и маскирование | 1. Успешно завершить вход.<br>2. Проверить сохранение в `libsecret` (`org.freedesktop.secrets`) и логи приложения. | `active_token` сохранен; во всех логах и отчетах токен `mfa.*` замаскирован как `mfa.[REDACTED]`. | `[x]` |
-| `AUTH-05` | Выход из аккаунта (`Logout`) | 1. Открыть `SettingsDialog` → «Моя учётная запись».<br>2. Нажать «Выйти». | Вызывается очистка `active_token = None`, сброс `active_captcha = None`, возврат в `LoginStep::Credentials`. | `[x]` |
+| `AUTH-01` | Username and password login (`POST /auth/login`) | 1. Open login dialog.<br>2. Enter valid email and password (`>= 8` chars).<br>3. Click "Log In". | `POST /auth/login` request yields a 2FA ticket (`LoginStep::Mfa`) or session token. Zero validation errors. | `[x]` |
+| `AUTH-02` | QR Code login (Remote Auth WS) | 1. Switch to QR code panel.<br>2. Verify `discord-remote-auth-*` fingerprint generation.<br>3. Approve login on mobile device. | Crisp QR code displays without clipping; invalid fingerprint returns `InvalidQrFingerprint`. | `[x]` |
+| `AUTH-03` | Captcha resolution and error code `40003` handling | 1. Simulate API error code `40003` / `captcha_key` (`hcaptcha`, `sitekey`, `rqdata`).<br>2. Complete challenge in `CaptchaModal`. | Error `40003` opens `CaptchaChallenge` modal with provided `sitekey` and `rqdata`. | `[x]` |
+| `AUTH-04` | Keyring token storage and secret masking | 1. Complete successful authentication.<br>2. Verify persistence in `libsecret` (`org.freedesktop.secrets`) and application logs. | `active_token` stored; in all logs and crash dumps, token `mfa.*` is masked as `mfa.[REDACTED]`. | `[x]` |
+| `AUTH-05` | Account logout (`Logout`) | 1. Open `SettingsDialog` → "My Account".<br>2. Click "Log Out". | State clears: `active_token = None`, `active_captcha = None`, resets to `LoginStep::Credentials`. | `[x]` |
 
-### 1.2. Шаг 1.2: Чек-лист чата (`ChatChecklistValidator`)
+### 1.2. Step 1.2: Chat Checklist (`ChatChecklistValidator`)
 
-| ID | Сценарий проверки | Шаги выполнения | Ожидаемый результат (Граничные инварианты) | Статус |
+| ID | Test Scenario | Execution Steps | Expected Result (Boundary Invariants) | Status |
 |---|---|---|---|---|
-| `CHAT-01` | Отправка текстового сообщения и лимит `2000 символов` | 1. Отправить сообщение длиной `1..=2000` символов.<br>2. Попытаться отправить `2001` символ и пустую строку из пробелов. | `2000 символов` отправляется мгновенно; `2001` символ блокируется с `MessageTooLong`; пустая строка отклоняется с `EmptyMessagePayload`. | `[x]` |
-| `CHAT-02` | Эмодзи и реакции (`MessageReaction`) | 1. Открыть `EmojiPicker` или кликнуть «Добавить реакцию» на сообщении.<br>2. Выбрать Unicode/кастомный эмодзи (например, `🦀`). | Счетчик реакции увеличивается на `+1`, выставляется флаг `me: true`, повторный клик переключает состояние. | `[x]` |
-| `CHAT-03` | Вложения до `25 МБ` и до `10` файлов | 1. Прикрепить файл размером ровно `25 МБ` (`26 214 400` байт).<br>2. Попытаться прикрепить `25 МБ + 1 байт` или `11` файлов. | До `10` файлов и `<= 25 МБ` успешно прикрепляются; превышение размера возвращает `413 Payload Too Large` (`PayloadTooLarge413`); `11` файлов — `TooManyAttachments`. | `[x]` |
-| `CHAT-04` | Закрепление (`Pin`), Редактирование (`Edit`), Удаление (`Delete`), Цитирование (`Quote`) | 1. Закрепить сообщение через контекстное меню ПКМ.<br>2. Отредактировать текст.<br>3. Ответить с цитированием.<br>4. Удалить исходное сообщение. | При закреплении `is_pinned = true`; при редактировании появляется пометка `(изменено)`; цитата формирует блок `> исходный текст`; удаление убирает сообщение из ленты. | `[x]` |
+| `CHAT-01` | Text message dispatch and `2000 character` boundary | 1. Send message of length `1..=2000` chars.<br>2. Attempt sending `2001` chars and whitespace-only strings. | `2000 characters` sends immediately; `2001` chars blocked with `MessageTooLong`; whitespace-only rejected with `EmptyMessagePayload`. | `[x]` |
+| `CHAT-02` | Emoji and reactions (`MessageReaction`) | 1. Open `EmojiPicker` or click "Add Reaction" on message.<br>2. Select Unicode/custom emoji (e.g. `🦀`). | Reaction counter increments by `+1`, sets `me: true` flag, re-clicking toggles state. | `[x]` |
+| `CHAT-03` | Attachments up to `25 MB` and `10` files | 1. Attach file of exactly `25 MB` (`26,214,400` bytes).<br>2. Attempt attaching `25 MB + 1 byte` or `11` files. | Up to `10` files and `<= 25 MB` attach successfully; oversize payload triggers `413 Payload Too Large` (`PayloadTooLarge413`); `11` files triggers `TooManyAttachments`. | `[x]` |
+| `CHAT-04` | Pinning (`Pin`), Editing (`Edit`), Deleting (`Delete`), Quoting (`Quote`) | 1. Pin message via right-click context menu.<br>2. Edit message text.<br>3. Reply with quote.<br>4. Delete original message. | Pinning sets `is_pinned = true`; editing appends `(edited)` tag; quote formats `> original text` block; deletion removes message from view. | `[x]` |
 
-### 1.3. Шаг 1.3: Чек-лист голоса (`VoiceChecklistValidator`)
+### 1.3. Step 1.3: Voice Checklist (`VoiceChecklistValidator`)
 
-| ID | Сценарий проверки | Шаги выполнения | Ожидаемый результат (Оракул `/home/sanya/re-deep/voice-deep.md`) | Статус |
+| ID | Test Scenario | Execution Steps | Expected Result (`docs/re/voice-deep.md` Oracle) | Status |
 |---|---|---|---|---|
-| `VOICE-01` | Подключение к голосовому каналу | 1. Кликнуть на голосовой канал в `ChannelSidebar`.<br>2. Проверить плашку `VoicePanel` (52px) и пинг. | Отправляется `OP 4 VOICE_STATE_UPDATE`, устанавливается `VoiceSessionState` с индикацией пинга и эндпоинта. | `[x]` |
-| `VOICE-02` | Переключение `Mute` и `Deafen` | 1. Нажать кнопку микрофона (`Mute`).<br>2. Нажать кнопку наушников (`Deafen`).<br>3. Снять `Deafen`. | Включение `Deafen` (`is_deafened = true`) принудительно включает `is_muted = true` (строгий инвариант Discord). | `[x]` |
-| `VOICE-03` | Переключение аудиоустройств и hot-unplug fallback | 1. Выбрать микрофон и наушники PipeWire в настройках.<br>2. Физически отключить активный USB-микрофон во время звонка. | Поток переключается без падения процесса; при исчезновении устройства автоматически выбирается `"Default"`. | `[x]` |
-| `VOICE-04` | Режим `Push-to-Talk` и индикатор громкости (`0..200%`) | 1. Включить режим `Push-to-Talk` и зажать клавишу активации.<br>2. Проверить ползунки громкости ввода/вывода на границах `0%`, `100%`, `200%` и `201%`. | При зажатом PTT загорается зеленое кольцо `is_speaking = true`; диапазон `0..=200%` (`0.0..=2.0`) применяется штатно, `> 200%` отклоняется с `VolumeOutOfBounds`. | `[x]` |
+| `VOICE-01` | Connecting to voice channel | 1. Click voice channel in `ChannelSidebar`.<br>2. Verify `VoicePanel` (52px) and ping indicator. | Dispatches `OP 4 VOICE_STATE_UPDATE`, initializes `VoiceSessionState` with ping and endpoint indicator. | `[x]` |
+| `VOICE-02` | Mute and Deafen toggling | 1. Click microphone button (`Mute`).<br>2. Click headphone button (`Deafen`).<br>3. Uncheck `Deafen`. | Enabling `Deafen` (`is_deafened = true`) forcibly sets `is_muted = true` (strict Discord invariant). | `[x]` |
+| `VOICE-03` | Audio device switching and hot-unplug fallback | 1. Select PipeWire microphone and headphones in settings.<br>2. Physically unplug active USB mic during call. | Stream switches without crashing process; device disappearance falls back to `"Default"`. | `[x]` |
+| `VOICE-04` | Push-to-Talk mode and volume level (`0..200%`) | 1. Enable `Push-to-Talk` and hold activation key.<br>2. Verify input/output volume sliders at boundaries `0%`, `100%`, `200%`, and `201%`. | Holding PTT illuminates green speaking ring `is_speaking = true`; range `0..=200%` (`0.0..=2.0`) applies normally, `> 200%` rejected with `VolumeOutOfBounds`. | `[x]` |
 
-### 1.4. Шаг 1.4: Чек-лист шаринга экрана (`ScreenShareChecklistValidator`)
+### 1.4. Step 1.4: Screen Sharing Checklist (`ScreenShareChecklistValidator`)
 
-| ID | Сценарий проверки | Шаги выполнения | Ожидаемый результат (`OP 18..22` & Portal/XShm) | Статус |
+| ID | Test Scenario | Execution Steps | Expected Result (`OP 18..22` & Portal/XShm) | Status |
 |---|---|---|---|---|
-| `STREAM-01` | Выбор вкладки «Экраны» (`Monitors`) и «Окна приложений» (`Windows`) | 1. В активном звонке нажать «Продемонстрировать свой экран».<br>2. Переключить вкладки `Monitors` и `Windows`. | Модальное окно `ScreenShareModal` фильтрует источники по `is_screen` без дубликатов. | `[x]` |
-| `STREAM-02` | Пресеты качества `720p` (`1280×720`) и `1080p` (`1920×1080`), `30`/`60` FPS | 1. Запустить стрим экрана в `720p` @ `30 FPS`.<br>2. Проверить согласованные параметры RTP (`90 000 Hz`). | Устанавливается `is_screen_sharing = true`, разрешение `1280×720`, частота `30 FPS`. | `[x]` |
-| `STREAM-03` | Горячее переключение источника и пресета (`720p` → `1080p` 60 FPS) в процессе стрима | 1. Не останавливая стрим, открыть выбор источника.<br>2. Переключиться с монитора `screen:0` на окно `{uuid}` и пресет `1080p` @ `60 FPS`. | Источник и пресет меняются на лету (`1920×1080 @ 60 FPS`), голосовая сессия `VoiceSessionState` не прерывается. | `[x]` |
+| `STREAM-01` | Selecting "Screens" (`Monitors`) and "Applications" (`Windows`) | 1. In active call, click "Share Your Screen".<br>2. Switch between `Monitors` and `Windows` tabs. | `ScreenShareModal` filters sources by `is_screen` with zero duplicates. | `[x]` |
+| `STREAM-02` | Quality presets `720p` (`1280×720`) and `1080p` (`1920×1080`), `30`/`60` FPS | 1. Launch screen stream at `720p` @ `30 FPS`.<br>2. Verify negotiated RTP parameters (`90,000 Hz`). | Sets `is_screen_sharing = true`, resolution `1280×720`, frame rate `30 FPS`. | `[x]` |
+| `STREAM-03` | Hot switching source and preset (`720p` → `1080p` 60 FPS) while streaming | 1. Without stopping stream, open source selector.<br>2. Switch from monitor `screen:0` to window `{uuid}` and preset `1080p` @ `60 FPS`. | Source and preset update on the fly (`1920×1080 @ 60 FPS`), `VoiceSessionState` continues uninterrupted. | `[x]` |
 
 ---
 
-## 2. Кросс-платформенная матрица тестирования Linux Desktop (`SUB-908-2`)
+## 2. Linux Desktop Cross-Platform Matrix (`SUB-908-2`)
 
-Клиент `discord-gpui` проходит обязательную сертификацию на 4 эталонных графических стеках Linux:
+The `discord-gpui` client undergoes mandatory qualification across 4 reference Linux desktop stacks:
 
-| Окружение (`DesktopEnvironmentKind`) | Сессия и переменные | Системный трей и уведомления | Захват экрана и масштабирование | Ключевые инварианты проверки |
+| Environment (`DesktopEnvironmentKind`) | Session and Environment Variables | System Tray and Notifications | Screen Capture and Scaling | Key Invariants |
 |---|---|---|---|---|
-| **1. GNOME 46/47 Wayland** (`Шаг 2.1`) | `XDG_SESSION_TYPE=wayland`<br>`XDG_CURRENT_DESKTOP=GNOME`<br>`WAYLAND_DISPLAY=wayland-0` | Трей `AppIndicator` (`org.kde.StatusNotifierWatcher`) + нативные D-Bus уведомления `org.freedesktop.Notifications` | `xdg-desktop-portal-gnome` (`org.freedesktop.portal.ScreenCast` + PipeWire) | Иконка в трее отображает статус (Online/DND/Unread), клик по уведомлению фокусирует окно. |
-| **2. KDE Plasma 6 Wayland** (`Шаг 2.2`) | `XDG_SESSION_TYPE=wayland`<br>`XDG_CURRENT_DESKTOP=KDE`<br>`WAYLAND_DISPLAY=wayland-0` | Нативный StatusNotifierItem (`org.kde.StatusNotifierWatcher`) + `org.freedesktop.Notifications` | PipeWire portal + `org.kde.KWin.ScreenShot2`; **Fractional Scaling `125%` и `150%`** | При масштабе `125%` (`1600×900` физ.) и `150%` (`1920×1080` физ.) нет мыла, наложений текста и сдвига сетки `72/240/flex-1/240`. |
-| **3. Hyprland / Sway** (`Шаг 2.3`) | `XDG_SESSION_TYPE=wayland`<br>`XDG_CURRENT_DESKTOP=Hyprland:sway`<br>`WAYLAND_DISPLAY=wayland-1` | Waybar SNI (`org.kde.StatusNotifierWatcher`) + `mako`/`dunst` (`org.freedesktop.Notifications`) | `xdg-desktop-portal-hyprland` / `xdg-desktop-portal-wlr` (PipeWire) | При динамическом ресайзе тайлов от `900×600` до `3840×2160` нижняя панель `UserPanel` (52px) не выталкивается, `min_h_0`/`min_w_0` сохраняют скролл. |
-| **4. X11 (`Xfce` / `i3`)** (`Шаг 2.4`) | `XDG_SESSION_TYPE=x11`<br>`DISPLAY=:0`<br>`WAYLAND_DISPLAY` отсутствует | Системный трей XEmbed / StatusNotifier + `xfce4-notifyd` / `dunst` | Автоматический fallback на **X11 MIT-SHM (`XShmGetImage`, `kFullDesktopScreenId = -1`)** | При отсутствии Wayland-сокета захват экрана бесшовно переключается на X11 SHM без паники и без черного экрана. |
+| **1. GNOME 46/47 Wayland** (`Step 2.1`) | `XDG_SESSION_TYPE=wayland`<br>`XDG_CURRENT_DESKTOP=GNOME`<br>`WAYLAND_DISPLAY=wayland-0` | `AppIndicator` tray (`org.kde.StatusNotifierWatcher`) + native D-Bus notifications `org.freedesktop.Notifications` | `xdg-desktop-portal-gnome` (`org.freedesktop.portal.ScreenCast` + PipeWire) | Tray icon reflects user status (Online/DND/Unread), clicking notification focuses window. |
+| **2. KDE Plasma 6 Wayland** (`Step 2.2`) | `XDG_SESSION_TYPE=wayland`<br>`XDG_CURRENT_DESKTOP=KDE`<br>`WAYLAND_DISPLAY=wayland-0` | Native StatusNotifierItem (`org.kde.StatusNotifierWatcher`) + `org.freedesktop.Notifications` | PipeWire portal + `org.kde.KWin.ScreenShot2`; **Fractional Scaling `125%` and `150%`** | At scale `125%` (`1600×900` phys.) and `150%` (`1920×1080` phys.) zero blurriness, text overlap, or layout shift of `72/240/flex-1/240` grid. |
+| **3. Hyprland / Sway** (`Step 2.3`) | `XDG_SESSION_TYPE=wayland`<br>`XDG_CURRENT_DESKTOP=Hyprland:sway`<br>`WAYLAND_DISPLAY=wayland-1` | Waybar SNI (`org.kde.StatusNotifierWatcher`) + `mako`/`dunst` (`org.freedesktop.Notifications`) | `xdg-desktop-portal-hyprland` / `xdg-desktop-portal-wlr` (PipeWire) | On dynamic tile resize from `900×600` to `3840×2160`, bottom `UserPanel` (52px) is not pushed out, `min_h_0`/`min_w_0` maintain scrolling. |
+| **4. X11 (`Xfce` / `i3`)** (`Step 2.4`) | `XDG_SESSION_TYPE=x11`<br>`DISPLAY=:0`<br>`WAYLAND_DISPLAY` unset | System tray XEmbed / StatusNotifier + `xfce4-notifyd` / `dunst` | Automatic fallback to **X11 MIT-SHM (`XShmGetImage`, `kFullDesktopScreenId = -1`)** | In the absence of a Wayland socket, screen capture seamlessly switches to X11 SHM without panic or black screens. |
 
 ---
 
-## 3. Сценарии исследовательского тестирования — Exploratory Testing Charters (`SUB-908-3`)
+## 3. Exploratory Testing Charters (`SUB-908-3`)
 
-### 3.1. Шаг 3.1: Сценарий стрессового ввода (`StressInputAnalyzer`)
-- **Цель:** Проверить устойчивость композера, парсера Markdown и шейпинга шрифтов GPUI к экстремальным входным данным.
-- **Тестовый набор:**
-  1. Граничная длина: сообщение ровно в **`2000 символов`** (проходит) и `2001` символ (отклоняется).
-  2. Спецсимволы Unicode: составные эмодзи с Zero-Width Joiner (`👨‍👩‍👧‍👦`, `🏳️‍🌈`), Zalgo-диакритика, суррогатные пары, CJK-иероглифы.
-  3. Двунаправленный **`RTL`-текст**: смешение русского/английского текста с арабским (`مرحبا`) и ивритом (`שלום`), а также управляющими символами `U+202E` (Right-to-Left Override). Проверяется принудительная изоляция `U+2068` (FSI) … `U+2069` (PDI), чтобы `RTL`-вставка не разворачивала верстку соседних элементов.
-  4. Битые Markdown теги: незакрытые блоки кода ```` ```rust ````, непарные `**жирный`, `||спойлер`, вложенные цитаты `>>>`. Парсер обязан сбалансировать AST без паники и зависания потока рендеринга.
+### 3.1. Step 3.1: Stress Input Charter (`StressInputAnalyzer`)
+- **Objective:** Verify resilience of the message composer, Markdown parser, and GPUI font shaper against extreme inputs.
+- **Test Corpus:**
+  1. Boundary Length: message of exactly **`2000 characters`** (passes) and `2001` characters (rejected).
+  2. Complex Unicode: composite emoji with Zero-Width Joiner (`👨‍👩‍👧‍👦`, `🏳️‍🌈`), Zalgo diacritics, surrogate pairs, CJK ideographs.
+  3. Bidirectional **`RTL` Text**: mixing Latin/Cyrillic scripts with Arabic (`مرحبا`) and Hebrew (`שלום`), alongside control character `U+202E` (Right-to-Left Override). Enforces mandatory isolation wrappers `U+2068` (FSI) … `U+2069` (PDI) so RTL text cannot distort surrounding UI elements.
+  4. Malformed Markdown: unclosed code blocks ```` ```rust ````, unmatched `**bold`, `||spoiler`, nested quotes `>>>`. Parser must balance the AST without panicking or locking the render thread.
 
-### 3.2. Шаг 3.2: Сценарий быстрого переключения серверов и каналов — Monkey Testing (`10 кликов в секунду`)
-- **Цель:** Выявить гонки асинхронных задач Tokio ↔ GPUI, утечки памяти и потерю черновиков при высокочастотной навигации.
-- **Профиль нагрузки:** Серия из `>= 30` переключений между серверами в `ServerRail` и каналами в `ChannelSidebar` со скоростью **`10 кликов в секунду`** (интервал `100 мс`).
-- **Критерии прохождения:**
-  - Время отрисовки кадра строго **`< 8.33 мс`** (120 FPS).
-  - Потребление памяти `VmRSS < 60 МБ` (отсутствие утечек текстур и подписок).
-  - Набранный в поле ввода черновик (`draft_text`) полностью сохраняется.
+### 3.2. Step 3.2: Rapid Server and Channel Navigation — Monkey Testing (`10 clicks per second`)
+- **Objective:** Surface race conditions between async Tokio tasks and GPUI, memory leaks, and draft message loss under high-frequency navigation.
+- **Load Profile:** Sequence of `>= 30` switches across servers in `ServerRail` and channels in `ChannelSidebar` at a rate of **`10 clicks per second`** (interval `100 ms`).
+- **Pass Criteria:**
+  - Frame rendering latency strictly **`< 8.33 ms`** (120 FPS).
+  - Memory consumption `VmRSS < 60 MB` (zero leaked texture handles or event listeners).
+  - Draft message entered in input field (`draft_text`) remains fully preserved.
 
-### 3.3. Шаг 3.3: Сценарий работы с нестабильным интернетом — обрыв кабеля на `30 секунд`
-- **Цель:** Проверить надежность конечного автомата переподключения шлюза (`Opcode 6 RESUME`).
-- **Шаги сценария:**
-  1. Установить активную сессию (`READY`, запомнить `session_id` и `last_seq`) и набрать черновик сообщения в композере.
-  2. Физически отключить сетевой интерфейс / кабель (`ip link set eth0 down` или `nmcli networking off`) ровно на **`30 секунд`**.
-  3. Включить сеть обратно через `30 секунд`.
-- **Критерии прохождения:**
-  - Клиент автоматически выполняет рукопожатие **`Opcode 6 RESUME`** (с передачей `session_id` и `seq`), не требуя повторного ввода пароля.
-  - Все пропущенные за `30 секунд` сообщения догружаются строго по порядку без единого дубликата (`duplicate_messages_count == 0`).
-  - Неотправленный черновик в поле ввода сохраняется.
+### 3.3. Step 3.3: Network Degradation and 30-Second Disconnect Recovery
+- **Objective:** Validate state machine resilience during Gateway reconnection (`Opcode 6 RESUME`).
+- **Scenario Steps:**
+  1. Establish active session (`READY`, capture `session_id` and `last_seq`) and type a message draft in the composer.
+  2. Physically disable network interface (`ip link set eth0 down` or `nmcli networking off`) for exactly **`30 seconds`**.
+  3. Re-enable network interface after `30 seconds`.
+- **Pass Criteria:**
+  - Client automatically completes **`Opcode 6 RESUME`** handshake (submitting `session_id` and `seq`), without prompting for user re-authentication.
+  - All messages received during the 30-second window are fetched strictly in sequence with zero duplicates (`duplicate_messages_count == 0`).
+  - Unsent draft in composer is preserved.
 
-### 3.4. Шаг 3.4: Регламент предрелизных `Bug-bash` сессий и фиксация дефектов (`P0–P3`)
+### 3.4. Step 3.4: Pre-Release Bug-Bash Protocol and Defect Severity (`P0–P3`)
 
-Перед каждым выпуском кандидата в релиз (`testing -> beta`) отдел `G4 QA` проводит синхронную **`Bug-bash`** сессию длительностью 60 минут с участием представителей `G1 Backend`, `G2 Frontend`, `G5 Voice & Platform` и `PM`.
+Prior to every release candidate promotion (`testing -> beta`), `G4 QA` leads a synchronized 60-minute **`Bug-bash`** session joined by representatives from `G1 Backend`, `G2 Frontend`, `G5 Voice & Platform`, and `PM`.
 
-#### Этапы проведения `Bug-bash` сессии:
-1. **Инициализация (`checklist ready`):** Координатор фиксирует хэш бинарника `discord-gpui` из `SHA256SUMS` и распределяет 4 окружения Linux (`GNOME 46/47`, `KDE Plasma 6`, `Hyprland / Sway`, `X11`) между участниками.
-2. **Активная фаза (`running bug-bash`):** Выполнение Smoke/Sanity чек-листов (`SUB-908-1`) и исследовательских чартеров (`SUB-908-3`).
-3. **Стандартизированная регистрация дефектов (`BugReport`):**
-   Каждая карточка дефекта в баг-трекере обязана содержать:
-   - Уникальный ID (`BUG-908-XX`), заголовок и окружение (`DesktopEnvironmentKind`).
-   - Пошаговый сценарий воспроизведения (`reproduction_steps`, не менее 1 непустого шага).
-   - Путь к скриншоту / видеозаписи артефакта (`screenshot_path`).
-   - Стек вызовов **`GDB`** (`gdb -batch -ex "thread apply all bt full"`), прошедший автоматическую санитизацию секретов (`mask_secret_tokens` заменяет любые `mfa.<token>` на `mfa.[REDACTED]`).
-   - Классификацию приоритета **`P0–P3`**:
-     - **`P0` (Blocker):** Паника процесса (`panic!`/`SIGSEGV`), утечка токена, отказ входа, потеря данных или поломка шифрования DAVE E2EE. **Мгновенная блокировка релиза.**
-     - **`P1` (Critical):** Не работает ключевая функция (отправка сообщений, подключение к голосу, шаринг экрана, сломана верстка при `125%`/`150%`). **Блокировка релиза.**
-     - **`P2` (Minor):** Косметические или неблокирующие отклонения UX (сдвиг тултипа на 1px, задержка анимации) при наличии обходного пути.
-     - **`P3` (Trivial):** Пожелания по улучшению и мелкие неточности локализации.
-4. **Вердикт приёмки (`sign-off complete`):** Сборка получает статус `release_approved = true` и переходит в `SignOffComplete` **только при условии `P0 == 0` и `P1 == 0`**.
+#### Bug-bash Stages:
+1. **Initialization (`checklist ready`):** Coordinator verifies binary SHA-256 hash against `SHA256SUMS` and distributes 4 Linux environments (`GNOME 46/47`, `KDE Plasma 6`, `Hyprland / Sway`, `X11`) across testers.
+2. **Active Phase (`running bug-bash`):** Execution of Smoke/Sanity checklists (`SUB-908-1`) and exploratory charters (`SUB-908-3`).
+3. **Standardized Defect Logging (`BugReport`):**
+   Every defect ticket in the issue tracker must contain:
+   - Unique ID (`BUG-908-XX`), title, and target desktop environment (`DesktopEnvironmentKind`).
+   - Step-by-step reproduction instructions (`reproduction_steps`, at least 1 non-empty step).
+   - Artifact path to screenshot or screen recording (`screenshot_path`).
+   - Clean **`GDB`** stack trace (`gdb -batch -ex "thread apply all bt full"`), scrubbed of sensitive tokens (`mask_secret_tokens` replaces `mfa.<token>` with `mfa.[REDACTED]`).
+   - Severity classification **`P0–P3`**:
+     - **`P0` (Blocker):** Process panic (`panic!`/`SIGSEGV`), token exposure, auth failure, data corruption, or broken DAVE E2EE encryption. **Immediate release block.**
+     - **`P1` (Critical):** Core functionality broken (message sending, voice connection, screen sharing, broken UI at `125%`/`150%` scaling). **Immediate release block.**
+     - **`P2` (Minor):** Cosmetic or non-blocking UX deviations (1px tooltip misalignment, animation stutter) where a workaround exists.
+     - **`P3` (Trivial):** Enhancement suggestions and minor localization polish.
+4. **Sign-Off Verdict (`sign-off complete`):** Build achieves `release_approved = true` and transitions to `SignOffComplete` **strictly under the condition `P0 == 0` and `P1 == 0`**.

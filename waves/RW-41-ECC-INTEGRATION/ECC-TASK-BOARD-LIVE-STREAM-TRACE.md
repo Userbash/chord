@@ -2,7 +2,7 @@
 
 ## 1. Диагностика и Выявленные Первопричины (Root Causes)
 
-Сверка выполнена по эталонному RE-дампу `/home/sanya/re-deep/` (`voice-deep.md`, `rest-static.md`, `gateway-schema.md`, `decoded/4d2a64cb5df5fc4e_0`) и живой телеметрии приложения.
+Сверка выполнена по эталонному RE-дампу `reference-oracle/` (`voice-deep.md`, `rest-static.md`, `gateway-schema.md`, `decoded/4d2a64cb5df5fc4e_0`) и живой телеметрии приложения.
 
 ```mermaid
 flowchart TD
@@ -59,4 +59,4 @@ flowchart TD
 | **Worker 3 (G2 Frontend)** | `TASK-STR-03` | **UI Telemetry HUD & Call Notifications**<br>• Привязка всех кликов и событий интерфейса к `emitLiveTelemetry`<br>• Форма входящего звонка и модалка подключения в личных сообщениях<br>• Кнопка переключения стрима и индикация зрителей | `node --test tests/unit/stream_restart_lifecycle.test.mjs` (5/5 PASS) |
 | **Worker 4 (G5 Voice)** | `TASK-STR-04` | **KWin ScreenShot2 Workspace & Palette Normalization**<br>• `CaptureWorkspace` для полного экрана<br>• `CaptureWindow` для окон KWin `{uuid}`<br>• Форматный фильтр (своп байт только для `Format_RGBX8888`/`RGBA`) | `node --test tests/unit/stream_broadcaster_handshake_and_source.test.mjs` (6/6 PASS) |
 | **Worker 5 (G4 QA)** | `TASK-STR-05` | **E2E & Contract Test Suite**<br>• 12 уровней тестирования стриминга<br>• Проверка переподключения и завершения звонка<br>• Защита от деградации существующих тестов | `npm run test:meta` (138/138 PASS)<br>`npm run test:unit` (1963/1963 PASS) |
-| **Worker 6 (G7 RE / REA)** | `TASK-STR-06` | **Reverse Engineering & Live Parity Auditing**<br>• Сверка по `/home/sanya/re-deep/`<br>• Проверка опкодов RTP/RTCP и DAVE v1 MLS<br>• Анализ логов зрителей официального клиента | Аудит Evidence-бандлов REA и `voice-deep.md` |
+| **Worker 6 (G7 RE / REA)** | `TASK-STR-06` | **Reverse Engineering & Live Parity Auditing**<br>• Сверка по `reference-oracle/`<br>• Проверка опкодов RTP/RTCP и DAVE v1 MLS<br>• Анализ логов зрителей официального клиента | Аудит Evidence-бандлов REA и `voice-deep.md` |

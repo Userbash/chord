@@ -218,7 +218,7 @@ describe("TASK-627: Константы RE-оракула, каталог пла�
 
     // Запрет отправки подарка самому себе (3e8824f7eca8914f_0 @200300: d.id === A?.id)
     const selfCheck = validateGiftRecipient(
-      { id: "100200300", username: "sanya" },
+      { id: "100200300", username: "test_recipient" },
       "100200300",
     );
     assert.equal(selfCheck.valid, false);

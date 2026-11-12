@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-203` (`feature/task-203-ui-profile-modal-controller`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/ui/06-profile-popout.html`, `/home/sanya/re-deep/voice/ui7/15-popout.json`, `/home/sanya/re-deep/frontend-d03.md` (§5 Modal / Popover).
+- **Оракулы**: `reference-oracle/ui/06-profile-popout.html`, `reference-oracle/voice/ui7/15-popout.json`, `reference-oracle/frontend-d03.md` (§5 Modal / Popover).
 
 ## Сделано
 1. `tests/unit/profile-modal.test.mjs` (Red → Green, 12 тестов в 4 suites, `// @ts-check` + JSDoc):
@@ -14,8 +14,8 @@
    - экспортированы `STATUS_LABELS_RU`, `PROFILE_MODAL_TABS`, `PROFILE_TAB_LABELS_RU`, `PROFILE_EMPTY_STATES_RU` и `createProfileModalController(containerEl, options)`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/profile-modal.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-203-ui-profile-modal-controller/red.log`.
-- **Green**: `node --test tests/unit/profile-modal.test.mjs` → `tests 12, suites 4, pass 12, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-203-ui-profile-modal-controller/green.log`.
+- **Red**: `node --test tests/unit/profile-modal.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-203-ui-profile-modal-controller/red.log`.
+- **Green**: `node --test tests/unit/profile-modal.test.mjs` → `tests 12, suites 4, pass 12, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-203-ui-profile-modal-controller/green.log`.
 - **Typecheck (targeted)**: `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` и проверка `profile-modal.js` + `profile-modal.test.mjs` — `0 errors`.
 - **Gate**: полный `gate:worker` не запускался (режим ТЗ карточки); чужие файлы не затронуты.
 
@@ -23,8 +23,8 @@
 ```
 1518ab1b8972591a49746291b1e21400  rust/gui-spike/ui/features/profile-modal.js
 cbf7f0437e4b523c9afff3305f93e375  tests/unit/profile-modal.test.mjs
-66bb9159f57c485aec905b3a1b9efe1e  /home/sanya/orca/project/waves/RW-40/G2/task-203-ui-profile-modal-controller/red.log
-c2694c27b13547a05e1b5754b024fd85  /home/sanya/orca/project/waves/RW-40/G2/task-203-ui-profile-modal-controller/green.log
+66bb9159f57c485aec905b3a1b9efe1e  /home/user/orca/project/waves/RW-40/G2/task-203-ui-profile-modal-controller/red.log
+c2694c27b13547a05e1b5754b024fd85  /home/user/orca/project/waves/RW-40/G2/task-203-ui-profile-modal-controller/green.log
 ```
 
 ## Риски

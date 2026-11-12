@@ -19,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 SPEC = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "waves/RW-40/theme-spec.json"
 DOC = Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / "waves/RW-40/THEME-SPEC.md"
-DUMP = Path("/home/sanya/re-deep/ui/tokens.json")
+DUMP = Path("/home/user/clean-room-oracle/ui/tokens.json")
 TOKENS_CSS = ROOT / "rust/gui-spike/ui/tokens.css"
 LAYOUT = ROOT / "waves/RW-37/RE/layout.json"
 

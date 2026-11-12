@@ -1072,7 +1072,7 @@ fn d23_protocol_registration_privileges_desktop_and_windows_registry() {
     // 3. Windows Squirrel registry commands (`m-app-27251.txt` `installProtocol`)
     let reg_cmds = windows_protocol_registry_commands(
         "Discord",
-        r"C:\Users\sanya\AppData\Local\Discord\app-1.0.162\Discord.exe",
+        r"C:\Users\testuser\AppData\Local\Discord\app-1.0.162\Discord.exe",
     )
     .expect("windows registry commands");
     assert_eq!(reg_cmds.len(), 4);
@@ -1091,7 +1091,7 @@ fn d23_protocol_registration_privileges_desktop_and_windows_registry() {
             r"HKCU\Software\Classes\Discord\shell\open\command".to_owned(),
             "/ve".to_owned(),
             "/d".to_owned(),
-            r#""C:\Users\sanya\AppData\Local\Discord\app-1.0.162\Discord.exe" --url -- "%1""#
+            r#""C:\Users\testuser\AppData\Local\Discord\app-1.0.162\Discord.exe" --url -- "%1""#
                 .to_owned(),
         ]
     );

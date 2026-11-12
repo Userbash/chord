@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/testing/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 6.04s
-     Running tests/dm_friends_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_friends_contract-58ca6101064be28d)
+     Running tests/dm_friends_contract.rs (/home/user/orca/project/rust/target/debug/deps/dm_friends_contract-58ca6101064be28d)
 
 running 6 tests
 test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
@@ -12,7 +12,7 @@ test ready_private_channels_and_rest_static_oracle_parity ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/voice_devices_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_devices_contract-bf7e6f2daf8b79c9)
+     Running tests/voice_devices_contract.rs (/home/user/orca/project/rust/target/debug/deps/voice_devices_contract-bf7e6f2daf8b79c9)
 
 running 15 tests
 test t03_long_device_labels_preserved_in_dom_options_and_redacted_in_debug ... ok

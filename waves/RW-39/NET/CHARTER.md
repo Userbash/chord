@@ -49,7 +49,7 @@
 
 ## 4. Роли
 
-- **NET-A** — reverse engineering логина/заголовков по дампу (`/home/sanya/re-deep`).
+- **NET-A** — reverse engineering логина/заголовков по дампу (`reference-oracle/`).
 - **NET-B** — аудит ядра и карта «что вызывать» (без правок).
 - **NET-C** — backend auth-команды + keyring.
 - **NET-D** — frontend login UI.

@@ -1,5 +1,5 @@
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
-     Running tests/net_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/net_contract-c9bde46a5fae9c21)
+     Running tests/net_contract.rs (/home/user/orca/project/rust/target/debug/deps/net_contract-c9bde46a5fae9c21)
 
 running 27 tests
 test close_policies_are_forwarded ... ok

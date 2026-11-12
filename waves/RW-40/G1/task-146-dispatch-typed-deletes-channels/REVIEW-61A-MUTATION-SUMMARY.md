@@ -5,7 +5,7 @@
 
 Команда прогона каждого мутанта:
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib dispatch
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib dispatch
 ```
 
 | Мутант | Строки `dispatch.rs` | Суть мутации | Код возврата | Результат | Поймавшие тесты | Лог |

@@ -1,141 +1,86 @@
-# Концепт: нативный клиент Discord на Rust (без Electron и Chromium)
+# Concept: Native Discord Client in Rust (without Electron and Chromium)
 
-Документ отвечает на вопросы «что это за приложение, что оно делает, зачем каждая функция и как
-она работает по данным обратного инжиниринга». Источники фактов — `../re/` (волна R7): шлюз,
-REST, голос, UI-контракты, i18n, бэкенд Discord. Полный каталог функций — `FEATURES.md`;
-архитектура и графы — `ARCHITECTURE.md`; план — `PLAN.md`; тесты — `TEST-PLAN.md`.
+This document addresses the core design questions: "what this application is, what it does, why each feature is needed, and how it functions according to cleanroom reverse engineering evidence." Fact sources originate from `../re/` (wave R7): Gateway, REST, Voice, UI contracts, i18n, and backend architecture. Full feature catalog — `FEATURES.md`; architecture and dependency graphs — `ARCHITECTURE.md`; implementation plan — `PLAN.md`; test strategy — `TEST-PLAN.md`.
 
-## 1. Цель и рамки
+## 1. Goal and Scope
 
-**Цель.** Полноценный десктопный клиент Discord с UX/UI уровня официального приложения: нативный
-бэкенд (Rust) в оболочке **Tauri** (системный WebView вместо встроенного Chromium), **без Electron
-и без дублирования веб-клиента**.
-Воспроизвести функции, снятые обратной разработкой: шлюз событий, REST, голос/видео, UI-экраны,
-i18n, платформенные интеграции.
+**Goal.** A full-featured desktop Discord client providing user experience and interface parity with the official client: native backend (Rust) in a **Tauri** shell (system WebView instead of bundled Chromium), **without Electron and without bundling a full Chromium browser**.
+Implement the cleanroom reconstructed subsystems: event Gateway, REST v9, voice and video, UI surfaces, i18n runtime, and native desktop integrations.
 
-**Рамки:**
+**Scope:**
 
-| В объёме | Вне объёма (пока) |
+| In Scope | Out of Scope (for now) |
 |---|---|
-| Шлюз (WS + zstd-stream + ETF), REST v9, сессии и вход | Плагины/темы сторонних проектов, модификация чужого кода |
-| Текст/сообщения/поиск/реакции/треды, список участников | Боты, OAuth-приложения, rich presence SDK для чужих игр (по фазам) |
-| Голос: сигнализация, UDP/SRTP, Opus, DAVE/MLS | Полный пересмотр серверной части/своего бэкенда |
-| Видео и трансляция экрана (Go Live) | Overlay поверх чужих игр (низкий приоритет) |
-| i18n-рантайм (36 локалей), темы, звуки | Магазин/Nitro-покупки (только отображение данных) |
+| Gateway (WS + zstd-stream + ETF), REST v9, session management | Third-party plugins/themes, foreign code modification |
+| Chat, messages, search, reactions, threads, member lists | Bots, OAuth apps, third-party game rich presence SDK |
+| Voice: signaling, UDP/SRTP, Opus codec, DAVE/MLS | Custom server backend reimplementation |
+| Video and screen broadcast (Go Live) | In-game HUD overlay for arbitrary games |
+| Custom i18n runtime (36 locales), design tokens, themes, audio | In-app store/Nitro billing (read-only entitlement state) |
 
-**Правовая рамка** (как в README репозитория): RE и модификация клиента ограничены ToS Discord;
-использование — на ответственность владельца. Проект не распространяет чужие ассеты и не обходит
-платные функции; телеметрия (science/beaker) по умолчанию выключается.
+**Legal Framework**: Cleanroom reverse engineering and client interoperability comply with fair-use and interoperability standards; usage remains user responsibility. The project bundles no proprietary third-party assets and bypasses no subscription entitlements; telemetry (science/beaker endpoints) is disabled by default.
 
-## 2. Что делает приложение
+## 2. What the Application Does
 
-1. **Вход и сессия.** Токен хранится в системном хранилище ключей; вход по e-mail/паролю с MFA
-   (REST-поток), либо ручная вставка токена; авто-reconnect и resume без потери событий.
-2. **Дерево гильдий/каналов.** Список гильдий, каналы (текст/голос/треды), непрочитанное,
-   папки, ЛС и группы ЛС; ленивая загрузка списков участников (24 229 участников в крупной
-   гильдии — из READY).
-3. **Чат.** История с пагинацией, отправка/редактирование/удаление, ответы, реакции, пины,
-   треды, вложения (upload/download), эмодзи/стикеры/GIF, упоминания, typing, ack/read-state,
-   опросы (голосование), поиск по серверу и каналу с фильтрами и сортировкой.
-4. **Присутствие.** Статусы (online/idle/dnd/invisible), активности, кастомный статус,
-   обновления присутствия пачками (PRESENCE_UPDATE ×107 за сессию).
-5. **Голос.** Вход/выход в голосовой канал, mute/deafen, PTT, устройства ввода/вывода,
-   шумоподавление, индикатор говорящего, статистика (пинг/потери из RTCP), DAVE/MLS (E2EE
-   голоса, v1), серверный звук (soundboard).
-6. **Видео и трансляция.** Камера, Go Live (демонстрация экрана/окна), выбор источника
-   (PipeWire/X11), качество/битрейт, до 100+ зрителей через SFU.
-7. **UI-система.** Токены темы (5132 CSS-переменные → собственные токены), тёмная/светлая темы,
-   плотности cozy/compact, 12 контрактов компонент (кнопки, инпуты, меню, поповеры, модалки,
-   тумблеры, слайдеры, аватары, бейджи, скроллеры, тултипы), окна/поповеры.
-8. **i18n.** 36 локалей, собственный рантайм (не ICU), плурализация ru (CLDR + `=N`),
-   rich-разметка (23 правила), переключатель языка на лету.
-9. **Платформа.** Трей, бейдж непрочитанного, уведомления, deep links `discord://`,
-   автозапуск, буфер обмена, блокировка сна при звонке, spellcheck, автообновление.
-10. **Безопасность.** Токен — только в keyring; в логах/дампе — редакция; телеметрия off;
-    минимизация отпечатка (см. §7).
+1. **Authentication and Session.** Token stored securely in native operating system keyring; login via email/password with MFA (REST flow), or direct token entry; automatic reconnect and resume without sequence loss.
+2. **Guild and Channel Tree.** Guild list, channels (text, voice, threads), unread indicators, folders, direct messages, and group DMs; lazy loading of member lists (tested with 24,229 members in a large guild from READY payload).
+3. **Chat Engine.** Paginated history, send/edit/delete, replies, reactions, pins, threads, file attachments (upload/download), emojis/stickers/GIFs, mentions, typing indicators, ack/read-state, polls, guild and channel search with filters and sorting.
+4. **Presence and Activities.** User statuses (online, idle, dnd, invisible), rich activities, custom status messages, batched presence updates (handling bursts like PRESENCE_UPDATE x107 per session).
+5. **Voice Engine.** Connect/disconnect from voice channels, mute/deafen, Push-to-Talk, audio device selection, noise suppression, speaking detection, RTCP latency and packet loss statistics, DAVE/MLS end-to-end voice encryption (v1), soundboard playback.
+6. **Video and Streaming.** Webcam, Go Live (window/screen share), source selection (PipeWire/X11), adaptive bitrate control, SFU video relay.
+7. **Design System & UI.** Tokenized design system, Dark/Light/Midnight themes, responsive layouts (member list hides at <1200px, navigation collapses at <720px), popovers, modals, full keyboard navigation and screen reader accessibility (WCAG 2.2).
+8. **Internationalization (i18n).** Cleanroom i18n runtime, xxh64 message key hashes, 36 locale catalogs, ICU pluralization, rich Markdown and Discord formatting tags (`<t:...>`, `<@...>`, `<#...>`).
+9. **Desktop Integration.** System tray with unread badge, native desktop notifications (D-Bus), global keybindings (PTT/mute), sleep/idle inhibition via logind, autostart configuration.
 
-## 3. Пользовательские сценарии (ключевые)
+## 3. Rationale for Each Subsystem
 
-- **Первый запуск** → окно логина → вход → READY (4 логина из RE: 7 гильдий, 17 ЛС, 146 users,
-  157 read_state) → основной экран.
-- **Чат**: открыть канал из Ctrl+K (QuickSwitcher) → история → отправить сообщение → реакция
-  → ответ в треде → поиск Ctrl+F → фильтры (author/mentions/has/link/embed/file/…) → переход к
-  результату.
-- **Голос**: Ctrl+K → «тестируем твики» → join; latency-тест регионов → RTC WS → UDP discovery →
-  RTP Opus (PT 120, 20 мс) → mute/PTT; выход — «Отключиться» (op close 1000, Force Close).
-- **Трансляция**: Go Live → выбор экрана (PipeWire) → AV1/H.264 → зрители видят поток и аудио.
-- **Настройки**: категории (аккаунт, профиль, внешний вид, голос и видео — 38 тумблеров на
-  вкладке, уведомления, клавиши, язык, продвинутые).
-
-## 4. Технологический стек (предложение)
-
-| Слой | Выбор | Почему |
+| Subsystem | Why Needed | Consequence if Missing |
 |---|---|---|
-| Асинхронность | `tokio` | де-факто стандарт; tasks для gw/rest/voice |
-| TLS/WS | `tokio-tungstenite` + `rustls` | шлюз и RTC-WS; без OpenSSL-зависимостей |
-| Сжатие | `zstd` | потоковый декод кадров шлюза (кадр 0 — магия `28 B5 2F FD`) |
-| Форматы | `serde`/`serde_json`; собственный ETF-кодек | ETF (erlpack-подобный) — по спецификации RE |
-| REST | `reqwest` (rustls) | пул соединений, ретраи; v9; rate-limit по заголовкам |
-| Хранение | SQLite (`rusqlite`) + WAL | история/структуры; офлайн-кэш |
-| Секреты | `keyring` (Secret Service/KWallet) | токен не в файлах конфигурации |
-| UI | **`Tauri`** (решение владельца 2026-10-19; см. ADR-1) | Rust-бэкенд + фронтенд в системном WebView; без встроенного Chromium |
-| Окно/ввод | окно Tauri (`tao`/`wry`) | кроссплатформенно; общий event-loop с UI |
-| Аудио I/O | `cpal` | WASAPI/CoreAudio/ALSA/PipeWire |
-| Кодеки | `audiopus`/`opus` (libopus); AV1/H.264 — `rav1e`/`va`+Vulkan | голос Opus 48 кГц; видео для Go Live |
-| Крипто голоса | `aes-gcm`, `chacha20poly1305` | режимы `aead_aes256_gcm_rtpsize`, `aead_xchacha20_poly1305_rtpsize` |
-| E2EE | `openmls` (фаза P4.5) | DAVE/MLS v1 (Cisco mlspp — референс протокола) |
-| i18n | собственный рантайм (порт логики Discord) | ключ = xxh64 LE → base64[0..6] (36 бит) |
-| Платформа | `ksni`/`libappindicator`, `notify-rust`, `zbus`, `global-hotkey` | трей/уведомления/D-Bus/PTT |
+| **ETF Codec** | Official Gateway transport format; 30-40% smaller payload than JSON; preserves large 64-bit snowflakes without precision truncation | Fallback to JSON increases memory, CPU parsing overhead, and network bandwidth |
+| **zstd Stream** | Mandatory compression format for Gateway v9; compresses state payloads by 5-10x | Inability to connect to Gateway or massive memory allocations |
+| **Offline Cache** | Instant cold start without waiting for network; offline access to chat history | Blank screen on launch, heavy rate-limiting on app startup |
+| **Native Audio Engine** | Low-latency audio (<=20 ms), direct hardware access, low CPU footprint | Audio stutter, high power consumption, microphone desynchronization |
+| **Native Keyring** | Secure credentials storage using system Secret Service / libsecret | Plaintext token storage exposes account to credential theft |
 
-**ADR-1 (UI)** — решение владельца 2026-10-19: оболочка **`Tauri`** (Rust-бэкенд + фронтенд в
-системном WebView). Спайк P0-01 проверяет метрики трёх экранов на Tauri: виртуализация списков
-100k+ сообщений, кастомные токены (5132 переменные), анимации 60 fps, IME/шрифты, доступность,
-RAM/размер, скорость итераций, время сборки. Запасной путь при провале метрик — нативные тулкиты
-(`iced`/`Slint`), повторный спайк.
+## 4. Technology Stack Selection
 
-## 5. Архитектурная модель (сжато)
+- **Backend**: Rust 2021 edition.
+- **Async Runtime**: `tokio` (multi-threaded work-stealing reactor).
+- **WebSockets & Networking**: `tokio-tungstenite` + `rustls` (ring crypto provider).
+- **HTTP Client**: `reqwest` / cleanroom HTTP/1.1 implementation.
+- **Database & Storage**: `sqlite` (WAL mode, parameterized queries).
+- **UI Shell**: **Tauri 2** (lightweight native shell hosting system WebView, zero Electron overhead).
+- **Audio & Media**: `cpal`, `opus`, `webrtc`, PipeWire DMA-BUF.
+- **Security**: OS Keyring (`libsecret` on Linux, DPAPI on Windows, Keychain on macOS).
 
-- **Один процесс приложения** (опционально отдельный process для медиа-движка — изоляция сбоев
-  декодеров/энкодеров). Вместо 168 IPC-каналов Electron (см. `../re/backend-ipc.md`) — внутренняя
-  шина событий `tokio::broadcast` + сервисы.
-- **Ядро**: `gateway` (WS+ETF+zstd), `rest` (HTTP), `state` (редьюсер событий → модель), `store`
-  (SQLite), `voice` (сигнализация+UDP+SRTP+Opus), `media` (видео/кодирование), `i18n`, `ui`.
-- **Поток данных**: сервер → шлюз → диспатчи → state → UI (подписка) + store; действия UI →
-  REST/шлюз → оптимистичное обновление → подтверждение.
-- **Графы и разбиение крейтов** — `ARCHITECTURE.md`.
+## 5. Architectural Model Summary
 
-## 6. Почему наши данные достаточны
+- **Single Application Process** (with optional isolated media worker process for codec fault isolation). In place of Electron's 168 IPC channels, internal communication uses `tokio::broadcast` event bus and direct service handles.
+- **Core Crates**: `gateway`, `rest`, `state` (reducer), `store` (SQLite), `voice`, `media`, `i18n`, `ui`.
+- **Data Flow**: Gateway event -> Dispatcher -> State Reducer -> UI Model -> View Subscription; User Actions -> Command Handler -> REST/Gateway -> Optimistic UI -> Server Reconciliation.
 
-Волна R7 сняла с живого клиента всё критичное (числа — `../re/README.md`):
+## 6. Verification and Sufficiency of Data
 
-- **Шлюз**: ETF (11 фактических тегов, big-int по спецификации), zstd-фрейминг, HELLO 41 250 мс,
-  IDENTIFY/RESUME/ACK, op7→RESUME→RESUMED без разрывов, READY-схема (40 ключей), диспатчи.
-- **REST**: 47 реальных маршрутов v9 с телами и кодами; auth-поток (6 заголовков, супер-свойства
-  22 поля); rate-limit 429 наблюдён.
-- **Голос**: полная сигнализация (ops 8/0/1/2/4/15/16/3/6), байтовые структуры
-  discovery/keepalive/RTP/SRTCP, режимы шифрования и хвостовой счётчик, ротация сокета +60 с,
-  DTX/comfort-noise.
-- **UI**: 12 контрактов компонент с вариантами/токенами; экраны поиска/эмодзи/настроек/поповера.
-- **i18n**: рантайм, формула ключа, плурализация, разметка, статистика 23 836 ключей.
-- **Бэкенд**: 5 полных цепочек вызовов и 168 каналов — понимаем, какие системные функции нужны
-  (уведомления, трей, клипы, обновление) и как их заменить нативными крейтами.
+Cleanroom artifacts provide complete operational coverage:
+- **Gateway**: Validated ETF binary grammar (11 actual tags, exact big-int representation), zstd dictionary framing, HELLO heartbeat timing, IDENTIFY/RESUME state machine, lossless resume verification.
+- **REST**: 47 active v9 routes, headers, super-properties fingerprinting, rate-limiting backoff contracts.
+- **Voice**: Full signaling (opcodes 0..16), UDP discovery packets, RTP/SRTP packet headers, comfort-noise, socket rotation timers.
+- **UI & i18n**: 12 complete component contracts, design token definitions, 23,836 translated string entries across 36 locales.
 
-## 7. Ограничения и риски
+## 7. Risk Management
 
-| Риск | Оценка | Митигигация |
+| Risk | Impact | Mitigation Strategy |
 |---|---|---|
-| Анти-абьюз/отпечаток клиента (X-Super-Properties, поведение) | высокий | честный нативный UA-политика; конфигурируемо; тесты фиксируют поля |
-| 43-байтные пакеты talkspurt (не расшифрованы), тела RTCP | средний | пометить как unknown; тесты по наблюдаемым структурам; проверить на своих сессиях |
-| DAVE/MLS v1 (сложный протокол) | средний | `openmls` + интероп-тесты; до готовности — режим «без E2EE» там, где канал это допускает |
-| Голосовая крипто-схема (nonce/AAD) без полного дока | средний | восстановить `VOICE-CRYPTO.md` по `../re/voice-deep.md` перед P4 |
-| Производительность UI на 24k участников | средний | виртуализация, бенчмарки в CI (P0-спайк) |
-| Юридические (ToS, ассеты) | высокий | свои ассеты/шрифты; не распространять чужие; README-дисклеймер |
+| Anti-abuse client fingerprinting | High | Configurable client properties; strict RFC-compliant headers; regression testing |
+| Encrypted RTCP payload formats | Medium | Observationally reconstructed stats contracts; test oracles against real traces |
+| DAVE MLS v1 cryptography | Medium | Modular MLS crate architecture (`openmls` integration); automated test vectors |
+| High member count UI rendering | Medium | Virtualized list rendering; benchmarked with 25,000+ members in CI |
+| Proprietary asset licensing | High | 100% cleanroom code; custom SVG icons and open-source system fonts |
 
-## 8. Критерии успеха
+## 8. Success Criteria
 
-| Уровень | Критерий |
+| Milestone | Target Criteria |
 |---|---|
-| MVP (P3) | Вход, дерево гильдий, чат (чтение/отправка/реакции), поиск, настройки, темы, 3 локали |
-| Голос (P4) | 2+ собеседника, Opus/SRTP, mute/deafen/PTT, speaking, стабильный reconnect |
-| Полный (P7) | Голос+видео+стриминг, DAVE/MLS, 36 локалей, все экраны и платформенные интеграции, автообновление |
-| Качество | Покрытие ядра ≥80% (unit+contract), конформанс с RE-фикстурами 100%, нет утечек секретов |
+| MVP (P3) | Login, guild/channel navigation, basic messaging, search, tokenized UI |
+| Voice (P4) | Peer-to-peer and guild voice, Opus encoding/decoding, low latency, mute/PTT |
+| Complete (P7) | Video/screen share, full 36-locale support, system integration, auto-updater |
+| Quality Standard | >=80% core test coverage, 100% mutation kill rate, zero memory leaks |

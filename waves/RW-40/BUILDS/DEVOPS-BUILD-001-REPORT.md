@@ -5,7 +5,7 @@
 - **Дата и окно:** 2026-10-30, 19:55–20:25 +05:00.
 - **HEAD:** `4e240481e59ff4d49732ac8bd5ba08a006363748` («RW-40: integrate Discord GUI spike, dispatch, paging and QA evidence», committer date 2026-10-24T16:22:06+05:00).
 - **Рабочее дерево:** грязное — 50 изменённых отслеживаемых файлов и 145 неотслеживаемых (см. §6, D-1).
-- **Режим:** продуктовый код, тесты и golden-каталоги только чтение. Сборка шла в `/tmp/opencode` и `/home/sanya/.cache/build001-target`; `git commit/push` не выполнялся. Созданы этот отчёт и каталог `BUILDS/logs/` с логами прогонов.
+- **Режим:** продуктовый код, тесты и golden-каталоги только чтение. Сборка шла в `/tmp/opencode` и `/home/user/.cache/build001-target`; `git commit/push` не выполнялся. Созданы этот отчёт и каталог `BUILDS/logs/` с логами прогонов.
 - **Артефакты прогонов:** `waves/RW-40/BUILDS/logs/` (`quick-ci-build-001.log`, `meta-full-build-001.log`, `unit-sets-build-001.log`, `gate-worker-build-001.log`, `cargo-contracts-build-001.log`, `rebuild-release.log`, `rebuild-from-head.log`), `.gate/worker-2026-10-30T15-19-12-481Z.json`.
 
 ## 1. Вердикт
@@ -128,7 +128,7 @@
 
 ### 5.2. Найденные расхождения в логах
 
-1. **Логи указывают на другой корень репозитория.** `waves/RW-40/QUALITY/gate-worker-wave9.log` и соседние ссылаются на `/home/sanya/orca/project/.gate/worker-2026-10-30T14-36-10-163Z.json`, тогда как сборка идёт в `/home/sanya/orca/workspaces/project/testing`. Префикс `/home/sanya/orca/project` встречается 4607 раз в `waves/`, `docs/`, `tests/` (`plan-sync.test.mjs:137`, `test-policy.test.mjs:139` и др.). По этим путям артефактов гейта в текущем дереве нет.
+1. **Логи указывают на другой корень репозитория.** `waves/RW-40/QUALITY/gate-worker-wave9.log` и соседние ссылаются на `/home/user/orca/project/.gate/worker-2026-10-30T14-36-10-163Z.json`, тогда как сборка идёт в `/home/user/orca/workspaces/project/testing`. Префикс `/home/user/orca/project` встречается 4607 раз в `waves/`, `docs/`, `tests/` (`plan-sync.test.mjs:137`, `test-policy.test.mjs:139` и др.). По этим путям артефактов гейта в текущем дереве нет.
 2. **`.gate/` в `testing` отсутствовал до этого прогона** — единственный отчёт гейта теперь `worker-2026-10-30T15-19-12-481Z.json`. Каталог в `.gitignore`, поэтому в репозиторий не попадает; при продвижении отчёт нужно приложить к PR/волне вручную.
 3. **Ссылки на `/tmp` мертвы.** `waves/window-runs.jsonl` (13 записей) ссылается на PNG-снимки в `/tmp`; на месте 5 из 13, остальные 8 отсутствуют. Сами записи содержат метрики (`chatRenderedRows 30`, `memberRenderedRows 22`, `settingsToggles 38`), но доказательство окна недолговечно.
 4. **Smoke skip — не «зелёно».** `gate:worker` пропустил 1 smoke-тест: «полный реальный voice-лог: stdout и CSV совпадают с независимым оракулом» — нет `logs/calls-voice-28170.jsonl`. Причина: golden-каталоги `/logs/`, `/functions/`, `/evidence/` в этом workspace отсутствуют (в `.gitignore`, в дерево не попадают). Это ровно тот случай, когда «пропуск прохождением не считается», и он попал в вердикт `passed_with_skips`, а не `passed`.
@@ -149,7 +149,7 @@
 | D-8 | P1 | CI не запускается на `testing`/`beta` | `.github/workflows/ci.yml` | Добавить ветки или гонять `scripts/ci.sh` перед промоушеном вручную |
 | D-9 | P1 | Golden-каталоги отсутствуют, smoke skip 1, golden-фаза может молча пройти | §5.2.4–5 | Подложить golden-данные на машину сборки; для release/qualify считать отсутствие манифеста `unmet` |
 | D-10 | P2 | Версия 0.1.0 занята тегом `v0.1.0` (коммит `4188bd0`) | `git rev-list --count v0.1.0..HEAD` = 24 | Поднять версию до 0.2.0 перед тегом |
-| D-11 | P2 | Логи ссылаются на старый корень `/home/sanya/orca/project` и на удалённые `/tmp`-файлы | §5.2.1, §5.2.3 | Нормализовать пути в логах, складывать снимки в `waves/` |
+| D-11 | P2 | Логи ссылаются на старый корень `/home/user/orca/project` и на удалённые `/tmp`-файлы | §5.2.1, §5.2.3 | Нормализовать пути в логах, складывать снимки в `waves/` |
 | D-12 | P2 | `discord-rs --version` печатает баннер P0, а не версию | §3.1 | Добавить `--version` с semver — иначе проверка «версия = тег» невозможна |
 | D-13 | P2 | `cargo-deny` не проверялся, `npm ci` не прогонялся | §2 | Прогнать на CI-раннере (`scripts/ci.sh --online`) |
 
@@ -265,7 +265,7 @@ git push origin :refs/tags/v0.2.0
 ## 11. Приложение: воспроизведение проверок
 
 ```sh
-cd /home/sanya/orca/workspaces/project/testing
+cd /home/user/orca/workspaces/project/testing
 node --test tests/meta/test-policy.test.mjs tests/meta/ipc-path.test.mjs tests/meta/plan-sync.test.mjs
 npx tsc -p tsconfig.json && npx tsc -p rust/gui-spike/ui/tsconfig.json
 npm run gate:worker

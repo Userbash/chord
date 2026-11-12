@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # GREEN-прогон RW-07 (ТЗ §5): тесты, ×5, clippy, fmt. Полный лог — green.log, шаги с `# EXIT=`.
 set -u
-cd /home/sanya/orca/project/rust || exit 1
+cd /home/user/orca/project/rust || exit 1
 L=/tmp/opencode/rw-07/green.log
 : > "$L"
 step() {

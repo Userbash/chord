@@ -16,9 +16,9 @@
 
 | Источник | Что взять |
 |---|---|
-| `/home/sanya/re-deep/ui/00-app.png`, `05-dm-list.png`, `06-profile-popout.png`, `07-guild-menu.png` | замеры: rail/tree/header/composer/members, цвета |
-| `/home/sanya/re-deep/ui8/*` (JPG/HTML/JSON) | поиск, фильтры, эмодзи, настройки, участники |
-| `/home/sanya/re-deep/ui/tokens.json` | 4795 CSS-переменных, тема dark, сборка 1.0.162 |
+| `reference-oracle/ui/00-app.png`, `05-dm-list.png`, `06-profile-popout.png`, `07-guild-menu.png` | замеры: rail/tree/header/composer/members, цвета |
+| `reference-oracle/ui8/*` (JPG/HTML/JSON) | поиск, фильтры, эмодзи, настройки, участники |
+| `reference-oracle/ui/tokens.json` | 4795 CSS-переменных, тема dark, сборка 1.0.162 |
 | `waves/RW-37/RE/layout.json` | schema `rw37/re-layout-v1` (уже проверен) |
 | `docs/re/frontend-d03.md` | контракты компонент |
 | `waves/RW-39/DESIGN/SPEC.md`, `tokens.css` | уже принятые числа (сверить, не противоречить) |

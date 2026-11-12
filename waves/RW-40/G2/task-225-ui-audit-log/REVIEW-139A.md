@@ -1,7 +1,7 @@
 # REVIEW-139A — PR-110 / task-225 (FE-P2-24, журнал аудита)
 
 Ревьюер: Technical Reviewer (DeepSeek). Режим: TOKEN-LEAN, без `gate:worker`/`cargo`,
-только targeted-тест модуля. Артефакт: `/home/sanya/orca/workspaces/project/feature-task-225-ui-audit-log`.
+только targeted-тест модуля. Артефакт: `/home/user/orca/workspaces/project/feature-task-225-ui-audit-log`.
 
 ## Verdict: APPROVED
 

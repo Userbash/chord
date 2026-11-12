@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // RE-исследование для карточки P4-03 (SRTP): разбор медиапакетов из strace-дампа.
-// Только чтение: /home/sanya/re-deep/voice/strace-media-s3.jsonl.
+// Только чтение: /home/user/clean-room-oracle/voice/strace-media-s3.jsonl.
 //
 // usage: node media-packet-layout.mjs [jsonl]
 import { readFileSync } from "node:fs";
 
-const file = process.argv[2] ?? "/home/sanya/re-deep/voice/strace-media-s3.jsonl";
+const file = process.argv[2] ?? "/home/user/clean-room-oracle/voice/strace-media-s3.jsonl";
 const rows = readFileSync(file, "utf8").trim().split("\n").map((l) => JSON.parse(l));
 
 const media = rows.filter((r) => r.len > 12 && !(r.len === 74 && r.hex.startsWith("0001")));

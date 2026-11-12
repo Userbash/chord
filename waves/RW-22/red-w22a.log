@@ -1,4 +1,4 @@
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 error[E0432]: unresolved imports `super::Catalog`, `super::I18n`, `super::Value`
   --> crates/discord-i18n/src/lib.rs:54:21
    |

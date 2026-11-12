@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/task-612-create-guild-wizard/tests/unit/create-guild-wizard.test.mjs:20
+file:///home/user/orca/workspaces/project/task-612-create-guild-wizard/tests/unit/create-guild-wizard.test.mjs:20
   CREATE_GUILD_TEMPLATES,
   ^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/create-guild.js' does not provide an export named 'CREATE_GUILD_TEMPLATES'

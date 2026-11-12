@@ -14,10 +14,10 @@
 | 2 | `npm run typecheck && npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` | `PASS` | TypeScript typecheck пройден без ошибок |
 | 3 | `npm run test:meta` | `PASS` | 102 passed, 0 failed, 17 suites |
 | 4 | `node --test tests/unit/test-impact.test.mjs tests/unit/dispatch_ui.test.mjs tests/unit/app-shell-wiring.test.mjs tests/unit/composer-popovers-bridge.test.mjs tests/unit/voice-diagnostics.test.mjs tests/unit/voice-ui.test.mjs tests/unit/reactions.test.mjs` | `PASS` | 261 passed, 0 failed, 38 suites |
-| 5 | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test ipc_wiring_contract --test bff_domains_router_contract --test voice_stage_contract --test voice_diagnostics_contract` | `PASS` | 48 passed, 0 failed (`bff`: 10, `ipc`: 9, `voice_diag`: 21, `voice_stage`: 8) |
-| 6 | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test dispatch_types` | `PASS` | 4 passed, 0 failed |
-| 7 | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice --lib` | `PASS` | 36 passed, 0 failed |
-| 8 | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-platform --test safe_storage_contract` | `PASS` | 13 passed, 0 failed, 1 ignored (live-keyring) |
+| 5 | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test ipc_wiring_contract --test bff_domains_router_contract --test voice_stage_contract --test voice_diagnostics_contract` | `PASS` | 48 passed, 0 failed (`bff`: 10, `ipc`: 9, `voice_diag`: 21, `voice_stage`: 8) |
+| 6 | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test dispatch_types` | `PASS` | 4 passed, 0 failed |
+| 7 | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice --lib` | `PASS` | 36 passed, 0 failed |
+| 8 | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-platform --test safe_storage_contract` | `PASS` | 13 passed, 0 failed, 1 ignored (live-keyring) |
 
 ## Вердикт
 **QA Passed — Ready for Beta**

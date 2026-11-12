@@ -1,15 +1,15 @@
 # final source: reactions.rs md5 1cb0952e95d5c237add7b4b16332bcb2
 # commit: 38f7b5c
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --lib
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --lib
     Updating crates.io index
      Locking 4 packages to highest compatible versions
       Adding jobserver v0.1.35
       Adding zstd v0.14.3
       Adding zstd-safe v8.2.0
       Adding zstd-sys v2.1.2+zstd.1.5.7
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-177-reactions-put-empty-body/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.57s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-0f0450519753feb0)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-0f0450519753feb0)
 
 running 17 tests
 test attachments::tests::entity_too_large_code_reads_body_code ... ok
@@ -32,7 +32,7 @@ test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
 
 test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/reactions_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/reactions_contract-6afcd55b7e97d5ea)
+     Running tests/reactions_contract.rs (/home/user/orca/project/rust/target/debug/deps/reactions_contract-6afcd55b7e97d5ea)
 
 running 16 tests
 test emoji_path_uses_percent_encoding_without_plain_unicode ... ok

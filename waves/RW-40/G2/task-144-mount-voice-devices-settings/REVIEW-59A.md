@@ -3,12 +3,12 @@
 - **Ревьюер**: Технический ревьюер (`Review 59A`)
 - **Карточка / Задача**: `task-144` (`FE-P0-02: Mount createVoiceDevicesSettingsController in settings.js`)
 - **Волна / Отдел**: `RW-40` / `G2 Frontend`
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-144-mount-voice-devices-settings` (`HEAD = 4e24048`)
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-144-mount-voice-devices-settings` (`HEAD = 4e24048`)
 - **Проверенные артефакты и спецификации**:
-  - `/home/sanya/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/REPORT.md`
-  - `/home/sanya/orca/project/waves/RW-40/DESIGN/VOICE-DEVICES-SETTINGS-SPEC.md` (§1–§6)
-  - `/home/sanya/orca/project/waves/RW-40/DESIGN/VOICE-STREAM-UI-SPEC.md` (§3.2)
-  - `/home/sanya/orca/project/waves/RW-40/DESIGN/voice-spec.json`
+  - `/home/user/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/REPORT.md`
+  - `/home/user/orca/project/waves/RW-40/DESIGN/VOICE-DEVICES-SETTINGS-SPEC.md` (§1–§6)
+  - `/home/user/orca/project/waves/RW-40/DESIGN/VOICE-STREAM-UI-SPEC.md` (§3.2)
+  - `/home/user/orca/project/waves/RW-40/DESIGN/voice-spec.json`
   - `rust/crates/discord-voice/src/devices.rs`
 - **Вердикт**: **PASS / Ready for Merge** (`P0 = 0`, `P1 = 0`, `P2 = 0`, `P3 = 2`)
 
@@ -49,10 +49,10 @@
 
 3. **TypeScript (`// @ts-check`)**:
    - `npx tsc -p rust/gui-spike/ui/tsconfig.json` → **0 ошибок** (`exit 0`).
-   - В `npx tsc -p tsconfig.json` по файлам `rust/gui-spike/ui/features/settings.js`, `rust/gui-spike/ui/features/voice-devices-settings.js` и `tests/unit/voice-devices-settings.test.mjs` — **0 ошибок** (единственные предупреждения в worktree от `4e24048` относятся к нетронутому чужому файлу `tests/unit/dispatch_ui.test.mjs`, который уже исправлен в `/home/sanya/orca/project/tests/unit/dispatch_ui.test.mjs`, см. `P3-2`).
+   - В `npx tsc -p tsconfig.json` по файлам `rust/gui-spike/ui/features/settings.js`, `rust/gui-spike/ui/features/voice-devices-settings.js` и `tests/unit/voice-devices-settings.test.mjs` — **0 ошибок** (единственные предупреждения в worktree от `4e24048` относятся к нетронутому чужому файлу `tests/unit/dispatch_ui.test.mjs`, который уже исправлен в `/home/user/orca/project/tests/unit/dispatch_ui.test.mjs`, см. `P3-2`).
 
 4. **Проверка Red-First артефактов**:
-   - Проверены `red.log` (`tests 23 | pass 17 | fail 6`, `exit 1` до реализации) и `green.log` (`tests 23 | pass 23 | fail 0`, `exit 0` после реализации) в `/home/sanya/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/`. Порядок Strict TDD соблюдён.
+   - Проверены `red.log` (`tests 23 | pass 17 | fail 6`, `exit 1` до реализации) и `green.log` (`tests 23 | pass 23 | fail 0`, `exit 0` после реализации) в `/home/user/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/`. Порядок Strict TDD соблюдён.
 
 ---
 
@@ -74,7 +74,7 @@
 
 ## 4. Мутационное тестирование (Шаг 3: M1..M5)
 
-Выполнены 5 независимых мутаций в `rust/gui-spike/ui/features/settings.js` и `rust/gui-spike/ui/features/voice-devices-settings.js`. Лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/review-59a-mutations.log`.
+Выполнены 5 независимых мутаций в `rust/gui-spike/ui/features/settings.js` и `rust/gui-spike/ui/features/voice-devices-settings.js`. Лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-144-mount-voice-devices-settings/review-59a-mutations.log`.
 
 | ID | Файл | Описание мутации | MD5 мутанта | Код выхода | Статус | Убивший тест / Assertion |
 |---|---|---|---|---:|---|---|
@@ -96,7 +96,7 @@
 - **P2 (Существенные недочёты)**: 0
 - **P3 (Некритические рекомендации / косметика)**:
   1. **P3-1 (`voice-devices-settings.js:932-982`, очистка слушателей на постоянных `controls` при `destroy()`)**: в режиме `boundMode` обработчики событий (`change`, `input`, `click`), навешанные на долгоживущие DOM-узлы вкладки (`voiceInputSelect`, `voiceOutputSelect`, `voiceVideoSelect`, `voiceInputVolumeRange`, `voiceOutputVolumeRange`, `voicePttToggle`, `voiceMicTestButton`), при вызове `destroy()` блокируются проверкой `if (destroyed) return;`, но сами функции-слушатели не снимаются через `removeEventListener` / `AbortController`. На функциональность и тесты это не влияет (побочных вызовов нет), однако при дальнейшем рефакторинге рекомендуется передавать `{ signal: abortController.signal }` в `addEventListener` и вызывать `abortController.abort()` в `destroy()`.
-  2. **P3-2 (`tests/unit/dispatch_ui.test.mjs` в базовом коммите `4e24048`)**: в локальном worktree карточки присутствует до-базовая версия чужого файла `tests/unit/dispatch_ui.test.mjs` с 16 предупреждениями `TS7006`/`TS2339`, которая уже исправлена в основном дереве `/home/sanya/orca/project/tests/unit/dispatch_ui.test.mjs`. В файлах самой карточки `task-144` и в `rust/gui-spike/ui/tsconfig.json` ошибок типизации `0`.
+  2. **P3-2 (`tests/unit/dispatch_ui.test.mjs` в базовом коммите `4e24048`)**: в локальном worktree карточки присутствует до-базовая версия чужого файла `tests/unit/dispatch_ui.test.mjs` с 16 предупреждениями `TS7006`/`TS2339`, которая уже исправлена в основном дереве `/home/user/orca/project/tests/unit/dispatch_ui.test.mjs`. В файлах самой карточки `task-144` и в `rust/gui-spike/ui/tsconfig.json` ошибок типизации `0`.
 
 ---
 

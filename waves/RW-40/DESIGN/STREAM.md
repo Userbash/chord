@@ -14,7 +14,7 @@
 | `[T]` | значение токена проекта | `rust/gui-spike/ui/tokens.css` = `waves/RW-39/DESIGN/tokens.css` |
 | `[L]` | подтверждено **живым** захватом | `docs/re/voice-deep.md`, `voice/rtc*-frames.jsonl`, `discord-run3.log`, `NETWORK-CONTRACTS.md` §3 |
 | `[S]` | подтверждено **кодом клиента** / протоколом | `NETWORK-CONTRACTS.md` §3 (call-site бандла, опкоды) |
-| `[M]` | измерено на пикселях | `/home/sanya/re-deep/voice/ui/01-joined.png` (2560×1383 @ dpr 1.25 = 2048×1106 CSS), замер воспроизведён `PM/s-design/measure.py` |
+| `[M]` | измерено на пикселях | `reference-oracle/voice/ui/01-joined.png` (2560×1383 @ dpr 1.25 = 2048×1106 CSS), замер воспроизведён `PM/s-design/measure.py` |
 | `[D]` | факт дампа (DOM/JSON/строки/имена native API), не сеть | `voice/ui/*`, `voice/ui-s2/*`, `ui8/23-settings-voice.json`, `ru-catalog.json`, `native-re/voice-features.txt` |
 | `[A]` | наше решение / не подтверждено | этот документ; требуется подтверждение PM до реализации |
 | `[F]` | заморожено тестами | `ui/model.js`, `tests/unit/gui-*.test.mjs` |

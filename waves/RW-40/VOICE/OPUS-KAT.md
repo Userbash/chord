@@ -36,7 +36,7 @@ RW-35/36 и `rust/gui-spike/**` не трогались).
 | H-8 | `opus-tools`/`alsa-utils` | `opusenc`/`opusdec`/`arecord`/`aplay` отсутствуют | `[H]` |
 | H-9 | ALSA `default` | `/etc/alsa/conf.d/99-pipewire-default.conf`: `pcm.!default { type pipewire }` → «ALSA default» на этом хосте **и есть PipeWire**, а не железо | `[H]` |
 | H-10 | Portal-аудио | интерфейсов `org.freedesktop.portal.Audio*` нет (0 файлов из 56) ⇒ **портального consent на микрофон не существует**; портал покрывает экран/камеру/глобальные хоткеи | `[H]` |
-| H-11 | Права на PCM | `getfacl /dev/snd/pcmC2D0c` → `user:sanya:rw-`; `id -nG` = `sanya ollama wheel` (без `audio`) | `[H]` |
+| H-11 | Права на PCM | `getfacl /dev/snd/pcmC2D0c` → `user:developer:rw-`; `id -nG` = `developer ollama wheel` (без `audio`) | `[H]` |
 | H-12 | Линты | `discord-voice`/`discord-media` — `unsafe_code = "forbid"`; `discord-platform` — `deny` + `#[allow(unsafe_code)]` на модуль (как `ffi_hunspell`, `ffi_secret`) | `[H]` |
 | H-13 | `discord-voice` зависит только от `discord-json`; `discord-platform` — только от `libc`; `discord-media` — без зависимостей | `[H]` |
 | H-14 | `docs/rust-client/UNSAFE-REGISTRY.md` отсутствует; `discord-platform/Cargo.toml` не имеет `[features]`; `discord-media` не заявлен в `[workspace.dependencies]` | `[H]` |
@@ -443,7 +443,7 @@ ALSA-плагин PipeWire (S3). Это снимает из критическо
 
 | Предпосылка | Факт | Что делать |
 |---|---|---|
-| Права на PCM | ACL `user:sanya:rw-` на `pcmC2D0c` (H-11), группы `audio` нет | ничего; но полагаться на группу нельзя — проверять код ошибки `open`, а не «моя группа» |
+| Права на PCM | ACL `user:developer:rw-` на `pcmC2D0c` (H-11), группы `audio` нет | ничего; но полагаться на группу нельзя — проверять код ошибки `open`, а не «моя группа» |
 | Формат | S16_LE / 48000 / mono | `snd_pcm_set_params(..., soft_resample=1, latency_us=20000)`; если устройство не поддерживает — `DeviceUnavailable` (не «конвертируем втихую») |
 | Ровно 960 | `readi` вправе вернуть меньше | аккумулятор 960 с `checked` счётчиком; недобор → ждать, перебор → ошибка контракта |
 | xrun | `-EPIPE`/`-ESTRPIPE` | `snd_pcm_recover` + счётчик; 3 подряд → `DeviceUnavailable` |

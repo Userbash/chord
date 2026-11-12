@@ -7,7 +7,7 @@ dispatch, paging and QA evidence`).
 ## Что сделано
 
 Разбор и нормализация 7 фильтров оверлея поиска приведены к подтверждённой
-таблице `queryKey` из `waves/RW-40/RE-DEEP-REA.md` §2.3–2.4.
+таблице `queryKey` из `waves/RW-40/reference-oracle-REA.md` §2.3–2.4.
 
 `rust/gui-spike/ui/features/search.js` — чистый слой без DOM и сети:
 

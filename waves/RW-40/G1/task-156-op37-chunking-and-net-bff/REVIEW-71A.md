@@ -1,14 +1,14 @@
 # REVIEW-71A — task-156 (`BE-P1-01` / `F-GW-05`: OP 37 15 360 B Chunking & 30 Forwarded Dispatches / BFF Gateway Helpers)
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер (Review 71A).
-Ветка: `feature/task-156-op37-chunking-and-net-bff`, worktree `/home/sanya/orca/workspaces/project/feature-task-156-op37-chunking-and-net-bff`.
+Ветка: `feature/task-156-op37-chunking-and-net-bff`, worktree `/home/user/orca/workspaces/project/feature-task-156-op37-chunking-and-net-bff`.
 HEAD: `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 Файлы на ревью:
 - `rust/crates/discord-core/src/gateway.rs`
 - `rust/gui-spike/src/net.rs`
 - `rust/gui-spike/tests/net_contract.rs`
 
-Отчёт воркера: `/home/sanya/orca/project/waves/RW-40/G1/task-156-op37-chunking-and-net-bff/REPORT.md`.
+Отчёт воркера: `/home/user/orca/project/waves/RW-40/G1/task-156-op37-chunking-and-net-bff/REPORT.md`.
 
 ---
 
@@ -66,17 +66,17 @@ P0 = 0, P1 = 0, P2 = 0, P3 = 0.
 
 ## 4. Прогоны тестов
 
-Все команды выполнялись с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+Все команды выполнялись с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 
 1. **`discord-core --lib gateway`:**
    ```sh
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --lib gateway
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --lib gateway
    ```
    **Результат:** `12 passed; 0 failed; 0 ignored; finished in 0.01s` (EXIT=0).
 
 2. **`discord-gui-spike --test net_contract`:**
    ```sh
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test net_contract
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test net_contract
    ```
    **Результат:** `32 passed; 0 failed; 0 ignored; finished in 0.07s` (EXIT=0).
 

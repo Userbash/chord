@@ -1,348 +1,168 @@
-# Эталонный метод написания кода discord-lab
+# Standard Engineering Methodology (discord-lab)
 
-Статус: рабочий стандарт проекта, введён после RW-15 (P2-04). Он не заменяет `AGENTS.md` и
-`PROCESS.md`, а фиксирует **как именно** мы пишем код, чтобы результат был повторяемым,
-проверяемым и безопасным. Стандарт живой: после каждой волны он дополняется уроками.
+Status: Active engineering standard, introduced following wave RW-15 (P2-04). It complements `AGENTS.md` and `PROCESS.md` by establishing **precisely how** we author code to ensure repeatable, verifiable, and secure deliverables. This standard is continuously refined: verified learnings from each wave are codified in §9.
 
-## 1. Что считается эталонным методом
+## 1. Core Engineering Methodology
 
-Эталонный метод — это не «красивый код» и не набор догм. Это короткий цикл, в котором
-**контракт, доказательство и эксплуатационные свойства** важнее скорости написания:
+The standard method prioritizes **contracts, verifiable proof, and operational characteristics** over raw typing speed:
 
-```
-research (факты) → frozen contract → oracle tests → red → minimal green
-      → adversarial/mutation → batch gate → independent review → re-gate (if fixes)
-      → accepted → journal → lessons
+```text
+research (facts) -> frozen contract -> oracle tests -> red -> minimal green
+      -> adversarial/mutation -> batch gate -> independent review -> re-gate (if fixes)
+      -> accepted -> journal -> lessons
 ```
 
-Код считается готовым не тогда, когда он компилируется, а когда:
-1. его поведение предсказано независимым оракулом (артефакт, `jq`, протокол, стаб);
-2. красный тест действительно падал по нужной причине;
-3. ошибки и границы не глотаются;
-4. batch-гейт прошёл до ревью, а ревьюер, не автор, проверил P0/P1/P2;
-5. после red-first фиксов гейт и журнал волны воспроизводят результат.
+Code is complete not merely when it compiles, but when:
+1. Behavior is predicted by an independent oracle (artifact, `jq`, wire capture, mock server).
+2. The initial red test verifiably failed for the exact intended behavioral reason.
+3. Errors, capacity limits, and edge conditions are handled deterministically without silent fallbacks.
+4. The unified batch gate passes prior to code review, and an independent reviewer confirms zero P0/P1/P2 defects.
+5. All regression fixes are authored red-first and fully reproducible in the wave journal.
 
-### 1.1 Параллельная волна без гонок
+### 1.1 Parallel Waves Without File Contention
 
-Скорость даёт не «больше агентов», а **непересекающиеся множества файлов** и заранее
-замороженные контракты:
+Development velocity stems from **disjoint file write-scopes** and pre-frozen contracts rather than uncoordinated agent concurrency:
 
-1. Координатор делает research и фиксирует DESIGN/TZ, включая точный список файлов.
-2. Воркеры W<a>/W<b>/W<c> пишут каждый свои файлы; общий парсер/типы меняет только один
-   воркер, остальные используют уже объявленный контракт.
-3. Независимый ревьюер и агент мутаций работают read-only/на копии; они не «улучшают»
-   код параллельно с автором.
-4. Координатор сводит отчёты, запускает targeted → core → workspace → batch gate, затем
-   два независимых ревьюера проверяют batch; findings P0/P1/P2 закрываются red-first и
-   ведут к повторному gate.
-5. Документы и журнал обновляются после accepted, а не во время red-фазы.
+1. The coordinator conducts research and freezes DESIGN/TZ specifications, defining exact file scopes.
+2. Worker agents W<a> / W<b> / W<c> modify strictly their assigned files; shared core parsers/types are modified by a single designated agent.
+3. Independent reviewers and mutation testing agents operate in read-only sandboxes on local copies without modifying active code files.
+4. The coordinator unifies reports, runs targeted -> core -> workspace -> batch gates, and dispatches parallel code reviews; P0/P1/P2 findings are resolved red-first and trigger a fresh gate run.
+5. Documentation and state ledgers are updated once following formal acceptance.
 
-Правило: **параллелить можно исследование, тесты разных модулей и ревью; нельзя
-параллелить правки одного файла или контракта.**
+Rule: **Research, independent module tests, and reviews may run in parallel; concurrent edits to the same source file or contract are strictly prohibited.**
 
-### 1.2 Batch-конвейер и экономия прогонов (2026-10-20)
+### 1.2 Batch Pipeline and Compilation Conservation
 
-- Волна = 3–6 карточек, а не одна. Общий integration-патч и один batch gate.
-- Воркер запускает только targeted-тесты своего модуля; полный `cargo test --workspace`,
-  `clippy`, `fmt` и `gate:worker` — один раз на batch в integration-лейне.
-- Не запускать несколько `cargo` одновременно: они блокируют общий target-dir. Cargo-слоты —
-  последовательные; писать код и тесты можно параллельно, прогонять — по очереди.
-- Review идёт **после** batch gate, параллельно по карточкам; автор не ревьюит свой код.
-- Документы и `waves/*` обновляются один раз после accepted, а не в red-фазе.
-- Pipeline важнее числа агентов: пока B(n) пишется, B(n−1) ревьюится, B(n−2) документируется.
-- Бюджет тестов — `TEST-PLAN.md` §1.1; исключения объясняются, а не маскируются.
+- Waves group 3–6 task cards under a single shared integration patch and batch gate.
+- Individual workers run only fast targeted tests for their assigned modules; full workspace tests, `clippy`, and `fmt` run once per integrated batch.
+- Concurrent cargo build processes on the same target directory are prohibited: builds serialize through workspace file locks.
+- Code review occurs **after** the batch gate passes; authors never review their own code.
+- Tracking documentation is updated once upon acceptance.
+- Staged pipeline: while Batch B(n) is in coding, Batch B(n-1) undergoes review, and Batch B(n-2) completes acceptance.
 
-### 1.3 Mutation-driven convergence (введено после B03)
+### 1.3 Mutation-Driven Convergence
 
-Мутация — не финальная формальность, а **итеративный критерий точности**. Цикл:
+Mutation testing serves as an **iterative precision mechanism**:
 
-1. Для каждого контракта выписать классы мутаций: граница (`>`/`>=`, длина, лимит),
-   отрицание (`==`/`!=`), подмена ветки (fallback/default), удаление проверки, утечка
-   (`Debug`/`Display`), порядок/tie-break, единица измерения/формат.
-2. Сломать **одну** ветку, прогнать targeted-тест. Упал — зафиксировать лог и восстановить
-   файл; не упал — сначала усилить тест (добавить вход, различающий поведение), затем
-   повторить. Менять продукт «под мутацию» запрещено.
-3. Повторять, пока все запланированные классы не будут caught. Для L/XL — 8–12 мутаций,
-   для M — 5–8, для S — 3–5; критическая ветка — 100 %.
-4. После restore — `touch` файла/`cargo clean -p`, иначе cargo может переиспользовать
-   мутированный rlib; зелёный прогон после restore обязателен.
-5. Останавливаться не по числу мутаций, а по **покрытию классов** и совпадению с RE-оракулом.
-   Выжившая мутация — это найденная дыра в тесте или контракте, а не «шум».
+1. Define fault classes for each contract: boundary operators (`>` <-> `>=`), boolean inversion (`==` <-> `!=`), fallback substitutions, guard removals, credential leakage in formatters, tie-breaking ordering, and unit conversions.
+2. Inject a single fault and execute targeted tests. If the test fails, record the failure log and immediately restore the source file. If the test passes, the mutation survived: strengthen the test assertions until the mutant is killed. Never modify production code to adapt to a mutation.
+3. Iterate until 100% of planned fault classes on critical paths are killed.
+4. Invalidate cached compilation artifacts (`touch` or `cargo clean -p`) following file restoration.
+5. Surviving mutations represent genuine test gaps or dead code rather than background noise.
 
-Параллельность: мутации разных крейтов можно готовить параллельно, но cargo-прогоны —
-последовательно под общим `flock`; автор не ревьюит свои мутации, независимый агент
-проверяет, что лог падает по заявленной причине.
+## 2. Architectural Layers and Boundaries
 
-## 2. Слои и границы
+The project enforces **"Pure Functional Core, Imperative Shell"**:
 
-Проект придерживается правила **«чистое ядро — эффекты снаружи»**:
+- `discord-core`: Strongly typed domain models, wire parsers, pure state reducer `(State, Event) -> (State, Effects)`, selectors; zero network, filesystem, or UI dependencies.
+- `discord-net` / `ws`: Network transports, timeouts, bounded queues, cancellation tokens; isolated from UI.
+- `discord-ui`: Reads state snapshots and dispatches typed intents; never blocks on I/O.
+- Network I/O, disk storage, audio/video pipelines, and CPU-intensive parsing execute asynchronously on dedicated worker threads.
+- Undocumented Discord behaviors are never invented: define an interface, `Effect`, or stub until cleanroom captures confirm wire payloads.
 
-- `discord-core` — типы, парсеры, чистый reducer `(State, Event) -> (State, Effects)`,
-  селекторы; без сети, сна, UI и глобального состояния.
-- `discord-net`/`ws` — транспорт, таймауты, bounded-очереди, отмена; не знает UI.
-- `discord-ui` — только чтение состояния и отправка намерений; не блокирует поток.
-- Сеть, диск, медиа и CPU-работа — асинхронно/в отдельном пуле; UI не ждёт I/O.
-- Неизвестное поведение Discord не изобретается: сначала интерфейс/`Effect`/стаб, затем
-  capture и реализация. Пример: op37/op14 остался `Effect::SubscribeMembers`, пока нет
-  подтверждённого payload.
+Dependency Invariant: **Outer layers depend on inner layers; inner layers have zero knowledge of outer layers.** Parsers never make network calls; reducers never write to disk; selectors never mutate state.
 
-Правило зависимости: **внешний слой знает о внутреннем, внутренний — нет**. Парсер не
-вызывает сеть; reducer не логирует в файл; селектор не мутирует состояние.
+## 3. Contract Before Code
 
-## 3. Контракт до кода
+Prior to authoring production implementation, the following are formally frozen:
+- Public types and function signatures in `DESIGN-*.md`.
+- State invariants: ordering, offset shifts, resets, and last-wins reconciliation.
+- Error taxonomy: fatal, `malformed`, `ignored`, `inconsistencies`, and `duplicates`.
+- Scope boundaries and external dependency requirements.
+- Verification oracles: exact cleanroom files, line numbers, commands, and expected values.
 
-До первой строки продукта фиксируются:
+## 4. Honest Test-Driven Development (TDD)
 
-- публичные типы и сигнатуры (в `DESIGN-*.md`);
-- ключи состояния и инварианты (порядок, сдвиги, reset, last-wins);
-- политика ошибок: fatal / `malformed` / `ignored` / `inconsistencies` / `duplicates`;
-- границы scope и blocked-items;
-- оракулы: файл, строка, команда, ожидаемое число.
+1. **Red Phase:** The test fails with a verifiable assertion failure. Compilation failures are acceptable for newly declared interfaces but must transition to behavioral assertion failures.
+2. **Green Phase:** Author the minimal implementation required to pass the test; avoid speculative refactoring.
+3. **Adversarial Phase:** Validate boundary conditions: empty inputs, duplicate records, out-of-range indices, stale sequences, unknown opcodes, integer overflow, and replayed events.
+4. **Mutation Phase:** Invalidate a critical check (e.g. remove duplicate detection) and verify that the test fails. If it passes, the test suite is insufficient.
+5. **Review Phase:** Independent review; P0/P1/P2 defects are resolved red-first.
 
-Контракт не «подгоняется» под реализацию. Если артефакт противоречит документации, прав
-артефакт; противоречие фиксируется в research, а не замалчивается. Пример RW-15: `005/006`
-имеют отрицательный `guild_id` старого big-int декодера; исходные файлы отвергаются, shape
-проверяется на копии с исправленным только `guild_id`.
+Tests must verify against an **independent oracle** rather than current code output. Modifying test expectations to match faulty code is strictly forbidden.
 
-## 4. TDD без самообмана
+## 5. Error Handling, Diagnostics, and Security
 
-1. **Red** — тест падает по ожидаемой причине. Для нового API допустим compile-red, но это
-   ограничение надо честно записать; поведенческий red предпочтительнее.
-2. **Green** — минимальный код, без «заодно отрефакторю весь модуль».
-3. **Adversarial** — после green проверяются границы: пустой вход, дубликат, выход за
-   диапазон, stale, неизвестный op, отрицательный/overflow id, повтор события.
-4. **Mutation** — вручную или агентом ломается одна критическая ветка (например, снимается
-   проверка duplicate); тест обязан упасть. Если не упал — тест слабый, а не код хороший.
-5. **Review** — автор не ревьюит свой код; замечания P0/P1/P2 закрываются red-first, P3
-   можно закрыть отдельной итерацией.
+- Zero unhandled `unwrap()`, `expect()`, or `panic!` calls on external untrusted data; zero `unsafe` blocks without formal justification and security review.
+- Every error path must either influence output (return code, error counter, diagnostic event) or document why best-effort handling applies. Silent `let _ =` suppression is prohibited.
+- Structured diagnostics: `malformed`, `ignored`, `inconsistencies`, `duplicates`, `stale_sequences`. Diagnostic paths remain stable (e.g. `d.ops[0].item`) for automated assertions.
+- Credentials (`token`, `session_id`, `cookie`) must never appear in `Debug`, logs, or error responses; public IP addresses are masked as `<PUB_IP>`; raw binary payloads are logged as sha256 checksums.
+- Tests default to offline execution. Live network connections require explicit operator approval; missing environments produce explicit skips rather than false failures.
 
-Тест обязан сверяться с **независимым оракулом**, а не с текущей реализацией. Запрещено
-«зеленить» тест правкой ожидания под фактический вывод без объяснения в
-`TEST-CORRECTIONS.md`.
+## 6. Performance and Memory Safety
 
-## 5. Ошибки, диагностика, безопасность
+- State indices use `BTreeMap` and `Vec` to ensure deterministic iteration order; avoid non-deterministic hash maps on contractual boundaries.
+- Lazy collections are bounded by active viewport windows; the client never caches unbounded server rosters in memory.
+- Channel queues, ring buffers, and caches enforce strict capacity limits and timeouts; backpressure handling is built into the architecture.
 
-- В продукте нет `unwrap`/`expect`/`panic!` на внешних данных; нет `unsafe` без отдельного
-  обоснования и ревью.
-- Ошибка либо меняет результат (код/счётчик/диагностика), либо имеет явный комментарий,
-  почему она best-effort. Молчаливое `let _ =` запрещено.
-- Диагностика структурирована: `malformed`, `ignored`, `inconsistencies`, `duplicates`,
-  `stale_sequences`. Пути стабильны (`d.ops[0].item`), чтобы их можно было проверять тестом.
-- Секреты (`token`, `session_id`, `cookie`) не попадают в `Debug`, логи и ошибки; публичные
-  IP заменяются `<PUB_IP>`, бинарные кадры — sha256.
-- Тесты по умолчанию офлайн. Сеть/live Discord — только по согласованному окну; external
-  среда отсутствует → skip с причиной, а не падение.
-- Нельзя добавлять зависимости, менять `package.json`/`Cargo.toml`, ходить в сеть или
-  трогать golden-каталоги без разрешения координатора/владельца.
+## 7. Asynchronous I/O and GUI Threading
 
-## 6. Производительность и ресурсы
+- Zero blocking I/O calls on the main UI thread.
+- Events flow strictly through the reducer queue; UI components never mutate domain state directly.
+- Network operations enforce timeouts; retries are restricted to idempotent GET requests; HTTP 429 triggers `Retry-After` backoff; HTTP 401 invalidates session state.
+- CPU-intensive tasks (payload parsing, search indexing, cryptography) execute in background thread pools.
 
-- Состояние — `BTreeMap`/`Vec` с детерминированным порядком; никакого `HashMap` там, где
-  важен порядок/детерминизм тестов.
-- Ленивые списки ограничены окном; не хранить «весь Discord» в памяти.
-- Очереди, кэши и каналы — bounded; таймауты обязательны; отмена — часть контракта.
-- Не клонировать большие структуры без причины; но ясность важнее микрооптимизации.
-- Большой enum допустим, если окно ограничено; исключение фиксируется комментарием
-  (пример `MemberListEntry` в P2-04).
+## 8. Definition of Done (DoD) per Task Card
 
-## 7. Асинхронность и UI
+- [ ] Cleanroom research documented with verified oracle facts and dependency boundaries.
+- [ ] Interface contracts, data models, and file write-scopes frozen in design specifications.
+- [ ] Red test failure log captured with non-zero exit code and sha256 test file checksums.
+- [ ] Minimal green implementation passing targeted test suites.
+- [ ] Code compiles under `cargo fmt --all -- --check` and `clippy -D warnings`.
+- [ ] Mutation budget satisfied (100% killed on critical paths); sources restored to exact sha256.
+- [ ] Unified batch gate passes cleanly.
+- [ ] Independent code review completed with zero P0/P1/P2 defects.
+- [ ] Task report and test corrections recorded in wave artifacts.
+- [ ] Audit ledger updated in `waves/db.jsonl` and `waves/STATE.md`.
+- [ ] Key architectural lessons codified in §9.
 
-- Никакого блокирующего I/O в UI-потоке.
-- События идут через reducer/очередь; UI не мутирует состояние напрямую.
-- Сетевые операции — с timeout, retry только для идемпотентных GET, 429 → `Retry-After`,
-  401 → сессия протухла.
-- CPU-работа (декод больших payload, поиск, крипто) — в отдельном пуле/задаче.
-- Отмена и backpressure — не «после релиза»: bounded-очередь и явный `Cancelled`.
+## 9. Codified Learnings from Completed Waves
 
-## 8. Definition of Done для карточки
+### Wave RW-24 / Batch B05
+- **Oracles Overrule Stale Documentation:** Real runtime behavior (`Intl.PluralRules`) takes precedence over copied specification text when locale rules diverge.
+- **String Formatting Consistency:** Normalize whitespace variants (U+00A0 vs U+0020) at boundary renderers to ensure bit-exact oracle matches.
+- **Exact Plural Matching:** Always evaluate exact `=N` rules prior to applying variable offsets.
+- **AST Depth Bounds:** Validate tree recursion limits using structural AST counters rather than relying on absence of stack overflows.
 
-- [ ] research с подтверждёнными фактами и blocked-items;
-- [ ] заморожены DESIGN/TZ, границы файлов;
-- [ ] red-лог с exit code и md5 тестов;
-- [ ] green: targeted; core/workspace — на batch, не у каждого воркера;
-- [ ] `cargo fmt --all -- --check` и `clippy -D warnings` — чисто на batch;
-- [ ] мутации по бюджету (S 3–5, M 5–8, L 8–12) — caught, исходники восстановлены по md5;
-- [ ] batch gate (fmt/clippy/core/workspace/`gate:worker`) passed;
-- [ ] независимое ревью, P0/P1/P2 = 0; после red-first фиксов — повторный gate;
-- [ ] `waves/<ID>/REPORT.md`, `tests-final/MD5SUMS.txt`, `TEST-CORRECTIONS.md`;
-- [ ] события `review`/`gate`/`accepted` в `waves/db.jsonl`, обновлён `STATE.md`;
-- [ ] уроки волны добавлены в §9 этого документа (не более 3–5).
+### Wave RW-23 / Batch B04
+- **Accurate Packet Layer Naming:** Never label a composite transport packet (e.g. SRTCP with auth tag and counter) as a naked protocol payload without verifying wire layouts.
+- **Strict Encoder Validation:** Encoders must return typed `Result` errors on invalid IP addresses, buffer lengths, or reserved ports rather than silently truncating.
+- **Inbound Packet Verification:** Always validate source IP and SSRC before parsing UDP payload contents.
+- **Automated Typechecking in Gates:** Full static typechecking (`tsc`, `@ts-check`) must run in pre-gate integration to catch unhandled nulls and implicit any types.
 
-## 9. Уроки волн (живой журнал)
+### Wave RW-22 / Batch B03
+- **External Oracles Required:** Tests must assert against real cleanroom captures rather than round-tripping through internal writer/parser pairs.
+- **Targeted Fault Injections:** Ensure mutations trigger the specific behavioral path claimed in test reports.
+- **Distinct Fallback Catalogs:** Fallback localization tests require distinct source and target catalogs to avoid tautological passes.
+- **Reproduce Before Fixing:** Code review findings must be reproduced via failing regression tests before modifying production code.
+- **Masking is Part of the API:** `Debug` formatters for sensitive or unparsed network payloads must mask raw buffers.
 
-### RW-24 / B05
+### Wave RW-18 / P2-09
+- **Presence Scope Precedence:** Real-time online/idle status indicators take precedence over stale offline state.
+- **Boundary Diagnostics:** Malformed input must generate structured diagnostic events rather than being silently dropped by internal reducers.
+- **State Restoration Invalidation:** Invalidate cached compilation artifacts (`touch` / `cargo clean -p`) following source code file restoration.
 
-- **Оракул важнее устаревшего текста ТЗ.** В `TZ-W25a.md` осталось правило `he` `many`,
-  но Node 24 / ICU 78.3 / CLDR 48 возвращает для `he` только `one/two/other`; код и
-  `cldr-oracle.json` согласованы, ТЗ помечено уточнением. При конфликте проверяй реальный
-  `Intl.PluralRules`, а не копию правила из старого CLDR.
-- **`Intl.DateTimeFormat.format()` ≠ `formatToParts()` по пробелам.** `format()` нормализует
-  U+00A0/U+202F в U+0020, `formatToParts()` сохраняет literal. Если оракул снят через
-  `format()`, нормализация в рендерере обязательна; тест должен сравнивать именно тот API,
-  который использует продукт.
-- **Точный plural `=N` проверяется до `offset`.** Сначала `=N` по исходному значению, затем
-  `Intl.PluralRules.select(value - offset)`; иначе `offset=2, n=3` выбирает `=1` и теряет
-  точную ветвь. Это отдельный тест, а не следствие общего plural-теста.
-- **Bounded depth нужно проверять по AST, а не по отсутствию panic.** Для лимита списка
-  считать вложенные `List`-узлы: рендер 13 уровней выглядит как текст в обоих вариантах,
-  а мутация порога 11→12 ловится только структурным счётчиком.
-- **Ревью-репро может быть невалиден по контракту.** `</bad name:123>` похож на ошибку,
-  но `TZ-W25b` явно разрешает `</cmd arg:123>`; проверять надо charset/длину имени команды,
-  а не запрещать пробелы, иначе ломается принятый тест 23 правил.
+### Wave RW-17 / P2-07
+- **Field Existence vs Predicates:** The existence of a field (e.g. `badge_count = 0`) does not imply an active badge; filter by logical predicates (`> 0`).
+- **Semantic Field Isolation:** Never blend distinct entity identifiers (channel ack IDs vs user ack IDs) through indiscriminate fallbacks.
+- **Watermarks vs Stale Guards:** Distinguish monotonic version watermarks from entity-level message sequence guards.
 
-### RW-23 / B04
+### Wave RW-16 / P2-05
+- **Identical Response Keys:** Legitimate sequential responses can share matching query indices; verify correlation IDs before classifying as duplicates.
+- **Metadata vs Mutations:** Response metadata (e.g. `not_found` arrays) must not be treated as imperative deletion commands.
+- **Defer Unconfirmed Wire Formats:** Retain opaque buffers or typed `Effect` variants until cleanroom captures confirm actual wire schemas.
 
-- **Не называй capture-пакет протокольным слоем, который не проверил.** 28-байтный пакет
-  из `strace-media-s3.jsonl` — не «пустой RR», а SRTCP-обёртка: 8-байтный RTCP RR + 16-байтный
-  tag + 4-байтный LE counter. Контракт должен разделять `empty_receiver_report` (8) и
-  `empty_srtcp_receiver_report` (28), а тест — проверять оба; иначе тест подтверждает
-  замороженную ошибку.
-- **Публичный encoder не обрезает данные молча.** `encode()` для discovery возвращает
-  `Result`, валидирует IP/порт/длину; тесты на 65-байтный адрес, пустой/не-IP адрес и port 0
-  обязательны. `node --check`/`cargo check` не заменяют проверку контракта.
-- **UDP-приёмник проверяет источник и SSRC до разбора.** `recv_discovery`/`recv_keepalive`
-  отклоняют foreign peer; discovery — несовпадающий SSRC. Иначе loopback-тест «работает»,
-  а реальный сокет принимает мусор от любого отправителя.
-- **`@ts-check` — часть gate, а не бонус.** Первый B04 gate упал на `tsc` в `sbom.mjs`
-  (`noUncheckedIndexedAccess`, implicit any). Typecheck JS-скриптов нужно запускать в
-  integration-лейне до gate; `node --check` ловит только синтаксис.
-- **SBOM: lock — авторитетный набор, metadata — источник лицензий.** Host-filtered metadata
-  даёт 71 пакет, а `Cargo.lock` — 85; для 14 target-specific пакетов без локального манифеста
-  нужен точный version-pinned fallback, иначе `NOASSERTION`/P1. Строгий SPDX-парсер обязан
-  отклонять `MIT !!!`, а `LLVM-exception` — только как exception в `WITH`. Release-путь
-  сравнивается по inode (`-ef`): `rust/dist` и `rust/./dist` — один файл, `install` на
-  same-file падает; actual gate-прогон обязателен.
+### Wave RW-15 / P2-04
+- **Shift Aware Duplicate Detection:** Member list inserts shifting adjacent elements must evaluate duplicates across the entire active window.
+- **Isolate Legacy Artifacts:** Corrupted or legacy captures must be rejected at boundaries rather than normalized with guesswork.
+- **Surface Level Review Value:** Resolving P3 review findings eliminates edge-case regression risks across subsequent waves.
 
-### RW-22 / B03
+### Wave RW-21 / Batch B02
+- **Universal Redaction:** Masking is an intrinsic property of all nested public structs, not just aggregate parent types.
+- **Isolated Mutation Logs:** Store mutation injection logs separately from production test run logs.
+- **Checked Encoding Boundaries:** Implement checked encoding methods for untrusted data to enforce wire limits safely.
+- **Explicit Stream Termination:** Mark poisoned or errored stream decoders explicitly to prevent undefined re-entry.
 
-- **Оракул должен быть внешним, а не копией констант.** P7-04 проверяет D-02 через
-  `docs/re/rest-d02.json`; voice — по полям реальных `rtc1/rtc2`, а не только round-trip
-  собственным writer/parser. Иначе тест доказывает согласованность с самим собой.
-- **Мутация обязана ловить заявленный контракт.** `m-voice-01b` падал из-за отсутствующих
-  DAVE-полей, а не из-за длины secret key; payload усилен, мутация повторена. Лог с
-  неправильной причиной падения — не доказательство.
-- **Fallback-тест с одинаковыми каталогами тавтологичен.** Нужны разные en/ru каталоги и
-  ключ только в default, иначе мутация fallback выживает.
-- **Finding сначала воспроизводится.** P1 про `parse_fence` и endpoint `/other` не
-  подтвердились; regression-кейсы добавлены, а реальный дефект `/?v=9` найден и закрыт.
-  «Исправить по тексту ревью» без репродукции — источник ложных правок.
-- **Redaction — часть API, а не комментарий.** `Debug` неизвестного voice payload не должен
-  печатать `raw`; это проверяется тестом и мутацией. То же для JSON-ошибок: offset/категория
-  без входных данных.
+## 10. Standards Governance
 
-### RW-18 / P2-09
-
-- **«Свежайший scope» ≠ «правильный scope».** Для агрегата presence официальный клиент
-  предпочитает live `online|idle|dnd`; более новый `offline+hidden` не должен понижать
-  статус. Оракул проверяется двумя scope (`s15`), а точный guild-селектор обязан
-  по-прежнему возвращать скрытую запись.
-- **Defense-in-depth не заменяет диагностику на границе.** Пустой member-list `status`
-  нельзя молча отбрасывать в reducer: парсер должен дать `ignored` с точным путём (`r18`).
-  Фильтр в reducer остаётся только второй линией.
-- **Предикаты статуса должны совпадать по смыслу.** `Status::is_offline()` — это только
-  `Offline`, а не «всё, что не online»; `Unknown`/`Invisible` проверяются отдельным тестом
-  (`s18`), иначе селектор тихо расходится с контрактом.
-- **Мутация обязана менять наблюдаемое значение.** Stale-тест с идентичным payload
-  выживает при мутанте «применить stale»; нужен второй кадр с тем же seq и другим
-  status/activity (`r15`, M11). Аналогично проверяются положительный VR, конфликт
-  mobile/desktop, displayable tie-break и list-форма `party.size` (M8–M10, `a17`).
-- **Восстановление файла должно инвалидировать кэш.** `cp -p` возвращает старый mtime, и
-  cargo может переиспользовать артефакт мутированного кода. После restore нужен `touch`
-  (или `cargo clean -p`) и повторный targeted-прогон; иначе «green после мутаций» — ложный.
-- **Имя артефакта — часть доказательства.** Неудачная попытка называется `attempt-*`, а не
-  `green-*`; `MD5SUMS.txt` покрывает все изменённые продуктовые и тестовые файлы, включая
-  контрактные правки. Документы обязаны совпадать по формулировкам (число файлов/мест).
-
-### RW-17 / P2-07
-
-- **Наличие поля не равно предикату.** `badge_count=0` — валидное поле READY, но не бейдж.
-  `badge_entries()` фильтрует `> 0`; тест, который перечисляет все записи с полем, —
-  ошибка теста, а не повод менять контракт. Исправление оформляется в
-  `TEST-CORRECTIONS.md`, red-копия сохраняется.
-- **Не смешивать семантику channel/non-channel полей.** `last_message_id` — ack-точка
-  канала; `last_acked_id` — non-channel (user/guild). Fallback «на всякий случай» даёт
-  ложное «прочитано» и должен блокироваться ревью. Селектор обязан следовать контракту,
-  даже если fallback кажется удобным.
-- **Watermark и stale guard — разные вещи.** `version` — глобальный watermark, официальный
-  клиент присваивает его без max-guard; stale-защита строится по `message_id`, а не по
-  version. Для отклонённого non-channel ACK событие отклоняется целиком, включая version;
-  это фиксируется в DESIGN, а не оставляется на догадки.
-- **Мутация должна проверять обе ветки.** max-guard version в existing-entry и
-  unknown-entry ветках ломается по-разному; r16 и r17 закрывают обе, M6/M7 доказывают это.
-  Если мутация выживает — слабый тест, а не «код и так работает».
-- **Тест может закреплять дефект.** Если ревью нашло P2, недостаточно поправить продукт:
-  надо добавить red-тест на правильное поведение, исправить ошибочное ожидание и описать
-  correction. Иначе старый тест будет «зеленить» регрессию.
-- **Исторические доказательства не переписываются.** Старый mutation-лог помечается
-  `superseded`, актуальный ведётся рядом; red-лог с другим форматированием сохраняется с
-  пояснением. Аудит должен видеть и историю, и текущий результат.
-
-### RW-16 / P2-05
-
-- **Одинаковый ключ ответа не всегда duplicate.** В capture два независимых
-  `GUILD_MEMBERS_CHUNK` одной гильдии имели `nonce=None, chunk_count=1, chunk_index=0`
-  (s=78/s=84). Это новый ответ, а не дубль. Исключение нельзя расширять на `count>1`:
-  без nonce корреляция неизвестна, и повтор индекса обязан диагностироваться. Правило
-  проверяется отдельными тестами `r12`/`r13`.
-- **`not_found` — метаданные ответа, не команда удаления.** Id из `not_found` могут
-  встречаться в READY/users/member list; удалять участников по нему нельзя.
-- **Неподтверждённый массив не разбирается «по смыслу».** `presences[]` в chunk не был
-  в capture; поле помечается `ignored`, а presence-запрос остаётся `Effect::RequestPresence`
-  до P2-09. Лучше явно отложить, чем изобрести форму.
-- **Инвариант не должен противоречить исключению.** Если §4 разрешает отсутствие
-  диагностики для одного случая, §6 обязан это повторить; иначе ревью законно блокирует.
-- **Имя лога — доказательство.** Файл `green-*` с `FAILED` внутри нельзя оставлять:
-  переименовывать в `attempt-*`/`red-*`, а зелёным ссылаться только на реальный green.
-
-### RW-15 / P2-04
-
-- **Проверка duplicate перед вставкой должна учитывать сдвиг.** Если `INSERT` вставляет
-  элемент перед существующим, старый элемент сдвигается и остаётся дубликатом; проверять
-  надо все существующие элементы, а не исключать `position == index`. Ревью нашло это
-  после green; regression `m15_insert_duplicate_at_same_position_is_diagnostic` закрыл
-  red-first.
-- **Legacy-артефакт — не оракул.** Отрицательный `guild_id` в `005/006` нельзя
-  «нормализовать» в рабочий id; корректная политика — отвергнуть исходник и отдельно
-  проверить shape на явно помеченной копии.
-- **Compile-red — ограничение, а не полноценный red.** Для новых API фиксировать его
-  честно; после появления API добавлять поведенческие тесты на границы.
-- **Счётчики и группы — сырые.** `groups[].count`, `member_count`, `online_count` не
-  выводятся друг из друга; UI не должен строить на них инвариант.
-- **Review P3 тоже полезен.** Формат диагностики, same-guild тесты, in-range UPDATE и
-  отсутствие header-кейсов были не блокерами, но их закрытие уменьшило риск регрессий.
-
-### RW-14 / P2-06
-
-- Last-wins токены страниц и stale generation должны проверяться на повторный успешный
-  ответ, а не только на ошибку.
-- Ограничение истории обязано иметь тест на cap/trim, иначе «bounded» остаётся намерением.
-
-### RW-13 / P2-02
-
-- Stale `seq` — no-op до разбора payload; диагностика не должна менять данные.
-- READY сбрасывает последовательность; это отдельный тест, а не следствие кода.
-
-### RW-21 / B02
-
-- **Redaction — свойство каждого публичного типа, не только агрегата.** Внешний
-  `PreloadedUserSettings` скрывал id/locale, но `format!("{notifications:?}")` печатал
-  fixed64. Red-first тест на секцию (`p08t17`) закрыл P2; mutation M11/M12 — контроль.
-- **Mutation-логи нельзя смешивать с текущими green-логами.** Ревьюер принял
-  `mutations/M*.log` за падение продукта. Держим `mutations/` отдельно и в отчёте явно
-  пишем «намеренный мутант», иначе независимое ревью теряет время.
-- **Checked-энкодер для wire-лимитов.** Для внешних значений нужен `encode_checked`,
-  а infallible `encode` — только для доверенных; тестируем реально достижимую границу
-  (`atom > u16`), а не 4 ГиБ binary, которую нельзя аллоцировать в тесте.
-- **Терминальные ошибки потока — явное состояние.** `ZstdStream` теперь имеет `is_dead`
-  и `Poisoned`; свежий `FrameDecoder` не считается завершённым. Это лучше, чем
-  «по договорённости не вызывать push после Err».
-- **Удержание окна zstd — не потеря, а контракт.** Незавершённый кадр отдаёт
-  `распаковано − window`; тест фиксирует 759 280/824 816 и объясняет остаток, вместо
-  попытки «дочитать» кадр без `end()`.
-
-## 10. Как обновлять стандарт
-
-После каждой принятой волны координатор добавляет в §9 **не более 3–5 уроков**, которые
-можно проверить ссылкой на файл/тест/лог. Если урок повторяется две волны — он повышается
-в правило §2–§7. Устаревшие правила удаляются, а не копятся: стандарт должен объяснять
-текущий код, а не историю.
+Following every accepted wave, coordinators record at most 3–5 verifiable lessons in §9. Lessons recurring across multiple waves are elevated into mandatory architectural rules in §2–§7.

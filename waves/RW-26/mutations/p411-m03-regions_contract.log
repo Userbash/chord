@@ -29,7 +29,7 @@ test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 
 
 --- stderr ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 warning: unused variable: `geo_pos`
    --> crates/discord-voice/src/regions.rs:154:9
     |
@@ -40,5 +40,5 @@ warning: unused variable: `geo_pos`
 
 warning: `discord-voice` (lib) generated 1 warning (run `cargo fix --lib -p discord-voice` to apply 1 suggestion)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
-     Running tests/regions_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/regions_contract-cb7a8ee43c08d5a8)
+     Running tests/regions_contract.rs (/home/user/.cache/discord-lab-target-rw26-mut/debug/deps/regions_contract-cb7a8ee43c08d5a8)
 error: test failed, to rerun pass `-p discord-voice --test regions_contract`

@@ -56,9 +56,9 @@
 test at tests/unit/gui-spike-features.test.mjs:727:3
 ✖ link-embed: в href только http(s), javascript: не становится ссылкой (P0) (6.042833ms)
   AssertionError [ERR_ASSERTION]: небезопасный URL попал в href: "javascript:alert(document.domain)" (javascript:alert(document.domain))
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:756:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:728:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:756:16
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:728:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -75,9 +75,9 @@ test at tests/unit/gui-spike-features.test.mjs:971:3
   
   null !== 'true'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:975:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:972:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:975:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:972:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -94,9 +94,9 @@ test at tests/unit/gui-spike-features.test.mjs:1216:3
   
   false !== true
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1249:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1217:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1249:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1217:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

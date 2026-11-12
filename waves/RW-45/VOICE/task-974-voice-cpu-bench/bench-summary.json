@@ -32,9 +32,9 @@
   "oracleParity": {
     "passed": true,
     "reasons": [],
-    "oraclePath": "/home/sanya/orca/project/fixtures/voice/rtp-pt120-oracle.json",
+    "oraclePath": "/home/user/orca/project/fixtures/voice/rtp-pt120-oracle.json",
     "oracleMd5": "798dd8aea8dd14d4429ac00b1c1d0a12",
-    "sourcePcap": "/home/sanya/re-deep/voice/voice-udp4.pcap",
+    "sourcePcap": "/home/user/clean-room-oracle/voice/voice-udp4.pcap",
     "totalCapturePackets": 10,
     "warmupAnomalyPackets": 2,
     "validBedePackets": 8,

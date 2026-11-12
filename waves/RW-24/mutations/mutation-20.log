@@ -1,5 +1,5 @@
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test i18n_contract catalog_date_time_and_number_nodes_render_from_icu_oracle -- --exact
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: unused variable: `style`
    --> crates/discord-i18n/src/lib.rs:474:22
     |

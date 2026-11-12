@@ -20,7 +20,7 @@
 test at tests/unit/voice-messages-waveform-1003.test.mjs:257:3
 ✖ SUB-1003-0: модули voice_message.rs и voice_message_player.rs существуют, запрещают unsafe, проходят rustfmt 2024, лимиты (<50 строк на fn, <800 на файл) и компилируются без предупреждений (0.743912ms)
   AssertionError [ERR_ASSERTION]: Модуль rust/crates/discord-voice/src/voice_message.rs должен существовать
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:262:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:262:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Promise.all (index 0)
@@ -37,7 +37,7 @@ test at tests/unit/voice-messages-waveform-1003.test.mjs:257:3
 test at tests/unit/voice-messages-waveform-1003.test.mjs:324:3
 ✖ SUB-1003-1: сверяет константы OGG Opus (48kHz mono 32kbps), флаг IS_VOICE_MESSAGE (8192), дизайн-токены, интерактивные состояния и живое вложение voice-message.ogg с независимыми RE-оракулами (0.175266ms)
   AssertionError [ERR_ASSERTION]: Бинарник voice_message должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:325:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:325:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -52,7 +52,7 @@ test at tests/unit/voice-messages-waveform-1003.test.mjs:324:3
 test at tests/unit/voice-messages-waveform-1003.test.mjs:417:3
 ✖ SUB-1003-2: кодирует буфер микрофона cpal (48kHz mono, 20ms = 960 сэмплов) в OGG Opus 32 kbps, вычисляет 256 байт base64 waveform по RMS и формирует REST-запрос с флагом IS_VOICE_MESSAGE (8192) (0.137217ms)
   AssertionError [ERR_ASSERTION]: Бинарник voice_message должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:418:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:418:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -67,7 +67,7 @@ test at tests/unit/voice-messages-waveform-1003.test.mjs:417:3
 test at tests/unit/voice-messages-waveform-1003.test.mjs:464:3
 ✖ SUB-1003-3: рендерит 32/64/128 полосок волны в VoiceMessagePlayer с подсветкой прогресса (#23a55a), мгновенной перемоткой по клику и переключением скорости 1x / 1.5x / 2x с сохранением питча (0.130917ms)
   AssertionError [ERR_ASSERTION]: Бинарник voice_message_player должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:465:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:465:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -82,7 +82,7 @@ test at tests/unit/voice-messages-waveform-1003.test.mjs:464:3
 test at tests/unit/voice-messages-waveform-1003.test.mjs:504:3
 ✖ SUB-1003-4: покрывает все 9 измерений TEST-POLICY.md (граничные 48kHz/960 сэмплов/256 байт, Snowflake 0/u64::MAX, 2000 символов, 10 файлов/25 МБ, offset=9975, громкость 0..200%, бейдж 99+, ошибки 400..5xx, тишина/DTX, HTTP 202, права доступа, fallback микрофона/refresh CDN и маскирование секретов) (0.104158ms)
   AssertionError [ERR_ASSERTION]: Бинарник voice_message должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:505:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:505:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -96,14 +96,14 @@ test at tests/unit/voice-messages-waveform-1003.test.mjs:504:3
 
 test at tests/unit/voice-messages-waveform-1003.test.mjs:517:3
 ✖ SUB-1003-5: убивает 5/5 контрольных мутаций в voice_message.rs и 5/5 мутаций в voice_message_player.rs (100% mutation kill rate) (0.140477ms)
-  Error: ENOENT: no such file or directory, open '/home/sanya/orca/project/rust/crates/discord-voice/src/voice_message.rs'
+  Error: ENOENT: no such file or directory, open '/home/user/orca/project/rust/crates/discord-voice/src/voice_message.rs'
       at readFileSync (node:fs:624:20)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:518:25)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-messages-waveform-1003.test.mjs:518:25)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     errno: -2,
     code: 'ENOENT',
     syscall: 'open',
-    path: '/home/sanya/orca/project/rust/crates/discord-voice/src/voice_message.rs'
+    path: '/home/user/orca/project/rust/crates/discord-voice/src/voice_message.rs'
   }

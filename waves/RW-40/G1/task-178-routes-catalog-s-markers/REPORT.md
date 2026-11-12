@@ -24,7 +24,7 @@
   все 4 спецификации из `EXTENSIONS` отвечают `is_static_extension() == true`.
 - `rest_d02_copy_matches_lab_oracle`: md5 `docs/re/rest-d02.json` =
   `87d7a05d8cd11f3b8ae37aa5c9811c9e`, 47 пар `(method, path)`; если есть
-  `/home/sanya/re-deep/rest-d02.json` — его md5 = `9b450c34a2277b04989830b53b02f012`,
+  `reference-oracle/rest-d02.json` — его md5 = `9b450c34a2277b04989830b53b02f012`,
   пары `(method, path)` совпадают, а пофайловый diff — ровно одна строка `reqBodySample`
   с `REDACTED` в копии репозитория (санитайзер `docs/re/README.md`). Любое другое
   расхождение валит тест. Если лаборатории нет — проверяются 47 endpoints копии.
@@ -41,9 +41,9 @@
 ## Команды
 
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib -- -D warnings
 rustfmt --edition 2021 --check \
   rust/crates/discord-core/src/rest/routes.rs rust/crates/discord-core/tests/rest_routes.rs  # exit 0

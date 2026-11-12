@@ -1,5 +1,5 @@
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test markdown_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: struct `LocaleFormatData` is never constructed
  --> crates/discord-i18n/src/format_data.rs:8:19
   |

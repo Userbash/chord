@@ -56,7 +56,7 @@ failures:
 
 test result: FAILED. 33 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+   Compiling discord-updater v0.1.0 (/home/user/orca/project/rust/crates/discord-updater)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
      Running tests/updater_contract.rs (/tmp/opencode/target-mut/debug/deps/updater_contract-fd91db638e905d79)
 error: test failed, to rerun pass `-p discord-updater --test updater_contract`

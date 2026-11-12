@@ -31,7 +31,7 @@
 node --test tests/unit/gui-spike-dom.test.mjs
 npx tsc -p rust/gui-spike/ui/tsconfig.json
 python3 scripts/gui-window-probe.py --json /tmp/opencode/gui-probe-w39c.json --timeout 30
-# визуальная сверка: /tmp/opencode/gui-window.png vs /home/sanya/re-deep/ui/00-app.png (read-only)
+# визуальная сверка: /tmp/opencode/gui-window.png vs reference-oracle/ui/00-app.png (read-only)
 ```
 
 ## Отчёт

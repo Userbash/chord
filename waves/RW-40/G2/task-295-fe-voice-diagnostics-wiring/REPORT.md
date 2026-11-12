@@ -1,6 +1,6 @@
 # REPORT — task-295 (`FE-INT-16` / `RE-22-04`, G2 Frontend): подключение `voice-diagnostics.js` к `voice.js`
 
-- **Ветка:** `feature/task-295-fe-voice-diagnostics-wiring` (worktree `/home/sanya/orca/workspaces/project/feature-task-295-fe-voice-diagnostics-wiring`, база `unstable` = `648ba83`)
+- **Ветка:** `feature/task-295-fe-voice-diagnostics-wiring` (worktree `/home/user/orca/workspaces/project/feature-task-295-fe-voice-diagnostics-wiring`, база `unstable` = `648ba83`)
 - **Волна / отдел:** `RW-40` / `G2 Frontend (WebView UI & DOM/A11y)`, уровень `L1`, приоритет `P1`
 - **Модель:** `opencode --model deepseek/deepseek-v4.1-flash`
 - **Дата:** 2026-10-31
@@ -51,7 +51,7 @@ does not provide an export named 'createVoiceDiagnosticsController'
 
 | Утверждение | Оракул |
 |---|---|
-| `evaluatePingQuality(250, 0) === "fine"`, `(251, 0) === "average"`, `(501, 0) === "bad"`, `(100, 10.1) === "bad"` | `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0`, модуль `613681` @ `2469479` (`RTCConnection.quality`: `> 500` / `> 10%` → bad, `> 250` / `> 5%` → average) |
+| `evaluatePingQuality(250, 0) === "fine"`, `(251, 0) === "average"`, `(501, 0) === "bad"`, `(100, 10.1) === "bad"` | `reference-oracle/decoded/3eefa7dae1e2c234_0`, модуль `613681` @ `2469479` (`RTCConnection.quality`: `> 500` / `> 10%` → bad, `> 250` / `> 5%` → average) |
 | `pingQuality(120) === "fine"`, `(250) === "average"`, `(251) === "bad"` | `waves/RW-40/DESIGN/voice-spec.json` → `VG-06`, `panel.ping` (наши пороги 120/250) |
 | Клик по `#voice-ping` открывает попап; в остальных состояниях — нет | `waves/RW-40/DESIGN/VOICE-DIAGNOSTICS-SPEC.md` §3.1 (триггер `#voice-ping`) и §1.1 таблица состояний `unknown` вне `RTC_CONNECTED` |
 | Якорь попапа — сама кнопка (для позиционирования над триггером) | там же, §3.1 «Размещение: над триггером, выравнивание по левому краю кнопки» |

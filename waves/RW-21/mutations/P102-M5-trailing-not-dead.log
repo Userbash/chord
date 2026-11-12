@@ -29,7 +29,7 @@ failures:
 
 test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
      Running unittests src/lib.rs (target/debug/deps/discord_codec-6056909c2a4ce066)
      Running tests/etf_full.rs (target/debug/deps/etf_full-7c2aa4b7f6f1b01e)

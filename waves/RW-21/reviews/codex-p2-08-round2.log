@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -13,21 +13,21 @@ session id: 01a15cf6-a931-7140-865e-b0207c6ff8ac
 user
 Independent read-only re-review of P2-08 only after a P2 fix. Ignore waves/RW-21/mutations/*.log (those are intentional mutant failures); use only current source and current green logs. Check rust/crates/discord-core/src/settings/{wire,preloaded,frecency,mod}.rs, tests/settings_proto.rs, DESIGN-P2-08.md, REPORT-P2-08.md. Verify the prior P2 (NotificationSettings/LocalizationSettings Debug leaking id/locale/timezone) is fixed, and look for any remaining P0/P1/P2/P3. Run only the targeted test if useful: cargo test -p discord-core --test settings_proto --offline. Return verdict accepted / accepted with P3 / changes required and findings with file:line; explicitly state P0/P1/P2 counts. Do not edit files.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Я сверю указанные исходники и отчёт с текущим green-логом, затем проверю только targeted-тест `settings_proto`, если локальная сборка доступна. Ничего менять не буду и mutant-логи учитывать не стану.
 exec
-/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'DESIGN-P2-08.md' -g 'REPORT-P2-08.md' -g 'settings_proto.rs' -g 'wire.rs' -g 'preloaded.rs' -g 'frecency.rs' -g 'mod.rs' -g '*green*'" in /home/sanya/orca/project
+/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'DESIGN-P2-08.md' -g 'REPORT-P2-08.md' -g 'settings_proto.rs' -g 'wire.rs' -g 'preloaded.rs' -g 'frecency.rs' -g 'mod.rs' -g '*green*'" in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/orca/project
+/home/user/orca/project
 docs/rust-client/TEAM.md
 PROCESS.md
 waves/RW-21/REPORT-P2-08.md
@@ -176,7 +176,7 @@ rust/crates/discord-core/src/state/voice/mod.rs
 rust/crates/discord-core/src/state/mod.rs
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' waves/RW-21/DESIGN-P2-08.md && sed -n '1,240p' waves/RW-21/REPORT-P2-08.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' waves/RW-21/DESIGN-P2-08.md && sed -n '1,240p' waves/RW-21/REPORT-P2-08.md" in /home/user/orca/project
  succeeded in 0ms:
 # RW-21 / DESIGN-P2-08 — settings-proto
 
@@ -395,7 +395,7 @@ two's-complement из varint. `fixed64` — little-endian.
 
 ## 3. Фикстуры и независимый оракул
 
-Фикстуры скопированы из `/home/sanya/re-deep` (read-only) в
+Фикстуры скопированы из `/home/user/clean-room-oracle` (read-only) в
 `rust/crates/discord-core/tests/data/`; тесты не читают RE-дамп.
 
 | Файл | base64 | raw | raw sha256 | файл md5 |
@@ -458,14 +458,14 @@ acked=1041362756533751819. UPDATE: type=2, `partial=false`, top-level
 - P3-находки review (если будут) — backlog, не блокируют P2-08.
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-core/tests/settings_proto.rs && sed -n '1,160p' waves/RW-21/logs/p08-p2-green.log && sed -n '1,120p' waves/RW-21/logs/p08-green-targeted.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-core/tests/settings_proto.rs && sed -n '1,160p' waves/RW-21/logs/p08-p2-green.log && sed -n '1,120p' waves/RW-21/logs/p08-green-targeted.log" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/wire.rs && nl -ba rust/crates/discord-core/src/settings/preloaded.rs && nl -ba rust/crates/discord-core/src/settings/frecency.rs && nl -ba rust/crates/discord-core/src/settings/mod.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/wire.rs && nl -ba rust/crates/discord-core/src/settings/preloaded.rs && nl -ba rust/crates/discord-core/src/settings/frecency.rs && nl -ba rust/crates/discord-core/src/settings/mod.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: settings-proto decoder (RW-21).
      2	//!
      3	//! Оракул — `waves/RW-21/oracle.py` и реальные READY/UPDATE-фикстуры из
-     4	//! `/home/sanya/re-deep` (read-only). Тесты не вызывают Python и не сверяются с
+     4	//! `/home/user/clean-room-oracle` (read-only). Тесты не вызывают Python и не сверяются с
      5	//! текущей реализацией: ожидания захардкожены из независимого разбора.
      6	
      7	use discord_core::settings::{
@@ -798,7 +798,7 @@ exec
    334	    assert!(debug.contains("locale_len"), "{debug}");
    335	    assert!(debug.contains("timezone_name_len"), "{debug}");
    336	}
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.66s
      Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
 
@@ -823,7 +823,7 @@ test p08t10_update_type2_frecency ... ok
 
 test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
      Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
 
@@ -1842,7 +1842,7 @@ test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
    108	}
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,200p' docs/rust-client/TEAM.md && sed -n '1,160p' TASKS.md && sed -n '1,180p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,200p' docs/rust-client/TEAM.md && sed -n '1,160p' TASKS.md && sed -n '1,180p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/user/orca/project
  succeeded in 0ms:
 # PROCESS.md — производственный процесс discord-lab
 
@@ -1911,7 +1911,7 @@ exec
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -2318,7 +2318,7 @@ RW-19/RW-20 (P2-10/P2-11) — активная пара B01.
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -2639,7 +2639,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-21, I1,
   P2-01/P2-02/P2-04/P2-05/P2-06/P2-07/P2-09/P2-10/P2-11, B01 accepted, B02 research,
   удаление legacy `ready_data` и правки доков **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -2808,7 +2808,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 codex
 В текущем тесте уже есть отдельная проверка `Debug` самих секций Notifications и Localization; green-лог с 17 тестами проходит. Сейчас внимательно проверю реализации `Debug` и декодера на соседние утечки или ошибки wire-обработки, затем выполню заданный targeted-тест.
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/wire.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/wire.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: protobuf wire-декодер настроек (RW-21).
      2	//!
@@ -3258,7 +3258,7 @@ exec
    446	}
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/preloaded.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/preloaded.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: типизированные секции `PreloadedUserSettings` (RW-21).
      2	//!
@@ -3657,7 +3657,7 @@ exec
    395	}
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/frecency.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/frecency.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: `FrecencyUserSettings` (type 2) — structural wrapper (RW-21).
      2	//!
@@ -3702,7 +3702,7 @@ exec
     41	}
 
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P2-08.md && nl -ba waves/RW-21/REPORT-P2-08.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P2-08.md && nl -ba waves/RW-21/REPORT-P2-08.md' in /home/user/orca/project
  succeeded in 0ms:
      1	# RW-21 / DESIGN-P2-08 — settings-proto
      2	
@@ -3921,7 +3921,7 @@ exec
     36	
     37	## 3. Фикстуры и независимый оракул
     38	
-    39	Фикстуры скопированы из `/home/sanya/re-deep` (read-only) в
+    39	Фикстуры скопированы из `/home/user/clean-room-oracle` (read-only) в
     40	`rust/crates/discord-core/tests/data/`; тесты не читают RE-дамп.
     41	
     42	| Файл | base64 | raw | raw sha256 | файл md5 |
@@ -3984,14 +3984,14 @@ exec
     99	- P3-находки review (если будут) — backlog, не блокируют P2-08.
 
 exec
-/usr/bin/bash -lc 'git status --short -- rust/crates/discord-core/src/settings rust/crates/discord-core/tests/settings_proto.rs waves/RW-21' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short -- rust/crates/discord-core/src/settings rust/crates/discord-core/tests/settings_proto.rs waves/RW-21' in /home/user/orca/project
  succeeded in 0ms:
 ?? rust/crates/discord-core/src/settings/
 ?? rust/crates/discord-core/tests/settings_proto.rs
 ?? waves/RW-21/
 
 exec
-/usr/bin/bash -lc "rg -n 'Debug|struct Notification|struct Localization|struct Status|impl .*Debug|fn decode|timezone|notification_center|locale' rust/crates/discord-core/src/settings/{preloaded,mod,frecency}.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n 'Debug|struct Notification|struct Localization|struct Status|impl .*Debug|fn decode|timezone|notification_center|locale' rust/crates/discord-core/src/settings/{preloaded,mod,frecency}.rs" in /home/user/orca/project
  succeeded in 0ms:
 rust/crates/discord-core/src/settings/frecency.rs:23:    pub fn decode(bytes: &[u8]) -> Result<Self, SettingsProtoError> {
 rust/crates/discord-core/src/settings/frecency.rs:33:impl fmt::Debug for FrecencyUserSettings {
@@ -4030,12 +4030,12 @@ rust/crates/discord-core/src/settings/mod.rs:95:pub fn decode_preloaded_user_set
 rust/crates/discord-core/src/settings/mod.rs:103:pub fn decode_frecency_user_settings(
 
 exec
-/usr/bin/bash -lc 'cargo test -p discord-core --test settings_proto --offline' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cargo test -p discord-core --test settings_proto --offline' in /home/user/orca/project
  exited 101 in 0ms:
-error: could not find `Cargo.toml` in `/home/sanya/orca/project` or any parent directory
+error: could not find `Cargo.toml` in `/home/user/orca/project` or any parent directory
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-core/src/settings/preloaded.rs | sed -n '1,430p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-core/src/settings/preloaded.rs | sed -n '1,430p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: типизированные секции `PreloadedUserSettings` (RW-21).
      2	//!
@@ -4434,7 +4434,7 @@ exec
    395	}
 
 exec
-/usr/bin/bash -lc 'rg --files rust -g Cargo.toml' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg --files rust -g Cargo.toml' in /home/user/orca/project
  succeeded in 0ms:
 rust/Cargo.toml
 rust/crates/discord-conformance/Cargo.toml
@@ -4451,9 +4451,9 @@ rust/crates/discord-core/Cargo.toml
 codex
 **Verdict: accepted with P3.**
 
-The prior P2 is fixed. `NotificationSettings` formats only whether the ID is present, and `LocalizationSettings` formats string lengths and timezone presence; neither prints the ID, locale, timezone name, or offset. The new section-level test covers these redactions in [preloaded.rs](/home/sanya/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:297) and [settings_proto.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/settings_proto.rs:318).
+The prior P2 is fixed. `NotificationSettings` formats only whether the ID is present, and `LocalizationSettings` formats string lengths and timezone presence; neither prints the ID, locale, timezone name, or offset. The new section-level test covers these redactions in [preloaded.rs](/home/user/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:297) and [settings_proto.rs](/home/user/orca/project/rust/crates/discord-core/tests/settings_proto.rs:318).
 
-**P3:** `MAX_FIELDS` is enforced in [wire.rs](/home/sanya/orca/project/rust/crates/discord-core/src/settings/wire.rs:202), but has no boundary test; the report also records this gap at [REPORT-P2-08.md](/home/sanya/orca/project/waves/RW-21/REPORT-P2-08.md:96).
+**P3:** `MAX_FIELDS` is enforced in [wire.rs](/home/user/orca/project/rust/crates/discord-core/src/settings/wire.rs:202), but has no boundary test; the report also records this gap at [REPORT-P2-08.md](/home/user/orca/project/waves/RW-21/REPORT-P2-08.md:96).
 
 **Counts:** P0: 0, P1: 0, P2: 0, P3: 1.
 
@@ -4462,9 +4462,9 @@ tokens used
 59 682
 **Verdict: accepted with P3.**
 
-The prior P2 is fixed. `NotificationSettings` formats only whether the ID is present, and `LocalizationSettings` formats string lengths and timezone presence; neither prints the ID, locale, timezone name, or offset. The new section-level test covers these redactions in [preloaded.rs](/home/sanya/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:297) and [settings_proto.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/settings_proto.rs:318).
+The prior P2 is fixed. `NotificationSettings` formats only whether the ID is present, and `LocalizationSettings` formats string lengths and timezone presence; neither prints the ID, locale, timezone name, or offset. The new section-level test covers these redactions in [preloaded.rs](/home/user/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:297) and [settings_proto.rs](/home/user/orca/project/rust/crates/discord-core/tests/settings_proto.rs:318).
 
-**P3:** `MAX_FIELDS` is enforced in [wire.rs](/home/sanya/orca/project/rust/crates/discord-core/src/settings/wire.rs:202), but has no boundary test; the report also records this gap at [REPORT-P2-08.md](/home/sanya/orca/project/waves/RW-21/REPORT-P2-08.md:96).
+**P3:** `MAX_FIELDS` is enforced in [wire.rs](/home/user/orca/project/rust/crates/discord-core/src/settings/wire.rs:202), but has no boundary test; the report also records this gap at [REPORT-P2-08.md](/home/user/orca/project/waves/RW-21/REPORT-P2-08.md:96).
 
 **Counts:** P0: 0, P1: 0, P2: 0, P3: 1.
 

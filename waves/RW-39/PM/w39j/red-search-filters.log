@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de::DeserializeOwned` is not satisfied
     --> src/main.rs:242:38
      |
@@ -24,14 +24,14 @@ error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de
              and 476 others
      = note: required for `discord_gui_spike::data::SearchFilters` to implement `DeserializeOwned`
 note: required by a bound in `from_value`
-    --> /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
+    --> /home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
      |
 1037 | pub fn from_value<T>(value: Value) -> Result<T, Error>
      |        ---------- required by a bound in this function
 1038 | where
 1039 |     T: DeserializeOwned,
      |        ^^^^^^^^^^^^^^^^ required by this bound in `from_value`
-     = note: the full name for the type has been written to '/home/sanya/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
+     = note: the full name for the type has been written to '/home/user/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
      = note: consider using `--verbose` to print the full type name to the console
 
 error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de::DeserializeOwned` is not satisfied
@@ -52,14 +52,14 @@ error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de
              and 476 others
      = note: required for `discord_gui_spike::data::SearchFilters` to implement `DeserializeOwned`
 note: required by a bound in `from_value`
-    --> /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
+    --> /home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
      |
 1037 | pub fn from_value<T>(value: Value) -> Result<T, Error>
      |        ---------- required by a bound in this function
 1038 | where
 1039 |     T: DeserializeOwned,
      |        ^^^^^^^^^^^^^^^^ required by this bound in `from_value`
-     = note: the full name for the type has been written to '/home/sanya/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
+     = note: the full name for the type has been written to '/home/user/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
      = note: consider using `--verbose` to print the full type name to the console
 
 error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de::DeserializeOwned` is not satisfied
@@ -83,14 +83,14 @@ error[E0277]: the trait bound `discord_gui_spike::data::SearchFilters: serde::de
              and 476 others
      = note: required for `discord_gui_spike::data::SearchFilters` to implement `DeserializeOwned`
 note: required by a bound in `from_value`
-    --> /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
+    --> /home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.154/src/value/mod.rs:1039:8
      |
 1037 | pub fn from_value<T>(value: Value) -> Result<T, Error>
      |        ---------- required by a bound in this function
 1038 | where
 1039 |     T: DeserializeOwned,
      |        ^^^^^^^^^^^^^^^^ required by this bound in `from_value`
-     = note: the full name for the type has been written to '/home/sanya/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
+     = note: the full name for the type has been written to '/home/user/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-c9a04ce000ef0cb6.long-type-2547298650150096104.txt'
      = note: consider using `--verbose` to print the full type name to the console
 
 error[E0308]: mismatched types

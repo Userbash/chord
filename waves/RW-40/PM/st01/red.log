@@ -190,10 +190,10 @@
 test at tests/unit/gui-spike-features.test.mjs:555:3
 ✖ настройки ST-01: профиль и 4 развёрнутых подпункта «Учётной записи» из оракула (4.714112ms)
   AssertionError [ERR_ASSERTION]: нет #settings-nav .settings-profile
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:147:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:560:23
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:112:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:556:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:147:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:560:23
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:112:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:556:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -210,9 +210,9 @@ test at tests/unit/gui-spike-features.test.mjs:614:3
   
   '' !== null
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:619:14
-      at withAppLogout (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:98:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:615:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:619:14
+      at withAppLogout (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:98:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:615:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -229,9 +229,9 @@ test at tests/unit/gui-spike-features.test.mjs:637:3
   
   0 !== 1
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:650:16
-      at async withAppLogout (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:98:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:638:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:650:16
+      at async withAppLogout (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:98:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:638:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -245,9 +245,9 @@ test at tests/unit/gui-spike-features.test.mjs:637:3
 test at tests/unit/gui-spike-features.test.mjs:662:3
 ✖ настройки ST-01: клавиатура, aria-current и причина disabled-раздела (4.000736ms)
   AssertionError [ERR_ASSERTION]: «Учётная запись» без aria-describedby
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:682:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:112:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:663:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:682:16
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:112:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:663:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

@@ -31,7 +31,7 @@
 test at tests/meta/keyring-live.test.mjs:98:3
 ✖ в файле нет skip()-хелпера и его вызовов (0.7877ms)
   AssertionError [ERR_ASSERTION]: в keyring_contract.rs остался fn skip()
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:99:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:99:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -55,7 +55,7 @@ test at tests/meta/keyring-live.test.mjs:103:3
   
   0 !== 12
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:107:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:107:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -75,7 +75,7 @@ test at tests/meta/keyring-live.test.mjs:103:3
 test at tests/meta/keyring-live.test.mjs:110:3
 ✖ у каждого #[test] сразу следует #[ignore = "live-keyring: …"] (0.242116ms)
   AssertionError [ERR_ASSERTION]: k01_connect_to_default_collection: нет #[ignore = "live-keyring: …"] (skip-маркера нет, тест засчитается passed)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:112:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:112:14)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -111,7 +111,7 @@ test at tests/meta/keyring-live.test.mjs:119:3
   + ]
   - []
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:123:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:123:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -129,7 +129,7 @@ test at tests/meta/keyring-live.test.mjs:119:3
 test at tests/meta/keyring-live.test.mjs:144:3
 ✖ live_guard различает not-enabled, tool-missing и service-unavailable (0.119693ms)
   AssertionError [ERR_ASSERTION]: в keyring_contract.rs нет причины «KEYRING-LIVE: not-enabled:»
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:150:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:150:14)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -147,7 +147,7 @@ test at tests/meta/keyring-live.test.mjs:144:3
 test at tests/meta/keyring-live.test.mjs:160:3
 ✖ фаза keyring-live объявлена и запускает ignored-набор cargo (0.176544ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет const keyringLivePhase
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:161:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:161:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -168,7 +168,7 @@ test at tests/meta/keyring-live.test.mjs:160:3
 test at tests/meta/keyring-live.test.mjs:172:3
 ✖ live-флаг включается только фазой release/qualify (0.188895ms)
   AssertionError [ERR_ASSERTION]: keyringLiveEnv должна выставлять DISCORD_LAB_KEYRING_LIVE=1
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:173:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:173:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -188,7 +188,7 @@ test at tests/meta/keyring-live.test.mjs:172:3
 test at tests/meta/keyring-live.test.mjs:186:3
 ✖ failOnSkips превращает skip в failed, а не в warning (0.185665ms)
   AssertionError [ERR_ASSERTION]: executePhase не учитывает failOnSkips
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:188:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:188:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -206,7 +206,7 @@ test at tests/meta/keyring-live.test.mjs:186:3
 test at tests/meta/keyring-live.test.mjs:194:3
 ✖ cargoTestCounts по-прежнему считает ignored как skipped (0.351399ms)
   AssertionError [ERR_ASSERTION]: в строке фазы должен печататься skip N
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:213:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:213:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -241,7 +241,7 @@ test at tests/meta/keyring-live.test.mjs:228:3
   test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
   
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:236:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:236:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -280,7 +280,7 @@ test at tests/meta/keyring-live.test.mjs:243:3
   -   'k12_debug_does_not_print_secret_or_pointers'
   - ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/keyring-live.test.mjs:257:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/keyring-live.test.mjs:257:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

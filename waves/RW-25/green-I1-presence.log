@@ -27,7 +27,7 @@ test r12_member_list_does_not_touch_users ... ok
 test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
 
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.73s
      Running tests/presence_reducer.rs (/tmp/opencode/target-w26b/debug/deps/presence_reducer-044f175e2014162a)
 

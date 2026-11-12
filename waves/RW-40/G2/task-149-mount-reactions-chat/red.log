@@ -69,7 +69,7 @@ test at tests/unit/gui-spike-dom.test.mjs:1104:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/gui-spike-dom.test.mjs:1126:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/gui-spike-dom.test.mjs:1126:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -90,7 +90,7 @@ test at tests/unit/reactions-ui.test.mjs:50:3
   + 'undefined'
   - 'function'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:52:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:52:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -106,18 +106,18 @@ test at tests/unit/reactions-ui.test.mjs:50:3
 test at tests/unit/reactions-ui.test.mjs:70:3
 ✖ пилюли реакций в chat.js вызывают переключение (add_reaction / remove_reaction с burst=false/true) и оптимистично обновляют счётчик и класс active (41.404166ms)
   TypeError [Error]: reactionsMod.createReactionsController is not a function
-      at file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:83:41
-      at async withReactionsEnv (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:74:5)
+      at file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:83:41
+      at async withReactionsEnv (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:74:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/reactions-ui.test.mjs:176:3
 ✖ всплывающая панель действий (.message-action-toolbar / .msg-hover-toolbar): быстрые реакции, открытие 9-категорийного #reaction-picker-popover и ответ (11.353688ms)
   AssertionError [ERR_ASSERTION]: в DOM должна быть панель .message-action-toolbar / .msg-hover-toolbar
-      at file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:190:16
-      at async withReactionsEnv (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:177:5)
+      at file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:190:16
+      at async withReactionsEnv (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:177:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -134,9 +134,9 @@ test at tests/unit/reactions-ui.test.mjs:288:3
   
   false !== true
   
-      at file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:300:16
-      at async withReactionsEnv (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:292:5)
+      at file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:300:16
+      at async withReactionsEnv (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:292:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -150,8 +150,8 @@ test at tests/unit/reactions-ui.test.mjs:288:3
 test at tests/unit/reactions-ui.test.mjs:366:3
 ✖ корректно очищает обработчики, поповеры и модалки при перерисовке и destroy() (6.628631ms)
   TypeError [Error]: reactionsMod.createReactionsController is not a function
-      at file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:403:39
-      at withReactionsEnv (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:369:5)
+      at file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:403:39
+      at withReactionsEnv (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:29:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat/tests/unit/reactions-ui.test.mjs:369:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.70s
      Running tests/typing_contract.rs (rust/gui-spike/target/debug/deps/typing_contract-29a3f43b4a1aa0d3)
 

@@ -2,7 +2,7 @@
 
 - **batch/карточка:** `RW-40 / task-292` (`FE-INT-15`: монтирование `createAppShellWiring` и `createComposerPopoversBridge` в `rust/gui-spike/ui/app.js`)
 - **ветка:** `feature/task-292-fe-app-shell-mount`
-- **рабочее дерево:** `/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount`
+- **рабочее дерево:** `/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount`
 - **база:** `unstable` @ `d7eff40`
 
 ## Сделано

@@ -16,7 +16,7 @@
    - Полная валидация 9 измерений `TEST-POLICY.md`: Snowflake (`0`, `u64::MAX`), лимиты сообщения (`2000`), вложений (`1..=10`, `25 МБ`), `offset <= 9975`, громкость `0..=200%`, бейдж `99+`, права доступа (`VIEW_CHANNEL`, `CONNECT`, `AGE_GATED_SPACES`) и маскирование секретов (`Bearer`, `mfa.`, `session_id=`).
 
 2. **Автономный CLI-валидатор и RE-оракул (`scripts/verify-afk.mjs`):**
-   - Сверка карточек `TASK-1010`, `TASK-1010A`, `TASK-1010B` в `waves/kanban-board.json`, фикстуры `fixtures/dbus/power.json` (`GetSessionIdleTime -> 1234`), `docs/re/gateway-protocol.json` (`VOICE_STATE_UPDATE = 8`), `docs/re/gateway-schema.json`, 7 живых гильдий из `/home/sanya/re-deep/gw-proto/msgs-run1-57992_5112.jsonl` и модулей RE-дампа (`885576`, `576991`, `926456`, `185255`, `260509`).
+   - Сверка карточек `TASK-1010`, `TASK-1010A`, `TASK-1010B` в `waves/kanban-board.json`, фикстуры `fixtures/dbus/power.json` (`GetSessionIdleTime -> 1234`), `docs/re/gateway-protocol.json` (`VOICE_STATE_UPDATE = 8`), `docs/re/gateway-schema.json`, 7 живых гильдий из `reference-oracle/gw-proto/msgs-run1-57992_5112.jsonl` и модулей RE-дампа (`885576`, `576991`, `926456`, `185255`, `260509`).
    - Поддержка аргументов `--help`, `--oracle`, `--out-json`, `--out-md` и кодов выхода `0 / 1 / 2`.
 
 3. **Контрактный и мутационный тест (`tests/unit/voice-afk-monitor-1010.test.mjs`):**

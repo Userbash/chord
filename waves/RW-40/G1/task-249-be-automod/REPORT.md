@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-249` (`BE-P1-28` / `automod`) — BFF-контракт правил автомодерации гильдии (`AUTOMOD_EVENT_MESSAGE_SEND`, `AUTOMOD_TRIGGER_*`, `AUTOMOD_ACTION_*`, `MAX_AUTOMOD_NAME_CHARS`, `MAX_KEYWORD_FILTER_ITEMS`, `MAX_MENTION_TOTAL_LIMIT`, `MAX_TIMEOUT_DURATION_SECS`, `UpsertAutoModRuleRequest`, `validate_automod_rule_request`, `build_guild_automod_route`).
-- **Ветка / worktree**: `feature/task-249-be-automod`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-249-be-automod`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/automod.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/automod_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-249-be-automod/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-249-be-automod/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`:
+Сверено с `reference-oracle/rest-static.json`:
 
 - `GUILD_AUTOMOD_RULES` (`rest-static.json:8353-8366`): `GET|POST /guilds/{arg}/auto-moderation/rules`.
 - `GUILD_AUTOMOD_RULE` (`rest-static.json:8367-8380`): `DELETE|PATCH /guilds/{arg}/auto-moderation/rules/{arg}`.
@@ -45,7 +45,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-249-be-automod/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-249-be-automod/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::automod`
@@ -60,7 +60,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-249-be-automod/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-249-be-automod/green.log`:
 
 ```text
 running 7 tests

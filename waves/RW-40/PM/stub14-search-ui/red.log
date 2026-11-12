@@ -24,7 +24,7 @@
 
 test at tests/unit/search-remote-real-index.test.mjs:193:3
 ✖ STUB-14: передаёт все подтверждённые фильтры поиска в query (§2) (13.977904ms)
-  AssertionError [ERR_ASSERTION]: query не совпал с подтверждёнными queryKey из RE-DEEP-REA §2.3–2.4
+  AssertionError [ERR_ASSERTION]: query не совпал с подтверждёнными queryKey из clean-room-oracle-REA §2.3–2.4
   + actual - expected
   
   + undefined
@@ -50,7 +50,7 @@ test at tests/unit/search-remote-real-index.test.mjs:193:3
   -   sort_order: 'desc'
   - }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:221:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/search-remote-real-index.test.mjs:221:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -64,7 +64,7 @@ test at tests/unit/search-remote-real-index.test.mjs:193:3
 test at tests/unit/search-remote-real-index.test.mjs:250:3
 ✖ STUB-14: дата → min_id/max_id, has — массив токенов, сортировка asc (7.700138ms)
   AssertionError [ERR_ASSERTION]: query не передан
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:270:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/search-remote-real-index.test.mjs:270:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -89,7 +89,7 @@ test at tests/unit/search-remote-real-index.test.mjs:283:3
   -   sort_order: 'desc'
   - }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/search-remote-real-index.test.mjs:294:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/search-remote-real-index.test.mjs:294:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

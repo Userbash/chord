@@ -1,9 +1,9 @@
-# RE-DEEP-REA — недостающие контракты по дампу и изолированной сессии
+# reference-oracle-REA — недостающие контракты по дампу и изолированной сессии
 
-Дата: 2026-10-30. Карточка: RE-DEEP-REA. Ветка: `RW-40`.
+Дата: 2026-10-30. Карточка: reference-oracle-REA. Ветка: `RW-40`.
 Продуктовый код не менялся. Затронуты только документы этой волны.
 
-Метки: `[D]` — цитата декодированного статического дампа `/home/sanya/re-deep`;
+Метки: `[D]` — цитата декодированного статического дампа `reference-oracle/`;
 `[S]` — цитата скрипта, снятого из изолированной сессии (Live) или статической схемы;
 `[A]` — не подтверждено, остаётся gap.
 
@@ -506,7 +506,7 @@ openGiftModal:i.useCallback(()=>{
 * `990820` + `4ff3d45110245dd5_0` — «Gift selection»: `openModalLazy(…).then(n.bind(n,806677))`,
   `modalKey: "gift-selection-modal-${userId}"`, `giftingOrigin`.
 
-Модуль `806677` (тело модалки) в дампе отсутствует: `grep` по `/home/sanya/re-deep/decoded`
+Модуль `806677` (тело модалки) в дампе отсутствует: `grep` по `reference-oracle/decoded`
 не находит `806677(e,t,n)`, в live-бандле есть только ссылка `n.bind(n,806677)`.
 Разметка модалки — `[A]`.
 
@@ -646,7 +646,7 @@ Discord сам выставляет `userData` и проигнорировал �
 
 ```bash
 HOME=/tmp/discord-rea-home XDG_CONFIG_HOME=/tmp/discord-rea-home/.config \
-/home/sanya/.config/discord/app-1.0.167/Discord --remote-debugging-port=9229 --no-sandbox
+/home/user/.config/discord/app-1.0.167/Discord --remote-debugging-port=9229 --no-sandbox
 ```
 
 Порт поднялся, целевая страница — `https://discord.com/login`, UA
@@ -705,11 +705,11 @@ HOME=/tmp/discord-rea-home XDG_CONFIG_HOME=/tmp/discord-rea-home/.config \
 
 | Файл | Размер | md5 | sha256 (начало) |
 |---|---|---|---|
-| `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` | 12 410 287 | `934b1289b7ebf17bc0fd09569b23b438` | `667a771c61ff709e…` |
-| `/home/sanya/re-deep/decoded/d8b0ffc3255e8113_0` | 587 591 | `7cb334d2c7b50689f0c99c01c305663d` | `643c57c2ebe42a2e…` |
-| `/home/sanya/re-deep/decoded/153cd69d0210c61b_0` | 8 018 | `465ebb0035df36346702b1bf024e854a` | `6b3f089b90814fa3…` |
-| `/home/sanya/re-deep/decoded/23e2050b01c07deb_0` | 3 654 | `3ec5ba1ced9f25db137c7f41b00d3195` | `f7e83c8b8d09cd44…` |
-| `/home/sanya/re-deep/decoded/82a5af57ee11dcd5_0` | 2 443 | — | — (`0a6ed6a6830e5071.js`, `SearchFetcher`) |
+| `reference-oracle/decoded/4d2a64cb5df5fc4e_0` | 12 410 287 | `934b1289b7ebf17bc0fd09569b23b438` | `667a771c61ff709e…` |
+| `reference-oracle/decoded/d8b0ffc3255e8113_0` | 587 591 | `7cb334d2c7b50689f0c99c01c305663d` | `643c57c2ebe42a2e…` |
+| `reference-oracle/decoded/153cd69d0210c61b_0` | 8 018 | `465ebb0035df36346702b1bf024e854a` | `6b3f089b90814fa3…` |
+| `reference-oracle/decoded/23e2050b01c07deb_0` | 3 654 | `3ec5ba1ced9f25db137c7f41b00d3195` | `f7e83c8b8d09cd44…` |
+| `reference-oracle/decoded/82a5af57ee11dcd5_0` | 2 443 | — | — (`0a6ed6a6830e5071.js`, `SearchFetcher`) |
 | `exported-scripts/web.b2b84438f3c83e84.js` | 12 640 328 | `d0044dacefb35f0a798eb48272a0396b` | `60aeb22429afacde…` |
 | `exported-scripts/_manifest.json` | — | — | 771 запись |
 

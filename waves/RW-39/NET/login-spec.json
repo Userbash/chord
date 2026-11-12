@@ -10,7 +10,7 @@
     "contract": "waves/RW-39/NET/AUTH-CONTRACT.md",
     "tokens_file": "waves/RW-39/DESIGN/tokens.css",
     "markdown": "waves/RW-39/NET/LOGIN-SPEC.md",
-    "source_build": "Discord desktop 1.0.162 (BUILD_NUMBER 641004), dump /home/sanya/re-deep (read-only)",
+    "source_build": "Discord desktop 1.0.162 (BUILD_NUMBER 641004), dump /home/user/clean-room-oracle (read-only)",
     "brand": "DL",
     "no_assets_copied": true,
     "captcha_policy": "interactive official widget only; no solver, no bypass, no automation"

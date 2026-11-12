@@ -2,10 +2,10 @@
 //!
 //! **Провенанс оракулов** (независимые артефакты, не подгонка под реализацию):
 //! - синтетический кадр `tests/data/synth-zstd-frame.hexl` (67 Б) собран Node-скриптом
-//!   `/home/sanya/re-deep/gw-make-synth-zstd.mjs` (`zstdCompressSync`, payload без данных
+//!   `/home/user/clean-room-oracle/gw-make-synth-zstd.mjs` (`zstdCompressSync`, payload без данных
 //!   Discord); md5 файла `0a7742ae83a58088f3f80a16be77ad83`; распаковка — терм 34 Б × 4096 =
 //!   139 264 Б, md5 payload `4dbd601d877520056a7bcc3ca534ad4a`;
-//! - lab-поток `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/zstd-frames-95974_1389.hexl` —
+//! - lab-поток `{RE_LAB_ROOT:-/home/user/clean-room-oracle}/gw-proto/zstd-frames-95974_1389.hexl` —
 //!   снимок из `capture-run2.jsonl` (`gw-extract-frames.mjs`), 137 кадров, 104 066 Б сжатых;
 //!   распаковка 824 816 Б, из них ruzstd отдаёт 759 280 Б (удержание окна 65 536 = 824 816 −
 //!   759 280), совпало с Node `createZstdDecompress`; границы термов — из
@@ -46,10 +46,10 @@ fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{b:02x}")).collect()
 }
 
-/// Lab-корень: `RE_LAB_ROOT` или `/home/sanya/re-deep`.
+/// Lab-корень: `RE_LAB_ROOT` или `/home/user/clean-room-oracle`.
 fn lab_root() -> PathBuf {
     PathBuf::from(
-        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
     )
 }
 

@@ -18,11 +18,11 @@ test at tests/unit/gui-spike-features.test.mjs:627:3
   
   '24' !== '42'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:638:16
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:638:16
       at Array.map (<anonymous>)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:635:29
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:628:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:635:29
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:628:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

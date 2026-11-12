@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-216-be-polls-contract/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-216-be-polls-contract/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.45s
-     Running tests/polls_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/polls_contract-925ac0e9c7d3eddb)
+     Running tests/polls_contract.rs (/home/user/orca/project/rust/target/debug/deps/polls_contract-925ac0e9c7d3eddb)
 
 running 9 tests
 test build_poll_answer_put_route_returns_canonical_path_and_validates_inputs ... ok

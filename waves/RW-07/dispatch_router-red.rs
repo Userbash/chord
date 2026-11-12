@@ -191,10 +191,10 @@ fn sample_feed_terms() -> Vec<Vec<u8>> {
 // Lab-помощники (skip-aware)
 // ---------------------------------------------------------------------------
 
-/// Lab-корень: `RE_LAB_ROOT` или `/home/sanya/re-deep` (как в тестах RW-02/RW-04/RW-05).
+/// Lab-корень: `RE_LAB_ROOT` или `/home/user/clean-room-oracle` (как в тестах RW-02/RW-04/RW-05).
 fn lab_root() -> PathBuf {
     PathBuf::from(
-        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
     )
 }
 

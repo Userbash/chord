@@ -9,7 +9,7 @@
 ## 1. Что сделано
 
 1. **Контрактный и модульный тест (`tests/unit/sqlite-encrypted-store-984.test.mjs`):**
-   - Сначала в соответствии со строгим циклом TDD (`Red -> Green -> Refactor`) разработан тестовый набор из 6 подтестов (`SUB-984-0`..`SUB-984-5`) с независимыми оракулами (`node:crypto` AES-256-GCM / HMAC-SHA256 / HKDF-SHA256, `node:sqlite` `DatabaseSync`, `waves/kanban-board.json`, `docs/re/backend-ipc.json`, `rust/crates/discord-platform/src/keyring.rs`, `rust/crates/discord-store/src/lib.rs`, `/home/sanya/re-deep/rest-static.md`).
+   - Сначала в соответствии со строгим циклом TDD (`Red -> Green -> Refactor`) разработан тестовый набор из 6 подтестов (`SUB-984-0`..`SUB-984-5`) с независимыми оракулами (`node:crypto` AES-256-GCM / HMAC-SHA256 / HKDF-SHA256, `node:sqlite` `DatabaseSync`, `waves/kanban-board.json`, `docs/re/backend-ipc.json`, `rust/crates/discord-platform/src/keyring.rs`, `rust/crates/discord-store/src/lib.rs`, `reference-oracle/rest-static.md`).
    - Проведён и сохранён `RED`-прогон (`0 pass, 6 fail`) до создания `rust/discord-gpui/src/encrypted_store.rs`.
 2. **Модуль шифрования локального хранилища (`rust/discord-gpui/src/encrypted_store.rs`, 785 строк, `#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде):**
    - **Интеграция с Linux Keyring (`org.freedesktop.secrets`, схема `com.discordlab.Token`):** реализованы `LinuxKeyringClient`, состояния `KeyringAuthState` (`locked -> unlocking -> decrypted`), `KeyringMasterSecret` с маскированием `KeyringMasterSecret(<скрыто>)` в `Debug` и принудительным физическим затиранием буфера ключей через `zeroize_slice` (`std::hint::black_box(0)`) в `Drop`.

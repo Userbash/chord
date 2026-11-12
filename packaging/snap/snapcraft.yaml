@@ -1,6 +1,6 @@
 # Спецификация пакета Snapcraft для нативного клиента Discord GPUI (TASK-967)
-# Оракул RE: /home/sanya/re-deep/main-arch.md (#62457 @143136, SNAP / SNAP_NAME -> runtimeEnvironment = "snap")
-# Оракул RE: /home/sanya/re-deep/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, XDG ScreenCast Portal)
+# Оракул RE: /home/user/clean-room-oracle/main-arch.md (#62457 @143136, SNAP / SNAP_NAME -> runtimeEnvironment = "snap")
+# Оракул RE: /home/user/clean-room-oracle/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, XDG ScreenCast Portal)
 # Оракул Keyring: rust/crates/discord-platform/src/keyring.rs (org.freedesktop.secrets через password-manager-service)
 name: discord-gpui
 base: core22

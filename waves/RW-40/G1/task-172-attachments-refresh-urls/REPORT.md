@@ -7,10 +7,10 @@
 - **Файлы воркера**:
   - `rust/gui-spike/src/attachments.rs`
   - `rust/gui-spike/tests/attachments_contract.rs`
-- **Ветка/worktree**: `feature-task-172-attachments-refresh-urls`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка/worktree**: `feature-task-172-attachments-refresh-urls`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Независимые оракулы**:
   - `RE/rest-static.json` и `rest-static.md`: маршрут `POST /attachments/refresh-urls` (`ATTACHMENTS_REFRESH_URLS`).
-  - Эталонный RE-дамп `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0:149`: вызов `POST /attachments/refresh-urls` с телом `{"attachment_urls": [url, ...]}` и ответом `body.refreshed_urls[...].refreshed`.
+  - Эталонный RE-дамп `reference-oracle/decoded/4d2a64cb5df5fc4e_0:149`: вызов `POST /attachments/refresh-urls` с телом `{"attachment_urls": [url, ...]}` и ответом `body.refreshed_urls[...].refreshed`.
   - `ATTACH-RE.md` и `BACKLOG-RE-BACKEND.md` (секция BE-P2-09).
 
 ## 2. Что сделано

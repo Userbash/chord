@@ -223,7 +223,7 @@ gateway_session` (в копии). Перед/после — восстановл
 
 ```
 md5sum rust/crates/discord-core/{src/gateway.rs,src/lib.rs,tests/gateway_session.rs}  # совпали
-awk -f review/timeline-facts.awk /home/sanya/re-deep/gw-proto/timeline-95974_1389.tsv
+awk -f review/timeline-facts.awk reference-oracle/gw-proto/timeline-95974_1389.tsv
 node review/verify-timeline.mjs                       # 137/137, mismatches 0
 node review/hello-mini-parser.mjs                     # op10 / 41250 / 138 Б
 sed -n '1,3p' …zstd-frames-95974_1389.hexl | tr -d '\n' | xxd -r -p > frames3.bin

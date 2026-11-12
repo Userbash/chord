@@ -5,7 +5,7 @@
 **Ревьюер:** Technical Reviewer (DeepSeek), Review 89A
 **Дата:** 2026-10-31
 **Ветка:** `feature/task-177-reactions-put-empty-body` → `unstable`
-**Worktree:** `/home/sanya/orca/workspaces/project/feature-task-177-reactions-put-empty-body`
+**Worktree:** `/home/user/orca/workspaces/project/feature-task-177-reactions-put-empty-body`
 **HEAD:** `38f7b5c` (Merge PR-57 into unstable, task-172)
 
 ---
@@ -30,7 +30,7 @@
 После моих прогонов (Cargo.lock откатан) — изменены только два файла в скоупе.
 `git commit` не выполнялся.
 
-## 2. Сверка с оракулом `/home/sanya/re-deep/rest-d02.json`
+## 2. Сверка с оракулом `reference-oracle/rest-d02.json`
 
 Проверено напрямую по `endpoints[38]` (read-only):
 
@@ -56,7 +56,7 @@ endpoint; в тестах используется другой эмодзи (�
 Команды из ТЗ, общий target-dir:
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test \
   --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --lib
 ```
 

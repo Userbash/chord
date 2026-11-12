@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 warning: unused variable: `state`
   --> crates/discord-core/src/state/typing/reducer.rs:56:27
    |

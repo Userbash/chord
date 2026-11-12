@@ -42,7 +42,7 @@ P0 нет. P2-1…P2-3 не блокируют вердикт отдельно, 
 ### 3.1. P1-1 — сырой провод, а не JSON-фикстура
 
 Независимый разбор (временный ETF-walker, без записи в репозиторий) потока
-`/home/sanya/re-deep/gw-proto/zstd-frames-95974_1389.hexl`:
+`reference-oracle/gw-proto/zstd-frames-95974_1389.hexl`:
 
 ```text
 decompressed 824816 B, 137 terms, READY found

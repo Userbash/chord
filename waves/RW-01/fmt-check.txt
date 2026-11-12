@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/crates/discord-codec/src/etf.rs:80:
+Diff in /home/user/orca/project/rust/crates/discord-codec/src/etf.rs:80:
      fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
          match self {
              Self::UnexpectedEof { at, need } => {
@@ -10,7 +10,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-codec/src/etf.rs:80:
 (B[m             }
              Self::UnknownTag { tag, at } => {
                  write!(f, "неизвестный тег 0x{tag:02x} на позиции {at}")
-Diff in /home/sanya/orca/project/rust/crates/discord-codec/src/etf.rs:239:
+Diff in /home/user/orca/project/rust/crates/discord-codec/src/etf.rs:239:
  
      /// Текущий байт без продвижения (для детекта ведущего `0x83`).
      fn peek(&self) -> Result<u8, EtfError> {
@@ -28,7 +28,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-codec/src/etf.rs:239:
 (B[m     }
  
      /// Читает `n` байт; при нехватке — `UnexpectedEof` (без `with_capacity(n)`).
-Diff in /home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:73:
+Diff in /home/user/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:73:
      );
  
      let framed = etf::encode(value);
@@ -41,7 +41,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.
 (B[m     assert_eq!(&framed[1..], payload.as_slice(), "0x83 + терм");
      let (decoded_framed, framed_consumed) = etf::decode(&framed).expect("decode");
      assert_eq!(framed_consumed, framed.len());
-Diff in /home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:152:
+Diff in /home/user/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:152:
          (EtfValue::Map(vec![]), "7400000000"),
      ];
      for (value, expected) in cases {
@@ -54,7 +54,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.
 (B[m     }
      assert_eq!(hex(&etf::encode(&int(10))), "83610a", "0x83 перед термом");
      assert_eq!(
-Diff in /home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:172:
+Diff in /home/user/orca/project/rust/crates/discord-codec/tests/etf_properties.rs:172:
      let unicode_atom = "Проверка";
      assert_eq!(
          hex(&etf::encode_term(&atom(unicode_atom))),

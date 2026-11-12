@@ -27,7 +27,7 @@
 
 PR добавляет ровно два файла из ТЗ, других правок кода нет. Две шумовые записи — состояние окружения, а не работа воркера:
 
-- `D node_modules`: в индексе это симлинк (`120000`, `HEAD:node_modules` = `/home/sanya/orca/project/node_modules`), в рабочем дереве по этому пути лежит реальный каталог `node_modules` (149 МБ). `git` видит typechange «симлинк → каталог» и показывает удаление. Та же картина в деревьях `task-269`, `task-274`; в `qa-task-129`, `qa-task-132`, `re-task-130`, `re-task-131` симлинк на месте, но `package-lock.json` тоже изменён.
+- `D node_modules`: в индексе это симлинк (`120000`, `HEAD:node_modules` = `/home/user/orca/project/node_modules`), в рабочем дереве по этому пути лежит реальный каталог `node_modules` (149 МБ). `git` видит typechange «симлинк → каталог» и показывает удаление. Та же картина в деревьях `task-269`, `task-274`; в `qa-task-129`, `qa-task-132`, `re-task-130`, `re-task-131` симлинк на месте, но `package-lock.json` тоже изменён.
 - `M package-lock.json`: к лок-файлу добавлены `bin.discord-lab` и `engines.node >=24`, которые уже есть в `package.json` (`bin`, `engines`), то есть локфайл просто догоняет манифест после `npm install`. Тот же диф `+6` строк висит в шести деревьях: `qa-task-129`, `qa-task-132`, `re-task-130`, `re-task-131`, `task-269`, `task-274`.
 
 Вывод: посторонних изменений, внесённых PR-154, нет; `package-lock.json` и симлинк `node_modules` при merge не коммитить.
@@ -84,7 +84,7 @@ MD5 красных логов: `M1 327cda0bc00f36238ce644b96a7eab6b`, `M2 84a6a2
 
 ### P3-3. Идентификаторы слоёв не совпадают с именами реальных модулей
 
-`COMPOSER_POPOVER_LAYERS` содержит `emoji-picker` и `attachment-upload`, а в `rust/gui-spike/ui/features/` компоненты называются `expression-picker.js` и `attachments.js` / `attachment-helper.js`. Оракул `/home/sanya/re-deep/frontend-d03.md:38-44` и `:183` фиксирует `expressionPickerPositionLayer__74017` / `layer__59d0d`; строка `attachment-upload` в дампе встречается только как CSS-переменная `--custom-channel-attachment-upload-*` (`/home/sanya/re-deep/decoded/cac3dca658eee574_0`), не как id поповера. Сам контракт моста не ломается, но при подключении в `app-shell-wiring` (спецификация `task-275`, `waves/RW-40/G3/task-275-app-shell-wiring-spec/TASK.md`) нужна явная таблица «id слоя → модуль → селектор», иначе список слоёв и DOM разойдутся.
+`COMPOSER_POPOVER_LAYERS` содержит `emoji-picker` и `attachment-upload`, а в `rust/gui-spike/ui/features/` компоненты называются `expression-picker.js` и `attachments.js` / `attachment-helper.js`. Оракул `reference-oracle/frontend-d03.md:38-44` и `:183` фиксирует `expressionPickerPositionLayer__74017` / `layer__59d0d`; строка `attachment-upload` в дампе встречается только как CSS-переменная `--custom-channel-attachment-upload-*` (`reference-oracle/decoded/cac3dca658eee574_0`), не как id поповера. Сам контракт моста не ломается, но при подключении в `app-shell-wiring` (спецификация `task-275`, `waves/RW-40/G3/task-275-app-shell-wiring-spec/TASK.md`) нужна явная таблица «id слоя → модуль → селектор», иначе список слоёв и DOM разойдутся.
 
 ### P3-4. Шум рабочего дерева вне scope
 

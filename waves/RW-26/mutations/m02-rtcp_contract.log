@@ -35,7 +35,7 @@ test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out;
 
 
 --- stderr ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
-     Running tests/rtcp_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/rtcp_contract-7dc3be166e1775b8)
+     Running tests/rtcp_contract.rs (/home/user/.cache/discord-lab-target-rw26-mut/debug/deps/rtcp_contract-7dc3be166e1775b8)
 error: test failed, to rerun pass `-p discord-voice --test rtcp_contract`

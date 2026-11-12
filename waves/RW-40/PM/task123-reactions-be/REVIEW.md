@@ -130,7 +130,7 @@
 
 ## 4. Доказательства
 
-**Мои прогоны** (`CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`,
+**Мои прогоны** (`CARGO_TARGET_DIR=/home/user/orca/project/rust/target`,
 `--manifest-path rust/gui-spike/Cargo.toml`):
 
 - `cargo test --test reactions_contract` → `11 passed; 0 failed; 0 ignored`, exit 0;

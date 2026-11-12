@@ -62,7 +62,7 @@
      + ]
      - []
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:148:12)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/plan-sync.test.mjs:148:12)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -78,6 +78,6 @@
 ✔ workspace-rust — 9.7 с (тесты 1115: pass 1103, fail 0, skip 12)
 ✔ smoke — 17.3 с (тесты 22: pass 22, fail 0, skip 0)
 
-Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-24T08-50-24-257Z.json
+Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-24T08-50-24-257Z.json
 ⚠ workspace-rust: пропущено 12 тестов — пропуск прохождением не считается
 Вердикт: failed

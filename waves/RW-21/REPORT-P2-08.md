@@ -36,7 +36,7 @@ P0/P1/P2=0, P3 закрыт тестом t18; gate B02 — в конце batch)*
 
 ## 3. Фикстуры и независимый оракул
 
-Фикстуры скопированы из `/home/sanya/re-deep` (read-only) в
+Фикстуры скопированы из `reference-oracle/` (read-only) в
 `rust/crates/discord-core/tests/data/`; тесты не читают RE-дамп.
 
 | Файл | base64 | raw | raw sha256 | файл md5 |

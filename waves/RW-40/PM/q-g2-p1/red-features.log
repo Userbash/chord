@@ -128,9 +128,9 @@ test at tests/unit/gui-spike-features.test.mjs:2323:3
   
   'false' !== 'true'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2335:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2324:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2335:16
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2324:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -149,7 +149,7 @@ test at tests/unit/gui-spike-features.test.mjs:2360:3
   
   '' !== 'relative'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2381:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2381:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -166,7 +166,7 @@ test at tests/unit/gui-spike-features.test.mjs:2423:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2455:16)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2455:16)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

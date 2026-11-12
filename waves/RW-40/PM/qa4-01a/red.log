@@ -1,4 +1,4 @@
-file:///home/sanya/orca/project/tests/unit/cdp.test.mjs:7
+file:///home/user/orca/project/tests/unit/cdp.test.mjs:7
   captureScreenshot,
   ^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../src/core/cdp/client.mjs' does not provide an export named 'captureScreenshot'

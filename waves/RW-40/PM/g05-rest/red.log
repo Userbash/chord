@@ -66,9 +66,9 @@ test at tests/unit/server-menu.test.mjs:171:3
   
   '' !== null
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:186:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:172:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:186:16
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:172:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -87,9 +87,9 @@ test at tests/unit/server-menu.test.mjs:213:3
   
   null !== 'true'
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:219:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:214:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:219:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:214:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -106,10 +106,10 @@ test at tests/unit/server-menu.test.mjs:234:3
   
   '0' !== '-1'
   
-      at check (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:243:18)
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:257:7
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:235:5)
+      at check (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:243:18)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:257:7
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:235:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -128,9 +128,9 @@ test at tests/unit/server-menu.test.mjs:291:3
   
   true !== false
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:296:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:292:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:296:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:292:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -144,9 +144,9 @@ test at tests/unit/server-menu.test.mjs:291:3
 test at tests/unit/server-menu.test.mjs:306:3
 ✖ клик по плитке гильдии закрывает меню, но фокус не на opener (6.940213ms)
   AssertionError [ERR_ASSERTION]: клик по контролу не закрыл меню
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:313:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:307:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:313:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:307:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -167,9 +167,9 @@ test at tests/unit/server-menu.test.mjs:360:3
   + 'ID сервера скопирован'
   - 'Не удалось скопировать ID'
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:369:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:361:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:369:14
+      at async withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:361:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -188,9 +188,9 @@ test at tests/unit/server-menu.test.mjs:374:3
   + 'ID сервера скопирован'
   - 'Не удалось скопировать ID'
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:382:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:375:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:382:14
+      at async withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:375:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -204,9 +204,9 @@ test at tests/unit/server-menu.test.mjs:374:3
 test at tests/unit/server-menu.test.mjs:408:3
 ✖ у каждого disabled-пункта data-disabled-reason + aria-describedby + title (8.618847ms)
   AssertionError [ERR_ASSERTION]: причина «null» вне §2.3 п.5
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:417:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:409:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:417:16
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:409:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -227,9 +227,9 @@ test at tests/unit/server-menu.test.mjs:436:3
   + null
   - 'capability-unknown'
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:439:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:437:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:439:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:437:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -246,9 +246,9 @@ test at tests/unit/server-menu.test.mjs:461:3
   
   5 !== 1
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:465:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:462:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:465:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:462:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -262,9 +262,9 @@ test at tests/unit/server-menu.test.mjs:461:3
 test at tests/unit/server-menu.test.mjs:479:3
 ✖ без данных subtitle не рендерится (hidden), с данными — берётся из проекции (8.703679ms)
   AssertionError [ERR_ASSERTION]: subtitle отрендерен без данных
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:486:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:480:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:486:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:480:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -283,9 +283,9 @@ test at tests/unit/server-menu.test.mjs:497:3
   
   'false' !== 'true'
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:514:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:498:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:514:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:498:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -299,9 +299,9 @@ test at tests/unit/server-menu.test.mjs:497:3
 test at tests/unit/server-menu.test.mjs:522:3
 ✖ визуальные узлы D9: чекбокс #5 и иконка #10 с aria-hidden (4.209071ms)
   AssertionError [ERR_ASSERTION]: у #5 нет визуального чекбокса
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:526:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:523:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:526:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:523:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -315,9 +315,9 @@ test at tests/unit/server-menu.test.mjs:522:3
 test at tests/unit/server-menu.test.mjs:540:3
 ✖ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (7.787215ms)
   AssertionError [ERR_ASSERTION]: кнопка активна сразу после 429
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:557:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:541:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:557:14
+      at async withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:541:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -336,9 +336,9 @@ test at tests/unit/server-menu.test.mjs:587:3
   
   true !== false
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:593:16
-      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:588:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:593:16
+      at async withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:588:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -359,9 +359,9 @@ test at tests/unit/server-menu.test.mjs:623:3
   + 'Приглашения на сервер недоступны в спайке'
   - ''
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:637:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:624:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:637:16
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:624:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -382,9 +382,9 @@ test at tests/unit/server-menu.test.mjs:651:3
   + 'Приглашения на сервер недоступны в спайке'
   - ''
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:657:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:652:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:657:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:652:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -400,7 +400,7 @@ test at tests/unit/server-menu.test.mjs:651:3
 test at tests/unit/server-menu.test.mjs:684:3
 ✖ меню: ширина/высота с клампом по viewport и прокрутка (0.300578ms)
   AssertionError [ERR_ASSERTION]: нет клампа ширины
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:686:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:686:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -421,7 +421,7 @@ test at tests/unit/server-menu.test.mjs:684:3
 test at tests/unit/server-menu.test.mjs:693:3
 ✖ разделитель: 8 px по вертикали, 0 по горизонтали (17 между группами) (0.146213ms)
   AssertionError [ERR_ASSERTION]: вертикальный отступ разделителя не --space-4
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:695:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:695:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -441,8 +441,8 @@ test at tests/unit/server-menu.test.mjs:693:3
 test at tests/unit/server-menu.test.mjs:700:3
 ✖ пункт: 32, двухстрочный 44–46, чекбокс 20×20, иконка 20 (0.171014ms)
   AssertionError [ERR_ASSERTION]: в CSS нет правила .menu-item.has-subtitle
-      at block (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:680:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:703:22)
+      at block (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:680:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:703:22)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -460,7 +460,7 @@ test at tests/unit/server-menu.test.mjs:700:3
 test at tests/unit/server-menu.test.mjs:713:3
 ✖ D5: диалог и backdrop прокручиваются, ширина карточки не изменилась (0.134354ms)
   AssertionError [ERR_ASSERTION]: у .dialog нет max-height (D5)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:715:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:715:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

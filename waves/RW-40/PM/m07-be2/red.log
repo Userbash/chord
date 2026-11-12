@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved import `discord_gui_spike::data::ReadStateEntry`
   --> tests/read_state_contract.rs:21:48
    |
@@ -75,7 +75,7 @@ Some errors have detailed explanations: E0425, E0432.
 For more information about an error, try `rustc --explain E0425`.
 error: could not compile `discord-gui-spike` (test "read_state_contract") due to 12 previous errors
 EXIT:101
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0425]: cannot find function `read_state` in module `data`
    --> tests/data_contract.rs:199:25
     |

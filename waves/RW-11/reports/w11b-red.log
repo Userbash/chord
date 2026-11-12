@@ -1,6 +1,6 @@
    Compiling tokio-rustls v0.26.6
    Compiling tokio-tungstenite v0.30.0
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.77s
      Running tests/rest_telemetry.rs (target/debug/deps/rest_telemetry-72c447a4024bc1ee)
 

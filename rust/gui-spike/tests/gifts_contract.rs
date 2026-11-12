@@ -374,7 +374,7 @@ fn create_gift_code_posts_canonical_payload_and_parses_gift_record() {
         "subscription_plan_id": "511651880837840896",
         "gift_style": 2,
         "flags": 4,
-        "user": {"id": "1014537851418980372", "username": "sanya"}
+        "user": {"id": "1014537851418980372", "username": "testuser"}
     }"#;
     let transport = FakeGiftTransport::answering(200, response_json);
     let req = CreateGiftCodeRequest {

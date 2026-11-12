@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
      Running tests/spellcheck_contract.rs (/tmp/opencode/target-w32a/debug/deps/spellcheck_contract-387ea7f9e40c77d3)
 

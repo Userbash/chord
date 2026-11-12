@@ -2,7 +2,7 @@
 
 > **Статус:** G3 Design — Нормативная спецификация (Wave RW-40, Pass 2)
 > **Модуль:** M-13 — Search UI (`SEARCH-202-NSFW-SPEC`)
-> **Зависимости:** `waves/RW-40/SEARCH-202-NSFW-RE.md`, `waves/RW-40/RE-DEEP-REA.md` (§2 `STUB-14` M-13), `waves/RW-40/THEME-SPEC.md`, `rust/gui-spike/ui/tokens.css`, `rust/gui-spike/ui/index.html`, `rust/gui-spike/ui/features/search.js`, `rust/gui-spike/ui/features/search-overlay.js`, `rust/gui-spike/ui/components/chat.css`, `rust/gui-spike/src/search.rs`
+> **Зависимости:** `waves/RW-40/SEARCH-202-NSFW-RE.md`, `waves/RW-40/reference-oracle-REA.md` (§2 `STUB-14` M-13), `waves/RW-40/THEME-SPEC.md`, `rust/gui-spike/ui/tokens.css`, `rust/gui-spike/ui/index.html`, `rust/gui-spike/ui/features/search.js`, `rust/gui-spike/ui/features/search-overlay.js`, `rust/gui-spike/ui/components/chat.css`, `rust/gui-spike/src/search.rs`
 > **Затрагиваемые файлы при будущей имплементации (G4 TDD / G5 Code):**
 > - `rust/gui-spike/ui/features/search.js`
 > - `rust/gui-spike/ui/features/search-overlay.js`
@@ -20,10 +20,10 @@
 
 | Тег | Расшифровка | Источник |
 |---|---|---|
-| `[D]` | **Decoded RE Bundle** | Декодированные веб-бандлы Discord Desktop (`82a5af57ee11dcd5_0`, `b9e153f9dfaafc9f_0`, `4d2a64cb5df5fc4e_0`, `effc40ce4f2aa27c_0`) и каталоги локализации (`en-catalog.json`, `ru-catalog.json`), сверенные в `waves/RW-40/SEARCH-202-NSFW-RE.md` и `waves/RW-40/RE-DEEP-REA.md` (§2). |
+| `[D]` | **Decoded RE Bundle** | Декодированные веб-бандлы Discord Desktop (`82a5af57ee11dcd5_0`, `b9e153f9dfaafc9f_0`, `4d2a64cb5df5fc4e_0`, `effc40ce4f2aa27c_0`) и каталоги локализации (`en-catalog.json`, `ru-catalog.json`), сверенные в `waves/RW-40/SEARCH-202-NSFW-RE.md` и `waves/RW-40/reference-oracle-REA.md` (§2). |
 | `[S]` | **Stylesheet Bundle** | CSS-правила и геометрия вёрстки поискового попапа, чипов и инфо-баннеров Discord Desktop. |
 | `[T]` | **Design Tokens (`tokens.css`)** | Вендоринг дизайн-токенов `rust/gui-spike/ui/tokens.css` (источник: `waves/RW-39/DESIGN/tokens.css`, md5 `62fffb9cb8bdd3429cd45160a77a2525`) и палитра `waves/RW-40/THEME-SPEC.md`. |
-| `[L]` | **Live Runtime** | Наблюдения `logs/` / `evidence/` и `/home/sanya/re-deep/ui8/*` для REST-эндпоинтов `/api/v9/guilds/{id}/messages/search` и `/api/v9/channels/{id}/messages/search`. |
+| `[L]` | **Live Runtime** | Наблюдения `logs/` / `evidence/` и `reference-oracle/ui8/*` для REST-эндпоинтов `/api/v9/guilds/{id}/messages/search` и `/api/v9/channels/{id}/messages/search`. |
 | `[F]` | **Frozen Repo Contract** | Замороженные инварианты репозитория: `rust/gui-spike/ui/features/search.js`, `rust/gui-spike/ui/features/search-overlay.js`, `rust/gui-spike/ui/components/chat.css`, `rust/gui-spike/src/search.rs`, `tests/unit/search-remote-real-index.test.mjs`, `tests/unit/gui-spike-features.test.mjs`, `rust/gui-spike/tests/search_contract.rs`. |
 | `[A]` | **Architecture Adaptation** | Адаптация под легковесную Vanilla JS + Tauri архитектуру `rust/gui-spike` без React/Flux, а также выводы без live-подтверждения (`SEARCH-202-NSFW-RE.md` §9). |
 
@@ -73,7 +73,7 @@
 
 ### 1.2. Строки локализации из `ru-catalog.json` / `en-catalog.json` (`[D]`)
 
-Все строки ниже дословно сверены с `/home/sanya/re-deep/en-catalog.json` и `/home/sanya/re-deep/ru-catalog.json`:
+Все строки ниже дословно сверены с `reference-oracle/en-catalog.json` и `reference-oracle/ru-catalog.json`:
 
 | Ключ i18n (`[D]`) | Точное значение в `en-catalog.json` | Точное значение в `ru-catalog.json` (нормативный UI-текст) | Назначение в M-13 |
 |---|---|---|---|
@@ -309,9 +309,9 @@
   <!-- 7. Статус и результаты (замороженные .search-status, .search-results, .search-footnote) -->
   <p class="search-status" aria-live="polite" data-state="ok"></p>
   <div class="search-results">
-    <button class="search-result" type="button" data-id="120001" data-source="remote" aria-label="Серверный результат: sanya, 2026-10-23">
+    <button class="search-result" type="button" data-id="120001" data-source="remote" aria-label="Серверный результат: developer, 2026-10-23">
       <span class="search-result-head">
-        sanya · канал 1001 · 2026-10-23 14:20
+        developer · канал 1001 · 2026-10-23 14:20
         <span class="search-result-nsfw-badge" aria-label="Канал с возрастным ограничением 18+">18+</span>
       </span>
       <span class="search-result-text">Текст найденного сообщения…</span>

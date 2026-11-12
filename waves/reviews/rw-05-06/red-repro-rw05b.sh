@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -u
-SRC=/home/sanya/orca/project/rust/crates/discord-core/src
+SRC=/home/user/orca/project/rust/crates/discord-core/src
 OUT=/tmp/opencode/review-rw-0506
 BK=$OUT/red5-backup
 mkdir -p "$BK"
@@ -35,6 +35,6 @@ assert old in w
 w = w.replace(old, '')
 open(ws, 'w', encoding='utf-8').write(w)
 PY
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 { cargo test --offline -p discord-core --test identify_ready 2>&1; echo "# EXIT=$?"; md5sum crates/discord-core/tests/identify_ready.rs; } > "$OUT/red-repro-rw05b.txt"
 restore

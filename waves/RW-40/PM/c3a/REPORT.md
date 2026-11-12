@@ -2,7 +2,7 @@
 
 Дата: 2026-10-24. Воркер: G3 Design. PM: DeepSeek.
 Карточка: C3a (`waves/RW-40/TASKS.md`, «темы light/cozy»). Только документы; код не менялся.
-Вход: `/home/sanya/re-deep/ui/tokens.json` (4795 переменных), `ui/00-app.png`, `ui/log.json`,
+Вход: `reference-oracle/ui/tokens.json` (4795 переменных), `ui/00-app.png`, `ui/log.json`,
 `waves/RW-39/DESIGN/{tokens.css,SPEC.md,REFERENCES.md}`, `waves/RW-40/DESIGN/DESIGN-MSG.md`,
 `waves/RW-37/RE/layout.json`, `rust/gui-spike/ui/{tokens.css,index.html,features/settings.js}`.
 

@@ -24,7 +24,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..",
 MD = os.path.join(ROOT, "waves/RW-40/DESIGN/VOICE.md")
 JSON_PATH = os.path.join(ROOT, "waves/RW-40/DESIGN/voice-spec.json")
 TOKENS = os.path.join(ROOT, "rust/gui-spike/ui/tokens.css")
-RU_CATALOG = "/home/sanya/re-deep/ru-catalog.json"
+RU_CATALOG = "/home/user/clean-room-oracle/ru-catalog.json"
 
 fails = []
 passes = []

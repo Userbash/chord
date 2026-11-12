@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/crates/discord-core/src/gateway/supervisor.rs:18:
+Diff in /home/user/orca/project/rust/crates/discord-core/src/gateway/supervisor.rs:18:
  
  use crate::gateway::{HeartbeatMode, Session};
  use crate::identify::{
@@ -14,7 +14,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/src/gateway/supervisor
 (B[m 
  /// Детерминированный backoff: база, ×2, потолок; сброс после успешной сессии.
  #[derive(Debug, Clone, PartialEq, Eq)]
-Diff in /home/sanya/orca/project/rust/crates/discord-core/src/lib.rs:27:
+Diff in /home/user/orca/project/rust/crates/discord-core/src/lib.rs:27:
  /// отдельная зависимость на `discord-codec`.
  pub use discord_codec as codec;
  pub use dispatch::{DispatchEvent, DispatchKind, route_dispatch};
@@ -25,7 +25,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/src/lib.rs:27:
 (B[m pub use gateway::supervisor::{
      Backoff, CloseAction, StopReason, Supervisor, SupervisorConfig, SupervisorOutcome,
      classify_close,
-Diff in /home/sanya/orca/project/rust/crates/discord-core/src/lib.rs:37:
+Diff in /home/user/orca/project/rust/crates/discord-core/src/lib.rs:37:
 [32m+};
 (B[m[32m+pub use gateway::{
 (B[m[32m+    Effect, GatewayError, HeartbeatMode, Hello, Op, QOS_HEARTBEAT_OP, QosPayload, ReconnectReason,
@@ -33,7 +33,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/src/lib.rs:37:
 (B[m };
  pub use history::{
      Cursor, History, HistoryConfig, HistoryDiagnostics, HistoryError, LiveOutcome, MessagePage,
-Diff in /home/sanya/orca/project/rust/crates/discord-core/src/ws.rs:58:
+Diff in /home/user/orca/project/rust/crates/discord-core/src/ws.rs:58:
  
  use crate::dispatch::{DispatchEvent, route_dispatch};
  use crate::gateway::{
@@ -42,7 +42,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/src/ws.rs:58:
 (B[m };
  use crate::identify::{IdentifyError, IdentifyParams, build_identify_frame};
  use crate::ready::ReadySummary;
-Diff in /home/sanya/orca/project/rust/crates/discord-core/src/ws.rs:450:
+Diff in /home/user/orca/project/rust/crates/discord-core/src/ws.rs:450:
          None => EtfValue::Nil,
      };
      let value = EtfValue::Map(vec![
@@ -54,7 +54,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-core/src/ws.rs:450:
 (B[m         (
              EtfValue::Atom("d".to_string()),
              EtfValue::Map(vec![
-Diff in /home/sanya/orca/project/rust/crates/discord-core/tests/gateway_supervisor.rs:462:
+Diff in /home/user/orca/project/rust/crates/discord-core/tests/gateway_supervisor.rs:462:
  
      let properties = d.get("properties").expect("properties");
      assert_eq!(

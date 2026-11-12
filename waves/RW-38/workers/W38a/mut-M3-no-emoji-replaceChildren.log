@@ -37,9 +37,9 @@ test at tests/unit/gui-spike-dom.test.mjs:335:3
   
     assert.ok(cellsBefore.length > 0 && cellsBefore.length <= 120)
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:348:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:336:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:348:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:336:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -56,9 +56,9 @@ test at tests/unit/gui-spike-dom.test.mjs:363:3
   
   280 !== 0
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:373:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:364:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:373:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:364:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

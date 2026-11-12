@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-170-rest-retry-policy/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-170-rest-retry-policy/rust/crates/discord-core)
 error[E0432]: unresolved imports `discord_core::rest::rate_limit::DEFAULT_RETRY_AFTER`, `discord_core::rest::rate_limit::MAX_RETRY_AFTER`, `discord_core::rest::rate_limit::RETRYABLE_SERVER_STATUSES`, `discord_core::rest::rate_limit::is_retryable_server_status`, `discord_core::rest::rate_limit::parse_retry_after_or_default`, `discord_core::rest::rate_limit::retry_delay_client_parity`, `discord_core::rest::rate_limit::should_retry_client_parity`
    --> crates/discord-core/tests/rest_retry.rs:642:5
     |

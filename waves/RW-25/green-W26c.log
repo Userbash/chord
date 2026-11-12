@@ -2,7 +2,7 @@
 Дата: 2026-10-22
 target-dir: /tmp/opencode/target-w26c (свой слот, общий target-dir занят другими лейнами)
 
-$ cd /home/sanya/orca/project/rust
+$ cd /home/user/orca/project/rust
 $ export CARGO_TARGET_DIR=/tmp/opencode/target-w26c
 
 --- 1. targeted-тесты ---
@@ -41,7 +41,7 @@ EXIT_CODE=0
 
 --- 2. весь крейт ---
 $ cargo test --offline -p discord-updater
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+   Compiling discord-updater v0.1.0 (/home/user/orca/project/rust/crates/discord-updater)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running unittests src/lib.rs (/tmp/opencode/target-w26c/debug/deps/discord_updater-377bc9cf830c13b5)
 
@@ -88,7 +88,7 @@ EXIT_CODE=0
 
 --- 3. clippy ---
 $ cargo clippy --offline -p discord-updater --all-targets -- -D warnings
-    Checking discord-updater v0.1.0 (/home/sanya/orca/project/rust/crates/discord-updater)
+    Checking discord-updater v0.1.0 (/home/user/orca/project/rust/crates/discord-updater)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
 EXIT_CODE=0
 

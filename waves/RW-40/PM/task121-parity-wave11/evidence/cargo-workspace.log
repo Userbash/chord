@@ -1,4 +1,4 @@
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-json)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-json)
    Compiling proc-macro2 v1.0.107
    Compiling find-msvc-tools v0.1.15
    Compiling shlex v2.0.1
@@ -42,23 +42,23 @@
    Compiling webpki-roots v0.26.11
    Compiling zstd-safe v8.2.0
    Compiling serde_core v1.0.229
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-voice)
    Compiling futures-util v0.3.34
    Compiling serde v1.0.229
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-codec)
    Compiling version_check v0.9.5
    Compiling zmij v1.0.23
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-i18n)
    Compiling serde_json v1.0.154
    Compiling hybrid-array v0.4.15
    Compiling generic-array v0.14.7
    Compiling memchr v2.8.3
    Compiling syn v3.0.9
    Compiling cpufeatures v0.2.17
-   Compiling discord-conformance v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-conformance)
-   Compiling discord-store v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-store)
-   Compiling discord-media v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-media)
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-platform)
+   Compiling discord-conformance v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-conformance)
+   Compiling discord-store v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-store)
+   Compiling discord-media v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-media)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-platform)
    Compiling block-buffer v0.12.1
    Compiling crypto-common v0.2.2
    Compiling block-buffer v0.10.4
@@ -75,14 +75,14 @@
    Compiling tokio v1.53.3
    Compiling zstd v0.14.3
    Compiling rustls-webpki v0.103.15
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-updater)
-   Compiling discord-ui v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-ui)
+   Compiling discord-updater v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-updater)
+   Compiling discord-ui v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-ui)
    Compiling tungstenite v0.30.0
    Compiling tokio-rustls v0.26.6
    Compiling tokio-tungstenite v0.30.0
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-core)
-   Compiling discord-perf v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-perf)
-   Compiling discord-app v0.1.0 (/home/sanya/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-app)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-core)
+   Compiling discord-perf v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-perf)
+   Compiling discord-app v0.1.0 (/home/user/orca/workspaces/project/docs-task-121-parity-wave11/rust/crates/discord-app)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 16.79s
      Running unittests src/main.rs (rust/target/debug/deps/discord_rs-8394de29aa9eb3e0)
 

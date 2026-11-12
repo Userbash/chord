@@ -25,7 +25,7 @@ test at tests/unit/guild-rail.test.mjs:138:3
   
   null !== 'ready'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:142:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/guild-rail.test.mjs:142:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -41,7 +41,7 @@ test at tests/unit/guild-rail.test.mjs:138:3
 test at tests/unit/guild-rail.test.mjs:183:3
 ✖ клик меняет выбранный сервер (aria-current, is-selected, заголовок дерева) (9.710131ms)
   AssertionError [ERR_ASSERTION]: нет пятой плитки
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:188:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/guild-rail.test.mjs:188:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -58,7 +58,7 @@ test at tests/unit/guild-rail.test.mjs:205:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:215:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/guild-rail.test.mjs:215:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -75,7 +75,7 @@ test at tests/unit/guild-rail.test.mjs:232:3
   
   null !== 'empty'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:236:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/guild-rail.test.mjs:236:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -92,7 +92,7 @@ test at tests/unit/guild-rail.test.mjs:246:3
   
   null !== 'error'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:256:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/guild-rail.test.mjs:256:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -109,7 +109,7 @@ test at tests/unit/guild-rail.test.mjs:278:3
   
   null !== 'loading'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/guild-rail.test.mjs:285:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/guild-rail.test.mjs:285:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

@@ -1,6 +1,6 @@
 **W25a / P7-01 выполнено.** Добавлены locale fallback, cardinal/ordinal plural и форматирование чисел, дат, времени и skeleton на данных CLDR. Contract-тесты сверяют 36 локалей с `cldr-oracle.json`.
 
-Red-прогоны трёх targeted-наборов завершились ожидаемым падением на заглушках, exit code `101`; команды и вывод сохранены в [red-W25a.log](/home/sanya/orca/project/waves/RW-24/red-W25a.log). Финальные targeted-прогоны зелёные: locale — 2 теста, plural — 2, format — 3; результаты в [green-W25a.log](/home/sanya/orca/project/waves/RW-24/green-W25a.log). Clippy пакета и `rustfmt --check` назначенных файлов прошли. `cargo fmt --all -- --check` обнаружил форматирование в чужом существующем `tests/i18n_contract.rs`; этот файл не менял.
+Red-прогоны трёх targeted-наборов завершились ожидаемым падением на заглушках, exit code `101`; команды и вывод сохранены в [red-W25a.log](/home/user/orca/project/waves/RW-24/red-W25a.log). Финальные targeted-прогоны зелёные: locale — 2 теста, plural — 2, format — 3; результаты в [green-W25a.log](/home/user/orca/project/waves/RW-24/green-W25a.log). Clippy пакета и `rustfmt --check` назначенных файлов прошли. `cargo fmt --all -- --check` обнаружил форматирование в чужом существующем `tests/i18n_contract.rs`; этот файл не менял.
 
 MD5:
 

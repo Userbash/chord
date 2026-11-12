@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error[E0432]: unresolved imports `discord_core::state::Activity`, `discord_core::state::ActivityType`, `discord_core::state::MergedPresences`, `discord_core::state::Presence`, `discord_core::state::PresenceKey`, `discord_core::state::PresenceScope`, `discord_core::state::PresenceStatus`, `discord_core::state::PresenceUpdate`
   --> crates/discord-core/tests/presence_types.rs:15:5
    |

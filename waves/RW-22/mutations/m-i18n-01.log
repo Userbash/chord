@@ -1,5 +1,5 @@
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
      Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 

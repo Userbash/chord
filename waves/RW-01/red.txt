@@ -1,4 +1,4 @@
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
 warning: unused variable: `key`
   --> crates/discord-codec/src/etf.rs:95:23
    |

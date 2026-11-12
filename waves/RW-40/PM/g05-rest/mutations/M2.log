@@ -66,10 +66,10 @@ test at tests/unit/server-menu.test.mjs:246:3
   
   '0' !== '-1'
   
-      at check (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:255:18)
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:269:7
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:247:5)
+      at check (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:255:18)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:269:7
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:247:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

@@ -6,7 +6,7 @@
 - **Проверенные файлы**:
   - `rust/gui-spike/ui/features/voice.js` (MD5: `652f974268db0f7ddee22304fd2a692c`)
   - `tests/unit/voice_ui.test.mjs` (MD5: `dd4a96a1d3c56644ea168e09f549fee7`)
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-154-voice-go-live-ui`
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-154-voice-go-live-ui`
 
 ---
 

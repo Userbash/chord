@@ -2,17 +2,17 @@
 
 - **Отдел:** G5 Voice / Platform (`DeepSeek` — `--agent opencode --model deepseek/deepseek-v4.1-flash`)
 - **Уровень сложности / Приоритет:** `L2 / P1` (по `waves/RW-40/PM/MODEL-ROUTING-CRITERIA.md`)
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/feature-task-291-voice-stats-re22` (`branch:feature/task-291-voice-stats-re22`)
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/feature-task-291-voice-stats-re22` (`branch:feature/task-291-voice-stats-re22`)
 - **Разрешённый к изменению файл (строго 1 файл):**
   - `rust/crates/discord-voice/src/stats.rs` (строки после строки 469 + расширение `#[cfg(test)] mod tests`)
 - **Артефакты отчёта:**
-  - `/home/sanya/orca/project/waves/RW-40/G5/task-291-voice-stats-re22/REPORT.md`
-  - `/home/sanya/orca/project/waves/RW-40/G5/task-291-voice-stats-re22/red.log`
-  - `/home/sanya/orca/project/waves/RW-40/G5/task-291-voice-stats-re22/green.log`
+  - `/home/user/orca/project/waves/RW-40/G5/task-291-voice-stats-re22/REPORT.md`
+  - `/home/user/orca/project/waves/RW-40/G5/task-291-voice-stats-re22/red.log`
+  - `/home/user/orca/project/waves/RW-40/G5/task-291-voice-stats-re22/green.log`
 
 ## Источники контракта (прочитай сразу, не сканируя весь репозиторий)
-- `/home/sanya/orca/project/waves/RW-40/PM/BACKLOG-RE-22.md` (§ `RE-22-01`, строки 20–44)
-- `/home/sanya/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`
+- `/home/user/orca/project/waves/RW-40/PM/BACKLOG-RE-22.md` (§ `RE-22-01`, строки 20–44)
+- `/home/user/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`
 
 ## Требования к реализации (Strict TDD: сначала напиши тесты в `stats.rs` с заглушками -> `red.log`, затем реализацию -> `green.log`)
 
@@ -46,7 +46,7 @@
      - обрезает пробелы, возвращает подстроку до первой `.` или `:` (например, `"finland10192.discord.media:443"` -> `"finland10192"`).
    - `#[derive(Debug, Clone, PartialEq)] pub struct RtcConnectionStatsSnapshot`:
      - `pub short_hostname: String`, `pub last_ping_ms: Option<u64>`, `pub average_ping_ms: u64`, `pub outbound_loss_rate_pct: Option<f64>`, `pub quality: ConnectionQuality`, `pub packets_sent: u64`, `pub packets_lost: i64`, `pub bytes_sent: u64`, `pub bytes_received: u64`, `pub decryption_failures: u64`, `pub secure_frames_protocol_version: u16`.
-2. **Проверки (с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`):**
-   - `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-voice`
-   - `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-voice --tests -- -D warnings`
+2. **Проверки (с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`):**
+   - `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-voice`
+   - `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-voice --tests -- -D warnings`
 3. Запиши `red.log`, `green.log` и `REPORT.md` (с `md5sum rust/crates/discord-voice/src/stats.rs`) и заверши задачу через `orca orchestration complete`. Не делай `git commit/push`.

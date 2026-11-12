@@ -20,7 +20,7 @@
 test at tests/unit/webrtc-bwe-congestion-982.test.mjs:116:3
 ✖ SUB-982-0: модуль rust/discord-voice/src/congestion.rs существует, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений (0.815618ms)
   AssertionError [ERR_ASSERTION]: Модуль rust/discord-voice/src/congestion.rs должен существовать
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:117:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:117:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Promise.all (index 0)
@@ -37,7 +37,7 @@ test at tests/unit/webrtc-bwe-congestion-982.test.mjs:116:3
 test at tests/unit/webrtc-bwe-congestion-982.test.mjs:171:3
 ✖ SUB-982-1: сверяет константы BWE (500..8000 kbps), дизайн-токены и интерактивные состояния bwe-graph с RE-оракулами и waves/kanban-board.json (0.216508ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:172:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:172:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -52,7 +52,7 @@ test at tests/unit/webrtc-bwe-congestion-982.test.mjs:171:3
 test at tests/unit/webrtc-bwe-congestion-982.test.mjs:246:3
 ✖ SUB-982-2: корректно кодирует и разбирает пакеты RTCP REMB (PT=206, FMT=15, 'REMB', 6-бит exp + 18-бит mantissa) и отсекает повреждённые пакеты (0.207438ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:247:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:247:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -67,7 +67,7 @@ test at tests/unit/webrtc-bwe-congestion-982.test.mjs:246:3
 test at tests/unit/webrtc-bwe-congestion-982.test.mjs:301:3
 ✖ SUB-982-3: корректно кодирует и разбирает пакеты RTCP TWCC (PT=205, FMT=15), обрабатывает переход sequence 65535 -> 0 и вычисляет градиенты задержки (0.186556ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:302:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:302:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -82,7 +82,7 @@ test at tests/unit/webrtc-bwe-congestion-982.test.mjs:301:3
 test at tests/unit/webrtc-bwe-congestion-982.test.mjs:366:3
 ✖ SUB-982-4: плавно адаптирует битрейт в диапазоне 500..8000 kbps по REMB и TWCC без сброса соединения и проверяет CLI scripts/verify-bwe.mjs (0.261149ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:367:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:367:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -97,7 +97,7 @@ test at tests/unit/webrtc-bwe-congestion-982.test.mjs:366:3
 test at tests/unit/webrtc-bwe-congestion-982.test.mjs:480:3
 ✖ SUB-982-5: убивает 5/5 контрольных мутаций модуля rust/discord-voice/src/congestion.rs (100% mutation kill rate) (0.146825ms)
   AssertionError [ERR_ASSERTION]: Исходник модуля должен существовать
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:481:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/webrtc-bwe-congestion-982.test.mjs:481:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {

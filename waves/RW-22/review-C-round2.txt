@@ -4,18 +4,18 @@
 
 Проверка семи пунктов:
 
-1. **Plural exact и дробные CLDR — закрыто.** Точное ветвление применяется только к целому значению; дробные уходят в `other`. Тест проверяет `2.0`, `1.5` и русские целые категории в [lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:492).
+1. **Plural exact и дробные CLDR — закрыто.** Точное ветвление применяется только к целому значению; дробные уходят в `other`. Тест проверяет `2.0`, `1.5` и русские целые категории в [lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:492).
 
-2. **Markdown-ссылки со вложенными скобками и незакрытый fence — закрыто.** Парсер ссылки балансирует вложенные круглые скобки ([lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:668)); тест включает `alert(1)` и незакрытые варианты fence, включая `"```\n"` ([lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:960)). По текущей реализации этот вход не паникует: при отсутствии закрывающего fence парсер возвращает `None`.
+2. **Markdown-ссылки со вложенными скобками и незакрытый fence — закрыто.** Парсер ссылки балансирует вложенные круглые скобки ([lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:668)); тест включает `alert(1)` и незакрытые варианты fence, включая `"```\n"` ([lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:960)). По текущей реализации этот вход не паникует: при отсутствии закрывающего fence парсер возвращает `None`.
 
-3. **Fallback-тест с разными каталогами — закрыто.** Тест создаёт отдельные `en-US` и `ru` каталоги, причём ключ `fallback` есть только в `en-US` ([lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:883)).
+3. **Fallback-тест с разными каталогами — закрыто.** Тест создаёт отдельные `en-US` и `ru` каталоги, причём ключ `fallback` есть только в `en-US` ([lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:883)).
 
-4. **Debug неизвестного voice payload не печатает raw/секреты — закрыто.** `Debug` выдаёт `<redacted>` вместо raw ([lib.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:322)); тест проверяет отсутствие значений token и secret_key ([signaling.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:361)).
+4. **Debug неизвестного voice payload не печатает raw/секреты — закрыто.** `Debug` выдаёт `<redacted>` вместо raw ([lib.rs](/home/user/orca/project/rust/crates/discord-voice/src/lib.rs:322)); тест проверяет отсутствие значений token и secret_key ([signaling.rs](/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:361)).
 
-5. **Endpoint не дублирует `/?v=9` — закрыто.** Существующий суффикс снимается перед сборкой URL ([lib.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:650)); тест проверяет точный результат ([signaling.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:370)).
+5. **Endpoint не дублирует `/?v=9` — закрыто.** Существующий суффикс снимается перед сборкой URL ([lib.rs](/home/user/orca/project/rust/crates/discord-voice/src/lib.rs:650)); тест проверяет точный результат ([signaling.rs](/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:370)).
 
-6. **SelectProtocol содержит верхнеуровневые address/port/mode — закрыто.** Поля сохраняются в структуре, сериализуются на верхний уровень `d` и проверяются тестом capture-контракта ([lib.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs:203), [signaling.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs:140)).
+6. **SelectProtocol содержит верхнеуровневые address/port/mode — закрыто.** Поля сохраняются в структуре, сериализуются на верхний уровень `d` и проверяются тестом capture-контракта ([lib.rs](/home/user/orca/project/rust/crates/discord-voice/src/lib.rs:203), [signaling.rs](/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs:140)).
 
-7. **D-02 использован как независимый oracle — закрыто.** Тест читает `docs/re/rest-d02.json` и сверяет с ним путь, метод и статусы каталога ресурсов ([rest_resources.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:122)). Отдельная сверка маршрута с таблицей GET есть и в [rest_resources.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs:33).
+7. **D-02 использован как независимый oracle — закрыто.** Тест читает `docs/re/rest-d02.json` и сверяет с ним путь, метод и статусы каталога ресурсов ([rest_resources.rs](/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:122)). Отдельная сверка маршрута с таблицей GET есть и в [rest_resources.rs](/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs:33).
 
 Тесты и скрипты не запускал; проверка выполнена чтением текущих файлов.

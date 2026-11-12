@@ -1,11 +1,11 @@
 # Отчёт воркера: task-151 (`FE-P0-05` Mount Attachments Queue in Composer)
 
 - **Batch / Волна**: `RW-40` (Отдел G2 Frontend)
-- **Карточка**: `task-151` / `FE-P0-05` (`/home/sanya/orca/project/waves/RW-40/PM/BACKLOG-RE-FRONTEND.md`, строки 158–192)
+- **Карточка**: `task-151` / `FE-P0-05` (`/home/user/orca/project/waves/RW-40/PM/BACKLOG-RE-FRONTEND.md`, строки 158–192)
 - **Спецификации и оракулы**:
-  - `docs/specs/M-11-ATTACHMENTS.md` / `/home/sanya/orca/project/waves/RW-40/DESIGN/ATTACHMENTS-SPEC.md` (лимит 10 файлов, `<= 25 МБ` (`26_214_400` байт) на файл, `SPOILER_`, `description` / `alt text`, `#attachment-shelf` над `#composer-input`, вызов `uploadAll()` -> `upload_attachments`, отправка сообщения с пустым текстом при `>= 1` вложении, очистка после отправки и при `destroy()`)
-  - `/home/sanya/orca/project/waves/RW-40/ATTACH-RE.md` (`n4 = 10`, `SPOILER_`, `AttachmentFlags.IS_SPOILER = 1 << 3 = 8`)
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer` (`HEAD = 4e24048`)
+  - `docs/specs/M-11-ATTACHMENTS.md` / `/home/user/orca/project/waves/RW-40/DESIGN/ATTACHMENTS-SPEC.md` (лимит 10 файлов, `<= 25 МБ` (`26_214_400` байт) на файл, `SPOILER_`, `description` / `alt text`, `#attachment-shelf` над `#composer-input`, вызов `uploadAll()` -> `upload_attachments`, отправка сообщения с пустым текстом при `>= 1` вложении, очистка после отправки и при `destroy()`)
+  - `/home/user/orca/project/waves/RW-40/ATTACH-RE.md` (`n4 = 10`, `SPOILER_`, `AttachmentFlags.IS_SPOILER = 1 << 3 = 8`)
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-151-mount-attachments-composer` (`HEAD = 4e24048`)
 
 ---
 
@@ -33,7 +33,7 @@
 
 - **Команда**: `node --test tests/unit/attachments-ui.test.mjs`
 - **Код выхода**: `1` (`tests 11, pass 4, fail 7`)
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/red.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/red.log`
 
 Выдержка из `red.log`:
 ```text
@@ -53,9 +53,9 @@
 
 ## 3. Green-прогон (после реализации)
 
-- **Команда**: `node --test tests/unit/attachments-ui.test.mjs tests/unit/gui-spike-dom.test.mjs /home/sanya/orca/project/tests/unit/composer.test.mjs tests/meta/ipc-path.test.mjs tests/meta/test-policy.test.mjs && npx tsc -p rust/gui-spike/ui/tsconfig.json`
+- **Команда**: `node --test tests/unit/attachments-ui.test.mjs tests/unit/gui-spike-dom.test.mjs /home/user/orca/project/tests/unit/composer.test.mjs tests/meta/ipc-path.test.mjs tests/meta/test-policy.test.mjs && npx tsc -p rust/gui-spike/ui/tsconfig.json`
 - **Код выхода**: `0` (`tests 98, pass 98, fail 0`)
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/green.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/green.log`
 
 Выдержка из `green.log`:
 ```text
@@ -78,7 +78,7 @@
 - `npx tsc -p rust/gui-spike/ui/tsconfig.json` → **exit 0** (0 ошибок)
 - `npx tsc -p tsconfig.json` → **0 ошибок** во всех 3 назначенных файлах (`composer.js`, `attachments.js`, `attachments-ui.test.mjs`; в базовом коммите `4e24048` присутствуют только до-базовые предупреждения в чужом `tests/unit/dispatch_ui.test.mjs`, зафиксированные в `REVIEW-59A.md`)
 - `node --test tests/unit/gui-spike-dom.test.mjs` → **29/29 pass** (`exit 0`)
-- `node --test /home/sanya/orca/project/tests/unit/composer.test.mjs` → **29/29 pass** (`exit 0`)
+- `node --test /home/user/orca/project/tests/unit/composer.test.mjs` → **29/29 pass** (`exit 0`)
 - `node --test tests/unit/gui-spike-features.test.mjs` → **100/100 pass** (`exit 0`)
 - `node --test tests/meta/ipc-path.test.mjs tests/meta/test-policy.test.mjs` → **29/29 pass** (`exit 0`)
 
@@ -86,7 +86,7 @@
 
 ## 5. Проверка мутациями (TEST-POLICY §5)
 
-Выполнены 5 целевых мутаций с сохранением лога в `/home/sanya/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/mutations.log`:
+Выполнены 5 целевых мутаций с сохранением лога в `/home/user/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/mutations.log`:
 1. **M1 (`attachments.js`)**: `MAX_ATTACHMENT_COUNT = 10 -> 9` → **KILLED** (`exit=1`, `fail 3`).
 2. **M2 (`attachments.js`)**: `SPOILER_PREFIX = "SPOILER_" -> "HIDDEN_"` → **KILLED** (`exit=1`, `fail 5`).
 3. **M3 (`composer.js`)**: блокировка пустого текста даже при `queuedCount > 0` → **KILLED** (`exit=1`, `fail 1`).
@@ -104,10 +104,10 @@
 | `rust/gui-spike/ui/features/composer.js` | modified | `db914a85335b56913710ac513be37c2e` |
 | `rust/gui-spike/ui/features/attachments.js` | added | `324ded5e39847f4e99532dc861d1269a` |
 | `tests/unit/attachments-ui.test.mjs` | added | `9380e9230098f0aabf9fca1423b26b5d` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/red.log` | log | `5817643a681e65d19413d6528cebe4ee` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/green.log` | log | `d228f1fba90151b10f7927de29ee23a5` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/mutations.log` | log | `727f9cb8a3fcde051b14efb1a2a76ae7` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/REPORT.md` | report | — |
+| `/home/user/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/red.log` | log | `5817643a681e65d19413d6528cebe4ee` |
+| `/home/user/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/green.log` | log | `d228f1fba90151b10f7927de29ee23a5` |
+| `/home/user/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/mutations.log` | log | `727f9cb8a3fcde051b14efb1a2a76ae7` |
+| `/home/user/orca/project/waves/RW-40/G2/task-151-mount-attachments-composer/REPORT.md` | report | — |
 
 Файлы `app.js`, `index.html`, `chat.js` **не затрагивались**.
 

@@ -16,9 +16,9 @@
 - `tests/unit/forum-filter.test.mjs` (1 ошибка)
 - `tests/unit/audit-log.test.mjs` (1 ошибка)
 - `tests/unit/attachment-validator.test.mjs` (1 ошибка)
-- `/home/sanya/orca/project/waves/RW-40/G2/task-282-unit-tsc-fix-batch3/red.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-282-unit-tsc-fix-batch3/green.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-282-unit-tsc-fix-batch3/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/G2/task-282-unit-tsc-fix-batch3/red.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-282-unit-tsc-fix-batch3/green.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-282-unit-tsc-fix-batch3/REPORT.md`
 
 ## Шаги выполнения (Strict TDD: Red -> Green)
 1. **Red:** Запусти `npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E "locale-switcher\.test|inbox\.test|embed-formatter\.test|voice-input-mode\.test|poll-progress\.test|markdown-helper\.test|invite-parser\.test|forum-filter\.test|audit-log\.test|attachment-validator\.test"` и сохрани вывод (34 ошибки) в `red.log`.

@@ -12,7 +12,7 @@
   сохранить в `waves/RW-10/reports/<id>-test.red.rs` **до** реализации. Потом минимальный код.
 - Оракул — RFC 9110/9112 и фикстуры/оракулы из ТЗ, **не** подгонка под реализацию.
 - Сеть — только `127.0.0.1`, каждый кейс под `tokio::time::timeout(5 c)`. Новых зависимостей нет.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `reference-oracle/`.
 - Не делать commit/push. `npm run gate:worker` не запускать — финальный гейт у координатора.
 - Отчёт по PROCESS.md §4.2 → `waves/RW-10/reports/<id>.md`.
 

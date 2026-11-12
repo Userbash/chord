@@ -7,7 +7,7 @@
   - `tests/unit/attachments-ui.test.mjs`
 - **Ревьюер**: Технический ревьюер (Review 68A)
 - **Дата проверки**: 2026-10-30
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-151-mount-attachments-composer` (`HEAD = 4e24048`)
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-151-mount-attachments-composer` (`HEAD = 4e24048`)
 
 ---
 
@@ -15,7 +15,7 @@
 
 - **Вердикт**: **PASS / Ready for Merge**
 - **Уровень дефектов**: **P3** (замечаний уровня P0, P1, P2 не обнаружено).
-- Все функциональные требования и инварианты из `docs/specs/M-11-ATTACHMENTS.md`, `/home/sanya/orca/project/waves/RW-40/DESIGN/ATTACHMENTS-SPEC.md` и `/home/sanya/orca/project/waves/RW-40/ATTACH-RE.md` полностью соблюдены:
+- Все функциональные требования и инварианты из `docs/specs/M-11-ATTACHMENTS.md`, `/home/user/orca/project/waves/RW-40/DESIGN/ATTACHMENTS-SPEC.md` и `/home/user/orca/project/waves/RW-40/ATTACH-RE.md` полностью соблюдены:
   - Лимиты очереди: не более 10 файлов (`MAX_ATTACHMENT_COUNT = 10`), размер файла `<= 25 МБ` (`MAX_ATTACHMENT_SIZE_BYTES = 26_214_400` байт).
   - Приём файлов через кнопку прикрепления `#composer-attach-btn` (`<input type="file" id="composer-file-input">`), drag-and-drop (`dragenter`/`dragover`/`dragleave`/`drop`) и вставку из буфера обмена (`paste`).
   - Рендеринг полки `#attachment-shelf` непосредственно над полем ввода `#composer-input` с карточками `.attachment-card`, переключателем спойлера (`SPOILER_` префикс и флаг `IS_SPOILER = 8`), полем описания (`alt text` / `description`) и кнопкой удаления (`.attachment-remove-btn`).

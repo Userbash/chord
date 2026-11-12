@@ -70,7 +70,7 @@ test at tests/unit/channel-paging.test.mjs:388:3
   -   position: 'latest'
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:395:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:395:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -94,7 +94,7 @@ test at tests/unit/channel-paging.test.mjs:630:3
   -   position: 'latest'
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:641:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:641:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -118,7 +118,7 @@ test at tests/unit/channel-paging.test.mjs:669:3
   -   '1561627528685166655'
   - ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:684:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:684:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -142,7 +142,7 @@ test at tests/unit/channel-paging.test.mjs:720:3
   -   '1561627528685166655'
   - ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:751:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:751:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -156,9 +156,9 @@ test at tests/unit/channel-paging.test.mjs:720:3
 test at tests/unit/channel-paging.test.mjs:790:5
 ✖ ошибка 404: alert сверху, строки целы, retry догружает (14.165ms)
   AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-older
-      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:305:10)
-      at olderBar (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:384:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:808:21)
+      at firstNode (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:305:10)
+      at olderBar (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:384:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:808:21)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -174,9 +174,9 @@ test at tests/unit/channel-paging.test.mjs:790:5
 test at tests/unit/channel-paging.test.mjs:790:5
 ✖ ошибка 401: alert сверху, строки целы, retry догружает (12.037967ms)
   AssertionError [ERR_ASSERTION]: нет #chat-list .chat-history-older
-      at firstNode (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:305:10)
-      at olderBar (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:384:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:808:21)
+      at firstNode (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:305:10)
+      at olderBar (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:384:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:808:21)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -193,7 +193,7 @@ test at tests/unit/channel-paging.test.mjs:837:3
   
   0 !== 100
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:910:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:910:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

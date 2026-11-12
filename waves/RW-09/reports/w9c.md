@@ -29,14 +29,14 @@
   Порядок генерации UUID фиксирован: `client_launch_id`, `launch_signature`,
   `client_heartbeat_session_id`.
 - Границы: `Cargo.toml`/`Cargo.lock` не менялись (`git diff` пуст); чужие файлы, `docs/`, `waves/`,
-  golden и `/home/sanya/re-deep` не трогались.
+  golden и `reference-oracle/` не трогались.
 
 ## Red
 
 Команда:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 bash -c 'cargo test --offline -p discord-core --test rest_identity 2>&1 \
   | tee /tmp/opencode/rw-09/w9c/red.log; \
   echo "# EXIT=${PIPESTATUS[0]}" | tee -a /tmp/opencode/rw-09/w9c/red.log'

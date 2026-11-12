@@ -1,5 +1,5 @@
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test markdown_contract renders_the_23_frozen_markdown_rules -- --exact
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
      Running tests/markdown_contract.rs (target/debug/deps/markdown_contract-5713afa49f3299b6)
 

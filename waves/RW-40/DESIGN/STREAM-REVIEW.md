@@ -159,7 +159,7 @@
 Воспроизведено независимо (`measure.py`, вывод в `/tmp`, golden-файл только читался):
 
 ```text
-input: /home/sanya/re-deep/voice/ui/01-joined.png size=2560x1383 dpr=1.25
+input: reference-oracle/voice/ui/01-joined.png size=2560x1383 dpr=1.25
 buttons_with_fill=3 widths_css=[79.2, 80.0, 80.0] gap_css=[7.2, 7.2] step_css=[86.4, 87.2]
 fill_height_css=26.4  first_fill_x_css=104.0 last_fill_x_css=356.8
 RESULT: OK
@@ -415,7 +415,7 @@ lock/sleep-стоп, системный звук, камеру.
 | Валидатор дизайна | `python3 waves/RW-40/PM/s-design/validate.py --log /tmp/opencode/g3-stream-validate.log` | `checks=23 failures=0`, `RESULT: OK` (лог в `/tmp`, репозиторий не тронут) |
 | Замер ряда | `python3 …/measure.py --log /tmp/opencode/g3-stream-measure.log` | `6/6`, значения совпали с отчётом волны |
 | Токены | 54 имени из STREAM.md/VOICE.md против `ui/tokens.css` | все существуют |
-| Копирайт | валидатор против `/home/sanya/re-deep/ru-catalog.json` | 54/54 |
+| Копирайт | валидатор против `reference-oracle/ru-catalog.json` | 54/54 |
 | `[L]`-факты | сверка с `docs/re/voice-deep.md:23-52,91-111` и `NETWORK-CONTRACTS` §2.3–2.4 | `video:true`, `rid:"100"`, `quality:100`, `active:false`, AV1 PT 101/102, priorities 1000/2000/3000/4000, ssrc N/N+1/N+2 — совпадают |
 | `[D]`-факты | `docs/re/native-re.md:272-286,338-362` | портал `ScreenCast`/`Session`/`Request`, `pw_stream_*`, `BaseCapturerPipeWire`, win32-only список — совпадают |
 | Отсутствие кода | grep-счётчики: `STREAM_*`, `stream_key`, picker, portal, pw_stream, v4l2, vaapi | 0 совпадений; `discord-media` никем не используется |
@@ -425,7 +425,7 @@ lock/sleep-стоп, системный звук, камеру.
 ## 10. Ограничения этого ревью
 
 - Окно Discord, live-сессии, сеть, `cargo`, `npm run gate:*` — **не запускались**; live-строк нет.
-- Golden-каталог `/home/sanya/re-deep` только читался; отчёты валидатора писались в `/tmp`.
+- Golden-каталог `reference-oracle/` только читался; отчёты валидатора писались в `/tmp`.
 - Ревью проверяет **согласованность** документа с кодом/RE и полноту блокеров; оно не доказывает
   работоспособность Go Live (и не должно — до RE-3 это невозможно).
 - Оценки «что будет весить/как выглядеть» в нашем shell не делались: замеров нашего UI стрима нет.

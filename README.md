@@ -8,8 +8,6 @@
 [![DAVE E2EE](https://img.shields.io/badge/security-DAVE%20MLS%20v1%20E2EE-darkgreen.svg)](rust/crates/discord-voice/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-> **Languages:** **English** | [Русский](README.ru.md)
-
 **Discord Lab & Native Discord GPUI Client** is a high-performance, GPU-accelerated Discord desktop client written in pure Rust (**`discord-gpui`**, powered by GPUI and WGPU for native 120 FPS rendering), accompanied by an advanced clean-room protocol analysis and reverse-engineering research suite (**`discord-lab`** CLI, Frida, CDP).
 
 ---

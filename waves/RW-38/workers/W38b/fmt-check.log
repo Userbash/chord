@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/ipc_contract.rs:133:
+Diff in /home/user/orca/project/rust/gui-spike/tests/ipc_contract.rs:133:
          ),
      ] {
          let error = validate_ui_snapshot(payload).expect_err(field);
@@ -10,7 +10,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/tests/ipc_contract.rs:133:
 (B[m     }
  }
  
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/launch.rs:124:
+Diff in /home/user/orca/project/rust/gui-spike/tests/launch.rs:124:
      let line = stdout
          .lines()
          .find(|line| line.starts_with("UI_SNAPSHOT "))

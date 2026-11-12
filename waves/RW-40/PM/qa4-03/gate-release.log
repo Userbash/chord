@@ -14,6 +14,6 @@
 ✔ coverage — 1.6 с (тесты 448: pass 448, fail 0, skip 0)
 ✔ golden — 0.2 с
 
-Отчёт гейта: /home/sanya/orca/project/.gate/release-2026-10-24T08-08-32-643Z.json
+Отчёт гейта: /home/user/orca/project/.gate/release-2026-10-24T08-08-32-643Z.json
 ⚠ e2e: пропущено 4 тестов — пропуск прохождением не считается
 Вердикт: passed_with_skips

@@ -83,7 +83,7 @@ test at tests/unit/test-impact.test.mjs:110:3
   + 'T1 (batch)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:112:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:112:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -104,7 +104,7 @@ test at tests/unit/test-impact.test.mjs:110:3
 test at tests/unit/test-impact.test.mjs:272:5
 ✖ rust/gui-spike/ui/features/notifications.js → профильный тест + общие контракты (0.242773ms)
   AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/notifications.js: план выдаёт команду на отсутствующий tests/unit/notifications-ui.test.mjs (P2-3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:283:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:283:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -125,7 +125,7 @@ test at tests/unit/test-impact.test.mjs:272:5
 test at tests/unit/test-impact.test.mjs:272:5
 ✖ rust/gui-spike/ui/features/voice-devices-settings.js → профильный тест + общие контракты (0.092891ms)
   AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/voice-devices-settings.js: план выдаёт команду на отсутствующий tests/unit/voice-devices-settings.test.mjs (P2-3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:283:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:283:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -145,7 +145,7 @@ test at tests/unit/test-impact.test.mjs:272:5
 test at tests/unit/test-impact.test.mjs:272:5
 ✖ rust/gui-spike/ui/features/dm-friends.js → профильный тест + общие контракты (0.098181ms)
   AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/dm-friends.js: план выдаёт команду на отсутствующий tests/unit/dm-friends-ui.test.mjs (P2-3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:283:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:283:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -163,7 +163,7 @@ test at tests/unit/test-impact.test.mjs:272:5
 test at tests/unit/test-impact.test.mjs:382:3
 ✖ features/chat.js расширен профилем вложений и общими контрактами (0.124062ms)
   AssertionError [ERR_ASSERTION]: chat.js: план выдаёт команду на отсутствующий tests/unit/attachments-render.test.mjs (P2-3)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:397:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:397:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -186,7 +186,7 @@ test at tests/unit/test-impact.test.mjs:538:5
   + 'T1 (batch)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -209,7 +209,7 @@ test at tests/unit/test-impact.test.mjs:564:3
   + 'T0 (targeted)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:566:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:566:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)

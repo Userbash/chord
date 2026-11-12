@@ -6,18 +6,18 @@
 - **Ветка:** `feature/task-627-gift-modal-ui`
 - **Назначение:** Реализация интерактивного модального окна выбора и кастомизации подарка Discord Nitro (`#gift-modal`) в `rust/gui-spike/ui/features/gift-modal.js`, таблицы стилей `rust/gui-spike/ui/styles/gift-modal.css` и полного набора модульных тестов `tests/unit/gift-modal.test.mjs`.
 
-## 2. Сверка с эталонным RE-дампом (`/home/sanya/re-deep/`) и спецификациями
+## 2. Сверка с эталонным RE-дампом (`reference-oracle/`) и спецификациями
 Все константы, структуры запросов, коды ошибок, лимиты и состояния UI сверены с эталонным RE-оракулом и контрактом `TASK-626`:
-1. **Каталог SKU, планов подписки и стилей открыток (`/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`, модуль `202541`, `@6789126..@6797000`):**
+1. **Каталог SKU, планов подписки и стилей открыток (`reference-oracle/decoded/4d2a64cb5df5fc4e_0`, модуль `202541`, `@6789126..@6797000`):**
    - `NITRO_APPLICATION_ID = "521842831262875670"` (экспорт `TV`).
    - 6 канонических `GIFT_SKU_IDS` (`NONE`, `NITRO_BASIC_TIER_0`, `NITRO_CLASSIC_TIER_1`, `NITRO_STANDARD_TIER_2`, `GUILD_BOOST`, `NITRO_LEGACY`, экспорт `pe`).
    - 10 канонических планов `GIFT_SUBSCRIPTION_PLANS` / `DEFAULT_NITRO_GIFT_PLANS` (`NITRO_BASIC_MONTH/YEAR`, `NITRO_CLASSIC_MONTH/YEAR`, `NITRO_MONTH/YEAR/3_MONTH/6_MONTH`, `GUILD_BOOST_MONTH/YEAR`, экспорт `gD`).
    - 12 стилей подарочных открыток `GIFT_CARD_STYLES` (`SNOWGLOBE = 1 .. NITROWEEN_STANDARD = 12`, экспорт `t_`) и источники запуска `GIFTING_ORIGINS` (`DM_CHANNEL = 0 .. BADGE_DIRECTORY = 5`, экспорт `tg`).
-2. **Утилиты подарочных кодов и `GiftStyle` (`/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`, модуль `45938`, `@9711598..@9712600`):**
+2. **Утилиты подарочных кодов и `GiftStyle` (`reference-oracle/decoded/4d2a64cb5df5fc4e_0`, модуль `45938`, `@9711598..@9712600`):**
    - `GIFT_STYLE_DEFAULT = 0`, `GIFT_STYLE_CUSTOM_STYLE = 1`, `GIFT_STYLE_CUSTOM_MESSAGE_EMOJI_SOUNDBOARD = 2`.
    - `resolveGiftStyle(customMessage, options)`: возвращает `2` при наличии непустого сообщения (`<= 200` символов), выбранного эмодзи-конфетти (`emojiConfetti`) или звукового эффекта (`soundEffect`), иначе `1`.
    - `normalizeGiftCode(raw)` и `extractGiftCodesFromText(content)`: удаление дефисов `-`, валидация `^[A-Za-z0-9_]{2,64}$`, извлечение до `MAX_EXTRACTED_GIFT_CODES = 3` уникальных кодов из `discord.gift/<code>`, `discord.com/gifts/<code>`, `discordapp.com/gifts/<code>` и `promos.discord.gg/?code=<code>`.
-3. **Поток кастомизации и валидации (`/home/sanya/re-deep/decoded/3e8824f7eca8914f_0`, модули `968060`, `274076`, `354972`, `650588`, `472468`, `@200300`, `@229000..@233000`, `@372000..@385000`):**
+3. **Поток кастомизации и валидации (`reference-oracle/decoded/3e8824f7eca8914f_0`, модули `968060`, `274076`, `354972`, `650588`, `472468`, `@200300`, `@229000..@233000`, `@372000..@385000`):**
    - Кастомизация стиля открытки (`setCardStyle`), эмодзи-конфетти (`setEmojiConfetti`), звукового эффекта (`setSoundEffect`) и персонального поздравления (`#gift-custom-message` со счётчиком `#gift-custom-count` `0 / 200` и индикацией `data-near-limit="true"` при `>= 180` символах).
    - Запрет отправки подарка самому себе (`validateGiftRecipient`: `recipient.id === currentUserId`) и строгая проверка границ Snowflake (`1..=18446744073709551615`, без ведущего нуля).
 4. **Коды ошибок Discord и машина состояний (`4d2a64cb5df5fc4e_0` модуль `652215` `@320207`, `waves/RW-40/DESIGN/ATTACHMENTS-SPEC.md` §4.1–§4.6):**

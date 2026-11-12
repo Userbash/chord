@@ -2,7 +2,7 @@
 
 - **Карточка:** task-153 (FE-P1-01 / RW-40 / G2 Frontend)
 - **Ревьюер:** Технический ревьюер (Review 67A)
-- **Worktree:** `/home/sanya/orca/workspaces/project/feature-task-153-dispatch-view-live-dom`
+- **Worktree:** `/home/user/orca/workspaces/project/feature-task-153-dispatch-view-live-dom`
 - **Файлы под ревью:**
   - `rust/gui-spike/ui/features/dispatch-view.js` (md5: `17582e7a211b45d3b35866e64d46e0d0`)
   - `tests/unit/dispatch_ui.test.mjs` (md5: `b799592654fe99ef371d20a548b28681`)

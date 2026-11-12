@@ -34,7 +34,7 @@
     `{ channelId, id: slot.id, uploadUrl: slot.upload_url, uploadFilename: slot.upload_filename, filename: item.name, fileSize: item.size, contentType: item.type, file: item.file ?? null, bytes: item.bytes ?? null, data: item.data ?? item.bytes ?? null }`.
 - **Механизм Tauri v2 command extraction (`tauri-macros` `parse_arg` + `tauri::ipc::CommandItem::deserialize_option`)**:
   - Имя каждого параметра `#[tauri::command]` переводится в `lowerCamelCase` и ищется в верхнеуровневом JSON-объекте `InvokeBody::Json` (`v.get(self.key)`).
-- **`waves/RW-40/RE-DEEP-REA.md` §1.4 и `tests/meta/ipc-path.test.mjs`**:
+- **`waves/RW-40/reference-oracle-REA.md` §1.4 и `tests/meta/ipc-path.test.mjs`**:
   - Передача `Content-Type` и сырых байтов в `PUT {upload_url}`; соблюдение PLAT-11 (отсутствие path/file-имён и типов в параметрах `#[tauri::command]`).
 
 ## 3. Red-прогон (`red`)

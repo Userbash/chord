@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-229-be-roles-contract/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-229-be-roles-contract/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.88s
-     Running tests/roles_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/roles_contract-5753507d03c5ee9d)
+     Running tests/roles_contract.rs (/home/user/orca/project/rust/target/debug/deps/roles_contract-5753507d03c5ee9d)
 
 running 8 tests
 test compute_effective_permissions_handles_owner_admin_and_bitwise_or ... ok

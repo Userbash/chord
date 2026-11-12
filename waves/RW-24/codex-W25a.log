@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: on-request
@@ -13,21 +13,21 @@ session id: 01a15d8e-01ed-7332-9266-cc4e5d7b8a52
 user
 Ты W25a, кодовый воркер batch RW-24 (P7-01). Прочитай waves/RW-24/TZ-W25a.md, waves/RW-24/WAVE-PLAN.md, docs/re/i18n-deep.md §2,5-7. Выполни ТЗ W25a полностью: сначала red-тесты и red-лог, затем минимальный green. Пиши только rust/crates/discord-i18n/src/locale.rs, src/plural.rs, src/format.rs и tests/locale_contract.rs, tests/plural_contract.rs, tests/format_contract.rs (плюс red/green логи в waves/RW-24). НЕ трогай src/lib.rs, src/markdown.rs, src/format_data.rs, tests/data/*, Cargo.toml, чужие файлы, docs, waves/db.jsonl. Не добавляй зависимости, не ходи в сеть, не коммить, не запускай workspace/gate. Cargo запускай из rust/ или с --manifest-path rust/Cargo.toml под flock /tmp/opencode/discord-cargo.lock. Оракул tests/data/cldr-oracle.json и сгенерированные паттерны src/format_data.rs — источник истины, не подгоняй тесты. В конце верни отчёт: сделано, red/green, targeted, md5, риски.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала прочитаю процессные инструкции и указанные контракты, затем проверю занятость файлов и состояние рабочей копии. В рамках этого batch буду менять только перечисленные W25a файлы и логи; команды Cargo запущу с общим `flock`.
 exec
-/usr/bin/bash -lc "sed -n '1,260p' waves/RW-24/TZ-W25a.md && sed -n '1,260p' waves/RW-24/WAVE-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' waves/RW-24/TZ-W25a.md && sed -n '1,260p' waves/RW-24/WAVE-PLAN.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,240p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,240p' docs/rust-client/TEAM.md" in /home/user/orca/project
  succeeded in 0ms:
 # TZ-W25a — locale / CLDR plural / number-date-time (P7-01)
 
@@ -176,13 +176,13 @@ UTC; timestamp — Unix **секунды**. `timestamp_secs.div_euclid(86_400)` 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `format_data.rs`,
   `tests/data/*`, `Cargo.lock`.
 - Не «зеленить» тесты правкой ожиданий; oracle — источник истины.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle`.
 - Не коммитить.
 # RW-24 / B05 — P7-01 «Полный I18N»: контракт и файловая матрица
 
 Статус: **заморожен до кода** (Team Lead, 2026-10-21). Источник: `docs/re/i18n-deep.md`
 §1–3, §5–7; `docs/rust-client/PLAN.md` P7-01; `docs/rust-client/TEST-PLAN.md`
-T-I18N-04…08, T-MSG-01; реальные каталоги `/home/sanya/re-deep/{ru,en}-catalog.json`
+T-I18N-04…08, T-MSG-01; реальные каталоги `/home/user/clean-room-oracle/{ru,en}-catalog.json`
 (только чтение).
 
 ## 1. DoD
@@ -430,7 +430,7 @@ unsafe URL `javascript:` allow; list depth 11 → 12; escape `\*` → literal `*
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -845,7 +845,7 @@ P2-09 accept — отдельная review-лейна REV-1 + TL-1, не тре�
 | Проверка B01 | Владелец | Артефакт |
 
 exec
-/usr/bin/bash -lc "rg -n '"'^##? (2|5|6|7)('"\\.|\\s|"'$)'"' docs/re/i18n-deep.md && sed -n '1,280p' docs/re/i18n-deep.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '"'^##? (2|5|6|7)('"\\.|\\s|"'$)'"' docs/re/i18n-deep.md && sed -n '1,280p' docs/re/i18n-deep.md" in /home/user/orca/project
  succeeded in 0ms:
 57:## 2. Плурализация
 169:## 5. Аргументы и форматы данных
@@ -861,7 +861,7 @@ exec
 
 | Что | Значение |
 |---|---|
-| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
 | i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
 | Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
 | Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -1100,7 +1100,7 @@ inlineCode 25 → br 26 → text 27`. Discord-правила (mention/emoji/spoi
    или dayjs-совместимые пороги, с таймером обновления.
 
 exec
-/usr/bin/bash -lc 'git status --short && git diff -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short && git diff -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24' in /home/user/orca/project
  succeeded in 0ms:
  M .github/workflows/ci.yml
  M AGENTS.md
@@ -1256,7 +1256,7 @@ exec
 ?? waves/reviews/review-rw-10-11.md
 
 exec
-/usr/bin/bash -lc 'rg --files rust/crates/discord-i18n/src rust/crates/discord-i18n/tests rust/crates/discord-i18n/tests/data waves/RW-24' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg --files rust/crates/discord-i18n/src rust/crates/discord-i18n/tests rust/crates/discord-i18n/tests/data waves/RW-24' in /home/user/orca/project
  succeeded in 0ms:
 waves/RW-24/codex-W25b.log
 waves/RW-24/codex-W25a.log
@@ -1275,11 +1275,11 @@ rust/crates/discord-i18n/tests/data/cldr-oracle.json
 codex
 Рабочая копия уже содержит незакоммиченные изменения, включая новые файлы W25a (`locale.rs`, `plural.rs`, `format.rs`) и существующий `codex-W25a.log`. Сначала разберу их содержимое и wave plan: сохраню текущие изменения и не буду перезаписывать лог, пока не выясню его назначение и формат артефактов.
 exec
-/usr/bin/bash -lc 'cat rust/crates/discord-i18n/src/lib.rs && cat rust/crates/discord-i18n/tests/data/cldr-oracle.json' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat rust/crates/discord-i18n/src/lib.rs && cat rust/crates/discord-i18n/tests/data/cldr-oracle.json' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'cat rust/crates/discord-i18n/src/locale.rs && cat rust/crates/discord-i18n/src/plural.rs && cat rust/crates/discord-i18n/src/format.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat rust/crates/discord-i18n/src/locale.rs && cat rust/crates/discord-i18n/src/plural.rs && cat rust/crates/discord-i18n/src/format.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,120p' docs/re/i18n-deep.md && sed -n '120,220p' docs/re/i18n-deep.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,120p' docs/re/i18n-deep.md && sed -n '120,220p' docs/re/i18n-deep.md" in /home/user/orca/project
  succeeded in 0ms:
 //! Locale registry and fallback selection (P7-01).
 //!
@@ -2528,8 +2528,8 @@ mod tests {
     #[test]
     fn real_catalogs_match_independent_inventory() {
         for (path, count) in [
-            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
         ] {
             let Ok(raw) = std::fs::read_to_string(path) else {
                 eprintln!("skip: unavailable oracle {path}");
@@ -5109,7 +5109,7 @@ mod tests {
 
 | Что | Значение |
 |---|---|
-| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
 | i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
 | Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
 | Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -5322,7 +5322,7 @@ inlineCode 25 → br 26 → text 27`. Discord-правила (mention/emoji/spoi
 - В ru-каталоге 259 значений (0.9%) побайтово совпадают с en (бренды/числа/непереведённое).
 
 exec
-/usr/bin/bash -lc 'cat waves/RW-24/TZ-W25a.md && cat waves/RW-24/WAVE-PLAN.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat waves/RW-24/TZ-W25a.md && cat waves/RW-24/WAVE-PLAN.md' in /home/user/orca/project
  succeeded in 0ms:
 # TZ-W25a — locale / CLDR plural / number-date-time (P7-01)
 
@@ -5471,13 +5471,13 @@ UTC; timestamp — Unix **секунды**. `timestamp_secs.div_euclid(86_400)` 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `format_data.rs`,
   `tests/data/*`, `Cargo.lock`.
 - Не «зеленить» тесты правкой ожиданий; oracle — источник истины.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle`.
 - Не коммитить.
 # RW-24 / B05 — P7-01 «Полный I18N»: контракт и файловая матрица
 
 Статус: **заморожен до кода** (Team Lead, 2026-10-21). Источник: `docs/re/i18n-deep.md`
 §1–3, §5–7; `docs/rust-client/PLAN.md` P7-01; `docs/rust-client/TEST-PLAN.md`
-T-I18N-04…08, T-MSG-01; реальные каталоги `/home/sanya/re-deep/{ru,en}-catalog.json`
+T-I18N-04…08, T-MSG-01; реальные каталоги `/home/user/clean-room-oracle/{ru,en}-catalog.json`
 (только чтение).
 
 ## 1. DoD
@@ -5658,7 +5658,7 @@ unsafe URL `javascript:` allow; list depth 11 → 12; escape `\*` → literal `*
 - `<t:...:R>` обновление по таймеру — UI-слой, не i18n.
 
 exec
-/usr/bin/bash -lc "rg -n '§4\\.2|red|green|log' PROCESS.md | tail -40 && rg -n 'P7-01|W25a|locale_contract|cldr-oracle|format_contract' TASKS.md TDD-PLAN.md waves/RW-24 docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '§4\\.2|red|green|log' PROCESS.md | tail -40 && rg -n 'P7-01|W25a|locale_contract|cldr-oracle|format_contract' TASKS.md TDD-PLAN.md waves/RW-24 docs/rust-client/TEAM.md" in /home/user/orca/project
  succeeded in 0ms:
 6:**golden-данные** (`logs/`, `functions/`, `evidence/`) и **живые операции** с Discord.
 9:`TASKS.md` (карточки, статусы, backlog); `AGENTS.md` (краткие правила агентам).
@@ -5668,7 +5668,7 @@ exec
 60:| Module worker | агент | один модуль + его тесты: red → green → targeted-отчёт; только свои файлы | не трогает общие `types.rs`/`reducer.rs`/`mod.rs`/`lib.rs`, не обновляет доки |
 63:| Independent reviewer | агент, не автор | P0/P1/P2/P3, границы файлов, red-first, безопасность | не правит код во время ревью |
 66:| Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
-68:| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+68:| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 84:ТЗ по шаблону §4.1. Требования: множества файлов не пересекаются; у каждой задачи — red-кейсы и
 88:- red-first: тест написан и **прогнан** до реализации (падение зафиксировано командой и результатом);
 92:- отчёт по шаблону §4.2. Задача закрывается не отчётом, а приёмкой Team Lead.
@@ -5736,11 +5736,11 @@ waves/RW-24/codex-W25b.log:2904:139-| T-I18N-06 | `format_contract.rs` | чис�
 waves/RW-24/codex-W25b.log:2905:140-| T-I18N-07 | `locale_contract.rs` | 36/31/5, resolve/fallback, все 31 insert, 5 reject, переключение на лету |
 waves/RW-24/codex-W25b.log:2909:150-flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract
 waves/RW-24/codex-W25b.log:2910:151-flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract
-waves/RW-24/codex-W25b.log:2936:-rw-r--r-- 1 sanya sanya   9730 Oct 21 13:21 TZ-W25a.md
-waves/RW-24/codex-W25b.log:2939:-rw-r--r-- 1 sanya sanya  98774 Oct 21 13:22 codex-W25a.log
+waves/RW-24/codex-W25b.log:2936:-rw-r--r-- 1 user user   9730 Oct 21 13:21 TZ-W25a.md
+waves/RW-24/codex-W25b.log:2939:-rw-r--r-- 1 user user  98774 Oct 21 13:22 codex-W25a.log
 waves/RW-24/codex-W25a.log:14:Ты W25a, кодовый воркер batch RW-24 (P7-01). Прочитай waves/RW-24/TZ-W25a.md, waves/RW-24/WAVE-PLAN.md, docs/re/i18n-deep.md §2,5-7. Выполни ТЗ W25a полностью: сначала red-тесты и red-лог, затем минимальный green. Пиши только rust/crates/discord-i18n/src/locale.rs, src/plural.rs, src/format.rs и tests/locale_contract.rs, tests/plural_contract.rs, tests/format_contract.rs (плюс red/green логи в waves/RW-24). НЕ трогай src/lib.rs, src/markdown.rs, src/format_data.rs, tests/data/*, Cargo.toml, чужие файлы, docs, waves/db.jsonl. Не добавляй зависимости, не ходи в сеть, не коммить, не запускай workspace/gate. Cargo запускай из rust/ или с --manifest-path rust/Cargo.toml под flock /tmp/opencode/discord-cargo.lock. Оракул tests/data/cldr-oracle.json и сгенерированные паттерны src/format_data.rs — источник истины, не подгоняй тесты. В конце верни отчёт: сделано, red/green, targeted, md5, риски.
 waves/RW-24/codex-W25a.log:26:Сначала прочитаю процессные инструкции и указанные контракты, затем проверю занятость файлов и состояние рабочей копии. В рамках этого batch буду менять только перечисленные W25a файлы и логи; команды Cargo запущу с общим `flock`.
-waves/RW-24/codex-W25a.log:28:/usr/bin/bash -lc "sed -n '1,260p' waves/RW-24/TZ-W25a.md && sed -n '1,260p' waves/RW-24/WAVE-PLAN.md" in /home/sanya/orca/project
+waves/RW-24/codex-W25a.log:28:/usr/bin/bash -lc "sed -n '1,260p' waves/RW-24/TZ-W25a.md && sed -n '1,260p' waves/RW-24/WAVE-PLAN.md" in /home/user/orca/project
 waves/RW-24/codex-W25a.log:32:# TZ-W25a — locale / CLDR plural / number-date-time (P7-01)
 waves/RW-24/codex-W25a.log:34:Ты — **W25a**, кодовый воркер. Пиши только файлы из §1. `src/lib.rs` — интеграционный,
 waves/RW-24/codex-W25a.log:35:не трогай. Сначала red-тесты, затем минимальный green. Оракул — `tests/data/cldr-oracle.json`
@@ -5763,7 +5763,7 @@ waves/RW-24/codex-W25a.log:319:| T-I18N-06 | `format_contract.rs` | числа/�
 waves/RW-24/codex-W25a.log:320:| T-I18N-07 | `locale_contract.rs` | 36/31/5, resolve/fallback, все 31 insert, 5 reject, переключение на лету |
 waves/RW-24/codex-W25a.log:330:flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract
 waves/RW-24/codex-W25a.log:331:flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract
-waves/RW-24/codex-W25a.log:1103:/usr/bin/bash -lc 'git status --short && git diff -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24' in /home/sanya/orca/project
+waves/RW-24/codex-W25a.log:1103:/usr/bin/bash -lc 'git status --short && git diff -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24' in /home/user/orca/project
 waves/RW-24/codex-W25a.log:1262:waves/RW-24/codex-W25a.log
 waves/RW-24/codex-W25a.log:1264:waves/RW-24/TZ-W25a.md
 waves/RW-24/codex-W25a.log:1266:rust/crates/discord-i18n/tests/data/cldr-oracle.json
@@ -5794,12 +5794,12 @@ waves/RW-24/WAVE-PLAN.md:150:flock /tmp/opencode/discord-cargo.lock cargo test -
 waves/RW-24/WAVE-PLAN.md:151:flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract
 
 exec
-/usr/bin/bash -lc 'cat waves/RW-24/codex-W25a.log && cat waves/RW-24/codex-W25b.log && rg --files rust/crates/discord-i18n/tests' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat waves/RW-24/codex-W25a.log && cat waves/RW-24/codex-W25b.log && rg --files rust/crates/discord-i18n/tests' in /home/user/orca/project
  succeeded in 0ms:
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: on-request
@@ -5811,21 +5811,21 @@ session id: 01a15d8e-01ed-7332-9266-cc4e5d7b8a52
 user
 Ты W25a, кодовый воркер batch RW-24 (P7-01). Прочитай waves/RW-24/TZ-W25a.md, waves/RW-24/WAVE-PLAN.md, docs/re/i18n-deep.md §2,5-7. Выполни ТЗ W25a полностью: сначала red-тесты и red-лог, затем минимальный green. Пиши только rust/crates/discord-i18n/src/locale.rs, src/plural.rs, src/format.rs и tests/locale_contract.rs, tests/plural_contract.rs, tests/format_contract.rs (плюс red/green логи в waves/RW-24). НЕ трогай src/lib.rs, src/markdown.rs, src/format_data.rs, tests/data/*, Cargo.toml, чужие файлы, docs, waves/db.jsonl. Не добавляй зависимости, не ходи в сеть, не коммить, не запускай workspace/gate. Cargo запускай из rust/ или с --manifest-path rust/Cargo.toml под flock /tmp/opencode/discord-cargo.lock. Оракул tests/data/cldr-oracle.json и сгенерированные паттерны src/format_data.rs — источник истины, не подгоняй тесты. В конце верни отчёт: сделано, red/green, targeted, md5, риски.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала прочитаю процессные инструкции и указанные контракты, затем проверю занятость файлов и состояние рабочей копии. В рамках этого batch буду менять только перечисленные W25a файлы и логи; команды Cargo запущу с общим `flock`.
 exec
-/usr/bin/bash -lc "sed -n '1,260p' waves/RW-24/TZ-W25a.md && sed -n '1,260p' waves/RW-24/WAVE-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' waves/RW-24/TZ-W25a.md && sed -n '1,260p' waves/RW-24/WAVE-PLAN.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,240p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,240p' docs/rust-client/TEAM.md" in /home/user/orca/project
  succeeded in 0ms:
 # TZ-W25a — locale / CLDR plural / number-date-time (P7-01)
 
@@ -5974,13 +5974,13 @@ UTC; timestamp — Unix **секунды**. `timestamp_secs.div_euclid(86_400)` 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `format_data.rs`,
   `tests/data/*`, `Cargo.lock`.
 - Не «зеленить» тесты правкой ожиданий; oracle — источник истины.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle`.
 - Не коммитить.
 # RW-24 / B05 — P7-01 «Полный I18N»: контракт и файловая матрица
 
 Статус: **заморожен до кода** (Team Lead, 2026-10-21). Источник: `docs/re/i18n-deep.md`
 §1–3, §5–7; `docs/rust-client/PLAN.md` P7-01; `docs/rust-client/TEST-PLAN.md`
-T-I18N-04…08, T-MSG-01; реальные каталоги `/home/sanya/re-deep/{ru,en}-catalog.json`
+T-I18N-04…08, T-MSG-01; реальные каталоги `/home/user/clean-room-oracle/{ru,en}-catalog.json`
 (только чтение).
 
 ## 1. DoD
@@ -6228,7 +6228,7 @@ unsafe URL `javascript:` allow; list depth 11 → 12; escape `\*` → literal `*
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -6643,7 +6643,7 @@ P2-09 accept — отдельная review-лейна REV-1 + TL-1, не тре�
 | Проверка B01 | Владелец | Артефакт |
 
 exec
-/usr/bin/bash -lc "rg -n '"'^##? (2|5|6|7)('"\\.|\\s|"'$)'"' docs/re/i18n-deep.md && sed -n '1,280p' docs/re/i18n-deep.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '"'^##? (2|5|6|7)('"\\.|\\s|"'$)'"' docs/re/i18n-deep.md && sed -n '1,280p' docs/re/i18n-deep.md" in /home/user/orca/project
  succeeded in 0ms:
 57:## 2. Плурализация
 169:## 5. Аргументы и форматы данных
@@ -6659,7 +6659,7 @@ exec
 
 | Что | Значение |
 |---|---|
-| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
 | i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
 | Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
 | Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -6898,7 +6898,7 @@ inlineCode 25 → br 26 → text 27`. Discord-правила (mention/emoji/spoi
    или dayjs-совместимые пороги, с таймером обновления.
 
 exec
-/usr/bin/bash -lc 'git status --short && git diff -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short && git diff -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24' in /home/user/orca/project
  succeeded in 0ms:
  M .github/workflows/ci.yml
  M AGENTS.md
@@ -7054,7 +7054,7 @@ exec
 ?? waves/reviews/review-rw-10-11.md
 
 exec
-/usr/bin/bash -lc 'rg --files rust/crates/discord-i18n/src rust/crates/discord-i18n/tests rust/crates/discord-i18n/tests/data waves/RW-24' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg --files rust/crates/discord-i18n/src rust/crates/discord-i18n/tests rust/crates/discord-i18n/tests/data waves/RW-24' in /home/user/orca/project
  succeeded in 0ms:
 waves/RW-24/codex-W25b.log
 waves/RW-24/codex-W25a.log
@@ -7075,7 +7075,7 @@ codex
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: on-request
@@ -7087,19 +7087,19 @@ session id: 01a15d8e-01ec-7200-a7c7-298b4747b6b4
 user
 Ты W25b, кодовый воркер batch RW-24 (P7-01, T-MSG-01). Прочитай waves/RW-24/TZ-W25b.md, waves/RW-24/WAVE-PLAN.md, docs/re/i18n-deep.md §3-4. Выполни ТЗ W25b полностью: сначала red-тесты и red-лог, затем минимальный green. Пиши только rust/crates/discord-i18n/src/markdown.rs и tests/markdown_contract.rs (плюс red/green логи в waves/RW-24). НЕ трогай src/lib.rs, src/locale.rs, src/plural.rs, src/format.rs, src/format_data.rs, tests/data/*, Cargo.toml, чужие файлы, docs, waves/db.jsonl. Не добавляй зависимости, не ходи в сеть, не коммить, не запускай workspace/gate. Cargo запускай из rust/ или с --manifest-path rust/Cargo.toml под flock /tmp/opencode/discord-cargo.lock. 23 правила и точные ожидания — в TZ-W25b §4, не подгоняй тесты. В конце верни отчёт: сделано, red/green, targeted, md5, риски.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала прочитаю процессные документы и карточку W25b, затем проверю статус рабочей копии и текущие целевые файлы. Буду соблюдать файловую матрицу и запускать Cargo только под указанным `flock`.
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,240p' docs/rust-client/TEAM.md && sed -n '1,240p' TASKS.md && sed -n '1,240p' TDD-PLAN.md && sed -n '1,200p' waves/STATE.md && sed -n '1,260p' waves/RW-24/TZ-W25b.md && sed -n '1,240p' waves/RW-24/WAVE-PLAN.md && sed -n '1,260p' docs/re/i18n-deep.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,240p' docs/rust-client/TEAM.md && sed -n '1,240p' TASKS.md && sed -n '1,240p' TDD-PLAN.md && sed -n '1,200p' waves/STATE.md && sed -n '1,260p' waves/RW-24/TZ-W25b.md && sed -n '1,240p' waves/RW-24/WAVE-PLAN.md && sed -n '1,260p' docs/re/i18n-deep.md" in /home/user/orca/project
  succeeded in 0ms:
 # PROCESS.md — производственный процесс discord-lab
 
@@ -7168,7 +7168,7 @@ exec
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -7618,7 +7618,7 @@ P1-02, P0-04, P0-07); B03/RW-22 принят (P3-15, P4-01, P7-04, P8-03); B04/R
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -8077,7 +8077,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-22, I1,
   P2-01/P2-02/P2-04…P2-11, B01/B02/B03 accepted, удаление legacy `ready_data` и правки доков
   **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -8400,13 +8400,13 @@ pub fn render_markdown(node: &MarkdownNode) -> String;
 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `Cargo.toml`, `waves/*`.
 - Не «зеленить» тесты правкой ожиданий; таблица — контракт.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle`.
 - Не коммитить.
 # RW-24 / B05 — P7-01 «Полный I18N»: контракт и файловая матрица
 
 Статус: **заморожен до кода** (Team Lead, 2026-10-21). Источник: `docs/re/i18n-deep.md`
 §1–3, §5–7; `docs/rust-client/PLAN.md` P7-01; `docs/rust-client/TEST-PLAN.md`
-T-I18N-04…08, T-MSG-01; реальные каталоги `/home/sanya/re-deep/{ru,en}-catalog.json`
+T-I18N-04…08, T-MSG-01; реальные каталоги `/home/user/clean-room-oracle/{ru,en}-catalog.json`
 (только чтение).
 
 ## 1. DoD
@@ -8595,7 +8595,7 @@ unsafe URL `javascript:` allow; list depth 11 → 12; escape `\*` → literal `*
 
 | Что | Значение |
 |---|---|
-| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
 | i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
 | Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
 | Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -8836,7 +8836,7 @@ inlineCode 25 → br 26 → text 27`. Discord-правила (mention/emoji/spoi
 codex
 Контекст подтверждает строгий red-first и целевую файловую границу; общий gate и документацию не трогаю. Выведу отдельно точный контракт §4, правила завершения воркера и текущее содержимое целевых Rust-файлов, чтобы тесты соответствовали замороженным ожиданиям.
 exec
-/usr/bin/bash -lc "sed -n '1,220p' docs/re/i18n-deep.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' docs/re/i18n-deep.md" in /home/user/orca/project
  succeeded in 0ms:
 # Discord 1.0.162 — i18n: рантайм, плурализация, rich-формат
 
@@ -8848,7 +8848,7 @@ exec
 
 | Что | Значение |
 |---|---|
-| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
 | i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
 | Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
 | Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -9060,9 +9060,9 @@ inlineCode 25 → br 26 → text 27`. Discord-правила (mention/emoji/spoi
 - В ru-каталоге 259 значений (0.9%) побайтово совпадают с en (бренды/числа/непереведённое).
 
 exec
-/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-i18n/src/markdown.rs && sed -n '1,260p' rust/crates/discord-i18n/tests/markdown_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-i18n/src/markdown.rs && sed -n '1,260p' rust/crates/discord-i18n/tests/markdown_contract.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' waves/RW-24/WAVE-PLAN.md && sed -n '1,180p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' waves/RW-24/WAVE-PLAN.md && sed -n '1,180p' docs/rust-client/TEAM.md" in /home/user/orca/project
  exited 2 in 0ms:
 //! Discord message markdown: 23 rules, safe normalized rendering (P7-01).
 //!
@@ -9121,7 +9121,7 @@ sed: can't read rust/crates/discord-i18n/tests/markdown_contract.rs: No such fil
 
 Статус: **заморожен до кода** (Team Lead, 2026-10-21). Источник: `docs/re/i18n-deep.md`
 §1–3, §5–7; `docs/rust-client/PLAN.md` P7-01; `docs/rust-client/TEST-PLAN.md`
-T-I18N-04…08, T-MSG-01; реальные каталоги `/home/sanya/re-deep/{ru,en}-catalog.json`
+T-I18N-04…08, T-MSG-01; реальные каталоги `/home/user/clean-room-oracle/{ru,en}-catalog.json`
 (только чтение).
 
 ## 1. DoD
@@ -9482,9 +9482,9 @@ next: <TL-2 интеграция / QA / review>
 - выбирает batch по зависимостям и file matrix;
 
 exec
-/usr/bin/bash -lc "git status --short && sed -n '1,260p' waves/RW-24/TZ-W25b.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "git status --short && sed -n '1,260p' waves/RW-24/TZ-W25b.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "rg -n \"§4\\.2|W25b|RW-24|red/green|Cargo\" PROCESS.md docs/rust-client/TEAM.md TASKS.md TDD-PLAN.md waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n \"§4\\.2|W25b|RW-24|red/green|Cargo\" PROCESS.md docs/rust-client/TEAM.md TASKS.md TDD-PLAN.md waves/STATE.md" in /home/user/orca/project
  succeeded in 0ms:
 waves/STATE.md:57:- P8-04: offline SPDX 2.3 на 85 `Cargo.lock`-пакетов, host metadata + version-pinned
 waves/STATE.md:81:  review-A/B/C, red/green, gate). P3: `$link` URL (P7-01), UDP/DAVE (P4-02/P4.5),
@@ -9801,15 +9801,15 @@ pub fn render_markdown(node: &MarkdownNode) -> String;
 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `Cargo.toml`, `waves/*`.
 - Не «зеленить» тесты правкой ожиданий; таблица — контракт.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle`.
 - Не коммитить.
 
 exec
-/usr/bin/bash -lc "wc -l rust/crates/discord-i18n/src/markdown.rs rust/crates/discord-i18n/tests/markdown_contract.rs; sed -n '1,220p' rust/crates/discord-i18n/src/markdown.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "wc -l rust/crates/discord-i18n/src/markdown.rs rust/crates/discord-i18n/tests/markdown_contract.rs; sed -n '1,220p' rust/crates/discord-i18n/src/markdown.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '125,170p' docs/rust-client/TEAM.md && sed -n '195,225p' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '125,170p' docs/rust-client/TEAM.md && sed -n '195,225p' PROCESS.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "rg -n -C 3 'W25b|markdown|red-W25b|green-W25b' waves/RW-24/WAVE-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -C 3 'W25b|markdown|red-W25b|green-W25b' waves/RW-24/WAVE-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 wc: rust/crates/discord-i18n/tests/markdown_contract.rs: No such file or directory
   50 rust/crates/discord-i18n/src/markdown.rs
@@ -10002,20 +10002,20 @@ DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; фай�
 169-   `TranslateError::InvalidArgument` для не-числа.
 
 exec
-/usr/bin/bash -lc 'ls -la waves/RW-24 && git status --short -- rust/crates/discord-i18n/src/markdown.rs rust/crates/discord-i18n/tests/markdown_contract.rs waves/RW-24/red-W25b.log waves/RW-24/green-W25b.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'ls -la waves/RW-24 && git status --short -- rust/crates/discord-i18n/src/markdown.rs rust/crates/discord-i18n/tests/markdown_contract.rs waves/RW-24/red-W25b.log waves/RW-24/green-W25b.log' in /home/user/orca/project
  succeeded in 0ms:
 total 348
-drwxr-xr-x 1 sanya sanya    120 Oct 21 13:22 .
-drwxr-xr-x 1 sanya sanya    412 Oct 21 13:18 ..
--rw-r--r-- 1 sanya sanya   9730 Oct 21 13:21 TZ-W25a.md
--rw-r--r-- 1 sanya sanya   7613 Oct 21 13:21 TZ-W25b.md
--rw-r--r-- 1 sanya sanya  11758 Oct 21 13:21 WAVE-PLAN.md
--rw-r--r-- 1 sanya sanya  98774 Oct 21 13:22 codex-W25a.log
--rw-r--r-- 1 sanya sanya 217538 Oct 21 13:22 codex-W25b.log
+drwxr-xr-x 1 user user    120 Oct 21 13:22 .
+drwxr-xr-x 1 user user    412 Oct 21 13:18 ..
+-rw-r--r-- 1 user user   9730 Oct 21 13:21 TZ-W25a.md
+-rw-r--r-- 1 user user   7613 Oct 21 13:21 TZ-W25b.md
+-rw-r--r-- 1 user user  11758 Oct 21 13:21 WAVE-PLAN.md
+-rw-r--r-- 1 user user  98774 Oct 21 13:22 codex-W25a.log
+-rw-r--r-- 1 user user 217538 Oct 21 13:22 codex-W25b.log
 ?? rust/crates/discord-i18n/src/markdown.rs
 
 exec
-/usr/bin/bash -lc "sed -n '1,180p' rust/crates/discord-i18n/tests/markdown_contract.rs; rg -n 'name = \"discord-i18n\"|regex' rust/Cargo.toml rust/Cargo.lock rust/crates/discord-i18n/Cargo.toml" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,180p' rust/crates/discord-i18n/tests/markdown_contract.rs; rg -n 'name = \"discord-i18n\"|regex' rust/Cargo.toml rust/Cargo.lock rust/crates/discord-i18n/Cargo.toml" in /home/user/orca/project
  succeeded in 0ms:
 sed: can't read rust/crates/discord-i18n/tests/markdown_contract.rs: No such file or directory
 rust/crates/discord-i18n/Cargo.toml:2:name = "discord-i18n"
@@ -10024,11 +10024,11 @@ rust/Cargo.lock:125:name = "discord-i18n"
 rust/crates/discord-i18n/tests/data/cldr-oracle.json
 
 exec
-/usr/bin/bash -lc "sed -n '1,300p' rust/crates/discord-i18n/src/format.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,300p' rust/crates/discord-i18n/src/format.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,280p' rust/crates/discord-i18n/src/plural.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,280p' rust/crates/discord-i18n/src/plural.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-i18n/src/locale.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' rust/crates/discord-i18n/src/locale.rs" in /home/user/orca/project
  succeeded in 0ms:
 //! CLDR cardinal and ordinal plural categories (P7-01).
 //!
@@ -10280,13 +10280,13 @@ pub fn fallback_chain(requested: &str, available: &[&str]) -> Vec<String> {
 }
 
 exec
-/usr/bin/bash -lc 'head -c 1500 rust/crates/discord-i18n/tests/data/cldr-oracle.json' in /home/sanya/orca/project
+/usr/bin/bash -lc 'head -c 1500 rust/crates/discord-i18n/tests/data/cldr-oracle.json' in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,100p' rust/crates/discord-i18n/Cargo.toml" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,100p' rust/crates/discord-i18n/Cargo.toml" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'wc -l rust/crates/discord-i18n/src/{locale,plural,format}.rs rust/crates/discord-i18n/tests/*.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'wc -l rust/crates/discord-i18n/src/{locale,plural,format}.rs rust/crates/discord-i18n/tests/*.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,180p' rust/crates/discord-i18n/src/format_data.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,180p' rust/crates/discord-i18n/src/format_data.rs" in /home/user/orca/project
  succeeded in 0ms:
 [package]
 name = "discord-i18n"
@@ -10568,9 +10568,9 @@ static D_DE: LocaleFormatData = LocaleFormatData {
     era: "",
 
 exec
-/usr/bin/bash -lc "sed -n '190,245p' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '190,245p' PROCESS.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' rust/crates/discord-i18n/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' rust/crates/discord-i18n/src/lib.rs" in /home/user/orca/project
  succeeded in 0ms:
 - P0/P1/P2 на ревью (цель: P0/P1 = 0, P2 → 0 до accepted);
 - tests/card и mutation catch rate;
@@ -10872,7 +10872,7 @@ fn parse_ast(v: &discord_json::JsonValue, path: String, depth: usize) -> Result<
                 .iter()
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' rust/crates/discord-json/src/lib.rs && rg -n '\"locales\"|\"ru\"|\"number\"|\"dates\"|\"times\"' rust/crates/discord-i18n/tests/data/cldr-oracle.json | head -20" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' rust/crates/discord-json/src/lib.rs && rg -n '\"locales\"|\"ru\"|\"number\"|\"dates\"|\"times\"' rust/crates/discord-i18n/tests/data/cldr-oracle.json | head -20" in /home/user/orca/project
  succeeded in 0ms:
 //! # discord-json
 //!
@@ -11136,7 +11136,7 @@ fn write_json(value: &JsonValue, out: &mut String) {
 475:   "number": {
 
 exec
-/usr/bin/bash -lc "rg -n 'pub\\(crate\\) fn data|pub fn data|fn parse|as_object|as_array|as_str' rust/crates/discord-i18n/src/format_data.rs rust/crates/discord-json/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n 'pub\\(crate\\) fn data|pub fn data|fn parse|as_object|as_array|as_str' rust/crates/discord-i18n/src/format_data.rs rust/crates/discord-json/src/lib.rs" in /home/user/orca/project
  succeeded in 0ms:
 rust/crates/discord-json/src/lib.rs:51:    pub fn as_str(&self) -> Option<&str> {
 rust/crates/discord-json/src/lib.rs:69:    pub fn as_array(&self) -> Option<&[JsonValue]> {
@@ -11157,9 +11157,9 @@ codex
 Контракт и scaffolding подтверждены: `lib.rs` уже экспортирует нужные модули, а три W25a реализации пока заглушки. Сейчас добавлю независимые contract-тесты, читающие plural/number/date/time ожидания из `cldr-oracle.json`; затем запущу каждый targeted-тест до изменения реализации и сохраню реальный red-вывод.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/tests/format_contract.rs
-/home/sanya/orca/project/rust/crates/discord-i18n/tests/locale_contract.rs
-/home/sanya/orca/project/rust/crates/discord-i18n/tests/plural_contract.rs
+/home/user/orca/project/rust/crates/discord-i18n/tests/format_contract.rs
+/home/user/orca/project/rust/crates/discord-i18n/tests/locale_contract.rs
+/home/user/orca/project/rust/crates/discord-i18n/tests/plural_contract.rs
 diff --git a/rust/crates/discord-i18n/tests/format_contract.rs b/rust/crates/discord-i18n/tests/format_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..b565cd2c30c55dfd694066d6ac057821de55311b
@@ -11499,9 +11499,9 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract' in /home/user/orca/project
  exited 101 in 0ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: struct `LocaleFormatData` is never constructed
  --> crates/discord-i18n/src/format_data.rs:8:19
   |
@@ -11926,9 +11926,9 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > waves/RW-24/red-W25a.log 2>&1; result=$?; printf '"'\\nCOMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/red-W25a.log; cat waves/RW-24/red-W25a.log; test "$result" -ne 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > waves/RW-24/red-W25a.log 2>&1; result=$?; printf '"'\\nCOMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/red-W25a.log; cat waves/RW-24/red-W25a.log; test "$result" -ne 0' in /home/user/orca/project
  succeeded in 84ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: struct `LocaleFormatData` is never constructed
  --> crates/discord-i18n/src/format_data.rs:8:19
   |
@@ -12370,7 +12370,7 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 +}
 
 exec
-/usr/bin/bash -lc "printf '\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract'"\\n' >> waves/RW-24/red-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract >> waves/RW-24/red-W25a.log 2>&1; result="'$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/red-W25a.log; printf '"'\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract'"\\n' >> waves/RW-24/red-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract >> waves/RW-24/red-W25a.log 2>&1; result="'$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/red-W25a.log; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|not implemented|error: test failed'"' waves/RW-24/red-W25a.log; test \""'$result" -ne 0' in /home/sanya/orca/project
+/usr/bin/bash -lc "printf '\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract'"\\n' >> waves/RW-24/red-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract >> waves/RW-24/red-W25a.log 2>&1; result="'$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/red-W25a.log; printf '"'\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract'"\\n' >> waves/RW-24/red-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract >> waves/RW-24/red-W25a.log 2>&1; result="'$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/red-W25a.log; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|not implemented|error: test failed'"' waves/RW-24/red-W25a.log; test \""'$result" -ne 0' in /home/user/orca/project
  succeeded in 9ms:
 245:running 2 tests
 254:not implemented: W25a: CLDR plural rules
@@ -12563,9 +12563,9 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 codex
 Все три targeted-набора дали red по ожидаемым заглушкам; лог содержит команды и exit code 101. Перехожу к минимальному green: реализую точный fallback, правила plural по TZ и форматтеры чисел/дат на основе `format_data` (включая токены, UTC и ограниченный набор skeleton), не меняя оракулы и общую интеграцию.
 exec
-/usr/bin/bash -lc "sed -n '1,180p' waves/RW-24/TZ-W25a.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,180p' waves/RW-24/TZ-W25a.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '674,730p' rust/crates/discord-i18n/src/format_data.rs && sed -n '1,160p' rust/crates/discord-i18n/src/locale.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '674,730p' rust/crates/discord-i18n/src/format_data.rs && sed -n '1,160p' rust/crates/discord-i18n/src/locale.rs" in /home/user/orca/project
  succeeded in 0ms:
 pub(crate) fn data(locale: &str) -> &'static LocaleFormatData {
     match locale {
@@ -12821,11 +12821,11 @@ UTC; timestamp — Unix **секунды**. `timestamp_secs.div_euclid(86_400)` 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `format_data.rs`,
   `tests/data/*`, `Cargo.lock`.
 - Не «зеленить» тесты правкой ожиданий; oracle — источник истины.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle`.
 - Не коммитить.
 
 exec
-/usr/bin/bash -lc "rg -n '\"currency\"|\\"'$|"XXX"|format_percent|weekday'"' rust/crates/discord-i18n/tests/data/cldr-oracle.json" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '\"currency\"|\\"'$|"XXX"|format_percent|weekday'"' rust/crates/discord-i18n/tests/data/cldr-oracle.json" in /home/user/orca/project
  exited 1 in 0ms:
 diff --git a/rust/crates/discord-i18n/tests/format_contract.rs b/rust/crates/discord-i18n/tests/format_contract.rs
 new file mode 100644
@@ -12998,8 +12998,8 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/locale.rs
-/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/locale.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs
 diff --git a/rust/crates/discord-i18n/src/locale.rs b/rust/crates/discord-i18n/src/locale.rs
 index 217c0feba98e6b881089df5fcde2c8f34249e54e..aa05c89d34898b99d910ff474059be6f01d9432e
 --- a/rust/crates/discord-i18n/src/locale.rs
@@ -13602,7 +13602,7 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/format.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 deleted file mode 100644
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..0000000000000000000000000000000000000000
@@ -14467,7 +14467,7 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/format.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..b80f2bd2226059ebfce3e5945927e2c7c6a4c4b1
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -15567,11 +15567,11 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 codex
 Логика добавлена; запускаю только три contract-теста, сериализуя Cargo через `flock`, и запишу green-прогоны отдельно. По их результатам исправлю расхождения с оракулом внутри тех же W25a файлов.
 exec
-/usr/bin/bash -lc "for test_name in locale_contract plural_contract format_contract; do printf '\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then cat waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "for test_name in locale_contract plural_contract format_contract; do printf '\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then cat waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log" in /home/user/orca/project
  exited 101 in 213ms:
 
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: useless assignment of field of type `i64` to itself
    --> crates/discord-i18n/src/format.rs:149:21
     |
@@ -15602,7 +15602,7 @@ warning: useless assignment of field of type `i64` to itself
     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
 
 warning: `discord-i18n` (lib) generated 1 warning
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: unused variable: `actual`
   --> crates/discord-i18n/tests/plural_contract.rs:14:25
    |
@@ -16188,7 +16188,7 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 
 codex
 Locale green, plural показал точное расхождение: английское ordinal для 1.5 не должно учитывать только целую часть. Внесу ограничение целочисленности для ordinal-правил и уберу два предупреждения в своих файлах; после этого продолжу targeted green, включая форматирование.
-2026-10-21T08:24:53.603944Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs:
+2026-10-21T08:24:53.603944Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/user/orca/project/rust/crates/discord-i18n/src/plural.rs:
             "fr" | "ro" | "vi" => if n == 1.0 { cat("one") } else { cat("other") },
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..b80f2bd2226059ebfce3e5945927e2c7c6a4c4b1
@@ -16738,7 +16738,7 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 +    }
 +}
 
-2026-10-21T08:25:00.102607Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/sanya/orca/project/rust/crates/discord-i18n/tests/plural_contract.rs:
+2026-10-21T08:25:00.102607Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/user/orca/project/rust/crates/discord-i18n/tests/plural_contract.rs:
         for (key, kind, actual) in [
             ("cardinal", PluralType::Cardinal, cardinal as fn(&str, f64) -> PluralCategory),
             ("ordinal", PluralType::Ordinal, ordinal as fn(&str, f64) -> PluralCategory),
@@ -17291,7 +17291,7 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 +}
 
 exec
-/usr/bin/bash -lc "sed -n '10,25p' rust/crates/discord-i18n/tests/plural_contract.rs && rg -n '\"en\" =>|pattern, style|let mut p|p.year' rust/crates/discord-i18n/src/{plural,format}.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '10,25p' rust/crates/discord-i18n/tests/plural_contract.rs && rg -n '\"en\" =>|pattern, style|let mut p|p.year' rust/crates/discord-i18n/src/{plural,format}.rs" in /home/user/orca/project
  succeeded in 0ms:
     let oracle = oracle();
     let locales = oracle.get("locales").unwrap();
@@ -17866,9 +17866,9 @@ index 0000000000000000000000000000000000000000..abc6978fb0a324f1aa2ee957e9f99ac7
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs
-/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs
-/home/sanya/orca/project/rust/crates/discord-i18n/tests/plural_contract.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/format.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs
+/home/user/orca/project/rust/crates/discord-i18n/tests/plural_contract.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..80bfde70a158514058e04298a248b8eb947008d5
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -19404,11 +19404,11 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "for test_name in plural_contract format_contract; do printf '\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -100 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "for test_name in plural_contract format_contract; do printf '\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -100 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log" in /home/user/orca/project
  exited 101 in 12ms:
 
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: useless assignment of field of type `i64` to itself
    --> crates/discord-i18n/src/format.rs:149:21
     |
@@ -19439,7 +19439,7 @@ warning: useless assignment of field of type `i64` to itself
     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
 
 warning: `discord-i18n` (lib) generated 1 warning
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: unused variable: `actual`
   --> crates/discord-i18n/tests/plural_contract.rs:14:25
    |
@@ -19476,7 +19476,7 @@ error: test failed, to rerun pass `-p discord-i18n --test plural_contract`
 COMMAND EXIT CODE: 101
 
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -20271,9 +20271,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "rg -n '\"pl\"|\"101\"|\"cardinal\"' rust/crates/discord-i18n/tests/data/cldr-oracle.json | head -30" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '\"pl\"|\"101\"|\"cardinal\"' rust/crates/discord-i18n/tests/data/cldr-oracle.json | head -30" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '10,28p' rust/crates/discord-i18n/tests/plural_contract.rs && sed -n '68,82p' rust/crates/discord-i18n/src/plural.rs && sed -n '144,153p' rust/crates/discord-i18n/src/format.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '10,28p' rust/crates/discord-i18n/tests/plural_contract.rs && sed -n '68,82p' rust/crates/discord-i18n/src/plural.rs && sed -n '144,153p' rust/crates/discord-i18n/src/format.rs" in /home/user/orca/project
  succeeded in 0ms:
 8:    "cardinal": {
 24:     "101": "other",
@@ -21122,7 +21122,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 codex
 Нашёл ещё один нюанс по авторитетности: `cldr-oracle.json` расходится с кратким языковым правилом TZ для одного sample. Сверяю конкретную oracle-запись и буду следовать зафиксированному требованию «oracle — источник истины», сохраняя отдельные ручные edge assertions из ТЗ.
 exec
-/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); console.log(JSON.stringify(d.locales.pl.plural.cardinal)); console.log(JSON.stringify(d.locales[\"en-US\"].plural.ordinal))'" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); console.log(JSON.stringify(d.locales.pl.plural.cardinal)); console.log(JSON.stringify(d.locales[\"en-US\"].plural.ordinal))'" in /home/user/orca/project
  succeeded in 0ms:
 {"0":"many","1":"one","2":"few","3":"few","4":"few","5":"many","10":"many","11":"many","12":"many","14":"many","20":"many","21":"many","22":"few","25":"many","100":"many","101":"many","102":"few","111":"many","1000000":"many","1.5":"other","2.5":"other"}
 {"0":"other","1":"one","2":"two","3":"few","4":"other","5":"other","10":"other","11":"other","12":"other","14":"other","20":"other","21":"one","22":"two","25":"other","100":"other","101":"one","102":"two","111":"other","1000000":"other","1.5":"other","2.5":"other"}
@@ -21896,7 +21896,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..80bfde70a158514058e04298a248b8eb947008d5
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -23444,7 +23444,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "for test_name in locale_contract plural_contract format_contract; do printf '\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -90 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log | tail -20" in /home/sanya/orca/project
+/usr/bin/bash -lc "for test_name in locale_contract plural_contract format_contract; do printf '\\n"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -90 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log | tail -20" in /home/user/orca/project
  exited 101 in 58ms:
 test plural_edge_cases_follow_the_locale_contract ... ok
 test every_oracle_cardinal_and_ordinal_sample_matches ... FAILED
@@ -23469,7 +23469,7 @@ error: test failed, to rerun pass `-p discord-i18n --test plural_contract`
 COMMAND EXIT CODE: 101
 
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -23497,7 +23497,7 @@ error: test failed, to rerun pass `-p discord-i18n --test plural_contract`
 COMMAND EXIT CODE: 101
 
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
      Running tests/locale_contract.rs (rust/target/debug/deps/locale_contract-a9f436064cd54c41)
 
@@ -23510,7 +23510,7 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 COMMAND EXIT CODE: 0
 
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -24310,7 +24310,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +    }
 +}
 
-2026-10-21T08:25:43.649621Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs:
+2026-10-21T08:25:43.649621Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/user/orca/project/rust/crates/discord-i18n/src/plural.rs:
             "sv" => if (1..=2).contains(&i_mod_10) && ![11, 12].contains(&i_mod_100) { cat("one") } else { cat("other") },
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..80bfde70a158514058e04298a248b8eb947008d5
@@ -25086,7 +25086,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "rg -n '\"sv\"' rust/crates/discord-i18n/src/plural.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '\"sv\"' rust/crates/discord-i18n/src/plural.rs" in /home/user/orca/project
  succeeded in 0ms:
 107:            "sv" => {
 132:            "en" | "de" | "nl" | "sv" => {
@@ -25865,7 +25865,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "sed -n '102,120p' rust/crates/discord-i18n/src/plural.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '102,120p' rust/crates/discord-i18n/src/plural.rs" in /home/user/orca/project
  succeeded in 0ms:
                     cat("many")
                 } else {
@@ -26662,7 +26662,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..80bfde70a158514058e04298a248b8eb947008d5
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -28212,10 +28212,10 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 codex
 Oracle выявляет ещё дробные ordinal-случаи для `sv`; учёл видимую дробную часть, как для `en`. Повторяю три прогона с чистого состояния результата в green-логе, чтобы там остались только актуальные финальные команды и их результаты.
 exec
-/usr/bin/bash -lc "rm waves/RW-24/green-W25a.log; for test_name in locale_contract plural_contract format_contract; do printf '"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -90 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "rm waves/RW-24/green-W25a.log; for test_name in locale_contract plural_contract format_contract; do printf '"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -90 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log" in /home/user/orca/project
  exited 101 in 44ms:
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test locale_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running tests/locale_contract.rs (rust/target/debug/deps/locale_contract-a9f436064cd54c41)
 
@@ -28228,7 +28228,7 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 COMMAND EXIT CODE: 0
 
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -29031,7 +29031,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..80bfde70a158514058e04298a248b8eb947008d5
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -30579,9 +30579,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > /tmp/w25-plural.out 2>&1; code=$?; tail -40 /tmp/w25-plural.out; exit $code' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > /tmp/w25-plural.out 2>&1; code=$?; tail -40 /tmp/w25-plural.out; exit $code' in /home/user/orca/project
  exited 101 in 0ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -31381,7 +31381,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); console.log(d.locales.ro.plural.cardinal)'" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); console.log(d.locales.ro.plural.cardinal)'" in /home/user/orca/project
  succeeded in 0ms:
 {
   '0': 'few',
@@ -32182,7 +32182,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..80bfde70a158514058e04298a248b8eb947008d5
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -33730,9 +33730,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > /tmp/w25-plural.out 2>&1; code=$?; tail -40 /tmp/w25-plural.out; exit $code' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > /tmp/w25-plural.out 2>&1; code=$?; tail -40 /tmp/w25-plural.out; exit $code' in /home/user/orca/project
  exited 101 in 0ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -34532,7 +34532,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); console.log(d.locales.lt.plural.cardinal)'" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); console.log(d.locales.lt.plural.cardinal)'" in /home/user/orca/project
  succeeded in 0ms:
 {
   '0': 'other',
@@ -35332,7 +35332,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "rg -n '\"lt\" =>|\"many\"' rust/crates/discord-i18n/src/plural.rs | tail -8 && sed -n '250,290p' rust/crates/discord-i18n/src/plural.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '\"lt\" =>|\"many\"' rust/crates/discord-i18n/src/plural.rs | tail -8 && sed -n '250,290p' rust/crates/discord-i18n/src/plural.rs" in /home/user/orca/project
  succeeded in 0ms:
 193:                    cat("many")
 209:                else { cat("many") }
@@ -36159,7 +36159,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..80bfde70a158514058e04298a248b8eb947008d5
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -37707,9 +37707,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > /tmp/w25-plural.out 2>&1; code=$?; tail -40 /tmp/w25-plural.out; exit $code' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > /tmp/w25-plural.out 2>&1; code=$?; tail -40 /tmp/w25-plural.out; exit $code' in /home/user/orca/project
  exited 101 in 0ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -38509,7 +38509,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); console.log(d.locales.he.plural.cardinal)'" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); console.log(d.locales.he.plural.cardinal)'" in /home/user/orca/project
  succeeded in 0ms:
 {
   '0': 'other',
@@ -39310,7 +39310,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/plural.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..80bfde70a158514058e04298a248b8eb947008d5
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -40854,9 +40854,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > /tmp/w25-plural.out 2>&1; code=$?; tail -40 /tmp/w25-plural.out; exit $code' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test plural_contract > /tmp/w25-plural.out 2>&1; code=$?; tail -40 /tmp/w25-plural.out; exit $code' in /home/user/orca/project
  succeeded in 0ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -41639,9 +41639,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract > /tmp/w25-format.out 2>&1; code=$?; tail -70 /tmp/w25-format.out; exit $code' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract > /tmp/w25-format.out 2>&1; code=$?; tail -70 /tmp/w25-format.out; exit $code' in /home/user/orca/project
  exited 101 in 0ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running tests/format_contract.rs (rust/target/debug/deps/format_contract-9421ae848a51de36)
 
@@ -42458,7 +42458,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 codex
 Plural теперь проходит oracle целиком. Форматтеры выявили конкретные ICU-детали: порог группировки `hu` для четырёх цифр и различие между узким пробелом в сгенерированных числах и обычными пробелами в date/time-строках. Уточню недостающие образцы в oracle и поправлю форматирование по этим данным.
 exec
-/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); for (const l of [\"hu\",\"fr\",\"ru\",\"en-US\"]) console.log(l,d.locales[l].number)' && rg -n 'D_HU|group:' rust/crates/discord-i18n/src/format_data.rs | tail -30" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); for (const l of [\"hu\",\"fr\",\"ru\",\"en-US\"]) console.log(l,d.locales[l].number)' && rg -n 'D_HU|group:' rust/crates/discord-i18n/src/format_data.rs | tail -30" in /home/user/orca/project
  succeeded in 0ms:
 hu {
   '0': '0',
@@ -43296,7 +43296,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/format.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..780e4012883c6f90e0e6196e63f1a1c4f55ac963
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -44848,9 +44848,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract > /tmp/w25-format.out 2>&1; code=$?; tail -70 /tmp/w25-format.out; exit $code' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract > /tmp/w25-format.out 2>&1; code=$?; tail -70 /tmp/w25-format.out; exit $code' in /home/user/orca/project
  exited 101 in 50ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
      Running tests/format_contract.rs (rust/target/debug/deps/format_contract-9421ae848a51de36)
 
@@ -45653,7 +45653,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); for (const [l,x] of Object.entries(d.locales)) if(x.number[\"1234\"]===\"1234\") console.log(l)'" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e 'const d=require(\"./rust/crates/discord-i18n/tests/data/cldr-oracle.json\"); for (const [l,x] of Object.entries(d.locales)) if(x.number[\"1234\"]===\"1234\") console.log(l)'" in /home/user/orca/project
  succeeded in 0ms:
 hu
 it
@@ -46439,7 +46439,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/format.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..a1ece843358b351353a2b83e1fc8b2d43fefa6a8
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -47999,9 +47999,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract > /tmp/w25-format.out 2>&1; code=$?; tail -70 /tmp/w25-format.out; exit $code' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test format_contract > /tmp/w25-format.out 2>&1; code=$?; tail -70 /tmp/w25-format.out; exit $code' in /home/user/orca/project
  succeeded in 11ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
      Running tests/format_contract.rs (rust/target/debug/deps/format_contract-9421ae848a51de36)
 
@@ -48795,7 +48795,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 codex
 Форматирование прошло oracle по всем 36 локалям. Сейчас фиксирую итоговые green-логи и прогоняю повторно весь W25a targeted-набор; после этого проверю форматирование Rust-файлов, clippy для пакета, diff-границы и md5.
 exec
-/usr/bin/bash -lc "rm waves/RW-24/green-W25a.log; for test_name in locale_contract plural_contract format_contract; do printf '"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -90 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "rm waves/RW-24/green-W25a.log; for test_name in locale_contract plural_contract format_contract; do printf '"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -90 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log" in /home/user/orca/project
  succeeded in 11ms:
 6:running 2 tests
 10:test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
@@ -49587,9 +49587,9 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-i18n --all-targets -- -D warnings' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-i18n --all-targets -- -D warnings' in /home/user/orca/project
  exited 101 in 0ms:
-    Checking discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Checking discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 error: used consecutive `str::replace` call
    --> crates/discord-i18n/src/format.rs:141:14
     |
@@ -49605,9 +49605,9 @@ warning: build failed, waiting for other jobs to finish...
 error: could not compile `discord-i18n` (lib test) due to 1 previous error
 
 exec
-/usr/bin/bash -lc 'cargo fmt --manifest-path rust/Cargo.toml --all -- --check' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cargo fmt --manifest-path rust/Cargo.toml --all -- --check' in /home/user/orca/project
  exited 1 in 133ms:
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:3:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:3:
  use crate::format_data::{self, LocaleFormatData};
  
  #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49621,7 +49621,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:3:
 (B[m impl DateStyle {
      #[must_use]
      pub fn parse(value: &str) -> Option<Self> {
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:10:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:10:
 [31m-        match value { "short" => Some(Self::Short), "medium" => Some(Self::Medium), "long" => Some(Self::Long), "full" => Some(Self::Full), _ => None }
 (B[m[32m+        match value {
 (B[m[32m+            "short" => Some(Self::Short),
@@ -49643,7 +49643,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:10:
 (B[m }
  
  #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:16:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:16:
 [31m-pub enum NumberStyle { Decimal, Integer, Percent, Currency }
 (B[m[32m+pub enum NumberStyle {
 (B[m[32m+    Decimal,
@@ -49672,7 +49672,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:16:
 (B[m }
  
  #[must_use]
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:24:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:24:
 [31m-pub fn format_number(value: f64, locale: &str) -> String { format_number_with(value, locale, NumberOptions::default()) }
 (B[m[32m+pub fn format_number(value: f64, locale: &str) -> String {
 (B[m[32m+    format_number_with(value, locale, NumberOptions::default())
@@ -49680,7 +49680,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:24:
 (B[m 
  #[must_use]
  pub fn format_number_with(value: f64, locale: &str, options: NumberOptions) -> String {
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:32:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:32:
      let factor = 10_f64.powi(max as i32);
      let rounded = (value.abs() * factor).round() / factor;
      let mut body = format!("{rounded:.max$}");
@@ -49698,7 +49698,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:32:
 (B[m     let (integer, fraction) = body.split_once('.').unwrap_or((&body, ""));
      let group = if options.use_grouping { data.group } else { "" };
      let integer = if ["hu", "it", "pl", "pt-PT", "es-ES", "bg"]
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:43:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:43:
      {
          integer.to_owned()
      } else {
@@ -49719,7 +49719,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:43:
 (B[m     let mut out = format!("{sign}{integer}");
      if !fraction.is_empty() || min > 0 {
          out.push_str(data.decimal);
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:52:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:52:
          out.push_str(fraction);
 [31m-        for _ in fraction.len()..min { out.push('0'); }
 (B[m[32m+        for _ in fraction.len()..min {
@@ -49728,7 +49728,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:52:
 (B[m     }
      out
  }
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:57:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:57:
  
  fn group_digits(digits: &str, separator: &str, primary: usize, secondary: usize) -> String {
 [31m-    if separator.is_empty() || digits.len() <= primary || primary == 0 { return digits.to_owned(); }
@@ -49738,7 +49738,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:57:
 (B[m     let mut chunks = Vec::new();
      let mut end = digits.len();
      let mut size = primary;
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:72:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:72:
  
  #[must_use]
  pub fn format_integer(value: i64, locale: &str) -> String {
@@ -49770,7 +49770,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:72:
 (B[m #[must_use]
  pub fn format_currency(value: f64, locale: &str, currency: &str) -> String {
      let decimals = if currency == "JPY" { 0 } else { 2 };
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:82:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:82:
 [31m-    let number = format_number_with(value, locale, NumberOptions { minimum_fraction_digits: decimals, maximum_fraction_digits: decimals, ..NumberOptions::default() });
 (B[m[32m+    let number = format_number_with(
 (B[m[32m+        value,
@@ -49799,7 +49799,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:82:
 (B[m }
  
  #[derive(Clone, Copy)]
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:91:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:91:
 [31m-struct DateParts { year: i64, month: usize, day: u32, weekday: usize, hour: u32, minute: u32, second: u32 }
 (B[m[32m+struct DateParts {
 (B[m[32m+    year: i64,
@@ -49813,7 +49813,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:91:
 (B[m fn parts(timestamp_secs: i64, offset: i32) -> DateParts {
      let days = timestamp_secs.div_euclid(86_400);
      let seconds = timestamp_secs.rem_euclid(86_400);
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:102:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:102:
      let day = doy - (153 * mp + 2) / 5 + 1;
      let month = mp + if mp < 10 { 3 } else { -9 };
      year += i64::from(month <= 2);
@@ -49839,7 +49839,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:102:
 (B[m     let chars: Vec<char> = pattern.chars().collect();
      let mut out = String::new();
      let mut pos = 0;
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:114:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:114:
              pos += 1;
              while pos < chars.len() {
                  if chars[pos] == '\'' {
@@ -49859,7 +49859,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:114:
 (B[m             }
              continue;
          }
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:122:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:122:
          let c = chars[pos];
          if c.is_ascii_alphabetic() {
              let start = pos;
@@ -49903,7 +49903,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:122:
 (B[m                 _ => return if skeleton { None } else { Some(String::new()) },
              };
              out.push_str(&value);
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:139:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:139:
 [31m-        } else { out.push(c); pos += 1; }
 (B[m[32m+        } else {
 (B[m[32m+            out.push(c);
@@ -49912,7 +49912,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:139:
 (B[m     }
      Some(out.replace('\u{202f}', " ").replace('\u{a0}', " "))
  }
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:143:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:143:
  
  #[must_use]
  pub fn format_date(timestamp_secs: i64, locale: &str, style: DateStyle) -> String {
@@ -49928,7 +49928,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:143:
 (B[m }
  #[must_use]
  pub fn format_time(timestamp_secs: i64, locale: &str, style: DateStyle) -> String {
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:150:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:150:
 [31m-    let data = format_data::data(locale); render_pattern(data.time_patterns[style.index()], parts(timestamp_secs, 0), data, false).unwrap_or_default()
 (B[m[32m+    let data = format_data::data(locale);
 (B[m[32m+    render_pattern(
@@ -49941,7 +49941,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:150:
 (B[m }
  #[must_use]
  pub fn format_date_skeleton(timestamp_secs: i64, locale: &str, skeleton: &str) -> Option<String> {
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:154:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:154:
      let skeleton = skeleton.strip_prefix("::").unwrap_or(skeleton);
 [31m-    let pattern = match skeleton { "M/d" => "M'/'d", "MMMMd" => "MMMM' 'd", "yyyy-MM-dd" => "yyyy'-'MM'-'dd", _ => return None };
 (B[m[31m-    let data = format_data::data(locale); let p = parts(timestamp_secs, data.year_offset);
@@ -49956,7 +49956,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:154:
 (B[m     render_pattern(pattern, p, data, true)
  }
  #[must_use]
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:160:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:160:
  pub fn format_time_skeleton(timestamp_secs: i64, locale: &str, skeleton: &str) -> Option<String> {
      let skeleton = skeleton.strip_prefix("::").unwrap_or(skeleton);
 [31m-    if skeleton != "HH:mm" { return None; }
@@ -49969,7 +49969,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:160:
 (B[m }
  #[must_use]
  pub fn format_number_named(value: f64, locale: &str, name: &str) -> String {
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:167:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:167:
 [31m-    match name { "integer" => format_integer(value as i64, locale), "percent" => format_percent(value, locale), "currency" => format_currency(value, locale, "USD"), _ => format_number(value, locale) }
 (B[m[32m+    match name {
 (B[m[32m+        "integer" => format_integer(value as i64, locale),
@@ -49979,7 +49979,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:167:
 (B[m[32m+    }
 (B[m }
  
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs:203:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/src/plural.rs:203:
                  }
              }
              "pl" => {
@@ -49999,7 +49999,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/src/plural.rs:203:
 (B[m             }
              "ru" | "uk" => {
                  if v == 0 && i_mod_10 == 1 && i_mod_100 != 11 {
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs:21:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs:21:
  fn oracle_value<'a>(value: &'a discord_json::JsonValue, path: &[&str]) -> &'a str {
      let mut node = value;
      for key in path {
@@ -50014,7 +50014,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs
 (B[m }
  
  fn catalog(raw: &str) -> Catalog {
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs:70:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs:70:
      i18n.insert_catalog("en-US", en).unwrap();
      i18n.insert_catalog("ru", ru).unwrap();
      i18n.set_locale("ru").unwrap();
@@ -50027,7 +50027,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs
 (B[m         i18n.translate("only_ru", &BTreeMap::new()).unwrap(),
          "русский"
      );
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs:106:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs:106:
      assert_eq!(i18n.translate("date", &date_args).unwrap(), expected_date);
      assert_eq!(i18n.translate("time", &date_args).unwrap(), expected_time);
      assert_eq!(
@@ -50041,7 +50041,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs
 (B[m         expected_number
      );
  
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs:136:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs:136:
      );
      let mut i18n = I18n::new("ru");
      i18n.insert_catalog("ru", cat).unwrap();
@@ -50054,7 +50054,7 @@ Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/i18n_contract.rs
 (B[m     assert_eq!(tr("count", 1), "1 игра");
      assert_eq!(tr("count", 2), "2 игры");
      assert_eq!(tr("count", 5), "5 игр");
-Diff in /home/sanya/orca/project/rust/crates/discord-i18n/tests/plural_contract.rs:12:
+Diff in /home/user/orca/project/rust/crates/discord-i18n/tests/plural_contract.rs:12:
      for locale in SUPPORTED_LOCALES {
          let entry = locales.get(locale).unwrap();
          for (key, kind) in [
@@ -50855,7 +50855,7 @@ codex
 Targeted-тесты зелёные, а clippy потребовал объединить Unicode-пробелы одним `replace`. `cargo fmt --all -- --check` также сообщает форматирование в чужих pre-existing `tests/i18n_contract.rs`; этот файл вне моей матрицы. Отформатирую только назначенные W25a Rust-файлы и повторю проверки, не затрагивая чужой файл.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/format.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..6f6b3b0c451fd2161dff192378608cd53008cad4
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -52424,7 +52424,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +    }
 +}
 
-2026-10-21T08:27:51.213646Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs:
+2026-10-21T08:27:51.213646Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/user/orca/project/rust/crates/discord-i18n/src/format.rs:
     if !fraction.is_empty() || min > 0 {
         out.push_str(data.decimal);
         out.push_str(fraction);
@@ -53219,7 +53219,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc "sed -n '48,80p' rust/crates/discord-i18n/src/format.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '48,80p' rust/crates/discord-i18n/src/format.rs" in /home/user/orca/project
  succeeded in 0ms:
     {
         integer.to_owned()
@@ -54041,7 +54041,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/format.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/format.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..02cf080124015100330e15177661036c0aa72f36
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -55613,7 +55613,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'rustfmt --edition 2024 rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rustfmt --edition 2024 rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs' in /home/user/orca/project
  succeeded in 0ms:
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..02cf080124015100330e15177661036c0aa72f36
@@ -56401,14 +56401,14 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'rustfmt --edition 2024 --check rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rustfmt --edition 2024 --check rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs' in /home/user/orca/project
  succeeded in 0ms:
 exec
-/usr/bin/bash -lc 'for test_name in locale_contract plural_contract format_contract; do flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" || exit $?; done' in /home/sanya/orca/project
+/usr/bin/bash -lc 'for test_name in locale_contract plural_contract format_contract; do flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" || exit $?; done' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-i18n --all-targets -- -D warnings' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-i18n --all-targets -- -D warnings' in /home/user/orca/project
  exited 101 in 0ms:
-    Checking discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Checking discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 error: used `assert_eq!` with a literal bool
   --> crates/discord-i18n/tests/locale_contract.rs:13:9
    |
@@ -56428,7 +56428,7 @@ error: could not compile `discord-i18n` (test "locale_contract") due to 1 previo
 warning: build failed, waiting for other jobs to finish...
 
  succeeded in 296ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
      Running tests/locale_contract.rs (rust/target/debug/deps/locale_contract-a9f436064cd54c41)
 
@@ -56438,7 +56438,7 @@ test registry_and_disabled_locales_match_the_frozen_inventory ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
      Running tests/plural_contract.rs (rust/target/debug/deps/plural_contract-ba1d015e13c13f5b)
 
@@ -56448,7 +56448,7 @@ test every_oracle_cardinal_and_ordinal_sample_matches ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
      Running tests/format_contract.rs (rust/target/debug/deps/format_contract-9421ae848a51de36)
 
@@ -57247,7 +57247,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/tests/locale_contract.rs
+/home/user/orca/project/rust/crates/discord-i18n/tests/locale_contract.rs
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
 index 1a7a31c9d6fffb1c5c622e5a1acd050ad68e4ebb..02cf080124015100330e15177661036c0aa72f36
 --- a/rust/crates/discord-i18n/src/format.rs
@@ -58819,12 +58819,12 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 +}
 
 exec
-/usr/bin/bash -lc 'rustfmt --edition 2024 --check rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rustfmt --edition 2024 --check rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs' in /home/user/orca/project
  succeeded in 0ms:
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-i18n --all-targets -- -D warnings' in /home/sanya/orca/project
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-i18n --all-targets -- -D warnings' in /home/user/orca/project
  succeeded in 0ms:
-    Checking discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Checking discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s
 
 diff --git a/rust/crates/discord-i18n/src/format.rs b/rust/crates/discord-i18n/src/format.rs
@@ -59615,7 +59615,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 codex
 Пакетный clippy теперь чистый; `rustfmt --check` для всех шести назначенных файлов тоже чистый. Финально повторяю targeted-наборы в `green-W25a.log`, затем сверю, что изменены только разрешённые файлы, и посчитаю md5.
 exec
-/usr/bin/bash -lc "rm waves/RW-24/green-W25a.log; for test_name in locale_contract plural_contract format_contract; do printf '"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -90 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log; md5sum rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24/red-W25a.log waves/RW-24/green-W25a.log; git status --short -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24/red-W25a.log waves/RW-24/green-W25a.log; git diff --stat -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rm waves/RW-24/green-W25a.log; for test_name in locale_contract plural_contract format_contract; do printf '"'$ flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test %s'"\\n' \""'$test_name" >> waves/RW-24/green-W25a.log; flock /tmp/opencode/discord-cargo.lock cargo test --offline --manifest-path rust/Cargo.toml -p discord-i18n --test "$test_name" >> waves/RW-24/green-W25a.log 2>&1; result=$?; printf '"'COMMAND EXIT CODE: %s\\n\\n' \""'$result" >> waves/RW-24/green-W25a.log; if [ "$result" -ne 0 ]; then tail -90 waves/RW-24/green-W25a.log; exit "$result"; fi; done; rg -n '"'"'^running |''^test result:|''^COMMAND EXIT|error:|FAILED'"' waves/RW-24/green-W25a.log; md5sum rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24/red-W25a.log waves/RW-24/green-W25a.log; git status --short -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs waves/RW-24/red-W25a.log waves/RW-24/green-W25a.log; git diff --stat -- rust/crates/discord-i18n/src/locale.rs rust/crates/discord-i18n/src/plural.rs rust/crates/discord-i18n/src/format.rs rust/crates/discord-i18n/tests/locale_contract.rs rust/crates/discord-i18n/tests/plural_contract.rs rust/crates/discord-i18n/tests/format_contract.rs" in /home/user/orca/project
  succeeded in 0ms:
 6:running 2 tests
 10:test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
@@ -60431,7 +60431,7 @@ index 0000000000000000000000000000000000000000..8d96afeaa4bd76d3ef79288775e60b93
 codex
 **W25a / P7-01 выполнено.** Добавлены locale fallback, cardinal/ordinal plural и форматирование чисел, дат, времени и skeleton на данных CLDR. Contract-тесты сверяют 36 локалей с `cldr-oracle.json`.
 
-Red-прогоны трёх targeted-наборов завершились ожидаемым падением на заглушках, exit code `101`; команды и вывод сохранены в [red-W25a.log](/home/sanya/orca/project/waves/RW-24/red-W25a.log). Финальные targeted-прогоны зелёные: locale — 2 теста, plural — 2, format — 3; результаты в [green-W25a.log](/home/sanya/orca/project/waves/RW-24/green-W25a.log). Clippy пакета и `rustfmt --check` назначенных файлов прошли. `cargo fmt --all -- --check` обнаружил форматирование в чужом существующем `tests/i18n_contract.rs`; этот файл не менял.
+Red-прогоны трёх targeted-наборов завершились ожидаемым падением на заглушках, exit code `101`; команды и вывод сохранены в [red-W25a.log](/home/user/orca/project/waves/RW-24/red-W25a.log). Финальные targeted-прогоны зелёные: locale — 2 теста, plural — 2, format — 3; результаты в [green-W25a.log](/home/user/orca/project/waves/RW-24/green-W25a.log). Clippy пакета и `rustfmt --check` назначенных файлов прошли. `cargo fmt --all -- --check` обнаружил форматирование в чужом существующем `tests/i18n_contract.rs`; этот файл не менял.
 
 MD5:
 
@@ -61234,7 +61234,7 @@ tokens used
 174 999
 **W25a / P7-01 выполнено.** Добавлены locale fallback, cardinal/ordinal plural и форматирование чисел, дат, времени и skeleton на данных CLDR. Contract-тесты сверяют 36 локалей с `cldr-oracle.json`.
 
-Red-прогоны трёх targeted-наборов завершились ожидаемым падением на заглушках, exit code `101`; команды и вывод сохранены в [red-W25a.log](/home/sanya/orca/project/waves/RW-24/red-W25a.log). Финальные targeted-прогоны зелёные: locale — 2 теста, plural — 2, format — 3; результаты в [green-W25a.log](/home/sanya/orca/project/waves/RW-24/green-W25a.log). Clippy пакета и `rustfmt --check` назначенных файлов прошли. `cargo fmt --all -- --check` обнаружил форматирование в чужом существующем `tests/i18n_contract.rs`; этот файл не менял.
+Red-прогоны трёх targeted-наборов завершились ожидаемым падением на заглушках, exit code `101`; команды и вывод сохранены в [red-W25a.log](/home/user/orca/project/waves/RW-24/red-W25a.log). Финальные targeted-прогоны зелёные: locale — 2 теста, plural — 2, format — 3; результаты в [green-W25a.log](/home/user/orca/project/waves/RW-24/green-W25a.log). Clippy пакета и `rustfmt --check` назначенных файлов прошли. `cargo fmt --all -- --check` обнаружил форматирование в чужом существующем `tests/i18n_contract.rs`; этот файл не менял.
 
 MD5:
 

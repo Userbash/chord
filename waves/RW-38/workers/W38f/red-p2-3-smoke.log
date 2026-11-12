@@ -15,7 +15,7 @@
 test at tests/smoke/gui-spike.smoke.test.mjs:21:3
 ✖ открывает окно и публикует проверяемый DOM-снимок (1004.799711ms)
   AssertionError [ERR_ASSERTION]: окно прожило 1004 мс < 9000 мс (SPIKE_EXIT_AFTER_MS=10000): преждевременный exit 0; stderr: 
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/smoke/gui-spike.smoke.test.mjs:68:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/smoke/gui-spike.smoke.test.mjs:68:14)
       at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)

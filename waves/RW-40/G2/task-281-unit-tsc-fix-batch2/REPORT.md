@@ -1,7 +1,7 @@
 # REPORT — task-281 / batch 2 (`FE-FIX-05`): tsc в `svg-icons.test.mjs` и `channel-tree.test.mjs`
 
 - **Карточка:** `FE-FIX-05`, `G2 Frontend`, `P0`, `L1`.
-- **Ветка:** `bugfix/task-281-unit-tsc-fix-batch2` (worktree `/home/sanya/orca/workspaces/project/bugfix-task-281-unit-tsc-fix-batch2`), HEAD `17dd852`.
+- **Ветка:** `bugfix/task-281-unit-tsc-fix-batch2` (worktree `/home/user/orca/workspaces/project/bugfix-task-281-unit-tsc-fix-batch2`), HEAD `17dd852`.
 - **Модель:** `deepseek/deepseek-v4.1-flash`.
 
 ## Что сделано

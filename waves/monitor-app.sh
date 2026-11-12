@@ -1,5 +1,5 @@
 #!/bin/bash
-LOG="/home/sanya/orca/project/waves/app-trace.log"
+LOG="/home/user/orca/project/waves/app-trace.log"
 while true; do
   if ! pgrep -f discord-gui-spike > /dev/null 2>&1; then
     echo "=== APP CRASHED at $(date) ==="

@@ -2,7 +2,7 @@
 дата: 2026-10-22T11:05:04+05:00
 
 $ cargo test --offline -p discord-voice --test srtp_contract
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running tests/srtp_contract.rs (/tmp/opencode/target-w26a/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
 

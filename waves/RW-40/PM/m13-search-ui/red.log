@@ -44,7 +44,7 @@
 test at tests/unit/search-remote-real-index.test.mjs:449:3
 ✖ T-M13-202-01: HTTP 202 игнорирует тело, берёт задержку из Retry-After / retry_after_ms и рендерит прогресс попытки 1 из 5 (31.196935ms)
   AssertionError [ERR_ASSERTION]: нет .search-indexing-banner
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:477:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:477:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -65,7 +65,7 @@ test at tests/unit/search-remote-real-index.test.mjs:515:3
   + 'undefined'
   - 'function'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:517:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:517:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -88,7 +88,7 @@ test at tests/unit/search-remote-real-index.test.mjs:559:3
   
   0 !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:572:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:572:16)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -105,7 +105,7 @@ test at tests/unit/search-remote-real-index.test.mjs:595:3
   
   0 !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:612:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:612:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -119,7 +119,7 @@ test at tests/unit/search-remote-real-index.test.mjs:595:3
 test at tests/unit/search-remote-real-index.test.mjs:631:3
 ✖ T-M13-202-05: ответ 200 OK с doing_deep_historical_index=true и documents_indexed=8450 показывает результаты и баннер 4Y3O+O (13.356331ms)
   AssertionError [ERR_ASSERTION]: нет .search-indexing-banner
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:645:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:645:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -136,7 +136,7 @@ test at tests/unit/search-remote-real-index.test.mjs:659:3
   
   undefined !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:662:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:662:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -154,7 +154,7 @@ test at tests/unit/search-remote-real-index.test.mjs:659:3
 test at tests/unit/search-remote-real-index.test.mjs:776:3
 ✖ T-M13-NSFW-04: при AGE_GATED_SPACES=1 и age_verification_status=2 (teen) didAgree=false даже при сохранённом согласии, режим underage (0.191151ms)
   TypeError [Error]: didAgreeNsfwGuild is not a function
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:783:7)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:783:7)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -173,7 +173,7 @@ test at tests/unit/search-remote-real-index.test.mjs:842:3
   -   min_id: '1456436831842205696'
   - }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:853:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:853:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -194,7 +194,7 @@ test at tests/unit/search-remote-real-index.test.mjs:927:3
   
   0 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:938:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:938:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -213,7 +213,7 @@ test at tests/unit/search-remote-real-index.test.mjs:949:3
   + undefined
   - 9975
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:950:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-m13-search-202-ui/tests/unit/search-remote-real-index.test.mjs:950:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

@@ -15,7 +15,7 @@
 test at tests/unit/gui-spike-model.test.mjs:293:3
 ✖ перегрузка страницы (capacity+1) → RangeError для любой страницы (m09) (0.933724ms)
   AssertionError [ERR_ASSERTION]: Missing expected rejection.
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:309:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:309:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 9)
       at async Suite.run (node:internal/test_runner/test:1905:7)

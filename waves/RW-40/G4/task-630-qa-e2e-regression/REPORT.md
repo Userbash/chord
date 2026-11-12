@@ -38,7 +38,7 @@ node --test --test-concurrency=1 tests/e2e/e2e-build006.test.mjs
 
 Команда:
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target npm run gate:worker
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target npm run gate:worker
 ```
 Результат (`waves/RW-40/G4/task-630-qa-e2e-regression/gate-worker.log`, `.gate/worker-2026-11-07T14-57-13-931Z.json`):
 - `typecheck` — `0.6 с` (PASS)

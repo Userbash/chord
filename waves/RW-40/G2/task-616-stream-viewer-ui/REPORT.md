@@ -2,7 +2,7 @@
 
 - **batch/карточка:** `RW-40 / TASK-616` (G2 Frontend — UI просмотра чужого стрима и режим PiP)
 - **Ветка:** `feature/task-616-stream-viewer-ui`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-616-stream-viewer-ui`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-616-stream-viewer-ui`
 - **Дата:** 2026-11-07
 - **Коммитов нет:** `git commit` / `git push` не выполнялись (согласно правилам `AGENTS.md` §6).
 
@@ -44,8 +44,8 @@
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `0 errors` (`exit code = 0`);
 - **oracle:**
   - `waves/RW-40/DESIGN/VOICE-STREAM-UI-SPEC.md` §2.2.3, §2.3.1, §3.1, §4, §5, §6;
-  - `/home/sanya/re-deep/voice-deep.md`;
-  - `/home/sanya/re-deep/frontend-d03.md` §1;
+  - `reference-oracle/voice-deep.md`;
+  - `reference-oracle/frontend-d03.md` §1;
   - `docs/re/backend-ipc.json` (`DISCORD_WINDOW_OPEN_DOCUMENT_PIP`);
   - `rust/gui-spike/ui/tokens.css` (100% биекция токенов);
 - **генерация:** не применимо (статический модуль UI и таблица стилей);

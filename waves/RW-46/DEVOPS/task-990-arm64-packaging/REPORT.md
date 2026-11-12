@@ -9,28 +9,28 @@
 
 ## 1. Сделано
 
-1. **Конфигурация кросс-компиляции Cargo для `aarch64-unknown-linux-gnu` ([`packaging/arm64/cargo-config.toml`](file:///home/sanya/orca/project/packaging/arm64/cargo-config.toml), [`rust/dist/cargo-config-aarch64.toml`](file:///home/sanya/orca/project/rust/dist/cargo-config-aarch64.toml)):**
+1. **Конфигурация кросс-компиляции Cargo для `aarch64-unknown-linux-gnu` ([`packaging/arm64/cargo-config.toml`](file:///home/user/orca/project/packaging/arm64/cargo-config.toml), [`rust/dist/cargo-config-aarch64.toml`](file:///home/user/orca/project/rust/dist/cargo-config-aarch64.toml)):**
    - Настроены секции `[build]` (`target = "aarch64-unknown-linux-gnu"`), `[target.aarch64-unknown-linux-gnu]` (`linker = "clang"`, `ar = "llvm-ar"`, `rustflags` с `-fuse-ld=lld`, `-Wl,--build-id=sha1`, `-Wl,-z,relro,-z,now,-z,noexecstack`, `-Wl,-z,max-page-size=16384,-z,common-page-size=16384`, `target-feature=+neon,+crc,+aes,+sha2`) и `[env]` (`CC_aarch64_unknown_linux_gnu`, `CXX_aarch64_unknown_linux_gnu`, `AR_aarch64_unknown_linux_gnu`, `PKG_CONFIG_ALLOW_CROSS="1"`, `PKG_CONFIG_SYSROOT_DIR="/usr/aarch64-linux-gnu"`).
    - Реализована поддержка трёх аппаратных профилей ARM64 (`--profile generic|rpi5|asahi`):
      - `generic`: `target-cpu=generic` (`-march=armv8-a+simd+crc+crypto`)
      - `rpi5`: `target-cpu=cortex-a76` (`-mcpu=cortex-a76+crc+crypto`, Raspberry Pi 5 Broadcom BCM2712)
      - `asahi`: `target-cpu=apple-m1` (`-mcpu=apple-m1`, Apple Silicon Asahi Linux M1/M2/M3 с 16 КБ страницами памяти)
 
-2. **Скрипт кросс-сборки и упаковки [`scripts/build-arm64.sh`](file:///home/sanya/orca/project/scripts/build-arm64.sh):**
+2. **Скрипт кросс-сборки и упаковки [`scripts/build-arm64.sh`](file:///home/user/orca/project/scripts/build-arm64.sh):**
    - Генерация нативного 64-битного бинарника ELF64 `aarch64` (`rust/dist/discord-gpui-aarch64`, `e_machine = 183 / 0xb7 = EM_AARCH64`, `ET_DYN` PIE, интерпретатор `/lib/ld-linux-aarch64.so.1`, выравнивание `PT_LOAD` `0x4000 = 16384` байт для ядер 16K страниц Raspberry Pi 5 и Asahi Linux, `GNU_RELRO` + `BIND_NOW`, `GNU_STACK` RW, `NT_GNU_BUILD_ID`, `stripped`).
    - Сборка релизного архива `rust/dist/discord-gpui-v1.0.0-beta.1-linux-aarch64.tar.gz` (содержит `discord-gpui`, `LICENSE-MIT`, `LICENSE-APACHE`, `sbom.spdx.json`, `BETA-TESTING-GUIDE.md`, `RELEASE-NOTES-v1.0.0-beta.1.md`, `cargo-config-aarch64.toml`).
    - Сборка пакета Debian/Ubuntu `rust/dist/discord-gpui_1.0.0-beta.1_arm64.deb` (`Architecture: arm64`, зависимости `libc6 (>= 2.31)` и `libpipewire-0.3-0`, `DEBIAN/md5sums`, `postinst`, `postrm`).
    - Сборка автономного пакета Type 2 ARM64 AppImage `rust/dist/discord-gpui-v1.0.0-beta.1-aarch64.AppImage` (ELF64 `EM_AARCH64` рантайм + сигнатура `AI\x02` на смещении `8..11` + выровненный по 4096 байт образ `AppDir` + трейлер `AI2PAYLOAD`).
-   - Обновление и самопроверка контрольных сумм в [`rust/dist/SHA256SUMS`](file:///home/sanya/orca/project/rust/dist/SHA256SUMS) (`sha256sum -c SHA256SUMS`).
+   - Обновление и самопроверка контрольных сумм в [`rust/dist/SHA256SUMS`](file:///home/user/orca/project/rust/dist/SHA256SUMS) (`sha256sum -c SHA256SUMS`).
 
-3. **Контрактный тест [`tests/unit/arm64-packaging-990.test.mjs`](file:///home/sanya/orca/project/tests/unit/arm64-packaging-990.test.mjs):**
+3. **Контрактный тест [`tests/unit/arm64-packaging-990.test.mjs`](file:///home/user/orca/project/tests/unit/arm64-packaging-990.test.mjs):**
    - Охватывает 5 подзадач (`SUB-990-1` .. `SUB-990-5`) и 9 измерений `TEST-POLICY.md` с независимыми бинарными и системными оракулами (`python3 tomllib`, `readelf -h -l -d -n`, `file`, `tar`, `ar`, `awk`, `sha256sum -c`).
 
 ---
 
 ## 2. Red-прогон (TDD)
 
-Лог: [`waves/RW-46/DEVOPS/task-990-arm64-packaging/red.log`](file:///home/sanya/orca/project/waves/RW-46/DEVOPS/task-990-arm64-packaging/red.log)
+Лог: [`waves/RW-46/DEVOPS/task-990-arm64-packaging/red.log`](file:///home/user/orca/project/waves/RW-46/DEVOPS/task-990-arm64-packaging/red.log)
 
 ```text
 ▶ TASK-990: Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi)
@@ -46,7 +46,7 @@
 
 ## 3. Green-прогон (TDD)
 
-Лог: [`waves/RW-46/DEVOPS/task-990-arm64-packaging/green.log`](file:///home/sanya/orca/project/waves/RW-46/DEVOPS/task-990-arm64-packaging/green.log)
+Лог: [`waves/RW-46/DEVOPS/task-990-arm64-packaging/green.log`](file:///home/user/orca/project/waves/RW-46/DEVOPS/task-990-arm64-packaging/green.log)
 
 ```text
 ▶ TASK-990: Кросс-компиляция и пакеты для Linux ARM64 (aarch64, Raspberry Pi 5, Asahi)

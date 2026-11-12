@@ -1,6 +1,6 @@
 COMMAND: cd rust && CARGO_TARGET_DIR=/tmp/discord-lab-target-rw26b cargo test --offline -p discord-voice --test regions_contract
 EXIT=0
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 warning: variant `UnavailableRegion` is never constructed
   --> crates/discord-voice/tests/../src/regions.rs:26:5
    |

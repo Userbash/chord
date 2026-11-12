@@ -10,7 +10,7 @@
 
 ## 2. Сделано
 1. **Нормативная UX/DOM/A11y спецификация (`docs/specs/APP-SHELL-WIRING-SPEC.md`, 721 строка)**:
-   - Спроектирована и верифицирована против эталонного RE-дампа `/home/sanya/re-deep/frontend-d03.md` (`§2`, `§4`, `§5.5–§5.12`, `§8`), `/home/sanya/re-deep/ru-catalog.json` и `rust/gui-spike/ui/tokens.css` сквозная интеграция 5 верхнеуровневых модулей оболочки:
+   - Спроектирована и верифицирована против эталонного RE-дампа `reference-oracle/frontend-d03.md` (`§2`, `§4`, `§5.5–§5.12`, `§8`), `reference-oracle/ru-catalog.json` и `rust/gui-spike/ui/tokens.css` сквозная интеграция 5 верхнеуровневых модулей оболочки:
      - `rust/gui-spike/ui/features/app-shell-wiring.js` (`createAppShellWiring`);
      - `rust/gui-spike/ui/features/shell-controllers-registry.js` (`GUILD_ADMIN_PANELS`, `createGuildAdminPanelRouter`);
      - `rust/gui-spike/ui/features/chat-helpers-bridge.js` (`buildChannelHeaderBadgesModel`, `formatChannelTopicTooltip`);
@@ -19,7 +19,7 @@
    - Зафиксирована шестиуровневая шкала наложения слоёв `Z-Index` (`--z-base: 0`, `--z-header: 10`, `--z-popover: 100`, `--z-modal: 200`, `--z-tooltip: 300`, `--z-toast: 400`) и таблица биекции между каноническими именами ТЗ (`quick_switcher`, `notification_inbox`, `pins_drawer`, `threads_drawer`, `user_profile_card`) и полноэкранными/региональными панелями гильдий (`roles_matrix`, `audit_log`, `automod`, `scheduled_events`, `webhooks`, `expressions`, `moderation`, `onboarding`), включая двунаправленное взаимное вытеснение (`openModalLayer` закрывает `activeAdminPanel`, `openAdminPanel` закрывает `activeOverlayStack` в LIFO-порядке).
    - Специфицирован конечный автомат взаимного вытеснения поповеров композера (`slash_command_picker`, `soundboard_picker`, `emoji_picker`, `gif_picker`, `attachment_dropzone`), правила авто-детекта черновика `/command` (`^\/([^\s/]+)$`), двухприоритетное ранжирование слэш-команд (`startsWith` -> `includes`, `limit = 10`), лимиты громкости `0..200%` и пакетов вложений (`<= 10` файлов, `<= 25 МБ`).
    - Зафиксирована полная матрица клавиатурной навигации (`Ctrl+K`, `Ctrl+F`, `Ctrl+P`, `Ctrl+/`, `Alt+Shift+ArrowUp`, циклические `ArrowUp`/`ArrowDown`, `Tab`, `Enter`, приоритетный `Escape`), каноническая DOM-разметка, таблица атрибутов WAI-ARIA 1.2 (`role="dialog"`, `aria-modal`, `aria-expanded`, `aria-activedescendant`, `role="listbox"`, `role="option"`, `aria-selected`, `role="switch"`, `aria-checked`, `role="alert"`, `role="status"`), адаптивные брейкпоинты (`1024px`, `1280px`, `1440px`, `<720px`, `959px`, `1600px`), матрица 5 состояний (`Empty`, `Loading`, `Error`, `Populated`, `Capabilities`), 9 обязательных измерений тестовых оракулов (`T-SHELL-WIRING-{NEG,BND,ERR,EMP,LOAD,CAP,REC,CMP,OBS}-01`) и 6 мутационных оракулов (`M-SHELL-WIRING-01..06`).
-2. **Реестр CSS-токенов (`/home/sanya/orca/project/waves/RW-40/DESIGN/APP-SHELL-WIRING-TOKENS.md`, 129 строк)**:
+2. **Реестр CSS-токенов (`/home/user/orca/project/waves/RW-40/DESIGN/APP-SHELL-WIRING-TOKENS.md`, 129 строк)**:
    - Оформлена полная таблица всех CSS-переменных из `rust/gui-spike/ui/tokens.css` (Z-index слои, геометрия `--layout-*`, `--modal-w-*`, `--emoji-picker-*`, `--badge-*`, `--tooltip-*`, палитра поверхностей и текста, границы, скругления, тени, спейсинг, анимации), адаптивные переопределения на брейкпоинтах `1024px`, `1280px`, `1440px`, `959px`, `1600px` и таблица расчёта контрастности WCAG 2.1 AA (`>= 4.5:1` текст, `>= 3.0:1` UI).
 
 ---
@@ -56,7 +56,7 @@
 | Файл | Назначение | Строк | `md5sum` |
 | :--- | :--- | :---: | :--- |
 | `docs/specs/APP-SHELL-WIRING-SPEC.md` | Нормативная UX/DOM/A11y/CSS спецификация интеграции оболочки и поповеров композера | `721` | `7c1010344ae3e4a8b5f01b7d8c68bd84` |
-| `/home/sanya/orca/project/waves/RW-40/DESIGN/APP-SHELL-WIRING-TOKENS.md` | Полный реестр CSS-токенов, адаптивных брейкпоинтов и контраста WCAG 2.1 AA | `129` | `84f323f410b99766aaaab45d99743573` |
+| `/home/user/orca/project/waves/RW-40/DESIGN/APP-SHELL-WIRING-TOKENS.md` | Полный реестр CSS-токенов, адаптивных брейкпоинтов и контраста WCAG 2.1 AA | `129` | `84f323f410b99766aaaab45d99743573` |
 | `waves/RW-40/DESIGN/APP-SHELL-WIRING-TOKENS.md` | Копия реестра CSS-токенов в рабочей ветке `design/task-275-app-shell-wiring-spec` | `129` | `84f323f410b99766aaaab45d99743573` |
 | `rust/gui-spike/ui/tokens.css` (read-only оракул) | Единый источник CSS-переменных | `392` | `21d570a6bf9c4b5d77b00d3d9b3d1d08` |
 

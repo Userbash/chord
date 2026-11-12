@@ -74,7 +74,7 @@ impl JitterBuffer {
 ## 2. Данные и оракул
 
 `fixtures/voice/rtp-pt120-oracle.json` (уже сгенерирован `waves/RW-29/gen-rtp-oracle.py` из
-`/home/sanya/re-deep/voice/voice-udp4.pcap`, golden, только чтение): 10 пакетов PT120
+`reference-oracle/voice/voice-udp4.pcap`, golden, только чтение): 10 пакетов PT120
 (8 валидных с `0xBEDE`/2 слова/23 Б остатка/счётчики `0x80000000|n`, 2 аномальных 43 Б без
 валидного расширения), seq `17464..17473`, дельты ts `960`, marker только на первом.
 

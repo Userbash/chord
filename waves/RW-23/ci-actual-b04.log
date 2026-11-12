@@ -1,7 +1,7 @@
-ci: cargo fmt --manifest-path /home/sanya/orca/project/rust/Cargo.toml --all -- --check
-ci: cargo clippy --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --workspace --all-targets --all-features -- -D warnings
+ci: cargo fmt --manifest-path /home/user/orca/project/rust/Cargo.toml --all -- --check
+ci: cargo clippy --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --workspace --all-targets --all-features -- -D warnings
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
-ci: cargo test --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --workspace
+ci: cargo test --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --workspace
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
      Running unittests src/main.rs (rust/target/debug/deps/discord_rs-e03fdf132612d286)
 
@@ -1110,15 +1110,15 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-ci: cargo run --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --release -p discord-codec --example etf_bench -- --iterations 2000
+ci: cargo run --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --release -p discord-codec --example etf_bench -- --iterations 2000
     Finished `release` profile [optimized] target(s) in 0.00s
      Running `rust/target/release/examples/etf_bench --iterations 2000`
 etf_bench iterations=2000 golden_bytes=126 total_bytes=252000 elapsed_ms=0 ops_per_sec=3296619
 ci: SKIP cargo-deny: инструмент не установлен (P8-04/SBOM остаётся отдельной карточкой)
 ci: SBOM/license check (offline)
-sbom: создан /home/sanya/orca/project/rust/dist/sbom.spdx.json (71 packages)
+sbom: создан /home/user/orca/project/rust/dist/sbom.spdx.json (71 packages)
 release: cargo build --offline --release -p discord-app
     Finished `release` profile [optimized] target(s) in 0.01s
-release: артефакт /home/sanya/orca/project/rust/dist/discord-rs
-release: checksum /home/sanya/orca/project/rust/dist/SHA256SUMS
+release: артефакт /home/user/orca/project/rust/dist/discord-rs
+release: checksum /home/user/orca/project/rust/dist/SHA256SUMS
 ci: OK

@@ -1,10 +1,10 @@
 # BACKLOG RE (часть 2): бэкенд и протокол (по итогам task-130)
 
-**Источник:** `/home/sanya/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL-PART2.md`
+**Источник:** `/home/user/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL-PART2.md`
 (далее — отчёт; ссылки вида «M-32», «G-10», «§3.4» — на его разделы). Канонический
 `RE-GAP-BACKEND-PROTOCOL.md` содержит независимый отчёт второго воркера; этот бэклог
 составлен по части 2 и не претендует на его нумерацию.
-**Эталон:** `/home/sanya/re-deep/` (RE-дамп Discord 1.0.162). Каждая карточка содержит
+**Эталон:** `reference-oracle/` (RE-дамп Discord 1.0.162). Каждая карточка содержит
 оракул — конкретный файл/чанк дампа, по которому приёмка проверяет результат.
 **Базовый HEAD:** работа велась в worktree `re-task-130-re-audit-backend-protocol`;
 продуктовый код не менялся (read-only аудит).
@@ -31,8 +31,8 @@ READY приходит, дальше состояние «замирает».
 **Описание.** Варианты: (а) потоковый декодер с flush на границе WS-кадра; (б) собственный
 ридер zstd-блоков без удержания окна; (в) кольцевой буфер с принудительным сбросом окна.
 Выбрать по замеру на эталонных hexl-снимках; тест — реплей всех 7 сокетов.
-**Оракул.** `/home/sanya/re-deep/gw-proto/zstd-frames-95974_1389.hexl` +
-`/home/sanya/re-deep/gateway-protocol.md:99-127` (таблица 161/137/109/648/71/374/44 кадров и
+**Оракул.** `reference-oracle/gw-proto/zstd-frames-95974_1389.hexl` +
+`reference-oracle/gateway-protocol.md:99-127` (таблица 161/137/109/648/71/374/44 кадров и
 137/113/94/569/59/331/40 термов). Счётчик диспатчей на сокет — `gateway-protocol.md:150-158`.
 **Write-scope.** `rust/crates/discord-codec/src/zstd.rs`, `rust/crates/discord-core/src/ws.rs`,
 `rust/crates/discord-codec/tests/*` (новые), `rust/crates/discord-core/tests/ws_*.rs` (только
@@ -52,9 +52,9 @@ READY приходит, дальше состояние «замирает».
 **Описание.** Поменять константу и семантику `plan_reconnect`; проверить, что супервайзер
 измеряет разрыв от последнего ACK, а не от закрытия сокета. Добавить тест-кейсы 29 с / 179 с /
 181 с.
-**Оракул.** `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`
+**Оракул.** `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`
 (offset 5 019 755: `_doResumeOrIdentify`, `tI=3*eb.A.Millis.MINUTE`);
-`/home/sanya/re-deep/gateway-protocol.md:155` (три RESUMED с продолжением `s`).
+`reference-oracle/gateway-protocol.md:155` (три RESUMED с продолжением `s`).
 **Write-scope.** `rust/crates/discord-core/src/resume.rs`,
 `rust/crates/discord-core/src/gateway/supervisor.rs`, `rust/crates/discord-core/tests/resume*.rs`.
 **DoD.** (1) Red/green на границах 179/181 с. (2) `plan_reconnect` не режет окно по другим
@@ -71,7 +71,7 @@ READY приходит, дальше состояние «замирает».
 (порог VAD задаёт вызывающий, не модуль), связать с `media/rtp.rs` и `media/jitter.rs`,
 отправка — через `UdpMediaSocket`. DAVE не трогаем (отдельная карточка RE-BE-09).
 **Оракул.** Бандл, offset 2 396 729 (`case 5: … emit("speaking", i.user_id, i.ssrc, r)`) и
-≈10 768 632 (флаги Speaking); `/home/sanya/re-deep/voice-deep.md:21-30` (таблица op
+≈10 768 632 (флаги Speaking); `reference-oracle/voice-deep.md:21-30` (таблица op
 сигнализации), `voice/rtc1-frames.jsonl` (формат op0/op1/op2/op4).
 **Write-scope.** `rust/crates/discord-voice/src/lib.rs`, `rust/crates/discord-voice/src/media/*`,
 `rust/crates/discord-voice/src/udp.rs`, `rust/crates/discord-voice/tests/*` (новые).
@@ -88,7 +88,7 @@ READY приходит, дальше состояние «замирает».
 `PATCH` (изменение связи; точное назначение в статике не описано — уточнить по живому
 трафику). Добавить в каталог как
 `[S]`-расширения (не размывать 47 live-строк), модель ошибок — общий `ApiError`.
-**Оракул.** `/home/sanya/re-deep/rest-static.md:694` (`DELETE|PATCH|PUT USER_RELATIONSHIP`),
+**Оракул.** `reference-oracle/rest-static.md:694` (`DELETE|PATCH|PUT USER_RELATIONSHIP`),
 `:95`; отсутствие в живом захвате — `rest-d02.md:484-500` (маршрут ожидался, не подтверждён).
 **Write-scope.** `rust/crates/discord-core/src/rest/routes.rs`,
 `rust/crates/discord-core/src/rest/resources.rs`, новый
@@ -104,8 +104,8 @@ READY приходит, дальше состояние «замирает».
 **Цель.** Диалог с пользователем/группой создаётся из UI и появляется в списке.
 **Описание.** Маршрут + тело `{recipients:[snowflake]}` + разбор ответа-канала (type 1/3),
 дедупликация существующего канала по `READY.private_channels`.
-**Оракул.** `/home/sanya/re-deep/rest-static.md:616` (`USER_CHANNELS`);
-схема приватного канала — `/home/sanya/re-deep/gateway-schema.md:121-166` (`private_channels`,
+**Оракул.** `reference-oracle/rest-static.md:616` (`USER_CHANNELS`);
+схема приватного канала — `reference-oracle/gateway-schema.md:121-166` (`private_channels`,
 17 шт., все type 1) и `rust/crates/discord-core/src/ready/social.rs` (уже парсит).
 **Write-scope.** `rust/crates/discord-core/src/rest/routes.rs`, новый
 `rust/crates/discord-core/src/rest/channels.rs`, `rust/gui-spike/src/messages.rs`
@@ -120,7 +120,7 @@ READY приходит, дальше состояние «замирает».
 **Цель.** Базовое управление каналом и ЛС из UI.
 **Описание.** Три метода в каталог `[S]`; тело PATCH — только изменяемые поля; DELETE ЛС/группы
 отличать по `type`; после успеха — локальное применение к состоянию.
-**Оракул.** `/home/sanya/re-deep/rest-static.md:200` (`CHANNEL` — PATCH|DELETE|GET);
+**Оракул.** `reference-oracle/rest-static.md:200` (`CHANNEL` — PATCH|DELETE|GET);
 поля канала — `gateway-schema.md` (объект канала в READY); создание канала в гильдии
 (`rest-static.md:340`) — вне scope, отдельная задача PM.
 **Write-scope.** `rust/crates/discord-core/src/rest/routes.rs`, новый
@@ -143,7 +143,7 @@ READY приходит, дальше состояние «замирает».
 новые заголовки — `Option<String>` в `ApiAuth`, пустые не отправляются. Дефолт — как в D-02
 (только 6), включение — явной настройкой и тестом на форму.
 **Оракул.** Бандл `prepareRequest` offset 1 001 996 (полный текст функции);
-`/home/sanya/re-deep/rest-d02.md:292-312` (6 заголовков в 133/133) и `:400-404` (U-08).
+`reference-oracle/rest-d02.md:292-312` (6 заголовков в 133/133) и `:400-404` (U-08).
 **Write-scope.** `rust/crates/discord-core/src/rest/headers.rs`,
 `rust/crates/discord-core/src/rest/client.rs`, `rust/crates/discord-core/src/rest/identity.rs`,
 `rust/crates/discord-core/tests/rest_headers*.rs`.
@@ -159,7 +159,7 @@ READY приходит, дальше состояние «замирает».
 событие фокуса и на новую телеметрическую сессию; дефолты 641004/94186 с возможностью
 переопределить.
 **Оракул.** Бандл, модуль `618651` (`extendSuperProperties` для `client_app_state` и
-`client_heartbeat_session_id`); `/home/sanya/re-deep/rest-d02.md:352-353` (641004, 94186).
+`client_heartbeat_session_id`); `reference-oracle/rest-d02.md:352-353` (641004, 94186).
 **Write-scope.** `rust/crates/discord-core/src/rest/client.rs`,
 `rust/crates/discord-core/src/rest/super_properties.rs`,
 `rust/crates/discord-core/src/rest/identity.rs`, `rust/gui-spike/src/auth.rs`,
@@ -177,7 +177,7 @@ READY приходит, дальше состояние «замирает».
 (шифрование MLS — отдельная задача); resume — `{token,session_id,server_id,channel_id,seq_ack}`,
 окно 1 минута, на истечении — disconnect 4801.
 **Оракул.** Бандл offset 2 396 729 (switch по op: 7,9,21,22,24,25,27,29,30 и `doResumeOrClose`,
-`ew=1*MINUTE`, `disconnect(!1,4801,…)`); `/home/sanya/re-deep/voice-deep.md:41-46` (движковый лог:
+`ew=1*MINUTE`, `disconnect(!1,4801,…)`); `reference-oracle/voice-deep.md:41-46` (движковый лог:
 «DAVE protocol init», MLS external sender / key package).
 **Write-scope.** `rust/crates/discord-voice/src/lib.rs`,
 `rust/crates/discord-voice/src/session/*` (новый), `rust/crates/discord-voice/tests/*`.
@@ -193,8 +193,8 @@ SRTCP (M-48); KDF ключей самосогласован, не wire (`srtp.rs
 проверен вектором.
 **Описание.** Переключить боевой путь на `rotate_srtcp` с тегом/счётчиком от шифра; разобрать
 `secret_key` из op4 → ключ/соль → nonce (`rtpsize`), сверить с первыми 10 пакетами.
-**Оракул.** `/home/sanya/re-deep/voice-deep.md:64-72` (пустой RR 28 Б сразу после ротации,
-раскладка `[8 Б][tag16][ctr4]`), `/home/sanya/re-deep/voice/strace-media-s3.jsonl`
+**Оракул.** `reference-oracle/voice-deep.md:64-72` (пустой RR 28 Б сразу после ротации,
+раскладка `[8 Б][tag16][ctr4]`), `reference-oracle/voice/strace-media-s3.jsonl`
 (10 RTP-пакетов, счётчики 0..7, SR 8..10).
 **Write-scope.** `rust/crates/discord-voice/src/udp.rs`,
 `rust/crates/discord-voice/src/srtp.rs`, `rust/crates/discord-voice/src/crypto/*`,
@@ -213,7 +213,7 @@ SRTCP (M-48); KDF ключей самосогласован, не wire (`srtp.rs
 супервайзере; API `expedited_heartbeat(reason)`; подписка на power-события — через
 `discord-platform::power`.
 **Оракул.** Бандл: `_sendHeartbeat` (op40), `expeditedHeartbeat(5e3/15e3)` при
-`powerMonitor.on("resume")` и сетевых событиях; `/home/sanya/re-deep/gateway-protocol.md:158`
+`powerMonitor.on("resume")` и сетевых событиях; `reference-oracle/gateway-protocol.md:158`
 (исходящие 90 Б op1 и 111 Б op40 в одном захвате).
 **Write-scope.** `rust/crates/discord-core/src/gateway/supervisor.rs`,
 `rust/crates/discord-core/src/gateway.rs`, `rust/crates/discord-core/src/ws.rs`,
@@ -227,7 +227,7 @@ SRTCP (M-48); KDF ключей самосогласован, не wire (`srtp.rs
 **Цель.** Клиент не «долбит» 429 и уважает `reset` каждого bucket.
 **Описание.** Расширить `RateLimitInfo`, ввести реестр bucket'ов (route→bucket id) и ожидание
 до `reset`; `Retry-After` — секунды и HTTP-date (M-15).
-**Оракул.** `/home/sanya/re-deep/rest-d02.md:141-143` (единственный 429,
+**Оракул.** `reference-oracle/rest-d02.md:141-143` (единственный 429,
 `GET /users/@me/survey`, `run2|95974.8271`), поля `x-ratelimit-*` — документированный контракт
 Discord (в дампе не наблюдались, U-01).
 **Write-scope.** `rust/crates/discord-core/src/rest/rate_limit.rs`,
@@ -242,7 +242,7 @@ Wed, 21 Oct 2015 07:28:00 GMT` парсится. (3) `gate:worker`.
 **Описание.** Тип ошибки + каталог известных кодов (40xxx, 50035, 50007, 20011/20013, 70007);
 в `ApiClient::execute` для POST: повтор только если тело содержит `nonce` (сообщения) — иначе
 `ApiError::Client`.
-**Оракул.** `/home/sanya/re-deep/rest-static.md:96-106` (коды 40xxx/`suspended_user_token`),
+**Оракул.** `reference-oracle/rest-static.md:96-106` (коды 40xxx/`suspended_user_token`),
 `rest-d02.md:252-268` (тело settings-proto обрезано), тела ошибок не захвачены (U-01) —
 каталог помечается как «по статике, не подтверждено живьём».
 **Write-scope.** новый `rust/crates/discord-core/src/rest/error.rs`,
@@ -256,7 +256,7 @@ Wed, 21 Oct 2015 07:28:00 GMT` парсится. (3) `gate:worker`.
 **Цель.** Профиль трафика ближе к клиенту; Cloudflare-сессия и корпоративные прокси работают.
 **Описание.** Перейти на h2 (или h1 с keep-alive как минимум), cookie-jar с `__dcfduid/
 __sdcfduid/__cfruid`, `HTTP_PROXY`/системный прокси; корни — системный store + webpki.
-**Оракул.** `/home/sanya/re-deep/rest-d02.md:294-312` (заголовки в CDP приходят в нижнем регистре — признак h2),
+**Оракул.** `reference-oracle/rest-d02.md:294-312` (заголовки в CDP приходят в нижнем регистре — признак h2),
 `main-arch.md:707-713` (прокси на уровне ОС), `main-arch.md:680-706` (CA).
 **Write-scope.** `rust/crates/discord-core/src/rest/transport.rs`,
 `rust/crates/discord-core/src/rest/http1.rs` (либо новый `http2.rs`),
@@ -273,8 +273,8 @@ embeds/attachments/reactions не типизированы нигде.
 **Описание.** Добавить `channel_type`, `member` (nick/roles/joined_at/avatar), `attachments[]`,
 `embeds[]`, `reactions[]`, `referenced_message`, `nonce`, `sticker_items`, `poll` — по схеме
 дапа; `MessagePatch` — те же nullable-поля.
-**Оракул.** `/home/sanya/re-deep/gateway-schema.md:431-500` (19 ключей, `d.author` 13 ключей,
-примеры), `/home/sanya/re-deep/gateway-schema.md:121-200` (объекты user/member в READY).
+**Оракул.** `reference-oracle/gateway-schema.md:431-500` (19 ключей, `d.author` 13 ключей,
+примеры), `reference-oracle/gateway-schema.md:121-200` (объекты user/member в READY).
 **Write-scope.** `rust/crates/discord-core/src/state/types.rs` — **общий файл, только через
 Team Lead**; воркер готовит: `rust/crates/discord-core/src/state/message_payload.rs` (новый),
 `rust/crates/discord-core/src/state/reducer.rs` — тоже общий (через TL),
@@ -291,10 +291,10 @@ Team Lead**; воркер готовит: `rust/crates/discord-core/src/state/me
 **Цель.** Изменения применяются без перезапуска.
 **Описание.** Типизированные payload'ы для трёх событий: настройки (proto type 1/2),
 реакции (add/remove), `VOICE_SERVER_UPDATE` (переиспользовать `voice::VoiceServerUpdate`).
-**Оракул.** `/home/sanya/re-deep/gateway-protocol.md:155-157` (счётчики живых событий:
+**Оракул.** `reference-oracle/gateway-protocol.md:155-157` (счётчики живых событий:
 USER_SETTINGS_PROTO_UPDATE 3, MESSAGE_REACTION_ADD 1, VOICE_SERVER_UPDATE 3);
 формы payload'ов — `gateway-schema.md` (PRESENCE_UPDATE/MESSAGE_*) и
-`/home/sanya/re-deep/voice/rtc1-frames.jsonl` не нужны: `VOICE_SERVER_UPDATE` уже разобран в
+`reference-oracle/voice/rtc1-frames.jsonl` не нужны: `VOICE_SERVER_UPDATE` уже разобран в
 `discord-voice/src/lib.rs:623-692`.
 **Write-scope.** `rust/crates/discord-core/src/state/types.rs` (общий — TL),
 `rust/crates/discord-core/src/state/reaction.rs` (новый),
@@ -309,8 +309,8 @@ USER_SETTINGS_PROTO_UPDATE 3, MESSAGE_REACTION_ADD 1, VOICE_SERVER_UPDATE 3);
 `notification_settings` лежат в `raw` (M-41).
 **Цель.** Фичефлаги, согласия и настройки уведомлений читаются типизированно.
 **Описание.** Добавить поля в `Ready` и парсеры, сохранив `raw`; тесты на 4 живых READY.
-**Оракул.** `/home/sanya/re-deep/gateway-schema.md:121-166` (40 ключей, размеры секций
-`guild_experiments` 7 667 Б, `apex_experiments` 5 533 Б), `/home/sanya/re-deep/gateway-protocol.md:163-170`.
+**Оракул.** `reference-oracle/gateway-schema.md:121-166` (40 ключей, размеры секций
+`guild_experiments` 7 667 Б, `apex_experiments` 5 533 Б), `reference-oracle/gateway-protocol.md:163-170`.
 **Write-scope.** `rust/crates/discord-core/src/ready/snapshot.rs`,
 `rust/crates/discord-core/src/ready/value.rs`, `rust/crates/discord-core/tests/ready_*.rs`.
 **DoD.** (1) Red: 40/40 ключей разобраны, 0 в `raw` для известных. (2) Эксперименты доступны
@@ -322,8 +322,8 @@ USER_SETTINGS_PROTO_UPDATE 3, MESSAGE_REACTION_ADD 1, VOICE_SERVER_UPDATE 3);
 **Цель.** Закрыть окно → трей; клик по уведомлению открывает канал/ЛС.
 **Описание.** Модель трея (иконка, состояния меню, minimize-to-tray), D-Bus `Notify` с
 `ActionInvoked` → маршрут deep link; поле `identifier` в `Notification`.
-**Оракул.** `/home/sanya/re-deep/backend-ipc.md:44` (9 каналов трея/автозапуска),
-`/home/sanya/re-deep/main-arch.md:325-352` (цепочка уведомления и push
+**Оракул.** `reference-oracle/backend-ipc.md:44` (9 каналов трея/автозапуска),
+`reference-oracle/main-arch.md:325-352` (цепочка уведомления и push
 `(action, identifier, userText, fallbackDeepLink)`).
 **Write-scope.** `rust/crates/discord-platform/src/notifications.rs`, новый
 `rust/crates/discord-platform/src/tray.rs`, `rust/gui-spike/src/main.rs`,
@@ -339,8 +339,8 @@ identifier → `Route::Channels`. (3) Трей: модель состояний 
 **Описание.** `extract_url_from_args`, обработчик второго инстанса → `openOrQueueUrl`
 (очередь до готовности UI), маппинг остальных `action/*` в `Route::Unknown` с сохранением
 пути для лога.
-**Оракул.** `/home/sanya/re-deep/main-arch.md:92` (`extractUrlFromArgs`),
-`/home/sanya/re-deep/main-arch.md:117` (`second-instance`), `main-arch.md:850-851` (префикс
+**Оракул.** `reference-oracle/main-arch.md:92` (`extractUrlFromArgs`),
+`reference-oracle/main-arch.md:117` (`second-instance`), `main-arch.md:850-851` (префикс
 `discord://`, `openOrQueueUrl`).
 **Write-scope.** `rust/crates/discord-platform/src/deep_link.rs`,
 `rust/gui-spike/src/main.rs`, `rust/crates/discord-platform/tests/deep_link*.rs`.
@@ -353,7 +353,7 @@ identifier → `Route::Channels`. (3) Трей: модель состояний 
 **Цель.** Настройка «запускать при входе» реально работает и уважает «свёрнутым в трей».
 **Описание.** Запись/удаление файла, аргумент `--start-minimized`, чтение при старте,
 синхронизация с настройкой UI.
-**Оракул.** `/home/sanya/re-deep/backend-ipc.md:44` (`TOGGLE_OPEN_ON_STARTUP`,
+**Оракул.** `reference-oracle/backend-ipc.md:44` (`TOGGLE_OPEN_ON_STARTUP`,
 `UPDATE_OPEN_ON_STARTUP`, `TOGGLE_START_MINIMIZED`); XDG Desktop Entry 1.5 (уже в
 `autostart.rs`).
 **Write-scope.** `rust/crates/discord-platform/src/autostart.rs`,
@@ -369,7 +369,7 @@ build override cookie (M-56).
 **Цель.** Контракт обновления совпадает с клиентом, состояния видны UI.
 **Описание.** Сопоставить `manifest.rs`/`plan.rs` с шагами §5.1–5.5, добавить состояния
 `checking-for-updates → launching` и cookie `build-override`.
-**Оракул.** `/home/sanya/re-deep/main-arch.md:523-596` (выбор апдейтера, splash-автомат,
+**Оракул.** `reference-oracle/main-arch.md:523-596` (выбор апдейтера, splash-автомат,
 Linux-специфика, legacy moduleUpdater).
 **Write-scope.** `rust/crates/discord-updater/src/*`, `rust/crates/discord-updater/tests/*`.
 **DoD.** (1) Таблица соответствия шагов §5 ↔ функции. (2) Red-тест на пропущенный шаг.

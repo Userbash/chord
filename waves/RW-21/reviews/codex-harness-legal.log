@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -13,19 +13,19 @@ session id: 01a15cff-17e8-7fa3-807f-d9455282e6c3
 user
 Independent read-only review of B02 cards P0-04 (conformance fixture loader skeleton) and P0-07 (legal framework docs). Do not edit files. Sources: rust/crates/discord-conformance/src/lib.rs, tests/fixtures.rs, fixtures/MANIFEST.json, waves/RW-21/DESIGN-P0-04.md, docs/rust-client/LEGAL.md, docs/rust-client/README.md, rust/README.md, docs/rust-client/PLAN.md, docs/rust-client/CONCEPT.md (if present), rust/Cargo.toml workspace license. Check: path traversal and absolute/empty names, symlink/TOCTOU assumptions appropriate for test loader, repo-to-lab fallback, env overrides, typed errors, no writes/network, skip-aware lab test, manifest provenance; whether T-HARN-01 scope is honestly bounded and T-HARN-02/03 not falsely claimed. For LEGAL: claims must match actual repo/current implementation (license, telemetry, keyring, assets, live approval), no unapproved legal guarantee, no false claim that unimplemented keyring exists. Return verdict accepted / accepted with P3 / changes required, findings with file:line and severity P0/P1/P2/P3, explicitly list P0/P1/P2 counts.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сверю указанные исходники и проектные контракты в режиме read-only. Затем сопоставлю формулировки legal-документов с текущей реализацией и дам вердикт с привязкой к строкам.
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,240p' docs/rust-client/TEAM.md && sed -n '1,200p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,160p' waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md && sed -n '1,240p' docs/rust-client/TEAM.md && sed -n '1,200p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,160p' waves/STATE.md" in /home/user/orca/project
  succeeded in 0ms:
 # PROCESS.md — производственный процесс discord-lab
 
@@ -94,7 +94,7 @@ exec
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -541,7 +541,7 @@ RW-19/RW-20 (P2-10/P2-11) — активная пара B01.
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -942,7 +942,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-21, I1,
   P2-01/P2-02/P2-04/P2-05/P2-06/P2-07/P2-09/P2-10/P2-11, B01 accepted, B02 research,
   удаление legacy `ready_data` и правки доков **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -1089,11 +1089,11 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/tests/fixtures.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/tests/fixtures.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/src/lib.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/src/lib.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P0-04.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/DESIGN-P0-04.md' in /home/user/orca/project
  succeeded in 0ms:
      1	//! T-HARN-01: загрузчик фикстур и контракт путей (P0-04, B02).
      2	//!
@@ -1197,7 +1197,7 @@ exec
    100	    if let Ok(value) = std::env::var("RE_LAB_ROOT") {
    101	        assert_eq!(lab_root(), PathBuf::from(value));
    102	    } else {
-   103	        assert_eq!(lab_root(), PathBuf::from("/home/sanya/re-deep"));
+   103	        assert_eq!(lab_root(), PathBuf::from("/home/user/clean-room-oracle"));
    104	    }
    105	}
 
@@ -1205,7 +1205,7 @@ exec
      1	//! # discord-conformance
      2	//!
      3	//! Доступ к курированным конформанс-фикстурам RE (`fixtures/` в корне репозитория;
-     4	//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/sanya/re-deep`).
+     4	//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/user/clean-room-oracle`).
      5	//!
      6	//! Тесты уровня L1–L3 (`docs/rust-client/TEST-PLAN.md` §3) читают артефакты отсюда,
      7	//! поэтому путь переопределяется переменной `RE_FIXTURES_ROOT` (например, для CI).
@@ -1221,7 +1221,7 @@ exec
     17	pub enum FixtureSource {
     18	    /// Курированная копия в `fixtures/` репозитория.
     19	    Repository,
-    20	    /// Сырьё в лаборатории (`/home/sanya/re-deep` либо `RE_LAB_ROOT`).
+    20	    /// Сырьё в лаборатории (`/home/user/clean-room-oracle` либо `RE_LAB_ROOT`).
     21	    Lab,
     22	}
     23	
@@ -1322,10 +1322,10 @@ exec
    118	    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures")
    119	}
    120	
-   121	/// Корень лаборатории: `RE_LAB_ROOT` либо `/home/sanya/re-deep`.
+   121	/// Корень лаборатории: `RE_LAB_ROOT` либо `/home/user/clean-room-oracle`.
    122	pub fn lab_root() -> PathBuf {
    123	    PathBuf::from(
-   124	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+   124	        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
    125	    )
    126	}
    127	
@@ -1422,7 +1422,7 @@ exec
      6	## 1. Цель
      7	
      8	Дать тестам один детерминированный загрузчик фикстур: сначала курированный `fixtures/`
-     9	репозитория, затем сырьё `/home/sanya/re-deep` (переопределяется `RE_LAB_ROOT`). Ошибки
+     9	репозитория, затем сырьё `/home/user/clean-room-oracle` (переопределяется `RE_LAB_ROOT`). Ошибки
     10	типизированы, путь и источник видны в отчёте; отсутствие lab — skip-aware на уровне теста,
     11	а не паника загрузчика.
     12	
@@ -1434,7 +1434,7 @@ exec
     18	pub enum ConformanceError { InvalidName{..}, NotFound{..}, Io{..}, Utf8{..} }
     19	
     20	pub fn fixtures_root() -> PathBuf;   // RE_FIXTURES_ROOT | <repo>/fixtures
-    21	pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/sanya/re-deep
+    21	pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/user/clean-room-oracle
     22	pub fn manifest_path() -> PathBuf;
     23	pub fn manifest_text() -> Result<String, ConformanceError>;
     24	pub fn resolve(name: &str) -> Result<Fixture, ConformanceError>; // repo → lab
@@ -1461,7 +1461,7 @@ exec
     45	загрузчика, не подмена протокольных тестов.
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/Cargo.toml' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/Cargo.toml' in /home/user/orca/project
  succeeded in 0ms:
      1	# Каркас нативного клиента Discord на Rust (фазы P0/P1 плана docs/rust-client/PLAN.md).
      2	# Внешние зависимости: ruzstd 0.9.1 (чистый Rust, карточка RW-02) и — с RW-04 — транспорт
@@ -1497,18 +1497,18 @@ exec
     32	zstd = "0.14"
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/fixtures/MANIFEST.json' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-conformance/fixtures/MANIFEST.json' in /home/user/orca/project
  exited 1 in 0ms:
 nl: rust/crates/discord-conformance/fixtures/MANIFEST.json: No such file or directory
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/README.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/README.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba docs/rust-client/LEGAL.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba docs/rust-client/LEGAL.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba docs/rust-client/README.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba docs/rust-client/README.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba docs/rust-client/PLAN.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba docs/rust-client/PLAN.md' in /home/user/orca/project
  succeeded in 0ms:
      1	# discord-rs — каркас нативного клиента (P0)
      2	
@@ -1608,7 +1608,7 @@ exec
     51	
     52	## Сырые артефакты
     53	
-    54	Лаборатория: **`/home/sanya/re-deep`** (1,7 ГБ, 22 072 файла): захваты шлюза/REST/UI, pcap и
+    54	Лаборатория: **`/home/user/clean-room-oracle`** (1,7 ГБ, 22 072 файла): захваты шлюза/REST/UI, pcap и
     55	strace голоса, каталоги i18n, распакованный asar. **Курированный срез** для конформанс-тестов —
     56	`../../fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5; полный манифест — `TEST-PLAN.md` §2).
     57	Секреты в документах и фикстурах этого раздела заменены (`REDACTED`/placeholder).
@@ -1642,7 +1642,7 @@ exec
     85	- Синхронность документов стережёт мета-тест `../../tests/meta/rust-client-sync.test.mjs`.
 
 exec
-/usr/bin/bash -lc 'nl -ba docs/rust-client/CONCEPT.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba docs/rust-client/CONCEPT.md' in /home/user/orca/project
  succeeded in 0ms:
      1	# Правовая рамка Rust-клиента (P0-07)
      2	
@@ -1767,7 +1767,7 @@ exec
     44	| P0-01 | Спайк UI-оболочки (Tauri) | 3 экрана (чат 100k, эмодзи-пикер, настройки) на Tauri; ADR-1 с числами FPS/RAM/сборки; замер резервного нативного тулкита | T-UI-01 | — | L |
     45	| P0-02 | Прототип ETF-кодека | round-trip всех 11 тегов, big-int по спецификации, snowflake-строки | T-ENC-01…03 | — | M |
     46	| P0-03 | Прототип zstd-stream декодера | поток с магией только в кадре 0; кадры 2+ без магии | T-ENC-04 | — | S |
-    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/sanya/re-deep`, запуск из `cargo test` | T-HARN-01…03 | — | M |
+    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/user/clean-room-oracle`, запуск из `cargo test` | T-HARN-01…03 | — | M |
     48	| P0-05 | Спайк хранения секретов | keyring на Linux (Secret Service/KWallet), headless-фолбэк | T-SEC-01 | — | S |
     49	| P0-06 | Спайк виртуализации 24k | список 24 229 участников из данных READY: 60 fps | T-UI-02 | P0-01 | M |
     50	| P0-07 | Ревизия правовой рамки | README клиента: ToS, телеметрия off, честный отпечаток | — | — | S |
@@ -2064,7 +2064,7 @@ exec
    141	| Качество | Покрытие ядра ≥80% (unit+contract), конформанс с RE-фикстурами 100%, нет утечек секретов |
 
 exec
-/usr/bin/bash -lc 'rg -n "telemetry|keyring|license|licence|asset|spawn|approval|consent|live|telemetry" rust docs/rust-client' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg -n "telemetry|keyring|license|licence|asset|spawn|approval|consent|live|telemetry" rust docs/rust-client' in /home/user/orca/project
  succeeded in 0ms:
 docs/rust-client/CODEX-WORKERS.md:68:сеть, live Discord, коммиты, gate.
 docs/rust-client/CODEX-WORKERS.md:101:живой Discord/сеть без approval владельца. Codex CLI вызывает модель по сети — это отдельное
@@ -2317,7 +2317,7 @@ rust/crates/discord-core/tests/resume_reconnect.rs:816:    let (url, stub) = spa
 rust/crates/discord-core/tests/resume_reconnect.rs:881:    let (url, stub) = spawn_stub2(
 rust/crates/discord-core/tests/resume_reconnect.rs:1006:    let (url, stub) = spawn_stub(|mut ws| async move {
 rust/crates/discord-core/tests/resume_reconnect.rs:1062:    let (url, stub) = spawn_stub(|mut ws| async move {
-rust/crates/discord-core/src/identify.rs:4://! `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
+rust/crates/discord-core/src/identify.rs:4://! `/home/user/clean-room-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
 rust/crates/discord-core/src/ready/snapshot.rs:27:    "consents",
 rust/crates/discord-core/src/history/mod.rs:3://! Ограниченное окно на канал, слияние live-событий и уже типизированных страниц,
 rust/crates/discord-core/src/settings/mod.rs:7://! Модуль не делает I/O, не знает про `State`, REST, UI и live Discord; base64 берётся из
@@ -2362,13 +2362,13 @@ rust/crates/discord-core/src/state/voice/reducer.rs:12:/// Применить li
 codex
 В загрузчике уже видны два существенных отличия между контрактом и реализацией: манифест расположен не по указанному пути, а lab-skip тест возвращает успех без реального `#[ignore]`/skip механизма. Сейчас уточняю точный путь манифеста и проверяю полный текст LEGAL и workspace license, чтобы не делать вывод по усечённому выводу.
 exec
-/usr/bin/bash -lc 'nl -ba docs/rust-client/LEGAL.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba docs/rust-client/LEGAL.md' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/Cargo.toml' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/Cargo.toml' in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba docs/rust-client/PLAN.md | sed -n '1,90p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba docs/rust-client/PLAN.md | sed -n '1,90p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba docs/rust-client/README.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba docs/rust-client/README.md' in /home/user/orca/project
  succeeded in 0ms:
      1	# Каркас нативного клиента Discord на Rust (фазы P0/P1 плана docs/rust-client/PLAN.md).
      2	# Внешние зависимости: ruzstd 0.9.1 (чистый Rust, карточка RW-02) и — с RW-04 — транспорт
@@ -2534,7 +2534,7 @@ exec
     51	
     52	## Сырые артефакты
     53	
-    54	Лаборатория: **`/home/sanya/re-deep`** (1,7 ГБ, 22 072 файла): захваты шлюза/REST/UI, pcap и
+    54	Лаборатория: **`/home/user/clean-room-oracle`** (1,7 ГБ, 22 072 файла): захваты шлюза/REST/UI, pcap и
     55	strace голоса, каталоги i18n, распакованный asar. **Курированный срез** для конформанс-тестов —
     56	`../../fixtures/` (12 записей, 1,59 МБ, `MANIFEST.json` с md5; полный манифест — `TEST-PLAN.md` §2).
     57	Секреты в документах и фикстурах этого раздела заменены (`REDACTED`/placeholder).
@@ -2614,7 +2614,7 @@ exec
     44	| P0-01 | Спайк UI-оболочки (Tauri) | 3 экрана (чат 100k, эмодзи-пикер, настройки) на Tauri; ADR-1 с числами FPS/RAM/сборки; замер резервного нативного тулкита | T-UI-01 | — | L |
     45	| P0-02 | Прототип ETF-кодека | round-trip всех 11 тегов, big-int по спецификации, snowflake-строки | T-ENC-01…03 | — | M |
     46	| P0-03 | Прототип zstd-stream декодера | поток с магией только в кадре 0; кадры 2+ без магии | T-ENC-04 | — | S |
-    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/sanya/re-deep`, запуск из `cargo test` | T-HARN-01…03 | — | M |
+    47	| P0-04 | Скелет конформанс-харнесса | `discord-conformance`: загрузка фикстур из `/home/user/clean-room-oracle`, запуск из `cargo test` | T-HARN-01…03 | — | M |
     48	| P0-05 | Спайк хранения секретов | keyring на Linux (Secret Service/KWallet), headless-фолбэк | T-SEC-01 | — | S |
     49	| P0-06 | Спайк виртуализации 24k | список 24 229 участников из данных READY: 60 fps | T-UI-02 | P0-01 | M |
     50	| P0-07 | Ревизия правовой рамки | README клиента: ToS, телеметрия off, честный отпечаток | — | — | S |
@@ -2660,7 +2660,7 @@ exec
     90	| P3-02 | Чат-вью | виртуализация, группировка, день-разделители, embeds, редактирование inline | T-UI-06, T-UI-07 | P3-01, P2-06 | XL |
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/README.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/README.md' in /home/user/orca/project
  succeeded in 0ms:
      1	# discord-rs — каркас нативного клиента (P0)
      2	
@@ -2707,7 +2707,7 @@ exec
     43	Полная рамка и чек-лист: `../docs/rust-client/LEGAL.md`. Это не юридическая консультация.
 
 exec
-/usr/bin/bash -lc "rg --files | rg '("'^|/)MANIFEST'"\\.json"'$|LEGAL'"\\.md|CONCEPT\\.md|Cargo\\.toml"'$'"'" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg --files | rg '("'^|/)MANIFEST'"\\.json"'$|LEGAL'"\\.md|CONCEPT\\.md|Cargo\\.toml"'$'"'" in /home/user/orca/project
  succeeded in 0ms:
 docs/rust-client/LEGAL.md
 docs/rust-client/CONCEPT.md
@@ -2784,7 +2784,7 @@ waves/RW-03/nits-mut/rust/crates/discord-i18n/Cargo.toml
 waves/RW-03/review/mut/crates/discord-app/Cargo.toml
 
 exec
-/usr/bin/bash -lc "rg -n 'license|telemetry|keyring|approval|asset|live|no network|network' rust/Cargo.toml rust/crates docs/rust-client/LEGAL.md docs/rust-client/README.md rust/README.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n 'license|telemetry|keyring|approval|asset|live|no network|network' rust/Cargo.toml rust/crates docs/rust-client/LEGAL.md docs/rust-client/README.md rust/README.md" in /home/user/orca/project
  succeeded in 0ms:
 rust/README.md:16:| `discord-voice` | сигнализация RTC, SRTP, keepalive | `docs/re/voice-deep.md` | T-VOICE-* |
 rust/README.md:41:голос, отправка сообщений, GUI-захват) — только после явного approval владельца.
@@ -2913,7 +2913,7 @@ rust/crates/discord-core/tests/history_selectors.rs:212:        live(&mut histor
 rust/crates/discord-core/tests/history_selectors.rs:277:    history.apply_live(message(CHANNEL_A, 1, "super-secret-content"));
 rust/crates/discord-core/tests/history_selectors.rs:302:        history.apply_live(real_message(name));
 rust/crates/discord-core/src/settings/mod.rs:7://! Модуль не делает I/O, не знает про `State`, REST, UI и live Discord; base64 берётся из
-rust/crates/discord-core/src/identify.rs:4://! `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
+rust/crates/discord-core/src/identify.rs:4://! `/home/user/clean-room-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
 rust/crates/discord-core/src/settings/preloaded.rs:266:    /// Уведомления о go-live друзей.
 rust/crates/discord-core/src/settings/preloaded.rs:267:    pub notify_friends_on_go_live: Option<bool>,
 rust/crates/discord-core/src/settings/preloaded.rs:286:            notify_friends_on_go_live: message.bool_wrapper(2)?,
@@ -2956,19 +2956,19 @@ rust/crates/discord-core/src/state/presence.rs:752:fn parse_assets(
 rust/crates/discord-core/src/rest/transport.rs:4://! `Connection: close`: keep-alive появится отдельной волной, когда будет измерен выигрыш.
 
 exec
-/usr/bin/bash -lc "nl -ba rust/README.md | sed -n '1,60p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/README.md | sed -n '1,60p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba docs/rust-client/CONCEPT.md | sed -n '1,100p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba docs/rust-client/CONCEPT.md | sed -n '1,100p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/src/lib.rs | sed -n '1,100p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/src/lib.rs | sed -n '1,100p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba docs/rust-client/LEGAL.md | sed -n '19,75p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba docs/rust-client/LEGAL.md | sed -n '19,75p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/Cargo.toml | sed -n '1,35p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/Cargo.toml | sed -n '1,35p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba fixtures/MANIFEST.json | sed -n '1,120p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba fixtures/MANIFEST.json | sed -n '1,120p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-core/src/rest/telemetry.rs | sed -n '1,100p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-core/src/rest/telemetry.rs | sed -n '1,100p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! # discord-platform
      2	//!
@@ -3141,8 +3141,8 @@ exec
 
  succeeded in 0ms:
      1	{
-     2	  "$comment": "Курированные конформанс-фикстуры для Rust-клиента (сырьё волны R7, санитизированные). Полная лаборатория — /home/sanya/re-deep; сборка — fixtures/tools/make-fixtures.mjs; сверка — docs/rust-client/verify/verify-re.mjs.",
-     3	  "labRoot": "/home/sanya/re-deep",
+     2	  "$comment": "Курированные конформанс-фикстуры для Rust-клиента (сырьё волны R7, санитизированные). Полная лаборатория — /home/user/clean-room-oracle; сборка — fixtures/tools/make-fixtures.mjs; сверка — docs/rust-client/verify/verify-re.mjs.",
+     3	  "labRoot": "/home/user/clean-room-oracle",
      4	  "fixtures": [
      5	    {
      6	      "path": "gateway/ready-stats.json",
@@ -3419,13 +3419,13 @@ codex
 
 **P0: 0 · P1: 0 · P2: 3**
 
-- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
+- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/user/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
 
-- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
+- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
 
-- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/sanya/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
+- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/user/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
 
-**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/sanya/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
+**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/user/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
 
 Ревью было read-only; тесты не запускал.
 tokens used
@@ -3434,12 +3434,12 @@ tokens used
 
 **P0: 0 · P1: 0 · P2: 3**
 
-- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/sanya/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
+- **P2 — P0-04: ошибка пути к манифесту.** [lib.rs](/home/user/orca/project/rust/crates/discord-conformance/src/lib.rs:129) строит путь `fixtures_root()/MANIFEST.json`, а файл в репозитории находится в `fixtures/MANIFEST.json`, не в `fixtures/` как каталоге внутри корня фикстур. Значит, при стандартном корне тест `manifest_is_readable_and_has_versioned_provenance` падает на проверке `is_file()` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:13)); манифест ещё и служит частью провенанса фикстур.
 
-- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
+- **P2 — P0-04: lab-тест не пропускается по правилам проекта.** При отсутствии lab-файла тест печатает `skip:` и делает `return` ([fixtures.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/fixtures.rs:47)). `cargo test` при этом считает его пройденным. В `waves/STATE.md` явно зафиксировано правило «Skip ≠ pass». Нужен распознаваемый тестовым раннером skip либо явный механизм, который не выдаёт отсутствие среды за pass.
 
-- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/sanya/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/sanya/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
+- **P2 — P0-07: правовая рамка заявляет фактические гарантии без подтверждения текущим состоянием.** Документ говорит, что токен хранится в системном keyring и чувствительные значения редактируются ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:42)), однако сам же откладывает проверки хранилища до разрешения SQLite/keyring; статус репозитория отмечает, что keyring отсутствует. Аналогично формулировки о санитизации фикстур, лицензировании ассетов и approval live-операций изложены как действующие гарантии и отмечены выполненными в чек-листе ([LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:27), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:49), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:58), [LEGAL.md](/home/user/orca/project/docs/rust-client/LEGAL.md:65)). Их следует обозначить как политику/целевое требование, где реализация или проверка ещё не подтверждена. Workspace действительно указывает `MIT OR Apache-2.0` ([Cargo.toml](/home/user/orca/project/rust/Cargo.toml:10)); утверждение о лицензии проекта согласуется с ним, но это не подтверждает лицензии сторонних крейтов или ассетов.
 
-**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/sanya/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
+**Проверки границ и scope:** проверка имён отклоняет пустые, абсолютные и содержащие `..` пути; repo→lab fallback, оба env override и типизированные ошибки реализованы. Для доверенного тестового набора текущие проверки путей приемлемы, но `is_file()` следует по symlink и проверка отдельно от чтения оставляет TOCTOU-окно; это не заявлено как защита от враждебной файловой системы. В самом загрузчике нет сетевых вызовов или записей. T-HARN-01 описан как ограниченный каркас, а T-HARN-02/03 явно оставлены отдельными карточками ([DESIGN-P0-04.md](/home/user/orca/project/waves/RW-21/DESIGN-P0-04.md:33)); полного gateway/REST replay эти материалы не заявляют.
 
 Ревью было read-only; тесты не запускал.

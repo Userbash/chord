@@ -11,7 +11,7 @@
 ✔ workspace-rust — 10.1 с (тесты 1158: pass 1146, fail 0, skip 12)
 ✔ smoke — 15.4 с (тесты 22: pass 22, fail 0, skip 0)
 
-Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-30T16-39-13-422Z.json
+Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-30T16-39-13-422Z.json
 ⚠ workspace-rust: ignored 12 — ожидаемый ignored-набор (live-кейсы гоняет отдельная фаза), не e2e-skip
 Вердикт: passed
 Приёмка: н/д (worker-гейт)

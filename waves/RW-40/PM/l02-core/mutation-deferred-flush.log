@@ -1,7 +1,7 @@
 # MUTANT: flush_dispatches перенесён из Binary-ветки в Close-ветку (доставка пачкой при закрытии)
 # oracle: tests/gateway_supervisor.rs::dispatch_handler_receives_frames_while_connection_is_open
 # oracle-2 (слабый, проходит на мутанте): supervisor_forwards_real_op0_frames_to_dispatch_handler
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
      Running tests/gateway_supervisor.rs (target/debug/deps/gateway_supervisor-161111e33d133230)
 
@@ -26,5 +26,5 @@ test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 11 filtered out;
 error: test failed, to rerun pass `-p discord-core --test gateway_supervisor`
 mutant test exit=101
 --- restore ---
-176791cc4e9a85173e8642cab02baa9b  /home/sanya/orca/project/rust/crates/discord-core/src/ws.rs
+176791cc4e9a85173e8642cab02baa9b  /home/user/orca/project/rust/crates/discord-core/src/ws.rs
 MUTANT markers left: 0

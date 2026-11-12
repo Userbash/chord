@@ -11,9 +11,9 @@ test at tests/unit/gui-spike-features.test.mjs:2031:3
   
   'ok' !== 'error'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2040:16
-      at async withRemoteApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:1784:7)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2032:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2040:16
+      at async withRemoteApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:1784:7)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2032:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

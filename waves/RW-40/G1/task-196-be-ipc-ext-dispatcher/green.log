@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-196-be-ipc-ext-dispatcher/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-196-be-ipc-ext-dispatcher/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.58s
-     Running tests/ipc_ext_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_ext_contract-d8fb51f01a9602da)
+     Running tests/ipc_ext_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_ext_contract-d8fb51f01a9602da)
 
 running 12 tests
 test add_reaction_empty_body_builds_put_plan_with_none_body ... ok

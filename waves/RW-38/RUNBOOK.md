@@ -52,4 +52,4 @@ Tauri встраивает `ui/*` при сборке, иначе проба п�
 
 - X11 `DISPLAY`, GTK3 + WebKitGTK, PyGObject (`gi`), Pillow, AT-SPI
   (`GTK_MODULES=gail:atk-bridge`, `NO_AT_BRIDGE=0`).
-- Без сети и установок; `/home/sanya/re-deep`, `logs/`, `functions/`, `evidence/` — read-only.
+- Без сети и установок; `reference-oracle/`, `logs/`, `functions/`, `evidence/` — read-only.

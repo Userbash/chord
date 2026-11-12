@@ -8,7 +8,7 @@
 - Файлы — только свои; общие (`rest/mod.rs`, `Cargo.toml`, `lib.rs`) правит координатор.
 - Публичные сигнатуры каркаса не менять. Red-first: тест → прогон с `# EXIT=...` → копия теста
   в `waves/RW-11/reports/<id>-test.red.rs` → минимальная реализация → green.
-- Новых зависимостей и сети нет. Не трогать golden/`/home/sanya/re-deep`. Без commit/push.
+- Новых зависимостей и сети нет. Не трогать golden/`reference-oracle/`. Без commit/push.
 - `npm run gate:worker` не запускать. Отчёт §4.2 → `waves/RW-11/reports/<id>.md`.
 
 | Воркер | Карточка | Файлы (только эти) |

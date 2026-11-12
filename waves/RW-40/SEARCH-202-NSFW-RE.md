@@ -2,7 +2,7 @@
 
 Карточка: **SEARCH-202-NSFW-RE** (M-13, STUB-14).
 Дата: 2026-10-30. Ветка: `RW-40`.
-Источник: read-only разбор `/home/sanya/re-deep` + `waves/RW-40/RE-DEEP-REA.md`.
+Источник: read-only разбор `reference-oracle/` + `waves/RW-40/reference-oracle-REA.md`.
 Код, тесты и golden-каталоги (`logs/`, `functions/`, `evidence/`) не менялись.
 
 Метки: `[D]` — цитата декодированного дампа или runtime-артефакта; `[S]` —
@@ -700,21 +700,21 @@ REACTIVE_CHECK=64, STAGE_SPEAKING=128, JOIN_DISCOVERABLE_SERVER=256, NOTICE=512
 
 | Файл | Размер | md5 |
 |---|---|---|
-| `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` | 12 410 287 | `934b1289b7ebf17bc0fd09569b23b438` |
-| `/home/sanya/re-deep/decoded/82a5af57ee11dcd5_0` (`0a6ed6a6830e5071.js`, `SearchFetcher`) | 2 443 | `8594228760b7d6c62f568202b65aa340` |
-| `/home/sanya/re-deep/decoded/effc40ce4f2aa27c_0` (`256796`, search actions) | 21 483 | `39ac7ffa2f4da42f15c652f48f465dcf` |
-| `/home/sanya/re-deep/decoded/b9e153f9dfaafc9f_0` (mod view search) | 113 417 | `c01b858e65d6f7f5f42a2e49142eee72` |
-| `/home/sanya/re-deep/decoded/25883e62976b3cc0_0` (`488428` querystring) | — | `b14528da6bab80d3a808ebc910723aba` |
-| `/home/sanya/re-deep/decoded/8b501595bbf87517_0` (`998736` stringify) | — | `1231ae0ce2d0563a7a3ec213acf0d02b` |
-| `/home/sanya/re-deep/ui8/20f-search-network.json` | — | `ac2227b23ac2502d4ead25077c112698` |
-| `/home/sanya/re-deep/ui8/20g-search-probe.json` | — | `76787e641d2c43f1f9de55de5e856371` |
-| `/home/sanya/re-deep/ui8/20i-scope-compare.json` | — | `49e87d7d13484ec1177ebfa253475bf4` |
-| `/home/sanya/re-deep/gateway/by-type/002-READY.json` | — | `5e1e4c2c9ee5c5a0b1495335dde555f5` |
+| `reference-oracle/decoded/4d2a64cb5df5fc4e_0` | 12 410 287 | `934b1289b7ebf17bc0fd09569b23b438` |
+| `reference-oracle/decoded/82a5af57ee11dcd5_0` (`0a6ed6a6830e5071.js`, `SearchFetcher`) | 2 443 | `8594228760b7d6c62f568202b65aa340` |
+| `reference-oracle/decoded/effc40ce4f2aa27c_0` (`256796`, search actions) | 21 483 | `39ac7ffa2f4da42f15c652f48f465dcf` |
+| `reference-oracle/decoded/b9e153f9dfaafc9f_0` (mod view search) | 113 417 | `c01b858e65d6f7f5f42a2e49142eee72` |
+| `reference-oracle/decoded/25883e62976b3cc0_0` (`488428` querystring) | — | `b14528da6bab80d3a808ebc910723aba` |
+| `reference-oracle/decoded/8b501595bbf87517_0` (`998736` stringify) | — | `1231ae0ce2d0563a7a3ec213acf0d02b` |
+| `reference-oracle/ui8/20f-search-network.json` | — | `ac2227b23ac2502d4ead25077c112698` |
+| `reference-oracle/ui8/20g-search-probe.json` | — | `76787e641d2c43f1f9de55de5e856371` |
+| `reference-oracle/ui8/20i-scope-compare.json` | — | `49e87d7d13484ec1177ebfa253475bf4` |
+| `reference-oracle/gateway/by-type/002-READY.json` | — | `5e1e4c2c9ee5c5a0b1495335dde555f5` |
 
 Смещения — байтовые от начала однострочного decoded-файла. Для файлов без размера
 (`25883e…`, `8b501595…`) смещения указывают позицию в декодированном тексте, а не
 полный размер артефакта.
 
-Связанные документы: `RE-DEEP-REA.md` §2 (базовая таблица фильтров),
+Связанные документы: `reference-oracle-REA.md` §2 (базовая таблица фильтров),
 `ATTACH-RE.md` §1 (сводка), `PARITY/PARITY-MATRIX.md` (строка M-13),
 `rust/gui-spike/src/search.rs` + `rust/gui-spike/tests/search_contract.rs` (текущий код).

@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-237-be-moderation/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-237-be-moderation/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.46s
-     Running tests/moderation_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/moderation_contract-95498a4df108c57c)
+     Running tests/moderation_contract.rs (/home/user/orca/project/rust/target/debug/deps/moderation_contract-95498a4df108c57c)
 
 running 8 tests
 test build_audit_log_query_route_formats_query_with_and_without_action_type ... ok

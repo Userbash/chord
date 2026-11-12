@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/task-618-search-popover-ui/tests/unit/search-popover.test.mjs:22
+file:///home/user/orca/workspaces/project/task-618-search-popover-ui/tests/unit/search-popover.test.mjs:22
   SEARCH_POPOVER_TOKEN_SUGGESTIONS,
   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/search.js' does not provide an export named 'SEARCH_POPOVER_TOKEN_SUGGESTIONS'

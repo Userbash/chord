@@ -37,7 +37,7 @@ MD5 совпадают с таблицей `REPORT.md` §5:
 
 ## 2. Независимая сверка с оракулом
 
-Оракул: `/home/sanya/re-deep/voice/strace-media-s3.jsonl` (182 записи, read-only).
+Оракул: `reference-oracle/voice/strace-media-s3.jsonl` (182 записи, read-only).
 
 | Что проверено | Как | Результат |
 |---|---|---|
@@ -60,8 +60,8 @@ MD5 совпадают с таблицей `REPORT.md` §5:
 ## 3. Прогоны (общий target-dir)
 
 ```bash
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --tests -- -D warnings
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --tests -- -D warnings
 cargo fmt --manifest-path rust/Cargo.toml -p discord-voice -- --check
 ```
 
@@ -133,7 +133,7 @@ cargo fmt --manifest-path rust/Cargo.toml -p discord-voice -- --check
   значение неизвестного опкода. Полезнее `UNKNOWN(33)`; `Debug` это умеет, но `Display` используется в
   сообщениях.
 - **P3-3.** Таблица «номер → имя» для расширенных опкодов **не подтверждена локальным дампом**:
-  в `/home/sanya/re-deep/voice-deep.json` `signaling.ops` есть только наблюдённые 0/1/2/3/4/6/8/15/16,
+  в `reference-oracle/voice-deep.json` `signaling.ops` есть только наблюдённые 0/1/2/3/4/6/8/15/16,
   `NO_ROUTE` в бандле — это `VOICE_CONNECTION_STATE`, а не опкод, строк `MLS_KEY_PACKAGE` /
   `SECURE_FRAMES_*_TRANSITION` в `decoded/` нет. Числа и имена взяты из документированного RTC-протокола
   Discord, что для P3-перечисления приемлемо, но перед использованием `name()` в UI/логах нужен живой

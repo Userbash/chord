@@ -1,6 +1,6 @@
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
 
 running 33 tests
 test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... ok
@@ -39,7 +39,7 @@ test dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_
 
 test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
 
-     Running tests/rest_routes.rs (/home/sanya/orca/project/rust/target/debug/deps/rest_routes-2d22ade7450fc362)
+     Running tests/rest_routes.rs (/home/user/orca/project/rust/target/debug/deps/rest_routes-2d22ade7450fc362)
 
 running 18 tests
 test body_keys_only_on_six_routes ... ok
@@ -65,6 +65,6 @@ test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 exit=0
 
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib -- -D warnings
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_routes --lib -- -D warnings
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
 exit=0

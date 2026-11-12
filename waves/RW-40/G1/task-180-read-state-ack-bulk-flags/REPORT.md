@@ -9,13 +9,13 @@
   - `rust/gui-spike/src/messages.rs`
   - `rust/gui-spike/tests/messages_contract.rs`
 - **Ветка/worktree**: `feature/task-180-read-state-ack-bulk-flags`,
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Совместимость**: сигнатура `ReadStateAck::ack_message(&self, channel_id, message_id,
   last_viewed, token)` не менялась, тело legacy-ack осталось `{token, last_viewed}`.
 
 ## 2. Оракул (read-only)
 
-`/home/sanya/re-deep/rest-static.json`, массив `endpoints`:
+`reference-oracle/rest-static.json`, массив `endpoints`:
 
 - `BULK_ACK`: `POST /read-states/ack-bulk`, `bodyKeys: ["{read_states}"]`, `callSiteCount: 1`.
 - `MESSAGE_ACK`: `POST /channels/{arg}/messages/{arg}/ack`, `bodyKeys:
@@ -90,7 +90,7 @@ error: could not compile `discord-gui-spike` (test "messages_contract") due to 1
 Команда из ТЗ (`green.log`):
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test messages_contract --lib
 lib:                17 passed; 0 failed
 messages_contract:  25 passed; 0 failed

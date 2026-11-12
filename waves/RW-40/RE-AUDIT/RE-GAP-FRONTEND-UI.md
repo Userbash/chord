@@ -3,8 +3,8 @@
 - **Карточка:** `RW-40 / task-131-re-audit-ui-electron-live`, слот **RE-2** (G7 RE / REA).
 - **Дата:** 2026-10-30.
 - **Режим:** read-only по продуктовому коду; `cargo`/`node --test` не запускались, живой Discord не открывался.
-- **Снимок кода:** `/home/sanya/orca/project`, `HEAD 4e24048` + незакоммиченные правки волны (см. §1.1).
-- **Эталон:** `/home/sanya/re-deep` (frontend-d03.*, i18n-deep.*, ui/, ui2/, ui8/, voice/ui7/, ru-catalog.json, rea-web-observations.json).
+- **Снимок кода:** `/home/user/orca/project`, `HEAD 4e24048` + незакоммиченные правки волны (см. §1.1).
+- **Эталон:** `reference-oracle/` (frontend-d03.*, i18n-deep.*, ui/, ui2/, ui8/, voice/ui7/, ru-catalog.json, rea-web-observations.json).
 - **Итог:** 76 задокументированных расхождений, из них 8 блокирующих продуктовый вид (P0), 48 существенных (P1), 20 косметических/технических (P2). Полный бэклог с целями, оракулами и DoD — `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md`.
 
 ---
@@ -472,13 +472,13 @@
 
 ```bash
 # снимок
-cd /home/sanya/orca/project && git rev-parse HEAD && git status --short -- rust/gui-spike/ui
+cd /home/user/orca/project && git rev-parse HEAD && git status --short -- rust/gui-spike/ui
 # мёртвый код
 grep -rn 'from "./features/\(dm-friends\|notifications\|voice-devices-settings\)\.js"' rust/gui-spike/ui
 # локализация
 python3 - <<'EOF'
 import re,json,glob,os
-cat=json.load(open('/home/sanya/re-deep/ru-catalog.json'))
+cat=json.load(open('reference-oracle/ru-catalog.json'))
 ...  # см. §10.2
 EOF
 # токены
@@ -486,7 +486,7 @@ python3 - <<'EOF'
 import re,json
 css=re.sub(r'/\*.*?\*/','',open('rust/gui-spike/ui/tokens.css').read(),flags=re.S)
 ours=dict(re.findall(r'(--[a-zA-Z0-9-]+)\s*:\s*([^;]+);',css))
-live=json.load(open('/home/sanya/re-deep/ui/tokens.json'))
+live=json.load(open('reference-oracle/ui/tokens.json'))
 ...  # см. §11.1
 EOF
 ```

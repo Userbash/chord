@@ -1,6 +1,6 @@
 # ТЗ W24b — P8-04: reproducible SBOM/licenses
 
-Волна: RW-23 / B04. Владелец: W24b. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-23 / B04. Владелец: W24b. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -16,7 +16,7 @@
 Strict TDD. Сначала тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract \
   2>&1 | tee ../waves/RW-23/red-w24b.log
 ```

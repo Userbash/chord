@@ -1,6 +1,6 @@
 # RW-40 / STUB-05-INVITES-MODAL-UI / G-06 — модалка создания приглашения (#invite-create-modal)
 
-- **batch/карточка:** `RW-40 / STUB-05-INVITES-MODAL-UI / G-06` (`waves/RW-40/DESIGN/INVITES-SPEC.md` §1, `waves/RW-40/RE-DEEP-REA.md` §3/§4.3);
+- **batch/карточка:** `RW-40 / STUB-05-INVITES-MODAL-UI / G-06` (`waves/RW-40/DESIGN/INVITES-SPEC.md` §1, `waves/RW-40/reference-oracle-REA.md` §3/§4.3);
 - **роль:** Воркер G2 Frontend Lane B;
 - **сделано:**
   1. Реализован модуль `rust/gui-spike/ui/features/invite-modal.js` с контроллером `createInviteModal(options)`.
@@ -39,7 +39,7 @@
   - `npx tsc -p tsconfig.json` → 0 ошибок (`exit=0`);
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json` → 0 ошибок (`exit=0`);
   - `git grep "@ts-ignore" rust/gui-spike/ui/features/invite-modal.js tests/unit/join-server.test.mjs` → 0 совпадений.
-- **oracle:** `waves/RW-40/DESIGN/INVITES-SPEC.md` §1.1–§1.5, `waves/RW-40/RE-DEEP-REA.md` §3, §4.3 (`4d2a64cb5df5fc4e_0@632264`, `@270160`, `@1933819`).
+- **oracle:** `waves/RW-40/DESIGN/INVITES-SPEC.md` §1.1–§1.5, `waves/RW-40/reference-oracle-REA.md` §3, §4.3 (`4d2a64cb5df5fc4e_0@632264`, `@270160`, `@1933819`).
 - **мутации:** 5/5 `KILLED`, эквивалентных — 0, survivors — 0 (`waves/RW-40/PM/stub05-invites-ui/mutations.log`):
   - `MUT-1-default-max-age` (md5 `8238236fa9830752b129e5ad1261f781`) — замена дефолтного `max_age` с `86400` на `3600` → `KILLED` тестами `#invite-create-modal и элементы формы` и `open() запускает генерацию с дефолтными параметрами` (`exit=1`);
   - `MUT-2-guest-flag-null` (md5 `2c24d99044bd9cf8ab74c94839dbccec`) — потеря передачи флага `INVITE_FLAG_IS_GUEST` при включённом guest-тумблере → `KILLED` тестом `генерация новой ссылки с изменёнными max_age, max_uses, temporary и guest флагом` (`exit=1`);

@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-239` (`BE-P1-25` / `scheduled_events`) — BFF-контракт запланированных событий гильдии (`EVENT_ENTITY_*`, `EVENT_STATUS_*`, `MAX_EVENT_*_CHARS`, `CreateScheduledEventRequest`, `validate_scheduled_event_request`, `build_guild_events_route`, `build_event_rsvp_route`).
-- **Ветка / worktree**: `feature/task-239-be-scheduled-events`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-239-be-scheduled-events`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/scheduled_events.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/scheduled_events_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-239-be-scheduled-events/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-239-be-scheduled-events/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`:
+Сверено с `reference-oracle/rest-static.json`:
 
 - `GUILD_EVENTS_FOR_GUILD` (`rest-static.json:8232-8243`): `/guilds/{guild_id}/scheduled-events`.
 - `GUILD_EVENT` / `USER_GUILD_EVENT` (`rest-static.json:8205-8284`): `/guilds/{guild_id}/scheduled-events/{event_id}` и `/users/@me` RSVP.
@@ -48,7 +48,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-239-be-scheduled-events/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-239-be-scheduled-events/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::scheduled_events`
@@ -63,7 +63,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-239-be-scheduled-events/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-239-be-scheduled-events/green.log`:
 
 ```text
 running 8 tests

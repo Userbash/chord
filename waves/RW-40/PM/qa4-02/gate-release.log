@@ -55,7 +55,7 @@
      + ]
      - []
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:202:12)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/plan-sync.test.mjs:202:12)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -134,6 +134,6 @@
    
 ✔ golden — 0.2 с
 
-Отчёт гейта: /home/sanya/orca/project/.gate/release-2026-10-24T07-33-03-206Z.json
+Отчёт гейта: /home/user/orca/project/.gate/release-2026-10-24T07-33-03-206Z.json
 ⚠ e2e: пропущено 4 тестов — пропуск прохождением не считается
 Вердикт: failed

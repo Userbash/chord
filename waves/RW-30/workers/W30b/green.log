@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
      Running tests/dbus_contract.rs (/tmp/opencode/target-w30b/debug/deps/dbus_contract-6bbfe12e41a6788d)
 

@@ -1,7 +1,7 @@
 # RED: снято в worktree bugfix/task-128-clippy-clean-all-targets до правки (2026-10-30 21:07)
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --all-targets -- -D warnings
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --all-targets -- -D warnings
 
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-128-clippy-clean-all-targets/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-128-clippy-clean-all-targets/rust/gui-spike)
 error: very complex type used. Consider factoring parts into `type` definitions
    --> tests/net_contract.rs:782:15
     |

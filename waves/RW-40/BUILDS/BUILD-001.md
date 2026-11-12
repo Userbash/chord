@@ -1,8 +1,8 @@
 # Централизованная сборка QA — `BUILD-001` (ветка `testing`)
 
 - **Номер сборки:** `BUILD-001`
-- **Ветка сборки:** `testing` ([/home/sanya/orca/workspaces/project/testing](file:///home/sanya/orca/workspaces/project/testing))
-- **Источник интеграции:** `unstable` ([/home/sanya/orca/workspaces/project/unstable](file:///home/sanya/orca/workspaces/project/unstable))
+- **Ветка сборки:** `testing` ([/home/user/orca/workspaces/project/testing](file:///home/user/orca/workspaces/project/testing))
+- **Источник интеграции:** `unstable` ([/home/user/orca/workspaces/project/unstable](file:///home/user/orca/workspaces/project/unstable))
 - **Дата сборки:** 2026-10-30
 - **Статус сборки:** Передана в QA (`In Testing`)
 
@@ -23,11 +23,11 @@
    - `V-01 / V-06 / V-07` Voice Signaling, Stream Gateway Opcodes (`18..22`), Audio/Video Devices (`devices.rs`, `voice-devices-settings.js`)
    - `N-05-BE` Notifications REST Backend (`notifications.rs`, `notifications_contract.rs`)
    - `INT-05` IPC Aliases (`main.rs`, `ipc_wiring_contract.rs`)
-2. **`task-105` ([PR-01](file:///home/sanya/orca/project/waves/RW-40/PR/PR-01-search-202-nsfw-spec.md)):**
+2. **`task-105` ([PR-01](file:///home/user/orca/project/waves/RW-40/PR/PR-01-search-202-nsfw-spec.md)):**
    - Спецификация `SEARCH-202-NSFW-SPEC.md` (Pass 2, `PASS` от `DeepSeek 29B`).
-3. **`task-106` ([PR-02](file:///home/sanya/orca/project/waves/RW-40/PR/PR-02-task-106-notif-ipc.md)):**
+3. **`task-106` ([PR-02](file:///home/user/orca/project/waves/RW-40/PR/PR-02-task-106-notif-ipc.md)):**
    - Tauri IPC-команды уведомлений `update_guild_notification_settings` и `update_channel_notification_override` в `rust/gui-spike/src/main.rs` (`PASS` от `DeepSeek 33A`).
-4. **`task-104` ([PR-03](file:///home/sanya/orca/project/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md)):**
+4. **`task-104` ([PR-03](file:///home/user/orca/project/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md)):**
    - UI-контроллер уведомлений `rust/gui-spike/ui/features/notifications.js` и `tests/unit/notifications-ui.test.mjs` (Pass 2, `17/17` тестов, `5/5` мутаций, `PASS` от `DeepSeek 31B`).
 
 ## 2. Инструкции по проверке для QA (в ветке `testing`)

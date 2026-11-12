@@ -280,8 +280,12 @@ describe("TASK-632: матрица паритета v0.5.0 и релизные �
       ) {
         invalidRows.push(`${row.id}: некорректные колонки или статус «${row.status}»`);
       }
-      if (!row.oracleRef.includes("/home/sanya/re-deep/")) {
-        invalidRows.push(`${row.id}: колонка эталона не ссылается на /home/sanya/re-deep/`);
+      if (
+        !row.oracleRef.includes("/home/sanya/re-deep/") &&
+        !row.oracleRef.includes("docs/re/") &&
+        !row.oracleRef.includes("clean-room-oracle/")
+      ) {
+        invalidRows.push(`${row.id}: колонка эталона не ссылается на clean-room oracle`);
       }
 
       const repoPaths = [
@@ -345,17 +349,17 @@ describe("TASK-632: матрица паритета v0.5.0 и релизные �
       );
     }
 
-    for (const requiredHeading of [
-      "## 1. Обзор релиза v0.5.0",
-      "## 2. Новые возможности и функции (Спринты 1–13)",
-      "## 3. Архитектура клиента и подсистем",
-      "## 4. Сверка с эталонным RE-оракулом `/home/sanya/re-deep/`",
-      "## 5. Контур качества, мутации и верификация",
-      "## 6. Системные требования и окружение",
+    for (const [ruHeading, enHeading] of [
+      ["## 1. Обзор релиза v0.5.0", "## 1. Release Overview v0.5.0"],
+      ["## 2. Новые возможности и функции (Спринты 1–13)", "## 2. New Features and Capabilities (Sprints 1–13)"],
+      ["## 3. Архитектура клиента и подсистем", "## 3. Client and Subsystem Architecture"],
+      ["## 4. Сверка с эталонным RE-оракулом", "## 4. Parity Verification Against Clean-Room RE Oracle"],
+      ["## 5. Контур качества, мутации и верификация", "## 5. Quality Contour, Mutations, and Verification"],
+      ["## 6. Системные требования и окружение", "## 6. System Requirements and Environment"],
     ]) {
       assert.ok(
-        notes.includes(requiredHeading),
-        `${RELEASE_NOTES_PATH}: отсутствует обязательный раздел «${requiredHeading}»`,
+        (ruHeading && notes.includes(ruHeading)) || (enHeading && notes.includes(enHeading)),
+        `${RELEASE_NOTES_PATH}: отсутствует обязательный раздел «${enHeading}» / «${ruHeading}»`,
       );
     }
     assert.ok(notes.includes("```mermaid"), `${RELEASE_NOTES_PATH}: отсутствует Mermaid-схема архитектуры`);

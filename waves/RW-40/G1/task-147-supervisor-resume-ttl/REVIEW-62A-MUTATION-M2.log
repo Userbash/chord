@@ -1,7 +1,7 @@
 EXIT=101
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.65s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
 
 running 5 tests
 test gateway::supervisor::tests::outbound_opcodes_3_4_8_37_reject_before_ready_and_encode_in_active_session ... FAILED

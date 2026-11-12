@@ -1,12 +1,12 @@
 # Technical Review — task-160 (Review 73A)
 
 - **Задача / Карточка:** `task-160` (`FE-P1-05: Invite Modal #invite-modal & Guild Context Menu #guild-context-menu`)
-- **Ворктри:** `/home/sanya/orca/workspaces/project/feature-task-160-invite-modal-guild-menu`
+- **Ворктри:** `/home/user/orca/workspaces/project/feature-task-160-invite-modal-guild-menu`
 - **Проверяемые файлы:**
   - `rust/gui-spike/ui/features/guild-modals.js` (`md5: 9350dbfd35a539d77457b63150e99be2`)
   - `tests/unit/guild-modals.test.mjs` (`md5: 323443098b143950935dd53ec185953d`)
 - **PM Acceptance:** `ACCEPT.md` (`Accepted for Technical Review`)
-- **Отчёт воркера:** `/home/sanya/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/REPORT.md`
+- **Отчёт воркера:** `/home/user/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/REPORT.md`
 
 ---
 

@@ -241,7 +241,7 @@ test at tests/unit/gui-spike-features.test.mjs:4189:3
   + ]
   - []
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:4225:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:4225:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)

@@ -1,6 +1,6 @@
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -13,8 +13,8 @@ user
 Независимое ревью RW-32 (P6-07 spellcheck hunspell FFI + P6-02b hints a{sv}).
 
 ЖЁСТКИЕ ПРАВИЛА:
-1. НЕ редактируй файлы в /home/sanya/orca/project — только чтение.
-2. НЕ копируй workspace/repo/target — работай прямо в /home/sanya/orca/project, cargo с CARGO_TARGET_DIR=/tmp/opencode/target-codex-w32. В /tmp/opencode/w32-codex можно писать только мелкие логи/скрипты (<50 МБ). Квота /tmp ограничена.
+1. НЕ редактируй файлы в /home/user/orca/project — только чтение.
+2. НЕ копируй workspace/repo/target — работай прямо в /home/user/orca/project, cargo с CARGO_TARGET_DIR=/tmp/opencode/target-codex-w32. В /tmp/opencode/w32-codex можно писать только мелкие логи/скрипты (<50 МБ). Квота /tmp ограничена.
 3. Без сети, live, git commit.
 
 Проверь:
@@ -34,19 +34,19 @@ user
 В конце: вердикт (принято/доработка) и находки P0/P1/P2/P3 с файлом:строкой, воспроизведением и ожиданием.
 
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Применяю `discord-lab-context`: сначала сверю контекст проекта и правила RW-32, затем проверю исходники, контракты и отчёты. После этого запущу только указанные targeted-тесты и ограниченные мутации с обязательным восстановлением и проверкой md5.
 exec
-/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md && printf '\\n--- PROJECT CONTEXT ---\\n' && sed -n '1,220p' PROJECT-CONTEXT.md && printf '\\n--- HEAD/STATUS ---\\n' && git status --short && git rev-parse HEAD" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md && printf '\\n--- PROJECT CONTEXT ---\\n' && sed -n '1,220p' PROJECT-CONTEXT.md && printf '\\n--- HEAD/STATUS ---\\n' && git status --short && git rev-parse HEAD" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -83,7 +83,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -111,7 +111,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 
 ## Состояние
 
-- `/home/sanya/orca/project`, `main`, HEAD `171a6d5`; RW-10…RW-30 закоммичены и запушены; RW-31 — коммит следующим шагом;
+- `/home/user/orca/project`, `main`, HEAD `171a6d5`; RW-10…RW-30 закоммичены и запушены; RW-31 — коммит следующим шагом;
   коммиты/пуш — координатор.
 - **Принято 44 / 90** карточек (хвосты P7-01b/c/d/e в 90 не входят). Последние волны 2026-10-22:
   - **RW-31**: P6-06 power/idle, P2-03 SQLite-store через FFI к системному libsqlite3;
@@ -141,7 +141,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Правила (кратко)
 
 - Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
-- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение.
 - Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
 - Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
 
@@ -164,8 +164,8 @@ MCP: rea, socraticode, github, basic-memory, context7.
   `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
   ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
 - RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
-  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
-  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+  `/home/user/clean-room-oracle/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/user/qwen-uncens` из запроса не существует.
 - P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
   `ru-RU`-fallback) — в `waves/STATE.md` §7.
 
@@ -186,7 +186,7 @@ MCP: rea, socraticode, github, basic-memory, context7.
 codex
 Рабочее дерево уже содержит незакоммиченные изменения RW-32 в назначенной области; HEAD и список файлов зафиксировал. Сейчас сопоставляю ТЗ с реализацией, контрактами, фикстурами и отчётами, чтобы отделить заявленные проверки от фактически покрытых.
 exec
-/usr/bin/bash -lc 'for f in rust/crates/discord-platform/tests/spellcheck_contract.rs rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/tests/dbus_contract.rs; do echo ---$f; sed -n '"'1,360p' \""'$f"; done' in /home/sanya/orca/project
+/usr/bin/bash -lc 'for f in rust/crates/discord-platform/tests/spellcheck_contract.rs rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/tests/dbus_contract.rs; do echo ---$f; sed -n '"'1,360p' \""'$f"; done' in /home/user/orca/project
  succeeded in 0ms:
 ---rust/crates/discord-platform/tests/spellcheck_contract.rs
 //! Контракт P6-07: spellcheck через FFI к системному `libhunspell` (headless).
@@ -1273,9 +1273,9 @@ fn n01_bus_address_parse_accepts_path_and_rejects_abstract() {
     assert_eq!(BusAddress::parse("unix:path="), None);
 
 exec
-/usr/bin/bash -lc 'for f in rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/Cargo.toml; do echo ---$f; sed -n '"'1,320p' \""'$f"; done' in /home/sanya/orca/project
+/usr/bin/bash -lc 'for f in rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/Cargo.toml; do echo ---$f; sed -n '"'1,320p' \""'$f"; done' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'for f in waves/RW-32/TZ-W32a.md waves/RW-32/TZ-W32b.md waves/RW-32/BATCH-TZ.md waves/RW-32/REPORT-W32a.md waves/RW-32/REPORT-W32b.md; do echo ---$f; sed -n '"'1,260p' \""'$f"; done' in /home/sanya/orca/project
+/usr/bin/bash -lc 'for f in waves/RW-32/TZ-W32a.md waves/RW-32/TZ-W32b.md waves/RW-32/BATCH-TZ.md waves/RW-32/REPORT-W32a.md waves/RW-32/REPORT-W32b.md; do echo ---$f; sed -n '"'1,260p' \""'$f"; done' in /home/user/orca/project
  succeeded in 0ms:
 ---rust/crates/discord-platform/src/spellcheck.rs
 //! P6-07: проверка орфографии через системный `libhunspell` (headless).
@@ -2627,7 +2627,7 @@ restore по md5. Лог: `waves/RW-32/mutations-w32b.log`.
 оракулы libdbus + libgio, мутации), затем batch-гейт RW-32 в integration-лейне.
 
 exec
-/usr/bin/bash -lc 'find fixtures/hunspell fixtures/dbus waves/RW-32 -maxdepth 2 -type f -print | sort | while read f; do echo ---$f; case "$f" in *.json|*.aff|*.dic|*.py|*.log|*.md) sed -n '"'1,260p' \""'$f";; esac; done' in /home/sanya/orca/project
+/usr/bin/bash -lc 'find fixtures/hunspell fixtures/dbus waves/RW-32 -maxdepth 2 -type f -print | sort | while read f; do echo ---$f; case "$f" in *.json|*.aff|*.dic|*.py|*.log|*.md) sed -n '"'1,260p' \""'$f";; esac; done' in /home/user/orca/project
  succeeded in 0ms:
 ---fixtures/dbus/hints.json
 {
@@ -4180,10 +4180,10 @@ def main(argv):
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
 ---waves/RW-32/gate-cargo.log
-    Checking discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+    Checking discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.24s
 CLIPPY_EXIT=0
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
      Running unittests src/main.rs (target/debug/deps/discord_rs-d56b5f24e58ead0a)
 
@@ -4451,7 +4451,7 @@ test s04_members_iterator_orders_by_chunk_index ... ok
 ✔ unit — 0.1 с (тесты 169: pass 169, fail 0, skip 0)
 ✔ smoke — 1.1 с (тесты 20: pass 20, fail 0, skip 0)
 
-Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-22T18-18-34-500Z.json
+Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-22T18-18-34-500Z.json
 Вердикт: passed
 NPM_EXIT=0
 ---waves/RW-32/mutations-w32a.log
@@ -4598,7 +4598,7 @@ md5 после restore: 84a41a3b7bd10563590c3f169f6fc18a — OK
 ---waves/RW-32/review-codex-w32.log
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -4611,8 +4611,8 @@ user
 Независимое ревью RW-32 (P6-07 spellcheck hunspell FFI + P6-02b hints a{sv}).
 
 ЖЁСТКИЕ ПРАВИЛА:
-1. НЕ редактируй файлы в /home/sanya/orca/project — только чтение.
-2. НЕ копируй workspace/repo/target — работай прямо в /home/sanya/orca/project, cargo с CARGO_TARGET_DIR=/tmp/opencode/target-codex-w32. В /tmp/opencode/w32-codex можно писать только мелкие логи/скрипты (<50 МБ). Квота /tmp ограничена.
+1. НЕ редактируй файлы в /home/user/orca/project — только чтение.
+2. НЕ копируй workspace/repo/target — работай прямо в /home/user/orca/project, cargo с CARGO_TARGET_DIR=/tmp/opencode/target-codex-w32. В /tmp/opencode/w32-codex можно писать только мелкие логи/скрипты (<50 МБ). Квота /tmp ограничена.
 3. Без сети, live, git commit.
 
 Проверь:
@@ -4632,19 +4632,19 @@ user
 В конце: вердикт (принято/доработка) и находки P0/P1/P2/P3 с файлом:строкой, воспроизведением и ожиданием.
 
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Применяю `discord-lab-context`: сначала сверю контекст проекта и правила RW-32, затем проверю исходники, контракты и отчёты. После этого запущу только указанные targeted-тесты и ограниченные мутации с обязательным восстановлением и проверкой md5.
 exec
-/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md && printf '\\n--- PROJECT CONTEXT ---\\n' && sed -n '1,220p' PROJECT-CONTEXT.md && printf '\\n--- HEAD/STATUS ---\\n' && git status --short && git rev-parse HEAD" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md && printf '\\n--- PROJECT CONTEXT ---\\n' && sed -n '1,220p' PROJECT-CONTEXT.md && printf '\\n--- HEAD/STATUS ---\\n' && git status --short && git rev-parse HEAD" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -4681,7 +4681,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -4709,7 +4709,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 
 ## Состояние
 
-- `/home/sanya/orca/project`, `main`, HEAD `171a6d5`; RW-10…RW-30 закоммичены и запушены; RW-31 — коммит следующим шагом;
+- `/home/user/orca/project`, `main`, HEAD `171a6d5`; RW-10…RW-30 закоммичены и запушены; RW-31 — коммит следующим шагом;
   коммиты/пуш — координатор.
 - **Принято 44 / 90** карточек (хвосты P7-01b/c/d/e в 90 не входят). Последние волны 2026-10-22:
   - **RW-31**: P6-06 power/idle, P2-03 SQLite-store через FFI к системному libsqlite3;
@@ -4739,7 +4739,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Правила (кратко)
 
 - Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
-- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение.
 - Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
 - Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
 
@@ -4762,8 +4762,8 @@ MCP: rea, socraticode, github, basic-memory, context7.
   `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
   ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
 - RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
-  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
-  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+  `/home/user/clean-room-oracle/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/user/qwen-uncens` из запроса не существует.
 - P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
   `ru-RU`-fallback) — в `waves/STATE.md` §7.
 
@@ -5285,7 +5285,7 @@ if __name__ == "__main__":
     sys.exit(main())
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-platform/src/spellcheck.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-platform/src/spellcheck.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P6-07: проверка орфографии через системный `libhunspell` (headless).
      2	//!
@@ -5649,9 +5649,9 @@ exec
    360	}
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-platform/src/ffi_hunspell.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-platform/src/ffi_hunspell.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-platform/src/notifications.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-platform/src/notifications.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! Тонкая обёртка над системным `libhunspell` — единственное место крейта, где есть `unsafe`.
      2	//!
@@ -6133,9 +6133,9 @@ exec
    303	}
 
 exec
-/usr/bin/bash -lc 'for f in rust/crates/discord-platform/tests/spellcheck_contract.rs rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/tests/dbus_contract.rs; do echo ---$f; nl -ba "$f"; done' in /home/sanya/orca/project
+/usr/bin/bash -lc 'for f in rust/crates/discord-platform/tests/spellcheck_contract.rs rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/tests/dbus_contract.rs; do echo ---$f; nl -ba "$f"; done' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'for f in waves/RW-32/mutations-w32a.log waves/RW-32/mutations-w32b.log waves/RW-32/REPORT-W32b.md fixtures/dbus/hints.json waves/RW-32/dbus/mock_hints.py waves/RW-32/dbus/gen-hints.py; do echo ---$f; nl -ba "$f"; done' in /home/sanya/orca/project
+/usr/bin/bash -lc 'for f in waves/RW-32/mutations-w32a.log waves/RW-32/mutations-w32b.log waves/RW-32/REPORT-W32b.md fixtures/dbus/hints.json waves/RW-32/dbus/mock_hints.py waves/RW-32/dbus/gen-hints.py; do echo ---$f; nl -ba "$f"; done' in /home/user/orca/project
  succeeded in 0ms:
 ---rust/crates/discord-platform/tests/spellcheck_contract.rs
      1	//! Контракт P6-07: spellcheck через FFI к системному `libhunspell` (headless).
@@ -9366,13 +9366,13 @@ exec
    262	    sys.exit(main())
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/src/notifications.rs | sed -n '1,280p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/src/notifications.rs | sed -n '1,280p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/src/ffi_hunspell.rs | sed -n '18,220p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/src/ffi_hunspell.rs | sed -n '18,220p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/tests/notifications_contract.rs | sed -n '1,300p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/tests/notifications_contract.rs | sed -n '1,300p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/tests/spellcheck_contract.rs | sed -n '1,300p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/tests/spellcheck_contract.rs | sed -n '1,300p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! P6-02: уведомления рабочего стола через `org.freedesktop.Notifications`.
      2	//!
@@ -10418,7 +10418,7 @@ exec
    300	        other => panic!("отсутствующий dic: ожидался SpellError::Missing, получено {other:?}"),
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/tests/dbus_contract.rs | sed -n '1,360p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/tests/dbus_contract.rs | sed -n '1,360p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! Контракт P6-02 (unit): D-Bus wire-формат — адрес шины, auth EXTERNAL, маршалинг,
      2	//! разбор заголовка и тела, устойчивость к битым пакетам.
@@ -10782,7 +10782,7 @@ exec
    360	    assert_eq!(BusAddress::parse("unix:path="), None);
 
 exec
-/usr/bin/bash -lc 'rg -n "unsafe|panic!|unwrap'"\\(|expect\\(\" rust/crates/discord-platform/src rust/crates/discord-platform/Cargo.toml && printf '\\nmd5\\n' && md5sum rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/tests/spellcheck_contract.rs rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/tests/dbus_contract.rs fixtures/dbus/hints.json" in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg -n "unsafe|panic!|unwrap'"\\(|expect\\(\" rust/crates/discord-platform/src rust/crates/discord-platform/Cargo.toml && printf '\\nmd5\\n' && md5sum rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/tests/spellcheck_contract.rs rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/tests/dbus_contract.rs fixtures/dbus/hints.json" in /home/user/orca/project
  succeeded in 0ms:
 rust/crates/discord-platform/Cargo.toml:9:unsafe_code = "deny"
 rust/crates/discord-platform/src/spellcheck.rs:3://! Безопасный API поверх `ffi_hunspell` (единственное место с `unsafe`):
@@ -10815,9 +10815,9 @@ c12e05167a8120923dbfc2cbd2fc60b0  rust/crates/discord-platform/tests/notificatio
 codex
 В реализации вижу два места, требующих независимой проверки: FFI освобождение списка Hunspell и точный wire-маршалинг `a{sv}`. Запускаю три targeted-набора с отдельным target-dir; затем проверю реальные байты и поведение токенайзера небольшими независимыми скриптами.
 exec
-/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w32 cargo test --offline -p discord-platform --test spellcheck_contract --test notifications_contract --test dbus_contract -- --nocapture' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w32 cargo test --offline -p discord-platform --test spellcheck_contract --test notifications_contract --test dbus_contract -- --nocapture' in /home/user/orca/project/rust
  succeeded in 452ms:
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
      Running tests/dbus_contract.rs (/tmp/opencode/target-codex-w32/debug/deps/dbus_contract-6bbfe12e41a6788d)
 
@@ -10898,7 +10898,7 @@ test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 codex
 Targeted-прогон завершился с кодом 0: spellcheck 13/13 и dbus 8/8 без skip; notifications 18/18, но mock-зависимые тесты в этом sandbox пропустили `dbus-daemon` из-за запрета bind socket. Это ограничивает доказательство реального libdbus пути, поэтому отдельно сверю статический mock/oracle и отмечу средовый риск.
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/src/notifications.rs | sed -n '220,360p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/src/notifications.rs | sed -n '220,360p'" in /home/user/orca/project
  succeeded in 0ms:
    220	        let body = vec![
    221	            Value::String(notification.app_name.clone()),
@@ -10986,11 +10986,11 @@ exec
    303	}
 
 exec
-/usr/bin/bash -lc "rg -n -A45 -B8 'q0[1-8]|hints|journal|SKIP' rust/crates/discord-platform/tests/notifications_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -A45 -B8 'q0[1-8]|hints|journal|SKIP' rust/crates/discord-platform/tests/notifications_contract.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "rg -n -A80 -B15 'q08|hints|notify_hex|a\\{sv\\}' rust/crates/discord-platform/tests/dbus_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -A80 -B15 'q08|hints|notify_hex|a\\{sv\\}' rust/crates/discord-platform/tests/dbus_contract.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'for f in waves/RW-32/mutations-w32a.log waves/RW-32/mutations-w32b.log; do echo ---$f; tail -n 100 "$f"; done' in /home/sanya/orca/project
+/usr/bin/bash -lc 'for f in waves/RW-32/mutations-w32a.log waves/RW-32/mutations-w32b.log; do echo ---$f; tail -n 100 "$f"; done' in /home/user/orca/project
  succeeded in 0ms:
 488-        ])]
 489-    );
@@ -12338,7 +12338,7 @@ print(d.keys(), d.get('signature'), d.get('hints_signature'))
 for c in d['cases']:
  print(c['name'], [(x['key'],x['signature'],x['value']) for x in c['hints']], len(c['notify_hex'])//2)
 print('journal', d.get('journal'), 'error', d.get('journal_error'))
-PY" in /home/sanya/orca/project
+PY" in /home/user/orca/project
  succeeded in 0ms:
 dict_keys(['oracle', 'endianness', 'signature', 'hints_signature', 'notify', 'note', 'cases', 'journal']) susssasa{sv}i a{sv}
 empty [] 292
@@ -12352,7 +12352,7 @@ all [('urgency', 'y', 2), ('category', 's', 'im.received'), ('desktop-entry', 's
 journal [['READY'], ['Notify', 'Discord Lab', '0', '', 'Alice', 'hello', '0', 'open:Open|reply:Reply', '-1', ''], ['Notify', 'Discord Lab', '0', '', 'Alice', 'hello', '1', 'open:Open|reply:Reply', '-1', 'urgency:y:0'], ['Notify', 'Discord Lab', '0', '', 'Alice', 'hello', '1', 'open:Open|reply:Reply', '-1', 'urgency:y:1'], ['Notify', 'Discord Lab', '0', '', 'Alice', 'hello', '1', 'open:Open|reply:Reply', '-1', 'urgency:y:2'], ['Notify', 'Discord Lab', '0', '', 'Alice', 'hello', '1', 'open:Open|reply:Reply', '-1', 'category:s:email.arrived'], ['Notify', 'Discord Lab', '0', '', 'Alice', 'hello', '2', 'open:Open|reply:Reply', '-1', 'desktop-entry:s:discord-lab|resident:b:1'], ['Notify', 'Discord Lab', '0', '', 'Alice', 'hello', '1', 'open:Open|reply:Reply', '-1', 'resident:b:0'], ['Notify', 'Discord Lab', '0', '', 'Alice', 'hello', '4', 'open:Open|reply:Reply', '-1', 'urgency:y:2|category:s:im.received|desktop-entry:s:discord-lab|resident:b:1']] error None
 
 exec
-/usr/bin/bash -lc "git diff -- rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/Cargo.toml | sed -n '1,360p' && printf '\\n--- dbus value marshal ---\\n' && rg -n -A120 -B20 'Value::Dict|Value::Variant|fn signature|marshal' rust/crates/discord-platform/src/dbus/message.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "git diff -- rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/Cargo.toml | sed -n '1,360p' && printf '\\n--- dbus value marshal ---\\n' && rg -n -A120 -B20 'Value::Dict|Value::Variant|fn signature|marshal' rust/crates/discord-platform/src/dbus/message.rs" in /home/user/orca/project
  succeeded in 0ms:
 diff --git a/rust/crates/discord-platform/Cargo.toml b/rust/crates/discord-platform/Cargo.toml
 index ecf634c..aae4e49 100644
@@ -12951,7 +12951,7 @@ exec
 /usr/bin/bash -lc "CARGO_TARGET_DIR=/tmp/opencode/target-codex-w32 python3 - <<'PY'
 from pathlib import Path
 import hashlib, subprocess, os
-root=Path('/home/sanya/orca/project')
+root=Path('/home/user/orca/project')
 files=[root/'rust/crates/discord-platform/src/spellcheck.rs',root/'rust/crates/discord-platform/src/ffi_hunspell.rs',root/'rust/crates/discord-platform/src/notifications.rs']
 base={p:hashlib.md5(p.read_bytes()).hexdigest() for p in files}
 # Run focused mutations by temporarily applying text substitutions, always restore exact bytes.
@@ -12978,7 +12978,7 @@ finally:
  for p,digest in base.items():
   assert hashlib.md5(p.read_bytes()).hexdigest()==digest, f'final md5 failed {p}'
 print('RESTORE md5 OK:', *(f'{p.name}={d}' for p,d in base.items()))
-PY" in /home/sanya/orca/project
+PY" in /home/user/orca/project
  exited 1 in 421ms:
 MUTATION 1 target=spellcheck_contract exit=101 failed_summary=True skips=0
 test h04_suggest_finds_hello_and_is_bounded ... FAILED
@@ -12993,7 +12993,7 @@ Traceback (most recent call last):
 RuntimeError: mutation 3 survived or did not compile
 
 exec
-/usr/bin/bash -lc 'git status --short -- rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs && md5sum rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs && git diff --check -- rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short -- rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs && md5sum rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs && git diff --check -- rust/crates/discord-platform/src/spellcheck.rs rust/crates/discord-platform/src/ffi_hunspell.rs rust/crates/discord-platform/src/notifications.rs' in /home/user/orca/project
  succeeded in 0ms:
  M rust/crates/discord-platform/src/notifications.rs
 ?? rust/crates/discord-platform/src/ffi_hunspell.rs
@@ -13008,11 +13008,11 @@ exec
 /usr/bin/bash -lc "python3 - <<'PY'
 from pathlib import Path
 import hashlib, subprocess, os
-p=Path('/home/sanya/orca/project/rust/crates/discord-platform/src/notifications.rs'); original=p.read_bytes(); old='entries.push(variant_entry(\"urgency\", Value::Byte(urgency.code())));'; new='entries.push(variant_entry(\"urgency\", Value::U32(u32::from(urgency.code()))));'; text=original.decode(); assert text.count(old)==1
+p=Path('/home/user/orca/project/rust/crates/discord-platform/src/notifications.rs'); original=p.read_bytes(); old='entries.push(variant_entry(\"urgency\", Value::Byte(urgency.code())));'; new='entries.push(variant_entry(\"urgency\", Value::U32(u32::from(urgency.code()))));'; text=original.decode(); assert text.count(old)==1
 try:
  p.write_bytes(text.replace(old,new,1).encode())
  env=dict(os.environ); env['CARGO_TARGET_DIR']='/tmp/opencode/target-codex-w32'
- q=subprocess.run(['cargo','test','--offline','-p','discord-platform','--test','dbus_contract','--','--nocapture'],cwd='/home/sanya/orca/project/rust',env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+ q=subprocess.run(['cargo','test','--offline','-p','discord-platform','--test','dbus_contract','--','--nocapture'],cwd='/home/user/orca/project/rust',env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
  print('MUTATION urgency_variant dbus_contract exit=',q.returncode)
  print('\\n'.join(x for x in q.stdout.splitlines() if ('FAILED' in x or 'test result' in x or x.startswith('test '))))
 finally:
@@ -13029,7 +13029,7 @@ with tempfile.TemporaryDirectory() as d:
   a=os.path.join(d,name+'.aff'); w=os.path.join(d,name+'.dic'); open(a,'wb').write(aff); open(w,'wb').write(dic)
   h=lib.Hunspell_create(a.encode(),w.encode()); print(name,'handle_nonnull=',bool(h))
   if h: lib.Hunspell_destroy(h)
-PY" in /home/sanya/orca/project
+PY" in /home/user/orca/project
  succeeded in 34ms:
 MUTATION urgency_variant dbus_contract exit= 101
 test n01_bus_address_parse_accepts_path_and_rejects_abstract ... ok
@@ -13059,13 +13059,13 @@ with tempfile.TemporaryDirectory() as d:
  for name,dic in [('garbage',b'1\\n@@@\\n'),('emptyentry',b'1\\n\\n')]:
   a=os.path.join(d,name+'.aff'); w=os.path.join(d,name+'.dic'); open(a,'wb').write(b'SET UTF-8\\n'); open(w,'wb').write(dic)
   h=lib.Hunspell_create(a.encode(),w.encode()); print(name, 'check hello=',lib.Hunspell_spell(h,b'hello'), 'check @@@=',lib.Hunspell_spell(h,b'@@@')); lib.Hunspell_destroy(h)
-PY" in /home/sanya/orca/project
+PY" in /home/user/orca/project
  succeeded in 0ms:
 garbage check hello= 0 check @@@= 1
 emptyentry check hello= 0 check @@@= 0
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' waves/RW-32/REPORT-W32b.md && printf '\\n--- W32a report md5 tail ---\\n' && rg -n '## 7|md5|unsafe|panic|unwrap|expect|Риск|риск' waves/RW-32/REPORT-W32a.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' waves/RW-32/REPORT-W32b.md && printf '\\n--- W32a report md5 tail ---\\n' && rg -n '## 7|md5|unsafe|panic|unwrap|expect|Риск|риск' waves/RW-32/REPORT-W32a.md" in /home/user/orca/project
  succeeded in 0ms:
 # REPORT W32b — P6-02b D-Bus hints `a{sv}` (headless)
 
@@ -13216,7 +13216,7 @@ restore по md5. Лог: `waves/RW-32/mutations-w32b.log`.
 177:  restore продукта и фикстур по md5.
 
 exec
-/usr/bin/bash -lc "sed -n '120,220p' waves/RW-32/REPORT-W32a.md && printf '\\n--- Cargo manifest ---\\n' && sed -n '1,80p' rust/crates/discord-platform/Cargo.toml && printf '\\n--- fixture hunspell ---\\n' && xxd -g1 fixtures/hunspell/test.aff && xxd -g1 fixtures/hunspell/test.dic" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '120,220p' waves/RW-32/REPORT-W32a.md && printf '\\n--- Cargo manifest ---\\n' && sed -n '1,80p' rust/crates/discord-platform/Cargo.toml && printf '\\n--- fixture hunspell ---\\n' && xxd -g1 fixtures/hunspell/test.aff && xxd -g1 fixtures/hunspell/test.dic" in /home/user/orca/project
  succeeded in 0ms:
 ## 7. Файлы и md5
 
@@ -13325,7 +13325,7 @@ unsafe_code = "deny"
 00000030: 77 6e 0a                                         wn.
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/tests/spellcheck_contract.rs | sed -n '120,280p' && printf '\\n--- source diff stats ---\\n' && git diff --stat && git status --short" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-platform/tests/spellcheck_contract.rs | sed -n '120,280p' && printf '\\n--- source diff stats ---\\n' && git diff --stat && git status --short" in /home/user/orca/project
  succeeded in 0ms:
    120	    BufReader::new(file)
    121	        .read_line(&mut line)
@@ -13509,7 +13509,7 @@ exec
 ?? waves/RW-32/
 
 exec
-/usr/bin/bash -lc 'md5sum rust/crates/discord-platform/Cargo.toml rust/crates/discord-platform/src/lib.rs waves/RW-32/run-mutations-w32a.py waves/RW-32/run-mutations-w32b.py waves/RW-32/mutations-w32a.log waves/RW-32/mutations-w32b.log && rg -n "hints|notify_with_hints|q0[1-8]" waves/RW-32/workers/W32b/green.log | head -30' in /home/sanya/orca/project
+/usr/bin/bash -lc 'md5sum rust/crates/discord-platform/Cargo.toml rust/crates/discord-platform/src/lib.rs waves/RW-32/run-mutations-w32a.py waves/RW-32/run-mutations-w32b.py waves/RW-32/mutations-w32a.log waves/RW-32/mutations-w32b.log && rg -n "hints|notify_with_hints|q0[1-8]" waves/RW-32/workers/W32b/green.log | head -30' in /home/user/orca/project
  succeeded in 0ms:
 873a751a031b1fec5f2193397b17fd3c  rust/crates/discord-platform/Cargo.toml
 a9503de65c4c72aa1563daa7a3ba940d  rust/crates/discord-platform/src/lib.rs
@@ -13535,7 +13535,7 @@ for i,l in enumerate(lines):
  if 'unsafe {' in l or 'unsafe extern' in l: print(i+1, l.strip(), 'prev=',lines[i-1].strip() if i else '')
 PY
 printf '\\nproduction panic APIs:\\n'
-rg -n 'panic"'!|unwrap'"\\(|expect\\(' rust/crates/discord-platform/src --glob '*.rs' || true" in /home/sanya/orca/project
+rg -n 'panic"'!|unwrap'"\\(|expect\\(' rust/crates/discord-platform/src --glob '*.rs' || true" in /home/user/orca/project
  succeeded in 0ms:
 32 unsafe extern "C" { prev= #[link(name = "hunspell-1.7")]
 87 let raw = unsafe { hunspell_create(c_aff.as_ptr(), c_dic.as_ptr()) }; prev= // функция не сохраняет указатели после возврата (копирует пути при загрузке словаря).
@@ -13555,13 +13555,13 @@ codex
 
 **P1**
 
-- [spellcheck.rs:159](/home/sanya/orca/project/rust/crates/discord-platform/src/spellcheck.rs:159), [spellcheck.rs:178](/home/sanya/orca/project/rust/crates/discord-platform/src/spellcheck.rs:178): проверка «битого словаря» валидирует только непустой `.aff` и числовой положительный заголовок `.dic`.  
+- [spellcheck.rs:159](/home/user/orca/project/rust/crates/discord-platform/src/spellcheck.rs:159), [spellcheck.rs:178](/home/user/orca/project/rust/crates/discord-platform/src/spellcheck.rs:178): проверка «битого словаря» валидирует только непустой `.aff` и числовой положительный заголовок `.dic`.  
   Воспроизведение: `.aff = "SET UTF-8\n"`, `.dic = "1\n@@@\n"`; `libhunspell-1.7` возвращает ненулевой handle, а `SpellChecker::new` после этих pre-checks будет `Ok`. `Hunspell_spell("@@@")` возвращает true, что подтверждает принятие мусорной записи.  
   Ожидание: структурно испорченный словарь должен возвращать `SpellError`, согласно TZ-W32a §1/h10. Нужна дополнительная валидация содержимого или независимая проверка результата загрузки.
 
 **P2**
 
-- [tests/notifications_contract.rs:37](/home/sanya/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:37): в текущем sandbox все mock-зависимые тесты `q01–q07` пропущены, потому что `dbus-daemon` не может bind Unix socket (`Operation not permitted`).  
+- [tests/notifications_contract.rs:37](/home/user/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:37): в текущем sandbox все mock-зависимые тесты `q01–q07` пропущены, потому что `dbus-daemon` не может bind Unix socket (`Operation not permitted`).  
   Воспроизведение: targeted-прогон дал `18 passed`, но многочисленные `SKIP`; реальные libdbus-проверки уведомлений не выполнялись. `q08` из `dbus_contract` прошёл независимо по libgio-байтам.  
   Ожидание: перед приёмкой повторить W32b в окружении, где доступен приватный D-Bus daemon, либо явно оставить интеграционный риск открытым.
 
@@ -13582,13 +13582,13 @@ tokens used
 
 **P1**
 
-- [spellcheck.rs:159](/home/sanya/orca/project/rust/crates/discord-platform/src/spellcheck.rs:159), [spellcheck.rs:178](/home/sanya/orca/project/rust/crates/discord-platform/src/spellcheck.rs:178): проверка «битого словаря» валидирует только непустой `.aff` и числовой положительный заголовок `.dic`.  
+- [spellcheck.rs:159](/home/user/orca/project/rust/crates/discord-platform/src/spellcheck.rs:159), [spellcheck.rs:178](/home/user/orca/project/rust/crates/discord-platform/src/spellcheck.rs:178): проверка «битого словаря» валидирует только непустой `.aff` и числовой положительный заголовок `.dic`.  
   Воспроизведение: `.aff = "SET UTF-8\n"`, `.dic = "1\n@@@\n"`; `libhunspell-1.7` возвращает ненулевой handle, а `SpellChecker::new` после этих pre-checks будет `Ok`. `Hunspell_spell("@@@")` возвращает true, что подтверждает принятие мусорной записи.  
   Ожидание: структурно испорченный словарь должен возвращать `SpellError`, согласно TZ-W32a §1/h10. Нужна дополнительная валидация содержимого или независимая проверка результата загрузки.
 
 **P2**
 
-- [tests/notifications_contract.rs:37](/home/sanya/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:37): в текущем sandbox все mock-зависимые тесты `q01–q07` пропущены, потому что `dbus-daemon` не может bind Unix socket (`Operation not permitted`).  
+- [tests/notifications_contract.rs:37](/home/user/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:37): в текущем sandbox все mock-зависимые тесты `q01–q07` пропущены, потому что `dbus-daemon` не может bind Unix socket (`Operation not permitted`).  
   Воспроизведение: targeted-прогон дал `18 passed`, но многочисленные `SKIP`; реальные libdbus-проверки уведомлений не выполнялись. `q08` из `dbus_contract` прошёл независимо по libgio-байтам.  
   Ожидание: перед приёмкой повторить W32b в окружении, где доступен приватный D-Bus daemon, либо явно оставить интеграционный риск открытым.
 

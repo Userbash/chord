@@ -92,7 +92,7 @@ Ping → Pong; Close → `RunOutcome::Closed{code}`; Text → игнор со с
 9. `ws_closed_after_stub_close` — стаб закрывает чисто → `Closed` (код из close-кадра либо `None`).
 
 Lab (skip-aware):
-10. `lab_capture_stream_feeds_pipe` — `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/zstd-frames-95974_1389.hexl`
+10. `lab_capture_stream_feeds_pipe` — `{RE_LAB_ROOT:-reference-oracle/}/gw-proto/zstd-frames-95974_1389.hexl`
     (137 кадров, hexl без префикса) → без ошибок; `hello() == 41250`, `last_seq() == Some(113)`;
     помнить про удержание окна (выдано 759 280 Б; HELLO — в первой порции).
 

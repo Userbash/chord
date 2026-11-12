@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-229` (`BE-P1-22` / `roles`) — BFF-контракт управления ролями и правами гильдии (`UpsertRoleRequest`, `validate_upsert_role_request`, `compute_effective_permissions`, `build_member_role_route`).
-- **Ветка / worktree**: `feature/task-229-be-roles-contract`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-229-be-roles-contract`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/roles.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/roles_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-229-be-roles-contract/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-229-be-roles-contract/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`:
+Сверено с `reference-oracle/rest-static.json`:
 
 - `GUILD_ROLES` (`rest-static.json:886-896`): `POST|PATCH /guilds/{guild_id}/roles`.
 - `GUILD_ROLE` (`rest-static.json:936-948`): `PATCH|DELETE /guilds/{guild_id}/roles/{role_id}`.
@@ -46,7 +46,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-229-be-roles-contract/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-229-be-roles-contract/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::roles`
@@ -61,7 +61,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-229-be-roles-contract/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-229-be-roles-contract/green.log`:
 
 ```text
 running 8 tests

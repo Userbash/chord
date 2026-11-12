@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved imports `discord_gui_spike::auth::CAPTCHA_KEY_HEADER`, `discord_gui_spike::auth::CAPTCHA_RQTOKEN_HEADER`, `discord_gui_spike::auth::LOGIN_PATH`, `discord_gui_spike::auth::LoginOutcome`, `discord_gui_spike::auth::LoginTransport`, `discord_gui_spike::auth::LoginView`, `discord_gui_spike::auth::MFA_SMS_SEND_PATH`, `discord_gui_spike::auth::SmsChallenge`
   --> tests/auth_contract.rs:23:58
    |

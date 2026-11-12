@@ -25,7 +25,7 @@
 прогонов откачен командой `git checkout -- rust/gui-spike/Cargo.lock`,
 в итоговом `git status` его нет.
 
-## 2. Гейты (CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target)
+## 2. Гейты (CARGO_TARGET_DIR=/home/user/orca/project/rust/target)
 
 | Команда | Результат |
 |---|---|
@@ -36,7 +36,7 @@
 
 Логи: `mutations-95a/gate-test.log`, `mutations-95a/gate-clippy.log`.
 
-## 3. Сверка с оракулом `/home/sanya/re-deep/rest-static.json`
+## 3. Сверка с оракулом `reference-oracle/rest-static.json`
 
 Проверено независимо от отчёта воркера: `endpoints[5]` — `key: USER_PROFILE`,
 `method: GET`, `path: /users/{arg}/profile`, `callSiteCount: 3`,

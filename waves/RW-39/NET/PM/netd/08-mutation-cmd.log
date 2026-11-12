@@ -45,9 +45,9 @@ test at tests/unit/gui-spike-auth.test.mjs:293:3
   + 'error'
   - 'validating'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:300:14
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:295:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:300:14
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:295:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -66,9 +66,9 @@ test at tests/unit/gui-spike-auth.test.mjs:346:3
   
   'Нет связи с сервером — проверьте сеть'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:355:16
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:347:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:355:16
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:347:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -87,9 +87,9 @@ test at tests/unit/gui-spike-auth.test.mjs:364:3
   
   'Нет связи с сервером — проверьте сеть'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:372:16
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:365:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:372:16
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:365:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -106,10 +106,10 @@ test at tests/unit/gui-spike-auth.test.mjs:381:3
   
   true !== false
   
-      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:392:9
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:382:5)
+      at assertTokenGone (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:392:9
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:382:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -126,10 +126,10 @@ test at tests/unit/gui-spike-auth.test.mjs:397:3
   
   true !== false
   
-      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:407:9
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:398:5)
+      at assertTokenGone (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:407:9
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:398:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -146,9 +146,9 @@ test at tests/unit/gui-spike-auth.test.mjs:412:3
   
   'Нет связи с сервером — проверьте сеть'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:420:16
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:413:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:420:16
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:413:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -165,10 +165,10 @@ test at tests/unit/gui-spike-auth.test.mjs:548:3
   
   true !== false
   
-      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:567:7
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:549:5)
+      at assertTokenGone (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:184:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:567:7
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:549:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

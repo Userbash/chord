@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-171-platform-deep-links/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/feature-task-171-platform-deep-links/rust/crates/discord-platform)
 error[E0432]: unresolved imports `discord_platform::deep_link::DeepLinkQueue`, `discord_platform::deep_link::DISCORD_CLIP_PROTOCOL`, `discord_platform::deep_link::MainWindowPath`, `discord_platform::deep_link::MainWindowPathError`, `discord_platform::deep_link::extract_url_from_args`, `discord_platform::deep_link::main_window_path`
   --> crates/discord-platform/tests/deep_link_contract.rs:12:30
    |

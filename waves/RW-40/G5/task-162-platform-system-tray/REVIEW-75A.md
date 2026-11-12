@@ -1,7 +1,7 @@
 # Техническое ревью (Review 75A) — task-162: Системный трей Linux, иконки состояний, бейдж непрочитанных и 6-пунктовое меню в discord-platform
 
 - **Карточка/Компонент:** `task-162` (`BE-P1-09`) / `discord-platform`
-- **Ворктри:** `/home/sanya/orca/workspaces/project/feature-task-162-platform-system-tray`
+- **Ворктри:** `/home/user/orca/workspaces/project/feature-task-162-platform-system-tray`
 - **Проверенные файлы:**
   - `rust/crates/discord-platform/src/lib.rs` (md5: `1d0487d3d8de1676cddd51a70db6dd88`)
   - `rust/crates/discord-platform/src/tray.rs` (md5: `5cb1b4a4af3f5d2ae22d74325b6ae9df`)
@@ -30,7 +30,7 @@
 ## 2. Результаты тестов и проверок качества
 
 - **Targeted & Suite Tests:**
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-platform`
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-platform`
   - `tray_contract.rs`: 10 passed; 0 failed (100% pass)
   - Полный сьют `discord-platform`: 110 passed; 0 failed; 8 ignored (интеграционные keyring, требующие live freedesktop daemon).
 - **Clippy:**

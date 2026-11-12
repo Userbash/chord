@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Пять ручных мутаций task-288 с побайтовым откатом.
 set -uo pipefail
-cd /home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix || exit 2
+cd /home/user/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix || exit 2
 
-export CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target
+export CARGO_TARGET_DIR=/home/user/orca/project/rust/target
 SRC=rust/crates/discord-platform/src/keyring.rs
 TEST=rust/crates/discord-platform/tests/keyring_contract.rs
 LOG=/tmp/opencode/mutations.log

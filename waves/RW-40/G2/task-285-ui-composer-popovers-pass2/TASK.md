@@ -8,9 +8,9 @@
 ## Разрешённые файлы для записи (Write-Scope)
 - `rust/gui-spike/ui/features/composer-popovers-bridge.js`
 - `tests/unit/composer-popovers-bridge.test.mjs`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-285-ui-composer-popovers-pass2/red.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-285-ui-composer-popovers-pass2/green.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-285-ui-composer-popovers-pass2/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/G2/task-285-ui-composer-popovers-pass2/red.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-285-ui-composer-popovers-pass2/green.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-285-ui-composer-popovers-pass2/REPORT.md`
 
 ## Шаги выполнения (Strict TDD: Red -> Green)
 1. **Red:** Добавь 2 теста в `tests/unit/composer-popovers-bridge.test.mjs`:

@@ -190,7 +190,7 @@ pub fn report_from_json(text: &str) -> Result<PerfReport, serde_json::Error>;
 ## 7. Red/green и сдача
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 export CARGO_TARGET_DIR=/tmp/opencode/target-w26b
 cargo test --offline -p discord-perf --test perf_contract   # red
 cargo test --offline -p discord-perf                          # green

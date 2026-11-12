@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RW-29 / P4-04 — извлечение RTP-оракула из golden-pcap (только чтение).
 
-Источник: /home/sanya/re-deep/voice/voice-udp4.pcap (LINKTYPE_LINUX_SLL2, snaplen 96).
+Источник: /home/user/clean-room-oracle/voice/voice-udp4.pcap (LINKTYPE_LINUX_SLL2, snaplen 96).
 Выход: fixtures/voice/rtp-pt120-oracle.json — байтовые пакеты PT120 клиента.
 Скрипт детерминирован: порядок по времени захвата, JSON с сортированными ключами.
 """
@@ -9,8 +9,8 @@ import json
 import pathlib
 import struct
 
-SOURCE = pathlib.Path("/home/sanya/re-deep/voice/voice-udp4.pcap")
-OUT = pathlib.Path("/home/sanya/orca/project/fixtures/voice/rtp-pt120-oracle.json")
+SOURCE = pathlib.Path("/home/user/clean-room-oracle/voice/voice-udp4.pcap")
+OUT = pathlib.Path("/home/user/orca/project/fixtures/voice/rtp-pt120-oracle.json")
 SRC_FLOW = (60047, 19329)
 
 

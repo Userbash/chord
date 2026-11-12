@@ -1,7 +1,7 @@
 # RW-37 / RE — индекс артефактов (W37a)
 
 Контракт реальной раскладки Discord и пагинации истории/участников, собранный **только из дампа**
-`/home/sanya/re-deep` (golden, read-only). Сеть не использовалась, Discord не запускался, продуктовый код
+`reference-oracle/` (golden, read-only). Сеть не использовалась, Discord не запускался, продуктовый код
 и `waves/RW-36/*` не менялись.
 
 ## Файлы
@@ -16,7 +16,7 @@
 ## Как перепроверить
 
 ```bash
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 python3 waves/RW-37/RE/extract.py > /tmp/opencode/re-check.log 2>&1 && diff \
   <(sed 's/JSON-копия.*//' waves/RW-37/RE/extract.log) <(sed 's/JSON-копия.*//' /tmp/opencode/re-check.log) && echo SAME
 python3 -c "import json;json.load(open('waves/RW-37/RE/layout.json'))" && echo JSON-OK

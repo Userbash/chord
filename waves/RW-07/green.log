@@ -1,6 +1,6 @@
 ### G1) dispatch_router 11/11
 $ cargo test --offline -p discord-core --test dispatch_router
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
      Running tests/dispatch_router.rs (target/debug/deps/dispatch_router-6dd6cbc392eab80a)
 
@@ -22,7 +22,7 @@ test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 # EXIT=0
 ### G2) discord-core 70
 $ cargo test --offline -p discord-core
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s
      Running unittests src/lib.rs (target/debug/deps/discord_core-727086b8c91340bb)
 
@@ -139,7 +139,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 # EXIT=0
 ### G3) workspace 112
 $ cargo test --offline --workspace
-   Compiling discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+   Compiling discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
      Running unittests src/main.rs (target/debug/deps/discord_rs-6e37df913b04969b)
 
@@ -493,8 +493,8 @@ test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 # EXIT=0
 ### G5) clippy -D warnings
 $ cargo clippy --offline --workspace --all-targets -- -D warnings
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-    Checking discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+    Checking discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
 # EXIT=0
 ### G6) fmt --check

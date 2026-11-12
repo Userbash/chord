@@ -75,9 +75,9 @@
 test at tests/unit/gui-spike-dom.test.mjs:691:3
 ✖ extras живут внутри .text, у строки по-прежнему ровно 2 ребёнка (4.236032ms)
   AssertionError [ERR_ASSERTION]: в окне строк 0..40 нет ни одной строки с extras
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:709:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:692:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:709:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:692:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -93,7 +93,7 @@ test at tests/unit/gui-spike-dom.test.mjs:691:3
 test at tests/unit/gui-spike-dom.test.mjs:725:3
 ✖ D-13: unread-полоса 34 и блок группы участников 42 — из токенов, не литералов (0.69929ms)
   AssertionError [ERR_ASSERTION]: chat.css не использует --unread-banner-h
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:730:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:730:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -113,9 +113,9 @@ test at tests/unit/gui-spike-dom.test.mjs:725:3
 test at tests/unit/gui-spike-dom.test.mjs:745:3
 ✖ окно данных не растёт от новых панелей: loadedRows ≤ 500, inFlight пуст (3.369631ms)
   AssertionError [ERR_ASSERTION]: нет currentApp()
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:748:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:746:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:748:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:746:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -129,11 +129,11 @@ test at tests/unit/gui-spike-dom.test.mjs:745:3
 test at tests/unit/gui-spike-features.test.mjs:406:3
 ✖ group start/continuation, day divider, reply-quote, reactions, embeds, edited (4.886432ms)
   AssertionError [ERR_ASSERTION]: app.js не экспортирует currentApp() — нечего проверять
-      at api (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:370:10)
-      at scrollChat (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:380:3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:408:13
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:407:5)
+      at api (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:370:10)
+      at scrollChat (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:380:3)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:408:13
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:407:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -149,11 +149,11 @@ test at tests/unit/gui-spike-features.test.mjs:406:3
 test at tests/unit/gui-spike-features.test.mjs:448:3
 ✖ embeds: link-карточка и image-заглушка (без сети) (2.999821ms)
   AssertionError [ERR_ASSERTION]: app.js не экспортирует currentApp() — нечего проверять
-      at api (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:370:10)
-      at scrollChat (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:380:3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:450:13
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:449:5)
+      at api (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:370:10)
+      at scrollChat (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:380:3)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:450:13
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:449:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -170,9 +170,9 @@ test at tests/unit/gui-spike-features.test.mjs:468:3
   
   0 !== 1
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:471:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:469:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:471:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:469:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -186,11 +186,11 @@ test at tests/unit/gui-spike-features.test.mjs:468:3
 test at tests/unit/gui-spike-features.test.mjs:486:3
 ✖ hover-панель: 15 пунктов R-16, без мёртвых кнопок, реакция и reply работают (3.891952ms)
   AssertionError [ERR_ASSERTION]: app.js не экспортирует currentApp() — нечего проверять
-      at api (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:370:10)
-      at scrollChat (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:380:3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:488:13
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:487:5)
+      at api (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:370:10)
+      at scrollChat (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:380:3)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:488:13
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:487:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -204,9 +204,9 @@ test at tests/unit/gui-spike-features.test.mjs:486:3
 test at tests/unit/gui-spike-features.test.mjs:543:3
 ✖ empty → typing → empty, счётчик с 1800, лимит 2000 (2.824721ms)
   AssertionError [ERR_ASSERTION]: нет .composer-counter
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:548:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:544:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:548:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:544:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -222,10 +222,10 @@ test at tests/unit/gui-spike-features.test.mjs:543:3
 test at tests/unit/gui-spike-features.test.mjs:580:3
 ✖ disabled: aria-disabled, поле в DOM, attach — affordance с подсказкой (2.608551ms)
   AssertionError [ERR_ASSERTION]: app.js не экспортирует currentApp() — нечего проверять
-      at api (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:370:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:586:7
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:581:5)
+      at api (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:370:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:586:7
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:581:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -242,9 +242,9 @@ test at tests/unit/gui-spike-features.test.mjs:608:3
   
   null !== 'typing'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:618:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:609:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:618:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:609:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -261,9 +261,9 @@ test at tests/unit/gui-spike-features.test.mjs:627:3
   
   0 !== 6
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:633:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:628:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:633:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:628:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -282,9 +282,9 @@ test at tests/unit/gui-spike-features.test.mjs:665:3
   
   0 !== 6
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:670:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:666:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:670:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:666:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -298,9 +298,9 @@ test at tests/unit/gui-spike-features.test.mjs:665:3
 test at tests/unit/gui-spike-features.test.mjs:697:3
 ✖ поиск участников по загруженному окну: честный счётчик (2.898211ms)
   AssertionError [ERR_ASSERTION]: счётчик «1 / 100» не в форме «найдено N из M загруженных»
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:706:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:698:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:706:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:698:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -317,9 +317,9 @@ test at tests/unit/gui-spike-features.test.mjs:724:3
   
   0 !== 1
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:730:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:725:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:730:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:725:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -335,35 +335,35 @@ test at tests/unit/gui-spike-features.test.mjs:724:3
 test at tests/unit/gui-spike-features.test.mjs:772:3
 ✖ фильтр по запросу и сортировка меняют выдачу; счётчик остаётся оконным (3.030301ms)
   TypeError: Cannot read properties of undefined (reading 'querySelector')
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:778:28
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:773:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:778:28
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:773:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-features.test.mjs:801:3
 ✖ переход к сообщению: оверлей закрыт, список прокручен, строка подсвечена (3.706992ms)
   TypeError: Cannot read properties of undefined (reading 'querySelector')
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:807:28
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:802:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:807:28
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:802:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-features.test.mjs:818:3
 ✖ ошибка фильтра — UIError в статусе, без падения оверлея (3.210681ms)
   TypeError: Cannot read properties of undefined (reading 'querySelectorAll')
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:824:31
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:819:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:824:31
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:819:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-features.test.mjs:839:3
 ✖ Esc и крестик закрывают оверлей; состояние не теряется (5.626462ms)
   TypeError: Cannot read properties of undefined (reading 'getAttribute')
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:846:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:840:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:846:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:840:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

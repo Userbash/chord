@@ -4,7 +4,7 @@
 - **Волна:** `RW-40`
 - **Ревьюер:** Technical Reviewer (G5 Platform / Voice Review)
 - **Вердикт:** **PASS / Ready for Merge**
-- **Оракул:** `/home/sanya/re-deep/voice/rtc1-frames.jsonl` (кадр op1 SelectProtocol), `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (§BE-P1-08).
+- **Оракул:** `reference-oracle/voice/rtc1-frames.jsonl` (кадр op1 SelectProtocol), `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (§BE-P1-08).
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## 2. Результаты запуска тестовых наборов
 
-Команда: `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice`
+Команда: `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice`
 
 - `unittests src/lib.rs`: 14 passed
 - `tests/crypto_vectors.rs`: 16 passed
@@ -71,7 +71,7 @@
 ## 4. Архитектурная оценка и безопасность
 
 - Строгая обратная совместимость: сериализация и парсинг старых кадров `SelectProtocol` без расширенных полей работают штатно (проверено `test_select_protocol_backward_compatibility_without_new_fields`).
-- Побайтовое соответствие wire-формату: `to_frame_json()` в точности дублирует поля `address`, `port`, `mode` на верхнем уровне объекта `d` и в `d.data`, как это делает реальный клиент Discord в трассе `/home/sanya/re-deep/voice/rtc1-frames.jsonl`.
+- Побайтовое соответствие wire-формату: `to_frame_json()` в точности дублирует поля `address`, `port`, `mode` на верхнем уровне объекта `d` и в `d.data`, как это делает реальный клиент Discord в трассе `reference-oracle/voice/rtc1-frames.jsonl`.
 - Чистота кода: соблюдены все правила проекта, запреты `unsafe` (`unsafe_code = "forbid"`), отсутствуют предупреждения линтера и форматирования.
 
 ---

@@ -4,20 +4,20 @@
 - **Ветка**: `feature/task-633-hardware-ptt-voice`
 - **Воркер**: `term_8dfcbc70-27d9-465f-9c23-bec1a7f85336` (`task_e7cdbc6e5543`, `ctx_5359760a8ac1`)
 
-## 1. Сделано (сверка с RE-оракулами `/home/sanya/re-deep/`)
+## 1. Сделано (сверка с RE-оракулами `reference-oracle/`)
 
 1. **Модуль Push-to-Talk и автомат микрофона (`rust/crates/discord-voice/src/ptt.rs`)**:
    - **Оракулы RE**:
-     - `/home/sanya/re-deep/voice-deep.md` (§3–4) и `/home/sanya/re-deep/native-re/raw/discord_voice/{nm-all-demangled.txt,rabin2-strings.txt}` (`discord::PttKeyState`, `discord::AudioModePTT`, `discord::AudioModeType` `MODE_UNINIT`/`MODE_VAD`/`MODE_PTT`, `LocalUser::UpdateMuteState`, `LocalUser::UpdateSpeaking`, `SetOnSpeakingWhileMutedCallback`, `SetNoAudioInputThreshold`).
-     - `/home/sanya/re-deep/native-re.md` (§5.2–5.4, `discord_utils.node` `src/input_events.cpp`, `src/input_events_linux.cpp`): `InputEventRegister`, `InputEventUnregister`, `InputEventServiceSetAllowed`, `InputSetFocused`, `OnSystemInputEvent`, `DeviceIdRegex = "^([0-9]+):([0-9]+)$"`, флаги `keydown`/`keyup`/`focused`/`blurred`, лимит `MAX_KEYBIND_COMBO_LEN = 4`, таймаут `5000` мс, запрет ЛКМ (код 1) и одиночных буквенных скан-кодов `[24..=33]`, `[38..=46]`, `[52..=58]` на Linux.
+     - `reference-oracle/voice-deep.md` (§3–4) и `reference-oracle/native-re/raw/discord_voice/{nm-all-demangled.txt,rabin2-strings.txt}` (`discord::PttKeyState`, `discord::AudioModePTT`, `discord::AudioModeType` `MODE_UNINIT`/`MODE_VAD`/`MODE_PTT`, `LocalUser::UpdateMuteState`, `LocalUser::UpdateSpeaking`, `SetOnSpeakingWhileMutedCallback`, `SetNoAudioInputThreshold`).
+     - `reference-oracle/native-re.md` (§5.2–5.4, `discord_utils.node` `src/input_events.cpp`, `src/input_events_linux.cpp`): `InputEventRegister`, `InputEventUnregister`, `InputEventServiceSetAllowed`, `InputSetFocused`, `OnSystemInputEvent`, `DeviceIdRegex = "^([0-9]+):([0-9]+)$"`, флаги `keydown`/`keyup`/`focused`/`blurred`, лимит `MAX_KEYBIND_COMBO_LEN = 4`, таймаут `5000` мс, запрет ЛКМ (код 1) и одиночных буквенных скан-кодов `[24..=33]`, `[38..=46]`, `[52..=58]` на Linux.
      - `waves/RW-40/QUALITY/G5-VOICE-PLAN.md` (§3.3, §6): `org.freedesktop.portal.GlobalShortcuts` (`Activated`/`Deactivated`) и индикация `PttAccessStatus::Blocked` при потере фокуса без портала.
    - Реализованы `PttKeyState` (состояния `Inactive`, `Active`, `ReleaseHangover { remaining_ms }`, `release_delay_ms` в границах `0..=2000` мс, `latch`-режим, приоритетный голос `SpeakingFlags::MICROPHONE | SpeakingFlags::PRIORITY`), `ScanCodeCombo`, `InputDeviceId`, `HardwarePttKeybindHandler` и конечный автомат микрофона `MicStateMachine` (`Uninitialized`, `DeviceUnavailable`, `Muted`, `SpeakingWhileMuted`, `GateClosed`, `Speaking`, `PrioritySpeaking`, `PttReleaseHangover`, `NoAudioInput`).
 
 2. **Модуль шумоподавления и VAD-гейтинга (`rust/crates/discord-voice/src/noise.rs`)**:
    - **Оракулы RE**:
-     - `/home/sanya/re-deep/voice-deep.md` (§3, строка 110: `[VOICE_DISCONNECT] krisp_nc_model: krisp-nc-o-med-v7.kef`).
-     - `/home/sanya/re-deep/native-re.md` (§4.1 `discord_krisp.node`: `.kef`-модели `krisp-nc-o-med-v7.kef`, `krisp-nc-o-lite-v1.kef`, `krisp-nc-o-nb-v2.kef`, `krisp-bvc-o-pro-v3.kef`, `krisp-vad-o-v2.kef`, `setSuppressionLevel` `0..=100`).
-     - `/home/sanya/re-deep/native-re/raw/discord_voice/rabin2-strings.txt` (`src/krisp/noise_canceller.cpp`, `src/krisp/voice_activity_detector.cpp`, `src/media/captured_audio_processor.cpp`): тиры `"small_NC_8k"`, `"small_NC"`, `"full_NC"`, жизненный цикл `NotInitialized -> Initialized -> Configured -> DisabledByCpuOveruse`, диагностические строки ошибок движка, пропуск инференса при mute (`skipNoiseCancellationIfMuted`), откат на `RnNoise` при перегрузке CPU (`"Noise canceller CPU overuse"`) или `sampleRateMismatchPercent > 15%`, и JSON-телеметрия сессии `NoiseCancellationStats::to_json()`.
+     - `reference-oracle/voice-deep.md` (§3, строка 110: `[VOICE_DISCONNECT] krisp_nc_model: krisp-nc-o-med-v7.kef`).
+     - `reference-oracle/native-re.md` (§4.1 `discord_krisp.node`: `.kef`-модели `krisp-nc-o-med-v7.kef`, `krisp-nc-o-lite-v1.kef`, `krisp-nc-o-nb-v2.kef`, `krisp-bvc-o-pro-v3.kef`, `krisp-vad-o-v2.kef`, `setSuppressionLevel` `0..=100`).
+     - `reference-oracle/native-re/raw/discord_voice/rabin2-strings.txt` (`src/krisp/noise_canceller.cpp`, `src/krisp/voice_activity_detector.cpp`, `src/media/captured_audio_processor.cpp`): тиры `"small_NC_8k"`, `"small_NC"`, `"full_NC"`, жизненный цикл `NotInitialized -> Initialized -> Configured -> DisabledByCpuOveruse`, диагностические строки ошибок движка, пропуск инференса при mute (`skipNoiseCancellationIfMuted`), откат на `RnNoise` при перегрузке CPU (`"Noise canceller CPU overuse"`) или `sampleRateMismatchPercent > 15%`, и JSON-телеметрия сессии `NoiseCancellationStats::to_json()`.
    - Реализованы расчёт RMS уровня сигнала в dBFS (`compute_frame_rms_dbfs`), подавление фонового шума в дБ (`attenuate_pcm_s16_in_place`), классификация корзин шума (`classify_noise_band`) и полный конвейер `NoiseSuppressionPipeline` с `vad_leading_frames` / `vad_trailing_frames` hangover-гейтингом.
 
 3. **Экспорты и план (`rust/crates/discord-voice/src/lib.rs`, `TDD-PLAN.md`)**:
@@ -26,20 +26,20 @@
 ## 2. Red-прогон (Strict TDD)
 
 - **Команда**:
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test ptt_contract --test noise_contract`
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test ptt_contract --test noise_contract`
 - **Лог**: `waves/RW-40/G5/task-633-hardware-ptt-voice/red.log` (`error[E0432]: unresolved imports ... could not compile discord-voice (test "ptt_contract") / (test "noise_contract")`).
 
 ## 3. Green-прогон и Targeted / Gate проверки
 
 - **Команда**:
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice`
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice`
 - **Лог**: `waves/RW-40/G5/task-633-hardware-ptt-voice/green.log`
   - `ptt_contract`: `5 passed; 0 failed` (`t_ptt_01`..`t_ptt_05`)
   - `noise_contract`: `4 passed; 0 failed` (`t_noise_01`..`t_noise_04`)
   - Все тестовые таргеты `discord-voice` (`lib`, `crypto_vectors`, `devices_contract`, `media_contract`, `noise_contract`, `ptt_contract`, `reception_contract`, `reconnect_contract`, `regions_contract`, `rtcp_contract`, `rtp_video_contract`, `signaling`, `srtp_contract`, `stats_contract`, `udp`, `voice_call_state_machine_contract`): **100% PASS (0 failed)**.
 - **Форматирование и линтер**:
   - `rustfmt --edition 2024 --check rust/crates/discord-voice/src/ptt.rs rust/crates/discord-voice/src/noise.rs rust/crates/discord-voice/src/lib.rs rust/crates/discord-voice/tests/ptt_contract.rs rust/crates/discord-voice/tests/noise_contract.rs` — **OK (0 diff)**.
-  - `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --all-targets -- -D warnings` — **OK (0 warnings)**.
+  - `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --all-targets -- -D warnings` — **OK (0 warnings)**.
   - `node --test tests/meta/plan-sync.test.mjs tests/meta/rust-client-sync.test.mjs` — **19/19 PASS**.
 
 ## 4. Мутационное тестирование (`5/5 = 100% Killed`)

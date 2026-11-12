@@ -11,7 +11,7 @@
 | I1 | `rust/crates/discord-core/src/rest/client.rs`, `rust/crates/discord-core/tests/rest_client.rs` |
 
 Общие файлы (`rest/mod.rs`, `Cargo.toml`, `Cargo.lock`) правит координатор. Новых зависимостей
-нет. Golden и `/home/sanya/re-deep` — только чтение. Коммитов нет.
+нет. Golden и `reference-oracle/` — только чтение. Коммитов нет.
 
 ## 1. Контракт (заморожен)
 

@@ -3,11 +3,11 @@
 - **Дата:** 2026-10-31
 - **Карточка:** `task-274` (`re/task-274-voice-diagnostics-audit`)
 - **Отдел:** `G7 Reverse Engineering & Parity Discovery (G7 RE / REA)`
-- **Оракулы `/home/sanya/re-deep/` (read-only):**
-  - `/home/sanya/re-deep/voice-deep.md` и `/home/sanya/re-deep/voice-deep.json` (протокол Voice Gateway v8, RTP/SRTCP, кодеки Opus `120` / AV1 `101` / H264 `103` / VP8 `105`, `aead_xchacha20_poly1305_rtpsize` / `aead_aes256_gcm_rtpsize`, DAVE MLS v1).
-  - `/home/sanya/re-deep/voice/ui/01-voice-panel.html` и `/home/sanya/re-deep/voice/ui/01-panel-text.json` (живой DOM-слепок голосовой панели Discord).
-  - `/home/sanya/re-deep/voice/ui/02-requiremodule-voice.json` и `/home/sanya/re-deep/voice/ui-s2/03-voice-module-api.json` (57 методов нативного `discord_voice.node`, включая `getFilteredStats`, `setTransportOptions`, `getEncryptionModes`, `setPingInterval`).
-  - `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0`:
+- **Оракулы `reference-oracle/` (read-only):**
+  - `reference-oracle/voice-deep.md` и `reference-oracle/voice-deep.json` (протокол Voice Gateway v8, RTP/SRTCP, кодеки Opus `120` / AV1 `101` / H264 `103` / VP8 `105`, `aead_xchacha20_poly1305_rtpsize` / `aead_aes256_gcm_rtpsize`, DAVE MLS v1).
+  - `reference-oracle/voice/ui/01-voice-panel.html` и `reference-oracle/voice/ui/01-panel-text.json` (живой DOM-слепок голосовой панели Discord).
+  - `reference-oracle/voice/ui/02-requiremodule-voice.json` и `reference-oracle/voice/ui-s2/03-voice-module-api.json` (57 методов нативного `discord_voice.node`, включая `getFilteredStats`, `setTransportOptions`, `getEncryptionModes`, `setPingInterval`).
+  - `reference-oracle/decoded/3eefa7dae1e2c234_0`:
     - модуль `613681` (`offset 2463706..2505000`) — `class tg` (`RTCConnection`): геттер `quality`, буфер `_pings`, `_pingBadCount`, `_handlePing`, `_handlePingTimeout`, `getAveragePing`, `getLastPing`, `getOutboundLossRate`;
     - модуль `206959` (`offset 10790700..10824500`) — `NativeConnection` и нормализатор `function k(e, t, n, i)` (`getStats` / `getFilteredStats`), расчёт `OutboundLossRate` по дельтам `packetsSent`/`packetsLost`, `handlePingTimeout` (`4000 мс`);
     - модуль `731854` (`offset 10763674`) — константы `MediaEngine`: интервал опроса статистики `t1 = 1000` мс (`1e3`), интервал пинга `n8 = 5000` мс (`5e3`), битовая маска фильтра `yt` (`TRANSPORT=1`, `OUTBOUND=2`, `INBOUND=4`, `ALL=7`), состояния `x` (`DEFAULT="default"`, `STREAM="stream"`), состояния соединения `S7L` и качества `bFR` (также в модуле `652215` @ `253362..253750`);
@@ -18,8 +18,8 @@
     - модуль `917592` (`offset 6025550..6028500`) и `998759` (`offset 7464200..7465200`) — вкладка конфиденциальности DAVE E2EE (`Voice Privacy Code`, сетка 6×5 цифр из `epochAuthenticator`);
     - модуль `229659` (`offset 1966150..1967500`) и `546738` (`offset 4695250..4699500`) — `TimelineGraphView` (`<canvas width="258" height="80">`, 30 FPS rAF, история `60 000` мс);
     - модуль `233545` (`offset 694029`) и `PopoutWindowRTCDebug` (`webpackId: 767675`, `offset 1896599`) — экшены и окно полной диагностики (`854×480`).
-  - `/home/sanya/re-deep/decoded/e6811dfca6ffcd34_0` (модуль `473718`), `/home/sanya/re-deep/decoded/d1bfcf59dca06829_0` (модуль `203077`), `/home/sanya/re-deep/decoded/dc091883931cf040_0` (модули `300303`, `479137`, `68375`, `873353`) — CSS-модули и селекторы статуса/попапа.
-  - `/home/sanya/re-deep/ru-catalog.json` и `/home/sanya/re-deep/en-catalog.json` — точные строки локализации (RU/EN).
+  - `reference-oracle/decoded/e6811dfca6ffcd34_0` (модуль `473718`), `reference-oracle/decoded/d1bfcf59dca06829_0` (модуль `203077`), `reference-oracle/decoded/dc091883931cf040_0` (модули `300303`, `479137`, `68375`, `873353`) — CSS-модули и селекторы статуса/попапа.
+  - `reference-oracle/ru-catalog.json` и `reference-oracle/en-catalog.json` — точные строки локализации (RU/EN).
 
 ---
 
@@ -47,7 +47,7 @@
 ## 2. Точные константы и пороги индикатора качества (`RTCConnection.quality`)
 
 ### 2.1. Перечисление качества `bFR` и состояний `S7L`
-**Оракул:** `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0`, модуль `652215` (`offset 253362..253750`) и модуль `731854` (`offset 10763674`):
+**Оракул:** `reference-oracle/decoded/3eefa7dae1e2c234_0`, модуль `652215` (`offset 253362..253750`) и модуль `731854` (`offset 10763674`):
 
 | Константа в бандле | Ключ | Значение | Назначение |
 |---|---|---|---|
@@ -69,7 +69,7 @@
 10. `DTLS_CONNECTING = "DTLS_CONNECTING"`
 
 ### 2.2. Формула и точные пороги `quality` (Green / Yellow / Red)
-**Оракул:** `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0`, модуль `613681` (`class tg`, `offset 2469479`):
+**Оракул:** `reference-oracle/decoded/3eefa7dae1e2c234_0`, модуль `613681` (`class tg`, `offset 2469479`):
 
 ```javascript
 get quality() {
@@ -119,7 +119,7 @@ get quality() {
 
 ## 3. Полная схема статистики `RTCConnection` / `MediaEngine` (`getStats`)
 
-**Оракул:** `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0`, модуль `206959`, функции нормализации `k(e, t, n, i)`, `G(e)` (outbound video), `x(e)` (inbound video) (`offset 10790700..10795800`), а также `MediaEngineStatsStore` (модуль `624694` @ `5997681`) и `RTCDebugStore` (модуль `412780` @ `9264635`).
+**Оракул:** `reference-oracle/decoded/3eefa7dae1e2c234_0`, модуль `206959`, функции нормализации `k(e, t, n, i)`, `G(e)` (outbound video), `x(e)` (inbound video) (`offset 10790700..10795800`), а также `MediaEngineStatsStore` (модуль `624694` @ `5997681`) и `RTCDebugStore` (модуль `412780` @ `9264635`).
 
 ### 3.1. Корневой объект снимка `MediaEngineStats`
 ```ts
@@ -263,7 +263,7 @@ interface MediaEngineConnectionStats {
 ## 4. DOM-структура, CSS-классы и Canvas-график
 
 ### 4.1. Нижний бар статуса голосовой панели (`RTCConnectionStatus`)
-**Оракулы:** `/home/sanya/re-deep/voice/ui/01-voice-panel.html`, `/home/sanya/re-deep/decoded/e6811dfca6ffcd34_0` (модуль `473718`), `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0` (модуль `999751` @ `7465980`).
+**Оракулы:** `reference-oracle/voice/ui/01-voice-panel.html`, `reference-oracle/decoded/e6811dfca6ffcd34_0` (модуль `473718`), `reference-oracle/decoded/3eefa7dae1e2c234_0` (модуль `999751` @ `7465980`).
 
 ```html
 <div class="rtcConnectionStatusWrapper__06d62">
@@ -303,7 +303,7 @@ interface MediaEngineConnectionStats {
   - `.rtcConnectionQualityBad__06d62 .largePing__06d62:hover`: `background-color: var(--background-feedback-critical)`
 
 ### 4.2. Попап диагностики соединения (`RTCConnectionPopout`)
-**Оракулы:** `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0` (модуль `978171` @ `7458500`, модуль `917592` @ `6025550`, модуль `229659` @ `1966150`, модуль `546738` @ `4695250`), CSS-модули `203077` (`d1bfcf59dca06829_0`), `300303`/`479137`/`68375`/`873353` (`dc091883931cf040_0`).
+**Оракулы:** `reference-oracle/decoded/3eefa7dae1e2c234_0` (модуль `978171` @ `7458500`, модуль `917592` @ `6025550`, модуль `229659` @ `1966150`, модуль `546738` @ `4695250`), CSS-модули `203077` (`d1bfcf59dca06829_0`), `300303`/`479137`/`68375`/`873353` (`dc091883931cf040_0`).
 
 | Элемент попапа | CSS-класс в оригинале | Размеры / стили | Содержимое |
 |---|---|---|---|
@@ -322,9 +322,9 @@ interface MediaEngineConnectionStats {
 
 ---
 
-## 5. Словарь ключей локализации (`i18n`) из `/home/sanya/re-deep/ru-catalog.json` и `en-catalog.json`
+## 5. Словарь ключей локализации (`i18n`) из `reference-oracle/ru-catalog.json` и `en-catalog.json`
 
-Все ключи проверены напрямую по `/home/sanya/re-deep/ru-catalog.json` и `/home/sanya/re-deep/en-catalog.json`:
+Все ключи проверены напрямую по `reference-oracle/ru-catalog.json` и `reference-oracle/en-catalog.json`:
 
 | Хеш-ключ (`i18n`) | Русская строка (`ru-catalog.json`) | Английская строка (`en-catalog.json`) | Где используется |
 |---|---|---|---|
@@ -362,7 +362,7 @@ interface MediaEngineConnectionStats {
 
 ## 6. Матрица расхождений (Gap Analysis) с текущим клиентом `discord-lab`
 
-| № | Область / Компонент | Эталон Discord (`/home/sanya/re-deep/`) | Текущая реализация в `discord-lab` | Критичность | Целевой отдел |
+| № | Область / Компонент | Эталон Discord (`reference-oracle/`) | Текущая реализация в `discord-lab` | Критичность | Целевой отдел |
 |---|---|---|---|---|---|
 | **GAP-22-1** | Пороги качества соединения (`quality`: `fine` / `average` / `bad` / `unknown`) | `FINE`: `ping <= 250` и `loss <= 5%`; `AVERAGE`: `250 < ping <= 500` или `5% < loss <= 10%`; `BAD`: `ping > 500` или `loss > 10%`; `UNKNOWN` вне `RTC_CONNECTED` (`mod 613681` @ `2469479`) | В `rust/gui-spike/ui/features/voice.js:118-150` захардкожено `QUALITY_FINE_MAX = 120`, `QUALITY_AVERAGE_MAX = 250`, а `outboundLossRate` не учитывается вовсе. В `discord-voice` функции оценки качества нет | **P1 (High)** | `G5 Voice`, `G2 Frontend` |
 | **GAP-22-2** | Буфер пинга `_pings` (199 точек), `getAveragePing` (20 точек), `_pingBadCount` и таймаут 3 подряд пингов (`4000 мс`) | `_pings` до 199 точек `{time, value}`, `getAveragePing()` по `slice(0, 20)`, `_pingBadCount` при `ping > 500`, 3 подряд таймаута → `_handlePing(4000)` (`mod 613681` @ `2504200`) | В `session.rs:555` хранится только скаляр `last_rtt_ms: Option<u64>`. В `stats.rs` `StatsWindow` считает среднее по всему окну (32), без буфера 199 точек и без обработки 3 подряд таймаутов пинга | **P1 (High)** | `G5 Voice` |

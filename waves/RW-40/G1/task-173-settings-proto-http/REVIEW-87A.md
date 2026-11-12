@@ -36,7 +36,7 @@ md5 совпадают с §5 `REPORT.md`. `git diff --check` чистый.
 
 ## 2. Тесты и линтер
 
-Команды из ТЗ, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Команды из ТЗ, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 
 ```
 cargo test --manifest-path rust/Cargo.toml -p discord-core \

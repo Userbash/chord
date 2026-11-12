@@ -21,7 +21,7 @@
 | 2 | Разведка graph: IPC-каналы | `rea.inspect_analysis_view(kind=javascript-facts, kinds=[ipc-channel])` | 0 записей: Electron API в бандле не распознан (см. §5) |
 | 3 | Точные смещения 1.0.166 | read-only распаковка asar в `/tmp/opencode/ref166` + `grep`/Python `find` | `open-url@23596`, `openOrQueueUrl@22606`, `DESKTOP_CAPTURER@23953`, `NOTIFICATIONS@63242`, 203 IPC-константы |
 | 4 | Инвентарь 1.0.166 | `sha256sum`, `ls -l` модулей | voice 127,8 МБ, krisp 62,1 МБ, utils 23,7 МБ |
-| 5 | Дамп 1.0.162 | чтение `/home/sanya/re-deep/**`, `docs/re/**` | REST/gateway/voice/UI/i18n/main-arch |
+| 5 | Дамп 1.0.162 | чтение `reference-oracle/**`, `docs/re/**` | REST/gateway/voice/UI/i18n/main-arch |
 | 6 | Наше приложение | `rg`, `sed`, `wc` по `rust/gui-spike/**`, `rust/crates/**` | реализовано/partial/absent по 91 функции |
 | 7 | Экспорт REA | `rea.export_evidence_bundle(path=…/EVIDENCE/REA-EVIDENCE.json)` | 56 923 673 Б, 3 records, 0 unknowns |
 | 8 | Санитизация вывода | bundle (57 МБ) вынесен в `/tmp/opencode/rea-evidence-rw40.json` | это нормально: в репозитории только выдержки/хеши, полный граф не коммитится |
@@ -111,7 +111,7 @@
 - CDP/AT-SPI/скриншотов 1.0.166;
 - сетевых запросов, логина, токенов;
 - `cargo`/`npm`/тестов (запрещено условием; использованы отчёты прошлых волн);
-- записи в `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`, установленный Discord;
+- записи в `logs/`, `functions/`, `evidence/`, `reference-oracle/`, установленный Discord;
 - изменений продуктового кода/чужих документов.
 
 ## 9. RE-гейты, открытые после сессии
@@ -131,12 +131,12 @@
 
 ```bash
 # 1. REA summary (MCP)
-# analyze_javascript_application(input_path="/home/sanya/.config/discord/app-1.0.166/resources/app.asar",
+# analyze_javascript_application(input_path="/home/user/.config/discord/app-1.0.166/resources/app.asar",
 #   format="asar", detail="summary")
 
 # 2. хеши
-sha256sum /home/sanya/.config/discord/app-1.0.166/resources/app.asar \
-          /home/sanya/.config/discord/app-1.0.166/modules/discord_desktop_core-1/discord_desktop_core/core.asar
+sha256sum /home/user/.config/discord/app-1.0.166/resources/app.asar \
+          /home/user/.config/discord/app-1.0.166/modules/discord_desktop_core-1/discord_desktop_core/core.asar
 
 # 3. смещения 1.0.166 (read-only распаковка в /tmp)
 python3 - <<'PY'
@@ -158,7 +158,7 @@ PY
 |---|---|---|---|
 | 1 | Сверка 12 приоритетных функций с текущим кодом | `rust/gui-spike/{ui,src}`, `tests/**` | состояние + файлы + gap по каждой |
 | 2 | Проверка привязки UI к BFF | `grep` по `ui/**` | UI **не вызывает** `ready`, `messages_page`, `members_page`, `settings`, `search_page`, `join_guild`, `net_*` |
-| 3 | Уточнение настройки «63 строки» | `/home/sanya/re-deep/ui8/23-settings-categories.json` (`count:63`) | 63 = профиль 2 + 19×3 обёртки + 4 подпункта; навигация = профиль + 18 разделов + «Выйти» |
+| 3 | Уточнение настройки «63 строки» | `reference-oracle/ui8/23-settings-categories.json` (`count:63`) | 63 = профиль 2 + 19×3 обёртки + 4 подпункта; навигация = профиль + 18 разделов + «Выйти» |
 | 4 | Уточнение invite-тела | бандл 1.0.162, anchor `_.Bo.post({url:ei.Rsh.INVITE`; `getSessionId():null` | все 3 поля nullable; `invite_instance_id` — `_U(baseCode, message_id)`, опционален |
 | 5 | Уточнение ack-тела | `docs/re/rest-d02.md §4`, `fixtures/.../046-MESSAGE_ACK.json` | `{token:null,last_viewed:4310}`; `last_viewed` — счётчик read_state, не id сообщения |
 | 6 | Проверка route-каталога | `crates/discord-core/src/rest/routes.rs` | `/typing` и `/invites/{code}` в каталоге 49 записей отсутствуют → нужен письменный протокол расширения |

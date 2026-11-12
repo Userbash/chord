@@ -21,7 +21,7 @@
 
 ## 2. Сверка с эталонным RE-оракулом (`fixtures/voice/rtp-pt120-oracle.json`)
 
-- **Источник оракула:** `/home/sanya/re-deep/voice/voice-udp4.pcap` (MD5: `798dd8aea8dd14d4429ac00b1c1d0a12`)
+- **Источник оракула:** `reference-oracle/voice/voice-udp4.pcap` (MD5: `798dd8aea8dd14d4429ac00b1c1d0a12`)
 - **SSRC / Payload Type:** `9208` / `PT=120`
 - **Пакетов в дампе:** `10` (2 прогревочных 43 Б + 8 стандартных `0xBEDE` по 47 Б)
 - **Джиттер RFC 3550 на оракуле:** `222.138914 ед.` (`4.627894 мс`, эталон `222.141 ед. / 4.628 мс`) — **PASS**

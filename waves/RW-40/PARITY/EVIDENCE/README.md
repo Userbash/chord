@@ -33,7 +33,7 @@ cookie и ключей нет; в цитатах нет пользователь
 
 ```
 # хеши
-sha256sum /home/sanya/.config/discord/app-1.0.166/resources/app.asar
+sha256sum /home/user/.config/discord/app-1.0.166/resources/app.asar
 # REA
 analyze_javascript_application(input_path=app.asar, format=asar, detail=summary)
 # смещения 1.0.166

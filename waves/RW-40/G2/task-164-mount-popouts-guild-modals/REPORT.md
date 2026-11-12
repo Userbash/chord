@@ -39,7 +39,7 @@
 
 ## 2. Red-прогон (Strict TDD)
 
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-164-mount-popouts-guild-modals/red.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-164-mount-popouts-guild-modals/red.log`
 - **Команда**:
   ```sh
   node --test --test-name-pattern="FE-P1-06 / task-164" tests/unit/gui-spike-features.test.mjs
@@ -50,7 +50,7 @@
 
 ## 3. Green-прогон и проверка типов
 
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-164-mount-popouts-guild-modals/green.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-164-mount-popouts-guild-modals/green.log`
 - **Команды**:
   ```sh
   node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/user-popout.test.mjs tests/unit/guild-modals.test.mjs

@@ -4,7 +4,7 @@
 Каждый артефакт — read-only, хеши в `hashes.txt`. Это `version-gap` к установленному 1.0.166:
 UI-функции подтверждены на 1.0.162, IPC/asar — на 1.0.166.
 
-## 1. Меню сервера (live DOM, `/home/sanya/re-deep/ui2/D1-guild-menu-items.json`)
+## 1. Меню сервера (live DOM, `reference-oracle/ui2/D1-guild-menu-items.json`)
 
 10 пунктов, порядок дампа:
 `Пометить как прочитанное` · `Пригласить на сервер` · `Заглушить сервер` ·
@@ -15,14 +15,14 @@ UI-функции подтверждены на 1.0.162, IPC/asar — на 1.0.1
 Подтверждает: invite, mute, per-guild notification level, privacy, leave, copy ID.
 Не подтверждает: точные endpoint/тела и модалку подтверждения выхода (RE-gap).
 
-## 2. Каналы (live DOM, `/home/sanya/re-deep/ui6/01-guild-channels.json`)
+## 2. Каналы (live DOM, `reference-oracle/ui6/01-guild-channels.json`)
 
 `href=/channels/<guild>/<channel>`, `aria="💬welcome (текстовый канал)"`,
 `"🔔афиша-стримов📺 (текстовый канал)"`, `"не прочитано, 🔤болталка (текстовый канал)"`,
 `"💾dpakc_help🖥💻 (канал форума)"`.
 Подтверждает: дерево каналов, типы text/forum, unread-маркер в доступном имени.
 
-## 3. Голосовая панель (live DOM, `/home/sanya/re-deep/voice/ui/`)
+## 3. Голосовая панель (live DOM, `reference-oracle/voice/ui/`)
 
 `01-panel-text.json`:
 ```
@@ -40,7 +40,7 @@ UI-функции подтверждены на 1.0.162, IPC/asar — на 1.0.1
 Подтверждает: join/leave, ping, участники, mute/deafen, speaking/settings, screen share
 affordance, camera disabled state, activities. Не подтверждает: Go Live-поток и зрителей.
 
-## 4. Строки i18n-каталога (`/home/sanya/re-deep/ru-catalog.json`, 23 836 ключей)
+## 4. Строки i18n-каталога (`reference-oracle/ru-catalog.json`, 23 836 ключей)
 
 | Ключ | Значение | Домен |
 |---|---|---|
@@ -91,7 +91,7 @@ affordance, camera disabled state, activities. Не подтверждает: Go
 | GET/PATCH | `/users/@me/settings-proto/{num}` | 200 | настройки (PATCH — non-json) |
 | GET | `/guilds/{id}/messages/search` | — | серверный поиск (D-03) |
 
-## 8. REST: статическая карта web-бандла (`/home/sanya/re-deep/rest-static.md`)
+## 8. REST: статическая карта web-бандла (`reference-oracle/rest-static.md`)
 
 | Строка | Метод | Путь | Тело/примечание | level |
 |---|---|---|---|---|

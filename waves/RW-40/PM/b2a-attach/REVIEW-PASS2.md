@@ -4,7 +4,7 @@
 
 ## Findings
 
-1. **P1 — неверный базовый лимит.** Независимый оракул в `waves/RW-40/RE-DEEP-REA.md:122-125` требует `Math.max(0x1400000, tierLimit)`, то есть минимум 20 MiB; для `NONE`/`TIER_1` с tier limit 10 MiB валидная граница равна 20 MiB. Реализация возвращает 10 MiB для `None` и `Tier1` (`rust/gui-spike/src/attachments.rs:46-64`) и применяет её до сети (`rust/gui-spike/src/attachments.rs:376-393`). Файл `waves/RW-40/ATTACH-RE.md:58-59` повторяет противоречивое описание tier-значений, но не отменяет явную формулу оракула.
+1. **P1 — неверный базовый лимит.** Независимый оракул в `waves/RW-40/reference-oracle-REA.md:122-125` требует `Math.max(0x1400000, tierLimit)`, то есть минимум 20 MiB; для `NONE`/`TIER_1` с tier limit 10 MiB валидная граница равна 20 MiB. Реализация возвращает 10 MiB для `None` и `Tier1` (`rust/gui-spike/src/attachments.rs:46-64`) и применяет её до сети (`rust/gui-spike/src/attachments.rs:376-393`). Файл `waves/RW-40/ATTACH-RE.md:58-59` повторяет противоречивое описание tier-значений, но не отменяет явную формулу оракула.
 
 Из-за этого файл размером 10 MiB + 1 байт до 20 MiB ошибочно получает `EntityTooLarge`; тесты проверяют именно ошибочное значение и потому не являются независимым подтверждением.
 

@@ -1,6 +1,6 @@
 # ТЗ W22a — P3-15: i18n runtime base
 
-Волна: RW-22 / B03. Владелец: W22a. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-22 / B03. Владелец: W22a. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -17,7 +17,7 @@
 Strict TDD. Сначала тесты (сейчас в крейте только тривиальный lib-тест), зафиксируй red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n \
   2>&1 | tee ../waves/RW-22/red-w22a.log
 ```
@@ -44,10 +44,10 @@ pub fn resolve_locale(requested: &str, available: &[&str]) -> String;
 - `message_key`: `xxh64(id.as_bytes(), 0)` → 8 байт **LE** → стандартный base64 → первые 6
   символов. Проверочные векторы: `ru → +irF5O`, `en-US → +dXJII`, `AKA → l1QVfj`,
   `OK → TyCVIq`, `PS4 → fJyyQn`, `PS5 → oElqN5`. Дополнительно сверь с
-  `/home/sanya/re-deep/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
+  `reference-oracle/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
   «Закрыть всплывающее окно»; обратный хеш от id проверять не нужно.
 - `xxh64` — реализация xxHash64 (seed, little-endian чтение, avalanche); без `unsafe`.
-- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/sanya/re-deep/inline/lang-list.json`;
+- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `reference-oracle/inline/lang-list.json`;
   отключённые ровно `["pt-PT","sk","he","ar","id"]`.
 - `resolve_locale`: exact → case-insensitive → язык (`ru-RU`→`ru`) → default → `en-US`;
   отключённая/неизвестная не выбирается; пустой requested → default. Функция возвращает код
@@ -108,7 +108,7 @@ pub fn translate(&self, key: &str, args: &BTreeMap<String, Value>) -> Result<Str
    недоступен — пропустить с причиной, не выдумывать. Достаточно 6 эталонов + known-answer
    для пустой строки.
 2. locale: 36/31/5, exact/case/base/fallback/disabled.
-3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/sanya/re-deep` (skip если
+3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `reference-oracle/` (skip если
    нет), 23 836/23 903 ключей, `hPBScv`, `323362` AST с `$link`, plural `r/EUap`.
 4. translate: literal, argument, fallback requested→en, missing arg, missing message.
 5. plural ru: 1/2/5/11/21/22/101 для `r/EUap`; `=0`; `#`; offset; en one/other.

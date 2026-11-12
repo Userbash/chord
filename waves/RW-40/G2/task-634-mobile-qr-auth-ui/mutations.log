@@ -35,7 +35,7 @@ test at tests/unit/qr-auth-modal.test.mjs:92:3
   
   60000 !== 120000
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/task-634-mobile-qr-auth-ui/tests/unit/qr-auth-modal.test.mjs:99:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/task-634-mobile-qr-auth-ui/tests/unit/qr-auth-modal.test.mjs:99:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -59,7 +59,7 @@ test at tests/unit/qr-auth-modal.test.mjs:286:3
   
   60000 !== 120000
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/task-634-mobile-qr-auth-ui/tests/unit/qr-auth-modal.test.mjs:310:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/task-634-mobile-qr-auth-ui/tests/unit/qr-auth-modal.test.mjs:310:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

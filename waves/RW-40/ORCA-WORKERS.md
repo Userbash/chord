@@ -4,7 +4,7 @@
 
 | Карточка | Отдел | Статус | Доказательство / ACCEPT |
 |---|---|---|---|
-| `RE-DEEP-REA` | RE | **DONE** | `waves/RW-40/RE-DEEP-REA.md`, `waves/RW-40/ATTACH-RE.md` |
+| `reference-oracle-REA` | RE | **DONE** | `waves/RW-40/reference-oracle-REA.md`, `waves/RW-40/ATTACH-RE.md` |
 | `PLAN-SYNC` | PM/TL | **DONE** | `TDD-PLAN.md` §8 (`102/102` meta pass, `tsc` exit 0, `0` `@ts-ignore`) |
 | `G-01b-CONTRACT` | G1 | **ACCEPTED** | `PM/g01b-contract/REVIEW.md` → `PM/g01b-contract/ACCEPT.md` |
 | `QA-M2-04` | G4 | **ACCEPTED** | `QUALITY/QA-M2-04-REVIEW.md` → `QUALITY/QA-M2-04-ACCEPT.md` |

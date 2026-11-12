@@ -34,7 +34,7 @@ test at tests/meta/keyring-live.test.mjs:105:3
   
   26 !== 12
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:112:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:112:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -54,7 +54,7 @@ test at tests/meta/keyring-live.test.mjs:105:3
 test at tests/meta/keyring-live.test.mjs:116:3
 ✖ у каждого #[test] сразу следует #[ignore = "live-keyring: …"] (0.681551ms)
   AssertionError [ERR_ASSERTION]: k13_safe_storage_prefix_and_detection: нет #[ignore = "live-keyring: …"] (skip-маркера нет, тест засчитается passed)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:118:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:118:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -98,7 +98,7 @@ test at tests/meta/keyring-live.test.mjs:136:3
   +   'k26_migration_failure_paths_and_state_do_not_leak_secrets'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:137:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:137:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -141,7 +141,7 @@ test at tests/meta/keyring-live.test.mjs:243:3
   test result: ok. 13 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 0.00s
   
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:251:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:251:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -175,7 +175,7 @@ test at tests/meta/keyring-live.test.mjs:258:3
   +   'k25_migrator_with_live_keyring'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:272:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix/tests/meta/keyring-live.test.mjs:272:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

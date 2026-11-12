@@ -1,5 +1,5 @@
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test format_contract all_locale_numbers_match_the_independent_intl_oracle -- --exact
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
      Running tests/format_contract.rs (target/debug/deps/format_contract-9421ae848a51de36)
 

@@ -4,16 +4,16 @@
   "card": "RW-39 / Phase 1a — геометрия shell и 4 экранов: контракт SPEC (W39b) + RE-замеры дампа (W39a)",
   "units": "CSS px (референс снят при dpr 1.25: PNG 2560×1383 ↔ окно 2048×1106.4)",
   "status_codes": {
-    "M": "измерено — /home/sanya/re-deep/ui/00-app.png, ui8/22-members.jpg, ui8/*.json (DOM rect)",
-    "T": "токен — /home/sanya/re-deep/ui/tokens.json (дарк, 1.0.162); значение обязано совпадать с waves/RW-39/DESIGN/tokens.css",
+    "M": "измерено — /home/user/clean-room-oracle/ui/00-app.png, ui8/22-members.jpg, ui8/*.json (DOM rect)",
+    "T": "токен — /home/user/clean-room-oracle/ui/tokens.json (дарк, 1.0.162); значение обязано совпадать с waves/RW-39/DESIGN/tokens.css",
     "L": "RE-контракт — waves/RW-37/RE/layout.json (schema rw37/re-layout-v1)",
     "A": "assumption — выбрано нами (обоснование в SPEC.md), не измерение",
     "F": "frozen — заморожено тестами RW-38 (tests/unit/gui-spike-dom.test.mjs)"
   },
   "sources": {
-    "png": "/home/sanya/re-deep/ui/00-app.png (lossless, 2560×1383, dpr 1.25)",
-    "jpg": "/home/sanya/re-deep/ui8/22-members.jpg (JPEG-кроп 320×1281 = 256×1025 CSS, допуск ±1)",
-    "dom": "/home/sanya/re-deep/ui8/{22-members,23-settings-categories,23-settings-voice,20a-searchbar}.json (getBoundingClientRect)",
+    "png": "/home/user/clean-room-oracle/ui/00-app.png (lossless, 2560×1383, dpr 1.25)",
+    "jpg": "/home/user/clean-room-oracle/ui8/22-members.jpg (JPEG-кроп 320×1281 = 256×1025 CSS, допуск ±1)",
+    "dom": "/home/user/clean-room-oracle/ui8/{22-members,23-settings-categories,23-settings-voice,20a-searchbar}.json (getBoundingClientRect)",
     "re": "waves/RW-37/RE/layout.json",
     "tokens": "waves/RW-39/DESIGN/tokens.css (md5 579a878aef43f8fa50a924eb4277acd9)",
     "spec": "waves/RW-39/DESIGN/SPEC.md §5, §7.1–7.8, §9"

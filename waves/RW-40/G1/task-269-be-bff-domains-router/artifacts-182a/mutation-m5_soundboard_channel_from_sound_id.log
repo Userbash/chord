@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-269-be-bff-domains-router/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-269-be-bff-domains-router/rust/gui-spike)
 warning: unused variable: `channel_id`
   --> src/bff_domains_router.rs:75:13
    |
@@ -9,7 +9,7 @@ warning: unused variable: `channel_id`
 
 warning: `discord-gui-spike` (lib) generated 1 warning (run `cargo fix --lib -p discord-gui-spike` to apply 1 suggestion)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.55s
-     Running tests/bff_domains_router_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/bff_domains_router_contract-ca9df234e77072dd)
+     Running tests/bff_domains_router_contract.rs (/home/user/orca/project/rust/target/debug/deps/bff_domains_router_contract-ca9df234e77072dd)
 
 running 8 tests
 test dispatch_create_stage_instance_builds_stage_instances_route_and_body ... ok

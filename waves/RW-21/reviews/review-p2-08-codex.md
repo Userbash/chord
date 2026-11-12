@@ -2,5 +2,5 @@ Varint/bounds, wrapper presence, signed timezone, fixed64 parsing, unknown prese
 
 Review comment:
 
-- [P2] Redact sensitive values from section Debug output — /home/sanya/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:262-263
+- [P2] Redact sensitive values from section Debug output — /home/user/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:262-263
   Когда вызывающий код форматирует публичные секции напрямую, `NotificationSettings` печатает `notification_center_acked_before_id`, а `LocalizationSettings` печатает locale и timezone name: оба типа используют производный `Debug`. Поэтому проверка `Debug` только для внешнего `PreloadedUserSettings` не предотвращает утечку этих значений в логи через секции; примените redacted `Debug` и к этим типам.

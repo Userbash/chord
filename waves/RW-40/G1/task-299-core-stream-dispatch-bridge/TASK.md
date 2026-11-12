@@ -189,9 +189,9 @@
 
 ## 3. Команды проверки
 
-Используй общий `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Используй общий `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 ```bash
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test -p discord-core --test dispatch_types
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test -p discord-core --lib
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test -p discord-core --test dispatch_types
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test -p discord-core --lib
 ```
-Запиши краткий отчёт в `/home/sanya/orca/project/waves/RW-40/G1/task-299-core-stream-dispatch-bridge/REPORT.md`.
+Запиши краткий отчёт в `/home/user/orca/project/waves/RW-40/G1/task-299-core-stream-dispatch-bridge/REPORT.md`.

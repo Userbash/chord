@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Закрытие дыр R4/R10/R11 независимого ревью: мутации → red новых тестов → restore (+touch) → md5.
 set -eu
-SRC=/home/sanya/orca/project/rust/crates/discord-core/src
+SRC=/home/user/orca/project/rust/crates/discord-core/src
 B=/tmp/opencode/rw-06/impl-backup2
 mkdir -p "$B"
 cp "$SRC/resume.rs" "$SRC/ws.rs" "$B/"
 md5sum "$SRC/resume.rs" "$SRC/ws.rs" > "$B/before.md5"
-cp /home/sanya/orca/project/rust/crates/discord-core/tests/resume_reconnect.rs /tmp/opencode/rw-06/resume_reconnect-red-gap.rs
+cp /home/user/orca/project/rust/crates/discord-core/tests/resume_reconnect.rs /tmp/opencode/rw-06/resume_reconnect-red-gap.rs
 
 python3 - "$SRC/resume.rs" "$SRC/ws.rs" <<'PY'
 import sys
@@ -34,7 +34,7 @@ open(ws, 'w', encoding='utf-8').write(w)
 print("мутации R4/R10/R11 применены")
 PY
 
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 { cargo test --offline -p discord-core --test resume_reconnect 2>&1 | grep -E "^test .* (FAILED|ok)$|test result"; echo "# EXIT=${PIPESTATUS[0]}"; md5sum crates/discord-core/tests/resume_reconnect.rs; } | tee /tmp/opencode/rw-06/red-gap-tests.txt
 
 cp "$B/resume.rs" "$B/ws.rs" "$SRC/"

@@ -5,7 +5,7 @@ Baseline MD5: 24bb37a8f233213ba7c59dc7b9fb1b22
 [MUT-1] Удаление регистрации константной UI-команды auth_status (AUTH_COMMANDS.status, P2-1) из tauri::generate_handler![...]
 Mutant MD5: 82adf8a5b2c74cacf73efafbe74f2f7e
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
 warning: function `auth_status` is never used
    --> src/main.rs:967:10
     |
@@ -68,7 +68,7 @@ Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
 [MUT-2] Удаление регистрации константной UI-команды resolve_invite (JOIN_COMMANDS.resolve, P2-1) из tauri::generate_handler![...]
 Mutant MD5: 613fff086e213f8aada06a1db5d43e2c
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
 warning: function `resolve_invite` is never used
    --> src/main.rs:442:10
     |
@@ -131,7 +131,7 @@ Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
 [MUT-3] Возврат тихого fallback .into_values().next() в ChannelOverrideInput::into_patch вместо Err(NotificationError::InvalidChannelId) при чужом channel_id (P2-2)
 Mutant MD5: 5d011a2bd0eb1da7471dd53b2caae4df
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.29s
      Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
 
@@ -171,7 +171,7 @@ Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
 [MUT-4] Игнорирование полей r#override и override_field в ChannelOverrideInput::resolve (P2-3)
 Mutant MD5: 4d8f526bb63d3c4c8e302d2ba6841a0f
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.80s
      Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
 
@@ -211,7 +211,7 @@ Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
 [MUT-5] Подмена делегата discord_gui_spike::update_channel_notification_override в update_channel_notification_override
 Mutant MD5: 1f5cd60bdbb25f58d258ffa0a1cde967
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.05s
      Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
 
@@ -313,7 +313,7 @@ Restored MD5: 24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
 Baseline MD5: 24bb37a8f233213ba7c59dc7b9fb1b22
 Current MD5:  24bb37a8f233213ba7c59dc7b9fb1b22 (match=True)
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --bins --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.09s
      Running unittests src/main.rs (target/debug/deps/discord_gui_spike-01e8573dc9e03e7c)
 

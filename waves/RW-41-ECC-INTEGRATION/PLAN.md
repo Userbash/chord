@@ -1,8 +1,8 @@
 # RW-41: План интеграции эталонных проектов (`Serein`, `LemonCord`, `rust-discord-activity`) под управлением ECC 2.0 + Orca Orchestration
 
 - **Orca Run ID:** `run_0409327aea82`
-- **Конфигурация ECC 2.0:** [`ecc2.toml`](file:///home/sanya/orca/project/ecc2.toml), [`.agents/rules/ecc-discord-lab-departments.md`](file:///home/sanya/orca/project/.agents/rules/ecc-discord-lab-departments.md)
-- **Эталонная документация:** [`docs/reference-projects/README.md`](file:///home/sanya/orca/project/docs/reference-projects/README.md), [`SEREIN-FUNCTION-MAP.md`](file:///home/sanya/orca/project/docs/reference-projects/SEREIN-FUNCTION-MAP.md), [`LEMONCORD-FUNCTION-MAP.md`](file:///home/sanya/orca/project/docs/reference-projects/LEMONCORD-FUNCTION-MAP.md), [`RUST-DISCORD-ACTIVITY-MAP.md`](file:///home/sanya/orca/project/docs/reference-projects/RUST-DISCORD-ACTIVITY-MAP.md)
+- **Конфигурация ECC 2.0:** [`ecc2.toml`](file:///home/user/orca/project/ecc2.toml), [`.agents/rules/ecc-discord-lab-departments.md`](file:///home/user/orca/project/.agents/rules/ecc-discord-lab-departments.md)
+- **Эталонная документация:** [`docs/reference-projects/README.md`](file:///home/user/orca/project/docs/reference-projects/README.md), [`SEREIN-FUNCTION-MAP.md`](file:///home/user/orca/project/docs/reference-projects/SEREIN-FUNCTION-MAP.md), [`LEMONCORD-FUNCTION-MAP.md`](file:///home/user/orca/project/docs/reference-projects/LEMONCORD-FUNCTION-MAP.md), [`RUST-DISCORD-ACTIVITY-MAP.md`](file:///home/user/orca/project/docs/reference-projects/RUST-DISCORD-ACTIVITY-MAP.md)
 - **Лимит слотов и памяти:** 4 активных воркера (`<= 5` слотов, `WORKER_RAM_LIMIT <= 25 GB`)
 - **Базовая ветка:** `unstable`
 

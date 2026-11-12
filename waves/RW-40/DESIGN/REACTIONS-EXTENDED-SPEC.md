@@ -15,7 +15,7 @@
 - **Связанные документы и код**:
   - Токены и темизация: `rust/gui-spike/ui/tokens.css`, `waves/RW-40/THEME-SPEC.md`
   - Архитектура сообщений и пикера: `waves/RW-40/DESIGN/DESIGN-MSG.md`, `waves/RW-39/DESIGN/SPEC-P3-02.md`, `waves/RW-39/DESIGN/DOM-CONTRACT.md`, `waves/RW-39/DESIGN/RE-EXTRA.md`
-  - RE-дампы эталона Discord (`1.0.9036`): `/home/sanya/re-deep/ui/01-msg-menu-items.json`, `/home/sanya/re-deep/ui8/21b-emoji-full.json`, `/home/sanya/re-deep/ui8/21d-emoji-categories.json`
+  - RE-дампы эталона Discord (`1.0.9036`): `reference-oracle/ui/01-msg-menu-items.json`, `reference-oracle/ui8/21b-emoji-full.json`, `reference-oracle/ui8/21d-emoji-categories.json`
   - Текущая реализация в спайке: `rust/gui-spike/src/reactions.rs`, `rust/gui-spike/src/main.rs`, `rust/gui-spike/src/data.rs`, `rust/gui-spike/src/net.rs`, `rust/gui-spike/ui/features/reactions.js`, `rust/gui-spike/ui/features/emoji.js`, `rust/gui-spike/ui/features/message-toolbar.js`, `rust/gui-spike/ui/features/rows.js`, `rust/gui-spike/ui/features/chat.js`, `rust/gui-spike/ui/features/dispatch-model.js`, `rust/gui-spike/ui/components/emoji.css`, `rust/gui-spike/ui/components/chat.css`
   - Контрактные тесты: `rust/gui-spike/tests/reactions_contract.rs`, `tests/unit/chat-reactions.test.mjs`, `tests/unit/dispatch_ui.test.mjs`, `tests/unit/gui-spike-dom.test.mjs`
 
@@ -29,7 +29,7 @@
 
 | Маркер | Значение | Первоисточник |
 |---|---|---|
-| **`[D]`** | Прямой DOM-дамп эталона Discord (`1.0.9036`) | `/home/sanya/re-deep/ui/01-msg-menu-items.json`, `/home/sanya/re-deep/ui8/21b-emoji-full.json`, `/home/sanya/re-deep/ui8/21d-emoji-categories.json` |
+| **`[D]`** | Прямой DOM-дамп эталона Discord (`1.0.9036`) | `reference-oracle/ui/01-msg-menu-items.json`, `reference-oracle/ui8/21b-emoji-full.json`, `reference-oracle/ui8/21d-emoji-categories.json` |
 | **`[S]`** | CSS-правила из скомпилированных таблиц стилей эталона | `DESIGN-MSG.md`, `SPEC-P3-02.md`, `RE-EXTRA.md` |
 | **`[T]`** | Семантические дизайн-токены приложения | `rust/gui-spike/ui/tokens.css`, `waves/RW-40/THEME-SPEC.md` |
 | **`[M]`** | Числовой замер геометрии (`getBoundingClientRect` / `computedStyle`) | `21b-emoji-full.json` (`498×440`, `44×44`, `9` колонок), `01-msg-menu-items.json` (`188px` min-width, `32px` item) |
@@ -162,7 +162,7 @@
    export const QUICK_REACTIONS = Object.freeze(["👍", "❤️", "😂", "😮"]);
    ```
    Эти 4 кнопки рендерятся первыми в плавающей панели действий `.msg-toolbar` (`rust/gui-spike/ui/features/message-toolbar.js`) при наведении или фокусе на строку сообщения `.row`, а также используются как дефолтный фолбэк быстрых реакций.
-2. **Эталонный дамп контекстного меню сообщения (`[D]` `/home/sanya/re-deep/ui/01-msg-menu-items.json`, инвариант `R-16`)**:
+2. **Эталонный дамп контекстного меню сообщения (`[D]` `reference-oracle/ui/01-msg-menu-items.json`, инвариант `R-16`)**:
    В дампе Discord `01-msg-menu-items.json` (`15` пунктов `role="menuitem"`) первые 4 позиции занимают наиболее часто используемые эмодзи пользователя (`frecency`), за которыми следует 5-й пункт `Добавить реакцию`:
    - `#0`: `id="message-actions-quickreact-0"`, текст `:thumbsup: :+1: :thumbup: :thumbs_up:` (глиф `👍`, шорткод `:thumbsup:`)
    - `#1`: `id="message-actions-quickreact-1"`, текст `:fire: :flame:` (глиф `🔥`, шорткод `:fire:`)

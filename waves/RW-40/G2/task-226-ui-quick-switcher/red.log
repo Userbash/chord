@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/feature-task-226-ui-quick-switcher/tests/unit/quick-switcher.test.mjs:11
+file:///home/user/orca/workspaces/project/feature-task-226-ui-quick-switcher/tests/unit/quick-switcher.test.mjs:11
   MAX_QUICK_SWITCHER_RESULTS,
   ^^^^^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/quick-switcher.js' does not provide an export named 'MAX_QUICK_SWITCHER_RESULTS'

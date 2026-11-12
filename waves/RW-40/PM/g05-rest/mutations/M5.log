@@ -68,9 +68,9 @@ test at tests/unit/server-menu.test.mjs:225:3
   + 'capability-unknown'
   - 'not-implemented'
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:232:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:226:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:232:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:226:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -89,9 +89,9 @@ test at tests/unit/server-menu.test.mjs:449:3
   + 'not-implemented'
   - 'capability-unknown'
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:452:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:450:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:452:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:450:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

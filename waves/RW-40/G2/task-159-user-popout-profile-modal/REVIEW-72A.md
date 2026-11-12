@@ -2,7 +2,7 @@
 
 - **Карточка**: `task-159` (`FE-P1-04: Попап карточки пользователя #user-popout и модалка полного профиля #user-profile-modal`)
 - **Волна / Отдел**: `RW-40` / `G2 Frontend`
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-159-user-popout-profile-modal`
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-159-user-popout-profile-modal`
 - **Ревьюер**: Technical Reviewer (Orca Worker)
 - **Дата**: 2026-10-30
 - **Статус / Вердикт**: **PASS / Ready for Merge**

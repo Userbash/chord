@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/gui-spike/src/core_bridge.rs:183:
+Diff in /home/user/orca/project/rust/gui-spike/src/core_bridge.rs:183:
  
      // Селектор ядра: возрастание числового id; окно равно числу сообщений
      // канала, поэтому вытеснения нет.
@@ -11,7 +11,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/core_bridge.rs:183:
 (B[m     let ids: Vec<String> = all.iter().map(|message| message.id.to_string()).collect();
      let start = data::cursor_start(&ids, cursor, "сообщений")?;
      let end = (start + limit).min(all.len());
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/core_bridge.rs:101:
+Diff in /home/user/orca/project/rust/gui-spike/tests/core_bridge.rs:101:
      for _ in 0..=MAX_PAGE_LIMIT {
          let bff = data::messages_page(&root, NEWS_CHANNEL, bff_cursor.as_deref(), Some(1))
              .expect("шаг BFF");
@@ -30,7 +30,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/tests/core_bridge.rs:101:
 (B[m             ids_of(&bff.items),
              "страница ядра = страница BFF на каждом шаге"
          );
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/core_bridge.rs:114:
+Diff in /home/user/orca/project/rust/gui-spike/tests/core_bridge.rs:114:
          assert_eq!(core.total, bff.total);
  
          // Повтор с тем же курсором — тот же результат (состояния нет).
@@ -47,7 +47,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/tests/core_bridge.rs:114:
 (B[m         assert_eq!(core_repeat.items, core.items, "повтор стабилен");
  
          bff_ids.extend(ids_of(&bff.items));
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/core_bridge.rs:138:
+Diff in /home/user/orca/project/rust/gui-spike/tests/core_bridge.rs:138:
      }
  
      assert_eq!(core_ids, bff_ids);

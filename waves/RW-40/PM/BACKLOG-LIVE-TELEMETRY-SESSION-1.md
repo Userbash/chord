@@ -1,7 +1,7 @@
 # PM Backlog — Live User Telemetry Session #1 (`2026-11-01T12:16:00Z` – `12:21:33Z`)
 
 - **Источник данных**: `/tmp/live-ui-telemetry.jsonl` (`786` записей) и `/tmp/discord-gui-spike.log` (`860` строк).
-- **Процесс**: `/home/sanya/orca/project/rust/target/debug/discord-gui-spike` (`PID 301514`).
+- **Процесс**: `/home/user/orca/project/rust/target/debug/discord-gui-spike` (`PID 301514`).
 
 ## 1. Хронология действий пользователя и вызванных функций
 
@@ -31,7 +31,7 @@
   - `[VOICE-RTC] WS RX BINARY op=25 seq=14 payload_len=71` -> `binary op 25 err: Invalid argument at index 0: type mismatch`
   - `[VOICE-RTC] WS RX BINARY op=30 seq=15 payload_len=1815` -> `binary op 30 err: Invalid argument at index 1: type mismatch`
   Из-за этого DAVE MLS Welcome не применяется в `discord_voice.node`, и входящие зашифрованные голосовые пакеты участников не декодируются.
-- **Эталон RE (`/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`, `RTCControlSocket.parseWebSocketMessage`)**:
+- **Эталон RE (`reference-oracle/decoded/4d2a64cb5df5fc4e_0`, `RTCControlSocket.parseWebSocketMessage`)**:
   В эталонном клиенте Discord `parseWebSocketMessage` передаёт в `updateMLSExternalSender(i)`, `processMLSProposals(i, cb)`, `prepareMLSCommitTransition(tid, i.slice(2), cb)` и `processMLSWelcome(tid, i.slice(2), cb)` объект **`Uint8Array`** (`Buffer`), а не `ArrayBuffer`. В `ws.rs:1841` вызывался `toAb(buf)` (`ArrayBuffer`), что приводило к отказу N-API проверки типов в `discord_voice.node`.
 - **Требуемое исправление**:
   Передавать `new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength)` (и `new Uint8Array(payload.buffer, payload.byteOffset, payload.byteLength)` для `op=29, 30`) напрямую в методы `conn.updateMLSExternalSender`, `conn.processMLSProposals`, `conn.prepareMLSCommitTransition`, `conn.processMLSWelcome`.
@@ -63,11 +63,11 @@
 
 ## 3. Выполненные исправления по результатам живой телеметрии (2026-11-01)
 
-1. **`CARD-TEL-001` (`P0` — Дешифрование DAVE MLS и звук участников в [`rust/crates/discord-core/src/ws.rs`](file:///home/sanya/orca/workspaces/project/unstable/rust/crates/discord-core/src/ws.rs#L1633-L1905))**:
+1. **`CARD-TEL-001` (`P0` — Дешифрование DAVE MLS и звук участников в [`rust/crates/discord-core/src/ws.rs`](file:///home/user/orca/workspaces/project/unstable/rust/crates/discord-core/src/ws.rs#L1633-L1905))**:
    - Исправлена передача бинарных кадров `op=25` (`updateMLSExternalSender`), `op=27` (`processMLSProposals`), `op=29` (`prepareMLSCommitTransition`) и `op=30` (`processMLSWelcome`) в `discord_voice.node` (передаётся `Buffer`/`Uint8Array` вместо `ArrayBuffer`, устранена ошибка `Invalid argument at index 0/1: type mismatch`).
    - Устранён повторный вызов `getMLSKeyPackage` внутри `op=25`, который сбрасывал ключ эпохи после `session_description`.
    - Добавлен повторный вызов `conn.mergeUsers(Array.from(remoteUsers.values()))` после `setTransportOptions` в `session_description` и после `executeSecureFramesTransition`, а также исключена перезапись `ssrc=0` при приходе `OP 18`.
-2. **`CARD-TEL-002` (`P0` — Зелёная обводка говорящих и исправление ложных иконок `self_mute`/`self_deaf` в [`rust/crates/discord-core/src/ws.rs`](file:///home/sanya/orca/workspaces/project/unstable/rust/crates/discord-core/src/ws.rs#L2624-L2800), [`rust/gui-spike/src/data.rs`](file:///home/sanya/orca/workspaces/project/unstable/rust/gui-spike/src/data.rs#L853-L1070) и [`rust/gui-spike/ui/app.js`](file:///home/sanya/orca/workspaces/project/unstable/rust/gui-spike/ui/app.js#L3696-L8225))**:
+2. **`CARD-TEL-002` (`P0` — Зелёная обводка говорящих и исправление ложных иконок `self_mute`/`self_deaf` в [`rust/crates/discord-core/src/ws.rs`](file:///home/user/orca/workspaces/project/unstable/rust/crates/discord-core/src/ws.rs#L2624-L2800), [`rust/gui-spike/src/data.rs`](file:///home/user/orca/workspaces/project/unstable/rust/gui-spike/src/data.rs#L853-L1070) и [`rust/gui-spike/ui/app.js`](file:///home/user/orca/workspaces/project/unstable/rust/gui-spike/ui/app.js#L3696-L8225))**:
    - Время удержания статуса говорящего (`speaking_users` при `flags != 0` от `OP 5` и `setOnSpeakingCallback`) увеличено с `850 мс` до `8 с` (со сбросом немедленно при приходе `flags == 0`), а частота опроса `voice_rtc_status` ускорена до `220 мс`.
    - В `isChannelAfk` (`ui/app.js`) отключено ложное срабатывание по `guild.afk_channel_id` на обычных голосовых каналах (`📞┃Качки`), а вход в AFK-комнату больше не мутирует пользовательский `selfVoicePrefs.muted` навсегда.
    - При снятии оглушения (`toggleSelfDeafenBoth(false)`) синхронно включаются и динамики (`deafened = false`), и микрофон (`muted = false`), а в списке участников голосового канала для `ShadowByte` больше не отображаются залипшие значки перечёркнутого микрофона/наушников из устаревшего снимка шлюза.

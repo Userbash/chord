@@ -23,7 +23,7 @@ test at tests/meta/design-breakpoints.test.mjs:233:3
   
   '240px' !== '200px'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/design-breakpoints.test.mjs:251:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/design-breakpoints.test.mjs:251:14)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -47,7 +47,7 @@ test at tests/meta/design-breakpoints.test.mjs:265:3
   
   'flex' !== 'none'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/design-breakpoints.test.mjs:271:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/design-breakpoints.test.mjs:271:14)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -65,7 +65,7 @@ test at tests/meta/design-breakpoints.test.mjs:265:3
 test at tests/meta/design-breakpoints.test.mjs:285:3
 ✖ скрытие панели перекрывает body[data-active-screen=chat] (специфичность) (0.153632ms)
   AssertionError [ERR_ASSERTION]: нет media-query, покрывающего 960px
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/design-breakpoints.test.mjs:288:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/design-breakpoints.test.mjs:288:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

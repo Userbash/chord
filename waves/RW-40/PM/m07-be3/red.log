@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0560]: struct `ReadStateEntry` has no field named `badge_count`
    --> tests/read_state_contract.rs:111:13
     |

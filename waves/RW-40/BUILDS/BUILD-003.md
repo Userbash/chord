@@ -1,7 +1,7 @@
 # BUILD-003 — Централизованная сборка `testing` для отдела G4 QA
 
 - **Номер сборки:** `BUILD-003`
-- **Целевая ветка интеграции:** `testing` (`/home/sanya/orca/workspaces/project/testing`)
+- **Целевая ветка интеграции:** `testing` (`/home/user/orca/workspaces/project/testing`)
 - **HEAD сборки:** `7f96e1b` — `Build-003 sync: merge PR-172 (task-292 app.js shell and popovers mount)`
 - **Источник интеграции:** `unstable` — окно `ebdb966..a071808`, **51 PR** (`PR-125`..`PR-175`)
 - **Дата редакции:** `2026-10-31`
@@ -114,9 +114,9 @@ node --test tests/unit/test-impact.test.mjs \
             tests/unit/voice-ui.test.mjs
 
 # 3. Контрактные тесты Rust BFF и ядра голоса
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract --test voice_stage_contract --test voice_diagnostics_contract
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test -p discord-voice --lib
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test -p discord-platform --test safe_storage_contract
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract --test voice_stage_contract --test voice_diagnostics_contract
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test -p discord-voice --lib
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test -p discord-platform --test safe_storage_contract
 ```
 
 ---

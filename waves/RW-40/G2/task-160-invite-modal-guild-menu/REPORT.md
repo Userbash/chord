@@ -4,9 +4,9 @@
 - **Карточка**: `task-160` (`FE-P1-05` из `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md`)
 - **Спецификации и контракты**:
   - `waves/RW-40/DESIGN/INVITES-SPEC.md` (§1 DOM-структура, a11y, clipboard);
-  - `waves/RW-40/RE-DEEP-REA.md` §4.3 (`POST /channels/{id}/invites`, опции max_age/max_uses);
+  - `waves/RW-40/reference-oracle-REA.md` §4.3 (`POST /channels/{id}/invites`, опции max_age/max_uses);
   - `rust/gui-spike/src/invites.rs`, `rust/gui-spike/src/notifications.rs`, `rust/gui-spike/src/main.rs` (`create_invite`, `leave_guild`, `resolve_invite`, `accept_invite`, `join_guild`).
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-160-invite-modal-guild-menu`
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-160-invite-modal-guild-menu`
 
 ---
 
@@ -26,7 +26,7 @@
      - Модалку выхода `#leave-guild-modal` (`role='dialog'`, `aria-modal='true'`): подтверждение с вызовом `leave_guild` (с `lurking: false`) и отмену выхода;
      - Модалку присоединения `#join-guild-modal` (`role='dialog'`, `aria-modal='true'`): валидацию кода/ссылки, вызовы `resolve_invite` и `accept_invite`/`join_guild`;
      - Очистку состояния и снятие обработчиков в `destroy()`.
-   - Зафиксировано падение до реализации в `/home/sanya/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/red.log`.
+   - Зафиксировано падение до реализации в `/home/user/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/red.log`.
 
 2. **Реализация модуля (`rust/gui-spike/ui/features/guild-modals.js`)**:
    - Модуль снабжён директивой `// @ts-check` и строгими JSDoc-типами;
@@ -40,7 +40,7 @@
 
 - **Команда**: `node --test tests/unit/guild-modals.test.mjs`
 - **Результат**: `tests 1 | pass 0 | fail 1` (модуль не найден)
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/red.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/red.log`
 
 ---
 
@@ -53,7 +53,7 @@
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json` → **0 ошибок** (exit 0)
   - `node --test --test-name-pattern="INT-07" tests/unit/gui-spike-features.test.mjs` → **11 pass, 0 fail** (exit 0)
   - `node --test tests/meta/test-policy.test.mjs tests/meta/ipc-path.test.mjs` → **29 pass, 0 fail** (exit 0)
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/green.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/green.log`
 
 ---
 
@@ -69,7 +69,7 @@
 | 4 | Подтверждение выхода из сервера | Убран вызов `invoker("leave_guild", ...)` | **KILLED** (тест 15 упал: `leave_guild не вызван`) |
 | 5 | Валидация кода приглашения | Пропуск проверки `CODE_RE.test(code)` в `normalizeInviteCode` | **KILLED** (тесты 01 и 17 упали на невалидных символах) |
 
-- **Лог мутаций**: `/home/sanya/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/mutations.log`
+- **Лог мутаций**: `/home/user/orca/project/waves/RW-40/G2/task-160-invite-modal-guild-menu/mutations.log`
 
 ---
 

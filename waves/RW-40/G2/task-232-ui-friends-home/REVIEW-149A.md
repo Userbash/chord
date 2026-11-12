@@ -17,7 +17,7 @@
 | Вкладка `add` — форма `[data-add-friend-form]`, `[data-add-friend-input]`, `[data-add-friend-submit]`, вызов `onSendFriendRequest(username.trim())`, пустой ввод не отправляется | DOM-тест 3 | OK |
 | A11y: `role="region"`/`region` label, `role="tablist"`/`tab`, `aria-selected`, `tabindex` ротация, `aria-label` у кнопок и поиска | чтение кода, `syncHeaderAndTabsDom` | OK |
 
-Тесты сверяют контракт с RE-оракулом (`/home/sanya/re-deep/decoded/…`), а не с текущей реализацией: коды типов, набор вкладок и состав «В сети» (`online | idle | dnd`) заданы независимо от кода.
+Тесты сверяют контракт с RE-оракулом (`reference-oracle/decoded/…`), а не с текущей реализацией: коды типов, набор вкладок и состав «В сети» (`online | idle | dnd`) заданы независимо от кода.
 
 ## 2. Целевой прогон
 

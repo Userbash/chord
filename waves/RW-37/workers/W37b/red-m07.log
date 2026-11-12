@@ -22,7 +22,7 @@ test at tests/unit/gui-spike-model.test.mjs:308:3
   -   id: 0
   - }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:327:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:327:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 2)
       at async Suite.run (node:internal/test_runner/test:1905:7)

@@ -11,7 +11,7 @@
 ## 1. Резюме Выполненной Работы
 
 1. **Проведён полный аудит дизайн-токенов V2 (`204` канонических `:root`-переменных в `rust/gui-spike/ui/tokens.css`):**
-   - Проверены все 15 функциональных секций (`§0..§14`), метки происхождения `[M]` (`/home/sanya/re-deep/frontend-d03.md`), `[T]` (`/home/sanya/re-deep/ui/tokens.json`, `4795` переменных), `[L]` (`waves/RW-37/RE/layout.json`), `[A]` (WCAG 2.2 AA/AAA) и `[F]` (фокус/интеракции).
+   - Проверены все 15 функциональных секций (`§0..§14`), метки происхождения `[M]` (`reference-oracle/frontend-d03.md`), `[T]` (`reference-oracle/ui/tokens.json`, `4795` переменных), `[L]` (`waves/RW-37/RE/layout.json`), `[A]` (WCAG 2.2 AA/AAA) и `[F]` (фокус/интеракции).
    - Подтверждено отсутствие циклов `var(--*)` (максимальная глубина разрешения `<= 2` шага при лимите `8`), отсутствие `!important` и внешних ресурсов.
 2. **Выполнен математический аудит контрастности WCAG 2.2 AA/AAA в трёх цветовых темах:**
    - **Dark Theme (`tokens.css`):** проверены `10` текстовых токенов × `8` поверхностей (`--bg-app` `#121214` .. `--surface-4` `#2c2d32`), `6` пар текст-на-заливке кнопок/бейджей (`--accent`, `--danger-fill`, `--warning`), `10` нетекстовых UI-токенов (`--focus-ring`, `--status-*`, `--scrollbar-thumb`), `360` оттенков палитры аватаров `hsl(0..359, 45%, 32%)` и `16` композиций полупрозрачных состояний `--state-hover`/`--state-active`/`--state-selected`.
@@ -84,7 +84,7 @@
 Команда: `node --test tests/meta/design-tokens-contrast.test.mjs`
 ```text
 ▶ TASK-631: 4. Сверка с RE-оракулом frontend-d03.md, спекой design-tokens-v2.md и брейкпоинтами
-  ✔ эталон /home/sanya/re-deep/frontend-d03.md согласован с размерами и цветами 12 Mana-компонентов в tokens.css (0.36713ms)
+  ✔ эталон reference-oracle/frontend-d03.md согласован с размерами и цветами 12 Mana-компонентов в tokens.css (0.36713ms)
   ✖ docs/specs/design-tokens-v2.md и waves/RW-40/DESIGN/DESIGN-TOKENS-V2.md существуют и содержат полный контракт V2 (0.581671ms)
     AssertionError [ERR_ASSERTION]: Отсутствует спецификация docs/specs/design-tokens-v2.md (false !== true)
   ✖ брейкпоинты в tokens.css, style.css, design-breakpoints.test.mjs и design-tokens-v2.md полностью синхронны (0.1447ms)
@@ -108,7 +108,7 @@
 | **M1** | Dark Theme WCAG 2.2 AAA (`--text` `>= 7.0:1`) | Временная подмена `--text: #efeff1` → `--text: #555555` в `tokens.css` | Упал тест `все основные текстовые токены проходят WCAG 2.2 AA` и `--text-strong и --text проходят повышенный порог WCAG 2.2 AAA` | **KILLED** |
 | **M2** | Light Theme WCAG 2.2 AA (`160` пар) | Временная подмена `--text-muted` `#696a73` → `#999999` в проверке Light-темы | Упал тест `Light Theme (57 переопределений): все текстовые, парные и нетекстовые токены проходят матрицу WCAG 2.2 AA` | **KILLED** |
 | **M3** | Midnight Theme OLED (`--bg-app: #000000`) | Временная подмена `MIDNIGHT_SURFACES["--bg-app"]` `#000000` → `#606060` | Упал тест `Midnight (OLED) Theme: все 10 текстовых токенов проходят >= 4.5:1 на всех 8 поверхностях` | **KILLED** |
-| **M4** | RE-оракул `frontend-d03.md` (`--modal-w-sm: 442px`) | Временная подмена `--modal-w-sm: 442px` → `400px` в `tokens.css` | Упал тест `эталон /home/sanya/re-deep/frontend-d03.md согласован с размерами и цветами 12 Mana-компонентов` | **KILLED** |
+| **M4** | RE-оракул `frontend-d03.md` (`--modal-w-sm: 442px`) | Временная подмена `--modal-w-sm: 442px` → `400px` в `tokens.css` | Упал тест `эталон reference-oracle/frontend-d03.md согласован с размерами и цветами 12 Mana-компонентов` | **KILLED** |
 | **M5** | Синхронность брейкпоинтов (`311px` / `1600px`) | Временное удаление `311px` из `docs/specs/design-tokens-v2.md` | Упал тест `брейкпоинты в tokens.css, style.css, design-breakpoints.test.mjs и design-tokens-v2.md полностью синхронны` | **KILLED** |
 
 Все файлы после мутационных проверок восстановлены побайтово.

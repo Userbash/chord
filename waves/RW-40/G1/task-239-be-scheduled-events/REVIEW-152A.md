@@ -19,7 +19,7 @@
 ## 2. Целевой прогон
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
 cargo test --manifest-path rust/gui-spike/Cargo.toml --test scheduled_events_contract
 ```
 

@@ -21,7 +21,7 @@
 
 ## 2. Результаты запуска тестов и линтера
 
-Тесты и clippy запущены в изолированном workspace `rust/gui-spike` с общим `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Тесты и clippy запущены в изолированном workspace `rust/gui-spike` с общим `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 - **`cargo test --manifest-path rust/gui-spike/Cargo.toml --test attachments_contract --lib`**:
   - `src/lib.rs`: 17 passed, 0 failed, 0 ignored.
   - `tests/attachments_contract.rs`: 30 passed (23 существующих + 7 новых), 0 failed, 0 ignored.
@@ -50,7 +50,7 @@
 
 1. **Безопасность и валидация:** Все проверки аргументов (длина, схема HTTPS, ASCII, отсутствие дубликатов) выполняются локально до осуществления сетевого I/O, исключая спам сервера невалидными запросами.
 2. **Типизация ошибок:** Все статусы Discord REST API корректно маппятся в строгие enum-варианты `AttachmentError` (`RateLimited`, `Unauthorized`, `Forbidden`, `NotFound`, `Server`, `Client`, `Network`).
-3. **Совместимость с RE-оракулом:** Контракт точно соответствует дампу Discord (`/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0:149`) и документации REST маршрутов (`POST /attachments/refresh-urls`).
+3. **Совместимость с RE-оракулом:** Контракт точно соответствует дампу Discord (`reference-oracle/decoded/4d2a64cb5df5fc4e_0:149`) и документации REST маршрутов (`POST /attachments/refresh-urls`).
 4. **Конфиденциальность:** Ошибки `AttachmentError` не логируют и не передают токены авторизации или тело файлов.
 
 ---

@@ -111,19 +111,19 @@ PASS contrast white on danger-fill: 4.850 >= 4.5
 PASS contrast white on accent: 4.607 >= 4.5
 PASS contrast text-accent on surface-2: 7.543 >= 4.5
 INFO md5:
-  49e5186e3ce759a6b6bfc063492f6dfa  /home/sanya/orca/project/waves/RW-40/DESIGN/SERVER-MENU.md
-  a165fe3bfdc4867a14aa6e6419775901  /home/sanya/orca/project/waves/RW-40/DESIGN/server-menu.json
-  61dbfe70f8bf9ab88a7dabd5ef0e0e9f  /home/sanya/orca/project/rust/gui-spike/ui/tokens.css
-  79ed101289ac9630fbf5687b2238915b  /home/sanya/orca/project/waves/RW-40/NETWORK-CONTRACTS.md
-  c7e61929677efab6bdac86a05a778fce  /home/sanya/orca/project/docs/re/rest-d02.md
-  7030bafa672a590ccacbe47a676deb0f  /home/sanya/orca/project/waves/RW-39/DESIGN/SPEC.md
-  5d583d15aaef56d892e7a97a4d5fb6af  /home/sanya/orca/project/waves/RW-40/DESIGN/DESIGN-MSG.md
-  2d4cf3d8758de702d1b8620884a80d3a  /home/sanya/orca/project/waves/RW-40/THEME-SPEC.md
-  8c24a205e5a17f02c0d48a68c47e1dc7  /home/sanya/re-deep/ui2/D1-guild-menu.png
-  e801194f00372eae6ca596ee64bc9aeb  /home/sanya/re-deep/ui2/D1-guild-menu-items.json
-  be94a21ec6ad0ef0a7b1c4c04979bc57  /home/sanya/re-deep/ui2/00-start.fingerprint.json
-  09272320cecfa79d479a2b03df7adce1  /home/sanya/re-deep/ru-catalog.json
-  630d448ac34a78835b2d9b3c201e597c  /home/sanya/re-deep/ui/tokens.json
+  49e5186e3ce759a6b6bfc063492f6dfa  /home/user/orca/project/waves/RW-40/DESIGN/SERVER-MENU.md
+  a165fe3bfdc4867a14aa6e6419775901  /home/user/orca/project/waves/RW-40/DESIGN/server-menu.json
+  61dbfe70f8bf9ab88a7dabd5ef0e0e9f  /home/user/orca/project/rust/gui-spike/ui/tokens.css
+  79ed101289ac9630fbf5687b2238915b  /home/user/orca/project/waves/RW-40/NETWORK-CONTRACTS.md
+  c7e61929677efab6bdac86a05a778fce  /home/user/orca/project/docs/re/rest-d02.md
+  7030bafa672a590ccacbe47a676deb0f  /home/user/orca/project/waves/RW-39/DESIGN/SPEC.md
+  5d583d15aaef56d892e7a97a4d5fb6af  /home/user/orca/project/waves/RW-40/DESIGN/DESIGN-MSG.md
+  2d4cf3d8758de702d1b8620884a80d3a  /home/user/orca/project/waves/RW-40/THEME-SPEC.md
+  8c24a205e5a17f02c0d48a68c47e1dc7  /home/user/clean-room-oracle/ui2/D1-guild-menu.png
+  e801194f00372eae6ca596ee64bc9aeb  /home/user/clean-room-oracle/ui2/D1-guild-menu-items.json
+  be94a21ec6ad0ef0a7b1c4c04979bc57  /home/user/clean-room-oracle/ui2/00-start.fingerprint.json
+  09272320cecfa79d479a2b03df7adce1  /home/user/clean-room-oracle/ru-catalog.json
+  630d448ac34a78835b2d9b3c201e597c  /home/user/clean-room-oracle/ui/tokens.json
 
 checks=111 failures=0
 RESULT: OK

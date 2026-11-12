@@ -1,7 +1,7 @@
 # Независимое ревью — task-125-test-impact-v2 (Review 44A)
 
 Дата: **2026-10-30, 20:56–21:06 +05**. Ревьюер: `DeepSeek V4.1 Flash` (`Review 44A`), независимая сессия.
-Репозиторий: `/home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2`, HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`
+Репозиторий: `/home/user/orca/workspaces/project/qa-task-125-test-impact-v2`, HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`
 (`RW-40: integrate Discord GUI spike, dispatch, paging and QA evidence`), ветка `qa/task-125-test-impact-v2`.
 
 Ревьюируемые артефакты (MD5 зафиксированы на момент проверки; любая правка инвалидирует ревью):

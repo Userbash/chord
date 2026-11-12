@@ -1,6 +1,6 @@
 # Mutation run — G-01b-UI-SETTINGS-MUTATIONS (RW-40)
 
-Repository: /home/sanya/orca/project
+Repository: /home/user/orca/project
 Target test: tests/unit/guild-rail.test.mjs
 Mutation target: rust/gui-spike/ui/features/settings.js
 Node: v26.13.0

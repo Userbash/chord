@@ -12,12 +12,12 @@
 - `tests/unit/event-banner.test.mjs`
 - `tests/unit/guild-boost.test.mjs`
 - `tests/unit/poll-card.test.mjs`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-277-ui-batch-typecheck-fix/red.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-277-ui-batch-typecheck-fix/green.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-277-ui-batch-typecheck-fix/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/G2/task-277-ui-batch-typecheck-fix/red.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-277-ui-batch-typecheck-fix/green.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-277-ui-batch-typecheck-fix/REPORT.md`
 
 ## Шаги выполнения (Strict TDD: Red -> Green)
-1. **Red:** Запусти `npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E "thread-badge|chat-helpers-bridge|slowmode\.test|event-banner\.test|guild-boost\.test|poll-card\.test"` и сохрани вывод (10 ошибок TS) в `/home/sanya/orca/project/waves/RW-40/G2/task-277-ui-batch-typecheck-fix/red.log`.
+1. **Red:** Запусти `npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E "thread-badge|chat-helpers-bridge|slowmode\.test|event-banner\.test|guild-boost\.test|poll-card\.test"` и сохрани вывод (10 ошибок TS) в `/home/user/orca/project/waves/RW-40/G2/task-277-ui-batch-typecheck-fix/red.log`.
 2. **Green:** Исправь JSDoc-аннотации и вызовы в этих 7 файлах (без ослабления проверок тестов и без `@ts-ignore`/`@ts-expect-error`, где проверяется валидный тип; для намеренно невалидных входов в негативных тестах используй `/** @type {any} */ (...)`).
 3. **Проверка:**
    - `npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E "thread-badge|chat-helpers-bridge|slowmode\.test|event-banner\.test|guild-boost\.test|poll-card\.test"` — должно быть **0 строк**!

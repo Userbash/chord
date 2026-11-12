@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,21 +11,21 @@ reasoning summaries: none
 session id: 01a164c4-2bc5-7220-9d9c-50614276a3c7
 --------
 user
-Независимое ревью RW-31/P6-06 power/idle. ЖЁСТКИЕ ПРАВИЛА: (1) НЕ редактируй файлы в /home/sanya/orca/project — только чтение; (2) писать только в /tmp/opencode/w31a-codex, НЕ копируй весь workspace (без target/.git); (3) CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a; (4) без сети/git commit. Проверь: waves/RW-31/TZ-W31a.md, RE-POWER.md; discord-platform/src/power.rs; src/lib.rs (+1 строка); tests/power_contract.rs; waves/RW-31/power/mock_power.py; fixtures/dbus/power.json; логи workers/W31a; run-mutations-w31a.py; REPORT-W31a.md. Воспроизведи targeted-тесты (12) в своём target-dir и мутации в /tmp-копии (7/7, restore по md5, baseline без SKIP), проверь контракт: ScreenSaver Inhibit/UnInhibit(+fallback)/IsActive/GetSessionIdleTime (UnknownMethod→Ok(None)), PowerMonitor PrepareForSleep(true/false), таймаут Ok(None), фильтр чужих сигналов, IdlePolicy границы/переполнение, пустые app/reason → Protocol, отсутствие unsafe/panic/unwrap/expect, md5 в отчёте. В конце вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
+Независимое ревью RW-31/P6-06 power/idle. ЖЁСТКИЕ ПРАВИЛА: (1) НЕ редактируй файлы в /home/user/orca/project — только чтение; (2) писать только в /tmp/opencode/w31a-codex, НЕ копируй весь workspace (без target/.git); (3) CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a; (4) без сети/git commit. Проверь: waves/RW-31/TZ-W31a.md, RE-POWER.md; discord-platform/src/power.rs; src/lib.rs (+1 строка); tests/power_contract.rs; waves/RW-31/power/mock_power.py; fixtures/dbus/power.json; логи workers/W31a; run-mutations-w31a.py; REPORT-W31a.md. Воспроизведи targeted-тесты (12) в своём target-dir и мутации в /tmp-копии (7/7, restore по md5, baseline без SKIP), проверь контракт: ScreenSaver Inhibit/UnInhibit(+fallback)/IsActive/GetSessionIdleTime (UnknownMethod→Ok(None)), PowerMonitor PrepareForSleep(true/false), таймаут Ok(None), фильтр чужих сигналов, IdlePolicy границы/переполнение, пустые app/reason → Protocol, отсутствие unsafe/panic/unwrap/expect, md5 в отчёте. В конце вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала проверю исходный `HEAD`, рабочее состояние и точные ревью-артефакты по контексту проекта. Все команды, записи и мутационные прогоны направлю в указанный каталог `/tmp`; исходный workspace останется только для чтения.
 exec
-/usr/bin/bash -lc "sed -n '1,220p' PROJECT-CONTEXT.md && git rev-parse HEAD && git status --short && rg --files waves/RW-31 workers | rg '("'^waves/RW-31/(TZ-W31a'"\\.md|RE-POWER\\.md|REPORT-W31a\\.md|power/mock_power\\.py)|power_contract\\.rs|W31a|run-mutations-w31a\\.py)'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' PROJECT-CONTEXT.md && git rev-parse HEAD && git status --short && rg --files waves/RW-31 workers | rg '("'^waves/RW-31/(TZ-W31a'"\\.md|RE-POWER\\.md|REPORT-W31a\\.md|power/mock_power\\.py)|power_contract\\.rs|W31a|run-mutations-w31a\\.py)'" in /home/user/orca/project
  succeeded in 0ms:
 # discord-lab: session checkpoint (сжатый контекст)
 
@@ -34,7 +34,7 @@ exec
 
 ## Состояние
 
-- `/home/sanya/orca/project`, `main`, HEAD `ebf5efd`; принятые волны RW-10…RW-29 закоммичены и запушены; RW-30 — коммит
+- `/home/user/orca/project`, `main`, HEAD `ebf5efd`; принятые волны RW-10…RW-29 закоммичены и запушены; RW-30 — коммит
   следующим шагом; коммиты/пуш — координатор.
 - **Принято 42 / 90** карточек (хвосты P7-01b/c/d/e в 90 не входят). Последние волны 2026-10-22:
   - **RW-30**: P7-01d DurationFormat, P6-02 D-Bus-уведомления (headless, без новых крейтов);
@@ -64,7 +64,7 @@ exec
 ## Правила (кратко)
 
 - Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
-- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение.
 - Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
 - Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
 
@@ -87,8 +87,8 @@ MCP: rea, socraticode, github, basic-memory, context7.
   `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
   ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
 - RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
-  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
-  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+  `/home/user/clean-room-oracle/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/user/qwen-uncens` из запроса не существует.
 - P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
   `ru-RU`-fallback) — в `waves/STATE.md` §7.
 171a6d597620cc99c9bfb35f9c1121c0e9336364
@@ -116,7 +116,7 @@ waves/RW-31/power/mock_power.py
 codex
 В рабочем дереве уже лежат незакоммиченные файлы RW-31, поэтому ревью относится к текущему содержимому при `HEAD 171a6d5`, а не к старому checkpoint в `PROJECT-CONTEXT.md`. Прочитаю только правила отчёта/гейта и конкретные контрактные материалы, затем соберу отдельную копию проверяемых файлов в `/tmp` без `.git` и `target`.
 exec
-/usr/bin/bash -lc "sed -n '1,220p' .agents/skills/discord-lab-context/SKILL.md; rg -n '§ ?4\\.2|4\\.2|red|mutation|P6-06|RW-31' PROCESS.md docs/rust-client/TEAM.md TASKS.md TDD-PLAN.md waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' .agents/skills/discord-lab-context/SKILL.md; rg -n '§ ?4\\.2|4\\.2|red|mutation|P6-06|RW-31' PROCESS.md docs/rust-client/TEAM.md TASKS.md TDD-PLAN.md waves/STATE.md" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -153,7 +153,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -310,7 +310,7 @@ TASKS.md:755:закрыты координатором red-first (`/tmp/opencode
 TASKS.md:756:по целевым, `# EXIT=101`, md5 теста `fbb4e1bf…`, копия `dispatch_router-gap-red.rs`); продукт
 TASKS.md:776:теста W8a и добавления кейса N6 red переснят (см. `waves/RW-08/red/`). Итоги: `discord-core`
 TASKS.md:779:(red 0/11 → green 11/11, `# EXIT=101`). Отчёт: `waves/RW-08/report.md`; ревью:
-TASKS.md:787:`/home/sanya/re-deep/d02-snapshot` (requestId `95974.2323`; md5 выдержек в ТЗ). Новые зависимости
+TASKS.md:787:`/home/user/clean-room-oracle/d02-snapshot` (requestId `95974.2323`; md5 выдержек в ТЗ). Новые зависимости
 TASKS.md:794:red переснят (`waves/RW-09/red/`; mutation-red — `w9a-red-mutation-n1.log`). Итоги: `discord-core`
 TASKS.md:796:«принято с нитами», 20/21 мутаций; ниты N1/N6 закрыты red-first, N4/N5 исправлены, N2 аннотирован,
 TASKS.md:840:- Процесс (нит ревью RW-04): в red/green-логи волн включать `# EXIT=…` и md5 тест-файла — связь
@@ -344,7 +344,7 @@ docs/rust-client/TEAM.md:234:| b | `voice/{reducer}` + v07–v11 | `typing/{redu
 docs/rust-client/TEAM.md:235:| c | `voice/{selectors}` + v12–v15 | `typing/{selectors}` + t11–t15 | QA/mutations; gate |
 
 exec
-/usr/bin/bash -lc "sed -n '1,210p' waves/RW-31/TZ-W31a.md; sed -n '1,240p' waves/RW-31/RE-POWER.md; sed -n '1,260p' waves/RW-31/REPORT-W31a.md; sed -n '1,260p' rust/crates/discord-platform/src/power.rs; sed -n '1,80p' rust/crates/discord-platform/src/lib.rs;" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,210p' waves/RW-31/TZ-W31a.md; sed -n '1,240p' waves/RW-31/RE-POWER.md; sed -n '1,260p' waves/RW-31/REPORT-W31a.md; sed -n '1,260p' rust/crates/discord-platform/src/power.rs; sed -n '1,80p' rust/crates/discord-platform/src/lib.rs;" in /home/user/orca/project
  succeeded in 0ms:
 # TZ W31a — P6-06 Питание и idle (headless)
 
@@ -409,7 +409,7 @@ impl IdlePolicy {
 ## 2. Доказательная база
 
 `waves/RW-31/RE-POWER.md`: `POWER_MONITOR_*` IPC-каналы и `POWER_SAVE_BLOCKER_*`
-(`/home/sanya/re-deep/backend-ipc.md`), `discord_utils` (Wayland-idle, X11) в
+(`/home/user/clean-room-oracle/backend-ipc.md`), `discord_utils` (Wayland-idle, X11) в
 `docs/re/architecture.md`, `native-re.md` §WaylandIdleManager. Точные пороги idle→status в RE
 не зафиксированы — вынесены в конфигурацию с явной пометкой.
 
@@ -446,7 +446,7 @@ cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w31a cargo test --offline -p di
 red-лог с exit code → green → мутации (restore по md5) → отчёт `waves/RW-31/REPORT-W31a.md`.
 # RE: питание, ингибиторы и idle (P6-06)
 
-Дата: 2026-10-22. Источник — только чтение `/home/sanya/re-deep/backend-ipc.md`,
+Дата: 2026-10-22. Источник — только чтение `/home/user/clean-room-oracle/backend-ipc.md`,
 `main-arch.md`, `native-re.md`, `docs/re/architecture.md`.
 
 ## 1. Что делает клиент
@@ -922,7 +922,7 @@ mod tests {
 }
 
 exec
-/usr/bin/bash -lc "sed -n '240,420p' rust/crates/discord-platform/src/power.rs; sed -n '1,360p' rust/crates/discord-platform/tests/power_contract.rs; sed -n '1,240p' waves/RW-31/run-mutations-w31a.py; sed -n '1,180p' waves/RW-31/power/mock_power.py; cat fixtures/dbus/power.json; cat rust/Cargo.toml; cat rust/crates/discord-platform/Cargo.toml; md5sum rust/crates/discord-platform/src/power.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/tests/power_contract.rs waves/RW-31/power/mock_power.py fixtures/dbus/power.json waves/RW-31/run-mutations-w31a.py waves/RW-31/workers/W31a/red.log waves/RW-31/workers/W31a/green.log waves/RW-31/mutations-w31a.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '240,420p' rust/crates/discord-platform/src/power.rs; sed -n '1,360p' rust/crates/discord-platform/tests/power_contract.rs; sed -n '1,240p' waves/RW-31/run-mutations-w31a.py; sed -n '1,180p' waves/RW-31/power/mock_power.py; cat fixtures/dbus/power.json; cat rust/Cargo.toml; cat rust/crates/discord-platform/Cargo.toml; md5sum rust/crates/discord-platform/src/power.rs rust/crates/discord-platform/src/lib.rs rust/crates/discord-platform/tests/power_contract.rs waves/RW-31/power/mock_power.py fixtures/dbus/power.json waves/RW-31/run-mutations-w31a.py waves/RW-31/workers/W31a/red.log waves/RW-31/workers/W31a/green.log waves/RW-31/mutations-w31a.log" in /home/user/orca/project
  succeeded in 0ms:
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct IdlePolicy {
@@ -1845,7 +1845,7 @@ b03fcea3a8b81c9970164777314cf8c0  waves/RW-31/workers/W31a/green.log
 codex
 Файловые MD5 из отчёта совпадают с текущими файлами. Обнаружилась важная проверка для мутационного скрипта: он жёстко вычисляет корень по собственному расположению и пишет `mutations-w31a.log` рядом с собой, поэтому запускаю его только после выборочного staging нужных исходников в `/tmp`, с тем же относительным деревом путей и отдельным target-dir.
 exec
-/usr/bin/bash -lc "sed -n '1,90p' rust/crates/discord-platform/src/dbus/mod.rs; sed -n '1,100p' rust/crates/discord-platform/src/dbus.rs; tail -n 8 waves/RW-31/workers/W31a/red.log; tail -n 20 waves/RW-31/workers/W31a/green.log; sed -n '150,215p' PROCESS.md; rg -n 'P6-06|RW-31' TASKS.md TDD-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,90p' rust/crates/discord-platform/src/dbus/mod.rs; sed -n '1,100p' rust/crates/discord-platform/src/dbus.rs; tail -n 8 waves/RW-31/workers/W31a/red.log; tail -n 20 waves/RW-31/workers/W31a/green.log; sed -n '150,215p' PROCESS.md; rg -n 'P6-06|RW-31' TASKS.md TDD-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 //! P6-02: минимальный D-Bus-клиент на `std` (без `zbus`/`notify-rust`, без `unsafe`).
 //!
@@ -2035,15 +2035,15 @@ DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; фай�
 TASKS.md:41:headless-остатки — P6-06 (power/idle) и P2-03 (SQLite через FFI, см. `waves/RW-31/`).
 
 exec
-/usr/bin/bash -lc "rg -n 'repo_path\\(' rust/crates/discord-platform/tests/power_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n 'repo_path\\(' rust/crates/discord-platform/tests/power_contract.rs" in /home/user/orca/project
  succeeded in 0ms:
 83:            .arg(repo_path("waves/RW-31/power/mock_power.py"))
 182:fn repo_path(relative: &str) -> PathBuf {
 
 exec
-/usr/bin/bash -lc "mkdir -p /tmp/opencode/w31a-codex/rust/crates/discord-platform /tmp/opencode/w31a-codex/waves/RW-31/power /tmp/opencode/w31a-codex/fixtures/dbus /tmp/opencode/target-codex-w31a && cp -a rust/crates/discord-platform/src /tmp/opencode/w31a-codex/rust/crates/discord-platform/ && mkdir -p /tmp/opencode/w31a-codex/rust/crates/discord-platform/tests && cp rust/crates/discord-platform/tests/power_contract.rs /tmp/opencode/w31a-codex/rust/crates/discord-platform/tests/ && cp waves/RW-31/power/mock_power.py waves/RW-31/run-mutations-w31a.py /tmp/opencode/w31a-codex/waves/RW-31/ && cp fixtures/dbus/power.json /tmp/opencode/w31a-codex/fixtures/dbus/ && cp waves/RW-31/run-mutations-w31a.py /tmp/opencode/w31a-codex/waves/RW-31/ && cp waves/RW-31/power/mock_power.py /tmp/opencode/w31a-codex/waves/RW-31/power/ && printf '[package]\\nname = \"discord-platform\"\\nversion = \"0.1.0\"\\nedition = \"2024\"\\n\\n[lints.rust]\\nunsafe_code = \"forbid\"\\n' > /tmp/opencode/w31a-codex/rust/crates/discord-platform/Cargo.toml && printf '[workspace]\\nmembers = [\"crates/discord-platform\"]\\nresolver = \"2\"\\n' > /tmp/opencode/w31a-codex/rust/Cargo.toml && CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a cargo test --offline -p discord-platform --test power_contract" in /home/sanya/orca/project
+/usr/bin/bash -lc "mkdir -p /tmp/opencode/w31a-codex/rust/crates/discord-platform /tmp/opencode/w31a-codex/waves/RW-31/power /tmp/opencode/w31a-codex/fixtures/dbus /tmp/opencode/target-codex-w31a && cp -a rust/crates/discord-platform/src /tmp/opencode/w31a-codex/rust/crates/discord-platform/ && mkdir -p /tmp/opencode/w31a-codex/rust/crates/discord-platform/tests && cp rust/crates/discord-platform/tests/power_contract.rs /tmp/opencode/w31a-codex/rust/crates/discord-platform/tests/ && cp waves/RW-31/power/mock_power.py waves/RW-31/run-mutations-w31a.py /tmp/opencode/w31a-codex/waves/RW-31/ && cp fixtures/dbus/power.json /tmp/opencode/w31a-codex/fixtures/dbus/ && cp waves/RW-31/run-mutations-w31a.py /tmp/opencode/w31a-codex/waves/RW-31/ && cp waves/RW-31/power/mock_power.py /tmp/opencode/w31a-codex/waves/RW-31/power/ && printf '[package]\\nname = \"discord-platform\"\\nversion = \"0.1.0\"\\nedition = \"2024\"\\n\\n[lints.rust]\\nunsafe_code = \"forbid\"\\n' > /tmp/opencode/w31a-codex/rust/crates/discord-platform/Cargo.toml && printf '[workspace]\\nmembers = [\"crates/discord-platform\"]\\nresolver = \"2\"\\n' > /tmp/opencode/w31a-codex/rust/Cargo.toml && CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a cargo test --offline -p discord-platform --test power_contract" in /home/user/orca/project
  exited 101 in 0ms:
-error: could not find `Cargo.toml` in `/home/sanya/orca/project` or any parent directory
+error: could not find `Cargo.toml` in `/home/user/orca/project` or any parent directory
 
 exec
 /usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31a cargo test --offline -p discord-platform --test power_contract' in /tmp/opencode/w31a-codex/rust
@@ -2129,7 +2129,7 @@ edec791b89e87b927f8e387deb8b1bbf  /tmp/opencode/w31a-codex/waves/RW-31/mutations
 codex
 Изоляция выявила, что sandbox запрещает `dbus-daemon` bind-ить приватный unix-сокет. В обычном тестовом выводе skip-причины скрываются harness’ом, из-за чего мутационный скрипт засчитывает такой baseline как `SKIP=0`; фактически в replay выжили D-Bus-мутации. Проверю номера строк и связанные таймауты, затем зафиксирую вердикт с ограничением воспроизведения.
 exec
-/usr/bin/bash -lc "nl -ba waves/RW-31/run-mutations-w31a.py | sed -n '60,145p'; nl -ba rust/crates/discord-platform/src/power.rs | sed -n '150,255p'; nl -ba rust/crates/discord-platform/src/dbus/mod.rs | sed -n '235,305p'; nl -ba rust/crates/discord-platform/tests/power_contract.rs | sed -n '45,105p;350,570p'; rg -n 'SKIP|skip|baseline|test result|EXIT' waves/RW-31/workers/W31a/red.log waves/RW-31/workers/W31a/green.log waves/RW-31/mutations-w31a.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba waves/RW-31/run-mutations-w31a.py | sed -n '60,145p'; nl -ba rust/crates/discord-platform/src/power.rs | sed -n '150,255p'; nl -ba rust/crates/discord-platform/src/dbus/mod.rs | sed -n '235,305p'; nl -ba rust/crates/discord-platform/tests/power_contract.rs | sed -n '45,105p;350,570p'; rg -n 'SKIP|skip|baseline|test result|EXIT' waves/RW-31/workers/W31a/red.log waves/RW-31/workers/W31a/green.log waves/RW-31/mutations-w31a.log" in /home/user/orca/project
  succeeded in 0ms:
     60	            | "org.freedesktop.DBus.Error.UnknownInterface"
     61	    )
@@ -2700,7 +2700,7 @@ waves/RW-31/workers/W31a/green.log:21:# EXIT=0
 waves/RW-31/workers/W31a/red.log:45:# EXIT=101
 
 exec
-/usr/bin/bash -lc "sed -n '1,90p' waves/RW-31/mutations-w31a.log; sed -n '1,90p' /tmp/opencode/w31a-codex/waves/RW-31/mutations-w31a.log; sed -n '570,630p' rust/crates/discord-platform/tests/power_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,90p' waves/RW-31/mutations-w31a.log; sed -n '1,90p' /tmp/opencode/w31a-codex/waves/RW-31/mutations-w31a.log; sed -n '570,630p' rust/crates/discord-platform/tests/power_contract.rs" in /home/user/orca/project
  succeeded in 0ms:
 # W31a — мутации питания/idle
 
@@ -2921,16 +2921,16 @@ test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 codex
 **Вердикт: доработка.** Текущий replay в заданном sandbox не подтверждает D-Bus-контракт и 7/7 мутаций: `dbus-daemon` не может bind-ить приватный сокет. Без `--nocapture` skip-причины скрыты тестовым harness’ом, поэтому скрипт считает их нулём. Отчёт заявляет успешный прогон, но независимо подтвердить его здесь не удалось.
 
-- **P1 — тесты и мутации:** в [run-mutations-w31a.py](/home/sanya/orca/project/waves/RW-31/run-mutations-w31a.py:132) baseline ищет `SKIP:` в обычном выводе `cargo test`; replay показал, что skip-сообщения скрыты harness’ом. Поэтому `SKIP=0` не доказывает запуск интеграционных кейсов, а результаты мутаций могут быть ложноположительными. Нужен способ надёжно выявлять skip и повторный прогон с доступным приватным D-Bus.
-- **P2 — таймаут:** [power.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/power.rs:187) повторно передаёт полный `timeout` после каждого пропущенного сигнала. Поток чужих сигналов может продлить ожидание сверх заданного срока. Рассчитать остаток от общего deadline.
+- **P1 — тесты и мутации:** в [run-mutations-w31a.py](/home/user/orca/project/waves/RW-31/run-mutations-w31a.py:132) baseline ищет `SKIP:` в обычном выводе `cargo test`; replay показал, что skip-сообщения скрыты harness’ом. Поэтому `SKIP=0` не доказывает запуск интеграционных кейсов, а результаты мутаций могут быть ложноположительными. Нужен способ надёжно выявлять skip и повторный прогон с доступным приватным D-Bus.
+- **P2 — таймаут:** [power.rs](/home/user/orca/project/rust/crates/discord-platform/src/power.rs:187) повторно передаёт полный `timeout` после каждого пропущенного сигнала. Поток чужих сигналов может продлить ожидание сверх заданного срока. Рассчитать остаток от общего deadline.
 
 Отчётные MD5 для исходников, теста, мока, фикстуры, скрипта и логов совпали. IdlePolicy, fallback `UnInhibit`, неизвестные методы, пустые поля, фильтрация формы сигналов и отсутствие `unsafe`/panic/unwrap/expect в production-модуле соответствуют проверенному контракту. Целевые тесты дали `12 passed`, но при replay D-Bus-тесты пропускались из-за запрета сокета, так что этот итог не является проверкой интеграционного поведения. Исходный workspace не изменял; проверка выполнялась из `/tmp/opencode/w31a-codex` с указанным target-dir.
 tokens used
 63 758
 **Вердикт: доработка.** Текущий replay в заданном sandbox не подтверждает D-Bus-контракт и 7/7 мутаций: `dbus-daemon` не может bind-ить приватный сокет. Без `--nocapture` skip-причины скрыты тестовым harness’ом, поэтому скрипт считает их нулём. Отчёт заявляет успешный прогон, но независимо подтвердить его здесь не удалось.
 
-- **P1 — тесты и мутации:** в [run-mutations-w31a.py](/home/sanya/orca/project/waves/RW-31/run-mutations-w31a.py:132) baseline ищет `SKIP:` в обычном выводе `cargo test`; replay показал, что skip-сообщения скрыты harness’ом. Поэтому `SKIP=0` не доказывает запуск интеграционных кейсов, а результаты мутаций могут быть ложноположительными. Нужен способ надёжно выявлять skip и повторный прогон с доступным приватным D-Bus.
-- **P2 — таймаут:** [power.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/power.rs:187) повторно передаёт полный `timeout` после каждого пропущенного сигнала. Поток чужих сигналов может продлить ожидание сверх заданного срока. Рассчитать остаток от общего deadline.
+- **P1 — тесты и мутации:** в [run-mutations-w31a.py](/home/user/orca/project/waves/RW-31/run-mutations-w31a.py:132) baseline ищет `SKIP:` в обычном выводе `cargo test`; replay показал, что skip-сообщения скрыты harness’ом. Поэтому `SKIP=0` не доказывает запуск интеграционных кейсов, а результаты мутаций могут быть ложноположительными. Нужен способ надёжно выявлять skip и повторный прогон с доступным приватным D-Bus.
+- **P2 — таймаут:** [power.rs](/home/user/orca/project/rust/crates/discord-platform/src/power.rs:187) повторно передаёт полный `timeout` после каждого пропущенного сигнала. Поток чужих сигналов может продлить ожидание сверх заданного срока. Рассчитать остаток от общего deadline.
 
 Отчётные MD5 для исходников, теста, мока, фикстуры, скрипта и логов совпали. IdlePolicy, fallback `UnInhibit`, неизвестные методы, пустые поля, фильтрация формы сигналов и отсутствие `unsafe`/panic/unwrap/expect в production-модуле соответствуют проверенному контракту. Целевые тесты дали `12 passed`, но при replay D-Bus-тесты пропускались из-за запрета сокета, так что этот итог не является проверкой интеграционного поведения. Исходный workspace не изменял; проверка выполнялась из `/tmp/opencode/w31a-codex` с указанным target-dir.
 CODEX_EXIT=0

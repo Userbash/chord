@@ -1,542 +1,542 @@
-# Детальная декомпозиция задач, микро-планы реализации и аннотации кодирования
+# Granular Task Breakdown, Implementation Micro-Plans, and Coding Annotations
 
-Данный документ представляет собой пошаговую детализацию всех недостающих функциональных возможностей оригинального Discord, выявленных при сверке с дампом `/home/sanya/re-deep/` и бэклогом переноса.
-Каждая крупная возможность декомпозирована на **атомарные задачи**, а каждая задача разбита на **микро-шаги по методологии Strict TDD** с точными путями к файлам, ссылками на оракулы и правилами мутационного тестирования.
+This document presents a step-by-step granular decomposition of all remaining functional features of the original Discord client, identified through cleanroom audits against the `docs/re/` dump and feature parity backlogs.
+Each epic is decomposed into **atomic tasks**, and each task is divided into **Strict TDD micro-steps** with exact file paths, cleanroom oracle links, and mutation testing verification criteria.
 
 ---
 
-## 1. Блок А: Чат и интерактивное сообщество (Community & Interactive Chat)
+## 1. Block A: Community & Interactive Chat
 
-### Эпик A1: Форумные каналы (`GUILD_FORUM` type 15)
+### Epic A1: Forum Channels (`GUILD_FORUM` type 15)
 
-#### Задача TASK-1001A: Сетевой протокол, парсер Gateway и REST API форумов
-- **Отдел:** `G1 Backend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1001A: Network Protocol, Gateway Parser, and Forum REST API
+- **Department:** `G1 Backend` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-core/src/forum.rs`
   - `tests/unit/forum-protocol-1001a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/gateway-schema.json` (событие `CHANNEL_CREATE`, флаг `type: 15`), `/home/sanya/re-deep/rest-d02.json` (`GET /channels/{id}/threads/active`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Написать юнит-тест `tests/unit/forum-protocol-1001a.test.mjs`, проверяющий десериализацию полей `available_tags`, `default_reaction_emoji`, `default_sort_order` и `default_forum_layout`.
-  2. *Micro-Step 2 (Green):* Определить структуры `ForumTag`, `ForumLayout`, `ForumSortOrder` в `forum.rs` с сериализацией `serde`.
-  3. *Micro-Step 3 (Green):* Реализовать метод клиента `get_active_forum_threads(channel_id)` с поддержкой пагинации по Snowflake.
-  4. *Micro-Step 4 (Mutation 5/5):* Проверить убийство 5 мутаций (ошибочный type, пропуск флага moderated в тегах, инверсия сортировки, пустой emoji_id, зацикливание пагинации).
+- **Oracle:** `docs/re/gateway-schema.json` (event `CHANNEL_CREATE`, flag `type: 15`), `docs/re/rest-d02.json` (`GET /channels/{id}/threads/active`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Author unit test `tests/unit/forum-protocol-1001a.test.mjs` asserting deserialization of `available_tags`, `default_reaction_emoji`, `default_sort_order`, and `default_forum_layout`.
+  2. *Micro-Step 2 (Green):* Define structs `ForumTag`, `ForumLayout`, `ForumSortOrder` in `forum.rs` with `serde` serialization.
+  3. *Micro-Step 3 (Green):* Implement client method `get_active_forum_threads(channel_id)` with Snowflake pagination.
+  4. *Micro-Step 4 (Mutation 5/5):* Verify killing 5 mutants (invalid type, missing moderated flag in tags, inverted sorting, empty emoji_id, infinite pagination loop).
 
-#### Задача TASK-1001B: UI-сетка постов форума `ForumGridView`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1001B: Forum Post Grid UI `ForumGridView`
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/channels/forum_view.rs`
   - `tests/unit/forum-view-1001b.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/frontend-d03.json` (разметка карточек постов и фильтрация).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест проверяет компоновку сетки `ForumGridView` (высота плашки 96px, отступы 12px, адаптивная 2-колоночная раскладка).
-  2. *Micro-Step 2 (Green):* Отрисовка плашек тегов с поддержкой фильтрации (мультивыбор тегов, подсветка активных токеном `#5865f2`).
-  3. *Micro-Step 3 (Green):* Карточка поста: заголовок (жирный 15px), превью автора (аватар 20px + ник), бейджи тегов, счётчик ответов и реакций.
-  4. *Micro-Step 4 (A11y & Mutation):* Навигация стрелками клавиатуры по карточкам и тест 5 мутаций.
+- **Oracle:** `docs/re/frontend-d03.json` (post card layout and tag filtering).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test verifies `ForumGridView` grid layout (card height 96px, 12px padding, responsive 2-column flow).
+  2. *Micro-Step 2 (Green):* Render tag chips with multi-selection filtering and active accent highlight `#5865f2`.
+  3. *Micro-Step 3 (Green):* Post card rendering: bold 15px title, author preview (20px avatar + handle), tag badges, reply and reaction tallies.
+  4. *Micro-Step 4 (A11y & Mutation):* Keyboard arrow key navigation across cards and 5 killed mutants.
 
 ---
 
-### Эпик A2: Вложенные треды обсуждений (Threads type 11/12)
+### Epic A2: Nested Discussion Threads (Threads type 11/12)
 
-#### Задача TASK-1002A: Жизненный цикл тредов и автоархивация
-- **Отдел:** `G1 Backend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1002A: Thread Lifecycle and Auto-Archive
+- **Department:** `G1 Backend` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-core/src/threads.rs`
   - `tests/unit/threads-lifecycle-1002a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/rest-d02.json` (`POST /channels/{id}/messages/{msg_id}/threads`, `PATCH /channels/{id}`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест создания треда из сообщения с параметрами `name`, `auto_archive_duration` (60, 1440, 4320, 10080 минут).
-  2. *Micro-Step 2 (Green):* Реализация `create_thread_from_message()` и парсера метаданных `thread_metadata` (`archived`, `locked`).
-  3. *Micro-Step 3 (Green):* Синхронизация списка участников треда `THREAD_MEMBERS_UPDATE`.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 контрольных мутаций (пропуск locked при архивации, сбой u32 таймера, дублирование member_id).
+- **Oracle:** `docs/re/rest-d02.json` (`POST /channels/{id}/messages/{msg_id}/threads`, `PATCH /channels/{id}`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test thread creation from message with `name`, `auto_archive_duration` (60, 1440, 4320, 10080 minutes).
+  2. *Micro-Step 2 (Green):* Implement `create_thread_from_message()` and parser for `thread_metadata` (`archived`, `locked`).
+  3. *Micro-Step 3 (Green):* Synchronize thread member roster on `THREAD_MEMBERS_UPDATE`.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (missing locked flag on archive, u32 timer overflow, duplicated member_id).
 
-#### Задача TASK-1002B: Боковая панель треда `ThreadSidebar`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1002B: Thread Sidebar `ThreadSidebar`
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/chat/thread_sidebar.rs`
   - `tests/unit/thread-sidebar-1002b.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/frontend-d03.json` (сплит-панель чата 360px).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Проверка макета split-view: правая панель фиксированной ширины 360px, кнопка закрытия, заголовок треда.
-  2. *Micro-Step 2 (Green):* Независимый экземпляр `virtual_list` для сообщений треда (отдельный буфер скролла).
-  3. *Micro-Step 3 (Green):* Индикатор в основном чате: плашка под родительским сообщением «N ответов • Последний 5 мин назад».
-  4. *Micro-Step 4 (Mutation 5/5):* Мутации (разрушение ширины при ресайзе окна, потеря фокуса ввода при переключении треда).
+- **Oracle:** `docs/re/frontend-d03.json` (360px chat split panel).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Validate split-view layout: fixed 360px right panel, close button, thread header.
+  2. *Micro-Step 2 (Green):* Independent `virtual_list` instance for thread messages (isolated scroll buffer).
+  3. *Micro-Step 3 (Green):* Main chat indicator banner below parent message: "N replies • Last 5m ago".
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (width collapse on window resize, input focus drop on thread toggle).
 
 ---
 
-### Эпик A3: Голосовые сообщения в чате (Voice Messages & Waveform)
+### Epic A3: Voice Messages & Waveform
 
-#### Задача TASK-1003A: Аудио-рекордер и вычисление Waveform
-- **Отдел:** `G5 Voice / Platform` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1003A: Audio Recorder and Waveform Computation
+- **Department:** `G5 Voice / Platform` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-voice/src/voice_message_recorder.rs`
   - `tests/unit/voice-recorder-1003a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/rest-d02.json` (`flags: 8192`, заголовок `audio/ogg; codecs=opus`, параметр `waveform`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест кодирования аудиопотока 48 кГц mono в OGG Opus (32 kbps, VBR) и формирования 256-байтного массива пиков.
-  2. *Micro-Step 2 (Green):* Реализация буфера захвата через `cpal` с расчетом среднеквадратичной амплитуды (RMS) на 20 мс кадр.
-  3. *Micro-Step 3 (Green):* Нормализация значений амплитуд в диапазон `0..255` и экспорт в base64 строку для REST.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (ошибочный sample_rate, переполнение u8 при нормализации, рассинхронизация длительности).
+- **Oracle:** `docs/re/rest-d02.json` (`flags: 8192`, `audio/ogg; codecs=opus`, parameter `waveform`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test encoding 48 kHz mono stream into OGG Opus (32 kbps, VBR) and generating 256-byte peak array.
+  2. *Micro-Step 2 (Green):* Implement capture buffer via `cpal` with RMS calculation across 20 ms frames.
+  3. *Micro-Step 3 (Green):* Normalize amplitude values to `0..255` and export as base64 string for REST.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (incorrect sample_rate, u8 overflow on normalization, duration desync).
 
-#### Задача TASK-1003B: Интерактивный плеер `VoiceMessagePlayer`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1003B: Interactive Player `VoiceMessagePlayer`
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/chat/voice_player.rs`
   - `tests/unit/voice-player-1003b.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/ui7/` (плеер голосовых сообщений).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Отрисовка 64 или 128 вертикальных полосок волны (ширина 2px, закругление 1px, зазор 1px).
-  2. *Micro-Step 2 (Green):* Прогресс воспроизведения: окрашивание проигранной части волны в акцентный цвет `#23a55a`.
-  3. *Micro-Step 3 (Green):* Интерактивный скраббинг: клик в любую точку волны мгновенно перематывает позицию воспроизведения.
-  4. *Micro-Step 4 (Speed Toggle & Mutation):* Кнопка скорости воспроизведения (`1x -> 1.5x -> 2x -> 1x`) и тест 5 мутаций.
+- **Oracle:** `docs/re/ui7/` (voice message player component).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Render 64 or 128 vertical waveform bars (2px width, 1px radius, 1px gap).
+  2. *Micro-Step 2 (Green):* Playback progress coloring played section in accent `#23a55a`.
+  3. *Micro-Step 3 (Green):* Interactive scrubbing: clicking anywhere seeks playback position instantly.
+  4. *Micro-Step 4 (Speed Toggle & Mutation):* Playback speed toggle button (`1x -> 1.5x -> 2x -> 1x`) and 5 killed mutants.
 
 ---
 
-### Эпик A4: Интерактивные опросы в чате (Polls & Voting)
+### Epic A4: In-Chat Interactive Polls (Polls & Voting)
 
-#### Задача TASK-1004A: Модель данных опроса и REST-голосование
-- **Отдел:** `G1 Backend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1004A: Poll Data Model and REST Voting
+- **Department:** `G1 Backend` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-core/src/polls.rs`
   - `tests/unit/polls-core-1004a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/rest-d02.json` (`PUT /channels/{id}/polls/{msg_id}/answers/{answer_id}`, `DELETE ...`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Десериализация объекта `poll`: `question`, `answers[]`, `expiry`, `allow_multiselect`, `results`.
-  2. *Micro-Step 2 (Green):* Методы `cast_poll_vote()` и `remove_poll_vote()` с валидацией тайм-аута истечения опроса.
-  3. *Micro-Step 3 (Green):* Расчет процентов по формуле $\frac{\text{votes}_i}{\sum \text{votes}} \times 100\%$ с корректным округлением.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (деление на ноль при 0 голосов, прием голоса в истекший опрос, обход allow_multiselect).
+- **Oracle:** `docs/re/rest-d02.json` (`PUT /channels/{id}/polls/{msg_id}/answers/{answer_id}`, `DELETE ...`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Deserialize `poll` payload: `question`, `answers[]`, `expiry`, `allow_multiselect`, `results`.
+  2. *Micro-Step 2 (Green):* Implement `cast_poll_vote()` and `remove_poll_vote()` validating poll expiry.
+  3. *Micro-Step 3 (Green):* Compute percentage distribution with rounding: $\frac{\text{votes}_i}{\sum \text{votes}} \times 100\%$.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (division by zero on 0 votes, vote acceptance on expired poll, multiselect bypass).
 
-#### Задача TASK-1004B: UI-карточка опроса `PollCardView`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1004B: Poll UI Card `PollCardView`
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/chat/poll_view.rs`
   - `tests/unit/poll-view-1004b.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/frontend-d03.json` (интерактивный блок опроса в сообщении).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест проверяет отрисовку рамки опроса, чекбоксов (для мультивыбора) или радио-кнопок.
-  2. *Micro-Step 2 (Green):* Анимированная заливка шкалы прогресса ответа полупрозрачным фоном `#5865f233`.
-  3. *Micro-Step 3 (Green):* Отображение индикатора победившего ответа (иконка короны / галочки) после закрытия голосования.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (отсутствие дебаунса кликов, искажение ширины прогресс-бара > 100%).
+- **Oracle:** `docs/re/frontend-d03.json` (poll card block in messages).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test verifies card border, checkboxes (multiselect) or radio buttons.
+  2. *Micro-Step 2 (Green):* Animated progress bar fill using semi-transparent `#5865f233`.
+  3. *Micro-Step 3 (Green):* Winning option badge (crown/checkmark icon) post-closure.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (missing click debounce, progress bar width exceeding 100%).
 
 ---
 
-### Эпик A5: Серверные эмодзи и анимированные стикеры
+### Epic A5: Guild Custom Emoji and Animated Stickers
 
-#### Задача TASK-1005A: Парсер эмодзи и дисковый LRU-кэш
-- **Отдел:** `G1 Backend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1005A: Emoji Parser and Disk LRU Cache
+- **Department:** `G1 Backend` | **Priority:** `P2`
+- **Files:**
   - `rust/crates/discord-media/src/emoji_cache.rs`
   - `tests/unit/emoji-cache-1005a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/frontend-d03.json` (регулярные выражения и CDN URL).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Парсинг токенов `<:name:snowflake>` (статичный) и `<a:name:snowflake>` (анимированный GIF).
-  2. *Micro-Step 2 (Green):* Формирование CDN URL `https://cdn.discordapp.com/emojis/{id}.webp?size=48&quality=lossless`.
-  3. *Micro-Step 3 (Green):* Двухуровневый кэш: память (256 МБ LRU) + диск `~/.cache/discord-gpui/emojis/` с валидацией ETag.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (path traversal через имя файла, утечка памяти кэша, искажение snowflake id).
+- **Oracle:** `docs/re/frontend-d03.json` (emoji regex and CDN URLs).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Parse `<:name:snowflake>` (static) and `<a:name:snowflake>` (animated GIF).
+  2. *Micro-Step 2 (Green):* Build CDN URL `https://cdn.discordapp.com/emojis/{id}.webp?size=48&quality=lossless`.
+  3. *Micro-Step 3 (Green):* Two-tier cache: memory (256 MB LRU) + disk `~/.cache/discord-gpui/emojis/` validating ETag.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (path traversal via filename, cache memory leak, corrupted snowflake ID).
 
-#### Задача TASK-1005B: Интерактивный пикер эмодзи и стикеров `EmojiPickerModal`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1005B: Emoji & Sticker Picker `EmojiPickerModal`
+- **Department:** `G2 Frontend` | **Priority:** `P2`
+- **Files:**
   - `rust/discord-gpui/src/chat/emoji_picker.rs`
   - `tests/unit/emoji-picker-1005b.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/ui8/` (попап выбора эмодзи и стикеров).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Модальное окно 380×420px, поле быстрого поиска, вкладки категорий (Часто используемые, Серверы, Стандартные).
-  2. *Micro-Step 2 (Green):* Виртуализированная сетка 8 колонок по 32px с плавным скроллом и предзагрузкой видимых изображений.
-  3. *Micro-Step 3 (Green):* Вкладка стикеров с поддержкой векторного рендеринга Lottie JSON кадров.
-  4. *Micro-Step 4 (Keyboard Nav & Mutation):* Навигация стрелками клавиатуры, закрытие по `Escape` и 5 мутаций.
+- **Oracle:** `docs/re/ui8/` (emoji and sticker picker popover).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Modal 380×420px, search input, category tabs (Frequently Used, Servers, Standard).
+  2. *Micro-Step 2 (Green):* Virtualized 8-column grid with smooth scroll and lazy loading.
+  3. *Micro-Step 3 (Green):* Sticker tab with Lottie JSON vector frame rendering support.
+  4. *Micro-Step 4 (Keyboard Nav & Mutation):* Arrow key navigation, `Escape` dismissal, 5 killed mutants.
 
 ---
 
-### Эпик A6: Нативная проверка орфографии (Spellchecker)
+### Epic A6: Native Composer Spellchecker
 
-#### Задача TASK-1006A: FFI-биндинг `libenchant-2` / `hunspell`
-- **Отдел:** `G1 Backend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1006A: FFI Bindings for `libenchant-2` / `hunspell`
+- **Department:** `G1 Backend` | **Priority:** `P2`
+- **Files:**
   - `rust/crates/discord-platform/src/spellcheck.rs`
   - `tests/unit/spellcheck-ffi-1006a.test.mjs`
-- **Оракул:** Системные словари `/usr/share/hunspell/*.dic`.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест проверяет инициализацию словаря для активной локали (ru_RU / en_US).
-  2. *Micro-Step 2 (Green):* Метод `check_word(word) -> bool` с фильтрацией пунктуации, URL, эмодзи и меншнов `@user`.
-  3. *Micro-Step 3 (Green):* Метод `suggest(word) -> Vec<String>` с ограничением до 5 лучших вариантов замены.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (пропуск слов с дефисом, утечка памяти C-строк, сбой при смене локали).
+- **Oracle:** System dictionaries `/usr/share/hunspell/*.dic`.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test verifies dictionary initialization for active locale (`en_US`, `de_DE`, etc.).
+  2. *Micro-Step 2 (Green):* Method `check_word(word) -> bool` filtering punctuation, URLs, emoji, and `@mentions`.
+  3. *Micro-Step 3 (Green):* Method `suggest(word) -> Vec<String>` returning up to 5 best suggestions.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (skipping hyphenated words, C-string memory leaks, crash on locale switch).
 
-#### Задача TASK-1006B: Рендеринг опечаток и контекстное меню в `MessageBar`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1006B: Squiggly Underline Rendering and Context Menu in `MessageBar`
+- **Department:** `G2 Frontend` | **Priority:** `P2`
+- **Files:**
   - `rust/discord-gpui/src/chat/input_spellcheck.rs`
   - `tests/unit/input-spellcheck-1006b.test.mjs`
-- **Оракул:** Стандарт отрисовки текстовых полей Discord.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест проверяет расчет координат ошибочных подстрок с дебаунсом 150 мс.
-  2. *Micro-Step 2 (Green):* Отрисовка красной волнистой линии цвета `#f23f43` под словами с ошибками в `gpui::TextView`.
-  3. *Micro-Step 3 (Green):* Открытие нативного контекстного меню при ПКМ с выводом вариантов исправления и пункта «Добавить в словарь».
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (смещение линии при скролле текста, замена не того слова в строке).
+- **Oracle:** Discord text box rendering standard.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test validates coordinate calculation for misspelled substrings debounced at 150 ms.
+  2. *Micro-Step 2 (Green):* Render red squiggly line `#f23f43` under misspelled words in `gpui::TextView`.
+  3. *Micro-Step 3 (Green):* Native context menu on right click displaying suggestions and "Add to Dictionary".
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (underline offset during scroll, replacing wrong word in buffer).
 
 ---
 
-## 2. Блок Б: Голос и звук (Voice Extensions)
+## 2. Block B: Voice & Audio Extensions
 
-### Эпик Б1: Серверная звуковая панель (Soundboard)
+### Epic B1: Guild Soundboard
 
-#### Задача TASK-1012A: Протокол Soundboard и кэширование звуков
-- **Отдел:** `G5 Voice / Platform` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1012A: Soundboard Protocol and SFX Caching
+- **Department:** `G5 Voice / Platform` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-voice/src/soundboard_protocol.rs`
   - `tests/unit/soundboard-protocol-1012a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/voice-deep.md` (Voice Gateway Opcode 18 `SOUNDBOARD_SOUND`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест формирования payload Opcode 18: `sound_id`, `volume` (0.0..1.0), `source_guild_id`.
-  2. *Micro-Step 2 (Green):* Парсинг входящего события Voice Gateway Opcode 19 (`SPEAKING` с флагом soundboard).
-  3. *Micro-Step 3 (Green):* Предзагрузка и локальное кэширование сэмплов с CDN в формате Opus 48 кГц stereo.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (выход volume за пределы 0.0..1.0, сбой парсинга SSRC источника, утечка буфера сэмпла).
+- **Oracle:** `docs/re/voice-deep.md` (Voice Gateway Opcode 18 `SOUNDBOARD_SOUND`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test Opcode 18 payload construction: `sound_id`, `volume` (0.0..1.0), `source_guild_id`.
+  2. *Micro-Step 2 (Green):* Parse inbound Voice Gateway Opcode 19 (`SPEAKING` with soundboard flag).
+  3. *Micro-Step 3 (Green):* Preload and cache CDN samples in Opus 48 kHz stereo.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (volume outside 0.0..1.0, source SSRC parse failure, sample buffer leak).
 
-#### Задача TASK-1012B: Микшер звуковых эффектов в исходящий RTP
-- **Отдел:** `G5 Voice / Platform` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1012B: Soundboard SFX Mixer into Outbound RTP
+- **Department:** `G5 Voice / Platform` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-voice/src/soundboard_mixer.rs`
   - `tests/unit/soundboard-mixer-1012b.test.mjs`
-- **Оракул:** RFC 3550 и спецификация RTP кадрирования Opus.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест линейного сложения сэмплов микрофона и SFX с софт-клиппингом через функцию `tanh()`.
-  2. *Micro-Step 2 (Green):* Сохранение четкости речи без клиппинга и артефактов при одновременном воспроизведении звука.
-  3. *Micro-Step 3 (Green):* Автоматическая остановка микширования по окончании сэмпла без лишних циклов CPU.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (рассинхронизация 20 мс квантования, сдвиг фазы стерео, зацикливание сэмпла).
+- **Oracle:** RFC 3550 and Opus RTP packetization standard.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test linear summation of microphone audio and SFX with soft-clipping via `tanh()`.
+  2. *Micro-Step 2 (Green):* Preserve speech intelligibility without clipping artifacts during playback.
+  3. *Micro-Step 3 (Green):* Automatically terminate mixer thread when sample finishes.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (desync of 20 ms quantizing, stereo phase inversion, looping sample bug).
 
-#### Задача TASK-1012C: Сетка кнопок саундборда `SoundboardGridView`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1012C: Soundboard Button Grid `SoundboardGridView`
+- **Department:** `G2 Frontend` | **Priority:** `P2`
+- **Files:**
   - `rust/discord-gpui/src/voice/soundboard_view.rs`
   - `tests/unit/soundboard-view-1012c.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/voice/ui7/` (панель выбора звуковых эффектов).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Модальное окно саундборда: сетка кнопок с эмодзи звука, названием и индикатором хоткея.
-  2. *Micro-Step 2 (Green):* Анимация нажатия и звуковой индикатор активности воспроизведения вокруг кнопки.
-  3. *Micro-Step 3 (Green):* Ползунок общей громкости саундборда в настройках звука клиента.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (спам звуками без дебаунса, наложение хоткеев, потеря громкости).
+- **Oracle:** `docs/re/voice/ui7/` (soundboard selection view).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Modal view: button grid with sound emoji, label, and hotkey indicator.
+  2. *Micro-Step 2 (Green):* Press animation and playback activity indicator ring.
+  3. *Micro-Step 3 (Green):* Global soundboard volume slider in audio settings.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (sound spamming without debounce, overlapping hotkeys, volume reset).
 
 ---
 
-### Эпик Б2: 3D Spatial Audio & HRTF позиционирование
+### Epic B2: 3D Spatial Audio & HRTF Positioning
 
-#### Задача TASK-1017A: Бинауральный HRTF фильтр пространственного звука
-- **Отдел:** `G5 Voice / Platform` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1017A: Binaural HRTF Spatial Audio Filter
+- **Department:** `G5 Voice / Platform` | **Priority:** `P2`
+- **Files:**
   - `rust/crates/discord-voice/src/spatial_audio.rs`
   - `tests/unit/spatial-audio-filter-1017a.test.mjs`
-- **Оракул:** Стандарт ISO Head-Related Transfer Function (HRTF) KEMAR dataset.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест расчета межушной разности времени (ITD до 0.7 мс) и разности уровней (ILD до 20 дБ) по азимуту $(-180^\circ .. +180^\circ)$.
-  2. *Micro-Step 2 (Green):* Быстрое сверточное преобразование (FFT Convolver) моно-потока участника в стерео-сигнал.
-  3. *Micro-Step 3 (Green):* Затухание громкости в зависимости от виртуальной дистанции $1/r$.
-  4. *Micro-Step 4 (Perf & Mutation):* Потребление CPU $< 1.5\%$ на 10 участников и 5 контрольных мутаций.
+- **Oracle:** ISO Head-Related Transfer Function (HRTF) KEMAR dataset.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Compute interaural time difference (ITD up to 0.7 ms) and level difference (ILD up to 20 dB) by azimuth $(-180^\circ .. +180^\circ)$.
+  2. *Micro-Step 2 (Green):* Fast convolution (FFT Convolver) converting participant mono stream into binaural stereo.
+  3. *Micro-Step 3 (Green):* Distance attenuation $1/r$.
+  4. *Micro-Step 4 (Perf & Mutation):* CPU usage $< 1.5\%$ across 10 participants, 5 killed mutants.
 
-#### Задача TASK-1017B: UI радара участников в голосовом канале
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1017B: Participant Spatial Radar UI
+- **Department:** `G2 Frontend` | **Priority:** `P2`
+- **Files:**
   - `rust/discord-gpui/src/voice/spatial_radar.rs`
   - `tests/unit/spatial-radar-1017b.test.mjs`
-- **Оракул:** Визуализация пространственного звука Discord.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Круглый радар $360^\circ$ с аватаром слушателя в центре и аватарами участников на окружности.
-  2. *Micro-Step 2 (Green):* Интерактивное перетаскивание аватаров мышью для индивидуальной расстановки в пространстве.
-  3. *Micro-Step 3 (Green):* Сохранение координат расстановки участников в локальной базе SQLite.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (выход аватара за радиус радара, сброс координат при переподключении).
+- **Oracle:** Discord spatial audio layout radar.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Circular $360^\circ$ radar with listener avatar at center and participant avatars on circumference.
+  2. *Micro-Step 2 (Green):* Interactive mouse drag-and-drop to position speakers in virtual space.
+  3. *Micro-Step 3 (Green):* Persist participant positioning in SQLite database.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (avatar dragging outside perimeter, coordinates lost on reconnect).
 
 ---
 
-### Эпик Б3: Продвинутая WebRTC диагностика и RTC Internals (`RE-GAP-22`)
+### Epic B3: Advanced WebRTC Diagnostics and RTC Internals (`RE-GAP-22`)
 
-#### Задача TASK-1011A: Сборщик низкоуровневых RTCP метрик
-- **Отдел:** `G5 Voice / Platform` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1011A: Low-Level RTCP Metrics Collector
+- **Department:** `G5 Voice / Platform` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-voice/src/rtc_metrics.rs`
   - `tests/unit/rtc-metrics-1011a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест агрегации отчетов RTCP: `fraction_lost`, `cumulative_lost`, `rtt_ms`, `jitter_ms`, `audio_bitrate_kbps`.
-  2. *Micro-Step 2 (Green):* Циклический буфер последних 120 измерений (кольцевой буфер 60 секунд с шагом 500 мс).
-  3. *Micro-Step 3 (Green):* Мониторинг DAVE MLS: номер текущей эпохи, количество участников группы, статус верификации SAS.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (ошибочный расчет скользящего среднего RTT, переполнение буфера, утечка DAVE ключа).
+- **Oracle:** `waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test RTCP metrics aggregation: `fraction_lost`, `cumulative_lost`, `rtt_ms`, `jitter_ms`, `audio_bitrate_kbps`.
+  2. *Micro-Step 2 (Green):* Ring buffer of last 120 samples (60 seconds at 500 ms intervals).
+  3. *Micro-Step 3 (Green):* Monitor DAVE MLS: active epoch number, group size, SAS verification status.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (RTT moving average calculation error, buffer overflow, DAVE key leakage).
 
-#### Задача TASK-1011B: 60 FPS экран графиков `RtcDiagnosticsHud`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1011B: 60 FPS Graph Overlay `RtcDiagnosticsHud`
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/voice/rtc_hud.rs`
   - `tests/unit/rtc-hud-1011b.test.mjs`
-- **Оракул:** Окно WebRTC Internals официального Discord.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Окно HUD 640×480px, темный фон `#1e1f22`, 3 графика (RTT, Jitter, Bitrate).
-  2. *Micro-Step 2 (Green):* Векторная отрисовка графиков на WGPU с частотой 60 кадров/с без просадки основного UI.
-  3. *Micro-Step 3 (Green):* Всплывающие тултипы со точными значениями миллисекунд при наведении курсора мыши.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (масштабирование оси Y при пиках, зависание графика при паузе передачи).
+- **Oracle:** WebRTC Internals screen in official Discord.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* HUD window 640×480px, background `#1e1f22`, 3 charts (RTT, Jitter, Bitrate).
+  2. *Micro-Step 2 (Green):* Vector chart rendering on WGPU at 60 FPS without dropping frame budget of main window.
+  3. *Micro-Step 3 (Green):* Hover tooltips showing millisecond precision data.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (Y-axis scaling on spikes, graph freeze on transmission pause).
 
 ---
 
-### Эпик Б4: Автоматический перевод в AFK-канал при простое
+### Epic B4: Auto-Move to AFK Channel on Idle
 
-#### Задача TASK-1010A: Системный детектор бездействия (D-Bus / Wayland)
-- **Отдел:** `G1 Backend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1010A: System Idle Detector (D-Bus / Wayland)
+- **Department:** `G1 Backend` | **Priority:** `P2`
+- **Files:**
   - `rust/crates/discord-platform/src/idle_monitor.rs`
   - `tests/unit/idle-monitor-1010a.test.mjs`
-- **Оракул:** D-Bus `org.freedesktop.ScreenSaver` и Wayland протокол `ext-idle-notifier-v1`.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест получения миллисекунд бездействия клавиатуры/мыши через нативные интерфейсы.
-  2. *Micro-Step 2 (Green):* Fallback между Wayland (`ext-idle-notifier-v1`) и X11 (`XScreenSaverQueryInfo`).
-  3. *Micro-Step 3 (Green):* Событие `IdleStateChanged(is_idle: bool)` при превышении настраиваемого порога.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (ложное срабатывание при воспроизведении видео, утечка D-Bus коннекта).
+- **Oracle:** D-Bus `org.freedesktop.ScreenSaver` and Wayland `ext-idle-notifier-v1`.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test querying idle milliseconds from native desktop interfaces.
+  2. *Micro-Step 2 (Green):* Fallback between Wayland (`ext-idle-notifier-v1`) and X11 (`XScreenSaverQueryInfo`).
+  3. *Micro-Step 3 (Green):* Dispatch `IdleStateChanged(is_idle: bool)` upon exceeding threshold.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (false positive on video playback, D-Bus connection leak).
 
-#### Задача TASK-1010B: Логика автоматического перемещения в AFK-канал
-- **Отдел:** `G5 Voice / Platform` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1010B: AFK Channel Auto-Move Logic
+- **Department:** `G5 Voice / Platform` | **Priority:** `P2`
+- **Files:**
   - `rust/discord-gpui/src/voice/afk_handler.rs`
   - `tests/unit/afk-handler-1010b.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/gateway-schema.json` (Voice State Update Opcode 4).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест сверки времени бездействия с настройкой сервера `guild.afk_timeout` (1–60 минут).
-  2. *Micro-Step 2 (Green):* Автоматическая отправка Gateway Opcode 4 на смену `channel_id` на `guild.afk_channel_id`.
-  3. *Micro-Step 3 (Green):* Принудительное выставление флага `self_mute: true` при нахождении в AFK-канале.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (перевод в AFK при отсутствии afk_channel_id, повторный спам опкодом 4).
+- **Oracle:** `docs/re/gateway-schema.json` (Voice State Update Opcode 4).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test comparing idle duration against `guild.afk_timeout` (1–60 minutes).
+  2. *Micro-Step 2 (Green):* Dispatch Gateway Opcode 4 setting `channel_id` to `guild.afk_channel_id`.
+  3. *Micro-Step 3 (Green):* Forcibly set `self_mute: true` in AFK channel.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (moving to AFK when `afk_channel_id` is null, repeated opcode 4 spam).
 
 ---
 
-## 3. Блок В: Администрирование сервера и безопасность (Server Management)
+## 3. Block C: Server Management & Security
 
-### Эпик В1: Иерархия ролей и 64-битные права
+### Epic C1: Role Hierarchy & 64-Bit Permissions
 
-#### Задача TASK-1007A: Модель ролей и валидатор 64-битной маски прав
-- **Отдел:** `G1 Backend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1007A: Role Model and 64-Bit Permission Bitmask Validator
+- **Department:** `G1 Backend` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-core/src/roles.rs`
   - `tests/unit/roles-permissions-1007a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/rest-d02.json` (`GET /guilds/{id}/roles`, `PATCH /guilds/{id}/roles`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест 64-битных битовых флагов `Permissions`: `ADMINISTRATOR` ($1 \ll 3$), `MANAGE_CHANNELS` ($1 \ll 4$), `BAN_MEMBERS` ($1 \ll 2$) и т.д.
-  2. *Micro-Step 2 (Green):* Валидатор прав: проверка невозможности назначить роль с правами, превышающими права текущего пользователя.
-  3. *Micro-Step 3 (Green):* REST-метод `reorder_roles(positions)` с обновлением порядка ролей на сервере.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (эскалация прав обычного пользователя до админа, искажение битовой маски `u64`).
+- **Oracle:** `docs/re/rest-d02.json` (`GET /guilds/{id}/roles`, `PATCH /guilds/{id}/roles`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test 64-bit permission flags: `ADMINISTRATOR` ($1 \ll 3$), `MANAGE_CHANNELS` ($1 \ll 4$), `BAN_MEMBERS` ($1 \ll 2$), etc.
+  2. *Micro-Step 2 (Green):* Permission validator enforcing that a user cannot assign roles with permissions exceeding their own.
+  3. *Micro-Step 3 (Green):* REST method `reorder_roles(positions)` updating hierarchy order.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (privilege escalation to admin, bitmask truncation on `u64`).
 
-#### Задача TASK-1007B: Drag-and-drop интерфейс иерархии ролей
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1007B: Role Hierarchy Drag-and-Drop UI
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/guild/roles_hierarchy.rs`
   - `tests/unit/roles-hierarchy-1007b.test.mjs`
-- **Оракул:** Диалог настройки ролей Discord.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Список ролей с цветными плашками, бейджами участников и иконкой перетаскивания.
-  2. *Micro-Step 2 (Green):* Интерактивный Drag-and-Drop с визуальной линией вставки новой позиции роли.
-  3. *Micro-Step 3 (Green):* Палитра выбора цвета роли (пресеты Discord + произвольный HEX-пикер).
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (попытка перетащить роль выше роли владельца сервера, рассинхронизация индекса).
+- **Oracle:** Discord role settings view.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Role list with color chips, member count badges, and drag handle.
+  2. *Micro-Step 2 (Green):* Drag-and-drop reordering with insertion line indicator.
+  3. *Micro-Step 3 (Green):* Role color picker (Discord presets + custom HEX input).
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (dragging above server owner role, position index desync).
 
-#### Задача TASK-1007C: Интерактивная матрица разрешений роли
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1007C: Interactive Permission Matrix
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/guild/permissions_matrix.rs`
   - `tests/unit/permissions-matrix-1007c.test.mjs`
-- **Оракул:** Экран разрешений роли в Discord.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Список из 35+ переключателей прав, сгруппированных по категориям (Общие, Текст, Голос, Расширенные).
-  2. *Micro-Step 2 (Green):* Предупреждающий баннер при включении опасных прав (`ADMINISTRATOR`, `MENTION_EVERYONE`).
-  3. *Micro-Step 3 (Green):* Кнопка «Сохранить изменения» с индикатором несохраненных правок внизу экрана.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (сохранение без изменений, сброс переключателей при смене вкладки).
+- **Oracle:** Discord role permissions view.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* 35+ permission toggles categorized into General, Text, Voice, and Advanced.
+  2. *Micro-Step 2 (Green):* Danger warning banner when enabling `ADMINISTRATOR` or `MENTION_EVERYONE`.
+  3. *Micro-Step 3 (Green):* Sticky "Save Changes" bar with dirty state detection.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (saving without changes, toggle state reset on tab switch).
 
 ---
 
-### Эпик В2: Журнал аудита сервера (Server Audit Log)
+### Epic C2: Server Audit Log
 
-#### Задача TASK-1008A: Парсер журнала аудита и декодер изменений
-- **Отдел:** `G1 Backend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1008A: Audit Log Parser and Change Decoder
+- **Department:** `G1 Backend` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-core/src/audit_log.rs`
   - `tests/unit/audit-log-parser-1008a.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/rest-d02.json` (`GET /guilds/{id}/audit-logs`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Парсинг типов действий `AuditLogActionType` (1..145: Guild Update, Channel Create, Member Kick/Ban, Role Update).
-  2. *Micro-Step 2 (Green):* Декодер диффов `AuditLogChange`: преобразование `old_value` и `new_value` в человекочитаемые строки.
-  3. *Micro-Step 3 (Green):* Сопоставление `user_id` инициатора действия и `target_id` цели из включенного объекта `users[]`.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (неизвестный action_type, пропуск null-полей в diff, искажение ID модератора).
+- **Oracle:** `docs/re/rest-d02.json` (`GET /guilds/{id}/audit-logs`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Parse `AuditLogActionType` values (1..145: Guild Update, Channel Create, Member Kick/Ban, Role Update).
+  2. *Micro-Step 2 (Green):* Change decoder: format `old_value` and `new_value` into human-readable strings.
+  3. *Micro-Step 3 (Green):* Match actor `user_id` and target `target_id` from embedded `users[]`.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (unknown action_type, missing null fields in diff, corrupted moderator ID).
 
-#### Задача TASK-1008B: Фильтруемый UI-список `AuditLogViewer`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1008B: Filterable Audit Log Viewer `AuditLogViewer`
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/guild/audit_log_view.rs`
   - `tests/unit/audit-log-view-1008b.test.mjs`
-- **Оракул:** Экран Audit Log в настройках сервера Discord.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Список записей: иконка типа действия (зеленая/красная/желтая), имя модератора, описание события, дата.
-  2. *Micro-Step 2 (Green):* Выпадающие фильтры: «Фильтр по действию» и «Фильтр по пользователю».
-  3. *Micro-Step 3 (Green):* Раскрытие подробностей записи по клику (точный diff измененных полей).
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (сбой фильтрации, падение при пустом списке аудита).
+- **Oracle:** Server Settings Audit Log view.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Log entries: action type icon, moderator handle, event description, timestamp.
+  2. *Micro-Step 2 (Green):* Dropdown filters: "Filter by Action" and "Filter by User".
+  3. *Micro-Step 3 (Green):* Expandable details on click showing formatted change diffs.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (filter failure, crash on empty audit list).
 
 ---
 
-### Эпик В3: Двухфакторная аутентификация TOTP 2FA и сессии
+### Epic C3: Two-Factor Authentication TOTP 2FA & Session Manager
 
-#### Задача TASK-1009A: Модальное окно TOTP 2FA `TotpDialog`
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1009A: TOTP 2FA Modal Dialog `TotpDialog`
+- **Department:** `G2 Frontend` | **Priority:** `P1`
+- **Files:**
   - `rust/discord-gpui/src/auth/totp_view.rs`
   - `tests/unit/totp-view-1009a.test.mjs`
-- **Оракул:** Экран ввода 2FA кода в Discord.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Модальное окно с 6 отдельными квадратными полями ввода цифр цвета `#1e1f22`.
-  2. *Micro-Step 2 (Green):* Автоматический переход фокуса на следующее поле при вводе цифры и возврат по `Backspace`.
-  3. *Micro-Step 3 (Green):* Поддержка вставки 6-значного кода из буфера обмена целиком (`Ctrl+V`).
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (ввод буквенных символов, отправка недозаполненного кода < 6 цифр).
+- **Oracle:** Discord 2FA entry dialog.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Modal with 6 separate digit input cells styled with `#1e1f22`.
+  2. *Micro-Step 2 (Green):* Auto-advance focus to next cell upon input; return on `Backspace`.
+  3. *Micro-Step 3 (Green):* Clipboard paste support for full 6-digit code (`Ctrl+V`).
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (allowing non-numeric characters, submitting incomplete code < 6 digits).
 
-#### Задача TASK-1009B: Менеджер сессий и принудительный разлогин
-- **Отдел:** `G1 Backend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1009B: Session Manager and Remote Revocation
+- **Department:** `G1 Backend` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-core/src/sessions_manager.rs`
   - `tests/unit/sessions-manager-1009b.test.mjs`
-- **Оракул:** `/home/sanya/re-deep/rest-d02.json` (`GET /users/@me/auth/sessions`, `DELETE ...`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Запрос списка сессий: ID, ОС, браузер, IP-адрес, примерная локация, время последнего входа.
-  2. *Micro-Step 2 (Green):* Выделение текущей сессии зеленым бейджем «Это устройство».
-  3. *Micro-Step 3 (Green):* Кнопка «Завершить сессию» с отправкой `DELETE` и мгновенным удалением из списка.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (попытка удалить чужую сессию без прав, потеря статуса текущей сессии).
+- **Oracle:** `docs/re/rest-d02.json` (`GET /users/@me/auth/sessions`, `DELETE ...`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Query sessions: ID, OS, browser, IP, location, last active timestamp.
+  2. *Micro-Step 2 (Green):* Highlight current session with green "Current Device" badge.
+  3. *Micro-Step 3 (Green):* "Revoke Session" action dispatching `DELETE` and removing from list.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (attempting to delete unauthorized session, losing current session badge).
 
 ---
 
-### Эпик В4: Шифрование локальной базы сообщений (SQLite Storage Encryption)
+### Epic C4: Local SQLite Storage Encryption
 
-#### Задача TASK-1021A: Деривация ключа шифрования из Linux Keyring
-- **Отдел:** `G1 Backend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1021A: Encryption Key Derivation from Linux Keyring
+- **Department:** `G1 Backend` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-store/src/keyring_crypto.rs`
   - `tests/unit/keyring-crypto-1021a.test.mjs`
-- **Оракул:** Linux Secret Service API (`org.freedesktop.secrets`).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест генерации криптографически стойкого 256-битного мастер-ключа и сохранения в Keyring.
-  2. *Micro-Step 2 (Green):* Деривация рабочего ключа БД через Argon2id с солью устройства.
-  3. *Micro-Step 3 (Green):* Очистка памяти секретов через `zeroize` при завершении работы.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (логирование открытого ключа, слабый fallback-ключ, утечка дескриптора памяти).
+- **Oracle:** Linux Secret Service API (`org.freedesktop.secrets`).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Test generation of 256-bit cryptographically secure master key stored in Keyring.
+  2. *Micro-Step 2 (Green):* Derive database key via Argon2id with machine salt.
+  3. *Micro-Step 3 (Green):* Zeroize memory buffers upon shutdown.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (plaintext key in logs, weak fallback key, memory handle leak).
 
-#### Задача TASK-1021B: Прозрачное шифрование страниц SQLite (AES-256-GCM)
-- **Отдел:** `G1 Backend` | **Приоритет:** `P1`
-- **Файлы:**
+#### Task TASK-1021B: Transparent SQLite Page Encryption (AES-256-GCM)
+- **Department:** `G1 Backend` | **Priority:** `P1`
+- **Files:**
   - `rust/crates/discord-store/src/encrypted_sqlite.rs`
   - `tests/unit/encrypted-sqlite-1021b.test.mjs`
-- **Оракул:** Архитектура страниц SQLite VFS / SQLCipher.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест проверки зашифрованного файла SQLite на диске (отсутствие открытых строк сообщений в hex-дампе).
-  2. *Micro-Step 2 (Green):* Страничное шифрование страниц 4096 байт через AES-256-GCM с уникальным IV на страницу.
-  3. *Micro-Step 3 (Green):* Проверка целостности WAL-журнала и предотвращение повреждения базы при внезапном сбое питания.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (переиспользование IV, повреждение тега аутентификации GCM, утечка в WAL).
+- **Oracle:** SQLite VFS page encryption / SQLCipher specification.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Verify encrypted database on disk (zero plaintext strings in hex dump).
+  2. *Micro-Step 2 (Green):* 4096-byte page encryption via AES-256-GCM with unique per-page IV.
+  3. *Micro-Step 3 (Green):* WAL journal integrity and crash resistance across power loss.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (IV reuse, corrupted GCM authentication tag, WAL leak).
 
 ---
 
-## 4. Блок Г: Платформа и внешние интеграции (Ecosystem & Cross-Platform)
+## 4. Block D: Ecosystem & Cross-Platform
 
-### Эпик Г1: Интеграция со Spotify (Listen Along & Presence)
+### Epic D1: Spotify Integration (Listen Along & Presence)
 
-#### Задача TASK-1013A: D-Bus MPRIS клиент и Gateway статус
-- **Отдел:** `G1 Backend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1013A: D-Bus MPRIS Client and Gateway Presence
+- **Department:** `G1 Backend` | **Priority:** `P2`
+- **Files:**
   - `rust/crates/discord-platform/src/spotify_mpris.rs`
   - `tests/unit/spotify-mpris-1013a.test.mjs`
-- **Оракул:** Спецификация D-Bus `org.mpris.MediaPlayer2` и Gateway Opcode 3 `STATUS_UPDATE` (activity type 2).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Подписка на сигналы `PropertiesChanged` интерфейса Spotify MPRIS.
-  2. *Micro-Step 2 (Green):* Извлечение метаданных: название трека, исполнители, альбом, `mpris:length`, позиция воспроизведения.
-  3. *Micro-Step 3 (Green):* Отправка активности `type: 2` (`LISTENING`) в шлюз Discord с таймстемпами начала и конца.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (рассинхронизация таймстемпов, зависание статуса при закрытии Spotify).
+- **Oracle:** D-Bus `org.mpris.MediaPlayer2` and Gateway Opcode 3 `STATUS_UPDATE` (activity type 2).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Subscribe to `PropertiesChanged` signals from Spotify MPRIS.
+  2. *Micro-Step 2 (Green):* Extract metadata: track title, artist, album, `mpris:length`, track position.
+  3. *Micro-Step 3 (Green):* Dispatch activity `type: 2` (`LISTENING`) to Gateway with start/end timestamps.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (timestamp desync, frozen presence after closing Spotify).
 
-#### Задача TASK-1013B: Виджет Spotify в профиле и синхронное прослушивание
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1013B: Spotify Profile Widget and Listen Along Action
+- **Department:** `G2 Frontend` | **Priority:** `P2`
+- **Files:**
   - `rust/discord-gpui/src/profile/spotify_widget.rs`
   - `tests/unit/spotify-widget-1013b.test.mjs`
-- **Оракул:** Виджет прослушивания Spotify в карточке профиля Discord.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Плашка в профиле: зеленая иконка Spotify `#1db954`, обложка альбома, название трека, бегущая строка.
-  2. *Micro-Step 2 (Green):* Интерактивный таймлайн трека с плавным движением ползунка в реальном времени.
-  3. *Micro-Step 3 (Green):* Кнопка «Слушать вместе» (Listen Along) с вызовом команды воспроизведения в локальный Spotify.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (зависание таймлайна при паузе, рассинхронизация времени более 2 сек).
+- **Oracle:** Spotify card in Discord user profile.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Profile banner: green Spotify icon `#1db954`, album artwork, track title, scrolling marquee.
+  2. *Micro-Step 2 (Green):* Real-time progress bar moving with playback.
+  3. *Micro-Step 3 (Green):* "Listen Along" action sending playback command to local Spotify player.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (progress bar continuing when paused, desync exceeding 2 seconds).
 
 ---
 
-### Эпик Г2: Режим Steam Deck & Gamepad UI
+### Epic D2: Steam Deck & Gamepad UI Mode
 
-#### Задача TASK-1014A: Драйвер геймпада на базе `gilrs`
-- **Отдел:** `G1 Backend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1014A: Gamepad Driver via `gilrs`
+- **Department:** `G1 Backend` | **Priority:** `P2`
+- **Files:**
   - `rust/crates/discord-platform/src/gamepad_driver.rs`
   - `tests/unit/gamepad-driver-1014a.test.mjs`
-- **Оракул:** `docs/feature-backlog.md` (карточка `R6-01` Steam Deck Game Mode).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Инициализация библиотеки `gilrs` и фильтрация событий осей и кнопок геймпада.
-  2. *Micro-Step 2 (Green):* Преобразование нажатий D-pad (крестовины) в логические события навигации `NavUp/Down/Left/Right`.
-  3. *Micro-Step 3 (Green):* Преобразование бамперов L1/R1 в переключение серверов, триггеров L2/R2 — в переключение каналов.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (дрифт стика без deadzone, дребезг кнопок, зависание события при отключении геймпада).
+- **Oracle:** `docs/feature-backlog.md` (card `R6-01` Steam Deck Game Mode).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Initialize `gilrs` and filter axis and button events.
+  2. *Micro-Step 2 (Green):* Map D-pad inputs to navigation events `NavUp/Down/Left/Right`.
+  3. *Micro-Step 3 (Green):* Map L1/R1 bumpers to server navigation, L2/R2 to channel switching.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (analog stick drift without deadzone, button chatter, crash on controller disconnect).
 
-#### Задача TASK-1014B: Фокусная сетка интерфейса GPUI и экранная клавиатура
-- **Отдел:** `G2 Frontend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1014B: GPUI Spatial Navigation Grid and On-Screen Keyboard
+- **Department:** `G2 Frontend` | **Priority:** `P2`
+- **Files:**
   - `rust/discord-gpui/src/input/gamepad_focus.rs`
   - `tests/unit/gamepad-focus-1014b.test.mjs`
-- **Оракул:** Стандарт интерфейса Steam Deck / Big Picture.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Подсветка текущего элемента в фокусе яркой неоновой рамкой цвета `#5865f2`.
-  2. *Micro-Step 2 (Green):* Автоматический скролл списков чата и каналов при перемещении фокуса геймпада.
-  3. *Micro-Step 3 (Green):* Вызов экранной клавиатуры SteamOS через D-Bus `org.kde.kwin.VirtualKeyboard` при фокусе поля ввода.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (потеря фокуса в пустоту, застревание в модальном окне).
+- **Oracle:** Steam Deck Big Picture UI standard.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Highlight active element with accent focus border `#5865f2`.
+  2. *Micro-Step 2 (Green):* Automatic list scrolling as gamepad focus moves through chat and channels.
+  3. *Micro-Step 3 (Green):* Trigger SteamOS on-screen keyboard via D-Bus `org.kde.kwin.VirtualKeyboard` when focusing input.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (focus lost to null, focus trap in modal).
 
 ---
 
-### Эпик Г3: Автозапуск с системой (XDG Autostart & Start Minimized)
+### Epic D3: System Autostart (XDG Autostart & Start Minimized)
 
-#### Задача TASK-1015A: Генератор XDG Autostart desktop-файла
-- **Отдел:** `DevOps / Integration` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1015A: XDG Autostart Desktop Entry Generator
+- **Department:** `DevOps / Integration` | **Priority:** `P2`
+- **Files:**
   - `rust/crates/discord-platform/src/autostart_xdg.rs`
   - `tests/unit/autostart-xdg-1015a.test.mjs`
-- **Оракул:** Спецификация FreeDesktop XDG Autostart.
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест создания файла `~/.config/autostart/discord-gpui.desktop` с правами 0644.
-  2. *Micro-Step 2 (Green):* Валидация полей: `Type=Application`, `Exec=/usr/bin/discord-gpui --start-minimized`, `X-GNOME-Autostart-enabled=true`.
-  3. *Micro-Step 3 (Green):* Удаление файла при выключении автозапуска в настройках клиента.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (ошибочный путь бинарника, повреждение синтаксиса desktop-файла).
+- **Oracle:** FreeDesktop XDG Autostart Specification.
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Create file `~/.config/autostart/discord-gpui.desktop` with mode 0644.
+  2. *Micro-Step 2 (Green):* Validate entry fields: `Type=Application`, `Exec=/usr/bin/discord-gpui --start-minimized`, `X-GNOME-Autostart-enabled=true`.
+  3. *Micro-Step 3 (Green):* Unlink entry file when disabled in user settings.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (incorrect binary path, desktop entry syntax corruption).
 
-#### Задача TASK-1015B: Режим тихого старта свёрнутым в трей
-- **Отдел:** `G1 Backend` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1015B: Silent Minimized Tray Startup
+- **Department:** `G1 Backend` | **Priority:** `P2`
+- **Files:**
   - `rust/discord-gpui/src/platform/minimized_launch.rs`
   - `tests/unit/minimized-launch-1015b.test.mjs`
-- **Оракул:** `docs/feature-backlog.md` (карточка `R4-02` Трей и скрытый старт).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Проверка флага `--start-minimized` в аргументах CLI (`std::env::args()`).
-  2. *Micro-Step 2 (Green):* Пропуск вызова `window.open()` и инициализации WGPU surface до первого клика по трею.
-  3. *Micro-Step 3 (Green):* Экономия памяти при старте свёрнутым: VmRSS $< 8$ МБ до отображения графического окна.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (случайное мигание окна при старте, зависание трея при вызове).
+- **Oracle:** `docs/feature-backlog.md` (card `R4-02` Tray and hidden start).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Inspect CLI flag `--start-minimized` in `std::env::args()`.
+  2. *Micro-Step 2 (Green):* Skip `window.open()` and WGPU surface initialization until tray icon click.
+  3. *Micro-Step 3 (Green):* Enforce memory ceiling when minimized: VmRSS $< 8$ MB prior to mapping window.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (accidental window flash at launch, tray freeze).
 
 ---
 
-### Эпик Г4: Кросс-платформенные сборки (Windows & macOS)
+### Epic D4: Cross-Platform Packaging (Windows & macOS)
 
-#### Задача TASK-1016A: Спецификация WiX Toolset для Windows (MSI & Portable)
-- **Отдел:** `DevOps / Integration` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1016A: WiX Toolset Specification for Windows (MSI & Portable)
+- **Department:** `DevOps / Integration` | **Priority:** `P2`
+- **Files:**
   - `packaging/windows/wix.xml`
   - `scripts/build-windows-msi.sh`
   - `tests/unit/windows-packaging-1016a.test.mjs`
-- **Оракул:** `docs/feature-backlog.md` (карточка `R6-03` Windows специфика).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Валидация XML-манифеста WiX: GUID продукта, пути к бинарнику, ярлыкам в меню Пуск.
-  2. *Micro-Step 2 (Green):* Конфигурация переносимого Portable-режима (сохранение профиля в папку `data/` рядом с `exe`).
-  3. *Micro-Step 3 (Green):* Интеграция оверлей-иконок бейджей непрочитанных сообщений в таскбаре Windows.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (ошибочный UpgradeCode, запись в реестр в portable-режиме).
+- **Oracle:** `docs/feature-backlog.md` (card `R6-03` Windows packaging).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Validate WiX XML manifest: Product GUID, binary paths, Start Menu shortcuts.
+  2. *Micro-Step 2 (Green):* Configure Portable mode (profile stored under adjacent `data/` directory).
+  3. *Micro-Step 3 (Green):* Windows Taskbar unread badge overlay integration.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (invalid UpgradeCode, registry modifications in portable mode).
 
-#### Задача TASK-1016B: Сборка macOS `.dmg` и поддержка Vibrancy
-- **Отдел:** `DevOps / Integration` | **Приоритет:** `P2`
-- **Файлы:**
+#### Task TASK-1016B: macOS `.dmg` Packaging and Vibrancy
+- **Department:** `DevOps / Integration` | **Priority:** `P2`
+- **Files:**
   - `packaging/macos/build-dmg.sh`
   - `rust/discord-gpui/src/platform/macos_vibrancy.rs`
   - `tests/unit/macos-packaging-1016b.test.mjs`
-- **Оракул:** `docs/feature-backlog.md` (карточка `R6-04` macOS специфика).
-- **Микро-план реализации (Micro-TDD):**
-  1. *Micro-Step 1 (Red):* Тест структуры бандла `DiscordGPUI.app` (`Contents/MacOS/`, `Contents/Resources/`, `Info.plist`).
-  2. *Micro-Step 2 (Green):* Скрипт сборки сжатого `.dmg` с фоновым изображением и символической ссылкой на `/Applications`.
-  3. *Micro-Step 3 (Green):* Поддержка нативного эффекта размытия фона окна `NSVisualEffectView` Material Dark HUD.
-  4. *Micro-Step 4 (Mutation 5/5):* 5 мутаций (битый Info.plist, отсутствие x86_64/arm64 универсального бинарника).
+- **Oracle:** `docs/feature-backlog.md` (card `R6-04` macOS packaging).
+- **Implementation Micro-Plan (Micro-TDD):**
+  1. *Micro-Step 1 (Red):* Validate bundle structure `DiscordGPUI.app` (`Contents/MacOS/`, `Contents/Resources/`, `Info.plist`).
+  2. *Micro-Step 2 (Green):* Compressed `.dmg` packaging script with background image and `/Applications` symlink.
+  3. *Micro-Step 3 (Green):* Native background blur effect via `NSVisualEffectView` Material Dark HUD.
+  4. *Micro-Step 4 (Mutation 5/5):* 5 mutants (malformed Info.plist, missing universal x86_64/arm64 binary).

@@ -63,10 +63,10 @@ impl Session {
 **Оракулы**:
 - HELLO-терм (138 Б hex; из захвата, op10, `heartbeat_interval = 41250`; ведущий `0x83` + 137 Б терма):
   `8374000000046400016474000000026400065f74726163656c000000016d000000325b22676174657761792d7072642d61726d2d75732d65617374312d642d30346d35222c7b226d6963726f73223a302e307d5d6a6400126865617274626561745f696e74657276616c620000a1226400026f70610a640001736400036e696c640001746400036e696c`
-- Таймлайн: `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/timeline-95974_1389.tsv`
+- Таймлайн: `{RE_LAB_ROOT:-reference-oracle/}/gw-proto/timeline-95974_1389.tsv`
   (md5 `23f38750227ae79166748323199054d7`; формат: 3 строки `#`-заголовка, затем
   `i \t ts \t op \t s \t t`; `-` = nil). Провенанс: `capture-run2.jsonl` (ts) +
-  `gw-proto/msgs-run2-95974_1389.jsonl` (op/s/t); генератор — `/home/sanya/re-deep/gw-make-timeline.mjs`.
+  `gw-proto/msgs-run2-95974_1389.jsonl` (op/s/t); генератор — `reference-oracle/gw-make-timeline.mjs`.
 - Факты таймлайна (перепроверены координатором): событий 137; op10 = 1 (первое, ts 1792391312488);
   op11 = 23; op0 = 113 (s: 1..113 монотонно); first_ack_delta = 1214 мс; last_ack_delta = 658927 мс;
   max ACK-дельта = 41 263 мс; ≥9 дельт в [41 050; 41 300] (каденция 41 250); в ACK-потоке есть

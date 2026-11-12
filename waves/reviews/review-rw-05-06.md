@@ -6,7 +6,7 @@
 `/tmp/opencode/rw-06/report.md`; карточки §RW в `TASKS.md` («сдано; ждёт независимого ревью»).
 **Режим:** read-only по проекту; единственные записи — временные мутации с восстановлением по бэкапу
 и авторской проверкой md5; сеть не использовалась (стабы — только `127.0.0.1:0`), живой Discord не трогался;
-`logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+`logs/`, `functions/`, `evidence/`, `reference-oracle/` — только чтение.
 
 ## Вердикты
 
@@ -91,7 +91,7 @@ c0ce6ef149223e20a127179671d1ba34  tests/resume_reconnect.rs
 Числа отчёта RW-06 подтверждены; дополнительно совпало с `gw-proto/final-facts.log`
 (швы 663→664 и 331→332, `sentFrames`: IDENTIFY 943 Б; RESUME 173 (.8269) / 176 (.8608, .13072) — байты маскированных кадров).
 
-READY из `/home/sanya/re-deep/gateway/by-type/002-READY.json` (и `ready-stats.json`):
+READY из `reference-oracle/gateway/by-type/002-READY.json` (и `ready-stats.json`):
 `top_keys=40`, `guilds=7`, `private_channels=17`, `users=146`, `read_state{157, partial=false, version=128949}`,
 `relationships=60`, `user_guild_settings=58`; `user.id` `384…2032` (маскировано), `session_id` длиной 32 (маскировано),
 `resume_gateway_url` — домен совпадает. Все числа ТЗ RW-05 сходятся 1:1.

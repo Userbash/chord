@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RTCP/RTP oracle extractor for B07/RW-26 (P4-07 statistics).
 
-Read-only over /home/sanya/re-deep/voice/*.pcap (classic pcap, DLT_LINUX_SLL2=276).
+Read-only over /home/user/clean-room-oracle/voice/*.pcap (classic pcap, DLT_LINUX_SLL2=276).
 No third-party deps: stdlib only.
 
 Usage:

@@ -7,14 +7,14 @@
 - **Файл воркера:** только `rust/crates/discord-core/src/dispatch.rs`.
 - **Ветка / worktree:** `feature/task-146-dispatch-typed-deletes-channels`, HEAD `4e24048`.
 - **Независимый оракул:**
-  1. Веб-бандл Discord 1.0.162 `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (md5 `934b1289b7ebf17bc0fd09569b23b438`):
+  1. Веб-бандл Discord 1.0.162 `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (md5 `934b1289b7ebf17bc0fd09569b23b438`):
      - `@4 923 794`: `eH(["MESSAGE_DELETE"], e => f.D.loadGuildIds([e.guild_id]), e => { eW({type:"MESSAGE_DELETE", guildId:e.guild_id, id:e.id, channelId:e.channel_id}) })`;
      - `@4 923 864`: `eH(["MESSAGE_DELETE_BULK"], e => f.D.loadGuildIds([e.guild_id]), e => { eW({type:"MESSAGE_DELETE_BULK", guildId:e.guild_id, ids:e.ids, channelId:e.channel_id}) })`;
      - `@4 925 216`: `eH(["CHANNEL_CREATE","CHANNEL_DELETE"], e => f.D.loadGuildIds([e.guild_id]), (e, t) => { eW({type:t, channel:(0,ed.UE)(e)}) })`;
      - `@4 925 551`: `eH(["CHANNEL_UPDATE"], e => f.D.loadGuildIds([e.guild_id]), e => { eG.add(e) })`;
      - `@4 925 596`: `eH(["THREAD_CREATE","THREAD_UPDATE","THREAD_DELETE"], e => f.D.loadGuildIds([e.guild_id]), (e, t) => { let{newly_created:n,...i}=e; eW({type:t, isNewlyCreated:n, channel:(0,ed.UE)(i)}) })`;
      - `@8 897 000..8 903 000` (`ed.UE` / `fromServer`): поля `id`, `guild_id`, `type`, `name`, `parent_id`.
-  2. `/home/sanya/re-deep/gateway-protocol.json` (md5 `754fc8fa493d566bf1e46e9eebb82ff6`), `idChecks`: 64-битные Snowflake ID `> 2^53` в ETF `SMALL_BIG_EXT` (`guild.id = 1014537851418980372` / `6e0800143004f5cc5c140e`, `channel.id = 1176785373989445703` / `6e08004720841110c85410`, `message.id = 1561632596763353163`, `1561624484056793151`, `1561379697990959244`) и отрицательные значения старого сломанного парсера (`-1467272931325252608`), которые обязаны отвергаться.
+  2. `reference-oracle/gateway-protocol.json` (md5 `754fc8fa493d566bf1e46e9eebb82ff6`), `idChecks`: 64-битные Snowflake ID `> 2^53` в ETF `SMALL_BIG_EXT` (`guild.id = 1014537851418980372` / `6e0800143004f5cc5c140e`, `channel.id = 1176785373989445703` / `6e08004720841110c85410`, `message.id = 1561632596763353163`, `1561624484056793151`, `1561379697990959244`) и отрицательные значения старого сломанного парсера (`-1467272931325252608`), которые обязаны отвергаться.
 
 ## 2. Что сделано
 
@@ -35,7 +35,7 @@
 
 Команда:
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib dispatch::tests
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib dispatch::tests
 ```
 
 Результат (`red.log` / `RED.log`, `EXIT=101`, 0 passed, 5 failed):
@@ -49,9 +49,9 @@ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --man
 
 | Проверка | Команда | Результат | Лог |
 |---|---|---|---|
-| Targeted unit (`dispatch::tests`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib dispatch::tests` | **5 passed, 0 failed** (`EXIT=0`) | `green-lib.log` |
-| Все тесты `discord-core` | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core` | **53 набора, 582 passed, 0 failed** (`EXIT=0`) | `green.log` / `GREEN.log` |
-| Clippy (`discord-core`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `CLIPPY.log` |
+| Targeted unit (`dispatch::tests`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib dispatch::tests` | **5 passed, 0 failed** (`EXIT=0`) | `green-lib.log` |
+| Все тесты `discord-core` | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core` | **53 набора, 582 passed, 0 failed** (`EXIT=0`) | `green.log` / `GREEN.log` |
+| Clippy (`discord-core`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `CLIPPY.log` |
 | Форматирование | `cd rust && cargo fmt --all -- --check` | **чисто** (`EXIT=0`) | `FMT.log` |
 
 ## 5. Файлы и md5

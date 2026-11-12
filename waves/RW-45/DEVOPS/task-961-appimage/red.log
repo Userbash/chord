@@ -16,8 +16,8 @@
 
 test at tests/unit/appimage-package-961.test.mjs:87:3
 ✖ SUB-961-1: спецификация packaging/appimage/AppRun, desktop-файл и иконка валидны и поддерживают sandbox/env контракты (0.804239ms)
-  AssertionError [ERR_ASSERTION]: Файл AppRun должен существовать: /home/sanya/orca/project/packaging/appimage/AppRun
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/appimage-package-961.test.mjs:88:12)
+  AssertionError [ERR_ASSERTION]: Файл AppRun должен существовать: /home/user/orca/project/packaging/appimage/AppRun
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/appimage-package-961.test.mjs:88:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -37,8 +37,8 @@ test at tests/unit/appimage-package-961.test.mjs:87:3
 
 test at tests/unit/appimage-package-961.test.mjs:194:3
 ✖ SUB-961-2: scripts/build-appimage.sh собирает валидный Type 2 AppImage с бандлингом зависимостей, иконкой и .desktop файлом (0.241422ms)
-  AssertionError [ERR_ASSERTION]: Скрипт сборки должен существовать: /home/sanya/orca/project/scripts/build-appimage.sh
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/appimage-package-961.test.mjs:195:12)
+  AssertionError [ERR_ASSERTION]: Скрипт сборки должен существовать: /home/user/orca/project/scripts/build-appimage.sh
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/appimage-package-961.test.mjs:195:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -57,8 +57,8 @@ test at tests/unit/appimage-package-961.test.mjs:194:3
 
 test at tests/unit/appimage-package-961.test.mjs:392:3
 ✖ SUB-961-3: выполняет --headless-smoke внутри релизного AppImage (VmRSS < 60 MB) и проверяет fallback/негативные режимы (0.202522ms)
-  AssertionError [ERR_ASSERTION]: Релизный пакет AppImage должен существовать: /home/sanya/orca/project/rust/dist/discord-gpui-v1.0.0-beta.1-x86_64.AppImage
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/appimage-package-961.test.mjs:393:12)
+  AssertionError [ERR_ASSERTION]: Релизный пакет AppImage должен существовать: /home/user/orca/project/rust/dist/discord-gpui-v1.0.0-beta.1-x86_64.AppImage
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/appimage-package-961.test.mjs:393:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

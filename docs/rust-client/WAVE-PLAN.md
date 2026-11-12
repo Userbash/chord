@@ -1,168 +1,135 @@
-# WAVE-PLAN — batch-план и пропускная способность
+# WAVE-PLAN — Batch Scheduling, Throughput, and Execution Pipeline
 
-Статус: обновлён 2026-10-23 после RW-36. Источник карточек — `PLAN.md` (90), факт —
-`waves/STATE.md` и `STATUS.md`, роли — `TEAM.md`, процесс — `PROCESS.md` §3.13–§3.15.
-**Принято 48/90; осталось 42. RW-36/B07 закрыл GUI-спайк (P0-01/P0-06), RW-37 — оконную
-модель данных (ADR-1: PSS 393,9 → 276,2 МБ ≤300).** Следующий шаг — P3-01 (каркас окна и
-навигация), затем P3-02 (чат-вью). Старые расчёты скорости ниже — исторические гипотезы, не прогноз.
+Status: Updated following wave RW-36. Task cards are defined in `PLAN.md` (90 total cards); operational state is tracked in `waves/STATE.md` and `STATUS.md`; team roles in `TEAM.md`; process rules in `PROCESS.md` §3.13–§3.15.
 
-## 1. Главное
+## 1. Core Principles
 
-**90 карточек — это не 90 волн.** Волна (batch) содержит 3–6 независимых карточек, один
-замороженный контракт, один integration-патч и один общий gate.
+**90 cards do not equal 90 isolated waves.** A wave (batch) groups 3–6 independent task cards under a single frozen contract, delivering an integrated patch and passing a single unified quality gate.
 
-| Показатель | Было | Стало |
-| --- | --- | --- |
-| Единица волны | 1 карточка | 3–6 карточек |
-| Волн на 73 карточки | ~73 | ~18–22 |
-| Batch-волн в день | 0,5–1 | 2–3 |
-| Принятых карточек в день | 2–4 | 6–8 |
-| Полный gate | у каждого воркера | один раз на batch |
-| Обновление доков | после каждой итерации | один раз после accepted |
-| Тесты | полный workspace у каждого | targeted у воркера, full на batch |
-| Кодовый WIP | 6 воркеров | **2 активных воркера** (пара), остальные seats — QA/review/gate |
+| Metric | Legacy Single-Card Mode | Modern Integrated Batch Mode |
+|---|---|---|
+| Wave Execution Unit | 1 card | 3–6 independent cards |
+| Total Waves for 73 Cards | ~73 iterations | ~18–22 integrated batches |
+| Batches per Day | 0.5–1 | 2–3 |
+| Accepted Cards per Day | 2–4 | 6–8 |
+| Full Workspace Gate | Per individual worker | Once per integrated batch |
+| Documentation Updates | After every iteration | Once after formal acceptance |
+| Test Execution | Full workspace per worker | Targeted tests per worker, full on batch |
+| Active Code WIP | 6 concurrent workers | **2 active code workers** (paired), remaining seats in QA/review/gate |
 
-RW-36 выбрал GUI-тулкит (Tauri 2, ADR-1) и закрыл спайк P0-01/P0-06. Следующий шаг —
-оконная/постраничная модель данных (закрыть PSS > 300 МБ), затем UI foundation P3-02…P3-16.
-После UI — медиа/audio backend (P4.5/P5). Не объявлять готовность карточек, которым нужны
-live Discord или новые системные библиотеки, без согласованного окна/решения владельца.
+Wave RW-36 resolved the GUI toolkit spike (Tauri 2 / GPUI, ADR-1) and closed spike cards P0-01 and P0-06. The immediate next phase implements the windowed/paginated data model, followed by UI foundation cards P3-02...P3-16.
 
-## 2. Расчёт (историческая оценка)
+## 2. Throughput Estimation Models (Historical Baseline)
 
-Исходная оценка от 2026-10-20: 90 карточек, принято 17, осталось 73. Она superseded текущим
-фактом 46/90 из `waves/STATE.md`; категории и даты ниже не отражают текущую ready queue.
+Historical estimation baseline:
 
-| Сценарий (исторический) | Карточек/день | Дней на 73 | Комментарий |
-| --- | ---: | ---: | --- |
-| Консервативный | 4 | 18–19 | только 2 batch в работе, много блокеров |
-| **Плановый** | **6–8** | **10–13** | 2 активных кодовых воркера + QA/review pool, 2–3 batch/день |
-| Агрессивный | 10 | 8–9 | 6+ seats, нет блокеров, stable provider |
+| Scenario | Cards Accepted / Day | Days to Complete 73 Cards | Operational Context |
+|---|---:|---:|---|
+| Conservative | 4 | 18–19 | Single batch active, multiple dependency blockers |
+| **Planned Baseline** | **6–8** | **10–13** | 2 active code workers + dedicated QA/review pool, 2–3 batches/day |
+| Accelerated | 10 | 8–9 | Unblocked dependencies, automated CI validation |
 
-Ранее предполагалось ускорение за счёт перекрытия стадий и общего batch gate. На практике
-RW-28…35 показали повторные red/green/mutation циклы после ревью, поэтому % mutation catch rate
-сам по себе не является KPI качества; учитывать валидность baseline, survivors, inconclusive и
-время повторного цикла.
+Velocity metrics are calibrated against verified completed batches. The mutation kill rate metric is evaluated alongside baseline validity, surviving mutants, inconclusive runs, and post-review iteration cycles.
 
-## 3. Ready-queue на 2026-10-20 (история)
+## 3. Ready Queue Structure
 
-Это карточки, которые не ждут внешних решений. Они запускаются первыми.
+Task cards with zero external dependencies, ready for immediate assignment:
 
-| ID | Карточка | Зависит от | Почему готова | Риск |
-| --- | --- | --- | --- | --- |
-| P2-09 | presence, accept | P2-02 | код, P2-фиксы, мутации, gate готовы | ждёт review round 2 |
-| P2-10 | voice states | P2-02 | snapshot `003` + 8 live `VOICE_STATE_UPDATE` | DM/voice transport вне scope |
-| P2-11 | typing | P2-04 | oracle 28 START / TTL 10 000 мс | fixture создаётся в W20 |
-| P2-08 | settings-proto | P2-02 | opaque protobuf → structural model | schema не подтверждена |
-| P1-01 | ETF full | P0-02 | прототип принят, нужен полный контракт | fuzz/границы |
-| P1-02 | zstd stream strict | P0-03 | прототип принят, нужен строгий stream | s=113 хвост |
-| P0-04 | conformance harness | — | скелет крейта есть | lab-only фикстуры |
-| P0-07 | legal framework | — | docs-only | нужен владелец для формулировок |
-| P3-15 | i18n runtime | — | ключ/локаль/строки | нет GUI |
-| P4-01 | voice signaling | P1-06 | headless, RE-фикстуры | без voice transport |
-| P7-04 | API completeness | P1-07 | read-only REST | без UI |
-| P8-03 | CI | — | scripts/checks | без remote/CI-раннера |
+| ID | Task Card | Depends On | Readiness Justification | Risk Vectors |
+|---|---|---|---|---|
+| P2-09 | Presence Tracking | P2-02 | Code, P2 fixes, mutation suite, and gate complete | Pending second-round review |
+| P2-10 | Voice Channel States | P2-02 | Snapshot `003` + 8 live `VOICE_STATE_UPDATE` captures | Media transport isolated from scope |
+| P2-11 | Typing Indicators | P2-04 | Cleanroom oracle with 28 typing events / 10,000 ms TTL | Fixture established in W20 |
+| P2-08 | Settings Protobuf Decoder | P2-02 | Opaque Protobuf decoding -> structural settings model | Schema evolution boundaries |
+| P1-01 | Complete ETF Codec | P0-02 | Prototype accepted, full wire specification required | Fuzz target boundary limits |
+| P1-02 | Strict zstd Stream Decoder | P0-03 | Prototype accepted, streaming decoder required | Sequence continuation tail |
+| P0-04 | Conformance Test Harness | — | Crate skeleton established in workspace | Cleanroom fixture availability |
+| P0-07 | Legal Framework | — | Documentation-only | Final policy sign-off |
+| P3-15 | I18N Runtime Foundation | — | Key hashing, locale resolution, string catalogs | Headless execution, no GUI required |
+| P4-01 | Voice Signaling Engine | P1-06 | Headless signaling, cleanroom fixtures | Media transport isolated |
+| P7-04 | Extended REST API Surface | P1-07 | Read-only REST endpoints | UI integration detached |
+| P8-03 | Automated CI Pipeline | — | Local build and verification scripts | Remote CI runner configuration |
 
-## 4. Batch-план
+## 4. Batch Execution Plan
 
-### 4.1 Детально (ready, без внешних решений)
+### 4.1 Completed Foundational Batches
 
-| Batch | Карточки | Лейны | Ворота |
-| --- | --- | --- | --- |
-| **B01 / RW-19–20** | P2-09 (accept), P2-10, P2-11 | CORE-1 voice, CORE-2 typing; TEST-1, QA-1, REV-1/2 | P2-09 review; voice/typing 15+15; batch gate |
-| **B02 / RW-21** | P1-01, P1-02, P0-04, P0-07, P2-08 | CORE-1 ETF full, CORE-2 zstd strict, CORE-3 settings, TEST-1, OPS-1 | **принято 2026-10-21**; contract freeze, fuzz, batch gate |
-| **B03 / RW-22** | P3-15, P4-01, P7-04, P8-03 | CLIENT-1 i18n, VOICE-1 signaling, CORE-3 API, OPS-1 CI | **принято 2026-10-21**; headless-only; gate passed |
-| **B04 / RW-23** | P4-02, P8-04 | VOICE-1 UDP, OPS-1 SBOM | **принято 2026-10-21**; 21 caught + 1 inconclusive |
-| **B05 / RW-24** | P7-01 | CLIENT-1 locale/plural/format/markdown, integration TL | **принято 2026-10-21**; 33 i18n, 20/20 mutations |
+| Batch | Cards Grouped | Assigned Lanes | Acceptance Gate |
+|---|---|---|---|
+| **B01 / RW-19–20** | P2-09, P2-10, P2-11 | CORE-1 (voice), CORE-2 (typing); TEST-1, QA-1, REV-1/2 | P2-09 review; voice/typing test suites; batch gate |
+| **B02 / RW-21** | P1-01, P1-02, P0-04, P0-07, P2-08 | CORE-1 (ETF), CORE-2 (zstd), CORE-3 (settings), TEST-1, OPS-1 | **Accepted 2026-10-21**; contract freeze, fuzzing, batch gate |
+| **B03 / RW-22** | P3-15, P4-01, P7-04, P8-03 | CLIENT-1 (i18n), VOICE-1 (signaling), CORE-3 (API), OPS-1 (CI) | **Accepted 2026-10-21**; headless-only; gate passed |
+| **B04 / RW-23** | P4-02, P8-04 | VOICE-1 (UDP), OPS-1 (SBOM) | **Accepted 2026-10-21**; 21 mutants killed, 1 inconclusive |
+| **B05 / RW-24** | P7-01 | CLIENT-1 (locale, plural, formatting, markdown), Lead Integration | **Accepted 2026-10-21**; 33 i18n tests, 20/20 mutations killed |
 
-B01 и B02 можно вести с перекрытием: пока B01 в review, B02 в research/freeze. Не запускать
-оба полных gate одновременно. B01 держит **двух** активных кодовых воркеров; P2-08 перенесён
-в B02, чтобы не запускать третьего.
+### 4.2 Staged Rolling Pipeline
 
-### 4.2 Rolling plan после RW-35
+Development is decoupled into research/specification and implementation stages to avoid coding against unverified external environments:
 
-План разбит на исследование/решения и реализацию, чтобы не кодировать под неподтверждённую среду.
-Нумерация batch ниже — ориентир по зависимостям, не фиксация календаря.
+| Stage | Scope of Work | Deliverables & Gates | Entry Conditions |
+|---|---|---|---|
+| **A. Audit Queue** | P3 items from `waves/STATE.md`: address test gaps and cleanup debts | Targeted task cards with test IDs, file write-scopes, and mutation tests | Lead confirms backlog scope |
+| **B. GUI Spike** | P0-01, P0-06 — **Completed in RW-36** | ADR-1: GUI architecture accepted; 60 fps p95 < 18ms, cold start < 140ms | Completed; windowed data model established |
+| **C. UI Foundation -> Chat** | P3-02…P3-16 partitioned into non-overlapping file scopes | Headless view-model tests -> native smoke tests | P0-01 accepted |
+| **D. Voice Engine** | P4-05/P4-06/P4-08/P4-09 | Device lifecycle, mute/PTT hotkeys, audio filters, soundboard tests | Audio backend specified, fixture available |
+| **E. Media & E2EE** | P5-01…P5-07 and P45-01…P45-03 following dependency DAG | Screen capture, video encode, DAVE MLS key schedule and framing | GUI + media backend specified |
+| **F. Finalization** | Remaining P6/P7/P8 cards from `PLAN.md` | Platform integrations, performance, accessibility, release packaging | Core feature acceptance |
 
-| Этап | Карточки/работа | Результат / gate | Стартовое условие |
-| --- | --- | --- | --- |
-| **A. Очередь аудита** | P3 из `waves/STATE.md` §7: в первую очередь RW-30…35 тестовые пробелы и API/cleanup долги | отдельные маленькие карточки с test ID, файлами, oracle и mutation; не смешивать с новой фичей | TL подтверждает актуальность backlog; не дублировать незакоммиченные RW-35 f11/f13 изменения до их ревью/приёмки |
-| **B. GUI spike** | P0-01, P0-06 — **выполнено RW-36** | ADR-1: Tauri 2 принят; 60 fps p95 18 мс, cold start 102–137 мс, cold build 29,56 с; **PSS 394 МБ > 300 МБ** → оконная модель | закрыто; follow-up — оконная/постраничная модель данных |
-| **C. UI foundation → chat** | P3-02…P3-16 группами по непересекающимся файлам; приоритет зависимости из `PLAN.md` | headless view-model tests → native smoke; не объявлять UI готовым по одному unit gate | P0-01 принят; для live smoke отдельно согласовано окно |
-| **D. Audio/voice remainder** | P4-05/P4-06/P4-08/P4-09 — статусы и точные названия сверить с `PLAN.md` перед ТЗ | сначала backend spike и oracle/fixture; затем device lifecycle, mute/PTT, audio quality и soundboard targeted tests | выбран audio backend, доступна тестовая система/фикстура; P4-04 RTP не считать Opus implementation |
-| **E. Media/DAVE** | P5-01…P5-07 и P45-01…P45-03 по dependency graph | capture/encode/interop — отдельные checkpoints; DAVE не начинать до протокольного oracle и security review | GUI + media backend + разрешённые зависимости; живой interop только по согласованному окну |
-| **F. Завершение** | остаток P6/P7/P8 по `PLAN.md` и актуальному `STATUS.md` | сначала закрыть внешний UI/инфраструктурный блокер, затем оставить perf/accessibility/release в отдельных batch | после пересборки ready queue на основании accepted A–E |
-
-Волны RW-28…35 подтверждают, что расширения и исправления после независимого ревью могут
-добавлять тесты, новые мутации и повторные логи. Поэтому размер batch определяется не только
-карточками, но и изоляцией тестовых файлов, внешней средой и числом владельцев общих ресурсов.
-Не обещать «2–3 batch/день» до измерения минимум двух следующих batch по фактическому циклу
-red → green → mutation → review → accepted.
-
-## 5. Критический путь
+## 5. Critical Path
 
 ```mermaid
 flowchart LR
-  A["P0-01 GUI spike"] --> B["P3-01 shell"]
-  B --> C["P3-02 chat"]
-  C --> D["P3-03 send"]
-  D --> E["P3-04 attachments"]
-  C --> F["P3-05..09 actions/search"]
-  G["P4-01 signaling"] --> H["P4-02 UDP"]
-  H --> I["P4-03 SRTP"]
-  I --> J["P4-04 RTP/media"]
-  J --> K["P4-05..12 features"]
-  J --> L["P45 DAVE"]
-  M["P1-10 keyring (accepted)"] --> N["P6-10 account"]
-  O["P2-03 SQLite (accepted)"] --> P["persistence"]
+  A["P0-01 GUI Spike"] --> B["P3-01 Shell"]
+  B --> C["P3-02 Chat View"]
+  C --> D["P3-03 Message Send"]
+  D --> E["P3-04 Attachments"]
+  C --> F["P3-05..09 Actions & Search"]
+  G["P4-01 Signaling"] --> H["P4-02 UDP Voice"]
+  H --> I["P4-03 SRTP Encryption"]
+  I --> J["P4-04 RTP Audio"]
+  J --> K["P4-05..12 Voice Features"]
+  J --> L["P45 DAVE MLS"]
+  M["P1-10 Keyring Vault"] --> N["P6-10 Account Switcher"]
+  O["P2-03 SQLite Store"] --> P["Persistence Engine"]
 ```
 
-Самые длинные цепочки: **GUI → P3-01 → P3-02 → P3-03 → P3-04** и
-**P4-01 → P4-02 → P4-03 → P4-04 → оставшиеся voice features**. P4-04 принят как RTP/media;
-не считать его реализацией Opus. Перед запуском любого якобы headless остатка сверить карточку,
-зависимости и статус в текущем `PLAN.md`/`STATUS.md`.
+The primary critical chains are:
+1. **GUI Foundation:** P0-01 -> P3-01 -> P3-02 -> P3-03 -> P3-04.
+2. **Audio Pipeline:** P4-01 -> P4-02 -> P4-03 -> P4-04 -> Advanced Voice Features.
 
-## 6. Blockers и что они открывают
+## 6. Dependency Blockers and Resolution Paths
 
-| Блокер | Карточки | Что нужно от владельца | Если не решён |
-| --- | ---: | --- | --- |
-| GUI-крейты | P0-01, P0-06, P3-01…P3-16, GUI-зависимые P5/P6/P7 | выбрать тулкит и разрешить недостающие зависимости/загрузку | headless-модели есть, пользовательского окна нет |
-| Audio/media backend | P4-05…P4-09, P5-01…P5-07, часть P4.5 | выбрать API и определить воспроизводимый локальный oracle | RTP/crypto готовы частично; устройства/кодеки/capture не закрыты |
-| Live Discord/interoperability | live-smoke, P4/P5/P4.5 interop | отдельное окно владельца и тестовый аккаунт/канал | фикстуры/loopback не доказывают interop |
-| Внешние системные библиотеки | по каждой карточке через spike | проверить локальное наличие, ABI/версию, лицензии, сборку/offline | не вводить новую зависимость до решения владельца |
-| Провайдер/длинные гейты | cargo и batch integration | не более двух фоновых запусков, один cargo за раз | очередь с повторным запуском после освобождения слота |
+| Dependency Blocker | Impacted Cards | Resolution Path | Impact if Unresolved |
+|---|---:|---|---|
+| GUI Framework Crates | P0-01, P0-06, P3-01…P3-16, UI-dependent P5/P6/P7 | Confirm toolkit and approve crate dependencies | Headless models functional, graphical window unavailable |
+| Audio/Media Backend | P4-05…P4-09, P5-01…P5-07, partial P4.5 | Select audio API (CPAL/PulseAudio/PipeWire) with local mock harness | RTP/crypto operational; hardware capture unavailable |
+| Live Verification Accounts | Live smoke tests, P4/P5/P4.5 interop | Dedicated test accounts and test guilds | Conformance verified via local fixtures |
+| System Dynamic Libraries | Platform-specific cards via spike | Verify local library presence, ABI compatibility, and offline builds | Fail closed with skip/code 2 |
+| Build Tool Concurrency | Cargo compilation and batch integration | Restrict concurrent cargo builds; serialize via workspace lock | Build lock contention |
 
-**Уже снято:** keyring, SQLite и D-Bus fd-passing приняты в RW-31/33/35. Не планировать их
-как открытые blocker-ы. Главный blocker теперь — GUI-тулкит; следующий — конкретный аудио/media
-backend. Live smoke остаётся отдельным условием только для live-контрактов.
+Resolved Dependencies: Keyring integration, SQLite storage, and D-Bus file descriptor passing were verified and accepted in RW-31, RW-33, and RW-35.
 
-## 7. Управление тестами
+## 7. Test Governance and Execution Controls
 
-- Воркер запускает только targeted-тесты своего модуля; полный workspace — на batch.
-- Бюджет: S 6–10, M 10–16, L 16–24, XL 24–32 теста на карточку (`TEST-PLAN.md` §1.1).
-- Одинаковые границы — таблицей, а не 10 копий; фикстуры — через общий `tests/support`.
-- Мутации выводятся из рисков, имеют связь mutant → test ID; score без валидного baseline не
-  публикуется. `INCONCLUSIVE` не считается убитым, equivalent отдельно обоснован.
-- Проверять skip по ID/причине, а не подстрочными эвристиками; live-флаг с ошибкой среды должен
-  падать, когда это live assertion.
-- Из ревью и mutation survivors создаются регрессионные тесты либо конкретные backlog IDs;
-  P3 не теряется в отчёте. Полный метод — `TEST-PLAN.md` §1.2 и `PROCESS.md` §4.2–§4.3.
-- Генератор/fixture builder входит в matrix; два прогона, детерминированные хеши, provenance oracle.
+- Workers execute only targeted test binaries for assigned modules; full workspace verification runs once per integrated batch.
+- Testing budgets: S (6–10), M (10–16), L (16–24), XL (24–32) tests per card (`TEST-PLAN.md` §1.1).
+- Equivalence assertions use table-driven tests rather than duplicated test functions.
+- Mutation fault models derive from real operational risks; scores require a green baseline; inconclusive runs never count as killed.
+- Skips are tracked by explicit ID and reason; tests asserting live operational contracts must fail if required dependencies are absent.
+- Surviving mutants trigger new regression tests or explicit backlog items.
 
-## 8. Ежедневный цикл Team Lead
+## 8. Daily Operational Cycle
 
-1. Утром: `waves/STATE.md` §1/§5/§7, последние 5 событий `db.jsonl`, актуальный `PLAN.md`;
-   проверить blocker-ы и хвосты после ревью, не читать исторические планы как статус.
-2. Заморозить контракты и файловые матрицы; запустить максимум 2 фоновых агента.
-3. Пока идёт code — проверить review предыдущего batch; P0/P1/P2 — red-first.
-4. После green — один batch gate; затем параллельно 2 ревьюера.
-5. После accepted — один раз обновить доки/журнал, пересобрать ready-queue.
-6. Вечером: KPI (accepted/day, first-pass gate, P0/P1/P2, valid KILLED/survivor/inconclusive,
-   повторные циклы и flaky tests) и план на завтра.
+1. **Morning Briefing:** Review `waves/STATE.md`, recent entries in `waves/db.jsonl`, and active `PLAN.md`; verify unblocked tasks.
+2. **Contract Freezing:** Freeze interfaces and file scopes for the active batch; launch at most 2 parallel coding workers.
+3. **Review Pipeline:** Review the previous batch while coding proceeds; address P0/P1/P2 findings test-first.
+4. **Integration Gate:** Run the unified batch gate following green implementation; assign 2 independent code reviewers.
+5. **Acceptance Synchronization:** On acceptance, update documentation, state ledger, and recompute the ready queue.
+6. **Evening Retrospective:** Review KPIs (accepted cards, first-pass gate rate, zero critical defects, mutation scores) and prepare the next queue.
 
-## 9. Что считается успехом
+## 9. Success Criteria
 
-- измеренная скорость по двум последовательным batch; целевую скорость не задавать до факта;
-- P0/P1 = 0 на каждом ревью; P2 закрыт до accepted;
-- нет гонок за файлы и дублей полного gate;
-- unimplemented work планируется по зависимостям и проверяемым oracle, а не по старой оценке дней;
-- после каждой волны обновлены `STATE`, `db.jsonl`, `STATUS`, `ROADMAP`, `TASKS`, `map`.
+- Measured velocity verified across consecutive integrated batches.
+- Zero P0/P1 defects on review; all P2 findings resolved prior to acceptance.
+- Zero file scope conflicts or redundant full-workspace compilation runs.
+- Tracking documents (`STATE.md`, `db.jsonl`, `STATUS.md`, `ROADMAP.md`, `TASKS.md`, `docs/map.md`) kept strictly synchronized.

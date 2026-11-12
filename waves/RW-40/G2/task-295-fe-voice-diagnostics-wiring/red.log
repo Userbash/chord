@@ -2,7 +2,7 @@
 # реализация в voice.js ещё отсутствует (вывод снят с прогона, exit code 1).
 
 $ node --test tests/unit/voice-ui.test.mjs
-file:///home/sanya/orca/workspaces/project/feature-task-295-fe-voice-diagnostics-wiring/tests/unit/voice-ui.test.mjs:29
+file:///home/user/orca/workspaces/project/feature-task-295-fe-voice-diagnostics-wiring/tests/unit/voice-ui.test.mjs:29
   createVoiceDiagnosticsController,
   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/voice.js' does not provide an export named 'createVoiceDiagnosticsController'

@@ -2,24 +2,20 @@
 
 Welcome to the comprehensive documentation for **Discord Lab & Discord GPUI Client**.
 
-> **Language Index:** **English** | [Русская документация](../README.ru.md)
-
----
-
 ## 1. Quick Navigation
 
-| Document | English Version | Russian Version | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Main Overview** | [`README.md`](../README.md) | [`README.ru.md`](../README.ru.md) | Architecture, benchmarks, features, quick start |
-| **Contributing Guide** | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | — | Clean-Room rules, TDD, code style, PRs |
-| **License** | [`LICENSE`](../LICENSE) | — | GNU General Public License v3.0 |
-| **Beta Testing Guide** | [`BETA-TESTING-GUIDE.en.md`](BETA-TESTING-GUIDE.en.md) | [`BETA-TESTING-GUIDE.md`](BETA-TESTING-GUIDE.md) | How to test the v1.0.0-beta.1 native release |
-| **System Requirements** | [`SYSTEM-REQUIREMENTS.en.md`](SYSTEM-REQUIREMENTS.en.md) | [`SYSTEM-REQUIREMENTS.md`](SYSTEM-REQUIREMENTS.md) | Linux libraries, Vulkan, PipeWire, llvmpipe |
-| **Project Registry** | [`PROJECT-REGISTRY.en.md`](PROJECT-REGISTRY.en.md) | [`PROJECT-REGISTRY.md`](PROJECT-REGISTRY.md) | Workspace crate inventory, contracts, status |
-| **Release Notes** | [`../RELEASE-NOTES-v1.0.0-beta.1.en.md`](../RELEASE-NOTES-v1.0.0-beta.1.en.md) | [`../RELEASE-NOTES-v1.0.0-beta.1.md`](../RELEASE-NOTES-v1.0.0-beta.1.md) | v1.0.0-beta.1 release summary |
-| **Feature Backlog** | [`feature-backlog.md`](feature-backlog.md) | — | Discord feature parity checklist |
-| **Vesktop Analysis** | [`vesktop-analysis.md`](vesktop-analysis.md) | — | Architecture comparison with Vesktop/Vencord |
-| **Discord-Qt Analysis**| [`discord-qt-analysis.md`](discord-qt-analysis.md) | — | Architecture comparison with Discord-Qt |
+| Document | Link | Purpose |
+| :--- | :--- | :--- |
+| **Main Overview** | [`README.md`](../README.md) | Architecture, benchmarks, features, quick start |
+| **Contributing Guide** | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Clean-Room rules, TDD, code style, PRs |
+| **License** | [`LICENSE`](../LICENSE) | GNU General Public License v3.0 |
+| **Beta Testing Guide** | [`BETA-TESTING-GUIDE.md`](BETA-TESTING-GUIDE.md) | How to test the v1.0.0-beta.1 native release |
+| **System Requirements** | [`SYSTEM-REQUIREMENTS.md`](SYSTEM-REQUIREMENTS.md) | Linux libraries, Vulkan, PipeWire, llvmpipe |
+| **Project Registry** | [`PROJECT-REGISTRY.md`](PROJECT-REGISTRY.md) | Workspace crate inventory, contracts, status |
+| **Release Notes** | [`../RELEASE-NOTES-v1.0.0-beta.1.md`](../RELEASE-NOTES-v1.0.0-beta.1.md) | v1.0.0-beta.1 release summary |
+| **Feature Backlog** | [`feature-backlog.md`](feature-backlog.md) | Discord feature parity checklist |
+| **Vesktop Analysis** | [`vesktop-analysis.md`](vesktop-analysis.md) | Architecture comparison with Vesktop/Vencord |
+| **Discord-Qt Analysis**| [`discord-qt-analysis.md`](discord-qt-analysis.md) | Architecture comparison with Discord-Qt |
 
 ---
 

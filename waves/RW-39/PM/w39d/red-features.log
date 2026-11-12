@@ -7,9 +7,9 @@ AssertionError [ERR_ASSERTION]: стартовый экран не chat
 
 null !== 'chat'
 
-    at file:///home/sanya/orca/project/waves/RW-39/PM/w39d/features-check.mjs:39:12
-    at check (file:///home/sanya/orca/project/waves/RW-39/PM/w39d/features-check.mjs:17:11)
-    at file:///home/sanya/orca/project/waves/RW-39/PM/w39d/features-check.mjs:38:9 {
+    at file:///home/user/orca/project/waves/RW-39/PM/w39d/features-check.mjs:39:12
+    at check (file:///home/user/orca/project/waves/RW-39/PM/w39d/features-check.mjs:17:11)
+    at file:///home/user/orca/project/waves/RW-39/PM/w39d/features-check.mjs:38:9 {
   generatedMessage: false,
   code: 'ERR_ASSERTION',
   actual: null,

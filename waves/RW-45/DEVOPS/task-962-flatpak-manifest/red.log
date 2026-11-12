@@ -18,8 +18,8 @@
 
 test at tests/unit/flatpak-manifest-962.test.mjs:236:3
 ✖ SUB-962-1: манифест packaging/flatpak/com.discord_lab.DiscordGpui.yml существует, валиден по YAML-схеме и задаёт runtime org.freedesktop.Platform 23.08 (0.696629ms)
-  AssertionError [ERR_ASSERTION]: Манифест Flatpak должен существовать по пути: /home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:237:12)
+  AssertionError [ERR_ASSERTION]: Манифест Flatpak должен существовать по пути: /home/user/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:237:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -44,13 +44,13 @@ test at tests/unit/flatpak-manifest-962.test.mjs:264:3
     File "<string>", line 2, in <module>
       with open(sys.argv[1], 'r', encoding='utf-8') as f:
            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/user/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
   
   
   1 !== 0
   
-      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:265:22)
+      at parseYamlWithPythonOracle (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:265:22)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -74,13 +74,13 @@ test at tests/unit/flatpak-manifest-962.test.mjs:311:3
     File "<string>", line 2, in <module>
       with open(sys.argv[1], 'r', encoding='utf-8') as f:
            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/user/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
   
   
   1 !== 0
   
-      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:312:22)
+      at parseYamlWithPythonOracle (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:312:22)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -102,13 +102,13 @@ test at tests/unit/flatpak-manifest-962.test.mjs:345:3
     File "<string>", line 2, in <module>
       with open(sys.argv[1], 'r', encoding='utf-8') as f:
            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/user/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
   
   
   1 !== 0
   
-      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:346:22)
+      at parseYamlWithPythonOracle (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:346:22)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -130,13 +130,13 @@ test at tests/unit/flatpak-manifest-962.test.mjs:385:3
     File "<string>", line 2, in <module>
       with open(sys.argv[1], 'r', encoding='utf-8') as f:
            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/user/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml'
   
   
   1 !== 0
   
-      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs:386:26)
+      at parseYamlWithPythonOracle (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:100:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs:386:26)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

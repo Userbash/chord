@@ -31,7 +31,7 @@ release: cargo build --offline --release -p discord-app
    Compiling futures-core v0.3.34
    Compiling twox-hash v2.1.5
    Compiling data-encoding v2.11.1
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/crates/discord-json)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/testing/rust/crates/discord-json)
    Compiling ruzstd v0.9.1
    Compiling futures-util v0.3.34
    Compiling http v1.5.0
@@ -44,7 +44,7 @@ release: cargo build --offline --release -p discord-app
    Compiling getrandom v0.2.17
    Compiling mio v1.2.4
    Compiling socket2 v0.6.5
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/testing/rust/crates/discord-codec)
    Compiling rand v0.10.3
    Compiling ring v0.17.14
    Compiling digest v0.11.3
@@ -56,8 +56,8 @@ release: cargo build --offline --release -p discord-app
    Compiling tungstenite v0.30.0
    Compiling tokio-rustls v0.26.6
    Compiling tokio-tungstenite v0.30.0
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/crates/discord-core)
-   Compiling discord-app v0.1.0 (/home/sanya/orca/workspaces/project/testing/rust/crates/discord-app)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/testing/rust/crates/discord-core)
+   Compiling discord-app v0.1.0 (/home/user/orca/workspaces/project/testing/rust/crates/discord-app)
     Finished `release` profile [optimized] target(s) in 11.90s
 release: артефакт /tmp/opencode/dist-rebuild/discord-rs
 release: checksum /tmp/opencode/dist-rebuild/SHA256SUMS

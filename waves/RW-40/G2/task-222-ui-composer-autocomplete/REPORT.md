@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-222` (`feature/task-222-ui-composer-autocomplete`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/frontend-d03.md` (композер, всплывающий список подсказок `role="listbox"`, элементы `role="option"` с `aria-selected`), `/home/sanya/re-deep/ru-catalog.json` (`X2x0MF`: «Доступные команды», секции `КОМАНДЫ` / `УЧАСТНИКИ И РОЛИ` / `ТЕКСТОВЫЕ КАНАЛЫ`).
+- **Оракулы**: `reference-oracle/frontend-d03.md` (композер, всплывающий список подсказок `role="listbox"`, элементы `role="option"` с `aria-selected`), `reference-oracle/ru-catalog.json` (`X2x0MF`: «Доступные команды», секции `КОМАНДЫ` / `УЧАСТНИКИ И РОЛИ` / `ТЕКСТОВЫЕ КАНАЛЫ`).
 
 ## Сделано
 1. `tests/unit/composer-autocomplete.test.mjs` (Red → Green, 8 тестов в 2 suites, `// @ts-check` + JSDoc, минимальный DOM-шим):
@@ -20,8 +20,8 @@
    - экспортированы `AUTOCOMPLETE_MAX_SUGGESTIONS`, `AUTOCOMPLETE_KINDS`, `AUTOCOMPLETE_HEADERS_RU`, `detectAutocompleteTrigger` и `createComposerAutocompleteController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/composer-autocomplete.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-222-ui-composer-autocomplete/red.log`.
-- **Green**: `node --test tests/unit/composer-autocomplete.test.mjs` → `tests 8, suites 2, pass 8, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-222-ui-composer-autocomplete/green.log`.
+- **Red**: `node --test tests/unit/composer-autocomplete.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-222-ui-composer-autocomplete/red.log`.
+- **Green**: `node --test tests/unit/composer-autocomplete.test.mjs` → `tests 8, suites 2, pass 8, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-222-ui-composer-autocomplete/green.log`.
 - **Typecheck (targeted)**: `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` и целевая проверка `composer-autocomplete.js` + `composer-autocomplete.test.mjs` через `npx tsc --ignoreConfig` — `0 errors`.
 - **Gate**: полный `gate:worker` не запускался (режим ТЗ карточки); чужие файлы не затронуты.
 
@@ -29,8 +29,8 @@
 ```
 79eb7acc7351aa330549229624298e1d  rust/gui-spike/ui/features/composer-autocomplete.js
 5453420db7fd309ff029a126dd471253  tests/unit/composer-autocomplete.test.mjs
-95d83ef05f55e95b5bbdfda73c6dec90  /home/sanya/orca/project/waves/RW-40/G2/task-222-ui-composer-autocomplete/red.log
-764a3df02e78ee33c7ed4607ada15a96  /home/sanya/orca/project/waves/RW-40/G2/task-222-ui-composer-autocomplete/green.log
+95d83ef05f55e95b5bbdfda73c6dec90  /home/user/orca/project/waves/RW-40/G2/task-222-ui-composer-autocomplete/red.log
+764a3df02e78ee33c7ed4607ada15a96  /home/user/orca/project/waves/RW-40/G2/task-222-ui-composer-autocomplete/green.log
 ```
 
 ## Риски

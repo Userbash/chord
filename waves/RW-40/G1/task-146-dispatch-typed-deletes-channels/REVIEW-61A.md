@@ -2,9 +2,9 @@
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер, Review 61A.
 Ветка: `feature/task-146-dispatch-typed-deletes-channels`, worktree
-`/home/sanya/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels`,
+`/home/user/orca/workspaces/project/feature-task-146-dispatch-typed-deletes-channels`,
 HEAD `4e24048`.
-Режим: сверка с отчётом воркера (`REPORT.md`), RE-аудитом (`RE-GAP-BACKEND-PROTOCOL.md` §3.3, `REVIEW-50A.md` P2-3) и артефактами `/home/sanya/re-deep/` + аудит диффа `rust/crates/discord-core/src/dispatch.rs` + целевые/интеграционные тесты + 5/5 мутационных прогонов.
+Режим: сверка с отчётом воркера (`REPORT.md`), RE-аудитом (`RE-GAP-BACKEND-PROTOCOL.md` §3.3, `REVIEW-50A.md` P2-3) и артефактами `reference-oracle/` + аудит диффа `rust/crates/discord-core/src/dispatch.rs` + целевые/интеграционные тесты + 5/5 мутационных прогонов.
 
 ## Вердикт
 
@@ -21,14 +21,14 @@ HEAD `4e24048`.
 
 ## 1. Проверка прогонов и артефактов воркера
 
-Все команды выполнены последовательно с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Все команды выполнены последовательно с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 
 | Проверка | Команда | Результат | Лог ревью |
 |---|---|---|---|
-| Unit-тесты `dispatch` | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib dispatch` | **5 passed, 0 failed** (`EXIT=0`) | `REVIEW-61A-GREEN-LIB.log` |
-| Интеграционный тест роутера (`dispatch_router`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test dispatch_router` | **12 passed, 0 failed** (`EXIT=0`) | `REVIEW-61A-DISPATCH-ROUTER-IT.log` |
-| Clippy (`discord-core --all-targets`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `REVIEW-61A-CLIPPY.log` |
-| Форматирование (`rustfmt`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo fmt --manifest-path rust/Cargo.toml -p discord-core -- --check` | **чисто** (`EXIT=0`) | `REVIEW-61A-FMT.log` |
+| Unit-тесты `dispatch` | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib dispatch` | **5 passed, 0 failed** (`EXIT=0`) | `REVIEW-61A-GREEN-LIB.log` |
+| Интеграционный тест роутера (`dispatch_router`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test dispatch_router` | **12 passed, 0 failed** (`EXIT=0`) | `REVIEW-61A-DISPATCH-ROUTER-IT.log` |
+| Clippy (`discord-core --all-targets`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `REVIEW-61A-CLIPPY.log` |
+| Форматирование (`rustfmt`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo fmt --manifest-path rust/Cargo.toml -p discord-core -- --check` | **чисто** (`EXIT=0`) | `REVIEW-61A-FMT.log` |
 
 Контрольные суммы всех файлов и логов воркера перепроверены и побайтно совпадают с `REPORT.md` §5:
 - `rust/crates/discord-core/src/dispatch.rs` — `e33cc7d7821be717bfa6d3a5006462e2`
@@ -42,7 +42,7 @@ HEAD `4e24048`.
 
 ## 2. Сверка с RE-оракулом и контрактом
 
-1. **Веб-бандл Discord 1.0.162 (`/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`, md5 `934b1289b7ebf17bc0fd09569b23b438`):**
+1. **Веб-бандл Discord 1.0.162 (`reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`, md5 `934b1289b7ebf17bc0fd09569b23b438`):**
    - `MESSAGE_DELETE` (`@4923794`): `id`, `channel_id`, опциональный `guild_id` (для DM отсутствует или `null`) — полностью соответствует `MessageDeleteDispatch`.
    - `MESSAGE_DELETE_BULK` (`@4923864`): `ids` (непустой массив Snowflake в порядке провода), `channel_id`, опциональный `guild_id` — соответствует `MessageDeleteBulkDispatch`.
    - `CHANNEL_CREATE`, `CHANNEL_UPDATE`, `CHANNEL_DELETE` (`@4925216`, `@4925551`, `ed.UE` `@8897000..8903000`): обязательный `id`, опциональные `guild_id`, `type` (или `kind`), `name`, `parent_id` — соответствует `ChannelLifecycleDispatch`.

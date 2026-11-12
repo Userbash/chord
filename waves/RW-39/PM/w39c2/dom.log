@@ -35,9 +35,9 @@
 test at tests/unit/gui-spike-dom.test.mjs:152:3
 ✖ шим-разметка совпадает с ui/index.html по id, классам и rail-кнопкам (9.770208ms)
   AssertionError [ERR_ASSERTION]: шим-DOM не повторяет #guild-rail из index.html
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:158:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:153:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:158:16
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:153:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

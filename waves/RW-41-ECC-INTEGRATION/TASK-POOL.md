@@ -2,7 +2,7 @@
 
 Настоящий пул задач сформирован на основе устранения корневых дефектов телеметрии и инвайтов (ликвидация тихого фейкового 200 OK при ошибке 400 hCaptcha, включение режима Lurker read-only, связка создания и вступления на сервер, автовыбор Home/DM при 0 гильдиях) и направлен на реализацию ключевого запланированного функционала.
 
-Задачи распределены по независимым отделам (**G1–G7**) в соответствии с принципом **Zero-Idle** и непересекающимися областями записи (`write-scope`), с обязательной привязкой к эталонным данным обратного инжиниринга `/home/sanya/re-deep/`.
+Задачи распределены по независимым отделам (**G1–G7**) в соответствии с принципом **Zero-Idle** и непересекающимися областями записи (`write-scope`), с обязательной привязкой к эталонным данным обратного инжиниринга `reference-oracle/`.
 
 ---
 
@@ -52,7 +52,7 @@ flowchart TD
 - **Область записи**:
   - G1: `rust/gui-spike/src/invites.rs`, `rust/gui-spike/src/captcha.rs`
   - G2: `rust/gui-spike/ui/features/captcha-modal.js`, `rust/gui-spike/ui/features/join-server.js`
-- **RE-Оракул**: `/home/sanya/re-deep/rest-d02.md`, `capture-ready.jsonl` (код ошибки `40003`, параметры `captcha_service: "hcaptcha"`, `captcha_sitekey`, `captcha_rqdata`, `captcha_rqtoken`).
+- **RE-Оракул**: `reference-oracle/rest-d02.md`, `capture-ready.jsonl` (код ошибки `40003`, параметры `captcha_service: "hcaptcha"`, `captcha_sitekey`, `captcha_rqdata`, `captcha_rqtoken`).
 - **Суть задачи**:
   Когда Discord возвращает `HTTP 400` с `captcha_key: ["Обновите приложение..."]` и `captcha_sitekey`, открывать встроенное диалоговое окно с загрузкой виджета hCaptcha. При успешном решении извлекать полученный `token` и повторно отправлять `POST /invites/{code}` с заголовком `X-Captcha-Key` и `X-Captcha-Rqtoken`.
 - **DoD (Критерии приёмки)**:
@@ -67,7 +67,7 @@ flowchart TD
 - **Приоритет**: P1
 - **Область записи**:
   - `rust/gui-spike/src/guilds.rs`, `rust/crates/discord-core/src/rest/guilds.rs`
-- **RE-Оракул**: `/home/sanya/re-deep/rest-d02.md` (`POST /guilds`), `X-Super-Properties` base64 payload.
+- **RE-Оракул**: `reference-oracle/rest-d02.md` (`POST /guilds`), `X-Super-Properties` base64 payload.
 - **Суть задачи**:
   Реализация эндпоинта создания нового сервера пользователем с полным набором Discord заголовков (`X-Super-Properties`, `X-Discord-Locale: ru`, `User-Agent`). Генерация структуры начальных категорий (текстовые, голосовые каналы).
 - **DoD (Критерии приёмки)**:
@@ -82,7 +82,7 @@ flowchart TD
 - **Приоритет**: P2
 - **Область записи**:
   - `rust/gui-spike/ui/features/create-guild.js`, `rust/gui-spike/ui/styles/create-guild.css`
-- **RE-Оракул**: `/home/sanya/re-deep/frontend-d03.md` (модалка создания сервера, шаги "Свой шаблон", "Для меня и друзей", "Для клуба или сообщества").
+- **RE-Оракул**: `reference-oracle/frontend-d03.md` (модалка создания сервера, шаги "Свой шаблон", "Для меня и друзей", "Для клуба или сообщества").
 - **Суть задачи**:
   Пошаговый визард создания сервера: выбор предустановленного шаблона (Gaming, School Club, Friends), загрузка аватара сервера (file picker -> base64 DataURL), ввод названия сервера с валидацией (1–100 символов) и плавная анимация переходов.
 - **DoD (Критерии приёмки)**:
@@ -99,7 +99,7 @@ flowchart TD
 - **Приоритет**: P0
 - **Область записи**:
   - `rust/crates/discord-media/src/capture/`, `rust/crates/discord-platform/src/`
-- **RE-Оракул**: `/home/sanya/re-deep/voice-deep.md`, `native-re.md` (`discord_voice.node` Screen Capturer).
+- **RE-Оракул**: `reference-oracle/voice-deep.md`, `native-re.md` (`discord_voice.node` Screen Capturer).
 - **Суть задачи**:
   Интеграция с `org.freedesktop.portal.ScreenCast` через D-Bus/PipeWire для безопасного захвата в Wayland, а также поддержка X11 SHM для сессий X11. Перечисление окон и мониторов для диалога выбора источника.
 - **DoD (Критерии приёмки)**:
@@ -128,7 +128,7 @@ flowchart TD
 - **Приоритет**: P0
 - **Область записи**:
   - `rust/crates/discord-voice/src/rtp/`, `rust/crates/discord-voice/src/dave/`
-- **RE-Оракул**: `/home/sanya/re-deep/voice-deep.md`, опкоды 18 `STREAM_CREATE`, 19 `STREAM_DELETE`, 20 `STREAM_WATCH`, 22 `STREAM_SET_PAUSED`.
+- **RE-Оракул**: `reference-oracle/voice-deep.md`, опкоды 18 `STREAM_CREATE`, 19 `STREAM_DELETE`, 20 `STREAM_WATCH`, 22 `STREAM_SET_PAUSED`.
 - **Суть задачи**:
   Пакетизация H.264 (NALU FU-A, STAP-A) и AV1 (OBU). Интеграция сквозного шифрования DAVE MLS v1 для видеокадров и генерация RTCP Receiver/Sender Reports.
 - **DoD (Критерии приёмки)**:
@@ -142,7 +142,7 @@ flowchart TD
 - **Приоритет**: P1
 - **Область записи**:
   - `rust/gui-spike/ui/features/stream-viewer.js`, `rust/gui-spike/ui/styles/stream-viewer.css`
-- **RE-Оракул**: `/home/sanya/re-deep/voice/ui7/`, `frontend-d03.md`.
+- **RE-Оракул**: `reference-oracle/voice/ui7/`, `frontend-d03.md`.
 - **Суть задачи**:
   Полноэкранный плеер для просмотра трансляций участников голосового канала, плавающий PiP-виджет при переходе в чаты или настройки, индикатор качества сети (RTT, packet loss) и оверлей имени стримера.
 - **DoD (Критерии приёмки)**:
@@ -159,7 +159,7 @@ flowchart TD
 - **Приоритет**: P1
 - **Область записи**:
   - `rust/gui-spike/src/search.rs`, `rust/crates/discord-core/src/rest/search.rs`
-- **RE-Оракул**: `/home/sanya/re-deep/rest-d02.md` (`GET /guilds/{id}/messages/search?content=...`).
+- **RE-Оракул**: `reference-oracle/rest-d02.md` (`GET /guilds/{id}/messages/search?content=...`).
 - **Суть задачи**:
   Проксирование и нормализация поисковых запросов в REST API Discord с поддержкой фасетов: `author_id`, `has: image/link`, `channel_id`, `pinned: true`, `min_id`, `max_id`. Кэширование недавних результатов.
 - **DoD (Критерии приёмки)**:
@@ -173,7 +173,7 @@ flowchart TD
 - **Приоритет**: P1
 - **Область записи**:
   - `rust/gui-spike/ui/features/search.js`, `rust/gui-spike/ui/styles/search.css`
-- **RE-Оракул**: `/home/sanya/re-deep/frontend-d03.md` (компонент поиска, фильтры-токены).
+- **RE-Оракул**: `reference-oracle/frontend-d03.md` (компонент поиска, фильтры-токены).
 - **Суть задачи**:
   Интерактивный поисковый инпут в хедере канала: выпадающие подсказки (`from:`, `mentions:`, `has:`), подсветка синтаксиса, список результатов с подсветкой совпадений и кнопка "Перейти к сообщению" с подгрузкой контекста окружающих сообщений.
 - **DoD (Критерии приёмки)**:
@@ -190,7 +190,7 @@ flowchart TD
 - **Приоритет**: P1
 - **Область записи**:
   - `rust/crates/discord-core/src/permissions.rs`, `rust/gui-spike/src/permissions.rs`
-- **RE-Оракул**: `/home/sanya/re-deep/gateway-schema.md` (Permissions bitflags: `VIEW_CHANNEL = 1 << 10`, `SEND_MESSAGES = 1 << 11`, `MANAGE_MESSAGES = 1 << 13`, `ADMINISTRATOR = 1 << 3`).
+- **RE-Оракул**: `reference-oracle/gateway-schema.md` (Permissions bitflags: `VIEW_CHANNEL = 1 << 10`, `SEND_MESSAGES = 1 << 11`, `MANAGE_MESSAGES = 1 << 13`, `ADMINISTRATOR = 1 << 3`).
 - **Суть задачи**:
   Полный алгоритм резолвинга прав пользователя: Base Guild Permissions -> Role Overwrites (Allow / Deny) -> Channel Overwrites (Member Allow / Deny). Выдача точных флагов `can_send`, `can_attach`, `can_delete_others`, `can_kick`.
 - **DoD (Критерии приёмки)**:
@@ -204,7 +204,7 @@ flowchart TD
 - **Приоритет**: P2
 - **Область записи**:
   - `rust/gui-spike/ui/features/context-menu.js`, `rust/gui-spike/ui/styles/context-menu.css`
-- **RE-Оракул**: `/home/sanya/re-deep/frontend-d03.md`.
+- **RE-Оракул**: `reference-oracle/frontend-d03.md`.
 - **Суть задачи**:
   Унифицированное контекстное меню (ПКМ / долгое нажатие):
   - По сообщению: "Ответить", "Редактировать", "Закрепить", "Скопировать текст", "Скопировать ссылку", "Удалить".

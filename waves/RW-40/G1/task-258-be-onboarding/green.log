@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-258-be-onboarding/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-258-be-onboarding/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
-     Running tests/onboarding_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/onboarding_contract-d1d7c41b84554de6)
+     Running tests/onboarding_contract.rs (/home/user/orca/project/rust/target/debug/deps/onboarding_contract-d1d7c41b84554de6)
 
 running 5 tests
 test onboarding_constants_match_discord_contract ... ok

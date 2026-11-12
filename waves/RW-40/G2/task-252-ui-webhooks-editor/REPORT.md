@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-252` (`feature/task-252-ui-webhooks-editor`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/rest-static.md` (`CHANNEL_WEBHOOKS`, `GUILD_WEBHOOKS`, `WEBHOOK`, `WEBHOOK_INTEGRATION`), `rust/gui-spike/src/webhooks.rs` (типы вебхуков `1..=3`, границы имени `1..=80` символов, запрет `"clyde"` и подстроки `"discord"`).
+- **Оракулы**: `reference-oracle/rest-static.md` (`CHANNEL_WEBHOOKS`, `GUILD_WEBHOOKS`, `WEBHOOK`, `WEBHOOK_INTEGRATION`), `rust/gui-spike/src/webhooks.rs` (типы вебхуков `1..=3`, границы имени `1..=80` символов, запрет `"clyde"` и подстроки `"discord"`).
 
 ## Сделано
 1. `tests/unit/webhooks-editor.test.mjs` (`// @ts-check`, Strict TDD: Red → Green, 9 unit-тестов в 4 suites):
@@ -22,8 +22,8 @@
    - реализованы и экспортированы `WEBHOOK_TYPE_LABELS_RU`, `isValidWebhookName`, `maskWebhookTokenUrl` и `createWebhooksEditorController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/webhooks-editor.test.mjs > /home/sanya/orca/project/waves/RW-40/G2/task-252-ui-webhooks-editor/red.log 2>&1` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`).
-- **Green**: `node --test tests/unit/webhooks-editor.test.mjs > /home/sanya/orca/project/waves/RW-40/G2/task-252-ui-webhooks-editor/green.log 2>&1` → `exit=0` (`tests 9, suites 4, pass 9, fail 0`).
+- **Red**: `node --test tests/unit/webhooks-editor.test.mjs > /home/user/orca/project/waves/RW-40/G2/task-252-ui-webhooks-editor/red.log 2>&1` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`).
+- **Green**: `node --test tests/unit/webhooks-editor.test.mjs > /home/user/orca/project/waves/RW-40/G2/task-252-ui-webhooks-editor/green.log 2>&1` → `exit=0` (`tests 9, suites 4, pass 9, fail 0`).
 - **Typecheck**:
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `exit=0` (0 ошибок);
   - `npx tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --noUncheckedIndexedAccess --skipLibCheck --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/webhooks-editor.js tests/unit/webhooks-editor.test.mjs` → `exit=0` (0 ошибок).
@@ -33,8 +33,8 @@
 ```
 d36b437e62317a54fd4b7f9c7cea64d5  rust/gui-spike/ui/features/webhooks-editor.js
 d90df3860665f11accc26f29551317e3  tests/unit/webhooks-editor.test.mjs
-dfbf9d99889a0609458a02e121bd488d  /home/sanya/orca/project/waves/RW-40/G2/task-252-ui-webhooks-editor/red.log
-31bd032723eb8fddca1f68c1582a540e  /home/sanya/orca/project/waves/RW-40/G2/task-252-ui-webhooks-editor/green.log
+dfbf9d99889a0609458a02e121bd488d  /home/user/orca/project/waves/RW-40/G2/task-252-ui-webhooks-editor/red.log
+31bd032723eb8fddca1f68c1582a540e  /home/user/orca/project/waves/RW-40/G2/task-252-ui-webhooks-editor/green.log
 ```
 
 ## Риски

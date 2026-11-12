@@ -272,28 +272,33 @@ const commonPhases = [
     // попадают в warnings/ignored, но не превращают вердикт в e2e-skip (QA-M2-09).
     skipKind: "ignored",
   },
-  {
-    name: "gpui-smoke",
-    command: "cargo",
-    args: ["run", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--", "--headless-smoke"],
-    timeoutMs: 60000,
-  },
-  {
-    name: "gpui-e2e",
-    command: "cargo",
-    args: ["test", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--test", "gpui_e2e_contract"],
-    timeoutMs: 180000,
-    countsKind: "cargo",
-  },
-  {
-    name: "gpui-visual",
-    command: "cargo",
-    args: ["test", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--test", "visual_regression_contract", "test_sub_904"],
-    timeoutMs: 180000,
-    countsKind: "cargo",
-  },
   { name: "smoke", command: "node", args: ["--test", "--test-concurrency=1", "tests/smoke/**/*.test.mjs"], env: smokePhaseEnv() },
 ];
+
+if (existsSync(join(root, "gpui-kit", "crates", "component", "Cargo.toml"))) {
+  commonPhases.push(
+    {
+      name: "gpui-smoke",
+      command: "cargo",
+      args: ["run", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--", "--headless-smoke"],
+      timeoutMs: 60000,
+    },
+    {
+      name: "gpui-e2e",
+      command: "cargo",
+      args: ["test", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--test", "gpui_e2e_contract"],
+      timeoutMs: 180000,
+      countsKind: "cargo",
+    },
+    {
+      name: "gpui-visual",
+      command: "cargo",
+      args: ["test", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--test", "visual_regression_contract", "test_sub_904"],
+      timeoutMs: 180000,
+      countsKind: "cargo",
+    },
+  );
+}
 
 /**
  * Окружение live-фазы keyring: флаг выставляет сам гейт, только в release/qualify.

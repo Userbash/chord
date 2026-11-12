@@ -4,9 +4,9 @@
       Adding zstd v0.14.3
       Adding zstd-safe v8.2.0
       Adding zstd-sys v2.1.2+zstd.1.5.7
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-205-be-voice-stage-ipc/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-205-be-voice-stage-ipc/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 6.34s
-     Running tests/voice_stage_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_stage_contract-3942c39bca74d7f7)
+     Running tests/voice_stage_contract.rs (/home/user/orca/project/rust/target/debug/deps/voice_stage_contract-3942c39bca74d7f7)
 
 running 8 tests
 test build_gateway_stream_create_op18_rejects_invalid_spec ... ok

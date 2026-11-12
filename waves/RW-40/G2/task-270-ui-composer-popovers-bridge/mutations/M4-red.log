@@ -32,7 +32,7 @@ test at tests/unit/composer-popovers-bridge.test.mjs:223:3
   
   -5 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:229:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-270-ui-composer-popovers-bridge/tests/unit/composer-popovers-bridge.test.mjs:229:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

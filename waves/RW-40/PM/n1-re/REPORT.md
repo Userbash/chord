@@ -72,14 +72,14 @@ video/Go Live, DAVE/MLS. Каждое утверждение имеет исто
 
 | Файл | md5/размер | Использование |
 |---|---|---|
-| `/home/sanya/re-deep/rest-static.json` | 381 655 Б, 904 endpoints | пути/тела/`cacheEvidence` |
-| `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` | 12 410 287 Б | call-site, схемы, опкоды |
-| `/home/sanya/re-deep/d02-snapshot/capture-run2.snap.jsonl` | `abfe14b76cec1e559c3b45522bc44b7a` (`D02:46`) | requestId join |
-| `/home/sanya/re-deep/d02-snapshot/capture-ready.snap.jsonl` | `b43636da09a4a2c0f08d36b1ce66a46a` (`D02:48`) | requestId join |
-| `/home/sanya/re-deep/voice/rtc1-frames.jsonl` / `rtc2-frames.jsonl` | 3 370 / 3 217 Б | op0/1/2/4/16 |
-| `/home/sanya/re-deep/voice/engine-log-session1.txt` | 3 620 Б, 26 строк | кодек/DAVE |
-| `/home/sanya/re-deep/discord-run3.log` | 95 280 Б | video quality, MLS |
-| `/home/sanya/re-deep/native-re/voice-features.txt` | 1 029 Б, 52 флага | классификация [T]/[M]/[A] |
+| `reference-oracle/rest-static.json` | 381 655 Б, 904 endpoints | пути/тела/`cacheEvidence` |
+| `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` | 12 410 287 Б | call-site, схемы, опкоды |
+| `reference-oracle/d02-snapshot/capture-run2.snap.jsonl` | `abfe14b76cec1e559c3b45522bc44b7a` (`D02:46`) | requestId join |
+| `reference-oracle/d02-snapshot/capture-ready.snap.jsonl` | `b43636da09a4a2c0f08d36b1ce66a46a` (`D02:48`) | requestId join |
+| `reference-oracle/voice/rtc1-frames.jsonl` / `rtc2-frames.jsonl` | 3 370 / 3 217 Б | op0/1/2/4/16 |
+| `reference-oracle/voice/engine-log-session1.txt` | 3 620 Б, 26 строк | кодек/DAVE |
+| `reference-oracle/discord-run3.log` | 95 280 Б | video quality, MLS |
+| `reference-oracle/native-re/voice-features.txt` | 1 029 Б, 52 флага | классификация [T]/[M]/[A] |
 
 ## 5. Следующие RE-шаги (по возрастанию стоимости)
 
@@ -103,5 +103,5 @@ video/Go Live, DAVE/MLS. Каждое утверждение имеет исто
 - Все три голосовые сессии — «один в канале, микрофон молчит, видео `active:false`».
   Утверждение «голос/видео работают» по-прежнему **недопустимо**.
 - IP/ключи/`media_session_id`/session id в документах вырезаны (`<MEDIA_IP>`, `REDACTED`).
-- В read-only деревьях (`/home/sanya/re-deep`, `docs/re`, `logs`, `functions`, `evidence`)
+- В read-only деревьях (`reference-oracle/`, `docs/re`, `logs`, `functions`, `evidence`)
   ничего не изменялось; коммитов нет.

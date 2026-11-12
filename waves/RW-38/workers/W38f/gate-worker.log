@@ -10,5 +10,5 @@
 ✔ spike-rust — 0.3 с
 ✔ smoke — 17.2 с (тесты 22: pass 22, fail 0, skip 0)
 
-Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-23T16-10-23-494Z.json
+Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-23T16-10-23-494Z.json
 Вердикт: passed

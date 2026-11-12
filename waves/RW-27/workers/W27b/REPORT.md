@@ -9,7 +9,7 @@
   `rust/crates/discord-platform/tests/autostart_contract.rs` (8).
 - Не менялись: `Cargo.toml`/`Cargo.lock`, другие крейты/тесты, доки
   (`STATE/STATUS/ROADMAP/TASKS/map`), golden (`logs/`, `functions/`, `evidence/`,
-  `/home/sanya/re-deep` — только чтение), сеть, D-Bus, live Discord, `unsafe`, коммиты.
+  `reference-oracle/` — только чтение), сеть, D-Bus, live Discord, `unsafe`, коммиты.
 - `lib.rs` диффом — только две строки `pub mod` (+пустая строка).
 
 ## 2. Сделано

@@ -1,4 +1,4 @@
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-codec)
 warning: unused variable: `hint`
    --> crates/discord-codec/src/zstd.rs:157:17
     |
@@ -7,11 +7,11 @@ warning: unused variable: `hint`
     |
     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
 
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush/rust/crates/discord-core)
 warning: `discord-codec` (lib) generated 1 warning (run `cargo fix --lib -p discord-codec` to apply 1 suggestion)
 warning: `discord-codec` (lib test) generated 1 warning (1 duplicate)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.04s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_codec-4fb3fcae36fc27af)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_codec-4fb3fcae36fc27af)
 
 running 5 tests
 test tests::etf_tags_are_the_frozen_eleven ... ok

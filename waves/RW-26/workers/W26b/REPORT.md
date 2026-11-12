@@ -9,7 +9,7 @@
 ## 2. Red
 
 ```sh
-cd rust && CARGO_TARGET_DIR=/home/sanya/.cache/discord-lab-target-rw26b cargo test --offline -p discord-voice --test regions_contract
+cd rust && CARGO_TARGET_DIR=/home/user/.cache/discord-lab-target-rw26b cargo test --offline -p discord-voice --test regions_contract
 # EXIT=101; среда не разрешила создать target-dir (Read-only file system)
 ```
 
@@ -22,7 +22,7 @@ cd rust && CARGO_TARGET_DIR=/tmp/discord-lab-target-rw26b cargo test --offline -
 # EXIT=0; 9 passed, 0 failed
 ```
 
-Exact target из ТЗ (`/home/sanya/.cache/discord-lab-target-rw26b`) недоступен для записи в sandbox; для targeted-прогона использован writable `/tmp`.
+Exact target из ТЗ (`/home/user/.cache/discord-lab-target-rw26b`) недоступен для записи в sandbox; для targeted-прогона использован writable `/tmp`.
 
 Лог: `waves/RW-26/workers/W26b/green.log`.
 

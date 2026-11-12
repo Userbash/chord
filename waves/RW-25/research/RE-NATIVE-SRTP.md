@@ -1,7 +1,7 @@
 # RE-NATIVE-SRTP — статический разбор `discord_voice.node` (Discord 1.0.165)
 
 Seat: RE-1 (protocol research). Дата: 2026-10-22. Волна: B06 / RW-25, карточка **P4-03**.
-Объект: `/home/sanya/.config/discord/app-1.0.165/modules/discord_voice-1/discord_voice/discord_voice.node`
+Объект: `/home/user/.config/discord/app-1.0.165/modules/discord_voice-1/discord_voice/discord_voice.node`
 (127 791 736 Б, sha256 `baa9574f88aed51aff0e59a57d5733bb1916b601db5d79e38e0fcf4c18b5b0c5`).
 
 Метод: **статический, read-only** — `strings`, `readelf`, `nm`, `gdb` по DWARF. Живой процесс

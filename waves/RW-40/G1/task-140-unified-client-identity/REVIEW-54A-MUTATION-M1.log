@@ -64,7 +64,7 @@ test result: FAILED. 4 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; 
    Compiling tungstenite v0.30.0
    Compiling tokio-rustls v0.26.6
    Compiling tokio-tungstenite v0.30.0
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 7.64s
      Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
 error: test failed, to rerun pass `-p discord-core --lib`

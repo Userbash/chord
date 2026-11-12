@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved imports `discord_gui_spike::invites::create_channel_invite`, `discord_gui_spike::invites::CreateInviteParams`, `discord_gui_spike::invites::CreatedInvite`, `discord_gui_spike::invites::INVITE_FLAG_IS_GUEST`, `discord_gui_spike::invites::VALID_INVITE_MAX_AGES`, `discord_gui_spike::invites::VALID_INVITE_MAX_USES`
   --> tests/invites_contract.rs:26:20
    |

@@ -34,7 +34,7 @@
 
 ### 1.2. Сверка с RE-отчётами
 
-`/home/sanya/re-deep/voice-deep.md` (132 строки) и `/home/sanya/re-deep/frontend-d03.md` (188 строк) прочитаны целиком. Опкодов `18..=22` там нет: в `voice-deep.md` — RTC-контроль `0..16` (Hello/Identify/Select Protocol/Ready/Session Description), UDP/strace и ротация сокета; в `frontend-d03.md` — дамп поиска, эмодзи, участников и настроек, включая «Голос и видео» с Krisp и плейсхолдером «Стриминг». Противоречий со спекой нет: UI-факты (отсутствие камеры, панель голоса) совпадают, протокольная часть опирается на замороженный контракт и код, а не на дамп. Это зафиксировано в §0.1 п. 8 и в легенде `[L]`.
+`reference-oracle/voice-deep.md` (132 строки) и `reference-oracle/frontend-d03.md` (188 строк) прочитаны целиком. Опкодов `18..=22` там нет: в `voice-deep.md` — RTC-контроль `0..16` (Hello/Identify/Select Protocol/Ready/Session Description), UDP/strace и ротация сокета; в `frontend-d03.md` — дамп поиска, эмодзи, участников и настроек, включая «Голос и видео» с Krisp и плейсхолдером «Стриминг». Противоречий со спекой нет: UI-факты (отсутствие камеры, панель голоса) совпадают, протокольная часть опирается на замороженный контракт и код, а не на дамп. Это зафиксировано в §0.1 п. 8 и в легенде `[L]`.
 
 ---
 
@@ -96,9 +96,9 @@ $ grep -oE 'T-STREAM-UI-[A-Z]+-01' waves/RW-40/DESIGN/VOICE-STREAM-UI-SPEC.md | 
 | Файл | Назначение | Строк | `md5sum` |
 |---|---|---:|---|
 | `waves/RW-40/DESIGN/VOICE-STREAM-UI-SPEC.md` | Нормативная спека UI стриминга (ветка) | 1549 | `48a0ea7daff38341a3a38554bd59282c` |
-| `/home/sanya/orca/project/waves/RW-40/DESIGN/VOICE-STREAM-UI-SPEC.md` | Дубль в основном дереве проекта | 1549 | `48a0ea7daff38341a3a38554bd59282c` |
+| `/home/user/orca/project/waves/RW-40/DESIGN/VOICE-STREAM-UI-SPEC.md` | Дубль в основном дереве проекта | 1549 | `48a0ea7daff38341a3a38554bd59282c` |
 | `waves/RW-40/G3/task-126-voice-stream-ui-spec/REPORT.md` | Этот отчёт (ветка) | — | — |
-| `/home/sanya/orca/project/waves/RW-40/G3/task-126-voice-stream-ui-spec/REPORT.md` | Дубль отчёта в основном дереве | — | — |
+| `/home/user/orca/project/waves/RW-40/G3/task-126-voice-stream-ui-spec/REPORT.md` | Дубль отчёта в основном дереве | — | — |
 
 ---
 

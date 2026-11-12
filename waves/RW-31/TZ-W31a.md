@@ -61,7 +61,7 @@ impl IdlePolicy {
 ## 2. Доказательная база
 
 `waves/RW-31/RE-POWER.md`: `POWER_MONITOR_*` IPC-каналы и `POWER_SAVE_BLOCKER_*`
-(`/home/sanya/re-deep/backend-ipc.md`), `discord_utils` (Wayland-idle, X11) в
+(`reference-oracle/backend-ipc.md`), `discord_utils` (Wayland-idle, X11) в
 `docs/re/architecture.md`, `native-re.md` §WaylandIdleManager. Точные пороги idle→status в RE
 не зафиксированы — вынесены в конфигурацию с явной пометкой.
 

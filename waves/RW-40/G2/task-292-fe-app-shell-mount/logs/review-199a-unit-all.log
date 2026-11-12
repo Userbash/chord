@@ -1337,10 +1337,10 @@
   ✔ по таймауту снимает слушателей, последующий сигнал не меняет исход (0.68258ms)
   ✔ сигнал раньше таймера очищает таймер (0.15095ms)
 ✔ waitForStop (1.3872ms)
-▶ HASHED_RU_KEYS и RU_CATALOG (оракул /home/sanya/re-deep/ru-catalog.json)
+▶ HASHED_RU_KEYS и RU_CATALOG (оракул /home/user/clean-room-oracle/ru-catalog.json)
   ✔ экспортирует замороженную карту >= 25 канонических 6-символьных base64 xxh64 ключей Discord (0.7271ms)
   ✔ содержит точные русские строки из ru-catalog.json по всем 10 категориям UI (0.17289ms)
-✔ HASHED_RU_KEYS и RU_CATALOG (оракул /home/sanya/re-deep/ru-catalog.json) (1.734001ms)
+✔ HASHED_RU_KEYS и RU_CATALOG (оракул /home/user/clean-room-oracle/ru-catalog.json) (1.734001ms)
 ▶ tHashed и t — разрешение ключей, плейсхолдеры и русские плюральные формы
   ✔ разрешает канонические 6-символьные хеш-ключи и семантические ключи RU_CATALOG (0.39842ms)
   ✔ подставляет {param} плейсхолдеры (включая повторяющиеся вхождения и числа) (0.20848ms)

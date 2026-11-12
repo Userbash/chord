@@ -12,7 +12,7 @@
 | `[T]` | значение токена проекта | `waves/RW-39/DESIGN/tokens.css` (вендоринг `rust/gui-spike/ui/tokens.css`); к геометрии модалок применяется как «токен», а не замер |
 | `[L]` | подтверждено **живым** захватом | `docs/re/rest-d02.md`, `d02-snapshot/` (requestId `ready|57992.6989`, `run2|95974.7409`) |
 | `[S]` | подтверждено **кодом клиента** | `NETWORK-CONTRACTS.md` §1 (бандл `out/bundles/discord.com_assets_web…js`, call-site) |
-| `[M]` | измерено на пикселях | `/home/sanya/re-deep/ui2/D1-guild-menu.png` (2560×1383 при dpr 1.25 = 2048×1106 CSS) |
+| `[M]` | измерено на пикселях | `reference-oracle/ui2/D1-guild-menu.png` (2560×1383 при dpr 1.25 = 2048×1106 CSS) |
 | `[D]` | факт дампа (DOM/JSON/строки), не сеть | DOM-fingerprint, JSON меню, `ru-catalog.json` |
 | `[A]` | наше решение / не подтверждено | этот документ; требуется подтверждение PM до реализации |
 | `[F]` | заморожено тестами | `tests/unit/gui-spike-dom.test.mjs` |

@@ -2,7 +2,7 @@
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер, Review 58A.
 Ветка: `feature/task-142-ws-outbound-wiring`, worktree
-`/home/sanya/orca/workspaces/project/feature-task-142-ws-outbound-wiring`,
+`/home/user/orca/workspaces/project/feature-task-142-ws-outbound-wiring`,
 HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 Режим: сверка с отчётом и RE-оракулом (`F-GW-02`) + аудит диффа `ws.rs` + целевые и интеграционные тесты + 5/5 мутационных прогонов.
 
@@ -21,7 +21,7 @@ HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 
 - **Файловый скоуп и контрольные суммы:**
   - Основной файл задачи — `rust/crates/discord-core/src/ws.rs` (`md5 = 9976b056a9ff18559867c1ad110a290f`, совпадает с `REPORT.md`).
-  - Для сборки поверх принятых в основной репозиторий PR-23 (`task-137`) и PR-24 (`task-139`) в worktree скопированы 7 файлов из `/home/sanya/orca/project` (`gateway.rs`, `zstd.rs`, `discord-codec/Cargo.toml`, `Cargo.lock`, `zstd_stream.rs`, `dispatch_router.rs`, `ws_transport.rs`); проверено побайтное совпадение `md5` всех 7 файлов с `/home/sanya/orca/project`.
+  - Для сборки поверх принятых в основной репозиторий PR-23 (`task-137`) и PR-24 (`task-139`) в worktree скопированы 7 файлов из `/home/user/orca/project` (`gateway.rs`, `zstd.rs`, `discord-codec/Cargo.toml`, `Cargo.lock`, `zstd_stream.rs`, `dispatch_router.rs`, `ws_transport.rs`); проверено побайтное совпадение `md5` всех 7 файлов с `/home/user/orca/project`.
   - Общие файлы (`rust/crates/discord-core/src/lib.rs`, `state/*`) не затронуты.
 - **Качество тестов и соблюдение TEST-POLICY:**
   - В `RED.log` (`md5 = 7289e64df38a5d56f1ef41ca04b496c9`) зафиксирован честный RED-прогон до реализации (`EXIT_CODE=101`, ошибки `E0432`/`E0599` на отсутствующих типах и методах `ws`).
@@ -35,13 +35,13 @@ HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 
 ## Прогоны
 
-Все команды запускались последовательно с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+Все команды запускались последовательно с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 
 | Прогон | Команда | Результат | Лог |
 |---|---|---|---|
-| Targeted unit (`--lib`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib` | **14 passed, 0 failed** (`EXIT=0`) | `REVIEW-58A-GREEN-LIB.log` |
-| Интеграционные тесты транспорта (`ws_transport`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test ws_transport` | **19 passed, 0 failed** (`EXIT=0`) | `REVIEW-58A-WS-TRANSPORT-IT.log` |
-| Clippy (`discord-core --all-targets`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `REVIEW-58A-CLIPPY.log` |
+| Targeted unit (`--lib`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib` | **14 passed, 0 failed** (`EXIT=0`) | `REVIEW-58A-GREEN-LIB.log` |
+| Интеграционные тесты транспорта (`ws_transport`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test ws_transport` | **19 passed, 0 failed** (`EXIT=0`) | `REVIEW-58A-WS-TRANSPORT-IT.log` |
+| Clippy (`discord-core --all-targets`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `REVIEW-58A-CLIPPY.log` |
 | Форматирование (`rustfmt`) | `cargo fmt --manifest-path rust/Cargo.toml --all -- --check` | **чисто** (`EXIT=0`) | `REVIEW-58A-FMT.log` |
 
 Контрольные суммы артефактов воркера проверены и совпадают с `REPORT.md`:
@@ -77,4 +77,4 @@ HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 Это ожидаемо для свободных хелперов поверх `W: Sink<Message>`, не принимающих `&mut GatewayPipe`; при наличии экземпляра `GatewayPipe` вызывающему коду следует предпочитать методы `GatewayPipe::send_*`.
 
 **P3-2. Сопутствующие синхронизированные файлы в рабочем дереве ветки.**
-В `git status` помимо целевого `rust/crates/discord-core/src/ws.rs` присутствуют синхронизированные из `/home/sanya/orca/project` файлы PR-23 / PR-24 и общая для worktree модификация `package-lock.json`. При переносе результата `task-142` в `/home/sanya/orca/project` нужно забирать только `rust/crates/discord-core/src/ws.rs` (`md5 = 9976b056a9ff18559867c1ad110a290f`).
+В `git status` помимо целевого `rust/crates/discord-core/src/ws.rs` присутствуют синхронизированные из `/home/user/orca/project` файлы PR-23 / PR-24 и общая для worktree модификация `package-lock.json`. При переносе результата `task-142` в `/home/user/orca/project` нужно забирать только `rust/crates/discord-core/src/ws.rs` (`md5 = 9976b056a9ff18559867c1ad110a290f`).

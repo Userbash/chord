@@ -1,4 +1,4 @@
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
 error[E0599]: no method named `is_dead` found for struct `ZstdStream` in the current scope
    --> crates/discord-codec/tests/zstd_stream.rs:172:21
     |

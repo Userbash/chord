@@ -38,7 +38,7 @@
 | `docs/re/frontend-d03.md` §3 | группы «Server Booster — 2», «В сети — 735», строки member/name/subText |
 | `docs/re/frontend-d03.md` §5 | 12 компонентов: варианты, размеры, состояния, aria, токены |
 | `docs/re/frontend-d03.md` §6 | точные значения 19 ключевых токенов темы dark |
-| `/home/sanya/re-deep/ui/tokens.json` | 4795 CSS-переменных (счётчик подтверждён) |
+| `reference-oracle/ui/tokens.json` | 4795 CSS-переменных (счётчик подтверждён) |
 | `docs/rust-client/PLAN.md` P3-01…P3-16 | DoD и размеры карточек |
 
 ## Границы

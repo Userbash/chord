@@ -1,7 +1,7 @@
 === M1: resolve_gift_style boundary > 200 mutated to > 205 ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.35s
-     Running tests/gifts_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
+     Running tests/gifts_contract.rs (/home/user/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
 
 running 13 tests
 test nitro_gift_plans_catalog_matches_module_202541 ... ok
@@ -45,9 +45,9 @@ test result: FAILED. 11 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out;
 error: test failed, to rerun pass `--test gifts_contract`
 RESULT M1: exit=101 (expected != 0 -> KILLED)
 === M2: extract_gift_codes_from_text cap >= MAX_EXTRACTED_GIFT_CODES mutated to >= 10 ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.39s
-     Running tests/gifts_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
+     Running tests/gifts_contract.rs (/home/user/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
 
 running 13 tests
 test nitro_gift_plans_catalog_matches_module_202541 ... ok
@@ -83,9 +83,9 @@ test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out;
 error: test failed, to rerun pass `--test gifts_contract`
 RESULT M2: exit=101 (expected != 0 -> KILLED)
 === M3: create_gift_code POST route mutated to /users/@me/entitlements/gifts ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.04s
-     Running tests/gifts_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
+     Running tests/gifts_contract.rs (/home/user/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
 
 running 13 tests
 test extract_gift_codes_from_text_normalizes_and_caps_at_three ... ok
@@ -121,9 +121,9 @@ test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out;
 error: test failed, to rerun pass `--test gifts_contract`
 RESULT M3: exit=101 (expected != 0 -> KILLED)
 === M4: EntitlementRecord::is_giftable gifter_user_id.is_none() mutated to is_some() ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.01s
-     Running tests/gifts_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
+     Running tests/gifts_contract.rs (/home/user/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
 
 running 13 tests
 test create_gift_code_posts_canonical_payload_and_parses_gift_record ... ok
@@ -163,9 +163,9 @@ test result: FAILED. 11 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out;
 error: test failed, to rerun pass `--test gifts_contract`
 RESULT M4: exit=101 (expected != 0 -> KILLED)
 === M5: ensure_2xx DISCORD_ERR_INVALID_GIFT_REDEMPTION_EXHAUSTED mapped to NotFound ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.34s
-     Running tests/gifts_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
+     Running tests/gifts_contract.rs (/home/user/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
 
 running 13 tests
 test re_constants_match_discord_bundle_oracles ... ok

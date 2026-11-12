@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-237` (`BE-P1-24` / `moderation`) — Rust Guild Audit Log, Kick, Ban & Timeout Moderation BFF Contract (`BanMemberRequest`, `validate_audit_reason`, `build_ban_member_route_and_body`, `build_audit_log_query_route`).
-- **Ветка / worktree**: `feature/task-237-be-moderation`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-237-be-moderation`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/moderation.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/moderation_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-237-be-moderation/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-237-be-moderation/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`:
+Сверено с `reference-oracle/rest-static.json`:
 
 - `GUILD_BAN` (`rest-static.json:871-877`): `PUT|DELETE /guilds/{guild_id}/bans/{user_id}`.
 - `GUILD_AUDIT_LOG` (`rest-static.json:1240-1246`): `GET /guilds/{guild_id}/audit-logs`.
@@ -50,7 +50,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-237-be-moderation/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-237-be-moderation/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::moderation`
@@ -65,7 +65,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-237-be-moderation/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-237-be-moderation/green.log`:
 
 ```text
 running 8 tests

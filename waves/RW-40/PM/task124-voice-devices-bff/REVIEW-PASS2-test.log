@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-124-voice-devices-tauri-bff/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-124-voice-devices-tauri-bff/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.21s
-     Running tests/voice_devices_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/voice_devices_contract-f39cb64f7e9376ba)
+     Running tests/voice_devices_contract.rs (/home/user/orca/project/rust/target/debug/deps/voice_devices_contract-f39cb64f7e9376ba)
 
 running 15 tests
 test t02_device_catalog_enumeration_and_default_fallbacks ... ok

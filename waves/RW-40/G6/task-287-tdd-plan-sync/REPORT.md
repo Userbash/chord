@@ -2,7 +2,7 @@
 
 - **batch/карточка:** RW-40 / task-287 (`DOCS-FIX-01`), ветка `docs/task-287-tdd-plan-sync`
 - **воркер:** `opencode --model deepseek/deepseek-v4.1-flash`, рабочее дерево
-  `/home/sanya/orca/workspaces/project/docs-task-287-tdd-plan-sync`
+  `/home/user/orca/workspaces/project/docs-task-287-tdd-plan-sync`
 - **изменённый файл:** `TDD-PLAN.md` (единственный продуктовый файл; `git diff --stat` — только он)
 
 ## Сделано

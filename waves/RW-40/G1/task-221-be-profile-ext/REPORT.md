@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-221` (`BE-P1-19` / `profile_ext`) — контракт профиля пользователя, bio, pronouns, mutuals и заметок (`UserProfileQuery`, `UpdateProfilePatch`, `build_user_profile_route`, `validate_profile_patch`, `validate_user_note`).
-- **Ветка / worktree**: `feature/task-221-be-profile-ext`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-221-be-profile-ext`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/profile_ext.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/profile_ext_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-221-be-profile-ext/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-221-be-profile-ext/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json` и модулями `profile.rs`, `dm_friends.rs`, `ipc_ext.rs`:
+Сверено с `reference-oracle/rest-static.json` и модулями `profile.rs`, `dm_friends.rs`, `ipc_ext.rs`:
 
 - `USER_PROFILE` (`rest-static.json:77`): `GET /users/{user_id}/profile?with_mutual_guilds=...&with_mutual_friends=...[&guild_id=...]`.
 - `NOTE` (`rest-static.json:3518`): `PUT /users/@me/notes/{target_user_id}`.
@@ -43,7 +43,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-221-be-profile-ext/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-221-be-profile-ext/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::profile_ext`
@@ -58,7 +58,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-221-be-profile-ext/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-221-be-profile-ext/green.log`:
 
 ```text
 running 8 tests

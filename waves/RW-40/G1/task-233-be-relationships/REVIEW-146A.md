@@ -9,7 +9,7 @@
 ## 1. Targeted test (green)
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test relationships_contract
 running 7 tests
 test build_block_user_body_returns_blocked_relationship_type ... ok

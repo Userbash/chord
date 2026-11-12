@@ -5,25 +5,25 @@
 Режим — **read-only по продуктовому коду и тестам**: изменён ровно один целевой файл (`waves/RW-40/PARITY/MERGE-READINESS-14.md`).
 
 > **Входные документы Wave 10:**
-> - [`BOARD.md`](file:///home/sanya/orca/project/waves/RW-40/BOARD.md) — доска управления разработкой RW-40 (иерархия веток, 13 статусов, реестр задач);
-> - [`BUILD-001.md`](file:///home/sanya/orca/project/waves/RW-40/BUILDS/BUILD-001.md) — централизованная сборка QA в ветке `testing`;
-> - [`PR-01-search-202-nsfw-spec.md`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-01-search-202-nsfw-spec.md) (`task-105`), [`PR-02-task-106-notif-ipc.md`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-02-task-106-notif-ipc.md) (`task-106`), [`PR-03-task-104-n05-ui-notifications.md`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md) (`task-104`);
-> - [`MERGE-READINESS-13.md`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PARITY/MERGE-READINESS-13.md) — предыдущий снимок готовности к слиянию.
+> - [`BOARD.md`](file:///home/user/orca/project/waves/RW-40/BOARD.md) — доска управления разработкой RW-40 (иерархия веток, 13 статусов, реестр задач);
+> - [`BUILD-001.md`](file:///home/user/orca/project/waves/RW-40/BUILDS/BUILD-001.md) — централизованная сборка QA в ветке `testing`;
+> - [`PR-01-search-202-nsfw-spec.md`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-01-search-202-nsfw-spec.md) (`task-105`), [`PR-02-task-106-notif-ipc.md`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-02-task-106-notif-ipc.md) (`task-106`), [`PR-03-task-104-n05-ui-notifications.md`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md) (`task-104`);
+> - [`MERGE-READINESS-13.md`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PARITY/MERGE-READINESS-13.md) — предыдущий снимок готовности к слиянию.
 
 ---
 
 ## 0. Исполнительное резюме Wave 10
 
 1. **Закрытие находки F-5 (`PR-02`, `task-106`) — паритет UI → Rust IPC достиг 38/38 (100 %):**
-   - В [`rust/gui-spike/src/main.rs`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/src/main.rs#L862-L910) добавлены `#[tauri::command]`-обёртки [`update_guild_notification_settings`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/src/main.rs#L863-L880) и [`update_channel_notification_override`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/src/main.rs#L885-L910), зарегистрированные в `tauri::generate_handler![...]` (`main.rs:1201–1202`).
-   - В [`rust/gui-spike/tests/ipc_wiring_contract.rs`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/tests/ipc_wiring_contract.rs) добавлен тест `notifications_ipc_commands_are_registered_and_delegate_to_lib`, а оракул `every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main` переведён на рекурсивный обход всех 32 файлов `rust/gui-spike/ui/**/*.js`.
+   - В [`rust/gui-spike/src/main.rs`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/src/main.rs#L862-L910) добавлены `#[tauri::command]`-обёртки [`update_guild_notification_settings`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/src/main.rs#L863-L880) и [`update_channel_notification_override`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/src/main.rs#L885-L910), зарегистрированные в `tauri::generate_handler![...]` (`main.rs:1201–1202`).
+   - В [`rust/gui-spike/tests/ipc_wiring_contract.rs`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/tests/ipc_wiring_contract.rs) добавлен тест `notifications_ipc_commands_are_registered_and_delegate_to_lib`, а оракул `every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main` переведён на рекурсивный обход всех 32 файлов `rust/gui-spike/ui/**/*.js`.
    - Всего в `main.rs` объявлено и зарегистрировано **49** `#[tauri::command]` (0 дублей, 0 сирот): **38** уникальных команд вызываются из UI (100 % разрешение имён и обязательных аргументов), **11** канонических/служебных команд составляют внутренний резерв BFF.
 2. **Закрытие блокера P1 `NodeList.filter` и 7 замечаний P2 в UI уведомлений (`PR-03`, `task-104`, Pass 2):**
-   - В [`rust/gui-spike/ui/features/notifications.js`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/ui/features/notifications.js#L2130-L2137) функция `getEnabledChannelMenuItems` оборачивает результат `channelMenu.querySelectorAll(...)` в `Array.from(...)` перед `.filter(...)`, устраняя `TypeError` в браузерном webview.
+   - В [`rust/gui-spike/ui/features/notifications.js`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/ui/features/notifications.js#L2130-L2137) функция `getEnabledChannelMenuItems` оборачивает результат `channelMenu.querySelectorAll(...)` в `Array.from(...)` перед `.filter(...)`, устраняя `TypeError` в браузерном webview.
    - Закрыты все сопутствующие замечания Pass 1 (P2.1 focus trap `Tab`/`Shift+Tab` в `#guild-notif-modal`, P2.2 таймеры истечения временного mute `scheduleMuteExpiryTimers`, P2.3 обработка `429 retry_after` с посекундным отсчётом и блокировкой контролов, P2.4 вычисление `marksUnread` через `resolvedUnread`, P2.5 гарантированный сброс `flags: 0` при удалении override, P2.6 строгий `tsc` по `notifications.js`, P2.7 синхронизация `#channel-tree[data-hide-muted="true"]`).
-   - Подтверждено `17/17` unit-тестами в [`tests/unit/notifications-ui.test.mjs`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/tests/unit/notifications-ui.test.mjs), `5/5` убитыми мутациями и вердиктом **PASS (`P0=0, P1=0, P2=6`)** от технического ревьюера (`DeepSeek 31B`).
+   - Подтверждено `17/17` unit-тестами в [`tests/unit/notifications-ui.test.mjs`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/tests/unit/notifications-ui.test.mjs), `5/5` убитыми мутациями и вердиктом **PASS (`P0=0, P1=0, P2=6`)** от технического ревьюера (`DeepSeek 31B`).
 3. **Сборка `BUILD-001` передана в централизованное тестирование (`In Testing` на ветке `testing`):**
-   - Базовые 35 срезов RW-40 (`task-101..135`), спецификация `SEARCH-202-NSFW-SPEC.md` ([`PR-01`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-01-search-202-nsfw-spec.md)), подключение IPC уведомлений ([`PR-02`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-02-task-106-notif-ipc.md)) и UI-контроллер уведомлений Pass 2 ([`PR-03`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md)) слиты в `unstable` и собраны в [`BUILD-001`](file:///home/sanya/orca/project/waves/RW-40/BUILDS/BUILD-001.md) для прогона QA в ветке `testing`.
+   - Базовые 35 срезов RW-40 (`task-101..135`), спецификация `SEARCH-202-NSFW-SPEC.md` ([`PR-01`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-01-search-202-nsfw-spec.md)), подключение IPC уведомлений ([`PR-02`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-02-task-106-notif-ipc.md)) и UI-контроллер уведомлений Pass 2 ([`PR-03`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md)) слиты в `unstable` и собраны в [`BUILD-001`](file:///home/user/orca/project/waves/RW-40/BUILDS/BUILD-001.md) для прогона QA в ветке `testing`.
 4. **Независимая верификация текущего дерева (`docs/task-118-parity-wave10`):**
    - `npm run typecheck` — `exit 0`;
    - `npx tsc -p rust/gui-spike/ui/tsconfig.json` — `exit 0`;
@@ -39,8 +39,8 @@
 | Атрибут | Значение / Доказательство |
 |---|---|
 | **Задача и карточка** | `task-106` / `INT-06-NOTIFICATIONS-IPC-WIRING` (закрытие находки `F-5` из `MERGE-READINESS-13.md`) |
-| **Pull Request** | [`PR-02-task-106-notif-ipc.md`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-02-task-106-notif-ipc.md) (`feature/task-106-notif-ipc` → `unstable`, рабочая ветка удалена после слияния) |
-| **Product & Tech Review** | Product Review: **APPROVED**; Tech Review (`DeepSeek 33A`, [`REVIEW.md`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PM/int06-notif-ipc/REVIEW.md)): **PASS (`P0=0, P1=0, P2=3`)**; Приёмка: [`ACCEPT.md`](file:///home/sanya/orca/project/waves/RW-40/PM/int06-notif-ipc/ACCEPT.md) |
+| **Pull Request** | [`PR-02-task-106-notif-ipc.md`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-02-task-106-notif-ipc.md) (`feature/task-106-notif-ipc` → `unstable`, рабочая ветка удалена после слияния) |
+| **Product & Tech Review** | Product Review: **APPROVED**; Tech Review (`DeepSeek 33A`, [`REVIEW.md`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PM/int06-notif-ipc/REVIEW.md)): **PASS (`P0=0, P1=0, P2=3`)**; Приёмка: [`ACCEPT.md`](file:///home/user/orca/project/waves/RW-40/PM/int06-notif-ipc/ACCEPT.md) |
 | **`rust/gui-spike/src/main.rs`** | MD5 `ae573539a9b8a8cc6e355c3975edaff0` `[V]` — объявлены `#[tauri::command] async fn update_guild_notification_settings` (`:863–880`) и `#[tauri::command] async fn update_channel_notification_override` (`:885–910`), зарегистрированы в `tauri::generate_handler![...]` (`:1201–1202`), включены в `TOKEN_COMMANDS` (25 команд) |
 | **`rust/gui-spike/tests/ipc_wiring_contract.rs`** | MD5 `159053d11b700daba7a0ecdc863fb7fc` `[V]` — добавлен `notifications_ipc_commands_are_registered_and_delegate_to_lib`, расширен `every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main` (обход всех 32 файлов `ui/**/*.js`, распознавание `invoke`, `invokeFn`, `invokeReaction`) |
 | **Контракт безопасности и транспорта** | Bearer-токен читается исключительно из `Arc<AuthBackend>` через `token_or::<NotificationError, _>(move || backend.token(), || NotificationError::Storage, || NotificationError::MissingToken)`; токен не передаётся из UI и не логируется; делегирование в `discord_gui_spike::update_guild_notification_settings` и `discord_gui_spike::update_channel_notification_override` (`PATCH /users/@me/guilds/{guild_id}/settings`) |
@@ -52,8 +52,8 @@
 | Атрибут | Значение / Доказательство |
 |---|---|
 | **Задача и карточка** | `task-104` / `N-05-UI-NOTIFICATIONS` (Pass 2) |
-| **Pull Request** | [`PR-03-task-104-n05-ui-notifications.md`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md) (`rw40/review-n05-ui-pass2` → `unstable`, рабочая ветка удалена после слияния) |
-| **Product & Tech Review** | Product Review: **APPROVED**; Tech Review (`DeepSeek 31B`, [`REVIEW-PASS2.md`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PM/n05-ui-notifications/REVIEW-PASS2.md)): **PASS (`P0=0, P1=0, P2=6`)**; Приёмка: [`ACCEPT.md`](file:///home/sanya/orca/project/waves/RW-40/PM/n05-ui-notifications/ACCEPT.md) |
+| **Pull Request** | [`PR-03-task-104-n05-ui-notifications.md`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md) (`rw40/review-n05-ui-pass2` → `unstable`, рабочая ветка удалена после слияния) |
+| **Product & Tech Review** | Product Review: **APPROVED**; Tech Review (`DeepSeek 31B`, [`REVIEW-PASS2.md`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PM/n05-ui-notifications/REVIEW-PASS2.md)): **PASS (`P0=0, P1=0, P2=6`)**; Приёмка: [`ACCEPT.md`](file:///home/user/orca/project/waves/RW-40/PM/n05-ui-notifications/ACCEPT.md) |
 | **`rust/gui-spike/ui/features/notifications.js`** | MD5 `001ff70a7538378d16d52fd3b6b10117` `[V]` — в `getEnabledChannelMenuItems` (`:2130–2137`) вызов `channelMenu.querySelectorAll('[role="menuitem"], [role="menuitemradio"]')` обёрнут в `Array.from(...)` перед `.filter(...)` |
 | **`tests/unit/notifications-ui.test.mjs`** | MD5 `22238cac9b6e56b5ba9aa3f33c4484f7` `[V]` — `17/17` тестов (`+3` новых теста к 876 → итого **879/879** по репозиторию); тест меню (`:1036–1063`) подменяет `menu.querySelectorAll` на итерируемый `NodeList`-подобный объект без метода `.filter` (`typeof ...filter === "undefined"`) и верифицирует `openChannelMenu`, `ArrowDown` и `Escape` |
 | **Закрытые пункты Pass 2** | **P1.1** (`Array.from(querySelectorAll).filter`), **P2.1** (focus trap `Tab`/`Shift+Tab` в `#guild-notif-modal`), **P2.2** (таймеры истечения временного mute `scheduleMuteExpiryTimers`/`clearMuteExpiryTimers`), **P2.3** (обработка `429` с `retry_after_ms`, блокировкой контролов и текстом `«Слишком много запросов. Повторите через {n} с.»`), **P2.4** (`resolvedUnread` и `marksUnread` строго по битам `1024`/`512` и `ALL_MESSAGES`), **P2.5** (всегда отправляется `flags: clearUnreadFlags(...)` при сбросе override), **P2.6** (прямой `tsc` по `notifications.js` и `EXIT_CODE` в логах), **P2.7** (атрибуты `data-muted`, `data-muted-hidden` и `hidden` при `#channel-tree[data-hide-muted="true"]`) |
@@ -71,16 +71,16 @@ flowchart LR
     W["&lt;type&gt;/task-&lt;id&gt;-&lt;slug&gt;<br/>(feature | bugfix | design | qa | devops | docs)<br/>от актуального unstable"]
   end
   subgraph Unstable["2. Ветка интеграции"]
-    U["unstable<br/>(/home/sanya/orca/workspaces/project/unstable)"]
+    U["unstable<br/>(/home/user/orca/workspaces/project/unstable)"]
   end
   subgraph Testing["3. Централизованная сборка QA"]
-    T["testing<br/>(/home/sanya/orca/workspaces/project/testing)<br/>Сборки BUILD-001, BUILD-002..."]
+    T["testing<br/>(/home/user/orca/workspaces/project/testing)<br/>Сборки BUILD-001, BUILD-002..."]
   end
   subgraph Beta["4. Предрелизный контур"]
-    B["beta<br/>(/home/sanya/orca/workspaces/project/beta)"]
+    B["beta<br/>(/home/user/orca/workspaces/project/beta)"]
   end
   subgraph Main["5. Стабильный релиз"]
-    M["main<br/>(/home/sanya/orca/project)<br/>Версия + git tag"]
+    M["main<br/>(/home/user/orca/project)<br/>Версия + git tag"]
   end
 
   W -->|"Локальный TDD (red → green → 5 мутаций)<br/>+ Product Review (PM)<br/>+ Tech Review (DeepSeek)<br/>+ CI/гейты → PR Merge"| U
@@ -96,18 +96,18 @@ flowchart LR
    - Допустимые префиксы: `feature/task-<id>-<slug>`, `bugfix/task-<id>-<slug>`, `design/task-<id>-<slug>`, `qa/task-<id>-<slug>`, `devops/task-<id>-<slug>`, `docs/task-<id>-<slug>`.
    - Воркер работает изолированно в своей ветке, выполняет строгий цикл `RED -> GREEN -> 5 мутаций`, проверки компиляции, `clippy`/`rustfmt`, `tsc` и открывает PR в `unstable`.
    - Сразу после слияния PR в `unstable` рабочая ветка воркера **удаляется** (`orca worktree rm`). Под каждую новую задачу создаётся свежая ветка от актуального `unstable`.
-2. **`unstable` ([`/home/sanya/orca/workspaces/project/unstable`](file:///home/sanya/orca/workspaces/project/unstable)):**
+2. **`unstable` ([`/home/user/orca/workspaces/project/unstable`](file:///home/user/orca/workspaces/project/unstable)):**
    - Принимает PR только после прохождения тройного гейта:
      1) **Product Review (PM)** — соответствие требованиям, пользовательским сценариям, дизайн-спекам и DoD;
      2) **Technical Review (`deepseek/deepseek-v4.1-flash`)** — архитектура, безопасность, качество тестов и мутаций, обработка ошибок, отсутствие посторонних правок;
      3) **CI / автоматические проверки** и отсутствие конфликтов слияния.
-3. **`testing` ([`/home/sanya/orca/workspaces/project/testing`](file:///home/sanya/orca/workspaces/project/testing)):**
+3. **`testing` ([`/home/user/orca/workspaces/project/testing`](file:///home/user/orca/workspaces/project/testing)):**
    - Ветка централизованной сборки для QA. Прямые коммиты и передача задач в QA напрямую из рабочих веток воркеров **запрещены**.
    - DevOps / интегратор формирует именованную сборку (`BUILD-001`, `BUILD-002`, ...) из `unstable` с перечнем вошедших задач, инструкциями проверки, списком тестовых оракулов и известными ограничениями.
-4. **`beta` ([`/home/sanya/orca/workspaces/project/beta`](file:///home/sanya/orca/workspaces/project/beta)):**
+4. **`beta` ([`/home/user/orca/workspaces/project/beta`](file:///home/user/orca/workspaces/project/beta)):**
    - Предрелизная ветка, куда попадают сборки из `testing` после статуса `QA Passed` и прохождения регрессионного набора.
    - На `beta` валидируются целевое окружение, критические пользовательские маршруты, метрики производительности и план отката (rollback plan).
-5. **`main` ([`/home/sanya/orca/project`](file:///home/sanya/orca/project)):**
+5. **`main` ([`/home/user/orca/project`](file:///home/user/orca/project)):**
    - Стабильная продуктивная ветка (прямые коммиты запрещены). Код попадает исключительно через PR из `beta`, сопровождается выпуском версии и тега, а пост-релизные исправления синхронизируются обратно в `unstable`.
 
 ### 2.2. Полная схема движения задач по 13 официальным статусам (`BOARD.md` §2)
@@ -168,10 +168,10 @@ stateDiagram-v2
 | Задача / Пакет | Ветка / PR | Роль | Содержание | Текущий статус (из 13) |
 |---|---|---|---|---|
 | `task-101..135` | Базовый пакет волн 1–9 | G1 / G2 / G3 / G5 | 35 кодовых срезов и 6 дизайн-спек RW-40 (`L-02`, `STUB-27`, `C-02`, `M-07`, `M-08`, `P-03`, `B2a/B2b`, `AT-03`, `M-10/STUB-10`, `STUB-05`, `STUB-16`, `V-01/V-06/V-07`, `N-05-BE`, `INT-05`) | `In Testing` (`BUILD-001` на ветке `testing`) |
-| `task-105` | [`PR-01`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-01-search-202-nsfw-spec.md) (ветка удалена) | G3 + Tech Review (`DeepSeek 29B`) | Дизайн-спецификация `SEARCH-202-NSFW-SPEC.md` (Pass 2, 60/60 токенов, `PASS`) | `In Testing` (`BUILD-001` на ветке `testing`) |
-| `task-106` | [`PR-02`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-02-task-106-notif-ipc.md) (ветка удалена) | G1 + Tech Review (`DeepSeek 33A`) | Подключение Tauri IPC-команд `update_guild_notification_settings` и `update_channel_notification_override` (закрытие `F-5`, `PASS`) | `In Testing` (`BUILD-001` на ветке `testing`) |
-| `task-104` | [`PR-03`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md) (ветка удалена) | G2 + Tech Review (`DeepSeek 31B`) | `N-05-UI-NOTIFICATIONS` Pass 2 (`notifications.js` + `notifications-ui.test.mjs`, закрытие P1 `NodeList.filter` и 7 P2, `17/17`, `PASS`) | `In Testing` (`BUILD-001` на ветке `testing`) |
-| `task-116` | `qa/task-116-qa-build-001` | QA | Централизованное тестирование сборки [`BUILD-001`](file:///home/sanya/orca/project/waves/RW-40/BUILDS/BUILD-001.md) из ветки `testing` | `In Progress` (выполняет проверку `In Testing`) |
+| `task-105` | [`PR-01`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-01-search-202-nsfw-spec.md) (ветка удалена) | G3 + Tech Review (`DeepSeek 29B`) | Дизайн-спецификация `SEARCH-202-NSFW-SPEC.md` (Pass 2, 60/60 токенов, `PASS`) | `In Testing` (`BUILD-001` на ветке `testing`) |
+| `task-106` | [`PR-02`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-02-task-106-notif-ipc.md) (ветка удалена) | G1 + Tech Review (`DeepSeek 33A`) | Подключение Tauri IPC-команд `update_guild_notification_settings` и `update_channel_notification_override` (закрытие `F-5`, `PASS`) | `In Testing` (`BUILD-001` на ветке `testing`) |
+| `task-104` | [`PR-03`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/waves/RW-40/PR/PR-03-task-104-n05-ui-notifications.md) (ветка удалена) | G2 + Tech Review (`DeepSeek 31B`) | `N-05-UI-NOTIFICATIONS` Pass 2 (`notifications.js` + `notifications-ui.test.mjs`, закрытие P1 `NodeList.filter` и 7 P2, `17/17`, `PASS`) | `In Testing` (`BUILD-001` на ветке `testing`) |
+| `task-116` | `qa/task-116-qa-build-001` | QA | Централизованное тестирование сборки [`BUILD-001`](file:///home/user/orca/project/waves/RW-40/BUILDS/BUILD-001.md) из ветки `testing` | `In Progress` (выполняет проверку `In Testing`) |
 | `task-107` | `rw40/int07-ui-app-mount` | G2 Frontend | Монтирование `createVoiceDevicesSettings` и `createNotificationSettingsController` в `app.js` / `index.html` (войдёт в `BUILD-002`) | `In Progress` |
 | `task-108` | `rw40/dm-friends-spec-pass2` | G3 Design | Доработка `DM-FRIENDS-SPEC.md` Pass 2 по замечаниям `DeepSeek 32A` (войдёт в `BUILD-002`) | `In Progress` |
 | `task-109` | `bugfix/task-109-ipc-oracle-strict` | G1 Backend | Устранение P2-1..P2-3 из ревью `PR-02`: разбор констант (38/38 команд) в `ipc_wiring_contract.rs` и строгая валидация `channel_id` + `override` в `ChannelOverrideInput` | `Ready for Development` / `In Progress` |
@@ -188,7 +188,7 @@ stateDiagram-v2
 
 ### 3.1. Покрытие всех 38 уникальных IPC-команд, вызываемых фронтендом (38/38 = 100 %)
 
-Каждая из 38 команд, вызываемых из `rust/gui-spike/ui/**/*.js`, объявлена с атрибутом `#[tauri::command]` в [`rust/gui-spike/src/main.rs`](file:///home/sanya/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/src/main.rs) и зарегистрирована в `tauri::generate_handler![...]` (`main.rs:1167–1217`).
+Каждая из 38 команд, вызываемых из `rust/gui-spike/ui/**/*.js`, объявлена с атрибутом `#[tauri::command]` в [`rust/gui-spike/src/main.rs`](file:///home/user/orca/workspaces/project/docs-task-118-parity-wave10/rust/gui-spike/src/main.rs) и зарегистрирована в `tauri::generate_handler![...]` (`main.rs:1167–1217`).
 
 | № | IPC-команда (`cmd`) | Call-site в UI (`rust/gui-spike/ui/`) | Обработчик в `main.rs` (строка / рег.) | Источник данных / REST-эндпоинт / Gateway-контур | Тестовый оракул (Rust / Unit / Meta) |
 |---:|---|---|---|---|---|

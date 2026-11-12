@@ -1,6 +1,6 @@
 - Сделано: реализованы парсер и рендерер Markdown, тесты на 23 правила, безопасность URL, незакрытые маркеры, вложенные стили и fuzz-lite.
-- Red: [red-W25b.log](/home/sanya/orca/project/waves/RW-24/red-W25b.log), 0/5, exit 101 на исходных заглушках.
-- Green: [green-W25b.log](/home/sanya/orca/project/waves/RW-24/green-W25b.log), 5/5, exit 0.
+- Red: [red-W25b.log](/home/user/orca/project/waves/RW-24/red-W25b.log), 0/5, exit 101 на исходных заглушках.
+- Green: [green-W25b.log](/home/user/orca/project/waves/RW-24/green-W25b.log), 5/5, exit 0.
 - Форматирование двух целевых файлов проверено прямым `rustfmt --check`; `git diff --check` чистый. `cargo fmt --all -- --check` показал diff во множестве чужих файлов, поэтому их не форматировал. Clippy ограничен чужими проблемами: self-assignment в `format.rs` и bool assertion в `locale_contract.rs`.
 - md5: `markdown.rs` `8896484bec8edccd8a9b7e37d9331d3f`; `markdown_contract.rs` `ac3c824b07798f5b6b2b1c1d74780f6d`; red log `8eae433dc892698a1802216841551e36`; green log `02c2c45d523282875ea0fba2b10599c9`.
 - Риски: парсер реализует ограниченный поднабор Markdown по контракту; Clippy полного пакета не прошёл из-за соседних карточек. Не коммитил.

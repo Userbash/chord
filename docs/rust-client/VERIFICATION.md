@@ -1,83 +1,62 @@
-# Верификация: сырьё RE ↔ документы ↔ фикстуры
+# Verification: Cleanroom RE Evidence <-> Documents <-> Fixtures
 
-Журнал прогона (2026-10-19, лаборатория `/home/sanya/re-deep`).
-Команда: `node docs/rust-client/verify/verify-re.mjs --write` → **20/20 проверок пройдено**
-(машинный отчёт — `verify/report.json`). Скрипт живёт в git, лаборатория — оракул.
+Verification run ledger (cleanroom lab oracle).
+Command: `node docs/rust-client/verify/verify-re.mjs --write` -> **20/20 checks passed**
+(machine report — `verify/report.json`). Script resides in git; cleanroom lab acts as authoritative oracle.
 
-## 1. Результаты
+## 1. Results
 
-| ID | Проверка | Факт (из сырья) |
+| ID | Verification | Fact (from raw evidence) |
 |---|---|---|
-| LAB-01 | лаборатория доступна | `gateway/` и корень на месте |
-| PROV-01 | md5/размеры снапшотов D-02 совпадают с `docs/re/rest-d02.stats.json` | run2: `abfe14b76cec…` 4 137 676 Б / 10 170 строк; ready: `b43636da09a4…` 2 479 139 Б / 5 104 строки — все `=` |
-| GW-01 | `gateway/by-type` | 164 файла, 12 типов |
-| GW-02 | READY `002-READY.json` | 40 ключей, 7 гильдий, 17 ЛС, 146 users, 60 связей, 157 `read_state` |
-| GW-03 | гильдия ITSKIDON | 83 канала / 34 роли / 46 эмодзи; `member_count` 24 228 (READY) и 24 229 (facts) — см. §2.1 |
-| GW-04 | `ready-stats.json` | 7 гильдий, 17 ЛС, 60 связей, 40 ключей |
-| GW-05 | `summary.json` | READY-кадр `payloadBytes=575853` присутствует |
-| GW-06 | `gw-proto` (7 сокетов) | 1 544 кадра, 1 340 диспатчей, 21 тип |
-| ENC-01 | ETF-теги | 11 кодов в сырье **=** 11 в `docs/re/gateway-protocol.json` (наборы идентичны) |
-| REST-01 | `docs/re/rest-d02.json` | 47 маршрутов, 133 запроса v9, `Authorization` — 221 |
-| REST-02 | `rest-static.json` | 904 эндпоинта статического реестра |
-| I18N-01 | `i18n-stats.json` | ru 23 836 ключей, en 23 903, плуральных пар 911 |
-| I18N-02 | `locale-chunk-hashes.json` | 31 включённая локаль из 36 |
-| IPC-01 | `backend-ipc.json` | 168 каналов, 115 общих, 35 записей моста, whitelist 43 (30+14) |
-| NAT-01 | `native-re.json` | 9 модулей; `discord_voice` 126 136 024 Б, md5 `5fe80ce0f5d8…` |
-| VOICE-01 | `voice/rtc*-frames.jsonl` | набор op = {0,1,2,3,4,6,8,15,16} |
-| VOICE-02 | `strace-media-s3.jsonl` | магия keepalive `1337` присутствует |
-| SAN-01 | `capture-run2.jsonl` + `fixtures/` | токен-подобных строк нет; чувствительные ключи только `REDACTED` (177 файлов) |
-| FIX-01 | `fixtures/MANIFEST.json` | 12 записей, md5 всех копий совпадают (расхождений 0) |
-| FIX-02 | фикстура шлюза | HELLO heartbeat `41250` присутствует |
+| LAB-01 | Cleanroom lab accessibility | `gateway/` and root directories intact |
+| PROV-01 | D-02 snapshot md5/byte sizes match `docs/re/rest-d02.stats.json` | run2: `abfe14b76cec…` 4,137,676 B / 10,170 lines; ready: `b43636da09a4…` 2,479,139 B / 5,104 lines — all exact match |
+| GW-01 | `gateway/by-type` | 164 files, 12 types |
+| GW-02 | READY `002-READY.json` | 40 keys, 7 guilds, 17 DMs, 146 users, 60 relationships, 157 `read_state` |
+| GW-03 | Guild ITSKIDON | 83 channels / 34 roles / 46 emojis; `member_count` 24,228 (READY) and 24,229 (facts) — see §2.1 |
+| GW-04 | `ready-stats.json` | 7 guilds, 17 DMs, 60 relationships, 40 keys |
+| GW-05 | `summary.json` | READY frame `payloadBytes=575853` present |
+| GW-06 | `gw-proto` (7 sockets) | 1,544 frames, 1,340 dispatches, 21 types |
+| ENC-01 | ETF tags | 11 codes in raw data **=** 11 in `docs/re/gateway-protocol.json` (identical sets) |
+| REST-01 | `docs/re/rest-d02.json` | 47 routes, 133 requests v9, `Authorization` — 221 |
+| REST-02 | `rest-static.json` | 904 static registry endpoints |
+| I18N-01 | `i18n-stats.json` | ru 23,836 keys, en 23,903, plural pairs 911 |
+| I18N-02 | `locale-chunk-hashes.json` | 31 enabled locales out of 36 |
+| IPC-01 | `backend-ipc.json` | 168 channels, 115 duplex, 35 bridge entries, whitelist 43 (30+14) |
+| NAT-01 | `native-re.json` | 9 modules; `discord_voice` 126,136,024 B, md5 `5fe80ce0f5d8…` |
+| VOICE-01 | `voice/rtc*-frames.jsonl` | Opcode set = {0,1,2,3,4,6,8,15,16} |
+| VOICE-02 | `strace-media-s3.jsonl` | Keepalive magic `1337` present |
+| SAN-01 | `capture-run2.jsonl` + `fixtures/` | Zero token-like strings; sensitive keys redacted to `REDACTED` (177 files) |
+| FIX-01 | `fixtures/MANIFEST.json` | 12 entries, md5 of all copies match exactly (0 deviations) |
+| FIX-02 | Gateway fixture | HELLO heartbeat `41250` present |
 
-## 2. Расхождения и как разрешены
+## 2. Reconciled Differences
 
-### 2.1 `member_count`: 24 228 или 24 229?
-Оба значения — в сырье: READY-декод (`gateway/by-type/002-READY.json`) даёт **24 228**,
-замороженные факты (`gw-proto/facts-frozen.json`, сокет `.8269`) — **24 229**. Это не ошибка,
-а разница снапшотов (в гильдии менялось число участников). Документы используют 24 229
-(facts-волна), верификатор принимает оба и печатает примечание.
+### 2.1 `member_count`: 24,228 vs 24,229
+Both values exist in raw evidence: READY decode (`gateway/by-type/002-READY.json`) reports **24,228**, while frozen facts (`gw-proto/facts-frozen.json`, socket `.8269`) report **24,229**. This reflects active membership changes across snapshots rather than an error. Documentation standardizes on 24,229.
 
-### 2.2 «23 типа диспатчей» → **21**
-В черновиках `FEATURES.md` / `PLAN.md` / `TEST-PLAN.md` фигурировало число 23. Сверка с
-`gw-proto` (union 7 сокетов) и с авторитетным списком `docs/re/gateway-protocol.md` §4 дала
-**21 тип**. Документы исправлены; число проверяется автоматически (GW-06).
+### 2.2 "23 dispatch types" -> **21**
+Early drafts of `FEATURES.md` / `PLAN.md` / `TEST-PLAN.md` listed 23 types. Verification against the union of 7 `gw-proto` sockets and `docs/re/gateway-protocol.md` §4 confirmed exactly **21 distinct types**. Corrected across all documents and automated in check GW-06.
 
 ### 2.3 `MESSAGE_POLL_VOTE_REMOVE`
-В каталоге функций упоминался вместе с `ADD`. В сырье (0 вхождений в `capture-run2.jsonl`)
-**не наблюдался**. Формулировка исправлена на «ADD; REMOVE — не наблюдался», тест T-MSG-08
-получил negative-кейс.
+Initially cataloged alongside `ADD`. In raw data (0 occurrences in `capture-run2.jsonl`), this event was not observed. Updated to "ADD; REMOVE — not observed", with negative control test case in T-MSG-08.
 
-### 2.4 «47 маршрутов» против «904 эндпоинтов»
-`rest-static.json` — статический реестр из веб-бандла (**904** эндпоинта), а «47 маршрутов /
-133 запроса» — фактически выполненные в захвате D-02. Это разные сущности; в верификаторе
-проверяются отдельно (REST-01/REST-02), в `docs/re/rest-d02.md` они и описаны раздельно.
+### 2.4 "47 routes" vs "904 endpoints"
+`rest-static.json` contains the static endpoint registry scraped from web bundles (**904** endpoints), while "47 routes / 133 requests" represent real captured traffic in trace D-02. Verified separately via REST-01 and REST-02.
 
-### 2.5 Реальный `analytics_token` в декоде READY — вырезан
-Аудит нашёл в `gateway/by-type/002-READY.json` (сырьё лаборатории) значение `analytics_token`
-в формате реального токена. В git оно не попало: сборщик фикстур
-(`fixtures/tools/make-fixtures.mjs`) вырезает значения ключей `analytics_token`, `session_id`,
-`auth_session_id_hash`, `static_client_session_id`, `qos_token`, `resume_gateway_url` (и email)
-→ `REDACTED`, после чего сканирует набор на токен-подобные строки и падает при находке.
-Проверка SAN-01 расширена со «только capture» до «capture + все фикстуры». В лаборатории
-сырьё остаётся оригинальным (политика: оригиналы — только в лаборатории, в репо — `REDACTED`);
-md5-провенанс очищенных копий пересчитан в `MANIFEST.json`.
+### 2.5 Real `analytics_token` Redacted from READY
+Security scanning identified an active `analytics_token` in `gateway/by-type/002-READY.json`. The fixture generator (`fixtures/tools/make-fixtures.mjs`) strips `analytics_token`, `session_id`, `auth_session_id_hash`, `static_client_session_id`, `qos_token`, and `resume_gateway_url` -> `REDACTED` before committing to git, verified by check SAN-01.
 
-## 3. Что это гарантирует
+## 3. Guarantees Provided
 
-- Числа в `docs/re/` и `docs/rust-client/` воспроизводимы из сырья (20 машинных проверок).
-- Конформанс-фикстуры репозитория — побайтовые копии лаборатории (md5 в `MANIFEST.json`).
-- Санитизация подтверждена отдельной проверкой (SAN-01) + `T-SEC-03` тест-плана.
-- Расползание структуры (файлы, фикстуры, каркас, ссылки) ловит мета-тест
-  `tests/meta/rust-client-sync.test.mjs`.
+- All numerical claims in `docs/re/` and `docs/rust-client/` reproduce automatically from raw evidence (20 checks).
+- Conformance fixtures in the repository are byte-exact replicas of verified cleanroom fixtures.
+- Sanitization verified across all fixtures by automated scanner SAN-01 and test `T-SEC-03`.
+- Architectural integrity protected by meta-test `tests/meta/rust-client-sync.test.mjs`.
 
-## 4. Воспроизведение
+## 4. Reproduction
 
 ```sh
-node docs/rust-client/verify/verify-re.mjs          # 0 — всё сходится; 1 — расхождение; 2 — нет лаборатории
-node docs/rust-client/verify/verify-re.mjs --write  # + обновить verify/report.json
-node fixtures/tools/make-fixtures.mjs               # пересборка фикстур (копирование + санитизация + манифест)
+node docs/rust-client/verify/verify-re.mjs          # 0 = clean; 1 = deviation; 2 = missing lab
+node docs/rust-client/verify/verify-re.mjs --write  # update verify/report.json
+node fixtures/tools/make-fixtures.mjs               # rebuild fixtures (copy + sanitize + manifest)
 ```
-
-При добавлении артефакта волны: положить файл в лабораторию → обновить `docs/re/` → при
-необходимости добавить фикстуру через манифест → прогнать верификатор → зафиксировать
-изменения в этом журнале.

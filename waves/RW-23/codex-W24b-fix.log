@@ -1,6 +1,6 @@
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -12,21 +12,21 @@ session id: 01a15d64-85d6-7d32-b2ee-cf8c3b1c1d85
 user
 Интеграционный лейн исправил scripts/sbom.mjs: теперь SBOM строится из `cargo metadata --offline --filter-platform <host>` (71 host-пакет, licenseDeclared у всех, CDLA-Permissive-2.0 добавлен в allowlist), а не из no-deps+registry. Твоя задача — только усилить tests/sbom_contract.rs (scripts не менять) и подтвердить targeted green. Добавь regression-тесты: 1) `--check-license "(MIT OR Apache-2.0) AND GPL-3.0-only"` exit 1 (проверка приоритета AND/OR, старый парсер ошибочно разрешал); 2) `MIT OR GPL-3.0-only` exit 0; 3) `Apache-2.0 WITH LLVM-exception` exit 0, `Apache-2.0 WITH Classpath-exception-2.0` exit 1; 4) SPDX packages >= 60, relationships > 0, нет licenseDeclared=NOASSERTION, все workspace-пакеты присутствуют; 5) `--check` exit 0. Сначала red-прогон (текущие тесты должны упасть на новых кейсах), лог red-w24b-fix.log, затем green-w24b-fix.log. Не трогай другие файлы, не коммить.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Обновление принято: ограничиваюсь тестом `sbom_contract.rs`; сначала проверю актуальную версию теста, `sbom.mjs` и статус файла, затем добавлю регрессии и выполню red/green targeted-прогоны под `flock`.
 exec
-/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-conformance/tests/sbom_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-conformance/tests/sbom_contract.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,250p' scripts/sbom.mjs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,250p' scripts/sbom.mjs" in /home/user/orca/project
  succeeded in 0ms:
 //! T-HARN-07: offline SBOM and license contract for RW-23 / W24b.
 
@@ -353,7 +353,7 @@ try {
 }
 
 exec
-/usr/bin/bash -lc 'git status --short -- rust/crates/discord-conformance/tests/sbom_contract.rs scripts/sbom.mjs waves/RW-23' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short -- rust/crates/discord-conformance/tests/sbom_contract.rs scripts/sbom.mjs waves/RW-23' in /home/user/orca/project
  succeeded in 0ms:
 ?? rust/crates/discord-conformance/tests/sbom_contract.rs
 ?? scripts/sbom.mjs
@@ -363,7 +363,7 @@ codex
 В `sbom.mjs` уже вижу исправленный precedence parser и поддержку `WITH`; он сейчас должен принимать/отклонять ровно указанные выражения. Значит требуемый красный прогон на этом исходнике может быть невозможен без обратной мутации скрипта, которую вы запретили; всё равно сначала добавляю только тесты и зафиксирую фактический результат прогона.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs
+/home/user/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
 --- a/rust/crates/discord-conformance/tests/sbom_contract.rs
@@ -539,9 +539,9 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
      let ci = Command::new("bash")
 
 exec
-/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/red-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nRED_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/red-w24b-fix.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/red-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nRED_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/red-w24b-fix.log; exit 0' in /home/user/orca/project
  succeeded in 30ms:
-   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+   Compiling discord-conformance v0.1.0 (/home/user/orca/project/rust/crates/discord-conformance)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
      Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
 
@@ -668,13 +668,13 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
 codex
 Новые проверки лицензий уже проходят, включая приоритет `AND` над `OR` и `WITH`. Остальные два теста упали раньше SBOM-проверок: в этой среде Node сообщает `spawnSync rustc EPERM`; сверяю путь к toolchain-бинарю и воспроизводимость ошибки, чтобы подтвердить targeted green без изменения скриптов.
 exec
-/usr/bin/bash -lc "rustup which rustc; node -e \"const {execFileSync}=require('node:child_process'); for (const p of ['rustc','/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc']) { try { console.log(p,execFileSync(p,['-vV'],{encoding:'utf8'}).split('\\\\n')[0]) } catch(e) { console.log(p,'error=',e.code,'status=',e.status,'stdout=',String(e.stdout||'').slice(0,100)) } }\"; cargo metadata --offline --format-version 1 --filter-platform \""'$(rustc -vV | sed -n '"'s/"'^host: //p'"')\" --manifest-path rust/Cargo.toml >/dev/null" in /home/sanya/orca/project
+/usr/bin/bash -lc "rustup which rustc; node -e \"const {execFileSync}=require('node:child_process'); for (const p of ['rustc','/home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc']) { try { console.log(p,execFileSync(p,['-vV'],{encoding:'utf8'}).split('\\\\n')[0]) } catch(e) { console.log(p,'error=',e.code,'status=',e.status,'stdout=',String(e.stdout||'').slice(0,100)) } }\"; cargo metadata --offline --format-version 1 --filter-platform \""'$(rustc -vV | sed -n '"'s/"'^host: //p'"')\" --manifest-path rust/Cargo.toml >/dev/null" in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc
+/home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc
 rustc error= EPERM status= 0 stdout= rustc 1.99.0 (b940084d7 2026-09-28)
 binary: rustc
 commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7
-/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc error= EPERM status= 0 stdout= rustc 1.99.0 (b940084d7 2026-09-28)
+/home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc error= EPERM status= 0 stdout= rustc 1.99.0 (b940084d7 2026-09-28)
 binary: rustc
 commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7
 
@@ -766,7 +766,7 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
      let ci = Command::new("bash")
 
 exec
-/usr/bin/bash -lc "rustc -vV | sed -n '1,8p'; mkdir -p /tmp/w24b-bin" in /home/sanya/orca/project
+/usr/bin/bash -lc "rustc -vV | sed -n '1,8p'; mkdir -p /tmp/w24b-bin" in /home/user/orca/project
  succeeded in 0ms:
 rustc 1.99.0 (b940084d7 2026-09-28)
 binary: rustc
@@ -1071,7 +1071,7 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
      let ci = Command::new("bash")
 
 exec
-/usr/bin/bash -lc 'chmod +x /tmp/w24b-bin/rustc; set +e; cd rust; PATH="/tmp/w24b-bin:$PATH" flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'chmod +x /tmp/w24b-bin/rustc; set +e; cd rust; PATH="/tmp/w24b-bin:$PATH" flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/user/orca/project
  succeeded in 0ms:
 error: output of --print=file-names missing when learning about target-specific information from rustc
 command was: `rustc - --crate-name ___ --print=file-names --crate-type bin --crate-type rlib --crate-type dylib --crate-type cdylib --crate-type staticlib --crate-type proc-macro --print=sysroot --print=split-debuginfo --print=crate-name --print=cfg -Wwarnings`
@@ -1212,7 +1212,7 @@ index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc573387
 +    'release: 1.99.0' \
 +    'LLVM version: 23.1.1'
 +else
-+  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++  exec /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
 +fi
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
@@ -1318,7 +1318,7 @@ index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc573387
 +    'release: 1.99.0' \
 +    'LLVM version: 23.1.1'
 +else
-+  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++  exec /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
 +fi
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
@@ -1408,7 +1408,7 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
      let ci = Command::new("bash")
 
 exec
-/usr/bin/bash -lc 'set +e; cd rust; PATH="/tmp/w24b-bin:$PATH" flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; PATH="/tmp/w24b-bin:$PATH" flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/user/orca/project
  succeeded in 0ms:
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
      Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
@@ -1463,7 +1463,7 @@ index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc573387
 +    'release: 1.99.0' \
 +    'LLVM version: 23.1.1'
 +else
-+  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++  exec /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
 +fi
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aacb5b08ba
@@ -1574,7 +1574,7 @@ index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc573387
 +    'release: 1.99.0' \
 +    'LLVM version: 23.1.1'
 +else
-+  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++  exec /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
 +fi
 diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
 new file mode 100644
@@ -1694,7 +1694,7 @@ index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc573387
 +    'release: 1.99.0' \
 +    'LLVM version: 23.1.1'
 +else
-+  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++  exec /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
 +fi
 diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
 new file mode 100644
@@ -1798,7 +1798,7 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
      let ci = Command::new("bash")
 
 exec
-/usr/bin/bash -lc 'set +e; cd rust; NODE_OPTIONS=--require=/tmp/w24b-preload.cjs flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; NODE_OPTIONS=--require=/tmp/w24b-preload.cjs flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b-fix.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b-fix.log; exit 0' in /home/user/orca/project
  succeeded in 0ms:
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
      Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
@@ -1832,7 +1832,7 @@ index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc573387
 +    'release: 1.99.0' \
 +    'LLVM version: 23.1.1'
 +else
-+  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++  exec /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
 +fi
 diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
 new file mode 100644
@@ -1936,7 +1936,7 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
      let ci = Command::new("bash")
 
 exec
-/usr/bin/bash -lc 'md5sum rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23/red-w24b-fix.log waves/RW-23/green-w24b-fix.log; git status --short -- rust/crates/discord-conformance/tests/sbom_contract.rs scripts/sbom.mjs scripts/ci.sh scripts/release.sh waves/RW-23/red-w24b-fix.log waves/RW-23/green-w24b-fix.log; tail -n 10 waves/RW-23/red-w24b-fix.log; tail -n 10 waves/RW-23/green-w24b-fix.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'md5sum rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23/red-w24b-fix.log waves/RW-23/green-w24b-fix.log; git status --short -- rust/crates/discord-conformance/tests/sbom_contract.rs scripts/sbom.mjs scripts/ci.sh scripts/release.sh waves/RW-23/red-w24b-fix.log waves/RW-23/green-w24b-fix.log; tail -n 10 waves/RW-23/red-w24b-fix.log; tail -n 10 waves/RW-23/green-w24b-fix.log' in /home/user/orca/project
  succeeded in 0ms:
 f97b54d4145249b2207aaa1c36de06ab  rust/crates/discord-conformance/tests/sbom_contract.rs
 b4f4142af8c0e244572262c8998edf29  waves/RW-23/red-w24b-fix.log
@@ -1985,7 +1985,7 @@ index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc573387
 +    'release: 1.99.0' \
 +    'LLVM version: 23.1.1'
 +else
-+  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++  exec /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
 +fi
 diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
 new file mode 100644
@@ -2089,9 +2089,9 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
      let ci = Command::new("bash")
 
 codex
-Усилил только [sbom_contract.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs): добавил проверки приоритета `AND`/`OR`, `WITH`, 60+ пакетов, relationships, отсутствия `NOASSERTION` и наличия всех workspace-пакетов. Проверка `--check` exit 0 сохранена.
+Усилил только [sbom_contract.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs): добавил проверки приоритета `AND`/`OR`, `WITH`, 60+ пакетов, relationships, отсутствия `NOASSERTION` и наличия всех workspace-пакетов. Проверка `--check` exit 0 сохранена.
 
-Targeted green: `5 passed`, exit 0. Для запуска потребовался временный Node preload в `/tmp`: sandbox выдаёт `EPERM` для `rustc -vV`, хотя команда завершается успешно. Red-прогон также завершился exit 101 из-за этого ограничения, а не из-за новых проверок лицензий; после обхода окруженческой ошибки green прошёл. Логи: [red](/home/sanya/orca/project/waves/RW-23/red-w24b-fix.log), [green](/home/sanya/orca/project/waves/RW-23/green-w24b-fix.log). Скрипты не менял, коммита нет.
+Targeted green: `5 passed`, exit 0. Для запуска потребовался временный Node preload в `/tmp`: sandbox выдаёт `EPERM` для `rustc -vV`, хотя команда завершается успешно. Red-прогон также завершился exit 101 из-за этого ограничения, а не из-за новых проверок лицензий; после обхода окруженческой ошибки green прошёл. Логи: [red](/home/user/orca/project/waves/RW-23/red-w24b-fix.log), [green](/home/user/orca/project/waves/RW-23/green-w24b-fix.log). Скрипты не менял, коммита нет.
 
 MD5 теста: `f97b54d4145249b2207aaa1c36de06ab`.
 diff --git a//tmp/w24b-bin/rustc b//tmp/w24b-bin/rustc
@@ -2111,7 +2111,7 @@ index 0000000000000000000000000000000000000000..ee035321bb6f4a2afcec5fa2bc573387
 +    'release: 1.99.0' \
 +    'LLVM version: 23.1.1'
 +else
-+  exec /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
++  exec /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc "$@"
 +fi
 diff --git a//tmp/w24b-preload.cjs b//tmp/w24b-preload.cjs
 new file mode 100644
@@ -2216,8 +2216,8 @@ index d204ef0055df2e7dc2b03202720c42d050b52616..7536cc3529ffb74a3dd72588fd7db0aa
 
 tokens used
 106 182
-Усилил только [sbom_contract.rs](/home/sanya/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs): добавил проверки приоритета `AND`/`OR`, `WITH`, 60+ пакетов, relationships, отсутствия `NOASSERTION` и наличия всех workspace-пакетов. Проверка `--check` exit 0 сохранена.
+Усилил только [sbom_contract.rs](/home/user/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs): добавил проверки приоритета `AND`/`OR`, `WITH`, 60+ пакетов, relationships, отсутствия `NOASSERTION` и наличия всех workspace-пакетов. Проверка `--check` exit 0 сохранена.
 
-Targeted green: `5 passed`, exit 0. Для запуска потребовался временный Node preload в `/tmp`: sandbox выдаёт `EPERM` для `rustc -vV`, хотя команда завершается успешно. Red-прогон также завершился exit 101 из-за этого ограничения, а не из-за новых проверок лицензий; после обхода окруженческой ошибки green прошёл. Логи: [red](/home/sanya/orca/project/waves/RW-23/red-w24b-fix.log), [green](/home/sanya/orca/project/waves/RW-23/green-w24b-fix.log). Скрипты не менял, коммита нет.
+Targeted green: `5 passed`, exit 0. Для запуска потребовался временный Node preload в `/tmp`: sandbox выдаёт `EPERM` для `rustc -vV`, хотя команда завершается успешно. Red-прогон также завершился exit 101 из-за этого ограничения, а не из-за новых проверок лицензий; после обхода окруженческой ошибки green прошёл. Логи: [red](/home/user/orca/project/waves/RW-23/red-w24b-fix.log), [green](/home/user/orca/project/waves/RW-23/green-w24b-fix.log). Скрипты не менял, коммита нет.
 
 MD5 теста: `f97b54d4145249b2207aaa1c36de06ab`.

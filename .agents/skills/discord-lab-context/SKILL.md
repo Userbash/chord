@@ -33,7 +33,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `reference cleanroom oracle ()` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 

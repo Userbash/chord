@@ -3,7 +3,7 @@
 ## 1. Batch / карточка
 
 - **Волна:** `RW-40`, отдел `G1` (Rust Core & Tauri BFF).
-- **Карточка:** `task-163` (BE-P1-05 из `/home/sanya/orca/project/waves/RW-40/PM/BACKLOG-RE-BACKEND.md` и спецификация `/home/sanya/orca/project/waves/RW-40/DESIGN/SEARCH-202-NSFW-SPEC.md`):
+- **Карточка:** `task-163` (BE-P1-05 из `/home/user/orca/project/waves/RW-40/PM/BACKLOG-RE-BACKEND.md` и спецификация `/home/user/orca/project/waves/RW-40/DESIGN/SEARCH-202-NSFW-SPEC.md`):
   1. Генерация и передача обязательных параметров `search_session_id` и `search_query_id` (UUID v4 на сессию и поисковый запрос) в query-строке поиска по подтверждённому оракулу `capture-run2.jsonl`.
   2. Переиспользование `search_session_id` и `search_query_id` при пагинации с тем же запросом (`with_offset`, `next_page`) и обновление `search_query_id` при формировании нового запроса в рамках сессии (`new_query_in_session`).
   3. Поддержка параметра `include_nsfw: Option<bool>` в query-строке (`include_nsfw=true` при `Some(true)`, пропуск при `None` и `Some(false)`).
@@ -11,7 +11,7 @@
 - **Файлы воркера (write-scope):**
   - `rust/gui-spike/src/search.rs`
   - `rust/gui-spike/tests/search_contract.rs`
-  - Отчёт: `/home/sanya/orca/project/waves/RW-40/G1/task-163-search-202-session-uuid/REPORT.md`
+  - Отчёт: `/home/user/orca/project/waves/RW-40/G1/task-163-search-202-session-uuid/REPORT.md`
 
 ## 2. Что сделано
 
@@ -57,7 +57,7 @@
 До добавления реализации в `search.rs` зафиксировано падение сборки тестов:
 
 ```
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-163-search-202-session-uuid/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-163-search-202-session-uuid/rust/gui-spike)
 error[E0432]: unresolved imports `discord_gui_spike::search::deterministic_uuid_v4`, `discord_gui_spike::search::generate_uuid_v4`, `discord_gui_spike::search::SearchSession`, `discord_gui_spike::search::MAX_INDEXING_RETRIES`
  --> tests/search_contract.rs:7:5
   |
@@ -101,7 +101,7 @@ error: could not compile `discord-gui-spike` (test "search_contract") due to 18 
 
 1. **Контрактные тесты `search_contract`:**
    ```sh
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test search_contract
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test search_contract
    ```
    Результат:
    ```
@@ -142,7 +142,7 @@ error: could not compile `discord-gui-spike` (test "search_contract") due to 18 
 
 2. **Unit-тесты библиотеки `search.rs`:**
    ```sh
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --lib search
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --lib search
    ```
    Результат:
    ```
@@ -157,7 +157,7 @@ error: could not compile `discord-gui-spike` (test "search_contract") due to 18 
 
 3. **Clippy:**
    ```sh
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test search_contract -- -D warnings
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test search_contract -- -D warnings
    ```
    Результат: `Finished dev profile [unoptimized + debuginfo]`, 0 warnings, exit code 0.
 

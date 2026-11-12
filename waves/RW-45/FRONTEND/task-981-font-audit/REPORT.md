@@ -9,7 +9,7 @@
 
 ## 1. Сделано
 
-1. **Подзадача 981.1 — Стенд тестирования системных шрифтов и кэша атласа WGPU [`scripts/font-audit.mjs`](file:///home/sanya/orca/project/scripts/font-audit.mjs):**
+1. **Подзадача 981.1 — Стенд тестирования системных шрифтов и кэша атласа WGPU [`scripts/font-audit.mjs`](file:///home/user/orca/project/scripts/font-audit.mjs):**
    - Реализована классификация кодовых точек Unicode по скриптам (`classifyCodePointScript`: `latin`, `cyrillic`, `emoji`, `cjk`, `rtl_arabic`, `rtl_hebrew`, `symbols_math`, `private_or_unassigned`), парсер `fc-list : family` (`parseFcListFamilies`) и зондирование системных/встроенных шрифтов (`probeSystemFonts`).
    - Реализована сегментация графемных кластеров (`segmentGraphemeClusters`: ZWJ-последовательности `👨‍👩‍👧‍👦`, модификаторы тона кожи `👋🏽`, региональные флаги `🇯🇵`, вариационные селекторы `❤️`, арабский харакат `مَرْحَبًا`) и детерминированное разрешение цепочки fallback (`resolveGlyphFallback`):
      - `Noto Color Emoji` (и fallback `Twemoji`) в цветной атлас `rgba8_unorm_srgb`;
@@ -17,16 +17,16 @@
      - `Noto Sans Arabic` и `Noto Sans Hebrew` с `direction: "rtl"` и `harfBuzzShaped: true`;
      - Гарантированная подстановка **`Tofurion Fallback`** (`glyphId: 0`, `replacementChar: "\uFFFD"`, `isTofurion: true`, `panicked: false`) для отсутствующих глифов, PUA (`U+E000..U+F8FF`, `U+F0000..U+10FFFD`) и неназначенных скаляров (`U+0378`).
    - Реализован симулятор текстурного атласа глифов WGPU (`WgpuGlyphAtlasSimulator`): Shelf bin-packing с `1px` паддингом, переходы состояний `emoji-picker` (`rendered -> lookup glyph -> atlas cached`), защита от некорректных размеров (`0x0`, отрицательные, `> 8192px`), восстановление после `DeviceLost` и детерминированное LRU-вытеснение при заполнении страниц без паники `wgpu::Error::OutOfMemory`.
-   - Выполнена сверка с независимыми оракулами (`verifyFontAuditOracleParity`): [`waves/kanban-board.json`](file:///home/sanya/orca/project/waves/kanban-board.json) (`TASK-981`), [`rust/discord-gpui/src/theme/discord_dark.rs`](file:///home/sanya/orca/project/rust/discord-gpui/src/theme/discord_dark.rs), [`rust/discord-gpui/src/state/mod.rs`](file:///home/sanya/orca/project/rust/discord-gpui/src/state/mod.rs) (`font_scale` `0.75..1.5`), [`rust/gui-spike/ui/tokens.css`](file:///home/sanya/orca/project/rust/gui-spike/ui/tokens.css) и [`docs/re/frontend-d03.json`](file:///home/sanya/orca/project/docs/re/frontend-d03.json) (`emojiPicker_c0e32c`, `emojiItem_fc7141`, `lockedEmoji_d982c2`).
+   - Выполнена сверка с независимыми оракулами (`verifyFontAuditOracleParity`): [`waves/kanban-board.json`](file:///home/user/orca/project/waves/kanban-board.json) (`TASK-981`), [`rust/discord-gpui/src/theme/discord_dark.rs`](file:///home/user/orca/project/rust/discord-gpui/src/theme/discord_dark.rs), [`rust/discord-gpui/src/state/mod.rs`](file:///home/user/orca/project/rust/discord-gpui/src/state/mod.rs) (`font_scale` `0.75..1.5`), [`rust/gui-spike/ui/tokens.css`](file:///home/user/orca/project/rust/gui-spike/ui/tokens.css) и [`docs/re/frontend-d03.json`](file:///home/user/orca/project/docs/re/frontend-d03.json) (`emojiPicker_c0e32c`, `emojiItem_fc7141`, `lockedEmoji_d982c2`).
 
-2. **Подзадача 981.2 — Контрактный и модульный тест [`tests/unit/font-fallback-matrix-981.test.mjs`](file:///home/sanya/orca/project/tests/unit/font-fallback-matrix-981.test.mjs) (Strict TDD):**
+2. **Подзадача 981.2 — Контрактный и модульный тест [`tests/unit/font-fallback-matrix-981.test.mjs`](file:///home/user/orca/project/tests/unit/font-fallback-matrix-981.test.mjs) (Strict TDD):**
    - Покрыты все 5 подсекций (`SUB-981-1`..`SUB-981-5`) и все 9 измерений `TEST-POLICY.md` (`evaluateFontAuditEdgeDimensions`), маскирование секретов (`redactFontAuditLogs`), CLI коды выхода `0 / 1 / 2`, лимиты размера кода (`794 < 800` строк) и мутационный гейт `5/5` (`100%` kill rate).
 
 ---
 
 ## 2. Red-прогон (TDD)
 
-Лог: [`waves/RW-45/FRONTEND/task-981-font-audit/red.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-981-font-audit/red.log) (запуск до создания `scripts/font-audit.mjs`):
+Лог: [`waves/RW-45/FRONTEND/task-981-font-audit/red.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-981-font-audit/red.log) (запуск до создания `scripts/font-audit.mjs`):
 
 ```text
 ▶ TASK-981: Комплексный чекер системных шрифтов и кэша атласа WGPU (scripts/font-audit.mjs)
@@ -42,7 +42,7 @@
 
 ## 3. Green-прогон (TDD)
 
-Лог: [`waves/RW-45/FRONTEND/task-981-font-audit/green.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-981-font-audit/green.log):
+Лог: [`waves/RW-45/FRONTEND/task-981-font-audit/green.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-981-font-audit/green.log):
 
 ```text
 ▶ TASK-981: Комплексный чекер системных шрифтов и кэша атласа WGPU (scripts/font-audit.mjs)
@@ -61,7 +61,7 @@
 
 - **Targeted (`node --test tests/unit/font-fallback-matrix-981.test.mjs`):** `5/5 pass (0 fail, 0 skip)`.
 - **TypeScript (`tsc`):** `0 errors` в `scripts/font-audit.mjs` и `tests/unit/font-fallback-matrix-981.test.mjs`.
-- **Мутационный гейт ([`waves/RW-45/FRONTEND/task-981-font-audit/mutation.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-981-font-audit/mutation.log)):**
+- **Мутационный гейт ([`waves/RW-45/FRONTEND/task-981-font-audit/mutation.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-981-font-audit/mutation.log)):**
   1. `M1` (`colorFormat: "rgba8_unorm_srgb" -> "r8_unorm"`) — **KILLED**
   2. `M2` (`CJK_TTC_FACE_INDICES["zh-CN"]: 2 -> 0`) — **KILLED**
   3. `M3` (`direction: isRtl ? "rtl" : "ltr" -> "ltr"`) — **KILLED**

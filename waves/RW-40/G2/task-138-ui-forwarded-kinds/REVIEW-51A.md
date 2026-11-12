@@ -1,7 +1,7 @@
 # Review 51A — task-138 / BE-P1-02-UI: FORWARDED_KINDS в UI
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер (DeepSeek), не автор кода.
-Worktree: `/home/sanya/orca/workspaces/project/feature-task-138-ui-forwarded-kinds`,
+Worktree: `/home/user/orca/workspaces/project/feature-task-138-ui-forwarded-kinds`,
 ветка `feature/task-138-ui-forwarded-kinds`, HEAD `4e24048` (совпадает с REPORT.md).
 
 Ревьюер не менял ни продуктовый код, ни тесты: только чтение, прогоны, мутации во временной

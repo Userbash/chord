@@ -5,11 +5,11 @@
 - **Ветка:** `feature/task-626-gifts-be` (база `unstable` `a7be4c7`)
 - **Отдел:** `G1 Backend (Rust Core & Tauri BFF)`
 
-## 2. Сделано (сверка с RE-оракулами `/home/sanya/re-deep/` и `waves/RW-40/`)
+## 2. Сделано (сверка с RE-оракулами `reference-oracle/` и `waves/RW-40/`)
 1. **RE-оракулы:**
-   - `waves/RW-40/RE-DEEP-REA.md` §5 (`STUB-12 — кнопка Gift 🎁`, маршруты `@290386..@290799`, `createGiftCode` `@613587`, `gift_style` `0..=2`).
+   - `waves/RW-40/reference-oracle-REA.md` §5 (`STUB-12 — кнопка Gift 🎁`, маршруты `@290386..@290799`, `createGiftCode` `@613587`, `gift_style` `0..=2`).
    - `waves/RW-40/DESIGN/ATTACHMENTS-SPEC.md` §4.1–§4.5 (`#gift-modal`, лимит `200` символов, расчёт `gift_style`: `2` при непустом сообщении или эмодзи/звуке, иначе `1`).
-   - `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`:
+   - `reference-oracle/decoded/4d2a64cb5df5fc4e_0`:
      - модуль `869038` (`@613060`): `resolveGiftCode`, `fetchUserGiftCodesForSKU`, `createGiftCode`, `revokeGiftCode`;
      - модуль `75255` (`@735306`): `redeemGiftCode` (`POST /entitlements/gift-codes/{code}/redeem`, тело `{channel_id, payment_source_id, gateway_checkout_context}`);
      - модуль `339048` (`@596307`): `fetchEntitlementsForApplication`, `fetchEntitlementsForUser`, `fetchGiftableEntitlements`;
@@ -18,7 +18,7 @@
      - модуль `557009` (`@8904412`): `EntitlementRecord` (`createFromServer`, `isGiftable`: `type === USER_GIFT (6) && gifterId == null`);
      - модуль `202541` (`@6789126..@6797000`): `NITRO_APPLICATION_ID = "521842831262875670"`, `SKU_*` (`TIER_0`, `TIER_1`, `TIER_2`, `GUILD`, `NONE`, `LEGACY`) и 10 планов подписок `PLAN_*`;
      - модуль `652215` (`@320207`, `@325314`): коды ошибок Discord (`10038`, `50035`, `50050`, `50051`, `50054`, `50092`, `50095`, `50097`).
-   - Live D-02 трассы (`/home/sanya/re-deep/d02-snapshot/capture-ready.snap.jsonl:4004`, `capture-run2.snap.jsonl:8350`):
+   - Live D-02 трассы (`reference-oracle/d02-snapshot/capture-ready.snap.jsonl:4004`, `capture-run2.snap.jsonl:8350`):
      - `GET /users/@me/entitlements?with_sku=false&with_application=false&entitlement_type=11&exclude_ended=true`
      - `GET /users/@me/applications/521842831262875670/entitlements?exclude_consumed=true`
      - `GET /users/@me/entitlements/gifts?country_code=LV`
@@ -36,14 +36,14 @@
 ## 3. Red-прогон (Strict TDD)
 - Команда:
   ```sh
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test gifts_contract
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test gifts_contract
   ```
 - Результат: `EXIT:101` (`error: couldn't find file tests/../src/gifts.rs`), лог сохранён в `waves/RW-40/G1/task-626-gifts-be/red.log`.
 
 ## 4. Green-прогон и Targeted / Meta проверки
 - Команда:
   ```sh
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test gifts_contract --test ipc_wiring_contract --bin discord-gui-spike
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test gifts_contract --test ipc_wiring_contract --bin discord-gui-spike
   node --test tests/meta/ipc-path.test.mjs
   ```
 - Результат:

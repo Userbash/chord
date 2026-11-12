@@ -45,9 +45,9 @@ test at tests/unit/gui-spike-auth.test.mjs:293:3
   + '  MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK  '
   - ''
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:304:14
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:295:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:304:14
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:295:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -68,9 +68,9 @@ test at tests/unit/gui-spike-auth.test.mjs:346:3
   + 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK'
   - ''
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:358:16
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:347:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:358:16
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:347:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -86,10 +86,10 @@ test at tests/unit/gui-spike-auth.test.mjs:346:3
 test at tests/unit/gui-spike-auth.test.mjs:364:3
 ✖ 429 (RateLimited): «слишком часто, подождите», retry_after не теряется (5.071372ms)
   AssertionError [ERR_ASSERTION]: токен попал в DOM (атрибут/текст/значение)
-      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:179:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:376:9
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:365:5)
+      at assertTokenGone (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:179:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:376:9
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:365:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -108,9 +108,9 @@ test at tests/unit/gui-spike-auth.test.mjs:381:3
   + 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK'
   - ''
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:391:16
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:382:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:391:16
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:382:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -124,10 +124,10 @@ test at tests/unit/gui-spike-auth.test.mjs:381:3
 test at tests/unit/gui-spike-auth.test.mjs:397:3
 ✖ сорванный IPC (invoke rejects строкой/Error): тоже «нет связи», без console.error (4.732462ms)
   AssertionError [ERR_ASSERTION]: токен попал в DOM (атрибут/текст/значение)
-      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:179:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:407:9
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:398:5)
+      at assertTokenGone (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:179:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:407:9
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:398:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -141,10 +141,10 @@ test at tests/unit/gui-spike-auth.test.mjs:397:3
 test at tests/unit/gui-spike-auth.test.mjs:412:3
 ✖ ошибка в теле AuthState (status=error): Keyring → сообщение о хранилище (5.290752ms)
   AssertionError [ERR_ASSERTION]: токен попал в DOM (атрибут/текст/значение)
-      at assertTokenGone (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:179:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:422:9
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:413:5)
+      at assertTokenGone (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:179:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:422:9
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:413:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -163,9 +163,9 @@ test at tests/unit/gui-spike-auth.test.mjs:548:3
   + 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK'
   - ''
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:554:14
-      at async withAuth (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-auth.test.mjs:549:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:554:14
+      at async withAuth (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:118:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:549:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-209` (`BE-P1-07` / `forum`) — контракт создания публикации в форум-канале (`CreateForumPostRequest`, `ForumSortOrder`, `validate_forum_post_request`, `build_forum_post_route_and_body`).
-- **Ветка / worktree**: `feature/task-209-be-forum-contract`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-209-be-forum-contract`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/forum.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/forum_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-209-be-forum-contract/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-209-be-forum-contract/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`, `/home/sanya/re-deep/gateway-schema.md` и модулями `ipc_ext.rs`, `pins_threads.rs`, `messages.rs`:
+Сверено с `reference-oracle/rest-static.json`, `reference-oracle/gateway-schema.md` и модулями `ipc_ext.rs`, `pins_threads.rs`, `messages.rs`:
 
 - `CHANNEL_THREADS` (`rest-static.json:7863`): `POST /channels/{channel_id}/threads`, тело `{"name": ..., "auto_archive_duration": ..., "applied_tags": [...], "message": {"content": ...}}` (и опциональный `rate_limit_per_user`).
 - `FORUM_TAG` (`rest-static.json:2820`): `applied_tags` (`<= 5` Snowflake ID).
@@ -39,7 +39,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-209-be-forum-contract/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-209-be-forum-contract/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::forum`
@@ -54,7 +54,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-209-be-forum-contract/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-209-be-forum-contract/green.log`:
 
 ```text
 running 10 tests

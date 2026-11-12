@@ -47,7 +47,7 @@ test at tests/unit/tooltip.test.mjs:165:3
   
   0 !== 400
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:166:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:166:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -68,7 +68,7 @@ test at tests/unit/tooltip.test.mjs:165:3
 test at tests/unit/tooltip.test.mjs:169:3
 ✖ каталог заморожен: ≥12 иконок, непустые уникальные подписи (0.18557ms)
   AssertionError [ERR_ASSERTION]: иконок 0 < 12
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:172:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:172:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -93,7 +93,7 @@ test at tests/unit/tooltip.test.mjs:181:3
   + undefined
   - 'Заглушить'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:183:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:183:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -111,9 +111,9 @@ test at tests/unit/tooltip.test.mjs:181:3
 test at tests/unit/tooltip.test.mjs:209:3
 ✖ один #discord-tooltip в body: role=tooltip, классы клиента, скрыт по умолчанию (0.260821ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:211:5)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:211:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -125,9 +125,9 @@ test at tests/unit/tooltip.test.mjs:209:3
 test at tests/unit/tooltip.test.mjs:221:3
 ✖ второй контроллер переиспользует элемент, а не создаёт дубль (0.1321ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:223:5)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:223:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -139,9 +139,9 @@ test at tests/unit/tooltip.test.mjs:221:3
 test at tests/unit/tooltip.test.mjs:228:3
 ✖ mouseenter показывает через 400 мс: текст, data-open, placement, aria-describedby (0.11043ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:230:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:230:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -152,9 +152,9 @@ test at tests/unit/tooltip.test.mjs:228:3
 test at tests/unit/tooltip.test.mjs:255:3
 ✖ mouseleave на 200 мс отменяет запланированный показ (0.172221ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:257:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:257:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -166,9 +166,9 @@ test at tests/unit/tooltip.test.mjs:255:3
 test at tests/unit/tooltip.test.mjs:273:3
 ✖ mouseleave после показа скрывает сразу и снимает aria-describedby (0.11032ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:275:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:275:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -180,9 +180,9 @@ test at tests/unit/tooltip.test.mjs:273:3
 test at tests/unit/tooltip.test.mjs:291:3
 ✖ click скрывает подсказку (0.09232ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:293:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:293:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -193,9 +193,9 @@ test at tests/unit/tooltip.test.mjs:291:3
 test at tests/unit/tooltip.test.mjs:304:3
 ✖ Escape скрывает сразу; прочие клавиши — нет (0.118511ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:306:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:306:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -206,9 +206,9 @@ test at tests/unit/tooltip.test.mjs:304:3
 test at tests/unit/tooltip.test.mjs:322:3
 ✖ Escape без активной подсказки не падает и не трогает состояние (0.08024ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:324:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:324:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -219,9 +219,9 @@ test at tests/unit/tooltip.test.mjs:322:3
 test at tests/unit/tooltip.test.mjs:332:3
 ✖ клавиатура: focusin показывает после задержки, focusout скрывает (0.06937ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:334:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:334:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -232,9 +232,9 @@ test at tests/unit/tooltip.test.mjs:332:3
 test at tests/unit/tooltip.test.mjs:355:3
 ✖ title переносится в data-tooltip и удаляется из DOM (нативная подсказка не дублирует) (0.116441ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:357:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:357:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -246,9 +246,9 @@ test at tests/unit/tooltip.test.mjs:355:3
 test at tests/unit/tooltip.test.mjs:369:3
 ✖ data-tooltip приоритетнее title, title тоже снимается (0.09749ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:371:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:371:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -260,9 +260,9 @@ test at tests/unit/tooltip.test.mjs:369:3
 test at tests/unit/tooltip.test.mjs:381:3
 ✖ data-placement цели прокидывается в элемент подсказки (0.08414ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:383:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:383:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -273,9 +273,9 @@ test at tests/unit/tooltip.test.mjs:381:3
 test at tests/unit/tooltip.test.mjs:391:3
 ✖ attach(root) привязывает несколько целей; показ второй снимает aria-describedby с первой (0.08526ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:393:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:393:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -286,9 +286,9 @@ test at tests/unit/tooltip.test.mjs:391:3
 test at tests/unit/tooltip.test.mjs:408:3
 ✖ showFor(target) показывает сразу, без ожидания таймера (0.06972ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:410:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:410:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -299,9 +299,9 @@ test at tests/unit/tooltip.test.mjs:408:3
 test at tests/unit/tooltip.test.mjs:426:3
 ✖ снимает таймеры, слушатели и возвращает исходные title (0.10231ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:428:35)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:428:35)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -313,9 +313,9 @@ test at tests/unit/tooltip.test.mjs:426:3
 test at tests/unit/tooltip.test.mjs:445:3
 ✖ после destroy attach ничего не привязывает (0.06383ms)
   Error: createTooltipController: red-фаза, реализации нет
-      at createTooltipController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
-      at makeController (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:447:28)
+      at createTooltipController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/ui/features/tooltip.js:15:9)
+      at makeController (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:127:22)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:447:28)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -327,7 +327,7 @@ test at tests/unit/tooltip.test.mjs:445:3
 test at tests/unit/tooltip.test.mjs:461:3
 ✖ есть .tooltip/.tooltip_c36707, hidden скрыт, visible не перехватывает мышь (0.206291ms)
   AssertionError [ERR_ASSERTION]: нет правила .tooltip
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:462:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/tooltip.test.mjs:462:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)

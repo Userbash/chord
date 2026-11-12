@@ -56,15 +56,19 @@ function loadGateFunction(name) {
 describe("TEST-POLICY: запрет ослабления тестов", () => {
   it("политика существует и содержит обязательные разделы", () => {
     const text = readFileSync(join(root, "TEST-POLICY.md"), "utf8");
-    for (const section of [
-      "Абсолютные запреты",
-      "RED",
-      "Изменение тестов",
-      "waiver",
-      "Definition of Done",
-      "решением мимо тестов",
-    ]) {
-      assert.ok(text.includes(section), `в TEST-POLICY.md нет раздела «${section}»`);
+    const requiredSections = [
+      ["Абсолютные запреты", "Absolute Prohibitions"],
+      ["RED", "RED"],
+      ["Изменение тестов", "Test Modifications"],
+      ["waiver", "waiver"],
+      ["Definition of Done", "Definition of Done"],
+      ["решением мимо тестов", "decisions bypassing tests"],
+    ];
+    for (const [ru, en] of requiredSections) {
+      assert.ok(
+        (ru && text.includes(ru)) || (en && text.includes(en)),
+        `в TEST-POLICY.md нет раздела «${ru}» / «${en}»`,
+      );
     }
   });
 

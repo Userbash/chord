@@ -31,7 +31,7 @@ test at tests/unit/dm-friends-ui.test.mjs:270:3
   
   '' !== '@me'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:280:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:280:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -55,7 +55,7 @@ test at tests/unit/dm-friends-ui.test.mjs:306:3
   
   0 !== 146
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:308:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:308:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -78,7 +78,7 @@ test at tests/unit/dm-friends-ui.test.mjs:368:3
   
   undefined !== 3
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:386:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:386:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -96,9 +96,9 @@ test at tests/unit/dm-friends-ui.test.mjs:368:3
 test at tests/unit/dm-friends-ui.test.mjs:435:3
 ✖ T-N107-READY-01 & T-N107-TABS-01: классифицирует 60 relationships из 002-READY.json (18 друзей type=1, 42 блокировки type=2) (0.192183ms)
   AssertionError [ERR_ASSERTION]: user_id 194374444821643266 обязан быть в READY.users
-      at file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:443:16
+      at file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:443:16
       at Array.reduce (<anonymous>)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:439:46)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:439:46)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -120,7 +120,7 @@ test at tests/unit/dm-friends-ui.test.mjs:470:3
   
   0 !== 18
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:538:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:538:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -140,7 +140,7 @@ test at tests/unit/dm-friends-ui.test.mjs:470:3
 test at tests/unit/dm-friends-ui.test.mjs:591:3
 ✖ T-N107-DM-GET-01 & Home Navigation: переключает guildId='@me' по клику на #home-rail-btn без вызовов GET /users/@me/channels, рендерит дерево ЛС и восстанавливает шапку гильдии при возврате (0.73324ms)
   AssertionError [ERR_ASSERTION]: #home-rail-btn должен быть смонтирован в #guild-rail
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:595:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:595:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -164,7 +164,7 @@ test at tests/unit/dm-friends-ui.test.mjs:674:3
   
     assert.ok(friendsView && tablist && tabpanel && addPanel)
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:687:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:687:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -195,7 +195,7 @@ test at tests/unit/dm-friends-ui.test.mjs:762:3
   -   }
     }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:806:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:806:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -218,7 +218,7 @@ test at tests/unit/dm-friends-ui.test.mjs:881:3
   + ''
   - '696738350706458685'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:916:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:916:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -237,7 +237,7 @@ test at tests/unit/dm-friends-ui.test.mjs:973:3
   + ''
   - 'shell-channel-1'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:991:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-113-dm-friends-ui/tests/unit/dm-friends-ui.test.mjs:991:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,

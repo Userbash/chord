@@ -1,238 +1,238 @@
-# План перевода кодовой базы в ветку `beta` и Пакет задач (Wave RW-45)
+# Codebase Promotion Plan to `beta` Branch & Task Charter (Wave RW-45)
 
-> **Статус документа:** `Approved Planning Specification & Task Charter (v1.0)`  
-> **Проект:** `discord-lab` (`discord-gpui` нативный клиент + Core Rust)  
-> **Цель:** Полная подготовка, тестирование, верификация и регламентированный перевод проекта в ветку `beta`  
-> **Оркестратор:** ECC 2.0 Control Plane (`pm_review`)  
-> **Дата:** 11 ноября 2026 г.  
-
----
-
-## 1. Сопроводительное письмо и Инструкция по переводу в `beta`
-
-### 1.1. Назначение и контекст
-Перевод проекта в ветку `beta` — это критический этап жизненного цикла, знаменующий переход от активной разработки и фаззинга ядра к предрелизной стабилизации для реальных пользователей на различных дистрибутивах Linux. 
-
-В ветку `beta` допускается только код, прошедший:
-1. **100% слияние всех рабочих веток в `unstable`** после двойного ревью (PM + Tech Reviewer, 5/5 мутаций).
-2. **Централизованную сборку манифеста `BUILD-005` в ветке `testing`**.
-3. **Полный сквозной прогон гейта `T2/T3`** (`scripts/ci.sh` и `scripts/gate.mjs --scope release`).
-4. **Аудит безопасности, проверку утечек секретов и соответствие SBOM**.
-5. **Тестирование под 4 композиторами Linux Desktop** (GNOME, KDE, Hyprland, X11).
-6. **Подтверждение плана отката (Rollback Plan)** и обратной совместимости базы SQLite WAL.
-
-### 1.2. Базовые правила и ограничения выполнения
-* **Строгое соблюдение иерархии веток:** Прямые коммиты в `beta` и `main` запрещены. Цепочка: `unstable -> testing (BUILD-005) -> beta`.
-* **Zero P0/P1 блокеров:** В ветку `beta` не может быть перенесен ни один компонент с известными ошибками критичности P0 или P1.
-* **Бюджет ресурсов:** Прогон тестов не должен превышать `WORKER_RAM_LIMIT <= 25 GB`.
-* **Сохранение целостности:** Тесты проверяют поведение по независимым оракулам, а не подгоняются под код.
+> **Document Status:** `Approved Planning Specification & Task Charter (v1.0)`  
+> **Project:** `discord-lab` (`discord-gpui` native client + Core Rust)  
+> **Objective:** Full preparation, testing, verification, and regulated promotion of the project to the `beta` branch  
+> **Orchestrator:** ECC 2.0 Control Plane (`pm_review`)  
+> **Date:** November 11, 2026  
 
 ---
 
-## 2. Пошаговый алгоритм перевода кодовой базы в `beta`
+## 1. Accompanying Brief and Instructions for Promotion to `beta`
 
-```
+### 1.1. Purpose and Context
+Promoting the project to the `beta` branch is a milestone transitioning the project from active core development and fuzzing to pre-release stabilization for real users across various Linux distributions.
+
+The `beta` branch strictly accepts only code that has passed:
+1. **100% merge of all worker branches into `unstable`** following dual review (PM + Tech Reviewer, 5/5 mutations killed).
+2. **Centralized build manifest `BUILD-005` in the `testing` branch**.
+3. **Full end-to-end gate run `T2/T3`** (`scripts/ci.sh` and `scripts/gate.mjs --scope release`).
+4. **Security audit, secret leakage checks, and SBOM compliance**.
+5. **Testing under 4 Linux Desktop compositors** (GNOME, KDE, Hyprland, X11).
+6. **Confirmation of the Rollback Plan** and backward compatibility of SQLite WAL storage.
+
+### 1.2. Base Rules and Operational Constraints
+* **Strict Branch Hierarchy:** Direct commits to `beta` and `main` are strictly prohibited. Flow: `unstable -> testing (BUILD-005) -> beta`.
+* **Zero P0/P1 Blockers:** No component with known P0 or P1 defects may be promoted to `beta`.
+* **Resource Budget:** Test runs must strictly remain within `WORKER_RAM_LIMIT <= 25 GB`.
+* **Integrity Guarantee:** Tests validate behavior against independent oracles; tests are never modified to fit code.
+
+---
+
+## 2. Step-by-Step Codebase Promotion Algorithm
+
+```text
  ┌────────────────────────────────────────────────────────────────────────┐
- │ ЭТАП 1: Финализация и слияние в unstable                               │
- │ • Завершение всех воркеров Wave RW-44 (128/128 задач выполнено)        │
- │ • Двойное ревью (ACCEPT.md + REVIEW.md), 5/5 мутаций                   │
- │ • Слияние всех веток в unstable, удаление временных веток              │
+ │ STAGE 1: Finalization and merge into unstable                         │
+ │ • Completion of all Wave RW-44 workers (128/128 tasks done)            │
+ │ • Dual review (ACCEPT.md + REVIEW.md), 5/5 mutations killed            │
+ │ • Merge of all feature branches into unstable, cleanup of temp branches│
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │
  ┌───────────────────────────────────▼────────────────────────────────────┐
- │ ЭТАП 2: Формирование манифеста BUILD-005 и переход в testing           │
- │ • TASK-951: Манифест сборки BUILD-005 (список коммитов, хешей, задач)  │
- │ • Создание ветки testing от unstable, тег build-005-candidate          │
+ │ STAGE 2: BUILD-005 manifest generation and promotion to testing        │
+ │ • TASK-951: Build manifest BUILD-005 (commit list, hashes, tasks)      │
+ │ • Create testing branch from unstable, tag build-005-candidate         │
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │
  ┌───────────────────────────────────▼────────────────────────────────────┐
- │ ЭТАП 3: Комплексная верификация QA и безопасности в testing            │
- │ • TASK-952: Полный гейт scripts/ci.sh + scripts/gate.mjs --scope release│
- │ • TASK-953: Верификация ldd, glibc 2.35+, llvmpipe, минимальных пакетов│
- │ • TASK-954: Матрица 4 композиторов: GNOME, KDE, Hyprland, X11         │
- │ • TASK-955: 4-часовой стресс-тест памяти (Soak Test, VmRSS < 60 MB)    │
- │ • TASK-956: Аудит секретов, маскирование токенов, генерация SBOM       │
+ │ STAGE 3: Comprehensive QA & Security verification in testing           │
+ │ • TASK-952: Full gate scripts/ci.sh + scripts/gate.mjs --scope release │
+ │ • TASK-953: Verification of ldd, glibc 2.35+, llvmpipe, base packages  │
+ │ • TASK-954: 4-compositor matrix: GNOME, KDE, Hyprland, X11             │
+ │ • TASK-955: 4-hour memory stress test (Soak Test, VmRSS < 60 MB)       │
+ │ • TASK-956: Secret audit, token masking, reproducible SBOM generation  │
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │
  ┌───────────────────────────────────▼────────────────────────────────────┐
- │ ЭТАП 4: Официальный перевод в beta и выпуск артефактов                 │
- │ • TASK-957: PR testing -> beta, верификация плана отката (Rollback)    │
- │ • TASK-958: Сборка релизного таргет-архива, SHA256SUMS, BETA-GUIDE.md │
- │ • Выставление тега v1.0.0-beta.1                                       │
+ │ STAGE 4: Official promotion to beta and artifact release               │
+ │ • TASK-957: PR testing -> beta, verification of Rollback procedure     │
+ │ • TASK-958: Release target archive build, SHA256SUMS, BETA-GUIDE.md    │
+ │ • Tag v1.0.0-beta.1 publication                                        │
  └────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Детализированная декомпозиция задач (Задачи -> Подзадачи -> Микро-шаги)
+## 3. Granular Task Decomposition (Tasks -> Subtasks -> Micro-steps)
 
 ---
 
-### TASK-951: Формирование централизованного манифеста сборки `BUILD-005` и подготовка слияния `unstable -> testing`
-* **Отдел:** `devops`
-* **Приоритет:** `P0`
-* **Краткое описание:** Консолидация всех завершённых задач Wave RW-44 в ветке `unstable`, проверка чистоты дерева, формирование машиночитаемого манифеста `BUILD-005.json` и перенос состояния в интеграционную ветку `testing`.
-* **Подзадачи и микро-шаги:**
-  * **951.1: Сверка и слияние рабочих веток в `unstable`**
-    * *Шаг 1.1:* Запустить `git status` и убедиться в отсутствии незафиксированных артефактов вне `.gitignore`.
-    * *Шаг 1.2:* Проверить статус всех 128 задач на канбан-доске — все задачи должны быть в статусе `done`.
-    * *Шаг 1.3:* Выполнить слияние рабочих веток в `unstable` с флагом `--no-ff` для сохранения истории ревью.
-  * **951.2: Формирование манифеста сборки `BUILD-005.json`**
-    * *Шаг 2.1:* Собрать список всех 128 выполненных задач с указанием ID, названия, отдела и даты закрытия.
-    * *Шаг 2.2:* Зафиксировать SHA-хеш коммита ветки `unstable` и дату сборки.
-    * *Шаг 2.3:* Записать файл `waves/BUILD-005.json` и верифицировать его JSON-схему.
-  * **951.3: Перенос в ветку `testing` и установка контрольного тега**
-    * *Шаг 3.1:* Переключиться на ветку `testing` (`git checkout testing`).
-    * *Шаг 3.2:* Выполнить слияние `unstable -> testing`.
-    * *Шаг 3.3:* Выставить легковесный Git-тег `build-005-candidate`.
-* **Критерии приёмки (DoD):**
-  1. Ветка `testing` синхронизирована с `unstable` без конфликтов слияния.
-  2. Файл `waves/BUILD-005.json` содержит полный реестр всех 128 задач.
-  3. Тег `build-005-candidate` указывает на вершину ветки `testing`.
+### TASK-951: Centralized Build Manifest `BUILD-005` Generation and `unstable -> testing` Merge Preparation
+* **Department:** `devops`
+* **Priority:** `P0`
+* **Summary:** Consolidate all finished Wave RW-44 tasks in branch `unstable`, verify working tree cleanliness, generate machine-readable manifest `BUILD-005.json`, and promote state to integration branch `testing`.
+* **Subtasks and Micro-steps:**
+  * **951.1: Verification and merge of worker branches into `unstable`**
+    * *Step 1.1:* Execute `git status` and ensure no uncommitted artifacts remain outside `.gitignore`.
+    * *Step 1.2:* Check status of all 128 tasks on the board — all tasks must be in `done` state.
+    * *Step 1.3:* Merge worker branches into `unstable` with `--no-ff` flag to preserve review history.
+  * **951.2: Build manifest `BUILD-005.json` generation**
+    * *Step 2.1:* Aggregate list of all 128 completed tasks with IDs, titles, departments, and closure dates.
+    * *Step 2.2:* Record commit SHA of `unstable` branch and build timestamp.
+    * *Step 2.3:* Write file `waves/BUILD-005.json` and validate its JSON schema.
+  * **951.3: Promotion to `testing` branch and baseline tagging**
+    * *Step 3.1:* Switch to branch `testing` (`git checkout testing`).
+    * *Step 3.2:* Perform merge `unstable -> testing`.
+    * *Step 3.3:* Set lightweight Git tag `build-005-candidate`.
+* **Definition of Done (DoD):**
+  1. Branch `testing` is synchronized with `unstable` with zero merge conflicts.
+  2. File `waves/BUILD-005.json` contains full registry of all 128 tasks.
+  3. Tag `build-005-candidate` points to HEAD of `testing`.
 
 ---
 
-### TASK-952: Сквозной интеграционный гейт T2/T3 в ветке `testing` (`scripts/ci.sh` & `scripts/gate.mjs`)
-* **Отдел:** `g4_qa`
-* **Приоритет:** `P0`
-* **Краткое описание:** Полный безоговорочный прогон всех уровней проверок конвейера в ветке `testing` без единого пропуска (`failOnSkips: true`).
-* **Подзадачи и микро-шаги:**
-  * **952.1: Локальный базовый конвейер (`scripts/ci.sh`)**
-    * *Шаг 1.1:* Запустить `cargo fmt --all -- --check` по всему воркспейсу (0 расхождений).
-    * *Шаг 1.2:* Запустить `cargo clippy --workspace --all-targets --all-features -- -D warnings` (0 варнингов).
-    * *Шаг 1.3:* Выполнить `bash scripts/ci.sh` и зафиксировать зелёный статус всех 391+ тестов.
-  * **952.2: Релизный гейт с проверкой аппаратного хранилища (`scripts/gate.mjs`)**
-    * *Шаг 2.1:* Запустить `node scripts/gate.mjs --scope release` с переменной `DISCORD_LAB_KEYRING_LIVE=1`.
-    * *Шаг 2.2:* Проверить прохождение всех фаз (`gpui-smoke`, `gpui-e2e`, `gpui-visual`, `keyring-live`).
-    * *Шаг 2.3:* Убедиться, что количество пропущенных тестов (`skipped`) строго равно `0`.
-  * **952.3: Оформление манифеста качества `QA-BUILD-005.md`**
-    * *Шаг 3.1:* Зафиксировать точное время прогона и потребление памяти.
-    * *Шаг 3.2:* Оформить отчёт `waves/RW-44/QUALITY/QA-BUILD-005.md` с вердиктом `QA Passed`.
-* **Критерии приёмки (DoD):**
-  1. Скрипт `scripts/ci.sh` завершился с кодом `0`.
-  2. `scripts/gate.mjs --scope release` вернул вердикт `passed` (без skips).
-  3. Подписан документ `QA-BUILD-005.md` с вердиктом `QA Passed`.
+### TASK-952: End-to-End Integration Gate T2/T3 in `testing` Branch (`scripts/ci.sh` & `scripts/gate.mjs`)
+* **Department:** `g4_qa`
+* **Priority:** `P0`
+* **Summary:** Full unconditional execution of all pipeline verification levels in branch `testing` without skips (`failOnSkips: true`).
+* **Subtasks and Micro-steps:**
+  * **952.1: Local baseline pipeline (`scripts/ci.sh`)**
+    * *Step 1.1:* Run `cargo fmt --all -- --check` across workspace (0 discrepancies).
+    * *Step 1.2:* Run `cargo clippy --workspace --all-targets --all-features -- -D warnings` (0 warnings).
+    * *Step 1.3:* Run `bash scripts/ci.sh` and verify green status across all 391+ tests.
+  * **952.2: Release gate with hardware storage validation (`scripts/gate.mjs`)**
+    * *Step 2.1:* Run `node scripts/gate.mjs --scope release` with `DISCORD_LAB_KEYRING_LIVE=1`.
+    * *Step 2.2:* Verify pass of all phases (`gpui-smoke`, `gpui-e2e`, `gpui-visual`, `keyring-live`).
+    * *Step 2.3:* Ensure skipped test count is strictly `0`.
+  * **952.3: Quality manifest documentation `QA-BUILD-005.md`**
+    * *Step 3.1:* Record precise execution time and peak memory consumption.
+    * *Step 3.2:* Draft report `waves/RW-44/QUALITY/QA-BUILD-005.md` with verdict `QA Passed`.
+* **Definition of Done (DoD):**
+  1. Script `scripts/ci.sh` exits with code `0`.
+  2. `scripts/gate.mjs --scope release` yields verdict `passed` (zero skips).
+  3. Signed `QA-BUILD-005.md` report with verdict `QA Passed`.
 
 ---
 
-### TASK-953: Автономная верификация системных библиотек `ldd` и совместимости с дистрибутивами Linux
-* **Отдел:** `devops`
-* **Приоритет:** `P1`
-* **Краткое описание:** Анализ динамических линковок релизного бинарника `discord-gpui`, проверка базовых зависимостей (glibc, libasound, libdbus-1) и тест холодного старта при софтверном рендеринге llvmpipe.
-* **Подзадачи и микро-шаги:**
-  * **953.1: Инспекция зависимостей через `ldd` и `objdump`**
-    * *Шаг 1.1:* Запустить `ldd rust/dist/discord-gpui` и проверить список разделяемых библиотек.
-    * *Шаг 1.2:* Проверить минимальную требуемую версию GLIBC (`objdump -p rust/dist/discord-gpui | grep GLIBC_`). Требование: не выше `GLIBC_2.35`.
-    * *Шаг 1.3:* Убедиться в отсутствии жесткой привязки к проприетарным библиотекам NVIDIA/AMD.
-  * **953.2: Проверка софтверного рендеринга `llvmpipe`**
-    * *Шаг 2.1:* Запустить бинарник с `LIBGL_ALWAYS_SOFTWARE=1` и `MESA_LOADER_DRIVER_OVERRIDE=llvmpipe`.
-    * *Шаг 2.2:* Запустить `--headless-smoke` и убедиться в успешной инициализации WGPU OpenGL/Vulkan.
-  * **953.3: Формирование отчёта системных требований**
-    * *Шаг 3.1:* Создать документ `docs/SYSTEM-REQUIREMENTS.md` с перечнем поддерживаемых версий ядра Linux (5.15+) и графических серверов.
-* **Критерии приёмки (DoD):**
-  1. Требование GLIBC $\le 2.35$ соблюдено (совместимость с Ubuntu 22.04 LTS, Debian 12, Fedora 38+).
-  2. Бинарник успешно стартует на программном драйвере `llvmpipe` без падений.
-  3. Документ `docs/SYSTEM-REQUIREMENTS.md` зафиксирован.
+### TASK-953: Standalone `ldd` System Library and Linux Distribution Compatibility Verification
+* **Department:** `devops`
+* **Priority:** `P1`
+* **Summary:** Dynamic link analysis of release binary `discord-gpui`, verification of baseline dependencies (glibc, libasound, libdbus-1), and cold start testing under software rendering llvmpipe.
+* **Subtasks and Micro-steps:**
+  * **953.1: Dependency inspection via `ldd` and `objdump`**
+    * *Step 1.1:* Run `ldd rust/dist/discord-gpui` and inspect shared library list.
+    * *Step 1.2:* Verify minimum required GLIBC version (`objdump -p rust/dist/discord-gpui | grep GLIBC_`). Requirement: at most `GLIBC_2.35`.
+    * *Step 1.3:* Ensure no hard links to proprietary NVIDIA/AMD drivers exist.
+  * **953.2: `llvmpipe` software rendering verification**
+    * *Step 2.1:* Execute binary with `LIBGL_ALWAYS_SOFTWARE=1` and `MESA_LOADER_DRIVER_OVERRIDE=llvmpipe`.
+    * *Step 2.2:* Run `--headless-smoke` and verify successful WGPU OpenGL/Vulkan initialization.
+  * **953.3: System requirements report**
+    * *Step 3.1:* Create document `docs/SYSTEM-REQUIREMENTS.md` listing supported Linux kernels (5.15+) and display servers.
+* **Definition of Done (DoD):**
+  1. Requirement GLIBC $\le 2.35$ satisfied (compatibility with Ubuntu 22.04 LTS, Debian 12, Fedora 38+).
+  2. Binary successfully starts under software driver `llvmpipe` without crashing.
+  3. Document `docs/SYSTEM-REQUIREMENTS.md` published and verified.
 
 ---
 
-### TASK-954: Матричное тестирование захвата экрана и звука под 4 композиторами Wayland/X11
-* **Отдел:** `g4_qa`
-* **Приоритет:** `P1`
-* **Краткое описание:** Верификация работы модуля демонстрации экрана (`ScreenShareModal`) и захвата звука под 4 популярными окружениями Linux Desktop по контракту `manual_qa_suite_contract.rs`.
-* **Подзадачи и микро-шаги:**
-  * **954.1: Тест портала GNOME (Mutter)**
-    * *Шаг 1.1:* Проверить вызов `org.freedesktop.portal.ScreenCast` через D-Bus с сессией GNOME.
-    * *Шаг 1.2:* Убедиться в корректной передаче FD PipeWire и согласовании формата NV12 60 FPS.
-  * **954.2: Тест портала KDE Plasma 6 (KWin)**
-    * *Шаг 2.1:* Проверить выбор окон и мониторов через KWin Portal диалог.
-    * *Шаг 2.2:* Проверить отсутствие утечек дескрипторов при закрытии стрима.
-  * **954.3: Тест Hyprland / Sway (wlroots)**
-    * *Шаг 3.1:* Проверить захват экрана через `xdg-desktop-portal-wlr`.
-  * **954.4: Тест обратной совместимости с X11**
-    * *Шаг 4.1:* Проверить автоматический fallback на `XShm` при отсутствии демона Wayland.
-* **Критерии приёмки (DoD):**
-  1. Тест `cargo test --test manual_qa_suite_contract test_desktop_matrix` проходит на 100% Green.
-  2. Подтверждена работа DMA-BUF захвата и X11 fallback без падений.
+### TASK-954: Screen and Audio Capture Matrix Testing Across 4 Wayland/X11 Compositors
+* **Department:** `g4_qa`
+* **Priority:** `P1`
+* **Summary:** Verification of screen sharing (`ScreenShareModal`) and audio capture across 4 primary Linux Desktop environments per `manual_qa_suite_contract.rs`.
+* **Subtasks and Micro-steps:**
+  * **954.1: GNOME (Mutter) portal test**
+    * *Step 1.1:* Verify `org.freedesktop.portal.ScreenCast` D-Bus invocation under GNOME session.
+    * *Step 1.2:* Confirm PipeWire FD transfer and NV12 60 FPS format negotiation.
+  * **954.2: KDE Plasma 6 (KWin) portal test**
+    * *Step 2.1:* Test window and monitor selection via KWin portal dialog.
+    * *Step 2.2:* Check descriptor cleanup upon stream termination.
+  * **954.3: Hyprland / Sway (wlroots) test**
+    * *Step 3.1:* Verify screen capture via `xdg-desktop-portal-wlr`.
+  * **954.4: X11 backward compatibility test**
+    * *Step 4.1:* Verify automatic fallback to `XShm` in the absence of Wayland compositor.
+* **Definition of Done (DoD):**
+  1. Test `cargo test --test manual_qa_suite_contract test_desktop_matrix` passes 100% Green.
+  2. DMA-BUF capture and X11 fallback verified without panics.
 
 ---
 
-### TASK-955: Стресс-тест долговременной стабильности и отсутствия деградации памяти (Soak Test 4h)
-* **Отдел:** `g4_qa`
-* **Приоритет:** `P1`
-* **Краткое описание:** Автоматизированный длительный стресс-тест нативного клиента на предмет отсутствия утечек памяти, фрагментации кучи и дрейфа дескрипторов файлов при непрерывной нагрузке.
-* **Подзадачи и микро-шаги:**
-  * **955.1: Создание сценария долговременной нагрузки (`scripts/soak-test.mjs`)**
-    * *Шаг 1.1:* Написать скрипт, эмулирующий 10 000 сообщений в минуту, 500 переключений каналов и 50 голосовых звонков.
-    * *Шаг 1.2:* Добавить циклический сброс кэша медиа при достижении лимита.
-  * **955.2: Мониторинг VmRSS и дескрипторов FD**
-    * *Шаг 2.1:* Считывать `/proc/$PID/status` каждые 30 секунд.
-    * *Шаг 2.2:* Проверять `/proc/$PID/fd` на отсутствие утечки открытых сокетов.
-  * **955.3: Оценка деградации памяти**
-    * *Шаг 3.1:* Убедиться, что дрейф памяти составляет менее $1$ МБ в час.
-    * *Шаг 3.2:* Оформить отчёт `waves/RW-44/QUALITY/SOAK-TEST-REPORT.md`.
-* **Критерии приёмки (DoD):**
-  1. Пиковое потребление памяти не превысило 60 МБ.
-  2. Утечки сокетов и дескрипторов равны строго 0.
-  3. Отчёт `SOAK-TEST-REPORT.md` сформирован.
+### TASK-955: Long-Term Memory Stability and Leak-Free Stress Test (Soak Test 4h)
+* **Department:** `g4_qa`
+* **Priority:** `P1`
+* **Summary:** Automated long-running stress test of native client ensuring zero memory leaks, heap fragmentation, or file descriptor leaks under continuous load.
+* **Subtasks and Micro-steps:**
+  * **955.1: Long-term load scenario setup (`scripts/soak-test.mjs`)**
+    * *Step 1.1:* Write load test simulating 10,000 messages per minute, 500 channel transitions, and 50 voice calls.
+    * *Step 1.2:* Add cyclical media cache pruning upon hitting threshold.
+  * **955.2: VmRSS and FD monitoring**
+    * *Step 2.1:* Read `/proc/$PID/status` every 30 seconds.
+    * *Step 2.2:* Verify `/proc/$PID/fd` for absence of socket descriptor leaks.
+  * **955.3: Memory degradation evaluation**
+    * *Step 3.1:* Ensure memory drift is strictly under $1$ MB per hour.
+    * *Step 3.2:* Draft report `waves/RW-44/QUALITY/SOAK-TEST-REPORT.md`.
+* **Definition of Done (DoD):**
+  1. Peak memory consumption does not exceed 60 MB.
+  2. Socket and file descriptor leaks are strictly 0.
+  3. Report `SOAK-TEST-REPORT.md` generated and committed.
 
 ---
 
-### TASK-956: Комплексный аудит безопасности, очистка секретов и генерация SBOM-манифеста
-* **Отдел:** `devops`
-* **Приоритет:** `P0`
-* **Краткое описание:** Проверка кодовой базы и бинарных артефактов на отсутствие захардкоженных токенов, паролей, приватных ключей, аудит маскирования в логах и генерация воспроизводимого SBOM.
-* **Подзадачи и микро-шаги:**
-  * **956.1: Статический поиск секретов по регулярным выражениям**
-    * *Шаг 1.1:* Запустить сканирование по паттернам токенов Discord (MFA, Bot, User tokens).
-    * *Шаг 1.2:* Проверить отсутствие приватных ключей DAVE MLS в исходных кодах.
-  * **956.2: Аудит маскирования в логах и выводах ошибок**
-    * *Шаг 2.1:* Проверить, что в выводе panic и logcat токены маскируются маской `mfa.***` или `Bot ***`.
-  * **956.3: Генерация финального SBOM манифеста**
-    * *Шаг 3.1:* Запустить `node scripts/sbom.mjs --check --output rust/dist/sbom.spdx.json`.
-    * *Шаг 3.2:* Проверить соответствие лицензий всех 85+ зависимостей политике открытого ПО (MIT / Apache-2.0 / BSD-3).
-* **Критерии приёмки (DoD):**
-  1. Сканирование секретов показало 0 находок.
-  2. Манифест `rust/dist/sbom.spdx.json` сгенерирован и валиден по стандарту SPDX 2.3.
+### TASK-956: Comprehensive Security Audit, Secret Scrubbing, and SBOM Manifest Generation
+* **Department:** `devops`
+* **Priority:** `P0`
+* **Summary:** Audit codebase and release binaries for hardcoded tokens, passwords, private keys, verify log masking, and generate reproducible SBOM.
+* **Subtasks and Micro-steps:**
+  * **956.1: Static regex scan for secrets**
+    * *Step 1.1:* Scan codebase against Discord token patterns (MFA, Bot, User tokens).
+    * *Step 1.2:* Verify absence of private DAVE MLS keys in source files.
+  * **956.2: Log masking and panic output audit**
+    * *Step 2.1:* Verify that in panic messages and log outputs, tokens are masked as `mfa.***` or `Bot ***`.
+  * **956.3: Final SBOM manifest generation**
+    * *Step 3.1:* Run `node scripts/sbom.mjs --check --output rust/dist/sbom.spdx.json`.
+    * *Step 3.2:* Validate licenses of all 85+ dependencies against open-source compliance (MIT / Apache-2.0 / BSD-3).
+* **Definition of Done (DoD):**
+  1. Secret scan yields 0 findings.
+  2. Manifest `rust/dist/sbom.spdx.json` generated and conforms to SPDX 2.3.
 
 ---
 
-### TASK-957: Процедура слияния `testing -> beta` и регламент экстренного отката (Rollback Procedure)
-* **Отдел:** `devops`
-* **Приоритет:** `P0`
-* **Краткое описание:** Подготовка Pull Request на перенос проверенной сборки из `testing` в `beta`, регламентация процедуры мгновенного отката на случай непредвиденных дефектов и проверка целостности локальной базы SQLite при даунгрейде.
-* **Подзадачи и микро-шаги:**
-  * **957.1: Подготовка PR `testing -> beta`**
-    * *Шаг 1.1:* Сформировать детальное описание PR со списком всех включённых фич, результатами QA и контрольными суммами.
-    * *Шаг 1.2:* Проверить отсутствие конфликтов и получить одобрение Lead Orchestrator.
-  * **957.2: Разработка регламента отката (Rollback Protocol)**
-    * *Шаг 2.1:* Описать команду быстрого отката коммита в ветке `beta` (`git revert -m 1 <merge-commit>`).
-    * *Шаг 2.2:* Проверить процедуру восстановления предыдущего релиза бинарника из кэша артефактов.
-  * **957.3: Проверка совместимости схемы SQLite при даунгрейде**
-    * *Шаг 3.1:* Проверить, что база данных, открытая новой сборкой, не портится при возврате на предыдущую версию клиента.
-* **Критерии приёмки (DoD):**
-  1. Документ `docs/specs/ROLLBACK-PROCEDURE.md` написан и утверждён.
-  2. База данных SQLite сохраняет целостность при циклическом обновлении/откате.
+### TASK-957: Promotion Procedure `testing -> beta` and Emergency Rollback Protocol
+* **Department:** `devops`
+* **Priority:** `P0`
+* **Summary:** Prepare PR for promoting validated build from `testing` to `beta`, establish immediate rollback protocol for unexpected defects, and verify SQLite WAL database integrity on version downgrades.
+* **Subtasks and Micro-steps:**
+  * **957.1: PR preparation `testing -> beta`**
+    * *Step 1.1:* Compile detailed PR description with included features, QA results, and checksums.
+    * *Step 1.2:* Verify zero merge conflicts and receive Lead Orchestrator sign-off.
+  * **957.2: Rollback protocol formulation**
+    * *Step 2.1:* Document rapid commit revert in `beta` branch (`git revert -m 1 <merge-commit>`).
+    * *Step 2.2:* Verify restoration procedure for previous release binary from cache.
+  * **957.3: SQLite downgrade schema compatibility test**
+    * *Step 3.1:* Verify that database opened with new build does not corrupt when reverted to previous client version.
+* **Definition of Done (DoD):**
+  1. Document `docs/specs/ROLLBACK-PROCEDURE.md` published and approved.
+  2. SQLite database preserves integrity across cyclical update/rollback cycles.
 
 ---
 
-### TASK-958: Релизный пакет бета-версии, контрольные суммы `SHA256SUMS` и руководство тестировщика
-* **Отдел:** `g6_tech_writer`
-* **Приоритет:** `P1`
-* **Краткое описание:** Упаковка бинарника в релизный архив, обновление контрольных сумм `SHA256SUMS`, написание понятного руководства по запуску и обратной связи `docs/BETA-TESTING-GUIDE.md`.
-* **Подзадачи и микро-шаги:**
-  * **958.1: Сборка релизного архива `tar.gz`**
-    * *Шаг 1.1:* Упаковать stripped бинарник `discord-gpui` и лицензионные файлы в архив `rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz`.
-    * *Шаг 1.2:* Пересчитать контрольные суммы и обновить `rust/dist/SHA256SUMS`.
-  * **958.2: Создание руководства бета-тестировщика**
-    * *Шаг 2.1:* Написать `docs/BETA-TESTING-GUIDE.md`:
-      * Системные требования и поддерживаемые дистрибутивы.
-      * Быстрый старт: запуск в 1 команду (`./discord-gpui`).
-      * Инструкция по включению отладочных логов (`RUST_LOG=info ./discord-gpui`).
-      * Шаблон репорта о найденной ошибке (версия Linux, GPU, логи).
-  * **958.3: Выпуск Release Notes для Beta 1**
-    * *Шаг 3.1:* Создать файл `RELEASE-NOTES-v1.0.0-beta.1.md` со сводкой всех реализованных возможностей.
-* **Критерии приёмки (DoD):**
-  1. Архив `discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz` готов к раздаче.
-  2. Файл `rust/dist/SHA256SUMS` содержит актуальный хеш архива.
-  3. Документы `BETA-TESTING-GUIDE.md` и `RELEASE-NOTES-v1.0.0-beta.1.md` опубликованы.
+### TASK-958: Beta Release Package, `SHA256SUMS` Checksums, and Testing Guide
+* **Department:** `g6_tech_writer`
+* **Priority:** `P1`
+* **Summary:** Package stripped binary into release archive, update `SHA256SUMS`, author clear getting started and feedback guide in `docs/BETA-TESTING-GUIDE.md`.
+* **Subtasks and Micro-steps:**
+  * **958.1: Release archive packaging `tar.gz`**
+    * *Step 1.1:* Package stripped binary `discord-gpui` and license files into `rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz`.
+    * *Step 1.2:* Recalculate checksums and update `rust/dist/SHA256SUMS`.
+  * **958.2: Beta tester guide creation**
+    * *Step 2.1:* Author `docs/BETA-TESTING-GUIDE.md`:
+      * System requirements and supported distributions.
+      * Quick start: 1-command launch (`./discord-gpui`).
+      * Debug logging instructions (`RUST_LOG=info ./discord-gpui`).
+      * Defect reporting template (Linux distribution, GPU, logs).
+  * **958.3: Release Notes publication for Beta 1**
+    * *Step 3.1:* Create file `RELEASE-NOTES-v1.0.0-beta.1.md` summarizing delivered capabilities.
+* **Definition of Done (DoD):**
+  1. Archive `discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz` ready for distribution.
+  2. File `rust/dist/SHA256SUMS` contains valid checksum for release archive.
+  3. Documents `BETA-TESTING-GUIDE.md` and `RELEASE-NOTES-v1.0.0-beta.1.md` published.

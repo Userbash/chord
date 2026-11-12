@@ -3,10 +3,10 @@
 Курированный набор артефактов волны RE (R7), на котором будут проверяться кодеки, схема
 шлюза, REST-слой, i18n и голосовой стек Rust-клиента (`docs/rust-client/TEST-PLAN.md` §3).
 
-- Сырьё не редактируется: файлы — побайтовые копии из лаборатории `/home/sanya/re-deep`
+- Сырьё не редактируется: файлы — побайтовые копии из лаборатории `reference cleanroom artifacts`
   (кроме вырезанных секретов, см. ниже).
 - Провенанс каждого файла (путь-источник, размер, md5, назначение, тесты) — в `MANIFEST.json`.
-- Полная лаборатория (pcap, strace, дампы, каталоги локалей) — только в `/home/sanya/re-deep`;
+- Полная лаборатория (pcap, strace, дампы, каталоги локалей) — только в `reference cleanroom artifacts`;
   здесь минимальный срез, достаточный для L1–L3 тестов.
 - **Сантизация:** значения ключей `analytics_token`, `session_id`, `auth_session_id_hash`,
   `static_client_session_id`, `qos_token`, `resume_gateway_url` (и email) → `REDACTED`.

@@ -16,7 +16,7 @@
 2. **Все 3 интеграционных разрыва из `MERGE-READINESS-005` полностью устранены:**
    - **Разрыв 1 (BFF IPC Wiring):** `bff_domains_router.rs` (`PR-153`/`PR-164`) объединил маршрутизацию доменов `slash_commands`, `onboarding`, `soundboard`, `stage_instances`, а `PR-173` зарегистрировал команду `invoke_bff_domain` в `tauri::Builder` в `rust/gui-spike/src/main.rs`.
    - **Разрыв 2 (Shell Wiring & Mount):** `app-shell-wiring.js` (`PR-155`/`PR-157`) и `composer-popovers-bridge.js` (`PR-154`/`PR-163`) смонтированы в рантайм `rust/gui-spike/ui/app.js` (`PR-172`), обеспечивая работу всех модалок, поповеров и админ-панелей.
-   - **Разрыв 3 (RE-GAP-22 Voice WebRTC Diagnostics):** реализован полный сквозной стек диагностики голоса по оракулу Discord RE (`re-deep` модуль 613681) — `stats.rs` (`PR-170`), `VOICE-DIAGNOSTICS-SPEC.md` (`PR-171`), `voice-diagnostics.js` (`PR-169`), `voice_diagnostics.rs` (`PR-174`) и интеграция в кнопку пинга панели голоса `voice.js` (`PR-175`).
+   - **Разрыв 3 (RE-GAP-22 Voice WebRTC Diagnostics):** реализован полный сквозной стек диагностики голоса по оракулу Discord RE (`reference-oracle` модуль 613681) — `stats.rs` (`PR-170`), `VOICE-DIAGNOSTICS-SPEC.md` (`PR-171`), `voice-diagnostics.js` (`PR-169`), `voice_diagnostics.rs` (`PR-174`) и интеграция в кнопку пинга панели голоса `voice.js` (`PR-175`).
 3. **Статус гейтов:**
    - `npm run typecheck` (`tsc -p tsconfig.json && tsc -p tsconfig.agent.json`): **0 errors (PASS)**
    - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit`: **0 errors (PASS)**
@@ -92,7 +92,7 @@
 - В функции `boot()` файла `rust/gui-spike/ui/app.js` оба фасада инициализируются с пробросом `onDispatchIpc` через нативный `invoke(command, payload)` и реэкспортируются из модуля.
 
 ### 2.3. Полный стек RE-GAP-22: WebRTC Voice Diagnostics (`PR-169..PR-171`, `PR-174..PR-175`)
-Восстановлен паритет с оригинальным клиентом Discord на основе реверс-инжиниринг оракула `/home/sanya/re-deep/`:
+Восстановлен паритет с оригинальным клиентом Discord на основе реверс-инжиниринг оракула `reference-oracle/`:
 - **Спецификация (`PR-171`):** `docs/specs/VOICE-DIAGNOSTICS-SPEC.md` описывает состояния RTC-соединения, спарклайн пинга 258×80, пороги качества (fine `<=250ms / <=5%`, average `<=500ms / <=10%`, bad `>500ms / >10%`) и 30-значный Privacy Code сквозного шифрования DAVE (6 групп по 5 цифр).
 - **Core RTC Stats (`PR-170`):** `discord-voice/src/stats.rs` хранит кольцевой буфер до 199 пингов, скользящее среднее по 20 точкам и снимок счетчиков UDP/RTCP.
 - **Frontend Controller (`PR-169`):** `voice-diagnostics.js` рассчитывает полилинию SVG спарклайна, форматирует русские метрики и валидирует DTO попапа.

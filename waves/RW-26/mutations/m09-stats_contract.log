@@ -31,7 +31,7 @@ test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out;
 
 
 --- stderr ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
-     Running tests/stats_contract.rs (/home/sanya/.cache/discord-lab-target-rw26-mut/debug/deps/stats_contract-451fd10ac6a48c5d)
+     Running tests/stats_contract.rs (/home/user/.cache/discord-lab-target-rw26-mut/debug/deps/stats_contract-451fd10ac6a48c5d)
 error: test failed, to rerun pass `-p discord-voice --test stats_contract`

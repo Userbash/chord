@@ -1,13 +1,13 @@
 # ТЗ W22b — P4-01: headless RTC signaling
 
-Волна: RW-22 / B03. Владелец: W22b. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-22 / B03. Владелец: W22b. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
 `AGENTS.md`, `PROCESS.md` §4, `waves/RW-22/WAVE-PLAN.md`, `docs/re/voice-deep.md` §1,
 `docs/rust-client/PLAN.md` (P4-01), `docs/rust-client/TEST-PLAN.md` (T-VOICE-01…03),
 `rust/crates/discord-json/src/lib.rs`, `rust/crates/discord-voice/src/lib.rs`,
-`/home/sanya/re-deep/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
+`reference-oracle/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
 `rtc1-summary.json`, `rtc2-summary.json`.
 
 Твои файлы — **только** `rust/crates/discord-voice/**` (включая его `Cargo.toml`). Не трогай
@@ -19,7 +19,7 @@
 Strict TDD. Сначала контрактные тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice \
   2>&1 | tee ../waves/RW-22/red-w22b.log
 ```
@@ -103,7 +103,7 @@ pub fn select_region(samples: &[(String, u32)], geo: &[String],
 1. Все 9 op из `OBSERVED_RTC_OPS`, mapping round-trip; неизвестный op.
 2. Реальные `rtc1`/`rtc2` wrappers: распаковать `payload`, `parse_frame`, проверить Hello v8
    13750, Ready ssrc/port/ip/modes, SessionDescription mode/key length/versions. Если
-   `/home/sanya/re-deep` нет — skip с причиной.
+   `reference-oracle/` нет — skip с причиной.
 3. Identify из capture: server/channel/user ids, max_dave=1, video=true, stream rid/quality.
 4. Select Protocol: protocol udp, codecs opus/AV1, PT120/101, priority 1000.
 5. Secret key: 32 bytes из base64; неверная длина/алфавит; Debug/Display redaction

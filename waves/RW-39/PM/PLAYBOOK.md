@@ -15,14 +15,14 @@ PM: **DeepSeek** (единственный, кто ставит/принимае
    `TEST-POLICY.md` (red-first, evidence, запрет `.only`/`skip` без причины, waiver только
    письменно). Без RED-лога продуктовый код не принимается; `skip` не считается прохождением.
 4. Одновременно ≤ 2 фоновых воркеров; `cargo` — строго один процесс (блокирует target-dir).
-5. `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — read-only. `waves/*` — PM/Team Lead.
+5. `logs/`, `functions/`, `evidence/`, `reference-oracle/` — read-only. `waves/*` — PM/Team Lead.
 
 ## 1. Роли
 
 | Роль | Кто | Зона | Вход | Выход |
 |---|---|---|---|---|
 | PM | DeepSeek | брифы, приёмка, гейт, петли | этот файл + `TZ` | вердикт accept/return, ledger |
-| W39a RE-REA | воркер+REA | RE-данные дизайна | `/home/sanya/re-deep/ui*`, `tokens.json` | `DESIGN/REFERENCES.md`, `tokens.json`, `layout.json` |
+| W39a RE-REA | воркер+REA | RE-данные дизайна | `reference-oracle/ui*`, `tokens.json` | `DESIGN/REFERENCES.md`, `tokens.json`, `layout.json` |
 | W39b Design | воркер | дизайн-система | W39a | `DESIGN/SPEC.md`, `tokens.css`, `DOM-CONTRACT.md` |
 | W38f Fix | воркер | снятие P1 RW-38 | `waves/RW-38/REVIEW-codex.md` | патч + red/green |
 | W39c Markup | воркер | верстка shell+4 экрана | `DOM-CONTRACT.md`, `tokens.css` | `ui/index.html`, `ui/style.css`, `ui/components/*.css` |

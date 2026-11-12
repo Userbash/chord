@@ -11,14 +11,14 @@
 
 1. **Подзадача 951.1 — Сверка и слияние рабочих веток в `unstable`:**
    - Проверен статус всех 128 задач предшествующих волн (`TASK-701`..`TASK-908`) в `waves/kanban-board.json`: `128/128` в статусе `done` (`0` незавершённых).
-   - Выполнено слияние рабочей ветки `feature/sprints-1-5-build-004` (`6f60b11`) в интеграционную ветку `unstable` (`/home/sanya/orca/workspaces/project/unstable`) с флагом `--no-ff` для сохранения истории ревью (`1e7af5a926707938c14975a31099e94e4c7036dc`).
+   - Выполнено слияние рабочей ветки `feature/sprints-1-5-build-004` (`6f60b11`) в интеграционную ветку `unstable` (`/home/user/orca/workspaces/project/unstable`) с флагом `--no-ff` для сохранения истории ревью (`1e7af5a926707938c14975a31099e94e4c7036dc`).
    - Проверена чистота рабочего дерева `unstable` (`git status --porcelain`).
 
 2. **Подзадача 951.2 — Формирование манифеста сборки `waves/BUILD-005.json`:**
-   - Сформирован централизованный машиночитаемый манифест `/home/sanya/orca/project/waves/BUILD-005.json` со схемой `1.0`, метаданными сборки (`build_id: "BUILD-005"`, `unstable_commit: "1e7af5a926707938c14975a31099e94e4c7036dc"`, `testing_commit: "1e7af5a926707938c14975a31099e94e4c7036dc"`, `candidate_tag: "build-005-candidate"`, `built_at: "2026-11-11T16:04:00+05:00"`), перечнем влитых коммитов (`c31aa24..1e7af5a`), контрольными суммами артефактов и полным реестром всех `128` закрытых задач (`TASK-701`..`TASK-908`) с указанием `id`, `title`, `department`, `priority`, `status: "done"`, `wave`, `closed_at`, `commit`, `summary` и `acceptance_criteria`.
+   - Сформирован централизованный машиночитаемый манифест `/home/user/orca/project/waves/BUILD-005.json` со схемой `1.0`, метаданными сборки (`build_id: "BUILD-005"`, `unstable_commit: "1e7af5a926707938c14975a31099e94e4c7036dc"`, `testing_commit: "1e7af5a926707938c14975a31099e94e4c7036dc"`, `candidate_tag: "build-005-candidate"`, `built_at: "2026-11-11T16:04:00+05:00"`), перечнем влитых коммитов (`c31aa24..1e7af5a`), контрольными суммами артефактов и полным реестром всех `128` закрытых задач (`TASK-701`..`TASK-908`) с указанием `id`, `title`, `department`, `priority`, `status: "done"`, `wave`, `closed_at`, `commit`, `summary` и `acceptance_criteria`.
 
 3. **Подзадача 951.3 — Перенос в ветку `testing` и установка контрольного тега:**
-   - В рабочем дереве ветки `testing` (`/home/sanya/orca/workspaces/project/testing`) выполнено слияние `unstable -> testing` (`c31aa24..1e7af5a`, 0 конфликтов).
+   - В рабочем дереве ветки `testing` (`/home/user/orca/workspaces/project/testing`) выполнено слияние `unstable -> testing` (`c31aa24..1e7af5a`, 0 конфликтов).
    - Установлен легковесный Git-тег `build-005-candidate` на вершину ветки `testing` (`1e7af5a926707938c14975a31099e94e4c7036dc`, тип объекта `commit`).
 
 ---

@@ -2,7 +2,7 @@
 # command: CARGO_TARGET_DIR=/tmp/opencode/target-w29a cargo test --offline -p discord-i18n --test timestamp_contract
 # date: 2026-10-22T22:05:33+05:00
 
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
      Running tests/timestamp_contract.rs (/tmp/opencode/target-w29a/debug/deps/timestamp_contract-9e677c262cb706b5)
 

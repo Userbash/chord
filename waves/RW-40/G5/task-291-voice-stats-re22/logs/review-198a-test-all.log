@@ -1,5 +1,5 @@
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_voice-37c479f94835c760)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_voice-37c479f94835c760)
 
 running 36 tests
 test reception::tests::extension_sequence_wraps_forward ... ok
@@ -41,7 +41,7 @@ test srtp::tests::rtpsize_roundtrip_between_independent_contexts_with_direct_op4
 
 test result: ok. 36 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
-     Running tests/crypto_vectors.rs (/home/sanya/orca/project/rust/target/debug/deps/crypto_vectors-4b0e96f0f4a9a18b)
+     Running tests/crypto_vectors.rs (/home/user/orca/project/rust/target/debug/deps/crypto_vectors-4b0e96f0f4a9a18b)
 
 running 16 tests
 test aead_rejects_overlong_message_k ... ok
@@ -63,7 +63,7 @@ test hkdf_sha1_limits_k ... ok
 
 test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/devices_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/devices_contract-de5ee880da578919)
+     Running tests/devices_contract.rs (/home/user/orca/project/rust/target/debug/deps/devices_contract-de5ee880da578919)
 
 running 5 tests
 test t_v07_01_initial_state_and_device_selection_by_kind ... ok
@@ -74,7 +74,7 @@ test t_v07_05_volume_clamping_and_privacy_redaction ... ok
 
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/media_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/media_contract-752b5da35a0dbccf)
+     Running tests/media_contract.rs (/home/user/orca/project/rust/target/debug/deps/media_contract-752b5da35a0dbccf)
 
 running 16 tests
 test m03_encode_header_without_extension ... ok
@@ -96,7 +96,7 @@ test m01_parse_captured_valid_packets ... ok
 
 test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/reception_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/reception_contract-fd7fc5e0e62019fd)
+     Running tests/reception_contract.rs (/home/user/orca/project/rust/target/debug/deps/reception_contract-fd7fc5e0e62019fd)
 
 running 10 tests
 test duplicate_does_not_inflate_received_or_jitter ... ok
@@ -112,7 +112,7 @@ test zero_clock_rate_does_not_panic ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/reconnect_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/reconnect_contract-82a49deede000b1b)
+     Running tests/reconnect_contract.rs (/home/user/orca/project/rust/target/debug/deps/reconnect_contract-82a49deede000b1b)
 
 running 10 tests
 test r01_first_resumable_disconnect_resumes_after_one_second ... ok
@@ -128,7 +128,7 @@ test r10_backoff_table_is_the_frozen_contract ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/regions_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/regions_contract-cb7a8ee43c08d5a8)
+     Running tests/regions_contract.rs (/home/user/orca/project/rust/target/debug/deps/regions_contract-cb7a8ee43c08d5a8)
 
 running 10 tests
 test latency_median_is_sorted_and_even_rounds_down ... ok
@@ -144,7 +144,7 @@ test fixture_preserves_regions_and_endpoints ... ok
 
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/rtcp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/rtcp_contract-7dc3be166e1775b8)
+     Running tests/rtcp_contract.rs (/home/user/orca/project/rust/target/debug/deps/rtcp_contract-7dc3be166e1775b8)
 
 running 16 tests
 test compound_at_the_limit_is_accepted ... ok
@@ -166,7 +166,7 @@ test wrong_version_on_first_packet_is_an_error ... ok
 
 test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/signaling.rs (/home/sanya/orca/project/rust/target/debug/deps/signaling-1fdd4716a4e4ff87)
+     Running tests/signaling.rs (/home/user/orca/project/rust/target/debug/deps/signaling-1fdd4716a4e4ff87)
 
 running 18 tests
 test all_observed_ops_round_trip_and_unknown_is_preserved ... ok
@@ -190,7 +190,7 @@ test every_prefix_of_frame_is_panic_free ... ok
 
 test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.15s
 
-     Running tests/srtp_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
+     Running tests/srtp_contract.rs (/home/user/orca/project/rust/target/debug/deps/srtp_contract-cc02bdb7a02e8ab3)
 
 running 22 tests
 test counter_rewind_rejected_k ... ok
@@ -218,7 +218,7 @@ test rtp_counter_shared_k ... ok
 
 test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/stats_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/stats_contract-451fd10ac6a48c5d)
+     Running tests/stats_contract.rs (/home/user/orca/project/rust/target/debug/deps/stats_contract-451fd10ac6a48c5d)
 
 running 20 tests
 test clear_sender_report_28_byte_builder_and_compound_parse ... ok
@@ -244,7 +244,7 @@ test zero_capacity_window_is_treated_as_one ... ok
 
 test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/udp.rs (/home/sanya/orca/project/rust/target/debug/deps/udp-2085edaca45a0fbf)
+     Running tests/udp.rs (/home/user/orca/project/rust/target/debug/deps/udp-2085edaca45a0fbf)
 
 running 15 tests
 test discovery_matches_strace_request_and_response_oracles ... ok

@@ -2,10 +2,10 @@
 
 - **Задача QA:** `qa/task-135-qa-build-004-retest` (`task_76dafd826adb`, `ctx_14f6df16143f`), терминал `term_f78651a3-a356-4661-b7b7-de83d90baa0c`
 - **Роль:** G4 QA Engineer (DeepSeek)
-- **Проверяемая сборка:** `/home/sanya/orca/workspaces/project/testing` (ветка `testing`)
-- **Манифест сборки:** [waves/RW-40/BUILDS/BUILD-004.md](file:///home/sanya/orca/project/waves/RW-40/BUILDS/BUILD-004.md) (`md5: 7a53bfc8dbe78518b53bc1311d1035bf`, 17 строк — не менялся)
-- **Предыдущий отчёт:** [QA-BUILD-004-REPORT.md](file:///home/sanya/orca/project/waves/RW-40/QUALITY/QA-BUILD-004-REPORT.md) — `QA Failed`, `P0 = 3`, `P1 = 2`
-- **Основание повторной приёмки:** отчёт о фиксе [task-134-fix-build004/REPORT.md](file:///home/sanya/orca/project/waves/RW-40/G1/task-134-fix-build004/REPORT.md) + слияние PR-18 (`task-125-test-impact-v2`)
+- **Проверяемая сборка:** `/home/user/orca/workspaces/project/testing` (ветка `testing`)
+- **Манифест сборки:** [waves/RW-40/BUILDS/BUILD-004.md](file:///home/user/orca/project/waves/RW-40/BUILDS/BUILD-004.md) (`md5: 7a53bfc8dbe78518b53bc1311d1035bf`, 17 строк — не менялся)
+- **Предыдущий отчёт:** [QA-BUILD-004-REPORT.md](file:///home/user/orca/project/waves/RW-40/QUALITY/QA-BUILD-004-REPORT.md) — `QA Failed`, `P0 = 3`, `P1 = 2`
+- **Основание повторной приёмки:** отчёт о фиксе [task-134-fix-build004/REPORT.md](file:///home/user/orca/project/waves/RW-40/G1/task-134-fix-build004/REPORT.md) + слияние PR-18 (`task-125-test-impact-v2`)
 - **Дата и время:** 2026-10-30, 21:36–21:52 +05:00
 - **Финальный вердикт:** **QA Passed** — `P0 = 0`, `P1 = 0` в объёме retest. `P1-1` (фиксация состава сборки коммитом/тегом) остаётся за L1 — см. §6.
 
@@ -23,7 +23,7 @@
 | **Node.js / npm** | `v26.13.0` / npm из состава Node |
 | **TypeScript (`tsc`)** | `Version 7.0.2` |
 | **Rust** | `rustc 1.99.0 (b940084d7 2026-09-28)` / `cargo 1.99.0 (5f94df478 2026-08-27)` |
-| **Общий кэш компиляции** | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target` |
+| **Общий кэш компиляции** | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target` |
 | **Логи прогонов** | `waves/RW-40/QUALITY/qa-build-004-retest-logs/` (7 файлов, md5 в §7) |
 | **Оракулы** | `DM-FRIENDS-SPEC.md` (`md5 3aacc65a33ca8a24e609c2046c85625f`), `VOICE-DEVICES-SETTINGS-SPEC.md`, `voice-spec.json`, `main.rs` (`generate_handler!`), `tests/meta/plan-sync.test.mjs` |
 
@@ -112,12 +112,12 @@ use discord_gui_spike::voice_devices::{
 
 ## 3. Прогоны
 
-Все команды выполнены в `/home/sanya/orca/workspaces/project/testing`, коды возврата сняты напрямую с команд.
+Все команды выполнены в `/home/user/orca/workspaces/project/testing`, коды возврата сняты напрямую с команд.
 
 ### 3.1 Контракты Rust
 
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test \
   --manifest-path rust/gui-spike/Cargo.toml \
   --test dm_friends_contract --test voice_devices_contract
 ```

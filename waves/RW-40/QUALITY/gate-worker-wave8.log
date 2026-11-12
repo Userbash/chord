@@ -55,7 +55,7 @@
      + ]
      - []
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/plan-sync.test.mjs:148:12)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/plan-sync.test.mjs:148:12)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -112,7 +112,7 @@
      
      1 !== 0
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/smoke/gui-window.smoke.test.mjs:35:14)
+         at TestContext.<anonymous> (file:///home/user/orca/project/tests/smoke/gui-window.smoke.test.mjs:35:14)
          at Test.runInAsyncScope (node:async_hooks:226:14)
          at Test.run (node:internal/test_runner/test:1402:25)
          at Test.start (node:internal/test_runner/test:1262:17)
@@ -131,7 +131,7 @@
      }
    
 
-Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-30T13-37-49-761Z.json
+Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-30T13-37-49-761Z.json
 ⚠ workspace-rust: ignored 12 — ожидаемый ignored-набор (live-кейсы гоняет отдельная фаза), не e2e-skip
 Вердикт: failed
 Приёмка: н/д (worker-гейт)

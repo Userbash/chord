@@ -1,6 +1,6 @@
 # ТЗ RW-07 — роутер диспатчей (P1-06 / F-GW-06 / T-GW-08)
 
-**Проект:** discord-lab + Rust-клиент. Корень: `/home/sanya/orca/project`; cargo-воркспейс: `rust/`.
+**Проект:** discord-lab + Rust-клиент. Корень: `/home/user/orca/project`; cargo-воркспейс: `rust/`.
 **Цель:** op0-диспатчи шлюза → типизированные события по 21 наблюдаемому типу (`F-GW-06`);
 неизвестный тип — raw-событие (`kind: None`), имя сохраняется, есть накопительный счётчик;
 payload `d` **не разбирается** (разбор — P2-01) и передаётся вызывающему целиком.
@@ -19,7 +19,7 @@ payload `d` **не разбирается** (разбор — P2-01) и пере
 
 **Запрещено:** `Cargo.toml`/`Cargo.lock` (зависимостей достаточно: `zstd` — уже dev-dependency
 `discord-core`; сеть выключена, всё с `--offline`); `TASKS.md`; `docs/**`; `README.md`;
-чужие тесты/модули/файлы; `logs/`, `functions/`, `evidence/`; `/home/sanya/re-deep` — только
+чужие тесты/модули/файлы; `logs/`, `functions/`, `evidence/`; `reference-oracle/` — только
 чтение; `git commit/push`; правка тестов под код и ослабление ассертов; спавн Discord.
 
 ## 1. Контракт (точный; имена и семантика — предмет приёмки)
@@ -144,7 +144,7 @@ pub fn unknown_dispatches(&self) -> u64;
 из чужих тестов): `wire` (= `etf::encode`), `zstd_message` (**завершённый** zstd-кадр,
 уровень 1, `WindowLog(10)` — как `resume_reconnect.rs:204`), `hello_bytes(41250)`
 (`resume_reconnect.rs:192`), `unhex`, `read_opt`, `lab_root`
-(`env RE_LAB_ROOT`, дефолт `/home/sanya/re-deep`), `json_int_field`/`json_str_field`
+(`env RE_LAB_ROOT`, дефолт `reference-oracle/`), `json_int_field`/`json_str_field`
 (`resume_reconnect.rs:438/452` — мини-парсер верхнеуровневых полей jsonl), синтетические
 термы через `map(vec![...])`/`list(vec![...])`-паттерн соседних тестов.
 
@@ -268,7 +268,7 @@ pub fn unknown_dispatches(&self) -> u64;
 3. Прогон и фиксация (из `rust/`):
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 bash -c 'cargo test --offline -p discord-core --test dispatch_router 2>&1 | tee /tmp/opencode/rw-07/red.log; echo "# EXIT=${PIPESTATUS[0]}" | tee -a /tmp/opencode/rw-07/red.log'
 md5sum crates/discord-core/tests/dispatch_router.rs | tee -a /tmp/opencode/rw-07/red.log
 cp crates/discord-core/tests/dispatch_router.rs /tmp/opencode/rw-07/dispatch_router-red.rs
@@ -290,7 +290,7 @@ md5sum /tmp/opencode/rw-07/dispatch_router-red.rs | tee -a /tmp/opencode/rw-07/r
 4. `cargo test --offline -p discord-core --test dispatch_router` ещё 4 раза (×5 стабильно).
 5. `cargo clippy --offline --workspace --all-targets -- -D warnings` → чисто.
 6. `cargo fmt` (при необходимости) и `cargo fmt --check` → чисто.
-7. Из корня `/home/sanya/orca/project`: `npm run gate:worker` → passed; запомнить путь
+7. Из корня `/home/user/orca/project`: `npm run gate:worker` → passed; запомнить путь
    `.gate/worker-*.json`.
 8. `md5sum` всех четырёх изменённых файлов — в отчёт.
 

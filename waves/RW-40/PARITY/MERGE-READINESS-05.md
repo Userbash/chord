@@ -279,7 +279,7 @@ live, G-05 10/10 или waiver, M-07/C-02/G-01b и `gate:qualify` с `e2e.live =
 ### 5.4 Как перепроверить (read-only, ~2 мин)
 
 ```bash
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 git status --porcelain -uall | wc -l                    # 1099 (не 117: -uall обязателен)
 find waves/RW-40/PM -name 'ACCEPT*.md'                  # ровно 2
 npx tsc -p tsconfig.json; echo "tsc=$?"                 # 16 ошибок, exit 1

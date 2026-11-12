@@ -1,5 +1,5 @@
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 error[E0432]: unresolved import `discord_i18n::list`
  --> crates/discord-i18n/tests/list_contract.rs:6:19
   |

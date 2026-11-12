@@ -4,8 +4,8 @@
   Оракул фич: docs/feature-backlog.md (R6-03 Windows-специфика: appBadge.ts, constants.ts,
     оверлей-иконки бейджей в таскбаре 1..99 и 99+, portable-режим с хранением данных в ./data/
     рядом с discord-gpui.exe без записи в %APPDATA% и реестр, хоткеи выхода Alt+F4 и Ctrl+Q).
-  Оракул RE: /home/sanya/re-deep/main-arch.md (@21000 setAppUserModelId, @21998 discord://, @24154 disclip://),
-    /home/sanya/re-deep/backend-ipc.json (DISCORD_APP_BADGE_SET, DISCORD_THUMBAR_BUTTONS_UPDATE,
+  Оракул RE: /home/user/clean-room-oracle/main-arch.md (@21000 setAppUserModelId, @21998 discord://, @24154 disclip://),
+    /home/user/clean-room-oracle/backend-ipc.json (DISCORD_APP_BADGE_SET, DISCORD_THUMBAR_BUTTONS_UPDATE,
     DISCORD_WINDOW_SET_PROGRESS_BAR).
   Контрольные суммы синхронизированы с rust/dist/SHA256SUMS.
 -->

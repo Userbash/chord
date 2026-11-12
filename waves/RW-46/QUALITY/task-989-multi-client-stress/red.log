@@ -20,7 +20,7 @@
 test at tests/unit/multi-client-stress-989.test.mjs:53:3
 ✖ SUB-989-0: скрипт существует, соблюдает лимиты размера (<50 строк на функцию, <800 на файл) и не содержит секретов (1.115361ms)
   AssertionError [ERR_ASSERTION]: Файл scripts/stress-test-50-peers.mjs должен существовать
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/multi-client-stress-989.test.mjs:54:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/multi-client-stress-989.test.mjs:54:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -40,7 +40,7 @@ test at tests/unit/multi-client-stress-989.test.mjs:53:3
 
 test at tests/unit/multi-client-stress-989.test.mjs:63:3
 ✖ SUB-989-1: сверяет дизайн-токены, состояния stress-cluster, топологию 50 пиров и константы с независимыми RE-оракулами (0.334538ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/sanya/orca/project/tests/unit/multi-client-stress-989.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/user/orca/project/tests/unit/multi-client-stress-989.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -52,12 +52,12 @@ test at tests/unit/multi-client-stress-989.test.mjs:63:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/stress-test-50-peers.mjs'
+    url: 'file:///home/user/orca/project/scripts/stress-test-50-peers.mjs'
   }
 
 test at tests/unit/multi-client-stress-989.test.mjs:124:3
 ✖ SUB-989-2: выдерживает поток 5000 событий/с от 50 пиров с нулевым jank UI-потока и дельтой памяти RSS <= 60 МБ (0.220423ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/sanya/orca/project/tests/unit/multi-client-stress-989.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/user/orca/project/tests/unit/multi-client-stress-989.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -69,12 +69,12 @@ test at tests/unit/multi-client-stress-989.test.mjs:124:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/stress-test-50-peers.mjs'
+    url: 'file:///home/user/orca/project/scripts/stress-test-50-peers.mjs'
   }
 
 test at tests/unit/multi-client-stress-989.test.mjs:162:3
 ✖ SUB-989-3: проверяет инварианты редьюсера: кольцо сообщений, синхронные реакции 50 пиров, TTL набора текста и запрет SPEAKING при mute (0.234142ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/sanya/orca/project/tests/unit/multi-client-stress-989.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/user/orca/project/tests/unit/multi-client-stress-989.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -86,12 +86,12 @@ test at tests/unit/multi-client-stress-989.test.mjs:162:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/stress-test-50-peers.mjs'
+    url: 'file:///home/user/orca/project/scripts/stress-test-50-peers.mjs'
   }
 
 test at tests/unit/multi-client-stress-989.test.mjs:258:3
 ✖ SUB-989-4: покрывает все 9 измерений TEST-POLICY.md, оценку границ (60.0 vs 60.1 МБ, 5000 vs 4999 eps), маскирование секретов и CLI (коды 0/1/2) (0.256281ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/sanya/orca/project/tests/unit/multi-client-stress-989.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/user/orca/project/tests/unit/multi-client-stress-989.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -103,12 +103,12 @@ test at tests/unit/multi-client-stress-989.test.mjs:258:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/stress-test-50-peers.mjs'
+    url: 'file:///home/user/orca/project/scripts/stress-test-50-peers.mjs'
   }
 
 test at tests/unit/multi-client-stress-989.test.mjs:340:3
 ✖ SUB-989-5: убивает 5/5 контрольных мутаций стенда нагрузки 50 пиров (100% mutation kill rate) (0.182213ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/sanya/orca/project/tests/unit/multi-client-stress-989.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/stress-test-50-peers.mjs' imported from /home/user/orca/project/tests/unit/multi-client-stress-989.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -120,5 +120,5 @@ test at tests/unit/multi-client-stress-989.test.mjs:340:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/stress-test-50-peers.mjs'
+    url: 'file:///home/user/orca/project/scripts/stress-test-50-peers.mjs'
   }

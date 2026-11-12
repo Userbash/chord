@@ -50,7 +50,7 @@ failures:
 
 test result: FAILED. 23 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-180-read-state-ack-bulk-flags/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-180-read-state-ack-bulk-flags/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.72s
-     Running tests/messages_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/messages_contract-bfbdd569e060ca22)
+     Running tests/messages_contract.rs (/home/user/orca/project/rust/target/debug/deps/messages_contract-bfbdd569e060ca22)
 error: test failed, to rerun pass `--test messages_contract`

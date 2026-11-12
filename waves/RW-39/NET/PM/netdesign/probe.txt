@@ -1,14 +1,14 @@
 # probe.txt — NET-DESIGN, журнал чтения дампа (только чтение)
 
-Дата: 2026-10-23. Каталог дампа: /home/sanya/re-deep (golden, read-only).
+Дата: 2026-10-23. Каталог дампа: /home/user/clean-room-oracle (golden, read-only).
 Ни один файл дампа не изменялся; ничего не копировалось в репозиторий.
 
 ## 1. Что искал и чем
 
 ```
-ls /home/sanya/re-deep
-ls /home/sanya/re-deep/ui
-file /home/sanya/re-deep/decoded/43644898c0897078_0        # 74817 Б, /login HTML
+ls /home/user/clean-room-oracle
+ls /home/user/clean-room-oracle/ui
+file /home/user/clean-room-oracle/decoded/43644898c0897078_0        # 74817 Б, /login HTML
 head -c 3000 .../43644898c0897078_0                        # GLOBAL_ENV, BUILD_NUMBER 641004
 grep -o "authBox[a-zA-Z_]*" decoded/dbd05750a1cb3484_0      # 15 вхождений authBoxClassName
 grep -l "authBox__921c5{" decoded/* out/bundles/*.css.bin   # CSS-модуль authBox

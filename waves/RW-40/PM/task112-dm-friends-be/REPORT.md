@@ -39,8 +39,8 @@
 ## 4. GREEN-прогон (`waves/RW-40/PM/task112-dm-friends-be/green-final.log`, после фикса P2-2)
 Команды:
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test dm_friends_contract --test ipc_wiring_contract
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml -p discord-gui-spike --test dm_friends_contract -- -D warnings
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test dm_friends_contract --test ipc_wiring_contract
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml -p discord-gui-spike --test dm_friends_contract -- -D warnings
 rustfmt --edition 2021 --check rust/gui-spike/src/dm_friends.rs rust/gui-spike/tests/dm_friends_contract.rs
 ```
 Результат:

@@ -21,7 +21,7 @@
 ## 2. Целевые проверки
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test messages_contract --lib
 ```
 
@@ -66,7 +66,7 @@ cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test messages_contract 
 - Тело `ack_message_with_options` содержит `token` и `last_viewed` всегда
   (`null` при `None`), `flags`/`manual`/`mention_count` — только при `Some(...)`;
   `mention_count: 0` сохраняется. Совпадает с оракулом
-  `/home/sanya/re-deep/rest-static.json` (`MESSAGE_ACK`, `bodyKeys`).
+  `reference-oracle/rest-static.json` (`MESSAGE_ACK`, `bodyKeys`).
 - `ack_messages_bulk` валидирует `1..=100` и оба id **до** транспорта, тело ровно
   `{"read_states":[...]}`, `read_state_type` опускается при `None`.
 - `ack_message` / `ack_body` / `AckTransport` / `ReadStateAck` не менялись —

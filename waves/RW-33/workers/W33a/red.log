@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
 warning: constant `SECRET_SERVICE_NONE` is never used
   --> crates/discord-platform/src/ffi_secret.rs:24:7
    |

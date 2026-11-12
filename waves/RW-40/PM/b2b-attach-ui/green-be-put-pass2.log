@@ -1,5 +1,5 @@
 === GREEN RUN: cargo test (attachments_contract, ipc_wiring_contract, lib, bins) ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.04s
      Running unittests src/lib.rs (/tmp/target-int01/debug/deps/discord_gui_spike-69b2bc60abd98420)
 
@@ -103,7 +103,7 @@ EXIT_CODE_CARGO_TEST=0
 EXIT_CODE_IPC_PATH=0
 
 === GREEN RUN: cargo clippy ===
-    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Checking discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.37s
 EXIT_CODE_CLIPPY=0
 

@@ -63,9 +63,9 @@
 test at tests/unit/server-menu.test.mjs:303:3
 ✖ Tab закрывает меню, фокус на opener, default не отменяется (9.141354ms)
   AssertionError [ERR_ASSERTION]: Tab не закрыл меню
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:309:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:304:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:309:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:304:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

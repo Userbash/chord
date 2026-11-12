@@ -1,4 +1,4 @@
-W39f — протокол источников (read-only /home/sanya/re-deep)
+W39f — протокол источников (read-only /home/user/clean-room-oracle)
 ================================================================
 Метод: обычное чтение файлов дампа (JSON/HTML/CSS/JS/i18n-каталоги) + PIL-кроп lossless PNG
 в /tmp/opencode/w39f/ (в репозиторий картинки не копировались). REA/бинарь не потребовался:
@@ -61,5 +61,5 @@ node -e "JSON.parse(require('fs').readFileSync('waves/RW-39/DESIGN/re-extra.json
 Ограничения
 -----------
 1. Ассеты (PNG/шрифты/иконки/спрайты) в репозиторий не копировались; PNG читался кропом в /tmp.
-2. Только чтение /home/sanya/re-deep: записи/переименований нет.
+2. Только чтение /home/user/clean-room-oracle: записи/переименований нет.
 3. Сеть, спавн Discord, gate/cargo не запускались.

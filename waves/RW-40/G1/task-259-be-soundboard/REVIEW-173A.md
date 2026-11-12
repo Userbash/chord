@@ -2,7 +2,7 @@
 
 - **Ревьюер**: Технический ревьюер (DeepSeek), token-lean режим.
 - **Дата**: 2026-10-31.
-- **Ветка**: `feature/task-259-be-soundboard`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка**: `feature/task-259-be-soundboard`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Объект ревью**: `rust/gui-spike/src/soundboard.rs`, `rust/gui-spike/tests/soundboard_contract.rs`, отчёт воркера `REPORT.md`.
 
 ## 1. Вердикт

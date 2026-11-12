@@ -4,8 +4,8 @@ target-dir: /tmp/opencode/target-w26a (свой слот)
 состояние кода: src/crypto/*.rs и src/srtp.rs — заглушки Team Lead (API отсутствует)
 
 $ cargo test --offline -p discord-voice --test crypto_vectors
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 error[E0432]: unresolved imports `discord_voice::crypto::aes::Aes256`, `discord_voice::crypto::aes::Aes256Key`
   --> crates/discord-voice/tests/crypto_vectors.rs:13:34
    |
@@ -52,7 +52,7 @@ error: could not compile `discord-voice` (test "crypto_vectors") due to 5 previo
 exit code: 101
 
 $ cargo test --offline -p discord-voice --test srtp_contract
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 error[E0432]: unresolved import `discord_voice::crypto::CryptoError`
   --> crates/discord-voice/tests/srtp_contract.rs:12:5
    |

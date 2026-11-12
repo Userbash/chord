@@ -2,7 +2,7 @@
 
 - **batch/карточка:** `RW-40 / TASK-620` (G2 Frontend — Унифицированные контекстные меню сообщений и пользователей)
 - **Ветка:** `feature/task-620-context-menu`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-620-context-menu`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-620-context-menu`
 - **Дата:** 2026-11-07
 - **Коммитов нет:** `git commit` / `git push` не выполнялись (согласно правилам `AGENTS.md` §6).
 
@@ -36,8 +36,8 @@
   - `npm run typecheck` → `0 errors` (`exit code = 0`);
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `0 errors` (`exit code = 0`);
 - **oracle:**
-  - `/home/sanya/re-deep/frontend-d03.md` (§5 п.3–4 Menu / ContextMenu: `menu_c1e9c4`, `role="menu"`, `role="menuitem"`, `colorDanger`, `separator_c1e9c4`, `CONTEXT_MENU_OPEN/CLOSE`);
-  - `/home/sanya/re-deep/ui/01-msg-menu-items.json`, `01-msg-menu.html`;
+  - `reference-oracle/frontend-d03.md` (§5 п.3–4 Menu / ContextMenu: `menu_c1e9c4`, `role="menu"`, `role="menuitem"`, `colorDanger`, `separator_c1e9c4`, `CONTEXT_MENU_OPEN/CLOSE`);
+  - `reference-oracle/ui/01-msg-menu-items.json`, `01-msg-menu.html`;
   - `rust/gui-spike/ui/tokens.css` (токены `--surface-2`, `--border-subtle`, `--menu-min-w`, `--menu-pad`, `--menu-border`, `--menu-radius`, `--row-menu-item`, `--accent`, `--danger-fill`, `--danger-text`);
 - **генерация:** не применимо (статические модули UI и таблица стилей);
 - **мутации:** `5/5 KILLED` (`0 survivors`, `0 INCONCLUSIVE`, лог: `waves/RW-40/G2/task-620-context-menu/mutations.log`):

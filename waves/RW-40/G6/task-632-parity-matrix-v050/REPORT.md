@@ -13,8 +13,8 @@
 ---
 
 ## 2. Что сделано
-1. **Сверка реализованных функций Спринтов 1–13 (`BUILD-004`, `BUILD-005`, `BUILD-006`, `TASK-601..TASK-630`) с эталонным RE-оракулом `/home/sanya/re-deep/`:**
-   - Проведена инвентаризация всех подсистем клиента против артефактов `/home/sanya/re-deep/` (`rest-d02.md`, `frontend-d03.md`, `voice-deep.md`, `gateway-schema.md`, `decoded-index.json`, `backend-ipc.md`, `native-re.md`).
+1. **Сверка реализованных функций Спринтов 1–13 (`BUILD-004`, `BUILD-005`, `BUILD-006`, `TASK-601..TASK-630`) с эталонным RE-оракулом `reference-oracle/`:**
+   - Проведена инвентаризация всех подсистем клиента против артефактов `reference-oracle/` (`rest-d02.md`, `frontend-d03.md`, `voice-deep.md`, `gateway-schema.md`, `decoded-index.json`, `backend-ipc.md`, `native-re.md`).
 2. **Составлена комплексная матрица паритета `waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md`:**
    - Описаны **54 позиции паритета** (`53 Implemented = 98.1%`, `1 Partial (In Progress)` — `PM-AUTH-05` `TASK-629` QR RemoteAuth) с разбивкой по всем **8 обязательным доменам**:
      - `1. Voice` (`PM-VOICE-01..08`: RTC WS, UDP discovery/keepalive, SRTP/SRTCP, `TASK-623` DAVE MLS v2, `TASK-615` RTP H.264/AV1 video packetizer, jitter/DTX, audio devices, WebRTC diagnostics);
@@ -26,9 +26,9 @@
      - `7. Media` (`PM-MEDIA-01..05`: `TASK-613` PipeWire `ScreenCast` и X11 `MIT-SHM`, `TASK-614` 60 FPS `LatestFrameSlot`, конвертация `BGRA -> I420`, рендер медиа-вложений и `waveform`);
      - `8. Auth` (`PM-AUTH-01..06`: логин/пароль, MFA 5 методов, Captcha-гейт, восстановление сессии из keyring, `TASK-629` QR RemoteAuth, маскирование секретов `<redacted>`).
 3. **Составлены релизные ноты `RELEASE-NOTES-V0.5.0.md`:**
-   - Подробное описание изменений Спринтов 1–13 (`BUILD-004`..`BUILD-006`), Mermaid-диаграмма архитектуры (12 крейтов Rust + Tauri 2 BFF + 111 модулей WebView UI), карта соответствия RE-оракулам `/home/sanya/re-deep/`, сводка контура качества и таблица системных требований.
+   - Подробное описание изменений Спринтов 1–13 (`BUILD-004`..`BUILD-006`), Mermaid-диаграмма архитектуры (12 крейтов Rust + Tauri 2 BFF + 111 модулей WebView UI), карта соответствия RE-оракулам `reference-oracle/`, сводка контура качества и таблица системных требований.
 4. **Реализован мета-тест `tests/meta/parity-matrix.test.mjs` и обновлён `TDD-PLAN.md` §8:**
-   - Экспортированы функции `parseParityRows` и `verifyDomainSummary`, проверяющие наличие и размер документов, все 8 доменов, уникальность ID, ссылки на `/home/sanya/re-deep/`, реальное существование всех упомянутых путей `rust/...` и `tests/...` в репозитории и точное совпадение сводной таблицы §9 с фактическим числом строк.
+   - Экспортированы функции `parseParityRows` и `verifyDomainSummary`, проверяющие наличие и размер документов, все 8 доменов, уникальность ID, ссылки на `reference-oracle/`, реальное существование всех упомянутых путей `rust/...` и `tests/...` в репозитории и точное совпадение сводной таблицы §9 с фактическим числом строк.
 
 ---
 
@@ -70,4 +70,4 @@
 
 ## 7. Риски и примечания
 - Блокирующих рисков нет (`P0 = 0`, `P1 = 0`).
-- Все ссылки на файлы репозитория и артефакты `/home/sanya/re-deep/` в матрице паритета автоматически верифицируются мета-тестом `tests/meta/parity-matrix.test.mjs`.
+- Все ссылки на файлы репозитория и артефакты `reference-oracle/` в матрице паритета автоматически верифицируются мета-тестом `tests/meta/parity-matrix.test.mjs`.

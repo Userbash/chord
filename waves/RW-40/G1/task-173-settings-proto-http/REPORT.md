@@ -8,7 +8,7 @@
   - `rust/crates/discord-core/src/settings/wire.rs`
   - `rust/crates/discord-core/src/settings/mod.rs`
   - `rust/crates/discord-core/tests/settings_proto_http.rs`
-- **Ветка/worktree**: `feature-task-173-settings-proto-http`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка/worktree**: `feature-task-173-settings-proto-http`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Независимые оракулы**:
   - `RE/rest-d02.json`: маршруты `GET /api/v9/users/@me/settings-proto/{num}` (3×200) и `PATCH /api/v9/users/@me/settings-proto/{num}` (1×200, `staticBodyKeys: ["{settings,required_data_version}"]`).
   - `RE/rest-static.md`: маршрут `GET|PATCH /users/@me/settings-proto/{arg}` (`USER_SETTINGS_PROTO`).

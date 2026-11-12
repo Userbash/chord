@@ -65,7 +65,7 @@ test at tests/unit/composer.test.mjs:184:3
   -   }
   - }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:197:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/composer.test.mjs:197:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -98,7 +98,7 @@ test at tests/unit/composer.test.mjs:298:3
   -   type: 'image/png'
   - }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:338:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/composer.test.mjs:338:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -135,7 +135,7 @@ test at tests/unit/composer.test.mjs:350:3
   -   }
   - }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:383:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/composer.test.mjs:383:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -162,7 +162,7 @@ test at tests/unit/composer.test.mjs:392:3
   -   }
   - }
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/composer.test.mjs:427:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/composer.test.mjs:427:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,

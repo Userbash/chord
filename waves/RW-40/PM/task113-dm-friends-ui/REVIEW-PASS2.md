@@ -167,7 +167,7 @@ Baseline восстановлен: MD5 до и после совпадает (`b
 
 ## Замечание по артефактам (не про код)
 
-Копия `REPORT.md` в `/home/sanya/orca/project/waves/RW-40/PM/task113-dm-friends-ui/`
+Копия `REPORT.md` в `/home/user/orca/project/waves/RW-40/PM/task113-dm-friends-ui/`
 устарела: `e398fa9fdb302212842d4e61989b8f32`, 14499 байт — это отчёт прохода 1.
 Актуальный отчёт (проход 2) лежит в рабочей копии ветки:
 `e2504323282fbfbbd9a0ede31b8dfcf8`, 16181 байт. Ревью проведено по актуальной копии;

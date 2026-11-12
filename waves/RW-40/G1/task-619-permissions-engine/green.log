@@ -1,6 +1,6 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-619-permissions-engine/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-619-permissions-engine/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.64s
-     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+     Running tests/permissions_resolution_contract.rs (/home/user/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
 
 running 6 tests
 test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
@@ -13,7 +13,7 @@ test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+     Running tests/permissions_resolution_contract.rs (/home/user/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
 
 running 6 tests
 test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
@@ -26,7 +26,7 @@ test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+     Running tests/permissions_resolution_contract.rs (/home/user/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
 
 running 6 tests
 test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
@@ -39,7 +39,7 @@ test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+     Running tests/permissions_resolution_contract.rs (/home/user/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
 
 running 6 tests
 test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok
@@ -52,7 +52,7 @@ test ready_fixture_guild_and_channel_overwrites_match_independent_oracle ... ok
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running tests/permissions_resolution_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
+     Running tests/permissions_resolution_contract.rs (/home/user/orca/project/rust/target/debug/deps/permissions_resolution_contract-d224f54fd5257040)
 
 running 6 tests
 test administrator_bypasses_channel_denials_and_invalid_overwrite_types_are_ignored ... ok

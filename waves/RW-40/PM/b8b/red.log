@@ -123,7 +123,7 @@ test at tests/unit/gui-spike-features.test.mjs:2098:3
   
   0 !== 1
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2109:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2109:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -139,9 +139,9 @@ test at tests/unit/gui-spike-features.test.mjs:2098:3
 test at tests/unit/gui-spike-features.test.mjs:2127:3
 ✖ change: один settings_save после debounce, только белый список и без секретов (3.304987ms)
   AssertionError [ERR_ASSERTION]: нет input[data-setting-id="voice.qos_priority"]
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
-      at toggleById (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2086:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2130:21)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
+      at toggleById (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2086:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2130:21)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -158,7 +158,7 @@ test at tests/unit/gui-spike-features.test.mjs:2162:3
   
   null !== 'cozy'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2174:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2174:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -175,7 +175,7 @@ test at tests/unit/gui-spike-features.test.mjs:2188:3
   
   null !== 'cozy'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2197:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2197:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -189,9 +189,9 @@ test at tests/unit/gui-spike-features.test.mjs:2188:3
 test at tests/unit/gui-spike-features.test.mjs:2211:3
 ✖ debounce: несколько изменений (тумблер+density+theme) → один save с финальными значениями (2.755848ms)
   AssertionError [ERR_ASSERTION]: нет input[data-setting-id="voice.qos_priority"]
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
-      at toggleById (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2086:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2214:21)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
+      at toggleById (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2086:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2214:21)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -205,9 +205,9 @@ test at tests/unit/gui-spike-features.test.mjs:2211:3
 test at tests/unit/gui-spike-features.test.mjs:2238:3
 ✖ ошибка settings_save видна, состояние не откатывается (7.980918ms)
   AssertionError [ERR_ASSERTION]: нет input[data-setting-id="voice.qos_priority"]
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
-      at toggleById (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2086:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2247:21)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
+      at toggleById (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2086:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2247:21)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -224,7 +224,7 @@ test at tests/unit/gui-spike-features.test.mjs:2270:3
   
   0 !== 38
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2279:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2279:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

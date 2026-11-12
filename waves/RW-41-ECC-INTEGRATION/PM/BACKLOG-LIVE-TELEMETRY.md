@@ -1,7 +1,7 @@
 # PM Backlog — Live User Telemetry Session #2 (`2026-11-06T08:55:36Z` – `08:57:53Z`)
 
-- **Источник данных**: `/home/sanya/.local/share/discord-client/user-telemetry.jsonl` и `/tmp/discord-full-user-activity.log`
-- **Процесс**: `/home/sanya/orca/project/rust/target/release/discord-gui-spike` (`PID 134127` под GDB `PID 134090`)
+- **Источник данных**: `/home/user/.local/share/discord-client/user-telemetry.jsonl` и `/tmp/discord-full-user-activity.log`
+- **Процесс**: `/home/user/orca/project/rust/target/release/discord-gui-spike` (`PID 134127` под GDB `PID 134090`)
 - **Ответственный**: Продуктовый менеджер (PM) & Технический координатор ECC
 
 ---
@@ -57,12 +57,12 @@
   POST /invites/wVc2y3ET -> HTTP 400
   {"code": 40003, "message": "Discord Captcha challenge: Обновите приложение, чтобы присоединиться к серверу."}
   ```
-- **Эталон RE (`/home/sanya/re-deep/rest-d02.md`, `X-Super-Properties`)**:
+- **Эталон RE (`reference-oracle/rest-d02.md`, `X-Super-Properties`)**:
   В эталонном Discord запрос на принятие инвайта передаёт:
   1. Актуальный заголовок `X-Super-Properties` с версией клиента Electron и сборки (`client_build_number`).
   2. При получении ответа `400` с капчей ответ содержит `captcha_key`, `captcha_sitekey`, `captcha_service` ("hcaptcha" / "turnstile") или требование обновления клиента.
 - **Требуемое решение**:
-  - Обновить `X-Super-Properties` и `User-Agent` в `discord-core` в соответствии с эталонным дампом `/home/sanya/re-deep/`.
+  - Обновить `X-Super-Properties` и `User-Agent` в `discord-core` в соответствии с эталонным дампом `reference-oracle/`.
   - В случае возврата ошибки капчи `40003` возвращать структурированный ответ в UI с типом ошибки `captcha_required` и внятным текстом для пользователя вместо неопределённого `[object Object]`.
 
 ---

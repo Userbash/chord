@@ -18,7 +18,7 @@
 | md5 `src/lib.rs` | `0ac6d016e1e0ae30a54d20556e91c973` — совпадает с REPORT.md |
 | Посторонние правки | нет; `Cargo.lock` в рабочем дереве не изменён, `git commit` не выполнялся |
 
-Контракт соответствует оракулу `/home/sanya/re-deep/rest-static.json`:
+Контракт соответствует оракулу `reference-oracle/rest-static.json`:
 `GET /users/{user_id}/profile?with_mutual_guilds=..&with_mutual_friends=..[&guild_id=..]`
 и `PUT /users/@me/notes/{target_user_id}`; лимиты `190 / 40 / 256` символов Unicode и
 24-битный `accent_color <= 0xFF_FFFF`.

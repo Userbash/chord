@@ -147,5 +147,5 @@ UTC; timestamp — Unix **секунды**. `timestamp_secs.div_euclid(86_400)` 
 - Никаких сетевых вызовов, новых зависимостей, `src/lib.rs`, `format_data.rs`,
   `tests/data/*`, `Cargo.lock`.
 - Не «зеленить» тесты правкой ожиданий; oracle — источник истины.
-- Не трогать `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`.
+- Не трогать `logs/`, `functions/`, `evidence/`, `reference-oracle/`.
 - Не коммитить.

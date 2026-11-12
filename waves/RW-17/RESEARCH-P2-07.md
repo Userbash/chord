@@ -1,7 +1,7 @@
 # RW-17 / P2-07 — read-only research: read-state и бейджи
 
 Статус: research завершён, дизайн ещё не заморожен. Источники только чтение:
-`fixtures/`, `/home/sanya/re-deep` (локальный RE-снимок), текущий Rust-код. Живой Discord,
+`fixtures/`, `reference-oracle/` (локальный RE-снимок), текущий Rust-код. Живой Discord,
 сеть и запись в golden не использовались.
 
 ## 1. Что уже есть в проекте
@@ -51,7 +51,7 @@ READY-оракул:
   `last_acked_id=1237379809395605509`);
 - `last_acked_id` есть только у этих двух записей; у каналов ack-точка — `last_message_id`.
 
-## 3. Capture `/home/sanya/re-deep/gw-proto/msgs-*.jsonl`
+## 3. Capture `reference-oracle/gw-proto/msgs-*.jsonl`
 
 Всего **8** `MESSAGE_ACK` в union снимков; 5 каналов, 6 разных `version`:
 
@@ -81,7 +81,7 @@ READY-оракул:
 
 ## 4. Официальный клиент (локальный снимок, read-only)
 
-Источник: `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`
+Источник: `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`
 и `pretty/mod-595528.pretty.js`. Это уже добытый RE-артефакт, не новый live-захват.
 
 Gateway decoder `MESSAGE_ACK`:

@@ -4,9 +4,9 @@
       Adding zstd v0.14.3
       Adding zstd-safe v8.2.0
       Adding zstd-sys v2.1.2+zstd.1.5.7
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-253-be-slash-commands/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-253-be-slash-commands/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 7.48s
-     Running tests/slash_commands_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/slash_commands_contract-e19a840c903419c9)
+     Running tests/slash_commands_contract.rs (/home/user/orca/project/rust/target/debug/deps/slash_commands_contract-e19a840c903419c9)
 
 running 8 tests
 test slash_commands_constants_match_discord_contract ... ok

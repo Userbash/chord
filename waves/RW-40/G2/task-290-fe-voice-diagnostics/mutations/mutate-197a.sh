@@ -4,7 +4,7 @@
 # побайтовый откат из бэкапа с проверкой MD5. Если MD5 после отката не сошёлся — exit 3.
 set -uo pipefail
 
-ROOT=/home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics
+ROOT=/home/user/orca/workspaces/project/feature-task-290-fe-voice-diagnostics
 SRC="$ROOT/rust/gui-spike/ui/features/voice-diagnostics.js"
 TEST_REL="tests/unit/voice-diagnostics.test.mjs"
 OUT="$(cd "$(dirname "$0")" && pwd)"

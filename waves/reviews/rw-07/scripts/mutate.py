@@ -9,7 +9,7 @@
 import sys
 from pathlib import Path
 
-ROOT = Path("/home/sanya/orca/project/rust/crates/discord-core")
+ROOT = Path("/home/user/orca/project/rust/crates/discord-core")
 DISPATCH = ROOT / "src/dispatch.rs"
 WS = ROOT / "src/ws.rs"
 

@@ -1,7 +1,7 @@
 # REVIEW — PR-153 / task-269 (`BE-INT-12`: `bff_domains_router.rs`)
 
 - **Карточка:** `task-269` (`BE-INT-12`) — единый типизированный роутер команд BFF для доменов `slash_commands`, `onboarding`, `soundboard`, `stage_instances`.
-- **PR:** `PR-153`, ветка `feature/task-269-be-bff-domains-router`, worktree `/home/sanya/orca/workspaces/project/feature-task-269-be-bff-domains-router`.
+- **PR:** `PR-153`, ветка `feature/task-269-be-bff-domains-router`, worktree `/home/user/orca/workspaces/project/feature-task-269-be-bff-domains-router`.
 - **База:** `unstable` `b35c3e1` (`feat(ui): merge PR-146 (task-261 slash-command-picker)`), рабочее дерево без коммита (`git commit` не выполнялся).
 - **Ревьюер:** DeepSeek (`TR-182A`), 31.10.2026, `TZ=Asia/Shanghai` 14:20–14:30 (суббота — окно DeepSeek разрешено).
 - **Вердикт:** `APPROVED`.
@@ -44,7 +44,7 @@ Scope задачи — ровно три файла PR; всё остально�
 Команда из `TASK-TR-182A.md` §2 неприменима: `--manifest-path rust/Cargo.toml -p discord-gui-spike` даёт `error: package ID specification 'discord-gui-spike' did not match any packages`, потому что `rust/gui-spike` — отдельный workspace (`[workspace]` в его `Cargo.toml`). Прогоны выполнены корректной формой с тем же `CARGO_TARGET_DIR`:
 
 ```sh
-export CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target
+export CARGO_TARGET_DIR=/home/user/orca/project/rust/target
 cargo test   --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract
 cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract --lib -- -D warnings
 rustfmt --edition 2021 --check rust/gui-spike/src/bff_domains_router.rs rust/gui-spike/tests/bff_domains_router_contract.rs
@@ -59,7 +59,7 @@ rustfmt --edition 2021 --check rust/gui-spike/src/bff_domains_router.rs rust/gui
 
 ## 3. Сверка маршрутов с оракулом RE
 
-Маршруты и HTTP-методы в модуле сверены с эталонным дампом `/home/sanya/re-deep/rest-static.md` (read-only), не с кодом реализации:
+Маршруты и HTTP-методы в модуле сверены с эталонным дампом `reference-oracle/rest-static.md` (read-only), не с кодом реализации:
 
 | Домен | Маршрут в коде | Оракул |
 |---|---|---|

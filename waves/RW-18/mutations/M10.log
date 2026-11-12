@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 warning: method `has_displayable_content` is never used
    --> crates/discord-core/src/state/presence.rs:243:19
     |

@@ -1,5 +1,5 @@
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --all-targets -- -D warnings
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-128-clippy-clean-all-targets/rust/gui-spike)
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --all-targets -- -D warnings
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-128-clippy-clean-all-targets/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.08s
 EXIT=0
 
@@ -7,10 +7,10 @@ $ cargo fmt --manifest-path rust/gui-spike/Cargo.toml -- --check
 EXIT=0
 
 $ cargo test --manifest-path rust/gui-spike/Cargo.toml --test net_contract --test ipc_wiring_contract
-     Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-cb47bdea3a901557)
+     Running tests/ipc_wiring_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_wiring_contract-cb47bdea3a901557)
 running 9 tests
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-     Running tests/net_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/net_contract-d445a2a3d119ef2b)
+     Running tests/net_contract.rs (/home/user/orca/project/rust/target/debug/deps/net_contract-d445a2a3d119ef2b)
 running 24 tests
 test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
 EXIT=0

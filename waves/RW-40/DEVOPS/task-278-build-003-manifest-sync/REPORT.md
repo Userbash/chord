@@ -10,7 +10,7 @@
    - шапка с HEAD, окном `ebdb966..d047fe4`, 31 PR в 22 merge-коммитах, датой редакции и статусом `In Testing`;
    - §1 — счётчики ветки, таблица 8 Rust BFF-модулей (включая `bff_domains_router.rs`, `PR-153`), таблица 23 UI-модулей (включая мосты `shell-controllers-registry`, `chat-helpers-bridge`, `composer-popovers-bridge`, `app-shell-wiring`) и матрица всех 31 PR с карточкой, merge-коммитом, артефактом, тест-оракулом, номером ревью и состоянием подключения;
    - §2 — команды QA: `T0` impact, 23 unit-набора, целевой `tsc`, 8 контрактов Rust окна + регрессия + workspace-крейты, требования к отчёту;
-   - §3 — корректные пути оракулов: `/home/sanya/re-deep/...` и `fixtures/gateway/by-type/002-READY.json` вместо несуществующего `logs/golden/gateway/002-READY.json` (замечание `P2-5` прошлой редакции);
+   - §3 — корректные пути оракулов: `reference-oracle/...` и `fixtures/gateway/by-type/002-READY.json` вместо несуществующего `logs/golden/gateway/002-READY.json` (замечание `P2-5` прошлой редакции);
    - §4 — известные ограничения (`P1` разрывы IPC/монтирования, `P0` корневой `typecheck`, отставание `beta`/`main`), §5 — команды воспроизводимости, §6 — MD5 всех 62 файлов состава и история редакций.
 2. `waves/RW-40/DEVOPS/task-278-build-003-manifest-sync/REPORT.md` — этот отчёт.
 
@@ -64,7 +64,7 @@ md5sum $f                             # db6ffc0462a6517b22894eafb363651e
 - `waves/RW-40/G1/task-269-be-bff-domains-router/REVIEW-182A.md` — `APPROVED`, `P0=0`, `P1=0`, `5/5` мутаций.
 - `waves/RW-40/G2/task-270-ui-composer-popovers-bridge/REVIEW-183A.md` — `APPROVED`, `P0=0`, `P1=0`, `5/5`.
 - `waves/RW-40/G2/task-271-ui-app-shell-wiring/REVIEW-184A.md` — `APPROVED`, `P0=0`, `P1=0`, `5/5`.
-- RE-дамп `/home/sanya/re-deep/`: проверено существование `gateway-protocol.md`, `gateway-schema.md`, `rest-d02.md`, `frontend-d03.md`, `i18n-deep.md`, `backend-ipc.md`, `main-arch.md`, `voice-deep.md`, `capture-ready.jsonl`, `decoded/`, `decoded-index.json`, `d02-snapshot/`, `ui/`, `ui2..ui6`, `ui8`, `voice/ui7`, `ru-catalog.json`, `en-catalog.json`.
+- RE-дамп `reference-oracle/`: проверено существование `gateway-protocol.md`, `gateway-schema.md`, `rest-d02.md`, `frontend-d03.md`, `i18n-deep.md`, `backend-ipc.md`, `main-arch.md`, `voice-deep.md`, `capture-ready.jsonl`, `decoded/`, `decoded-index.json`, `d02-snapshot/`, `ui/`, `ui2..ui6`, `ui8`, `voice/ui7`, `ru-catalog.json`, `en-catalog.json`.
 - Локальная фикстура `fixtures/gateway/by-type/002-READY.json` существует в `testing` (`git cat-file -e` → `0`).
 
 ## Генерация / мутации / baseline

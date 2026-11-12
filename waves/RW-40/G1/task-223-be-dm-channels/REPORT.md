@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-223` (`BE-P1-20` / `dm_channels`) — BFF-контракт создания одиночных и групповых ЛС (`CreateDmRequest`, `validate_create_dm_request`, `build_create_dm_body`) и маршрутов управления участниками Group DM (`build_group_dm_recipient_route`).
-- **Ветка / worktree**: `feature/task-223-be-dm-channels`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-223-be-dm-channels`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/dm_channels.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/dm_channels_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-223-be-dm-channels/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-223-be-dm-channels/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json` и `rust/gui-spike/src/dm_friends.rs`:
+Сверено с `reference-oracle/rest-static.json` и `rust/gui-spike/src/dm_friends.rs`:
 
 - `USER_CHANNELS` (`rest-static.json:255-261`): `POST /users/@me/channels`, при создании одиночного DM передаётся `{"recipient_id": "..."}`, при создании Group DM (`2..=9` получателей) — `{"recipients": [...]}`.
 - `CHANNEL_RECIPIENT` (`rest-static.json:2594-2600`): `PUT/DELETE /channels/{channel_id}/recipients/{user_id}`.
@@ -45,7 +45,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-223-be-dm-channels/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-223-be-dm-channels/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::dm_channels`
@@ -60,7 +60,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-223-be-dm-channels/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-223-be-dm-channels/green.log`:
 
 ```text
 running 8 tests

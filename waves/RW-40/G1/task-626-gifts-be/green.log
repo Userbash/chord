@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-626-gifts-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.84s
-     Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-31f0c4fd17354b6c)
+     Running unittests src/main.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-31f0c4fd17354b6c)
 
 running 13 tests
 test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
@@ -19,7 +19,7 @@ test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
 
-     Running tests/gifts_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
+     Running tests/gifts_contract.rs (/home/user/orca/project/rust/target/debug/deps/gifts_contract-04dffd9c6a6b04ce)
 
 running 13 tests
 test create_gift_code_posts_canonical_payload_and_parses_gift_record ... ok
@@ -38,7 +38,7 @@ test tauri_main_registers_and_wires_all_gift_and_entitlement_ipc_commands ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-de8e8a764d18eba9)
+     Running tests/ipc_wiring_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_wiring_contract-de8e8a764d18eba9)
 
 running 9 tests
 test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok

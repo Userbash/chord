@@ -5,7 +5,7 @@
 - **Write-Scope**:
   - `rust/gui-spike/ui/features/shell-bridge.js`
   - `tests/unit/shell-bridge.test.mjs`
-  - `/home/sanya/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/REPORT.md` (`red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/REPORT.md` (`red.log`, `green.log`)
 
 ## 1. Сделано
 
@@ -21,8 +21,8 @@
 
 ## 2. Прогоны (Red / Green / Targeted / Gate)
 
-- **Red**: `node --test tests/unit/shell-bridge.test.mjs` → exit 1 (`tests 1, pass 0, fail 1`, `ERR_MODULE_NOT_FOUND` до создания модуля), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/red.log`.
-- **Green**: `node --test tests/unit/shell-bridge.test.mjs` → exit 0 (`tests 7, suites 2, pass 7, fail 0`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/green.log`.
+- **Red**: `node --test tests/unit/shell-bridge.test.mjs` → exit 1 (`tests 1, pass 0, fail 1`, `ERR_MODULE_NOT_FOUND` до создания модуля), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/red.log`.
+- **Green**: `node --test tests/unit/shell-bridge.test.mjs` → exit 0 (`tests 7, suites 2, pass 7, fail 0`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/green.log`.
 - **Targeted & Typecheck**: `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` (`0 errors`), `0 errors` в `shell-bridge.js` и `shell-bridge.test.mjs` при проверке `npx tsc -p tsconfig.json --noEmit`.
 - **Gate**: полный `gate:worker` не запускался (режим воркера в batch); чужие файлы не затрагивались.
 
@@ -31,8 +31,8 @@
 ```
 3389f3aad9c5265135ba5876daea149d  rust/gui-spike/ui/features/shell-bridge.js
 70f337e6960ec99be7d168d0029ecd82  tests/unit/shell-bridge.test.mjs
-0e5af0972ac488b9abbe85df14309433  /home/sanya/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/red.log
-af300dd1c3a70eabe26a2b6adcffa5f9  /home/sanya/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/green.log
+0e5af0972ac488b9abbe85df14309433  /home/user/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/red.log
+af300dd1c3a70eabe26a2b6adcffa5f9  /home/user/orca/project/waves/RW-40/G2/task-236-ui-shell-bridge/green.log
 ```
 
 ## 4. Риски и примечания

@@ -1,6 +1,6 @@
     Blocking waiting for file lock on package cache
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.81s
      Running unittests src/lib.rs (rust/gui-spike/target/debug/deps/discord_gui_spike-69b2bc60abd98420)
 

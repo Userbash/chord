@@ -73,8 +73,8 @@ fn run(path: &str, literal: bool) -> (u64, usize, bool) {
 
 fn main() {
     for path in [
-        "/home/sanya/re-deep/gw-proto/synth-zstd-frame.hexl",
-        "/home/sanya/re-deep/gw-proto/zstd-frames-95974_1389.hexl",
+        "/home/user/clean-room-oracle/gw-proto/synth-zstd-frame.hexl",
+        "/home/user/clean-room-oracle/gw-proto/zstd-frames-95974_1389.hexl",
     ] {
         println!("== {path}");
         for (name, literal) in [("literal(pending пуст → стоп)", true), ("progress(нулевой прогресс → стоп)", false)] {

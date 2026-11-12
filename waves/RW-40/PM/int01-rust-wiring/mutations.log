@@ -6,7 +6,7 @@ f365261d5c7322594bb7370a8e213b38  rust/crates/discord-voice/src/lib.rs
 
 === MUT-1: lib.rs::list_channel_threads hardcodes archived=false ===
 baseline_md5=b2af030ca24749a6e4d278b5f1106a1f mutant_md5=194e631b634ab7ecbe488c617a37326a
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.54s
      Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 
@@ -39,7 +39,7 @@ restored_md5=b2af030ca24749a6e4d278b5f1106a1f
 
 === MUT-2: lib.rs::pin_channel_message delegates to unpin_channel_message ===
 baseline_md5=b2af030ca24749a6e4d278b5f1106a1f mutant_md5=c9d4f7a70c05ae1fb3214a95eee35c28
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.57s
      Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 
@@ -72,7 +72,7 @@ restored_md5=b2af030ca24749a6e4d278b5f1106a1f
 
 === MUT-3: lib.rs::request_upload_slots passes empty slice &[] instead of files ===
 baseline_md5=b2af030ca24749a6e4d278b5f1106a1f mutant_md5=fd5cf45a2c967d2766e613149be26153
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.56s
      Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 
@@ -103,7 +103,7 @@ restored_md5=b2af030ca24749a6e4d278b5f1106a1f
 
 === MUT-4: lib.rs::create_channel_invite ignores params and passes default() ===
 baseline_md5=b2af030ca24749a6e4d278b5f1106a1f mutant_md5=6a8790be2eaf7785ac613a567647a793
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.57s
      Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 
@@ -136,7 +136,7 @@ restored_md5=b2af030ca24749a6e4d278b5f1106a1f
 
 === MUT-5: main.rs omits list_channel_pins from tauri::generate_handler! ===
 baseline_md5=c192e36f7c3bc68637169f45cb53b203 mutant_md5=47a0ce2957e625a36f06169703c54cc0
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: function `list_channel_pins` is never used
    --> src/main.rs:534:10
     |
@@ -181,7 +181,7 @@ b2af030ca24749a6e4d278b5f1106a1f  rust/gui-spike/src/lib.rs
 c192e36f7c3bc68637169f45cb53b203  rust/gui-spike/src/main.rs
 564bb6d670b3346a126c49d26ba1eb94  rust/gui-spike/tests/ipc_wiring_contract.rs
 f365261d5c7322594bb7370a8e213b38  rust/crates/discord-voice/src/lib.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.01s
      Running tests/ipc_wiring_contract.rs (/tmp/target-int01/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 

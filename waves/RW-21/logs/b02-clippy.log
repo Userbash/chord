@@ -1,5 +1,5 @@
-    Checking discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
-    Checking discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-    Checking discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+    Checking discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
+    Checking discord-conformance v0.1.0 (/home/user/orca/project/rust/crates/discord-conformance)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+    Checking discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.73s

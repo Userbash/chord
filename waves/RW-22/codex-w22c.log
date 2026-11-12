@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,23 +11,23 @@ reasoning summaries: none
 session id: 01a15d2a-e76f-7552-acdc-604415248936
 --------
 user
-Ты — кодовый воркер W22c волны RW-22 в репозитории /home/sanya/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22c.md. Выполни P7-04 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-core/src/rest/resources.rs, rust/crates/discord-core/src/rest/mod.rs (минимально), rust/crates/discord-core/tests/rest_resources.rs и при необходимости rust/crates/discord-core/Cargo.toml. Не трогай routes.rs, lib.rs, другие крейты, workspace Cargo.toml/Cargo.lock, доки и waves/*. Для cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, риски.
+Ты — кодовый воркер W22c волны RW-22 в репозитории /home/user/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22c.md. Выполни P7-04 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-core/src/rest/resources.rs, rust/crates/discord-core/src/rest/mod.rs (минимально), rust/crates/discord-core/tests/rest_resources.rs и при необходимости rust/crates/discord-core/Cargo.toml. Не трогай routes.rs, lib.rs, другие крейты, workspace Cargo.toml/Cargo.lock, доки и waves/*. Для cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, риски.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала сверю обязательные процессные документы и ТЗ, затем проверю состояние разрешённых файлов. До реализации зафиксирую red targeted-тестов; изменения ограничу перечисленными путями.
 exec
-/usr/bin/bash -lc "sed -n '1,260p' waves/RW-22/WAVE-PLAN.md && sed -n '1,260p' waves/RW-22/TZ-W22c.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' waves/RW-22/WAVE-PLAN.md && sed -n '1,260p' waves/RW-22/TZ-W22c.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md" in /home/user/orca/project
  succeeded in 0ms:
 # RW-22 / B03 — план волны
 
@@ -136,7 +136,7 @@ unicode (включая `\uD83D\uDE00`). Ошибка содержит байт�
 5. Только после accepted — синхронизация `STATE/STATUS/ROADMAP/TASKS/map` и `waves/db.jsonl`.
 # ТЗ W22c — P7-04: read-only API surface
 
-Волна: RW-22 / B03. Владелец: W22c. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-22 / B03. Владелец: W22c. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -156,7 +156,7 @@ unicode (включая `\uD83D\uDE00`). Ошибка содержит байт�
 Strict TDD. Сначала тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources \
   2>&1 | tee ../waves/RW-22/red-w22c.log
 ```
@@ -288,7 +288,7 @@ pub fn path(kind: ResourceKind, application_id: Option<&str>) -> Result<String, 
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -463,7 +463,7 @@ DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; фай�
 - [ ] для чувствительных изменений пройден §4.4.
 
 exec
-/usr/bin/bash -lc "sed -n '1,220p' docs/rust-client/TEAM.md && sed -n '1,220p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' docs/rust-client/TEAM.md && sed -n '1,220p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/user/orca/project
  succeeded in 0ms:
 # TEAM — отдел разработки Rust-клиента
 
@@ -720,7 +720,7 @@ P1-02, P0-04, P0-07); следующий batch — B03/RW-22.
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -1140,7 +1140,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-21, I1,
   P2-01/P2-02/P2-04…P2-11, B01/B02 accepted, удаление legacy `ready_data` и правки доков
   **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -1307,9 +1307,9 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 - Legacy `ready_data` удалён из сборки и публичного API (P-4): было 9 тестов; core 242 → 233,
 
 exec
-/usr/bin/bash -lc 'pwd && git status --short' in /home/sanya/orca/project
+/usr/bin/bash -lc 'pwd && git status --short' in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/orca/project
+/home/user/orca/project
  M .github/workflows/ci.yml
  M AGENTS.md
  M PROCESS.md
@@ -1453,7 +1453,7 @@ exec
 codex
 В дереве уже есть значительные несохранённые изменения, включая `rest/mod.rs` и `discord-core/Cargo.toml`. Сейчас уточню точные границы карточки и diff этих файлов, чтобы сохранить существующую работу и не затронуть чужую интеграцию.
 exec
-/usr/bin/bash -lc "sed -n '100,230p' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '100,230p' PROCESS.md" in /home/user/orca/project
  succeeded in 0ms:
 против базлайна, отсутствие дублей §8. Конфликты (две строки §8 на файл и т.п.) разбираются руками.
 
@@ -1588,11 +1588,11 @@ DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; фай�
 
 
 exec
-/usr/bin/bash -lc "sed -n '1,220p' waves/RW-22/TZ-W22c.md; sed -n '1,220p' waves/RW-22/WAVE-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' waves/RW-22/TZ-W22c.md; sed -n '1,220p' waves/RW-22/WAVE-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 # ТЗ W22c — P7-04: read-only API surface
 
-Волна: RW-22 / B03. Владелец: W22c. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-22 / B03. Владелец: W22c. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -1612,7 +1612,7 @@ exec
 Strict TDD. Сначала тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources \
   2>&1 | tee ../waves/RW-22/red-w22c.log
 ```
@@ -1782,12 +1782,12 @@ unicode (включая `\uD83D\uDE00`). Ошибка содержит байт�
 5. Только после accepted — синхронизация `STATE/STATUS/ROADMAP/TASKS/map` и `waves/db.jsonl`.
 
 exec
-/usr/bin/bash -lc 'rg -n "P7-04|W22c|resources|API completeness" TASKS.md TDD-PLAN.md docs/rust-client/TEAM.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg -n "P7-04|W22c|resources|API completeness" TASKS.md TDD-PLAN.md docs/rust-client/TEAM.md' in /home/user/orca/project
  succeeded in 0ms:
 docs/rust-client/TEAM.md:227:| B03 / RW-22 | P3-15, P4-01, P7-04, P8-03 | CLIENT-1, VOICE-1, TEST-1, OPS-1 | **next**; P4-01 — только headless signaling |
 
 exec
-/usr/bin/bash -lc 'git diff -- rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/Cargo.toml rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs; rg --files rust/crates/discord-core/src/rest rust/crates/discord-core/tests | sort' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git diff -- rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/Cargo.toml rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs; rg --files rust/crates/discord-core/src/rest rust/crates/discord-core/tests | sort' in /home/user/orca/project
  succeeded in 0ms:
 diff --git a/rust/crates/discord-core/Cargo.toml b/rust/crates/discord-core/Cargo.toml
 index 1f74d51..4e7089f 100644
@@ -1910,9 +1910,9 @@ rust/crates/discord-core/tests/voice_state_types.rs
 rust/crates/discord-core/tests/ws_transport.rs
 
 exec
-/usr/bin/bash -lc "sed -n '1,280p' rust/crates/discord-core/src/rest/routes.rs; sed -n '1,120p' rust/crates/discord-core/src/rest/mod.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,280p' rust/crates/discord-core/src/rest/routes.rs; sed -n '1,120p' rust/crates/discord-core/src/rest/mod.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,150p' AGENTS.md; sed -n '1,180p' PROCESS.md | tail -60" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,150p' AGENTS.md; sed -n '1,180p' PROCESS.md | tail -60" in /home/user/orca/project
  succeeded in 0ms:
 //! Каталог REST-маршрутов v9 (T-REST-01, волна RW-08 / P1-07).
 //!
@@ -2281,7 +2281,7 @@ B(n-2)                                                                       →
 3.15 **Пропускная способность и KPI.** Ориентир: **2–3 batch-волны в день** и **6–8 принятых
 
 exec
-/usr/bin/bash -lc "sed -n '1,220p' docs/re/rest-d02.md; rg -n -A18 -B4 'P7-04' docs/rust-client/PLAN.md; rg -n -A30 -B5 'T-REST-09' docs/rust-client/TEST-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' docs/re/rest-d02.md; rg -n -A18 -B4 'P7-04' docs/rust-client/PLAN.md; rg -n -A30 -B5 'T-REST-09' docs/rust-client/TEST-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 # D-02 — REST-клиент Discord: методы, тела, auth-поток (живые данные)
 
@@ -2567,7 +2567,7 @@ codex
 ТЗ W22c уточняет более общий план волны: здесь нужны 8 конкретных D-02 записей и безопасная подстановка application ID, без реализации query API. Сначала добавляю только интеграционные тесты; red-лог сохраню в `/tmp/opencode`, потому что ваша файловая граница запрещает изменять `waves/*`.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs
+/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs
 diff --git a/rust/crates/discord-core/tests/rest_resources.rs b/rust/crates/discord-core/tests/rest_resources.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..0e10b628eec416fee76465cd118e0af9cf5589c2
@@ -2799,9 +2799,9 @@ index 0000000000000000000000000000000000000000..0e10b628eec416fee76465cd118e0af9
 +}
 
 exec
-/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/red-w22c.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/red-w22c.log' in /home/user/orca/project/rust
  exited 101 in 15810ms:
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error[E0432]: unresolved import `discord_core::rest::resources`
  --> crates/discord-core/tests/rest_resources.rs:1:25
   |
@@ -2927,7 +2927,7 @@ index 0000000000000000000000000000000000000000..0e10b628eec416fee76465cd118e0af9
 +}
 
 exec
-/usr/bin/bash -lc "sed -n '1,75p' rust/crates/discord-core/src/rest/routes.rs; rg -n \"enum HttpMethod|struct RouteSpec|render_path\" rust/crates/discord-core/src/rest/routes.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,75p' rust/crates/discord-core/src/rest/routes.rs; rg -n \"enum HttpMethod|struct RouteSpec|render_path\" rust/crates/discord-core/src/rest/routes.rs" in /home/user/orca/project
  succeeded in 0ms:
 //! Каталог REST-маршрутов v9 (T-REST-01, волна RW-08 / P1-07).
 //!
@@ -3127,8 +3127,8 @@ codex
 Red подтверждён: targeted-тест завершился `101` из-за отсутствующего `rest::resources`. Добавляю реализацию каталога и одну декларацию модуля в уже изменённый `rest/mod.rs`, сохраняя имеющиеся строки; все пути будут связаны с `routes::ROUTES` через `find` и `render_path`.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs
-/home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs
+/home/user/orca/project/rust/crates/discord-core/src/rest/mod.rs
+/home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs
 diff --git a/rust/crates/discord-core/src/rest/mod.rs b/rust/crates/discord-core/src/rest/mod.rs
 index 8a14ee1e73f22a7806d673b2d75285cc03ac0914..8f4c4c8c50da897a698efbb2a254798651575d5f
 --- a/rust/crates/discord-core/src/rest/mod.rs
@@ -3662,9 +3662,9 @@ index 0000000000000000000000000000000000000000..0e10b628eec416fee76465cd118e0af9
 +}
 
 exec
-/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/green-w22c.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/green-w22c.log' in /home/user/orca/project/rust
  succeeded in 930ms:
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
      Running tests/rest_resources.rs (target/debug/deps/rest_resources-975afccad9277313)
 
@@ -3948,7 +3948,7 @@ codex
 Targeted green уже проходит: `5/5`. Сейчас усиливаю один тест: он должен подтвердить, что для каждого каталожного пути в `ROUTES` есть только GET-запись, затем повторю тот же targeted-прогон и сниму md5 разрешённых файлов.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs
+/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs
 diff --git a/rust/crates/discord-core/src/rest/mod.rs b/rust/crates/discord-core/src/rest/mod.rs
 index 8a14ee1e73f22a7806d673b2d75285cc03ac0914..8f4c4c8c50da897a698efbb2a254798651575d5f
 --- a/rust/crates/discord-core/src/rest/mod.rs
@@ -4488,9 +4488,9 @@ index 0000000000000000000000000000000000000000..3a9d223388dbfe25ea8480d6a5ef0a62
 +}
 
 exec
-/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/green-w22c.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources 2>&1 | tee /tmp/opencode/green-w22c.log' in /home/user/orca/project/rust
  succeeded in 1ms:
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.12s
      Running tests/rest_resources.rs (target/debug/deps/rest_resources-975afccad9277313)
 
@@ -4774,7 +4774,7 @@ index 0000000000000000000000000000000000000000..3a9d223388dbfe25ea8480d6a5ef0a62
 +}
 
 exec
-/usr/bin/bash -lc 'tail -n 8 /tmp/opencode/red-w22c.log; tail -n 12 /tmp/opencode/green-w22c.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'tail -n 8 /tmp/opencode/red-w22c.log; tail -n 12 /tmp/opencode/green-w22c.log' in /home/user/orca/project
  succeeded in 0ms:
 error[E0432]: unresolved import `discord_core::rest::resources`
  --> crates/discord-core/tests/rest_resources.rs:1:25
@@ -4798,7 +4798,7 @@ test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 
 exec
-/usr/bin/bash -lc 'md5sum rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/tests/rest_resources.rs; git status --short -- rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/tests/rest_resources.rs rust/crates/discord-core/Cargo.toml; git diff -- rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'md5sum rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/tests/rest_resources.rs; git status --short -- rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/tests/rest_resources.rs rust/crates/discord-core/Cargo.toml; git diff -- rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/src/rest/resources.rs rust/crates/discord-core/tests/rest_resources.rs' in /home/user/orca/project
  succeeded in 0ms:
 7386ad1ffcdb4c4423ceeb686aa2d975  rust/crates/discord-core/src/rest/resources.rs
 a0da7735fe4db138f60f4cc4ffdba031  rust/crates/discord-core/src/rest/mod.rs
@@ -5111,7 +5111,7 @@ codex
 
 - Red: `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources` → exit `101` (не было `rest::resources`). Лог: `/tmp/opencode/red-w22c.log`.
 - Green: та же команда → exit `0`, 5 passed. Лог: `/tmp/opencode/green-w22c.log`.
-- Изменены: [resources.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
+- Изменены: [resources.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
 - MD5: `resources.rs` `7386ad1ffcdb4c4423ceeb686aa2d975`; `mod.rs` `a0da7735fe4db138f60f4cc4ffdba031`; `rest_resources.rs` `e03c31d2ead036dba6520bf6bf83894f`.
 - `discord-core/Cargo.toml` не менял; он уже был изменён до начала работы. `rest/mod.rs` тоже содержал предыдущие изменения; я сохранил их и добавил только экспорт нового модуля.
 - Риск/ограничение: batch gate не запускал; red/green-логи лежат в `/tmp/opencode`, поскольку изменение `waves/*` запрещено.
@@ -5390,7 +5390,7 @@ tokens used
 
 - Red: `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-core --test rest_resources` → exit `101` (не было `rest::resources`). Лог: `/tmp/opencode/red-w22c.log`.
 - Green: та же команда → exit `0`, 5 passed. Лог: `/tmp/opencode/green-w22c.log`.
-- Изменены: [resources.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/sanya/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/sanya/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
+- Изменены: [resources.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/resources.rs), [mod.rs](/home/user/orca/project/rust/crates/discord-core/src/rest/mod.rs), [rest_resources.rs](/home/user/orca/project/rust/crates/discord-core/tests/rest_resources.rs).
 - MD5: `resources.rs` `7386ad1ffcdb4c4423ceeb686aa2d975`; `mod.rs` `a0da7735fe4db138f60f4cc4ffdba031`; `rest_resources.rs` `e03c31d2ead036dba6520bf6bf83894f`.
 - `discord-core/Cargo.toml` не менял; он уже был изменён до начала работы. `rest/mod.rs` тоже содержал предыдущие изменения; я сохранил их и добавил только экспорт нового модуля.
 - Риск/ограничение: batch gate не запускал; red/green-логи лежат в `/tmp/opencode`, поскольку изменение `waves/*` запрещено.

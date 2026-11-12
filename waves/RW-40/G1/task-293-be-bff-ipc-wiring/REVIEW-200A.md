@@ -2,7 +2,7 @@
 
 - **Ревьюер:** Технический ревьюер (DeepSeek), TR-200A
 - **Проверяемая ветка:** `feature/task-293-be-bff-ipc-wiring`, HEAD `648ba83` = `unstable` (коммитов в PR нет, ревью — по состоянию рабочего дерева)
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/feature-task-293-be-bff-ipc-wiring`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/feature-task-293-be-bff-ipc-wiring`
 - **Дата:** 2026-10-31
 - **Вердикт:** **APPROVED** — `P0 = 0`, `P1 = 0`, мутации `5/5` убиты, `wiring_tests` `13/13` PASS, мета-тест `ipc-path` `12/12` PASS
 - **Объект:** `rust/gui-spike/src/main.rs` — `+66 / −1` строк (команда, регистрация, тест)
@@ -48,7 +48,7 @@ fn invoke_bff_domain(
 
 Оракул маршрута и тела сверен с RE-дампом:
 
-| Артефакт теста | Оракул `/home/sanya/re-deep/` | Совпадение |
+| Артефакт теста | Оракул `reference-oracle/` | Совпадение |
 | --- | --- | --- |
 | `PATCH /api/v9/guilds/{guild_id}/welcome-screen` | `rest-static.md:448` — `GET\|PATCH /guilds/{arg}/welcome-screen` | ✅ |
 | тело `{description, welcome_channels, enabled}` | `rest-static.json:1550`, `out/callsites.json:4683` — `{description,welcome_channels,enabled}`; `callsites.json:4691` — `patch({url: GUILD_WELCOME_SCREEN(e), body:{description, welcome_channels, enabled}})` | ✅ |
@@ -57,7 +57,7 @@ Wire-формат самого `BffDomainAction` (externally tagged) запин�
 
 ## 3. Тесты (мои прогоны)
 
-Все прогоны с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target` и `--offline`.
+Все прогоны с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target` и `--offline`.
 
 | Проверка | Результат |
 | --- | --- |

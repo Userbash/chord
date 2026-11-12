@@ -18,9 +18,9 @@ test at tests/unit/gui-spike-features.test.mjs:468:3
   
   '44' !== '34'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:473:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:469:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:473:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:34:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:469:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 2)
       at async Suite.run (node:internal/test_runner/test:1905:7)

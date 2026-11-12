@@ -5,7 +5,7 @@
 - **Отдел:** `G7 RE / REA` (Воркер `W8`)
 - **Дата аудита:** `2026-11-10`
 - **Статус:** `Completed (Read-Only RE Audit)`
-- **Целевой контур модернизации:** `G5 Voice & Platform` ([`discord-voice/src/lib.rs`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs), [`discord-voice/src/session.rs`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs), [`discord-voice/src/dave.rs`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/dave.rs), [`discord-core/src/stream.rs`](file:///home/sanya/orca/project/rust/crates/discord-core/src/stream.rs), [`gui-spike/src/voice_stage.rs`](file:///home/sanya/orca/project/rust/gui-spike/src/voice_stage.rs))
+- **Целевой контур модернизации:** `G5 Voice & Platform` ([`discord-voice/src/lib.rs`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs), [`discord-voice/src/session.rs`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs), [`discord-voice/src/dave.rs`](file:///home/user/orca/project/rust/crates/discord-voice/src/dave.rs), [`discord-core/src/stream.rs`](file:///home/user/orca/project/rust/crates/discord-core/src/stream.rs), [`gui-spike/src/voice_stage.rs`](file:///home/user/orca/project/rust/gui-spike/src/voice_stage.rs))
 
 ---
 
@@ -13,19 +13,19 @@
 
 | Артефакт / Оракул | Путь | Объём / Метрика | Назначение в аудите |
 |---|---|---|---|
-| **Сводка Voice RE** | [`/home/sanya/re-deep/voice-deep.json`](file:///home/sanya/re-deep/voice-deep.json) / [`voice-deep.md`](file:///home/sanya/re-deep/voice-deep.md) | `82 строки JSON` / `132 строки MD` | Таблица Voice WS (`v=9`), `OP 0/1/2/4/8/11/12/13/15/16/18/20` + бинарные DAVE (`OP 21..31`), 5 кодеков (`opus`, `AV1`, `H265`, `H264`, `VP8`), шифрование `aead_aes256_gcm_rtpsize` и `aead_xchacha20_poly1305_rtpsize` |
-| **Живой CDP-трейс (Run 2)** | [`/home/sanya/re-deep/capture-run2.jsonl`](file:///home/sanya/re-deep/capture-run2.jsonl) | `23 598 строк` (`L9751..9857`, `L16994..17107`) | Две полные живые сессии RTC WebSocket (`v=9`): `requestId: "95974.8158"` (`wss://c-fra19-4da7fe5f.discord.media:2053/?v=9`) и `requestId: "95974.12735"` (`wss://c-arn02-5229f1fc.discord.media:2096/?v=9`) |
-| **Дамп фреймов RTC 1/2** | [`/home/sanya/re-deep/voice/rtc1-frames.jsonl`](file:///home/sanya/re-deep/voice/rtc1-frames.jsonl), [`rtc2-frames.jsonl`](file:///home/sanya/re-deep/voice/rtc2-frames.jsonl), [`rtc1-summary.json`](file:///home/sanya/re-deep/voice/rtc1-summary.json) | `22 + 20 фреймов`, `189 строк JSON` | Эталонные фреймы `OP 8 -> OP 0 -> OP 2 -> OP 16 -> OP 1 -> OP 4 -> OP 15 -> OP 25 (bin) -> OP 26 (bin)` |
-| **Лог нативного движка** | [`/home/sanya/re-deep/voice/engine-log-session1.txt`](file:///home/sanya/re-deep/voice/engine-log-session1.txt), [`session3.out`](file:///home/sanya/re-deep/voice/session3.out) | `26 строк` / `367 строк` | Тайминги UDP Discovery (`74 байта`), `CreateAudioConnection`, `AddVideoOutputSink`, DAVE MLS (`OP 25/26`) |
-| **Эталонный Web-бандл Discord 1.0.162** | [`/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`](file:///home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js) | `12 105 911 байт` | Классы `RTCControlSocket` (`@2,391,800..2,406,500`), `GoLiveQualityManager` (`@2,382,250..2,384,300`), `RTCConnection` (`@2,465,000..2,522,000`), `StreamRTCConnection` (`@9,351,500..9,366,500`), `MediaEngineStore` (`@9,194,240..9,194,650`), `NativeConnection` (`@10,786,500..10,828,000`), `WebRTCConnection` & SDP (`@10,879,000..10,931,000`) |
-| **Текущая реализация `discord-lab`** | [`rust/crates/discord-voice/src/lib.rs`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs), [`session.rs`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs), [`dave.rs`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/dave.rs) | `lib.rs` (`L80..1100`), `session.rs` (`L710..2100`), `dave.rs` (`L1..350`) | Текущий парсер/сериализатор `VoiceOp`, `SelectProtocol`, `VoiceVideo`, `VoiceSessionDriver`, `DaveControlFrame` |
+| **Сводка Voice RE** | [`reference-oracle/voice-deep.json`](file://reference-oracle/voice-deep.json) / [`voice-deep.md`](file://reference-oracle/voice-deep.md) | `82 строки JSON` / `132 строки MD` | Таблица Voice WS (`v=9`), `OP 0/1/2/4/8/11/12/13/15/16/18/20` + бинарные DAVE (`OP 21..31`), 5 кодеков (`opus`, `AV1`, `H265`, `H264`, `VP8`), шифрование `aead_aes256_gcm_rtpsize` и `aead_xchacha20_poly1305_rtpsize` |
+| **Живой CDP-трейс (Run 2)** | [`reference-oracle/capture-run2.jsonl`](file://reference-oracle/capture-run2.jsonl) | `23 598 строк` (`L9751..9857`, `L16994..17107`) | Две полные живые сессии RTC WebSocket (`v=9`): `requestId: "95974.8158"` (`wss://c-fra19-4da7fe5f.discord.media:2053/?v=9`) и `requestId: "95974.12735"` (`wss://c-arn02-5229f1fc.discord.media:2096/?v=9`) |
+| **Дамп фреймов RTC 1/2** | [`reference-oracle/voice/rtc1-frames.jsonl`](file://reference-oracle/voice/rtc1-frames.jsonl), [`rtc2-frames.jsonl`](file://reference-oracle/voice/rtc2-frames.jsonl), [`rtc1-summary.json`](file://reference-oracle/voice/rtc1-summary.json) | `22 + 20 фреймов`, `189 строк JSON` | Эталонные фреймы `OP 8 -> OP 0 -> OP 2 -> OP 16 -> OP 1 -> OP 4 -> OP 15 -> OP 25 (bin) -> OP 26 (bin)` |
+| **Лог нативного движка** | [`reference-oracle/voice/engine-log-session1.txt`](file://reference-oracle/voice/engine-log-session1.txt), [`session3.out`](file://reference-oracle/voice/session3.out) | `26 строк` / `367 строк` | Тайминги UDP Discovery (`74 байта`), `CreateAudioConnection`, `AddVideoOutputSink`, DAVE MLS (`OP 25/26`) |
+| **Эталонный Web-бандл Discord 1.0.162** | [`reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`](file://reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js) | `12 105 911 байт` | Классы `RTCControlSocket` (`@2,391,800..2,406,500`), `GoLiveQualityManager` (`@2,382,250..2,384,300`), `RTCConnection` (`@2,465,000..2,522,000`), `StreamRTCConnection` (`@9,351,500..9,366,500`), `MediaEngineStore` (`@9,194,240..9,194,650`), `NativeConnection` (`@10,786,500..10,828,000`), `WebRTCConnection` & SDP (`@10,879,000..10,931,000`) |
+| **Текущая реализация `discord-lab`** | [`rust/crates/discord-voice/src/lib.rs`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs), [`session.rs`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs), [`dave.rs`](file:///home/user/orca/project/rust/crates/discord-voice/src/dave.rs) | `lib.rs` (`L80..1100`), `session.rs` (`L710..2100`), `dave.rs` (`L1..350`) | Текущий парсер/сериализатор `VoiceOp`, `SelectProtocol`, `VoiceVideo`, `VoiceSessionDriver`, `DaveControlFrame` |
 
 ---
 
 ## 1. Сквозная архитектура и последовательность сигнализации Go Live (`Gateway Op 18..22` + `RTC WS v=9`)
 
 ### 1.1. Двухсокетная модель Go Live (`default` vs `stream`)
-В эталонном клиенте ([`discord.com_assets_web.4d4b2f75fdea5470.js`](file:///home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js) `@9,351,500..9,366,500`, `class j extends O.A` — `StreamRTCConnection`) трансляция экрана **Go Live** не переиспользует основное голосовое соединение (`context: "default"`), а поднимает **второе параллельное RTC-соединение** с контекстом `context: "stream"`:
+В эталонном клиенте ([`discord.com_assets_web.4d4b2f75fdea5470.js`](file://reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js) `@9,351,500..9,366,500`, `class j extends O.A` — `StreamRTCConnection`) трансляция экрана **Go Live** не переиспользует основное голосовое соединение (`context: "default"`), а поднимает **второе параллельное RTC-соединение** с контекстом `context: "stream"`:
 
 1. **Сигнализация в основном Gateway WebSocket (`Opcodes 18..22`):**
    - `OP 18 STREAM_CREATE` (`C -> S`): `{"op":18,"d":{"type":"guild"|"call","guild_id":...,"channel_id":...,"preferred_region":...}}`.
@@ -46,13 +46,13 @@
      return e === p.x.DEFAULT && P && t.push({ rid: "50", type: p.mI.VIDEO, quality: 50 }), t;
    }
    ```
-   - Для обычного голосового/видео-канала (`context === "default"`) в `OP 0 IDENTIFY` отправляется `"type": "video"` (как зафиксировано в [`capture-run2.jsonl:9758`](file:///home/sanya/re-deep/capture-run2.jsonl#L9758) и [`capture-run2.jsonl:17001`](file:///home/sanya/re-deep/capture-run2.jsonl#L17001)).
+   - Для обычного голосового/видео-канала (`context === "default"`) в `OP 0 IDENTIFY` отправляется `"type": "video"` (как зафиксировано в [`capture-run2.jsonl:9758`](file://reference-oracle/capture-run2.jsonl#L9758) и [`capture-run2.jsonl:17001`](file://reference-oracle/capture-run2.jsonl#L17001)).
    - Для **Go Live** (`context === "stream"`) в `OP 0 IDENTIFY` отправляется `"type": "screen"`:
      `streams: [{"rid": "100", "type": "screen", "quality": 100}]`.
 
 ### 1.2. Полная хронология рукопожатия RTC WebSocket (`v=9`) по `capture-run2.jsonl`
 
-В [`capture-run2.jsonl`](file:///home/sanya/re-deep/capture-run2.jsonl) записаны две полные сессии голосового/видео сигналинга:
+В [`capture-run2.jsonl`](file://reference-oracle/capture-run2.jsonl) записаны две полные сессии голосового/видео сигналинга:
 - **Сессия A (`requestId: "95974.8158"`, строки `9751..9857`):** `wss://c-fra19-4da7fe5f.discord.media:2053/?v=9` (`ssrc=17843`, `video_ssrc=17844`, `rtx_ssrc=17845`, `udp=104.29.147.145:19309`).
 - **Сессия B (`requestId: "95974.12735"`, строки `16994..17107`):** `wss://c-arn02-5229f1fc.discord.media:2096/?v=9` (`ssrc=9208`, `video_ssrc=9209`, `rtx_ssrc=9210`, `udp=104.29.146.60:19329`).
 
@@ -89,7 +89,7 @@ sequenceDiagram
 ## 2. Точная структура пакета `Voice Opcode 1 (SELECT_PROTOCOL)`
 
 ### 2.1. Код генерации в эталонном клиенте (`RTCControlSocket.selectProtocol`)
-В [`discord.com_assets_web.4d4b2f75fdea5470.js`](file:///home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js) (`@2,391,835` и `@2,405,299`) сериализация `OP 1 SELECT_PROTOCOL` реализована следующим образом:
+В [`discord.com_assets_web.4d4b2f75fdea5470.js`](file://reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js) (`@2,391,835` и `@2,405,299`) сериализация `OP 1 SELECT_PROTOCOL` реализована следующим образом:
 
 ```js
 // Сериализатор списка кодеков (offset 2,391,835)
@@ -125,7 +125,7 @@ selectProtocol(e, t, n, i) {
 > - В режиме `protocol: "webrtc"` строка SDP присутствует **и в `d.data`, и в `d.sdp` на верхнем уровне `d`**.
 
 ### 2.2. Вариант А: Нативный режим `protocol: "udp"` (эталон из `capture-run2.jsonl`)
-Точный пакет из [`capture-run2.jsonl:17009`](file:///home/sanya/re-deep/capture-run2.jsonl#L17009) (аналогично [`capture-run2.jsonl:9765`](file:///home/sanya/re-deep/capture-run2.jsonl#L9765) и [`voice/rtc1-frames.jsonl:7`](file:///home/sanya/re-deep/voice/rtc1-frames.jsonl#L7)):
+Точный пакет из [`capture-run2.jsonl:17009`](file://reference-oracle/capture-run2.jsonl#L17009) (аналогично [`capture-run2.jsonl:9765`](file://reference-oracle/capture-run2.jsonl#L9765) и [`voice/rtc1-frames.jsonl:7`](file://reference-oracle/voice/rtc1-frames.jsonl#L7)):
 
 ```json
 {
@@ -197,7 +197,7 @@ selectProtocol(e, t, n, i) {
    - Список поддерживаемых клиентом режимов сверяется с `ready.modes` в порядке приоритета клиента:
      1. `"aead_aes256_gcm_rtpsize"` (выбирается первым, если доступен в `OP 2 READY`)
      2. `"aead_xchacha20_poly1305_rtpsize"`
-   - В [`capture-run2.jsonl:9760`](file:///home/sanya/re-deep/capture-run2.jsonl#L9760) сервер присылает `modes: ["aead_aes256_gcm_rtpsize", "aead_xchacha20_poly1305_rtpsize"]`, и клиент выбирает `"aead_aes256_gcm_rtpsize"`.
+   - В [`capture-run2.jsonl:9760`](file://reference-oracle/capture-run2.jsonl#L9760) сервер присылает `modes: ["aead_aes256_gcm_rtpsize", "aead_xchacha20_poly1305_rtpsize"]`, и клиент выбирает `"aead_aes256_gcm_rtpsize"`.
 2. **Таблица кодеков и формула `payload_type` (`NativeConnection.initialize` `@10,803,520`):**
    - Для аудио (`L` `@10,801,250`): `name: "opus"`, `type: "audio"`, `priority: 1000`, `payload_type: 120`. Поля `rtx_payload_type`, `encode`, `decode` равны `undefined` и при `JSON.stringify` **опускаются**.
    - Для видео (`y` и `D` `@10,801,310..10,803,650`): пересечение возможностей нативного модуля (`AV1`, `H265`, `H264`, `VP8`) с ранжированным списком; для каждого видеокодека с индексом `idx` (`0..3`):
@@ -474,12 +474,12 @@ case 12:
 ### 4.1. `Voice Opcode 16 (VOICE_BACKEND_VERSION)`
 1. **Запрос клиента (`Client -> Server`):**
    - В `RTCControlSocket.handleReady` (`@2,400,145`) сразу после получения `OP 2 READY` выполняется проверка `this.serverVersion >= 6 && this.send(16, {})`.
-   - В обоих трейсах [`capture-run2.jsonl:9761`](file:///home/sanya/re-deep/capture-run2.jsonl#L9761) и [`capture-run2.jsonl:17005`](file:///home/sanya/re-deep/capture-run2.jsonl#L17005) (а также [`voice/rtc1-frames.jsonl:5`](file:///home/sanya/re-deep/voice/rtc1-frames.jsonl#L5)) клиент отправляет:
+   - В обоих трейсах [`capture-run2.jsonl:9761`](file://reference-oracle/capture-run2.jsonl#L9761) и [`capture-run2.jsonl:17005`](file://reference-oracle/capture-run2.jsonl#L17005) (а также [`voice/rtc1-frames.jsonl:5`](file://reference-oracle/voice/rtc1-frames.jsonl#L5)) клиент отправляет:
      ```json
      {"op":16,"d":{}}
      ```
 2. **Ответ сервера (`Server -> Client`):**
-   - В [`capture-run2.jsonl:9762`](file:///home/sanya/re-deep/capture-run2.jsonl#L9762) и [`capture-run2.jsonl:17006`](file:///home/sanya/re-deep/capture-run2.jsonl#L17006) сервер отвечает:
+   - В [`capture-run2.jsonl:9762`](file://reference-oracle/capture-run2.jsonl#L9762) и [`capture-run2.jsonl:17006`](file://reference-oracle/capture-run2.jsonl#L17006) сервер отвечает:
      ```json
      {
        "op": 16,
@@ -536,13 +536,13 @@ case 12:
 
 ### Сводная таблица паритета `Voice Opcodes 0, 1, 4, 12, 16, 22`
 
-| Элемент контракта | Эталон (`/home/sanya/re-deep/`) | Текущая реализация (`discord-lab`) | Статус |
+| Элемент контракта | Эталон (`reference-oracle/`) | Текущая реализация (`discord-lab`) | Статус |
 |---|---|---|---|
-| `OP 0 IDENTIFY` (`streams[].type` в Go Live) | `"type": "screen"` для `context === "stream"`, `"type": "video"` для `context === "default"`; `trueChannelId = (BigInt(rtcServerId) - 1n)` при отсутствии `rtc_channel_id` | [`VoiceSessionDriver::build_identify`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L1744-L1780) всегда хардкодит `kind: "video"` даже для `new_go_live` | **GAP (`GAP-781-01`)** |
-| `OP 1 SELECT_PROTOCOL` (UDP поля `rtc_connection_id`, `experiments`, приоритет `mode`) | Дублирует `address/port/mode`, передаёт `rtc_connection_id` (UUID v4) и `experiments` из `READY`, выбирает `aead_aes256_gcm_rtpsize` первым | [`SelectProtocol::to_json`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs#L494-L549) поддерживает эти поля, но [`handle_discovery_response`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L1382-L1390) передаёт `rtc_connection_id: None`, `experiments: Vec::new()`, а [`select_encryption_mode`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L526-L539) ставит `xchacha20` выше `aes256_gcm` | **GAP (`GAP-781-02`)** |
-| `OP 1 SELECT_PROTOCOL` & `OP 4 SESSION_DESCRIPTION` (режим `protocol: "webrtc"` / SDP) | `OP 1` поддерживает `protocol: "webrtc"`, `data: "<sdp>"`, `sdp: "<sdp>"`; `OP 4` содержит `sdp`, `keyframe_interval`, `bandwidth_estimation_experiment` | [`parse_select_protocol`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs#L703-L778) требует `data.address/port/mode` и падает на `protocol: "webrtc"`; [`SessionDescription`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs#L564-L573) не имеет поля `sdp` | **GAP (`GAP-781-03`)** |
-| `OP 12 VIDEO` (исходящий `C -> S` и входящий `S -> C`) | `C -> S`: `type: "screen"|"video"`, `max_resolution: {type: "fixed"|"source", width, height}`, `max_bitrate: 3.5M|9M`, stop (`video_ssrc: 0, active: false`). `S -> C`: содержит `user_id`, опциональный top-level `rtx_ssrc` и опциональные `max_*` | [`VoiceVideo::parse_json`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L818-L895) не знает про `user_id`, требует обязательные `rtx_ssrc` и `max_*` (падает на входящих `OP 12` от сервера); `handle_ws_frame` (`session.rs:1283`) игнорирует `VoiceOp::Video` (`Op 12`) | **GAP (`GAP-781-04`)** |
-| `OP 16 VOICE_BACKEND_VERSION` (`C -> S` и `S -> C`) | После `OP 2 READY` (`v >= 6`) клиент шлёт `{"op":16,"d":{}}`, сервер отвечает `{"op":16,"d":{"voice":"...","rtc_worker":"..."}}` | [`VoiceOp::VoiceBackendVersion`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs#L99) объявлен в enum, но ни `parse_frame`, ни `VoiceSessionDriver::handle_ready` / `handle_ws_frame` его не отправляют и не парсят | **GAP (`GAP-781-05`)** |
+| `OP 0 IDENTIFY` (`streams[].type` в Go Live) | `"type": "screen"` для `context === "stream"`, `"type": "video"` для `context === "default"`; `trueChannelId = (BigInt(rtcServerId) - 1n)` при отсутствии `rtc_channel_id` | [`VoiceSessionDriver::build_identify`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L1744-L1780) всегда хардкодит `kind: "video"` даже для `new_go_live` | **GAP (`GAP-781-01`)** |
+| `OP 1 SELECT_PROTOCOL` (UDP поля `rtc_connection_id`, `experiments`, приоритет `mode`) | Дублирует `address/port/mode`, передаёт `rtc_connection_id` (UUID v4) и `experiments` из `READY`, выбирает `aead_aes256_gcm_rtpsize` первым | [`SelectProtocol::to_json`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs#L494-L549) поддерживает эти поля, но [`handle_discovery_response`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L1382-L1390) передаёт `rtc_connection_id: None`, `experiments: Vec::new()`, а [`select_encryption_mode`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L526-L539) ставит `xchacha20` выше `aes256_gcm` | **GAP (`GAP-781-02`)** |
+| `OP 1 SELECT_PROTOCOL` & `OP 4 SESSION_DESCRIPTION` (режим `protocol: "webrtc"` / SDP) | `OP 1` поддерживает `protocol: "webrtc"`, `data: "<sdp>"`, `sdp: "<sdp>"`; `OP 4` содержит `sdp`, `keyframe_interval`, `bandwidth_estimation_experiment` | [`parse_select_protocol`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs#L703-L778) требует `data.address/port/mode` и падает на `protocol: "webrtc"`; [`SessionDescription`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs#L564-L573) не имеет поля `sdp` | **GAP (`GAP-781-03`)** |
+| `OP 12 VIDEO` (исходящий `C -> S` и входящий `S -> C`) | `C -> S`: `type: "screen"|"video"`, `max_resolution: {type: "fixed"|"source", width, height}`, `max_bitrate: 3.5M|9M`, stop (`video_ssrc: 0, active: false`). `S -> C`: содержит `user_id`, опциональный top-level `rtx_ssrc` и опциональные `max_*` | [`VoiceVideo::parse_json`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L818-L895) не знает про `user_id`, требует обязательные `rtx_ssrc` и `max_*` (падает на входящих `OP 12` от сервера); `handle_ws_frame` (`session.rs:1283`) игнорирует `VoiceOp::Video` (`Op 12`) | **GAP (`GAP-781-04`)** |
+| `OP 16 VOICE_BACKEND_VERSION` (`C -> S` и `S -> C`) | После `OP 2 READY` (`v >= 6`) клиент шлёт `{"op":16,"d":{}}`, сервер отвечает `{"op":16,"d":{"voice":"...","rtc_worker":"..."}}` | [`VoiceOp::VoiceBackendVersion`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs#L99) объявлен в enum, но ни `parse_frame`, ни `VoiceSessionDriver::handle_ready` / `handle_ws_frame` его не отправляют и не парсят | **GAP (`GAP-781-05`)** |
 | `Voice OP 22 SECURE_FRAMES_EXECUTE_TRANSITION` + `Gateway OP 22 STREAM_SET_PAUSED` | `Voice OP 22` парсится и исполняет переход `transition_id`; `Gateway OP 22` ставит стрим на паузу | `DaveControlFrame::ExecuteTransition` (`dave.rs:95`) и `StreamCommand::set_paused` (`stream.rs:133`) реализованы, но `VoiceSessionDriver::handle_ws_frame` (`session.rs:1244-1288`) не маршрутизирует JSON DAVE-опкоды `21..24, 31` в `handle_dave_json_frame` автоматически | **Частично (`GAP-781-04`)** |
 
 ---
@@ -550,7 +550,7 @@ case 12:
 ### Детальные карточки задач для `PM` и `G5 Voice & Platform`
 
 #### `GAP-781-01` (P1, `G5 Voice`): Корректный `streams[].type = "screen"` в `OP 0 IDENTIFY` и `trueChannelId` для Go Live сессий
-- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/session.rs:1194-1212`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L1194-L1212), [`rust/crates/discord-voice/src/session.rs:1744-1780`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L1744-L1780).
+- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/session.rs:1194-1212`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L1194-L1212), [`rust/crates/discord-voice/src/session.rs:1744-1780`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L1744-L1780).
 - **Эталон RE:** `MediaEngineStore.getVideoStreamParameters` (`discord.com_assets_web.4d4b2f75fdea5470.js` `@9,194,248`) и `RTCConnection.constructor` (`@2,477,610`).
 - **Суть расхождения:**
   1. В `VoiceSessionDriver::build_identify()` при `self.identify_video == true` всегда создаётся `StreamSpec { kind: "video", rid: Some("100"), quality: Some(100), .. }`, даже если драйвер создан через `VoiceSessionDriver::new_go_live(...)` (`self.is_go_live() == true`). В оригинальном клиенте для `context === "stream"` отправляется `"type": "screen"`.
@@ -558,16 +558,16 @@ case 12:
 - **Рекомендация:** В `build_identify()` выбирать `kind: if self.is_go_live() { "screen" } else { "video" }`, а в конструкторе Go Live поддержать fallback `rtc_server_id - 1`.
 
 #### `GAP-781-02` (P1, `G5 Voice`): Проброс `rtc_connection_id`, `experiments` и эталонный приоритет `aead_aes256_gcm_rtpsize` в `OP 1 SELECT_PROTOCOL`
-- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/session.rs:526-539`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L526-L539), [`rust/crates/discord-voice/src/session.rs:1382-1390`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L1382-L1390).
-- **Эталон RE:** [`capture-run2.jsonl:9765`](file:///home/sanya/re-deep/capture-run2.jsonl#L9765), [`capture-run2.jsonl:17009`](file:///home/sanya/re-deep/capture-run2.jsonl#L17009), `RTCControlSocket.selectProtocol` (`@2,405,299`), `NativeConnection.chooseEncryptionMode` (`@10,827,450`).
+- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/session.rs:526-539`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L526-L539), [`rust/crates/discord-voice/src/session.rs:1382-1390`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L1382-L1390).
+- **Эталон RE:** [`capture-run2.jsonl:9765`](file://reference-oracle/capture-run2.jsonl#L9765), [`capture-run2.jsonl:17009`](file://reference-oracle/capture-run2.jsonl#L17009), `RTCControlSocket.selectProtocol` (`@2,405,299`), `NativeConnection.chooseEncryptionMode` (`@10,827,450`).
 - **Суть расхождения:**
   1. В `VoiceSessionDriver::handle_discovery_response` структура `SelectProtocol` создаётся с `rtc_connection_id: None` и `experiments: Vec::new()`, хотя `self.experiments` уже сохранён из `OP 2 READY` (`session.rs:1309`).
   2. Функция `select_encryption_mode` (`session.rs:526`) ставит `"aead_xchacha20_poly1305_rtpsize"` перед `"aead_aes256_gcm_rtpsize"`, тогда как эталонный клиент при наличии обоих режимов выбирает `"aead_aes256_gcm_rtpsize"`.
-  3. В дефолтном списке `default_select_protocol_codecs` (`lib.rs:475`) у `H265` стоит `encode: Some(true)`, тогда как в Linux/Web дампе [`capture-run2.jsonl:17009`](file:///home/sanya/re-deep/capture-run2.jsonl#L17009) у `H265` `encode: false, decode: true`.
+  3. В дефолтном списке `default_select_protocol_codecs` (`lib.rs:475`) у `H265` стоит `encode: Some(true)`, тогда как в Linux/Web дампе [`capture-run2.jsonl:17009`](file://reference-oracle/capture-run2.jsonl#L17009) у `H265` `encode: false, decode: true`.
 - **Рекомендация:** Пробрасывать сгенерированный `rtc_connection_id` и отфильтрованный `self.experiments` (`["fixed_keyframe_interval"]`) в `SelectProtocol` внутри `handle_discovery_response`, а в `select_encryption_mode` поставить `"aead_aes256_gcm_rtpsize"` первым приоритетом.
 
 #### `GAP-781-03` (P1, `G5 Voice`): Поддержка режима `protocol: "webrtc"` (SDP) в `OP 1 SELECT_PROTOCOL` и `OP 4 SESSION_DESCRIPTION`
-- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/lib.rs:445-573`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs#L445-L573), [`rust/crates/discord-voice/src/lib.rs:703-832`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs#L703-L832).
+- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/lib.rs:445-573`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs#L445-L573), [`rust/crates/discord-voice/src/lib.rs:703-832`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs#L703-L832).
 - **Эталон RE:** `RTCControlSocket.selectProtocol` (`@2,405,299`), `WebRTCConnection` (`@10,893,420..10,926,200`), `RTCConnection._handleSDP` (`@2,508,990`).
 - **Суть расхождения:**
   1. `SelectProtocol` и `parse_select_protocol` жёстко требуют `address`, `port`, `mode` и возвращают ошибку при `protocol: "webrtc"`, где `d.data` и `d.sdp` содержат сжатую SDP-строку (`a=ice-ufrag|a=ice-pwd|a=fingerprint|a=candidate|a=rtpmap|a=extmap`).
@@ -575,7 +575,7 @@ case 12:
 - **Рекомендация:** Расширить `SelectProtocol` и `SessionDescription` поддержкой `sdp: Option<String>` (с дублированием в `data` и `sdp` при `protocol == "webrtc"`), а также опциональных полей `keyframe_interval: Option<u64>` и `bandwidth_estimation_experiment: Option<String>`.
 
 #### `GAP-781-04` (P1, `G5 Voice`): Двунаправленный контракт `OP 12 VIDEO` (`C -> S` / `S -> C`), пресеты `Source` (`9 Mbps`) и автоматическая маршрутизация в `VoiceSessionDriver::handle_ws_frame`
-- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/session.rs:718-895`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L718-L895), [`rust/crates/discord-voice/src/session.rs:1244-1288`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L1244-L1288).
+- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/session.rs:718-895`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L718-L895), [`rust/crates/discord-voice/src/session.rs:1244-1288`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L1244-L1288).
 - **Эталон RE:** `RTCControlSocket.video` (`@2,405,695`), `ek`/`eF` (`@2,391,900..2,392,050`), `setDesktopEncodingOptions` (`@10,821,450`), `StreamRTCConnection.sendVideo` (`@9,365,303`).
 - **Суть расхождения:**
   1. `VoiceVideo::parse_json` (`session.rs:818`) не парсит входящие `OP 12 VIDEO` от сервера (`S -> C`), так как не сохраняет `user_id: Option<String>`, требует `rtx_ssrc` на верхнем уровне `d` и требует обязательного наличия `max_bitrate`, `max_framerate`, `max_resolution` в каждом элементе `streams`.
@@ -584,8 +584,8 @@ case 12:
 - **Рекомендация:** Сделать `user_id`, top-level `rtx_ssrc` и `max_*` опциональными в `VoiceVideo`/`VideoStreamDesc`, добавить конструктор `VideoMaxResolution::source()` и расчёт битрейта `3.5 Mbps / 9.0 Mbps`, а также подключить обработку `Op 12` и `Op 21..24, 31` напрямую в `VoiceSessionDriver::handle_ws_frame`.
 
 #### `GAP-781-05` (P1, `G5 Voice`): Автоматическая отправка и парсинг `OP 16 VOICE_BACKEND_VERSION`
-- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/lib.rs:604-681`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs#L604-L681), [`rust/crates/discord-voice/src/session.rs:1299-1347`](file:///home/sanya/orca/project/rust/crates/discord-voice/src/session.rs#L1299-L1347).
-- **Эталон RE:** [`capture-run2.jsonl:9761-9762`](file:///home/sanya/re-deep/capture-run2.jsonl#L9761-L9762), [`capture-run2.jsonl:17005-17006`](file:///home/sanya/re-deep/capture-run2.jsonl#L17005-L17006), `RTCControlSocket.handleReady` (`@2,400,145`), `case 16` (`@2,396,590`).
+- **Где в `discord-lab`:** [`rust/crates/discord-voice/src/lib.rs:604-681`](file:///home/user/orca/project/rust/crates/discord-voice/src/lib.rs#L604-L681), [`rust/crates/discord-voice/src/session.rs:1299-1347`](file:///home/user/orca/project/rust/crates/discord-voice/src/session.rs#L1299-L1347).
+- **Эталон RE:** [`capture-run2.jsonl:9761-9762`](file://reference-oracle/capture-run2.jsonl#L9761-L9762), [`capture-run2.jsonl:17005-17006`](file://reference-oracle/capture-run2.jsonl#L17005-L17006), `RTCControlSocket.handleReady` (`@2,400,145`), `case 16` (`@2,396,590`).
 - **Суть расхождения:**
   1. После получения `OP 2 READY` (`hello_version >= 6`) `VoiceSessionDriver::handle_ready` не ставит в `outbound_ws` фрейм `{"op":16,"d":{}}`.
   2. Ответ сервера `{"op":16,"d":{"voice":"0.22.1+...","rtc_worker":"1.6.98"}}` попадает в `VoiceFrame::Unknown` и инкрементирует `unhandled_opcodes`.

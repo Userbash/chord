@@ -82,10 +82,10 @@ test at tests/unit/gui-spike-model.test.mjs:897:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:922:20
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:898:5)
+      at only (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:922:20
+      at withChatDoc (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:898:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -106,10 +106,10 @@ test at tests/unit/gui-spike-model.test.mjs:939:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:954:23
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:940:5)
+      at only (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:954:23
+      at withChatDoc (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:940:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -130,10 +130,10 @@ test at tests/unit/gui-spike-model.test.mjs:984:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:994:20
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:985:5)
+      at only (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:994:20
+      at withChatDoc (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:985:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -154,10 +154,10 @@ test at tests/unit/gui-spike-model.test.mjs:1003:3
   
   0 !== 1
   
-      at only (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:1041:20
-      at withChatDoc (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:1004:5)
+      at only (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:645:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:1041:20
+      at withChatDoc (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:886:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:1004:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -175,7 +175,7 @@ test at tests/unit/gui-spike-model.test.mjs:1003:3
 test at tests/unit/gui-spike-model.test.mjs:1055:3
 ✖ composer.css: токенизированные стили .md-code, .md-code-block, .md-spoiler, .mention без hex/rgb (0.32806ms)
   AssertionError [ERR_ASSERTION]: в composer.css должен быть селектор .md-code
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:1065:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:1065:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

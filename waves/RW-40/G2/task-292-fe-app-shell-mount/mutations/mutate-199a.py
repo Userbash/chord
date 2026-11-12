@@ -15,10 +15,10 @@ import pathlib
 import subprocess
 import sys
 
-ROOT = pathlib.Path("/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount")
+ROOT = pathlib.Path("/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount")
 APP = ROOT / "rust/gui-spike/ui/app.js"
 OUT = ROOT / "waves/RW-40/G2/task-292-fe-app-shell-mount/mutations"
-APP_CARD = pathlib.Path("/home/sanya/orca/project/waves/RW-40/G2/task-292-fe-app-shell-mount/mutations")
+APP_CARD = pathlib.Path("/home/user/orca/project/waves/RW-40/G2/task-292-fe-app-shell-mount/mutations")
 TEST_FILE = "tests/unit/app-shell-wiring.test.mjs"
 
 MUTATIONS = [

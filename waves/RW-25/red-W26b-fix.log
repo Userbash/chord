@@ -11,8 +11,8 @@
 
 $ cargo test --offline -p discord-perf --test perf_contract regression_
    Compiling serde_json v1.0.154
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+   Compiling discord-perf v0.1.0 (/home/user/orca/project/rust/crates/discord-perf)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.90s
      Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-8e876c4fc0d7c5ac)
 
@@ -48,7 +48,7 @@ EXIT_CODE=101
 # дата: 2026-10-22; target-dir: /tmp/opencode/target-w26b
 
 $ cargo test --offline -p discord-perf --test perf_contract json_float_roundtrip_k
-   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+   Compiling discord-perf v0.1.0 (/home/user/orca/project/rust/crates/discord-perf)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
      Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-8e876c4fc0d7c5ac)
 
@@ -110,7 +110,7 @@ EXIT_CODE=101
 # дата: 2026-10-22; target-dir: /tmp/opencode/target-w26b
 
 $ cargo test --offline -p discord-perf --test perf_contract presence_for_every_member_k
-   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+   Compiling discord-perf v0.1.0 (/home/user/orca/project/rust/crates/discord-perf)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
      Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-8e876c4fc0d7c5ac)
 

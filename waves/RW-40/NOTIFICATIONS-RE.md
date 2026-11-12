@@ -1,7 +1,7 @@
 # NOTIFICATIONS-RE — настройки уведомлений, per-guild и per-channel overrides
 
 Карточка: **RE-N05-NOTIFICATIONS** (ST-05 + N-05, WSJF 4.5).
-Дата: 2026-10-30. Источник: read-only разбор `/home/sanya/re-deep`
+Дата: 2026-10-30. Источник: read-only разбор `reference-oracle/`
 (`gateway/`, `out/bundles/`, `pretty/`, `rest-static.*`, `gateway-schema.md`).
 Код, тесты и `cargo` не трогались.
 
@@ -510,7 +510,7 @@ null == e || e === "@me"
 
 ## 14. Индекс ссылок
 
-Бандлы и схемы (`/home/sanya/re-deep`):
+Бандлы и схемы (`reference-oracle/`):
 
 | Артефакт | Что внутри |
 |---|---|

@@ -33,7 +33,7 @@ const root = new URL("../../", import.meta.url);
 function resolveOracleFile(relPath) {
   const localPath = fileURLToPath(new URL(relPath, root));
   if (existsSync(localPath)) return localPath;
-  return `/home/sanya/orca/project/${relPath}`;
+  return `/home/user/orca/project/${relPath}`;
 }
 const spec = JSON.parse(readFileSync(resolveOracleFile("waves/RW-40/DESIGN/voice-spec.json"), "utf8"));
 const rustDevices = readFileSync(

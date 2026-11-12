@@ -14,7 +14,7 @@
 ## Оракулы
 
 - **RTP**: `fixtures/voice/rtp-pt120-oracle.json` (md5 `798dd8aea8dd14d4429ac00b1c1d0a12`) —
-  10 пакетов PT120 из golden-pcap `/home/sanya/re-deep/voice/voice-udp4.pcap`; генератор
+  10 пакетов PT120 из golden-pcap `reference-oracle/voice/voice-udp4.pcap`; генератор
   `gen-rtp-oracle.py`, воспроизводимость проверена независимым парсером ревьюера (0 расхождений).
 - **Таймстемпы**: `rust/crates/discord-i18n/tests/data/timestamp-oracle.json` (558 строк:
   31 локаль × 6 стилей × 3 момента) + R-оракул Node 24 ICU; генератор `gen-timestamp-data.mjs`

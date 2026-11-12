@@ -25,7 +25,7 @@
   замороженного каркаса не менялись, md5 заглушки `03ddd6ebecd8ed5c727a732ea2b6e246`).
   Чужие/запретные файлы не трогались: `Cargo.toml`/`Cargo.lock`, `mod.rs`
   (`0eba823bf46c2958cac102dbb42cbb06`), тест-данные (`8b5bb8c9…`, `b9e8f843…`, `90b06ded…`,
-  `95e2f861…`), `docs/`, `waves/`, golden, `/home/sanya/re-deep` — без изменений.
+  `95e2f861…`), `docs/`, `waves/`, golden, `reference-oracle/` — без изменений.
 - доп. прогоны: `cargo test --offline -p discord-core` → `# EXIT=101`, но падения чужие —
   in-progress тесты W9c `tests/rest_identity.rs` (`integration_base64_headers`,
   `uuid_v4_shape`); `rest_base64` в этом же прогоне 5/5 ok, остальные таргеты до него зелёные,

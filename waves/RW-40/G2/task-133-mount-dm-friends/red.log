@@ -221,7 +221,7 @@
 test at tests/unit/gui-spike-features.test.mjs:4314:3
 ✖ 1. В index.html и DOM смонтированы все 5 обязательных хостов (#home-rail-btn, #dm-channel-list, #friends-view, #group-dm-dialog, #stranger-confirm-dialog) (0.522661ms)
   AssertionError [ERR_ASSERTION]: в index.html отсутствует обязательный хост #home-rail-btn
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4323:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4323:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -242,8 +242,8 @@ test at tests/unit/gui-spike-features.test.mjs:4314:3
 test at tests/unit/gui-spike-features.test.mjs:4347:3
 ✖ 2. Клик по #home-rail-btn включает режим Home (@me), скрывает серверные каналы, показывает #dm-channel-list и #friends-view и сохраняет lastGuildId='@me' (11.49814ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4365:23)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4365:23)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -257,8 +257,8 @@ test at tests/unit/gui-spike-features.test.mjs:4347:3
 test at tests/unit/gui-spike-features.test.mjs:4395:3
 ✖ 3. Возврат из Home на гильдию восстанавливает дерево каналов гильдии, скрывает #friends-view и сохраняет id гильдии (12.134981ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4413:23)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4413:23)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -272,8 +272,8 @@ test at tests/unit/gui-spike-features.test.mjs:4395:3
 test at tests/unit/gui-spike-features.test.mjs:4444:3
 ✖ 4. Восстановление режима Home (@me) при старте через readLastGuildId из settings_load (lastGuildId='@me') (10.299028ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4459:23)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4459:23)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -290,7 +290,7 @@ test at tests/unit/gui-spike-features.test.mjs:4470:3
   
   null !== 'home'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4485:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4485:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -304,8 +304,8 @@ test at tests/unit/gui-spike-features.test.mjs:4470:3
 test at tests/unit/gui-spike-features.test.mjs:4496:3
 ✖ 6. Проброс users, relationships и private_channels из ready() рендерит список ЛС и счётчики друзей (10.073737ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4508:7)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4508:7)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -319,8 +319,8 @@ test at tests/unit/gui-spike-features.test.mjs:4496:3
 test at tests/unit/gui-spike-features.test.mjs:4534:3
 ✖ 7. Клик по каналу в #dm-channel-list открывает сообщения этого ЛС в центральной панели (10.048878ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4561:7)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4561:7)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -334,8 +334,8 @@ test at tests/unit/gui-spike-features.test.mjs:4534:3
 test at tests/unit/gui-spike-features.test.mjs:4584:3
 ✖ 8. Клик по пункту 'Друзья' (#dm-nav-friends) после открытия ЛС возвращает центральную область на #friends-view (12.035601ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4596:7)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4596:7)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -349,8 +349,8 @@ test at tests/unit/gui-spike-features.test.mjs:4584:3
 test at tests/unit/gui-spike-features.test.mjs:4620:3
 ✖ 9. Переключение вкладок #friends-view ('Все', 'Ожидание', 'Добавить в друзья') и фильтрация поиском (9.927057ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4632:7)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4632:7)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -364,8 +364,8 @@ test at tests/unit/gui-spike-features.test.mjs:4620:3
 test at tests/unit/gui-spike-features.test.mjs:4666:3
 ✖ 10. Вкладка 'Добавить в друзья' отправляет запрос и нормализует ошибки Discord на русском языке (11.944281ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4678:7)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4678:7)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -379,8 +379,8 @@ test at tests/unit/gui-spike-features.test.mjs:4666:3
 test at tests/unit/gui-spike-features.test.mjs:4712:3
 ✖ 11. Диалог создания группового ЛС (#group-dm-dialog) и диалог подтверждения незнакомца (#stranger-confirm-dialog, код 80013) работают из смонтированного контроллера (10.070878ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4724:7)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4724:7)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -394,8 +394,8 @@ test at tests/unit/gui-spike-features.test.mjs:4712:3
 test at tests/unit/gui-spike-features.test.mjs:4790:3
 ✖ 12. Клавиатурная активация #home-rail-btn (Enter/Space) и отсутствие console.error/warn (11.569151ms)
   AssertionError [ERR_ASSERTION]: нет #home-rail-btn
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4802:23)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app/tests/unit/gui-spike-features.test.mjs:4802:23)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0277]: the trait bound `SearchFilters: serde::Deserialize<'de>` is not satisfied
    --> src/main.rs:96:1
     |
@@ -29,7 +29,7 @@ error[E0277]: the trait bound `SearchFilters: serde::Deserialize<'de>` is not sa
             and 474 others
     = note: required for `Option<SearchFilters>` to implement `serde_core::de::Deserialize<'_>`
     = note: required for `Option<SearchFilters>` to implement `CommandArg<'_, tauri_runtime_wry::Wry<EventLoopMessage>>`
-    = note: the full name for the type has been written to '/home/sanya/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-6f68f7f5176d586c.long-type-10313603600715759614.txt'
+    = note: the full name for the type has been written to '/home/user/orca/project/rust/gui-spike/target/debug/deps/discord_gui_spike-6f68f7f5176d586c.long-type-10313603600715759614.txt'
     = note: consider using `--verbose` to print the full type name to the console
     = note: this error originates in the macro `__cmd__search_page` which comes from the expansion of the macro `tauri::generate_handler` (in Nightly builds, run with -Z macro-backtrace for more info)
 

@@ -3,8 +3,8 @@
 - Ветка: `feature/task-183-ui-shortcuts-modal` (от `unstable`)
 - HEAD на момент работы: `f331110 feat(core): merge PR-63 (task-178 route catalog [S] markers & rest-d02.json oracle sync)`
 - Оракулы: `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md` §3 строка FE-P2-05;
-  `re-deep/frontend-d03.md` §5 (Modal: `role="dialog"`, `aria-modal`, возврат фокуса);
-  справка сочетаний клавиш клиента Discord (`re-deep/decoded/`)
+  `reference-oracle/frontend-d03.md` §5 (Modal: `role="dialog"`, `aria-modal`, возврат фокуса);
+  справка сочетаний клавиш клиента Discord (`reference-oracle/decoded/`)
 
 ## 1. Что сделано
 

@@ -7,7 +7,7 @@ Seat: RE-1. Дата: 2026-10-22. Метод: статический разбо�
 
 ### 1.1. Список регионов и IP приходит в native как JSON
 
-Файл `/home/sanya/re-deep/decoded/efc4f1b3263c1c0d_0` (716 Б, sha256
+Файл `reference-oracle/decoded/efc4f1b3263c1c0d_0` (716 Б, sha256
 `79a49aaf…12d0a5`) — точный массив, который получает `RegionLatencyTester::PerformTest`:
 
 ```json
@@ -23,7 +23,7 @@ Seat: RE-1. Дата: 2026-10-22. Метод: статический разбо�
 
 ### 1.2. Географический порядок из READY
 
-`/home/sanya/re-deep/gateway-run1/sanitized/by-type/002-READY.json`:
+`reference-oracle/gateway-run1/sanitized/by-type/002-READY.json`:
 
 ```json
 "geo_ordered_rtc_regions": ["frankfurt", "brussels", "rotterdam", "paris", "milan"]
@@ -31,7 +31,7 @@ Seat: RE-1. Дата: 2026-10-22. Метод: статический разбо�
 
 ### 1.3. Реальный результат ранжирования (engine log)
 
-`/home/sanya/re-deep/voice/engine-log-session1.txt:2`:
+`reference-oracle/voice/engine-log-session1.txt:2`:
 
 ```text
 [RTCLatencyTestManager] RTC region latency test completed, ranked regions are:

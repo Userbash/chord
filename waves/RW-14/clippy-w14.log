@@ -1,4 +1,4 @@
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error: this `impl` can be derived
   --> crates/discord-core/src/history/types.rs:84:1
    |

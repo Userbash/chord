@@ -15,13 +15,13 @@
     - `EventPayload::ThreadDelete(ev)`: удаление треда из `state.threads`, индекса `thread_guild` и сообщений треда.
   * Написаны 15 контрактных тестов в `rust/crates/discord-core/tests/state_contract.rs`.
 - red:
-  * Команда: `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test state_contract`
+  * Команда: `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test state_contract`
   * Результат до реализации: `exit code 101` (14 ошибок компиляции из-за отсутствия вариантов в `EventPayload`).
-  * Лог сохранён: `/home/sanya/orca/project/waves/RW-40/G1/task-157-state-reducer-deletes-channels/red.log`.
+  * Лог сохранён: `/home/user/orca/project/waves/RW-40/G1/task-157-state-reducer-deletes-channels/red.log`.
 - green:
-  * Команда: `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test state_contract --test state_reducer --test state_types --test state_selectors --lib`
+  * Команда: `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test state_contract --test state_reducer --test state_types --test state_selectors --lib`
   * Результат: `exit code 0` (все 86 тестов: 15 state_contract, 29 lib unit tests, 19 state_reducer, 8 state_selectors, 15 state_types).
-  * Лог сохранён: `/home/sanya/orca/project/waves/RW-40/G1/task-157-state-reducer-deletes-channels/green.log`.
+  * Лог сохранён: `/home/user/orca/project/waves/RW-40/G1/task-157-state-reducer-deletes-channels/green.log`.
 - targeted: `rust/crates/discord-core/tests/state_contract.rs` — 15 passed, 0 failed, 0 warnings.
 - oracle: RFC / Discord Gateway Protocol v9 + `crates/discord-core/src/dispatch.rs` (task-146 / F-GW-03 / F-GW-04), ETF / JSON представления wire events.
 - генерация: не применимо.

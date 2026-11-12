@@ -3,7 +3,7 @@
 Batch: RW-40 / G2. Ветка: `feature/task-194-ui-i18n-catalog-ru` (без `git commit`).
 
 ## Сделано
-- `tests/unit/i18n.test.mjs` — red-first контракт (11 тестов, 3 сьюта), сверяющий ключи, русские строки, плюральные формы CLDR и аудит DOM против оракулов `/home/sanya/re-deep/i18n-deep.md` и `/home/sanya/re-deep/ru-catalog.json`.
+- `tests/unit/i18n.test.mjs` — red-first контракт (11 тестов, 3 сьюта), сверяющий ключи, русские строки, плюральные формы CLDR и аудит DOM против оракулов `reference-oracle/i18n-deep.md` и `reference-oracle/ru-catalog.json`.
 - `rust/gui-spike/ui/i18n.js` — модуль русской локализации UI (`// @ts-check` + JSDoc, ESM):
   - `HASHED_RU_KEYS`: замороженная карта (`Object.freeze`) из 45 канонических 6-символьных `base64(xxh64(id, seed=0))[0..6]` ключей Discord (`ru-catalog.json` / `i18n-deep.md`) по 10+ категориям (`inbox`, `search`, `settings`, `threads`, `polls`, `voice`, `attachments`, `tooltips`, `shortcuts`, `errors`, статусы и плюральные счётчики).
   - `RU_CATALOG` и `DEFAULT_LOCALE = "ru"`: замороженный семантический каталог русских строк UI.

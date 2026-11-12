@@ -7,9 +7,9 @@
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on build directory
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-228-be-invites-contract/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-228-be-invites-contract/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 6.40s
-     Running tests/invites_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/invites_contract-c9620ad5d4b94d16)
+     Running tests/invites_contract.rs (/home/user/orca/project/rust/target/debug/deps/invites_contract-c9620ad5d4b94d16)
 
 running 25 tests
 test be_p1_21_allowed_invite_constants_match_contract ... ok

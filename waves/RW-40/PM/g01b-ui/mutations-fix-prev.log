@@ -1,6 +1,6 @@
 # Task 2 mutation run — G-01b-UI-SETTINGS-FIX (lastGuildId)
 
-Repository: /home/sanya/orca/project
+Repository: /home/user/orca/project
 Target test: tests/unit/guild-rail.test.mjs
 Node: v26.13.0
 

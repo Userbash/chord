@@ -1,5 +1,5 @@
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-json)
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-json)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
 error[E0425]: cannot find type `VoiceSession` in this scope
     --> crates/discord-voice/tests/session_contract.rs:1400:48
      |

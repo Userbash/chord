@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/feature-task-250-ui-slowmode/tests/unit/slowmode.test.mjs:7
+file:///home/user/orca/workspaces/project/feature-task-250-ui-slowmode/tests/unit/slowmode.test.mjs:7
   SLOWMODE_PRESETS_SECONDS,
   ^^^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/slowmode.js' does not provide an export named 'SLOWMODE_PRESETS_SECONDS'

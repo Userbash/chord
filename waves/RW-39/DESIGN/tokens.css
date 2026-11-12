@@ -6,8 +6,8 @@
  * никаких правил разметки, картинок, шрифтов и url().
  *
  * Провенанс значений (подробно — SPEC.md §3–§6):
- *   [M]  измерено на /home/sanya/re-deep/ui/00-app.png (+ ui8/*)          2026-10-23
- *   [T]  взято из /home/sanya/re-deep/ui/tokens.json (4795 переменных, dark)
+ *   [M]  измерено на /home/user/clean-room-oracle/ui/00-app.png (+ ui8/*)          2026-10-23
+ *   [T]  взято из /home/user/clean-room-oracle/ui/tokens.json (4795 переменных, dark)
  *   [L]  waves/RW-37/RE/layout.json (RE-контракт раскладки, schema rw37/re-layout-v1)
  *   [A]  assumption — значение выбрано нами, обоснование в SPEC.md
  *

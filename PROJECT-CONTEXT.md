@@ -1,62 +1,62 @@
-# discord-lab: session checkpoint (сжатый контекст)
+# discord-lab: session checkpoint (compact context)
 
-Точка входа для нового диалога. Читать первым; детали — точечно по ссылкам.
-Обновлён: **2026-11-12** (Волна **RW-47** в активной разработке; канбан-доска закрыта на **85.00%**).
-
----
-
-## 1. Текущий статус проекта (2026-11-12)
-
-- **Нативный Rust GPUI клиент (`discord-gpui`)**:
-  - Полный отказ от WebKit/Tauri прототипа в пользу прямого GPU-рендеринга WGPU 120 FPS (`rust/discord-gpui/`).
-  - Релизный бинарник: [`rust/dist/discord-gpui`](file:///home/sanya/orca/project/rust/dist/discord-gpui) — **42 МБ** (stripped ELF, thin LTO, opt-level 3).
-  - Контрольная сумма в [`rust/dist/SHA256SUMS`](file:///home/sanya/orca/project/rust/dist/SHA256SUMS): `d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e`.
-  - Потребление памяти в простое: **11.26–18.00 МБ VmRSS** (лимит бюджета `<60 МБ`), 120 FPS frame budget соблюдён.
-  - Детерминированный E2E-контур: [`rust/discord-gpui/tests/gpui_e2e_contract.rs`](file:///home/sanya/orca/project/rust/discord-gpui/tests/gpui_e2e_contract.rs) — 50 сквозных пользовательских путей (100% pass за 0.08с).
-
-- **Текущая волна: Wave RW-47 (Sprints 1–5 & Deep Parity Integration)**:
-  - Активный run оркестрации: `run_a9411d4ae3c4` под управлением Orca Orchestration.
-  - **Канбан-доска:** [`waves/kanban-board.html`](file:///home/sanya/orca/project/waves/kanban-board.html) и [`waves/kanban-board.json`](file:///home/sanya/orca/project/waves/kanban-board.json):
-    - Всего карточек: **220**
-    - **Закрыто и запушено в GitHub (`done`):** **187 задач (85.00%)**
-    - **В параллельной разработке (`in_dev`):** **10 задач** (полная загрузка пула под Zero-Idle)
-    - **В бэклоге (`backlog`):** **23 задачи**
-  - **Свежепринятые и проверенные подсистемы (100% Green + 5/5 мутаций):**
-    - `TASK-1004` / `TASK-1004B`: Интерактивные опросы в чате (Polls & Voting, PollCardView с анимированными шкалами и бейджем победителя).
-    - `TASK-1006`: Нативная проверка орфографии в поле ввода (hunspell / libenchant-2, волнистое подчёркивание `#f23f43`, контекстное меню).
-    - `TASK-1007`: Иерархия ролей сервера, drag-and-drop PATCH `/guilds/{id}/roles` и редактор 64-битной маски прав (41 флаг).
-    - `TASK-1008`: Журнал аудита сервера (Server Audit Log GET `/guilds/{id}/audit-logs`, декодирование диффов, маскирование секретов).
-    - `TASK-1009`: Двухфакторная аутентификация TOTP 2FA и управление активными сессиями.
-    - `TASK-1010`: Голосовой AFK-монитор и автоматический переход в AFK-канал (Wayland / D-Bus / X11).
-    - `TASK-1011`: Продвинутая WebRTC диагностика и RTC Internals HUD (RTCP Sender/Receiver Reports, RTT/jitter/loss 60fps кривые, DAVE MLS v1 Privacy Code 6x5).
-    - `TASK-1012` / `TASK-1012A`: Звуковая панель Soundboard SFX (Voice Opcode 18, Opcode 19 SPEAKING, Opus 48kHz stereo LRU-кэш, 20ms RTP микшер с `tanh()` софт-клиппингом).
-    - `TASK-1013`: Интеграция со Spotify по D-Bus MPRIS (Listen Along, перехват треков, Opcode 3 `LISTENING` активность).
-    - `TASK-1014`: Режим Steam Deck & Gamepad UI (gilrs, 4-зонная фокусная сетка, экранная клавиатура SteamOS по D-Bus).
-    - `TASK-1015`: Автозапуск с системой (XDG Autostart `~/.config/autostart/` и старт свёрнутым `--start-minimized` с VmRSS < 8 МБ).
-    - `TASK-1016`: Кроссплатформенные сборки и пакеты (Windows WiX MSI / Portable в `data/` и macOS DMG с Vibrancy NSVisualEffectView Dark HUD).
-    - `TASK-1001` / `TASK-1001A` / `TASK-1001B`: Форум-каналы (`GUILD_FORUM` type 15), REST пагинация активных постов и 2-колоночная сетка `ForumGridView` с фильтрацией тегов.
-    - `TASK-1002` / `TASK-1002A`: Вложенные треды обсуждений (`PUBLIC_THREAD` / `PRIVATE_THREAD`), таймеры автоархивации (60..10080 мин) и синхронизация участников.
-    - `TASK-1003` / `TASK-1003A`: Голосовые сообщения с Waveform (OGG Opus 48kHz mono 32kbps, 256-байтный RMS waveform, flags 8192).
-    - `TASK-1005` / `TASK-1005A` / `TASK-1005B`: Кастомные эмодзи и Lottie-стикеры (двухуровневый кэш 256 МБ RAM + диск, интерактивный пикер 380x420px).
+Entry point for new dialogues. Read first; refer to detailed files as needed.
+Updated: **2026-11-12** (Wave **RW-47** under active development; Kanban board at **85.00%** completion).
 
 ---
 
-## 2. Архитектура и структура директорий (Чистый стандарт)
+## 1. Current Project Status (2026-11-12)
 
-- **Структура репозитория:**
-  - `rust/crates/`: модули ядра (`discord-core`, `discord-voice`, `discord-codec`, `discord-media`, `discord-platform`, `discord-store`, `discord-i18n`).
-  - `rust/discord-gpui/`: нативный UI-клиент на GPU WGPU 120 FPS.
-  - `packaging/`: манифесты сборки дистрибутивов (`windows/wix.xml`, `macos/build-dmg.sh`, Linux deb/rpm/AppImage).
-  - `docs/articles/`: публичные и технические статьи по проекту.
-  - `docs/archive/wave-artifacts/`: архив промежуточных артефактов волн (ранние `CONTRACTS`, `PM`, `QA`, `QUALITY`).
-  - `waves/`: история волн, журнал событий `db.jsonl`, состояние `STATE.md`, канбан-доска `kanban-board.json`/`html`.
-  - `tests/`: 12-уровневый контур тестов (`tests/unit/`, `tests/smoke/`, `tests/e2e/`, `tests/meta/`).
-  - `scripts/`: утилиты гейта, сборки, SBOM, хеширования и проверки паритета (`gate.mjs`, `ci.sh`, `release.sh`, `quality-gate.mjs`, `mcp-kanban-board.mjs`).
+- **Native Rust GPUI Client (`discord-gpui`)**:
+  - Full migration from WebKit/Tauri prototype to direct GPU rendering via WGPU at 120 FPS (`rust/discord-gpui/`).
+  - Release binary: [`rust/dist/discord-gpui`](rust/dist/discord-gpui) — **42 MB** (stripped ELF, Thin LTO, opt-level 3).
+  - SHA-256 checksum in [`rust/dist/SHA256SUMS`](rust/dist/SHA256SUMS): `d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e`.
+  - Idle memory consumption: **11.26–18.00 MB VmRSS** (strict budget limit `< 60 MB`), 120 FPS frame budget maintained.
+  - Deterministic E2E test harness: [`rust/discord-gpui/tests/gpui_e2e_contract.rs`](rust/discord-gpui/tests/gpui_e2e_contract.rs) — 50 end-to-end user journeys (100% pass in 0.08s).
 
-- **Контроль качества и мета-тесты:**
-  - **147 / 147 мета-тестов пройдены успешно (100% PASS, 0 FAIL)** (`npm run test:meta`).
-  - Строгий запрет ослабления тестов (`TEST-POLICY.md`).
-  - Мутационный гейт: **100% Mutation Kill Rate (5/5 контрольных мутаций убиты на каждый модуль)**.
-  - `#![forbid(unsafe_code)]` во всех модулях Rust.
-  - Ограничение сложности: `< 50 строк на функцию`, `< 800 строк на файл`.
-  - Модель памяти: `WORKER_RAM_LIMIT <= 25 GB` (свободно 26–34 GB).
+- **Active Wave: Wave RW-47 (Sprints 1–5 & Deep Parity Integration)**:
+  - Active orchestration run: `run_a9411d4ae3c4` managed via Orca Orchestration.
+  - **Kanban Board:** [`waves/kanban-board.html`](waves/kanban-board.html) and [`waves/kanban-board.json`](waves/kanban-board.json):
+    - Total cards: **220**
+    - **Completed and pushed to GitHub (`done`):** **187 tasks (85.00%)**
+    - **In active development (`in_dev`):** **10 tasks** (full worker saturation under Zero-Idle policy)
+    - **In backlog (`backlog`):** **23 tasks**
+  - **Recently Accepted and Verified Subsystems (100% Green + 5/5 Mutation Gate):**
+    - `TASK-1004` / `TASK-1004B`: Interactive in-chat polls and voting (PollCardView with animated score bars and winner badges).
+    - `TASK-1006`: Native spellchecker in composer (hunspell / libenchant-2, squiggly underline `#f23f43`, context menu suggestions).
+    - `TASK-1007`: Guild role hierarchy, drag-and-drop PATCH `/guilds/{id}/roles`, and 64-bit permission bitmask editor (41 flags).
+    - `TASK-1008`: Guild audit log viewer (GET `/guilds/{id}/audit-logs`, diff decoding, secret masking).
+    - `TASK-1009`: TOTP 2FA modal entry and active session manager.
+    - `TASK-1010`: D-Bus ScreenSaver / Wayland idle detector and auto AFK voice channel transfer.
+    - `TASK-1011`: Advanced WebRTC diagnostics and RTC Internals HUD (RTCP Sender/Receiver Reports, RTT/jitter/loss 60fps curves, DAVE MLS v1 Privacy Code 6x5).
+    - `TASK-1012` / `TASK-1012A`: Soundboard SFX engine (Voice Opcode 18, Opcode 19 SPEAKING, Opus 48kHz stereo LRU cache, 20ms RTP mixer with `tanh()` soft clipping).
+    - `TASK-1013`: Spotify MPRIS D-Bus status integration (Listen Along, track interception, Opcode 3 `LISTENING` presence).
+    - `TASK-1014`: Steam Deck & Gamepad UI mode (gilrs, 4-zone focus grid, SteamOS on-screen keyboard via D-Bus).
+    - `TASK-1015`: System autostart generator (XDG Autostart `~/.config/autostart/` and silent tray launch with VmRSS < 8 MB).
+    - `TASK-1016`: Cross-platform packaging specifications (Windows WiX MSI / Portable in `data/`, and macOS DMG with NSVisualEffectView Dark HUD Vibrancy).
+    - `TASK-1001` / `TASK-1001A` / `TASK-1001B`: Forum channels (`GUILD_FORUM` type 15), REST pagination of active threads, and 2-column `ForumGridView` with tag filters.
+    - `TASK-1002` / `TASK-1002A`: Nested discussion threads (`PUBLIC_THREAD` / `PRIVATE_THREAD`), auto-archive timers (60..10080 min), and member sync.
+    - `TASK-1003` / `TASK-1003A`: Voice messages with interactive waveform (OGG Opus 48kHz mono 32kbps, 256-byte RMS waveform, flags 8192).
+    - `TASK-1005` / `TASK-1005A` / `TASK-1005B`: Custom emojis and animated Lottie stickers (two-tier cache 256 MB RAM + disk, 380x420px interactive picker).
+
+---
+
+## 2. Architecture and Directory Structure
+
+- **Repository Layout:**
+  - `rust/crates/`: core modules (`discord-core`, `discord-voice`, `discord-codec`, `discord-media`, `discord-platform`, `discord-store`, `discord-i18n`).
+  - `rust/discord-gpui/`: native client UI on GPU WGPU 120 FPS.
+  - `packaging/`: distribution packaging manifests (`windows/wix.xml`, `macos/build-dmg.sh`, Linux deb/rpm/AppImage).
+  - `docs/articles/`: technical and public articles about the project.
+  - `docs/archive/wave-artifacts/`: archive of intermediate sprint artifacts (early `CONTRACTS`, `PM`, `QA`, `QUALITY`).
+  - `waves/`: sprint history, event log `db.jsonl`, state `STATE.md`, Kanban board `kanban-board.json`/`html`.
+  - `tests/`: 12-tier testing matrix (`tests/unit/`, `tests/smoke/`, `tests/e2e/`, `tests/meta/`).
+  - `scripts/`: automation scripts for release, quality gate, SBOM, and parity verification (`gate.mjs`, `ci.sh`, `release.sh`, `quality-gate.mjs`, `mcp-kanban-board.mjs`).
+
+- **Quality Control & Meta-Tests:**
+  - **147 / 147 meta-tests passing (100% PASS, 0 FAIL)** (`npm run test:meta`).
+  - Strict prohibition against relaxing tests (`TEST-POLICY.md`).
+  - Mutation testing gate: **100% Mutation Kill Rate (5/5 control mutations killed per module)**.
+  - `#![forbid(unsafe_code)]` enforced across all Rust crates.
+  - Code complexity limits: `< 50 lines per function`, `< 800 lines per file`.
+  - Worker memory ceiling: `WORKER_RAM_LIMIT <= 25 GB` (26–34 GB free system headroom).

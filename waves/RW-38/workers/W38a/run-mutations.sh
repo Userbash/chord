@@ -4,7 +4,7 @@
 # прогон тестов через GUI_DOM_APP, фиксация pass/fail. Оригинал сверяется по md5.
 set -u
 
-REPO=/home/sanya/orca/project
+REPO=/home/user/orca/project
 OUT="$REPO/waves/RW-38/workers/W38a"
 WORK=/tmp/opencode/rw38-mut
 APP="$REPO/rust/gui-spike/ui/app.js"

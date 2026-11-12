@@ -16,7 +16,7 @@ deep-link (RE-подтверждённые формы) и генерация XDG
 - `rust/crates/discord-platform/tests/deep_link_contract.rs` (новый)
 - `rust/crates/discord-platform/tests/autostart_contract.rs` (новый)
 
-Запрещено: `Cargo.toml`, другие крейты/тесты, доки, golden (`/home/sanya/re-deep` — только
+Запрещено: `Cargo.toml`, другие крейты/тесты, доки, golden (`reference-oracle/` — только
 чтение), сеть, D-Bus, live Discord, коммиты, `unsafe`.
 
 ## P6-04 — контракт

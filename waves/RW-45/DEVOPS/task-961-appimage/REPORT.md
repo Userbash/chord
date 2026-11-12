@@ -10,16 +10,16 @@
 ## 1. Сделано
 
 1. **Спецификация точки входа и метаданных `packaging/appimage/`:**
-   - Разработан скрипт запуска [`packaging/appimage/AppRun`](file:///home/sanya/orca/project/packaging/appimage/AppRun): автоматическое вычисление `APPDIR`, экспорт `LD_LIBRARY_PATH` (`$APPDIR/usr/lib`), `XDG_DATA_DIRS`, `GSETTINGS_SCHEMA_DIR`, проверка доступности user namespaces (`unshare -Ur true` / `--no-sandbox` $\to$ `DISCORD_GPUI_SANDBOX`), поддержка софтверного рендеринга `llvmpipe` (`DISCORD_APPIMAGE_SOFTWARE_RENDER=1`) и прямой `exec "$APPDIR/usr/bin/discord-gpui" "$@"` без удержания дочернего shell-процесса в памяти.
-   - Интегрированы [`packaging/appimage/discord-gpui.desktop`](file:///home/sanya/orca/project/packaging/appimage/discord-gpui.desktop) (валидирован системным оракулом `desktop-file-validate`, `MimeType=x-scheme-handler/discord;`, `StartupWMClass=discord-gpui`) и векторная/растровая иконки (`packaging/appimage/discord-gpui.svg`, `.DirIcon`, `usr/share/icons/hicolor/{128x128,scalable}/apps/`).
+   - Разработан скрипт запуска [`packaging/appimage/AppRun`](file:///home/user/orca/project/packaging/appimage/AppRun): автоматическое вычисление `APPDIR`, экспорт `LD_LIBRARY_PATH` (`$APPDIR/usr/lib`), `XDG_DATA_DIRS`, `GSETTINGS_SCHEMA_DIR`, проверка доступности user namespaces (`unshare -Ur true` / `--no-sandbox` $\to$ `DISCORD_GPUI_SANDBOX`), поддержка софтверного рендеринга `llvmpipe` (`DISCORD_APPIMAGE_SOFTWARE_RENDER=1`) и прямой `exec "$APPDIR/usr/bin/discord-gpui" "$@"` без удержания дочернего shell-процесса в памяти.
+   - Интегрированы [`packaging/appimage/discord-gpui.desktop`](file:///home/user/orca/project/packaging/appimage/discord-gpui.desktop) (валидирован системным оракулом `desktop-file-validate`, `MimeType=x-scheme-handler/discord;`, `StartupWMClass=discord-gpui`) и векторная/растровая иконки (`packaging/appimage/discord-gpui.svg`, `.DirIcon`, `usr/share/icons/hicolor/{128x128,scalable}/apps/`).
 
-2. **Скрипт сборки и бандлинга зависимостей [`scripts/build-appimage.sh`](file:///home/sanya/orca/project/scripts/build-appimage.sh):**
+2. **Скрипт сборки и бандлинга зависимостей [`scripts/build-appimage.sh`](file:///home/user/orca/project/scripts/build-appimage.sh):**
    - Валидация входного 64-битного ELF x86_64 бинарника `rust/dist/discord-gpui`, инспекция `ldd` (отклонение неразрешённых символов и проприетарных драйверов NVIDIA/AMD).
    - Бандлинг разделяемых библиотек (`libxkbcommon.so.0`, `libxkbcommon-x11.so.0`, `libxcb-xkb.so.1`, `libXau.so.6`, `libXdmcp.so.6`) в `AppDir/usr/lib/` с генерацией манифеста `bundled-deps.json` и сохранением системного ABI для базовых библиотек (`libc.so.6`, `libm.so.6`, `libgcc_s.so.1`, `ld-linux-x86-64.so.2`, `libasound.so.2`, `libxcb.so.1`).
    - Компиляция нативного ELF64 рантайма Type 2 AppImage (`\x7fELF\x02\x01\x01` + сигнатура `AI\x02` на смещении `8..11`, выравнивание образа по 4096 байт) с поддержкой `--appimage-extract`, `--appimage-extract-and-run`, `--appimage-offset`, `--appimage-updateinformation`, `--appimage-version`.
    - Сформирован релизный пакет `rust/dist/discord-gpui-v1.0.0-beta.1-x86_64.AppImage` (`17 299 078` байт, SHA-256: `7b7a415ab0a8daaac77c21f7faccc738c70104db4445197676d35219410c2b8c`).
 
-3. **Верификация `--headless-smoke` внутри AppImage и контрактный тест [`tests/unit/appimage-package-961.test.mjs`](file:///home/sanya/orca/project/tests/unit/appimage-package-961.test.mjs):**
+3. **Верификация `--headless-smoke` внутри AppImage и контрактный тест [`tests/unit/appimage-package-961.test.mjs`](file:///home/user/orca/project/tests/unit/appimage-package-961.test.mjs):**
    - Выполнен холодный запуск `rust/dist/discord-gpui-v1.0.0-beta.1-x86_64.AppImage --headless-smoke`: `status: "ok"`, `sqlite_wal_ok: true`, `fps_budget_ok: true`, потребление памяти **`VmRSS = 11.50 MB` (`11 780 KB < 60 MB`)**.
 
 ---

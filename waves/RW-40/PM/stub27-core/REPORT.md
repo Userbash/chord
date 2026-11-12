@@ -10,7 +10,7 @@
 ## 1. Сделано
 
 1. **Контрактный тест (RED-first)** `rust/crates/discord-core/tests/stream_gateway_contract.rs`:
-   - `t_stream_00_anchors_match_contract_and_oracle_bundle` — сверка всех 17 якорей (`A-OPCODES`…`A-REST`) из `stream-opcodes-fixtures.json` с документом `STREAM-GATEWAY-CONTRACT.md` и побайтово (`offset`, `len`, `quote`, размер `12 410 287` Б) с RE-бандлом `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`;
+   - `t_stream_00_anchors_match_contract_and_oracle_bundle` — сверка всех 17 якорей (`A-OPCODES`…`A-REST`) из `stream-opcodes-fixtures.json` с документом `STREAM-GATEWAY-CONTRACT.md` и побайтово (`offset`, `len`, `quote`, размер `12 410 287` Б) с RE-бандлом `reference-oracle/decoded/4d2a64cb5df5fc4e_0`;
    - `t_stream_01_opcode_table_and_gateway_isolation` — таблица опкодов 18…22 (`StreamOp::Create=18` / `StreamOp::StreamCreate`, `Delete=19` / `StreamDelete`, `Watch=20` / `StreamWatch`, `Ping=21` / `StreamPing`, `SetPaused=22` / `StreamSetPaused`), `from_code(23) == None`, неизменность `discord_core::Op::from_code(18..=22) == Op::Unknown(18..=22)`;
    - `t_stream_02_03_04_outbound_commands_match_fixtures` — кодирование всех 9 исходящих векторов `outbound` (`out-18-create-guild`…`out-22-set-paused-false`), проверка D-27-2 (`guild_id: null` / `EtfValue::Nil` для `call`), проверка D-27-3 (отказ `SessionNotEstablished` вне `GatewaySessionState::Established`);
    - `t_stream_05_stream_key_roundtrip_and_canonical_form` — `StreamKey::parse`, `to_wire`, `canonical`, `build`, `guild`, `call`, `MAX_KEY_BYTES = 128`;

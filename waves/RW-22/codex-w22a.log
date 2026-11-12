@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,21 +11,21 @@ reasoning summaries: none
 session id: 01a15d27-510e-7772-a835-43f320821a07
 --------
 user
-Ты — кодовый воркер W22a волны RW-22 в репозитории /home/sanya/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22a.md. Выполни P3-15 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-i18n/** (включая Cargo.toml). Не трогай workspace Cargo.toml/Cargo.lock, другие крейты, доки и waves/*. Для любых cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, риски, отложенное в P7-01.
+Ты — кодовый воркер W22a волны RW-22 в репозитории /home/user/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22a.md. Выполни P3-15 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-i18n/** (включая Cargo.toml). Не трогай workspace Cargo.toml/Cargo.lock, другие крейты, доки и waves/*. Для любых cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, риски, отложенное в P7-01.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала сверю правила процесса, план волны и точное ТЗ, затем проверю состояние разрешённых файлов. Работаю только внутри `rust/crates/discord-i18n/**`; cargo-команды буду запускать offline под `flock`, как указано.
 exec
-/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -60,7 +60,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -83,15 +83,15 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 codex
 Контекстный файл подтверждает режим волны и ограничения. Сейчас читаю §4 процесса, WAVE-PLAN и TZ-W22a, а также проверяю занятость и текущие изменения в целевом крейте, чтобы не затронуть чужую работу.
 exec
-/usr/bin/bash -lc "sed -n '1,260p' waves/RW-22/TZ-W22a.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' waves/RW-22/TZ-W22a.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' PROCESS.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' waves/RW-22/WAVE-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' waves/RW-22/WAVE-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 # ТЗ W22a — P3-15: i18n runtime base
 
-Волна: RW-22 / B03. Владелец: W22a. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-22 / B03. Владелец: W22a. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -108,7 +108,7 @@ exec
 Strict TDD. Сначала тесты (сейчас в крейте только тривиальный lib-тест), зафиксируй red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n \
   2>&1 | tee ../waves/RW-22/red-w22a.log
 ```
@@ -135,10 +135,10 @@ pub fn resolve_locale(requested: &str, available: &[&str]) -> String;
 - `message_key`: `xxh64(id.as_bytes(), 0)` → 8 байт **LE** → стандартный base64 → первые 6
   символов. Проверочные векторы: `ru → +irF5O`, `en-US → +dXJII`, `AKA → l1QVfj`,
   `OK → TyCVIq`, `PS4 → fJyyQn`, `PS5 → oElqN5`. Дополнительно сверь с
-  `/home/sanya/re-deep/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
+  `/home/user/clean-room-oracle/ru-catalog.json`: `hPBScv` — реальный ключ, его значение
   «Закрыть всплывающее окно»; обратный хеш от id проверять не нужно.
 - `xxh64` — реализация xxHash64 (seed, little-endian чтение, avalanche); без `unsafe`.
-- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/sanya/re-deep/inline/lang-list.json`;
+- Список 36 локалей — из `docs/re/i18n-deep.md` §7 / `/home/user/clean-room-oracle/inline/lang-list.json`;
   отключённые ровно `["pt-PT","sk","he","ar","id"]`.
 - `resolve_locale`: exact → case-insensitive → язык (`ru-RU`→`ru`) → default → `en-US`;
   отключённая/неизвестная не выбирается; пустой requested → default. Функция возвращает код
@@ -199,7 +199,7 @@ pub fn translate(&self, key: &str, args: &BTreeMap<String, Value>) -> Result<Str
    недоступен — пропустить с причиной, не выдумывать. Достаточно 6 эталонов + known-answer
    для пустой строки.
 2. locale: 36/31/5, exact/case/base/fallback/disabled.
-3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/sanya/re-deep` (skip если
+3. catalog: реальные `ru-catalog.json` и `en-catalog.json` из `/home/user/clean-room-oracle` (skip если
    нет), 23 836/23 903 ключей, `hPBScv`, `323362` AST с `$link`, plural `r/EUap`.
 4. translate: literal, argument, fallback requested→en, missing arg, missing message.
 5. plural ru: 1/2/5/11/21/22/101 для `r/EUap`; `=0`; `#`; offset; en one/other.
@@ -281,7 +281,7 @@ pub fn translate(&self, key: &str, args: &BTreeMap<String, Value>) -> Result<Str
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -583,15 +583,15 @@ unicode (включая `\uD83D\uDE00`). Ошибка содержит байт�
 5. Только после accepted — синхронизация `STATE/STATUS/ROADMAP/TASKS/map` и `waves/db.jsonl`.
 
 exec
-/usr/bin/bash -lc 'git status --short -- rust/crates/discord-i18n && rg --files rust/crates/discord-i18n' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short -- rust/crates/discord-i18n && rg --files rust/crates/discord-i18n' in /home/user/orca/project
  succeeded in 0ms:
 rust/crates/discord-i18n/Cargo.toml
 rust/crates/discord-i18n/src/lib.rs
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' docs/re/i18n-deep.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' docs/re/i18n-deep.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,120p' /home/sanya/re-deep/inline/lang-list.json && ls -l /home/sanya/re-deep/ru-catalog.json /home/sanya/re-deep/en-catalog.json" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,120p' /home/user/clean-room-oracle/inline/lang-list.json && ls -l /home/user/clean-room-oracle/ru-catalog.json /home/user/clean-room-oracle/en-catalog.json" in /home/user/orca/project
  succeeded in 0ms:
 [
  {
@@ -713,8 +713,8 @@ exec
   "code": "bg",
   "name": "български",
   "englishName": "Bulgarian"
--rw-r--r-- 1 sanya sanya 1427037 Oct 19 11:39 /home/sanya/re-deep/en-catalog.json
--rw-r--r-- 1 sanya sanya 2443841 Oct 19 11:39 /home/sanya/re-deep/ru-catalog.json
+-rw-r--r-- 1 user user 1427037 Oct 19 11:39 /home/user/clean-room-oracle/en-catalog.json
+-rw-r--r-- 1 user user 2443841 Oct 19 11:39 /home/user/clean-room-oracle/ru-catalog.json
 
  succeeded in 0ms:
 # Discord 1.0.162 — i18n: рантайм, плурализация, rich-формат
@@ -727,7 +727,7 @@ exec
 
 | Что | Значение |
 |---|---|
-| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
+| Бандлы | `/home/user/clean-room-oracle/out/bundles` — 3 628 файлов, 61 МБ |
 | i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
 | Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
 | Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
@@ -959,9 +959,9 @@ inlineCode 25 → br 26 → text 27`. Discord-правила (mention/emoji/spoi
    учитывать `requiredFirstCharacters`, ограничения Discord (`#` только 1–3, списки ≤ 11 уровней,
 
 exec
-/usr/bin/bash -lc "rg -n -C 3 'P3-15' docs/rust-client/PLAN.md && rg -n -C 4 'T-I18N-0[123]' docs/rust-client/TEST-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -C 3 'P3-15' docs/rust-client/PLAN.md && rg -n -C 4 'T-I18N-0[123]' docs/rust-client/TEST-PLAN.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-json/src/lib.rs && sed -n '1,260p' rust/crates/discord-i18n/src/lib.rs && sed -n '1,120p' rust/crates/discord-i18n/Cargo.toml" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-json/src/lib.rs && sed -n '1,260p' rust/crates/discord-i18n/src/lib.rs && sed -n '1,120p' rust/crates/discord-i18n/Cargo.toml" in /home/user/orca/project
  succeeded in 0ms:
 100-| P3-12 | Компоненты (12 контрактов) | кнопки/инпуты/меню/поповеры/модалки/тумблеры/слайдеры/аватары/бейджи/скроллеры/тултипы | T-UI-11…14 | P0-01 | L |
 101-| P3-13 | Токены и темы | dark/light, cozy/compact, дизайн-токены из 5132 переменных | T-UI-15 | P3-12 | M |
@@ -1319,7 +1319,7 @@ codex
 ТЗ требует сохранять логи в `waves/RW-22/`, но ваше ограничение прямо запрещает менять `waves/*`; поэтому red/green выводы сохраню в `/tmp`, оставив журнал волны нетронутым. Каталоги-оракулы доступны. Перед реализацией добавлю контрактные тесты в крейт и зафиксирую обязательный red-прогон.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/Cargo.toml
+/home/user/orca/project/rust/crates/discord-i18n/Cargo.toml
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -1350,7 +1350,7 @@ index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -1431,7 +1431,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..fdd88c875d31fab29ba213c02baf021e
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -1524,7 +1524,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..fdd88c875d31fab29ba213c02baf021e
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -1538,9 +1538,9 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..fdd88c875d31fab29ba213c02baf021e
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log' in /home/user/orca/project/rust
  succeeded in 0ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 error[E0432]: unresolved imports `super::Catalog`, `super::I18n`, `super::Value`
   --> crates/discord-i18n/src/lib.rs:54:21
    |
@@ -1708,7 +1708,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..fdd88c875d31fab29ba213c02baf021e
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -1724,9 +1724,9 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..fdd88c875d31fab29ba213c02baf021e
 codex
 Red оказался ожидаемым compile-red: тесты ссылаются на ещё отсутствующий API. Из-за `tee` оболочка вернула его собственный код 0, поэтому сейчас повторю red-команду с `pipefail`, чтобы записать и подтвердить именно exit 101, затем добавлю реализацию.
 exec
-/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log' in /home/user/orca/project/rust
  exited 101 in 0ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 error[E0432]: unresolved imports `super::Catalog`, `super::I18n`, `super::Value`
   --> crates/discord-i18n/src/lib.rs:54:21
    |
@@ -1894,7 +1894,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..fdd88c875d31fab29ba213c02baf021e
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -1911,7 +1911,7 @@ codex
 Red с `pipefail` подтверждён (exit 101). Добавляю сейчас xxHash64/base64 без зависимостей, локали и AST/каталог, базовый translate для аргументов/select/plural/rich-тегов и безопасный markdown-парсер; Date/Time останутся явной типизированной ошибкой, как отложено в P7-01.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -2135,7 +2135,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..9d15270243e6890b8c0df77487894fe4
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -2371,7 +2371,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..9d15270243e6890b8c0df77487894fe4
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -2385,9 +2385,9 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..9d15270243e6890b8c0df77487894fe4
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
  exited 101 in 265ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
      Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 
@@ -2658,7 +2658,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..9d15270243e6890b8c0df77487894fe4
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -2675,7 +2675,7 @@ codex
 Первый green-прогон выявил четыре реальные ошибки реализации: debug-overflow в хвосте xxHash, разбор списков AST (в каталогах сообщение часто является последовательностью узлов), и небезопасные ссылки пока не сводятся к тексту. Исправляю эти случаи вместе с locale-контекстом plural, затем повторю targeted прогон.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -2901,7 +2901,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..521b09447a136ebb32a2bac27f301bc0
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -3139,7 +3139,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..521b09447a136ebb32a2bac27f301bc0
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -3154,7 +3154,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..521b09447a136ebb32a2bac27f301bc0
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -3378,7 +3378,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7929cdd2358f6e2adfce47a6bffae8b0
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -3614,7 +3614,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7929cdd2358f6e2adfce47a6bffae8b0
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -3628,9 +3628,9 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7929cdd2358f6e2adfce47a6bffae8b0
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
  exited 101 in 139ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
      Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 
@@ -3903,7 +3903,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7929cdd2358f6e2adfce47a6bffae8b0
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -3918,7 +3918,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7929cdd2358f6e2adfce47a6bffae8b0
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -4143,7 +4143,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..3c7bf9d3161c1145a85061d7d177bcdd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -4380,7 +4380,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..3c7bf9d3161c1145a85061d7d177bcdd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -4394,7 +4394,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..3c7bf9d3161c1145a85061d7d177bcdd
          assert_eq!(
 
 exec
-/usr/bin/bash -lc "sed -n '188,222p' rust/crates/discord-i18n/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '188,222p' rust/crates/discord-i18n/src/lib.rs" in /home/user/orca/project
  succeeded in 0ms:
         use super::{Catalog, I18n, Value};
         let json = discord_json::parse(r#"{
@@ -4656,7 +4656,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..3c7bf9d3161c1145a85061d7d177bcdd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -4671,7 +4671,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..3c7bf9d3161c1145a85061d7d177bcdd
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -4896,7 +4896,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..91eccd6b7eac691cc3e7a71b9192fad3
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -5133,7 +5133,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..91eccd6b7eac691cc3e7a71b9192fad3
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -5148,7 +5148,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..91eccd6b7eac691cc3e7a71b9192fad3
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -5373,7 +5373,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..1d54a42e36312cbf332bc80ef7b7617f
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -5610,7 +5610,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..1d54a42e36312cbf332bc80ef7b7617f
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -5624,9 +5624,9 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..1d54a42e36312cbf332bc80ef7b7617f
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
  exited 101 in 346ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
      Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 
@@ -5886,7 +5886,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..1d54a42e36312cbf332bc80ef7b7617f
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -5903,7 +5903,7 @@ codex
 Оба реальных каталога уже проходят разбор и сверку количества ключей; hash, locale и базовые переводы тоже зелёные. Остались границы unsafe-link парсинга и проверка неизвестного rich-тега: сейчас уточню их на уровне результата `translate`, затем прогоню форматирование и тесты крейта.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -6128,7 +6128,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..65541bab9c595e45a4ef721b5beeeaab
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -6365,7 +6365,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..65541bab9c595e45a4ef721b5beeeaab
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -6380,7 +6380,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..65541bab9c595e45a4ef721b5beeeaab
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -6607,7 +6607,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -6846,7 +6846,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -6860,9 +6860,9 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'rustfmt --edition 2021 rust/crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rustfmt --edition 2021 rust/crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project
  exited 101 in 0ms:
-error: could not find `Cargo.toml` in `/home/sanya/orca/project` or any parent directory
+error: could not find `Cargo.toml` in `/home/user/orca/project` or any parent directory
 
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
@@ -7090,7 +7090,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -7104,7 +7104,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -7331,7 +7331,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -7570,7 +7570,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -7586,7 +7586,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
 codex
 Markdown truncation case is doing quadratic work over every prefix of a 30 KB string and has exceeded a minute. I’m stopping that pathological test input and narrowing it to 10,000 short independent truncation samples, preserving the no-panic contract while keeping the crate test practical.
  exited 130 in 72645ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
      Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 
@@ -7824,7 +7824,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
 +
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
-+        for (path, count) in [("/home/sanya/re-deep/ru-catalog.json", 23_836), ("/home/sanya/re-deep/en-catalog.json", 23_903)] {
++        for (path, count) in [("/home/user/clean-room-oracle/ru-catalog.json", 23_836), ("/home/user/clean-room-oracle/en-catalog.json", 23_903)] {
 +            let Ok(raw) = std::fs::read_to_string(path) else { eprintln!("skip: unavailable oracle {path}"); continue };
 +            let value = discord_json::parse(&raw).unwrap();
 +            let catalog = super::Catalog::parse(&value).unwrap();
@@ -7839,7 +7839,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..d1aa4b8caf727549881350d6601bc5fd
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -8628,8 +8628,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -9437,8 +9437,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -9459,9 +9459,9 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
  succeeded in 486ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 
@@ -10270,8 +10270,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -10294,7 +10294,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
 codex
 Targeted-прогон теперь зелёный: 6 unit tests и doc-tests (0). Делаю заключительную проверку diff в разрешённом крейте и контрольных oracle-полей; общий gate и workspace-тесты не запускаю по вашему ТЗ.
 exec
-/usr/bin/bash -lc 'md5sum rust/crates/discord-i18n/Cargo.toml rust/crates/discord-i18n/src/lib.rs && tail -n 8 /tmp/red-w22a.log && tail -n 8 /tmp/green-w22a.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'md5sum rust/crates/discord-i18n/Cargo.toml rust/crates/discord-i18n/src/lib.rs && tail -n 8 /tmp/red-w22a.log && tail -n 8 /tmp/green-w22a.log' in /home/user/orca/project
  succeeded in 0ms:
 cb08822ae4bbedcf31f45b31a60870d3  rust/crates/discord-i18n/Cargo.toml
 ade19c5a5ed99acf7aa8a8fbbdf9c443  rust/crates/discord-i18n/src/lib.rs
@@ -10316,9 +10316,9 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 
 exec
-/usr/bin/bash -lc "rg -n '323362|r/EUap|hPBScv' /home/sanya/re-deep/ru-catalog.json" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '323362|r/EUap|hPBScv' /home/user/clean-room-oracle/ru-catalog.json" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "git status --short && git diff --stat -- rust/crates/discord-i18n && git diff -- rust/crates/discord-i18n/Cargo.toml | sed -n '1,100p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "git status --short && git diff --stat -- rust/crates/discord-i18n && git diff -- rust/crates/discord-i18n/Cargo.toml | sed -n '1,100p'" in /home/user/orca/project
  succeeded in 0ms:
  M .github/workflows/ci.yml
  M AGENTS.md
@@ -11271,8 +11271,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -11293,7 +11293,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
          assert_eq!(
 
 exec
-/usr/bin/bash -lc "rg -n 'fn format_number|fn parse_md|real_catalogs|catalog_translate_plural' rust/crates/discord-i18n/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n 'fn format_number|fn parse_md|real_catalogs|catalog_translate_plural' rust/crates/discord-i18n/src/lib.rs" in /home/user/orca/project
  succeeded in 0ms:
 544:fn format_number(n: f64, _locale: &str) -> String {
 564:fn parse_md(s: &str, depth: usize) -> MarkdownNode {
@@ -12088,8 +12088,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -12110,7 +12110,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
          assert_eq!(
 
 exec
-/usr/bin/bash -lc "sed -n '530,650p' rust/crates/discord-i18n/src/lib.rs && sed -n '780,812p' rust/crates/discord-i18n/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '530,650p' rust/crates/discord-i18n/src/lib.rs && sed -n '780,812p' rust/crates/discord-i18n/src/lib.rs" in /home/user/orca/project
  succeeded in 0ms:
             let body = render_ast(&Ast::Sequence(kids.clone()), args, plural, locale)?;
             match tag.as_str() {
@@ -12244,8 +12244,8 @@ pub fn render_markdown(node: &MarkdownNode) -> String {
     #[test]
     fn real_catalogs_match_independent_inventory() {
         for (path, count) in [
-            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-            ("/home/sanya/re-deep/en-catalog.json", 23_903),
+            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
+            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
         ] {
             let Ok(raw) = std::fs::read_to_string(path) else {
                 eprintln!("skip: unavailable oracle {path}");
@@ -13055,8 +13055,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -13078,7 +13078,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..356ae5ce11dd1404649e1940f65216c8
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -13886,8 +13886,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..65a58875342ff220089bd953961370d3
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -14715,8 +14715,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..65a58875342ff220089bd953961370d3
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -14739,7 +14739,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..65a58875342ff220089bd953961370d3
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -15546,8 +15546,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..74a1233b11f66f4309a19f9dffe0a256
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -16374,8 +16374,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..74a1233b11f66f4309a19f9dffe0a256
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -16396,7 +16396,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..74a1233b11f66f4309a19f9dffe0a256
      fn locale_math_is_consistent() {
          assert_eq!(
 
-2026-10-21T06:36:17.246283Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:
+2026-10-21T06:36:17.246283Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:
         assert_eq!(render_markdown(&parse_markdown("[x](javascript:alert(1))")), "x");
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
@@ -17204,8 +17204,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..74a1233b11f66f4309a19f9dffe0a256
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -17227,7 +17227,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..74a1233b11f66f4309a19f9dffe0a256
          assert_eq!(
 
 exec
-/usr/bin/bash -lc "sed -n '720,790p' rust/crates/discord-i18n/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '720,790p' rust/crates/discord-i18n/src/lib.rs" in /home/user/orca/project
  succeeded in 0ms:
 
     #[test]
@@ -18107,8 +18107,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..74a1233b11f66f4309a19f9dffe0a256
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -18131,7 +18131,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..74a1233b11f66f4309a19f9dffe0a256
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs
+/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
 --- a/rust/crates/discord-i18n/Cargo.toml
@@ -18947,8 +18947,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -19784,8 +19784,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -19807,9 +19807,9 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'rustfmt --edition 2021 crates/discord-i18n/src/lib.rs && set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/green-w22a.log' in /home/user/orca/project/rust
  succeeded in 563ms:
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
      Running unittests src/lib.rs (target/debug/deps/discord_i18n-b48d5b691a097444)
 
@@ -20645,8 +20645,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -20667,7 +20667,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
      fn locale_math_is_consistent() {
          assert_eq!(
 
-2026-10-21T06:36:49.258209Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:
+2026-10-21T06:36:49.258209Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:
         assert_eq!(super::message_key("abc").len(), 6);
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
 index f0ab98b719eedb44700cfc96de7aef6e800f175c..630f693d884e7e9d273237d0d6ec56e1fabb3e24
@@ -21484,8 +21484,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -21507,7 +21507,7 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
          assert_eq!(
 
 exec
-/usr/bin/bash -lc 'md5sum rust/crates/discord-i18n/Cargo.toml rust/crates/discord-i18n/src/lib.rs && git diff --check -- rust/crates/discord-i18n && git status --short -- rust/crates/discord-i18n' in /home/sanya/orca/project
+/usr/bin/bash -lc 'md5sum rust/crates/discord-i18n/Cargo.toml rust/crates/discord-i18n/src/lib.rs && git diff --check -- rust/crates/discord-i18n && git status --short -- rust/crates/discord-i18n' in /home/user/orca/project
  succeeded in 0ms:
 cb08822ae4bbedcf31f45b31a60870d3  rust/crates/discord-i18n/Cargo.toml
 65628ac277f2b3edb78b4189978bfade  rust/crates/discord-i18n/src/lib.rs
@@ -22329,8 +22329,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -22356,7 +22356,7 @@ codex
 
 - Red: `set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log` → exit **101**, compile-red по отсутствующему API.
 - Green: та же команда с `tee /tmp/green-w22a.log` → exit **0**; **6 unit-тестов прошли**, doc-tests: 0.
-- Изменены только [Cargo.toml](/home/sanya/orca/project/rust/crates/discord-i18n/Cargo.toml) и [lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs). `git diff --check` чистый.
+- Изменены только [Cargo.toml](/home/user/orca/project/rust/crates/discord-i18n/Cargo.toml) и [lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs). `git diff --check` чистый.
 - Логи оставлены в `/tmp`: запись в `waves/RW-22/` нарушила бы запрет менять `waves/*`.
 - Date/Time форматирование отложено в P7-01 и возвращает `UnsupportedNode`. `$link` без подтверждённого URL рендерит только children. Batch gate не запускался.
 diff --git a/rust/crates/discord-i18n/Cargo.toml b/rust/crates/discord-i18n/Cargo.toml
@@ -23174,8 +23174,8 @@ index 7b3d41ff265de5e121e752f7b7fa71bad1f7d688..7029e6c0e945862470f2fc416d183ad0
 +    #[test]
 +    fn real_catalogs_match_independent_inventory() {
 +        for (path, count) in [
-+            ("/home/sanya/re-deep/ru-catalog.json", 23_836),
-+            ("/home/sanya/re-deep/en-catalog.json", 23_903),
++            ("/home/user/clean-room-oracle/ru-catalog.json", 23_836),
++            ("/home/user/clean-room-oracle/en-catalog.json", 23_903),
 +        ] {
 +            let Ok(raw) = std::fs::read_to_string(path) else {
 +                eprintln!("skip: unavailable oracle {path}");
@@ -23202,6 +23202,6 @@ tokens used
 
 - Red: `set -o pipefail; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n 2>&1 | tee /tmp/red-w22a.log` → exit **101**, compile-red по отсутствующему API.
 - Green: та же команда с `tee /tmp/green-w22a.log` → exit **0**; **6 unit-тестов прошли**, doc-tests: 0.
-- Изменены только [Cargo.toml](/home/sanya/orca/project/rust/crates/discord-i18n/Cargo.toml) и [lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs). `git diff --check` чистый.
+- Изменены только [Cargo.toml](/home/user/orca/project/rust/crates/discord-i18n/Cargo.toml) и [lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs). `git diff --check` чистый.
 - Логи оставлены в `/tmp`: запись в `waves/RW-22/` нарушила бы запрет менять `waves/*`.
 - Date/Time форматирование отложено в P7-01 и возвращает `UnsupportedNode`. `$link` без подтверждённого URL рендерит только children. Batch gate не запускался.

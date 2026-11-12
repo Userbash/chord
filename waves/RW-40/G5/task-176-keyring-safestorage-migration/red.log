@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-176-keyring-safestorage-migration/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/feature-task-176-keyring-safestorage-migration/rust/crates/discord-platform)
 error[E0432]: unresolved imports `discord_platform::keyring::extract_safe_storage_ciphertext`, `discord_platform::keyring::is_safe_storage_token`, `discord_platform::keyring::SafeStorageMigrationError`, `discord_platform::keyring::SafeStorageMigrator`, `discord_platform::keyring::ENCRYPTED_TOKEN_PREFIX`
   --> crates/discord-platform/tests/keyring_contract.rs:28:5
    |

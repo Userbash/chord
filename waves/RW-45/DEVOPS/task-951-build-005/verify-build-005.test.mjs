@@ -9,9 +9,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
-const ROOT = "/home/sanya/orca/project";
-const UNSTABLE_WT = "/home/sanya/orca/workspaces/project/unstable";
-const TESTING_WT = "/home/sanya/orca/workspaces/project/testing";
+const ROOT = "/home/user/orca/project";
+const UNSTABLE_WT = "/home/user/orca/workspaces/project/unstable";
+const TESTING_WT = "/home/user/orca/workspaces/project/testing";
 const MANIFEST_PATH = path.join(ROOT, "waves/BUILD-005.json");
 const KANBAN_PATH = path.join(ROOT, "waves/kanban-board.json");
 

@@ -19,7 +19,7 @@
 test at tests/meta/test-policy.test.mjs:75:3
 ✖ гейт запускает Rust workspace целиком, а не только gui-spike (0.478979ms)
   AssertionError [ERR_ASSERTION]: в gate.mjs нет фазы workspace-rust
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:82:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:82:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

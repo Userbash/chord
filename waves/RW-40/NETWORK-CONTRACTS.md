@@ -2,7 +2,7 @@
 
 Дата: 2026-10-24. Автор: RE-воркер G1/Network (subagent PM DeepSeek).
 Задача: подтвердить сетевые контракты для `NETWORK-ROADMAP.md` §7 без кода, без сети и без окна.
-Все источники — **только чтение** (`/home/sanya/re-deep/**`, `docs/re/**`). Ничего не запускалось:
+Все источники — **только чтение** (`reference-oracle/**`, `docs/re/**`). Ничего не запускалось:
 ни Discord, ни cargo, ни tcpdump, ни live-окно.
 
 ## 0. Метод и система маркировки
@@ -11,14 +11,14 @@
 
 | Код | Артефакт | Что даёт |
 |---|---|---|
-| `RS` | `/home/sanya/re-deep/rest-static.json` (381 655 Б, 904 записи) | статическая карта эндпоинтов из Enum клиента + call-site + HTTP-cache |
+| `RS` | `reference-oracle/rest-static.json` (381 655 Б, 904 записи) | статическая карта эндпоинтов из Enum клиента + call-site + HTTP-cache |
 | `RS.stats` | `RS` → `.stats` | `confirmedByHttpCache: 81`, `confirmedByLiveCapture: 0`, `restEndpoints: 648` |
 | `D02` | `docs/re/rest-d02.md` + `d02-snapshot/capture-*.snap.jsonl` | живой CDP-захват REST (47 эндпоинтов, 133 запроса) |
-| `B` | `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ, минифицирован; строка 1 = 662 381 симв.) | **код клиента**: call-site, схемы запроса/ответа, таблицы опкодов |
+| `B` | `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ, минифицирован; строка 1 = 662 381 симв.) | **код клиента**: call-site, схемы запроса/ответа, таблицы опкодов |
 | `VD` | `docs/re/voice-deep.md` | RTC/UDP/SRTP по трём живым голосовым сессиям |
-| `RF` | `/home/sanya/re-deep/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`, `rtc-summary.json` | сырые RTC-кадры (in/out, JSON + бинарные) |
-| `EL1` | `/home/sanya/re-deep/voice/engine-log-session1.txt` (26 строк) | движковый лог сессии 1: подключение, кодеки, DAVE |
-| `EL3` | `/home/sanya/re-deep/discord-run3.log` (95 КБ) | движковый лог: `updateVideoQuality`, MLS, disconnect |
+| `RF` | `reference-oracle/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`, `rtc-summary.json` | сырые RTC-кадры (in/out, JSON + бинарные) |
+| `EL1` | `reference-oracle/voice/engine-log-session1.txt` (26 строк) | движковый лог сессии 1: подключение, кодеки, DAVE |
+| `EL3` | `reference-oracle/discord-run3.log` (95 КБ) | движковый лог: `updateVideoQuality`, MLS, disconnect |
 | `GP` | `docs/re/gateway-protocol.md` | шлюз: диспатчи, READY, опкоды |
 | `NR` | `docs/re/native-re.md`, `native-re/voice-features.txt` | `discord_voice.node`: MLS/DAVE, кодеки, фичи |
 
@@ -363,7 +363,7 @@ sha256) — какой именно op (25/27/29/30) у них, из артеф�
 
 ### 3.5 `voice-features.txt` — классификация (52 флага)
 
-Файл: `/home/sanya/re-deep/native-re/voice-features.txt` (52 уникальных флага),
+Файл: `reference-oracle/native-re/voice-features.txt` (52 уникальных флага),
 дублирует список `features.declareSupported` (`NR:348-357`).
 
 **[T] — подтверждено артефактом (лог/захват/конкретный вызов или символ с параметрами):**

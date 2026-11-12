@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Восстановление четырёх файлов RW-07 из бэкапа приёмки + touch (инцидент залипшего rlib).
 set -euo pipefail
-cd /home/sanya/orca/project/rust/crates/discord-core
+cd /home/user/orca/project/rust/crates/discord-core
 B=/tmp/opencode/review-rw-07/backup/final
 cp "$B/dispatch.rs" src/dispatch.rs
 cp "$B/ws.rs" src/ws.rs

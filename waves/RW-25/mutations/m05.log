@@ -66,7 +66,7 @@ failures:
 
 test result: FAILED. 18 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 warning: unused variable: `ext_len_words`
    --> crates/discord-voice/src/srtp.rs:588:13
     |

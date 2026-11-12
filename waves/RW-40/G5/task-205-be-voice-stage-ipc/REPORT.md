@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G5` (Voice / Platform).
 - **Карточка**: `task-205` — BFF голосовой сцены и IPC-контракт демонстрации экрана (`MAX_STAGE_VISIBLE_TILES`, `StreamResolution`, `StreamFps`, `ScreenShareSpec`, `build_gateway_stream_create_op18`, `build_gateway_stream_delete_op19`).
-- **Ветка / worktree**: `feature/task-205-be-voice-stage-ipc`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-205-be-voice-stage-ipc`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/voice_stage.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/voice_stage_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G5/task-205-be-voice-stage-ipc/REPORT.md` (а также `red.log` и `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G5/task-205-be-voice-stage-ipc/REPORT.md` (а также `red.log` и `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`, `waves/RW-40/VOICE/STREAM-GATEWAY-CONTRACT.md` (`A-OPCODES`, `A-SENDERS`, `A-KEY-PARSE`, `A-KEY-BUILD`, `D-27-2`), `waves/RW-40/VOICE/stream-opcodes-fixtures.json` и `rust/gui-spike/ui/features/voice-grid.js`:
+Сверено с `reference-oracle/decoded/4d2a64cb5df5fc4e_0`, `waves/RW-40/VOICE/STREAM-GATEWAY-CONTRACT.md` (`A-OPCODES`, `A-SENDERS`, `A-KEY-PARSE`, `A-KEY-BUILD`, `D-27-2`), `waves/RW-40/VOICE/stream-opcodes-fixtures.json` и `rust/gui-spike/ui/features/voice-grid.js`:
 
 - **`MAX_STAGE_VISIBLE_TILES`**: `25` (сетка участников голосовой сцены до `5x5`).
 - **`A-KEY-BUILD` (`@5089954`) и `A-KEY-PARSE` (`@5089698`)**:
@@ -40,7 +40,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G5/task-205-be-voice-stage-ipc/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G5/task-205-be-voice-stage-ipc/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::voice_stage`
@@ -55,7 +55,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G5/task-205-be-voice-stage-ipc/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G5/task-205-be-voice-stage-ipc/green.log`:
 
 ```text
 running 8 tests

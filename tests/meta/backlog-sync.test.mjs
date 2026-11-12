@@ -100,6 +100,9 @@ describe("backlog-sync: бэклог переноса ↔ docs ↔ README/TASKS"
     const map = await readFile(join(root, "docs/map.md"), "utf8");
     assert.ok(map.includes("```mermaid"), "docs/map.md: нет Mermaid-блока");
     assert.ok(map.includes("Vesktop"), "docs/map.md: нет узла про Vesktop");
-    assert.ok(map.includes("Бэклог переноса"), "docs/map.md: нет узла про бэклог переноса");
+    assert.ok(
+      map.includes("Transfer Backlog") || map.includes("Бэклог переноса"),
+      "docs/map.md: нет узла про бэклог переноса",
+    );
   });
 });

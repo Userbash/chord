@@ -9,14 +9,14 @@
   и кодировщики `encode_presence_update`, `encode_voice_state_update`,
   `encode_request_guild_members`, `encode_guild_subscriptions`, плюс `chunk_user_ids` (границы
   100/101). Формы взяты дословно из клиента 1.0.162
-  (`/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
+  (`reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
   `presenceUpdate` @4 998 360, `voiceStateUpdate` там же, `requestGuildMembers` @4 998 360,
   `updateGuildSubscriptions` @4 998 666, `.chunk(100)` @4 954 008 (`GUILD_MEMBERS_REQUEST`),
   `SubscriptionManager.get` @9 112 505. Кодирование — wetf-раскладка клиента
   (`string:"binary", key:"binary", array:"list", null:"atom", undefined:"null"`): ключи и
   строки — `BINARY_EXT`, массивы — `LIST_EXT`, отсутствующие значения — `NIL_EXT`, булевы —
   атомы `true`/`false`.
-- **red:** `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline
+- **red:** `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline
   --manifest-path rust/Cargo.toml -p discord-core` → exit **101**, `E0432`: девять имён
   (`Outbound*`, `encode_*`, `chunk_user_ids`) отсутствуют в `gateway`; лог —
   `RED.log`.

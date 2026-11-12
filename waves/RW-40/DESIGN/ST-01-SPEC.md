@@ -13,7 +13,7 @@
 | Метка | Значение | Источник |
 |-|-|-|
 | `[T]` | значение токена проекта | `rust/gui-spike/ui/tokens.css` (вендоринг `waves/RW-39/DESIGN/tokens.css`) |
-| `[M]` | измерено (DOM-rect / пиксели JPG) | `/home/sanya/re-deep/ui8/23-settings-*.json`, `waves/RW-39/DESIGN/layout.json` |
+| `[M]` | измерено (DOM-rect / пиксели JPG) | `reference-oracle/ui8/23-settings-*.json`, `waves/RW-39/DESIGN/layout.json` |
 | `[D]` | факт дампа (DOM/JSON/строки), не сеть | `ui8/23-settings-categories.json`, `ui8/23-settings-voice.html` |
 | `[S]` | подтверждено кодом клиента эталона | `PARITY/*`, `NETWORK-CONTRACTS.md` (для ST-01 не использовалось) |
 | `[L]` | подтверждено live-захватом | для ST-01 **нет таких фактов** (навигация снята из DOM, не из сети) |
@@ -37,7 +37,7 @@
 | Активные состояния | раздел: `active_caf372` + `aria-current="page"` + `tabindex="0"`; подпункт: `active_e4d939` + `aria-current="location"` + `tabindex="-1"` | `[D]` |
 | Анимация/раскрытие | `subnavContainer` раскрыт inline-стилем `height: 192px; opacity: 1` (6 подпунктов); **`aria-expanded` у разделов нет** | `[D]` |
 | Диалоговая семантика | `role="dialog"`/`aria-modal` в дампе **отсутствуют** | `[D]` |
-| Версия эталона | футер сайдбара: `stable 641004 (c9ac31f)`, `1.0.162 x64 (94186)`; дампа 1.0.166 с сайдбаром нет (в `/home/sanya/re-deep/ui*/` файл один) | `[D]`, version-gap `[A]` |
+| Версия эталона | футер сайдбара: `stable 641004 (c9ac31f)`, `1.0.162 x64 (94186)`; дампа 1.0.166 с сайдбаром нет (в `reference-oracle/ui*/` файл один) | `[D]`, version-gap `[A]` |
 | Контентная колонка | `23-settings-voice.json`: `rect {x0:633, y0:121, w:1020, h:865}`, `switchCount: 38` | `[M]` |
 | Замеры JPG | `layout.json.measured`: sidebar 264, nav-item 36, sub-item 34, поиск 240×30 r8, профиль-аватар 48, контент x589 w1134 pad 60/40/80 max 740 | `[M]` |
 | Наш as-built | `settings.js` 912 строк: 18 разделов (`:16`), 3 панели (`:38`), профиль (`:45`), 4 подпункта (`:56`), «Выйти» (`:834`), 38 тумблеров | `[F]` |
@@ -456,7 +456,7 @@
 | Backend logout | `src/**` `auth_logout` (`main.rs:381`) — **только чтение** | G1 |
 | Токены/геометрия | `rust/gui-spike/ui/tokens.css` + `waves/RW-39/PM/w39c/geometry-check.mjs` — менять **только** карточкой токенов, не внутри ST-01 | PM/G3→G2 |
 | Общие | `PARITY/PARITY-MATRIX.md`, `waves/db.jsonl`, `waves/STATE.md`, `PROJECT-CONTEXT.md`, `TASKS.md` | **Team Lead/G6**, не G2/G3 |
-| Read-only | `tests/support/gui-dom-harness.mjs`, `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep/**` | все |
+| Read-only | `tests/support/gui-dom-harness.mjs`, `logs/`, `functions/`, `evidence/`, `reference-oracle/**` | все |
 
 Правило пересечения: G3 не пишет в `ui/**` и `tests/**`; G2 не правит этот SPEC (правки —
 через PM). Новые файлы фикстур создаёт G2 (их нет в матрице — строка «(new)» в
@@ -469,7 +469,7 @@
 `tests/fixtures/settings-nav-63.tsv` — 63 строки + заголовок, колонки:
 `idx	depth	key	label	group	parent	oracle_cls	aria	state	owner` (значения — §А).
 Источник: `23-settings-categories.json` (порядок/глубина/классы) + ключи из HTML.
-Пути `/home/sanya/re-deep/**` в тестах **не** используются (в CI их нет) — поэтому фикстура
+Пути `reference-oracle/**` в тестах **не** используются (в CI их нет) — поэтому фикстура
 хранится в репозитории.
 
 `tests/fixtures/settings-nav-voice-6.tsv` — 6 строк (key, label, parent, anchor target):

@@ -1,9 +1,9 @@
 === Baseline MD5 (rust/crates/discord-voice/src/ptt.rs): 976860bd3f7da6d7300b8f03d6fb93b7 ===
 === Baseline MD5 (rust/crates/discord-voice/src/noise.rs): 3faeb35b4ce047559ee7d807fa27a5e5 ===
 --- M1: PttKeyState::activation_state boundary elapsed <= delay -> elapsed < delay ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
-     Running tests/ptt_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
+     Running tests/ptt_contract.rs (/home/user/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
 
 running 5 tests
 test t_ptt_01_constants_and_audio_mode_type_oracle ... ok
@@ -31,7 +31,7 @@ test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 error: test failed, to rerun pass `-p discord-voice --test ptt_contract`
 Result M1: KILLED
 --- M2: PttKeyState::speaking_flags omit PRIORITY bitflag when priority_speaker_allowed ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
 warning: unused variable: `priority_speaker_allowed`
    --> crates/discord-voice/src/ptt.rs:461:47
     |
@@ -42,7 +42,7 @@ warning: unused variable: `priority_speaker_allowed`
 
 warning: `discord-voice` (lib) generated 1 warning (run `cargo fix --lib -p discord-voice` to apply 1 suggestion)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
-     Running tests/ptt_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
+     Running tests/ptt_contract.rs (/home/user/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
 
 running 5 tests
 test t_ptt_01_constants_and_audio_mode_type_oracle ... ok
@@ -78,9 +78,9 @@ test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; 
 error: test failed, to rerun pass `-p discord-voice --test ptt_contract`
 Result M2: KILLED
 --- M3: MicStateMachine::evaluate_frame bypass is_effectively_muted() check ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.36s
-     Running tests/ptt_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
+     Running tests/ptt_contract.rs (/home/user/orca/project/rust/target/debug/deps/ptt_contract-f8b1fa07e44f41e5)
 
 running 5 tests
 test t_ptt_01_constants_and_audio_mode_type_oracle ... ok
@@ -108,9 +108,9 @@ test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 error: test failed, to rerun pass `-p discord-voice --test ptt_contract`
 Result M3: KILLED
 --- M4: NoiseSuppressionPipeline::process_frame VAD leading_streak >= -> > ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
-     Running tests/noise_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/noise_contract-7bd2c70536d38c5f)
+     Running tests/noise_contract.rs (/home/user/orca/project/rust/target/debug/deps/noise_contract-7bd2c70536d38c5f)
 
 running 4 tests
 test t_noise_01_constants_and_krisp_model_tier_oracle ... ok
@@ -135,9 +135,9 @@ test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; 
 error: test failed, to rerun pass `-p discord-voice --test noise_contract`
 Result M4: KILLED
 --- M5: attenuate_pcm_s16_in_place disable dB gain calculation ---
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/task-633-hardware-ptt-voice/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
-     Running tests/noise_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/noise_contract-7bd2c70536d38c5f)
+     Running tests/noise_contract.rs (/home/user/orca/project/rust/target/debug/deps/noise_contract-7bd2c70536d38c5f)
 
 running 4 tests
 test t_noise_01_constants_and_krisp_model_tier_oracle ... ok

@@ -6,7 +6,7 @@ d1113587c21f7a91e4e0f00dc4e0c435  rust/gui-spike/tests/attachments_contract.rs
 
 === M1: parse_https_upload_url allows http:// ===
 da1a6f62a463e0514f24ae7d0116d264  rust/gui-spike/src/attachments.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.35s
      Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
 
@@ -55,7 +55,7 @@ M1_EXIT_CODE=101
 
 === M2: upload_attachment_bytes_with_tier allows empty data ===
 788d55cc34a865c25d367758d84846a9  rust/gui-spike/src/attachments.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.00s
      Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
 
@@ -104,7 +104,7 @@ M2_EXIT_CODE=101
 
 === M3: upload_attachment_bytes_with_tier drops content_type and bytes ===
 dcc00db6c9a329ad0dea0f16c7296161  rust/gui-spike/src/attachments.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: unused variable: `mime`
    --> src/attachments.rs:556:9
     |
@@ -170,7 +170,7 @@ M3_EXIT_CODE=101
 
 === M4: decode_put maps HTTP 413 to Ok(()) ===
 2242590308f98489109f0e7a3adf5100  rust/gui-spike/src/attachments.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s
      Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
 
@@ -220,7 +220,7 @@ M4_EXIT_CODE=101
 === M5: main.rs omits attachments_upload_put from generate_handler! ===
 84d8905b20a67c46a7908c9ac103560a  rust/gui-spike/src/attachments.rs
 1cce0298f8329de96639846e3f67934e  rust/gui-spike/src/main.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 warning: function `attachments_upload_put` is never used
    --> src/main.rs:531:10
     |
@@ -283,7 +283,7 @@ dc1d395fd083020f5a7d5e038925cd1d  rust/gui-spike/src/main.rs
 d1113587c21f7a91e4e0f00dc4e0c435  rust/gui-spike/tests/attachments_contract.rs
 
 === POST-MUTATION GREEN VERIFY ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.19s
      Running unittests src/lib.rs (/tmp/target-int01/debug/deps/discord_gui_spike-69b2bc60abd98420)
 
@@ -354,7 +354,7 @@ test tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or ... ok
 test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 POST_MUTATION_TEST_EXIT=0
-    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Checking discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.58s
 POST_MUTATION_CLIPPY_EXIT=0
 POST_MUTATION_RUSTFMT_EXIT=0

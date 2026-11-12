@@ -49,7 +49,7 @@
 
 До реализации продуктового кода зафиксированы падения:
 
-1. `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --lib gateway`:
+1. `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --lib gateway`:
    ```
    error[E0425]: cannot find value `MAX_GUILD_SUBSCRIPTIONS_FRAME_BYTES` in module `super`
    error[E0425]: cannot find type `GuildSubscriptionsBulk` in module `super`
@@ -58,7 +58,7 @@
    error: could not compile `discord-core` (lib test) due to 11 previous errors
    ```
 
-2. `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test net_contract`:
+2. `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test net_contract`:
    ```
    error[E0432]: unresolved imports `discord_gui_spike::net::map_dispatch_event`, `discord_gui_spike::net::GatewayCommandError`, `discord_gui_spike::net::GuildSubscriptionsBulkCommand`, `discord_gui_spike::net::PresenceCommand`, `discord_gui_spike::net::RequestGuildMembersCommand`, `discord_gui_spike::net::VoiceStateCommand`
    error[E0422]: cannot find struct, variant or union type `SubscriptionEntry` in module `discord_gui_spike::net`
@@ -69,7 +69,7 @@
 
 1. **Unit-тесты `discord-core::gateway`:**
    ```sh
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --lib gateway
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --lib gateway
    ```
    Вывод:
    ```
@@ -92,7 +92,7 @@
 
 2. **Контрактные тесты `discord-gui-spike::net_contract`:**
    ```sh
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test net_contract
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test net_contract
    ```
    Вывод:
    ```
@@ -135,8 +135,8 @@
 
 3. **Clippy:**
    ```sh
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test net_contract -- -D warnings
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core -- -D warnings
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test net_contract -- -D warnings
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core -- -D warnings
    ```
    Оба вызова завершились с кодом 0 без единого предупреждения.
 

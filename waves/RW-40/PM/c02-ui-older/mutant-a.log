@@ -47,7 +47,7 @@ test at tests/unit/channel-paging.test.mjs:669:3
   + null
   - '1561627527833849898'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:692:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:692:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -71,7 +71,7 @@ test at tests/unit/channel-paging.test.mjs:720:3
       '1561627528685166655'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:758:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:758:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -85,7 +85,7 @@ test at tests/unit/channel-paging.test.mjs:720:3
 test at tests/unit/channel-paging.test.mjs:790:5
 ✖ ошибка 404: alert сверху, строки целы, retry догружает (11.549997ms)
   AssertionError [ERR_ASSERTION]: текст ошибки 404 не виден
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:811:16)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:811:16)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -101,7 +101,7 @@ test at tests/unit/channel-paging.test.mjs:790:5
 test at tests/unit/channel-paging.test.mjs:790:5
 ✖ ошибка 401: alert сверху, строки целы, retry догружает (6.312446ms)
   AssertionError [ERR_ASSERTION]: текст ошибки 401 не виден
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:811:16)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:811:16)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -115,7 +115,7 @@ test at tests/unit/channel-paging.test.mjs:790:5
 test at tests/unit/channel-paging.test.mjs:837:3
 ✖ окно истории не растёт сверх 500 строк при подгрузке вверх (7.703481ms)
   AssertionError [ERR_ASSERTION]: подгрузка вверх сделала 7 запросов — больше 500 строк
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/channel-paging.test.mjs:908:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/channel-paging.test.mjs:908:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

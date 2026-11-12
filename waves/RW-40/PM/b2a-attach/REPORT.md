@@ -9,7 +9,7 @@
 
 | Элемент | Контракт (RE) |
 |---|---|
-| `AttachmentFileSpec { filename, file_size, id, is_clip }` | RE-DEEP-REA §1.3 `getUploadPayload` |
+| `AttachmentFileSpec { filename, file_size, id, is_clip }` | reference-oracle-REA §1.3 `getUploadPayload` |
 | `AttachmentUploadSlot { id, upload_url, upload_filename }` | §1.2 ответ `attachments[0]` |
 | `UploadedAttachment { id, filename, uploaded_filename }` | §1.7 `uploaded_filename` в сообщении |
 | `request_upload_slots(&transport, channel_id, files)` + `DiscordAttachments::request_upload_slots` | §1.1–§1.2 |
@@ -73,7 +73,7 @@ cargo clippy --offline --all-targets -- -D warnings     → exit 0
 
 ## oracle
 
-- `waves/RW-40/RE-DEEP-REA.md` §1.1–§1.7 (строки дампа `4d2a64cb5df5fc4e_0@269215`, `@2573535`,
+- `waves/RW-40/reference-oracle-REA.md` §1.1–§1.7 (строки дампа `4d2a64cb5df5fc4e_0@269215`, `@2573535`,
   `@2572444`, `@2572800`, `@322893`, `@2361900`, `@667084`);
 - `waves/RW-40/ATTACH-RE.md` §2 (сводная таблица, те же факты + лимиты tier NONE/T1 = 10 МиБ);
 - независимый контроль allowlist — публичный `messages::send_message` (parity-тест), а не копия

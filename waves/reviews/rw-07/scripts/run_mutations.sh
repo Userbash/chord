@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Прогон мутаций RW-07: apply → cargo test (адресный файл) → log → restore+touch.
 set -u
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 S=/tmp/opencode/review-rw-07/scripts
 L=/tmp/opencode/review-rw-07/logs
 mkdir -p "$L"

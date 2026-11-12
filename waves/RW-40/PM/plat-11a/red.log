@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
      Running tests/messages_contract.rs (target/debug/deps/messages_contract-398d4b80b44a2c30)
 
@@ -49,7 +49,7 @@ error: test failed, to rerun pass `--test messages_contract`
 === additional red-proof: sender-level guard on HEAD source ===
 source: git show HEAD:rust/gui-spike/src/messages.rs (md5 8da412cf1a629ac03636d61c5e58be3d)
 command: cargo test --offline --test messages_contract sender_rejects_path_traversal_channel_id_before_http
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.65s
      Running tests/messages_contract.rs (target/debug/deps/messages_contract-398d4b80b44a2c30)
 
@@ -60,7 +60,7 @@ failures:
 
 ---- sender_rejects_path_traversal_channel_id_before_http stdout ----
 
-thread 'sender_rejects_path_traversal_channel_id_before_http' (152850) panicked at /home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/net/tcp/stream.rs:167:18:
+thread 'sender_rejects_path_traversal_channel_id_before_http' (152850) panicked at /home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/net/tcp/stream.rs:167:18:
 A Tokio 1.x context was found, but IO is disabled. Call `enable_io` on the runtime builder to enable IO.
 note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 

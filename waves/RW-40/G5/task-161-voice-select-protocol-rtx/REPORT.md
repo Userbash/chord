@@ -3,7 +3,7 @@
 - **Карточка:** `task-161` (`BE-P1-08`)
 - **Волна:** `RW-40`
 - **Роль:** Воркер G5 Platform / Voice
-- **Оракул:** `/home/sanya/re-deep/voice/rtc1-frames.jsonl` (кадр op1 SelectProtocol), `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (§BE-P1-08).
+- **Оракул:** `reference-oracle/voice/rtc1-frames.jsonl` (кадр op1 SelectProtocol), `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (§BE-P1-08).
 
 ---
 
@@ -31,7 +31,7 @@
 
 4. **Тесты**:
    - `test_default_client_codecs_specification` — проверка спецификации всех 5 кодеков эталонного набора.
-   - `test_select_protocol_wire_parity_with_rtc1_oracle` — побайтовая сверка и парсинг кадра op1 из оракула `/home/sanya/re-deep/voice/rtc1-frames.jsonl` (line 15), проверка сериализации `to_frame_json()` и раундтрипа `parse_frame`.
+   - `test_select_protocol_wire_parity_with_rtc1_oracle` — побайтовая сверка и парсинг кадра op1 из оракула `reference-oracle/voice/rtc1-frames.jsonl` (line 15), проверка сериализации `to_frame_json()` и раундтрипа `parse_frame`.
    - `test_select_protocol_backward_compatibility_without_new_fields` — проверка совместимости со старыми кадрами без расширенных полей.
 
 ---

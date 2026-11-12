@@ -2,7 +2,7 @@
 
 - **Дата**: 2026-10-30
 - **Ревьюер**: Технический ревьюер (не автор кода)
-- **Worktree**: `/home/sanya/orca/workspaces/project/feature-task-133-mount-dm-friends-app`
+- **Worktree**: `/home/user/orca/workspaces/project/feature-task-133-mount-dm-friends-app`
 - **Ветка**: `feature/task-133-mount-dm-friends-app` (`HEAD 4e24048`)
 - **Карточка**: `task-133` (`FE-P0-01` из `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md`)
 - **Оракулы**: `waves/RW-40/DESIGN/DM-FRIENDS-SPEC.md`, `waves/RW-40/DM-FRIENDS-RE.md`
@@ -78,7 +78,7 @@
 
 ## 3. Мутационные проверки (6/6 KILLED)
 
-Полный журнал сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-133-mount-dm-friends/review-55a-mutation.log`. После каждой мутации файл восстанавливался и сверялся по MD5 (`e83caa7d335328eeb06599d5cd4093e1` для `app.js`, `04f3e0d3d532219b8187938172b6fc50` для `index.html`).
+Полный журнал сохранён в `/home/user/orca/project/waves/RW-40/G2/task-133-mount-dm-friends/review-55a-mutation.log`. После каждой мутации файл восстанавливался и сверялся по MD5 (`e83caa7d335328eeb06599d5cd4093e1` для `app.js`, `04f3e0d3d532219b8187938172b6fc50` для `index.html`).
 
 | # | Файл и место | Мутация | Статус | Убившие тесты |
 |---|---|---|---|---|

@@ -6,7 +6,7 @@
 - **Автор ревью:** Product Manager (PM)
 
 ## Проверка соответствия ТЗ и DoD
-1. **Константы и каналы релиза (`/home/sanya/re-deep/main-arch.md` §5):**
+1. **Константы и каналы релиза (`reference-oracle/main-arch.md` §5):**
    - `NEW_UPDATE_ENDPOINT = "https://updates.discord.com/"`, `DEFAULT_UPDATE_ENDPOINT = "https://discord.com/api"`, `DEFAULT_UPDATE_BACKOFF_MAX_MS = 30_000`, `SCHEDULED_UPDATE_BACKOFF_MS = [2_000, 3_000, 3_000, 4_000, 5_000, 7_000, 10_000, 12_000, 15_000]`.
    - `ReleaseChannel` (`Stable`, `Ptb`, `Canary`, `Development`) и `should_disable_updater`.
    - `LinuxPackageFormat` (`Deb`, `TarGz`), `build_linux_download_url`, `build_linux_feed_url`, `build_modules_base_url` со строгой валидацией `ManifestError::InvalidEndpoint`.

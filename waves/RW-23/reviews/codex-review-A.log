@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,21 +11,21 @@ reasoning summaries: none
 session id: 01a15d71-3f4d-74a0-ac6a-e6e07880c284
 --------
 user
-Ты — независимый ревьюер A волны RW-23/B04 (P4-02), не автор. Только чтение, ничего не редактируй и не коммить. Проверь rust/crates/discord-voice/src/udp.rs, tests/udp.rs, waves/RW-23/WAVE-PLAN.md §3, docs/re/voice-deep.md §2.1–2.5 и реальные /home/sanya/re-deep/voice/strace-media-s3.jsonl, session3.timing, rtc1/rtc2. Ищи P0/P1/P2/P3: расхождения с RE (offset/len/type/port/keepalive sequence/rotation/RR), truncation/panic/DoS, утечки секретов в Debug, жизненный цикл сокета, skip-aware тесты, слабые/тавтологичные проверки, отсутствие интеграции RotationSchedule с сокетом, encode с невалидным Response, приём пакетов с чужого адреса. Для каждого finding: severity, file:line, почему это дефект, минимальная репродукция/команда, ожидаемое поведение. Не выдумывай: если не воспроизводится — помечай hypothesis. В конце: P0/P1/P2 count и вердикт. Пиши по-русски.
+Ты — независимый ревьюер A волны RW-23/B04 (P4-02), не автор. Только чтение, ничего не редактируй и не коммить. Проверь rust/crates/discord-voice/src/udp.rs, tests/udp.rs, waves/RW-23/WAVE-PLAN.md §3, docs/re/voice-deep.md §2.1–2.5 и реальные /home/user/clean-room-oracle/voice/strace-media-s3.jsonl, session3.timing, rtc1/rtc2. Ищи P0/P1/P2/P3: расхождения с RE (offset/len/type/port/keepalive sequence/rotation/RR), truncation/panic/DoS, утечки секретов в Debug, жизненный цикл сокета, skip-aware тесты, слабые/тавтологичные проверки, отсутствие интеграции RotationSchedule с сокетом, encode с невалидным Response, приём пакетов с чужого адреса. Для каждого finding: severity, file:line, почему это дефект, минимальная репродукция/команда, ожидаемое поведение. Не выдумывай: если не воспроизводится — помечай hypothesis. В конце: P0/P1/P2 count и вердикт. Пиши по-русски.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Проверю заданные файлы и артефакты по контрактам RW-23/B04, отдельно сверю поведение с RE-данными. Ничего менять не буду; сначала загружу процессные ограничения и контекст волны, затем пройду код и тесты по указанным рискам.
 exec
-/usr/bin/bash -lc 'git status --short' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short' in /home/user/orca/project
  succeeded in 0ms:
  M .github/workflows/ci.yml
  M AGENTS.md
@@ -174,9 +174,9 @@ exec
 ?? waves/reviews/review-rw-10-11.md
 
 exec
-/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'WAVE-PLAN.md' -g 'udp.rs' -g 'udp.rs' -g 'voice-deep.md' | sort" in /home/sanya/orca/project
+/usr/bin/bash -lc "pwd && rg --files -g 'PROCESS.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' -g 'WAVE-PLAN.md' -g 'udp.rs' -g 'udp.rs' -g 'voice-deep.md' | sort" in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/orca/project
+/home/user/orca/project
 PROCESS.md
 TASKS.md
 TDD-PLAN.md
@@ -190,15 +190,15 @@ waves/RW-23/WAVE-PLAN.md
 waves/STATE.md
 
 exec
-/usr/bin/bash -lc "sed -n '1,260p' waves/RW-23/WAVE-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' waves/RW-23/WAVE-PLAN.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' docs/rust-client/TEAM.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' PROCESS.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba docs/re/voice-deep.md | sed -n '1,240p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba docs/re/voice-deep.md | sed -n '1,240p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'ls -l /home/sanya/re-deep/voice && wc -l /home/sanya/re-deep/voice/strace-media-s3.jsonl /home/sanya/re-deep/voice/session3.timing /home/sanya/re-deep/voice/rtc1 /home/sanya/re-deep/voice/rtc2' in /home/sanya/orca/project
+/usr/bin/bash -lc 'ls -l /home/user/clean-room-oracle/voice && wc -l /home/user/clean-room-oracle/voice/strace-media-s3.jsonl /home/user/clean-room-oracle/voice/session3.timing /home/user/clean-room-oracle/voice/rtc1 /home/user/clean-room-oracle/voice/rtc2' in /home/user/orca/project
  succeeded in 0ms:
 # RW-23 / B04 — план волны
 
@@ -274,7 +274,7 @@ P7-01 (полный i18n) — следующий batch, не входит в B04
 5. После accepted — journal/STATE/STATUS/ROADMAP/TASKS/map один раз; коммит — координатор.
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-voice/src/udp.rs && nl -ba rust/crates/discord-voice/tests/udp.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-voice/src/udp.rs && nl -ba rust/crates/discord-voice/tests/udp.rs' in /home/user/orca/project
  succeeded in 0ms:
 # TEAM — отдел разработки Rust-клиента
 
@@ -719,7 +719,7 @@ P2-09 accept — отдельная review-лейна REV-1 + TL-1, не тре�
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -894,56 +894,56 @@ DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; фай�
 - [ ] для чувствительных изменений пройден §4.4.
 
 exec
-/usr/bin/bash -lc "sed -n '1,220p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' TASKS.md && sed -n '1,220p' TDD-PLAN.md && sed -n '1,180p' waves/STATE.md" in /home/user/orca/project
  exited 1 in 0ms:
 total 174272
--rw-r--r-- 1 sanya sanya        0 Oct 19 12:41 LEAVE
--rw-r--r-- 1 sanya sanya     3620 Oct 19 11:42 engine-log-session1.txt
--rw-r--r-- 1 sanya sanya      973 Oct 19 11:43 frida-voice.js
--rw-r--r-- 1 sanya sanya     1799 Oct 19 12:37 hex-offsets.mjs
--rw-r--r-- 1 sanya sanya     5598 Oct 19 12:10 pcap-analyze.mjs
--rw-r--r-- 1 sanya sanya     2859 Oct 19 12:36 pcap-dump.mjs
--rw-r--r-- 1 sanya sanya     3217 Oct 19 11:48 rtc-frames.jsonl
--rw-r--r-- 1 sanya sanya     4267 Oct 19 11:48 rtc-summary.json
--rw-r--r-- 1 sanya sanya     3370 Oct 19 11:47 rtc1-frames.jsonl
--rw-r--r-- 1 sanya sanya     4540 Oct 19 11:47 rtc1-summary.json
--rw-r--r-- 1 sanya sanya     3217 Oct 19 11:48 rtc2-frames.jsonl
--rw-r--r-- 1 sanya sanya     4267 Oct 19 11:48 rtc2-summary.json
--rw-r--r-- 1 sanya sanya     9758 Oct 19 12:36 rtp-analyze.mjs
--rw-r--r-- 1 sanya sanya        5 Oct 19 12:41 session3.done
--rw-r--r-- 1 sanya sanya    11700 Oct 19 12:41 session3.out
--rw-r--r-- 1 sanya sanya      203 Oct 19 12:41 session3.timing
--rw-r--r-- 1 sanya sanya      953 Oct 19 12:38 ss-before-voice.txt
--rw-r--r-- 1 sanya sanya        0 Oct 19 12:39 ss-during-voice-35s.txt
--rw-r--r-- 1 sanya sanya     3043 Oct 19 12:40 ss-during-voice-75s.txt
--rw-r--r-- 1 sanya sanya     3086 Oct 19 12:41 strace-c-main.txt
--rw-r--r-- 1 sanya sanya     3203 Oct 19 12:41 strace-c-renderer.txt
--rw-r--r-- 1 sanya sanya     4264 Oct 19 13:14 strace-extract-packets.mjs
--rw-r--r-- 1 sanya sanya 25621522 Oct 19 12:41 strace-main-s3.log
--rw-r--r-- 1 sanya sanya    33637 Oct 19 13:14 strace-media-s3.jsonl
--rw-r--r-- 1 sanya sanya 37476411 Oct 19 12:41 strace-renderer-s3.log
--rw-r--r-- 1 sanya sanya      301 Oct 19 11:40 tcpdump.log
--rw-r--r-- 1 sanya sanya      301 Oct 19 11:42 tcpdump2.log
--rw-r--r-- 1 sanya sanya      301 Oct 19 11:44 tcpdump3.log
--rw-r--r-- 1 sanya sanya      297 Oct 19 12:41 tcpdump4.err
-drwxr-xr-x 1 sanya sanya      798 Oct 19 12:41 ui
-drwxr-xr-x 1 sanya sanya      868 Oct 19 11:45 ui-s2
-drwxr-xr-x 1 sanya sanya      462 Oct 19 12:39 ui7
--rw-r--r-- 1 sanya sanya 37855826 Oct 19 11:40 voice-udp.pcap
--rw-r--r-- 1 sanya sanya    13417 Oct 19 12:36 voice-udp.stats.json
--rw-r--r-- 1 sanya sanya 28560662 Oct 19 11:42 voice-udp2.pcap
--rw-r--r-- 1 sanya sanya       74 Oct 19 12:35 voice-udp2.rtp.json
--rw-r--r-- 1 sanya sanya    11524 Oct 19 12:36 voice-udp2.stats.json
--rw-r--r-- 1 sanya sanya 45993360 Oct 19 11:44 voice-udp3.pcap
--rw-r--r-- 1 sanya sanya     8873 Oct 19 12:36 voice-udp3.rtp.json
--rw-r--r-- 1 sanya sanya     5248 Oct 19 12:11 voice-udp3.stats.json
--rw-r--r-- 1 sanya sanya  2692537 Oct 19 12:41 voice-udp4.pcap
--rw-r--r-- 1 sanya sanya     9283 Oct 19 13:12 voice-udp4.rtp.json
--rw-r--r-- 1 sanya sanya      150 Oct 19 13:12 voice-udp4.stats.json
-  182 /home/sanya/re-deep/voice/strace-media-s3.jsonl
-   18 /home/sanya/re-deep/voice/session3.timing
-wc: /home/sanya/re-deep/voice/rtc1: No such file or directory
-wc: /home/sanya/re-deep/voice/rtc2: No such file or directory
+-rw-r--r-- 1 user user        0 Oct 19 12:41 LEAVE
+-rw-r--r-- 1 user user     3620 Oct 19 11:42 engine-log-session1.txt
+-rw-r--r-- 1 user user      973 Oct 19 11:43 frida-voice.js
+-rw-r--r-- 1 user user     1799 Oct 19 12:37 hex-offsets.mjs
+-rw-r--r-- 1 user user     5598 Oct 19 12:10 pcap-analyze.mjs
+-rw-r--r-- 1 user user     2859 Oct 19 12:36 pcap-dump.mjs
+-rw-r--r-- 1 user user     3217 Oct 19 11:48 rtc-frames.jsonl
+-rw-r--r-- 1 user user     4267 Oct 19 11:48 rtc-summary.json
+-rw-r--r-- 1 user user     3370 Oct 19 11:47 rtc1-frames.jsonl
+-rw-r--r-- 1 user user     4540 Oct 19 11:47 rtc1-summary.json
+-rw-r--r-- 1 user user     3217 Oct 19 11:48 rtc2-frames.jsonl
+-rw-r--r-- 1 user user     4267 Oct 19 11:48 rtc2-summary.json
+-rw-r--r-- 1 user user     9758 Oct 19 12:36 rtp-analyze.mjs
+-rw-r--r-- 1 user user        5 Oct 19 12:41 session3.done
+-rw-r--r-- 1 user user    11700 Oct 19 12:41 session3.out
+-rw-r--r-- 1 user user      203 Oct 19 12:41 session3.timing
+-rw-r--r-- 1 user user      953 Oct 19 12:38 ss-before-voice.txt
+-rw-r--r-- 1 user user        0 Oct 19 12:39 ss-during-voice-35s.txt
+-rw-r--r-- 1 user user     3043 Oct 19 12:40 ss-during-voice-75s.txt
+-rw-r--r-- 1 user user     3086 Oct 19 12:41 strace-c-main.txt
+-rw-r--r-- 1 user user     3203 Oct 19 12:41 strace-c-renderer.txt
+-rw-r--r-- 1 user user     4264 Oct 19 13:14 strace-extract-packets.mjs
+-rw-r--r-- 1 user user 25621522 Oct 19 12:41 strace-main-s3.log
+-rw-r--r-- 1 user user    33637 Oct 19 13:14 strace-media-s3.jsonl
+-rw-r--r-- 1 user user 37476411 Oct 19 12:41 strace-renderer-s3.log
+-rw-r--r-- 1 user user      301 Oct 19 11:40 tcpdump.log
+-rw-r--r-- 1 user user      301 Oct 19 11:42 tcpdump2.log
+-rw-r--r-- 1 user user      301 Oct 19 11:44 tcpdump3.log
+-rw-r--r-- 1 user user      297 Oct 19 12:41 tcpdump4.err
+drwxr-xr-x 1 user user      798 Oct 19 12:41 ui
+drwxr-xr-x 1 user user      868 Oct 19 11:45 ui-s2
+drwxr-xr-x 1 user user      462 Oct 19 12:39 ui7
+-rw-r--r-- 1 user user 37855826 Oct 19 11:40 voice-udp.pcap
+-rw-r--r-- 1 user user    13417 Oct 19 12:36 voice-udp.stats.json
+-rw-r--r-- 1 user user 28560662 Oct 19 11:42 voice-udp2.pcap
+-rw-r--r-- 1 user user       74 Oct 19 12:35 voice-udp2.rtp.json
+-rw-r--r-- 1 user user    11524 Oct 19 12:36 voice-udp2.stats.json
+-rw-r--r-- 1 user user 45993360 Oct 19 11:44 voice-udp3.pcap
+-rw-r--r-- 1 user user     8873 Oct 19 12:36 voice-udp3.rtp.json
+-rw-r--r-- 1 user user     5248 Oct 19 12:11 voice-udp3.stats.json
+-rw-r--r-- 1 user user  2692537 Oct 19 12:41 voice-udp4.pcap
+-rw-r--r-- 1 user user     9283 Oct 19 13:12 voice-udp4.rtp.json
+-rw-r--r-- 1 user user      150 Oct 19 13:12 voice-udp4.stats.json
+  182 /home/user/clean-room-oracle/voice/strace-media-s3.jsonl
+   18 /home/user/clean-room-oracle/voice/session3.timing
+wc: /home/user/clean-room-oracle/voice/rtc1: No such file or directory
+wc: /home/user/clean-room-oracle/voice/rtc2: No such file or directory
   200 total
 
  succeeded in 0ms:
@@ -1620,7 +1620,7 @@ P1-02, P0-04, P0-07); B03/RW-22 принят (P3-15, P4-01, P7-04, P8-03); сл�
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -2039,7 +2039,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-22, I1,
   P2-01/P2-02/P2-04…P2-11, B01/B02/B03 accepted, удаление legacy `ready_data` и правки доков
   **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -2208,9 +2208,9 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 codex
 Контекст RE задаёт точный discovery в 74 байта, keepalive 8 байт с 5-секундной каденцией и ротацию примерно через 60.08 с с пустым RR. Сейчас читаю реализацию и §3 волны построчно, затем сверю конкретные syscall записи и RTC артефакты, чтобы отделить подтверждённые дефекты от непроверяемых предположений.
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-voice/tests/udp.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-voice/tests/udp.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-voice/src/udp.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-voice/src/udp.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	use discord_voice::udp::{
      2	    DISCOVERY_LEN, DiscoveryPacket, KEEPALIVE_INTERVAL_MS, KEEPALIVE_LEN, KEEPALIVE_REQUEST,
@@ -2851,9 +2851,9 @@ exec
    336	}
 
 exec
-/usr/bin/bash -lc "nl -ba waves/RW-23/WAVE-PLAN.md | sed -n '1,220p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba waves/RW-23/WAVE-PLAN.md | sed -n '1,220p'" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'cat /home/sanya/re-deep/voice/session3.timing && head -n 15 /home/sanya/re-deep/voice/rtc1-frames.jsonl && head -n 15 /home/sanya/re-deep/voice/rtc2-frames.jsonl' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat /home/user/clean-room-oracle/voice/session3.timing && head -n 15 /home/user/clean-room-oracle/voice/rtc1-frames.jsonl && head -n 15 /home/user/clean-room-oracle/voice/rtc2-frames.jsonl' in /home/user/orca/project
  succeeded in 0ms:
      1	# RW-23 / B04 — план волны
      2	
@@ -2979,7 +2979,7 @@ session3 FINISHED
 {"dir":"out","op":3,"payload":"{\"op\":3,\"d\":{\"t\":1792392224510,\"seq_ack\":1}}"}
 
 exec
-/usr/bin/bash -lc 'head -n 30 /home/sanya/re-deep/voice/strace-media-s3.jsonl && tail -n 30 /home/sanya/re-deep/voice/strace-media-s3.jsonl' in /home/sanya/orca/project
+/usr/bin/bash -lc 'head -n 30 /home/user/clean-room-oracle/voice/strace-media-s3.jsonl && tail -n 30 /home/user/clean-room-oracle/voice/strace-media-s3.jsonl' in /home/user/orca/project
  succeeded in 0ms:
 {"ts":"12:39:27.880817","dir":"out","addr":"104.29.146.60","port":19329,"len":74,"ret":74,"hex":"00010046000023f8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}
 {"ts":"12:39:27.881503","dir":"out","addr":"104.29.146.60","port":19329,"len":74,"ret":74,"hex":"00010046000023f8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008409"}
@@ -3043,7 +3043,7 @@ exec
 {"ts":"12:41:11.146976","dir":"in","addr":"104.29.146.60","port":19329,"len":52,"ret":52,"hex":"81c90007000023f889d5863335abc5d09cb4f78ba9f2b32b3f39cea6ba78b4d7c5e6e852d7fe603d98c82f015fd71b6866000000"}
 
 exec
-/usr/bin/bash -lc "rg -n '"'^## 2'"\\.|"'^### 2'"\\.|"'^'"\\|.*(udp|voice)|P4-02|rotation|Rotation|UDP' TASKS.md TDD-PLAN.md waves/STATE.md docs/rust-client/TEAM.md waves/RW-23/WAVE-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '"'^## 2'"\\.|"'^### 2'"\\.|"'^'"\\|.*(udp|voice)|P4-02|rotation|Rotation|UDP' TASKS.md TDD-PLAN.md waves/STATE.md docs/rust-client/TEAM.md waves/RW-23/WAVE-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 waves/RW-23/WAVE-PLAN.md:9:| P4-02 | UDP-транспорт: discovery 74 Б, keepalive 8 Б/5 с, ротация +60,08 с, пустой RR | T-VOICE-04…06 | `rust/crates/discord-voice/src/udp.rs`, `src/lib.rs` (только `mod`/re-export), `tests/udp.rs` (W24a) |
 waves/RW-23/WAVE-PLAN.md:11:| foundation | `discord-json`/i18n/voice P4-01 уже приняты; новых общих зависимостей нет | — | — |
@@ -3082,7 +3082,7 @@ waves/STATE.md:253:| tests/card | S 6–10, M 10–16, L 16–24 | 11 JSON, 8 i1
 waves/STATE.md:269:- B03/P4-01: UDP discovery/keepalive/ротация/DAVE — P4-02/P4.5; audio-only SelectProtocol
 
 exec
-/usr/bin/bash -lc "rg -n '12:40:2[7-9]|12:40:28|12:40:29|12:40:30' /home/sanya/re-deep/voice/strace-media-s3.jsonl" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '12:40:2[7-9]|12:40:28|12:40:29|12:40:30' /home/user/clean-room-oracle/voice/strace-media-s3.jsonl" in /home/user/orca/project
  succeeded in 0ms:
 108:{"ts":"12:40:27.099128","dir":"in","addr":"104.29.146.60","port":19329,"len":52,"ret":52,"hex":"81c90007000023f8ee85bcb89ad6b7d00f0a51ce46e1756bb08a3896874a104f82d1db01a75c15a6a905e7a54bfa4b023a000000"}
 109:{"ts":"12:40:27.690121","dir":"out","addr":"104.29.146.60","port":19329,"len":60,"ret":60,"hex":"80c80006000023f81f14fa2398e58df409006e710f54533dc84cfef8e8c398a24cd913ac8fdc8fdcd569d13dc6a7c0d523ee68463a3018a215000080"}
@@ -3096,9 +3096,9 @@ exec
 117:{"ts":"12:40:30.101285","dir":"in","addr":"104.29.146.60","port":19329,"len":52,"ret":52,"hex":"81c90007000023f89402a230798476d69102e8148c915b054ffd8aabb6638182629016f41076d2d6774f947651eacb873d000000"}
 
 exec
-/usr/bin/bash -lc "rg -n '\"dir\":\"(in|out)\".*\"(len\":74|len\":28|len\":8)' /home/sanya/re-deep/voice/strace-media-s3.jsonl | tail -n 20" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '\"dir\":\"(in|out)\".*\"(len\":74|len\":28|len\":8)' /home/user/clean-room-oracle/voice/strace-media-s3.jsonl | tail -n 20" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "nl -ba waves/RW-23/WAVE-PLAN.md | sed -n '1,140p'; nl -ba docs/re/voice-deep.md | sed -n '53,90p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba waves/RW-23/WAVE-PLAN.md | sed -n '1,140p'; nl -ba docs/re/voice-deep.md | sed -n '53,90p'" in /home/user/orca/project
  succeeded in 0ms:
 111:{"ts":"12:40:28.038370","dir":"in","addr":"104.29.146.60","port":19329,"len":74,"ret":74,"hex":"00020046000023f839352e3136342e39312e393800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d8a4"}
 112:{"ts":"12:40:28.038548","dir":"out","addr":"104.29.146.60","port":19329,"len":28,"ret":28,"hex":"80c90001000023f84c439e1357c7d7e385ee66d12058bfe016000080"}
@@ -3234,9 +3234,9 @@ exec
     90	
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-voice/tests/udp.rs | sed -n '180,330p'; rg -n 'P4-02|### B04|B04|P4-02' waves/RW-23/WAVE-PLAN.md TASKS.md waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-voice/tests/udp.rs | sed -n '180,330p'; rg -n 'P4-02|### B04|B04|P4-02' waves/RW-23/WAVE-PLAN.md TASKS.md waves/STATE.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,160p' docs/rust-client/TEAM.md; rg -n 'P4-02' TASKS.md TDD-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,160p' docs/rust-client/TEAM.md; rg -n 'P4-02' TASKS.md TDD-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
    180	
    181	#[test]
@@ -3539,15 +3539,15 @@ TASKS.md:25:(после решения владельца) или unblocked P7-0
 codex
 **Findings**
 
-1. **P2 — Пустой RR не совпадает с наблюдаемым пакетом.** [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:331), тест [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/udp.rs:220), контракт [WAVE-PLAN.md](/home/sanya/orca/project/waves/RW-23/WAVE-PLAN.md:43). Код формирует `80 c9 00 07` и 24 нулевых байта. В реальном capture после ротации строка 112 содержит 28-байтный пакет с заголовком `80 c9 00 01` и ненулевым хвостом. Значит, тест подтверждает замороженный контракт, но не RE-поведение. Минимальная проверка: `sed -n '112p' /home/sanya/re-deep/voice/strace-media-s3.jsonl`; ожидаемый для RE разбор должен учитывать именно наблюдаемые байты и выяснить, что означает хвост, прежде чем называть его пустым RR.
+1. **P2 — Пустой RR не совпадает с наблюдаемым пакетом.** [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:331), тест [udp.rs](/home/user/orca/project/rust/crates/discord-voice/tests/udp.rs:220), контракт [WAVE-PLAN.md](/home/user/orca/project/waves/RW-23/WAVE-PLAN.md:43). Код формирует `80 c9 00 07` и 24 нулевых байта. В реальном capture после ротации строка 112 содержит 28-байтный пакет с заголовком `80 c9 00 01` и ненулевым хвостом. Значит, тест подтверждает замороженный контракт, но не RE-поведение. Минимальная проверка: `sed -n '112p' /home/user/clean-room-oracle/voice/strace-media-s3.jsonl`; ожидаемый для RE разбор должен учитывать именно наблюдаемые байты и выяснить, что означает хвост, прежде чем называть его пустым RR.
 
-2. **P2 — `encode()` создаёт невалидные Response без ошибки.** [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:157). Метод обрезает адрес длиннее 64 байт, а также кодирует пустой или не-IP адрес и порт 0; результат затем отклоняется `parse()`. Воспроизведение: создать `Response { address: "x".repeat(65), port: 0, .. }`, закодировать и проверить `DiscoveryPacket::parse(&packet)` — будет ошибка. Ожидается отказ при кодировании либо API, который не позволяет представить невалидный Response. Контракт явно ограничивает адрес и требует порт 1..=65535.
+2. **P2 — `encode()` создаёт невалидные Response без ошибки.** [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:157). Метод обрезает адрес длиннее 64 байт, а также кодирует пустой или не-IP адрес и порт 0; результат затем отклоняется `parse()`. Воспроизведение: создать `Response { address: "x".repeat(65), port: 0, .. }`, закодировать и проверить `DiscoveryPacket::parse(&packet)` — будет ошибка. Ожидается отказ при кодировании либо API, который не позволяет представить невалидный Response. Контракт явно ограничивает адрес и требует порт 1..=65535.
 
-3. **P2 — приём UDP не проверяет адрес отправителя.** [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:278) и [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:293). Оба метода отбрасывают `SocketAddr`, возвращённый `recv_from`; discovery также не сверяет SSRC с отправленным запросом. Любая сторона, способная доставить датаграмму на сокет, может подменить discovery/keepalive. Воспроизведение: отправить валидный пакет с другого loopback-сокета и вызвать `recv_discovery()`/`recv_keepalive()` — пакет будет принят. Ожидается проверка ожидаемого peer и, для discovery, SSRC. Практический путь атаки зависит от сетевого окружения; это дефект проверки входа, не доказанная удалённая эксплуатация.
+3. **P2 — приём UDP не проверяет адрес отправителя.** [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:278) и [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:293). Оба метода отбрасывают `SocketAddr`, возвращённый `recv_from`; discovery также не сверяет SSRC с отправленным запросом. Любая сторона, способная доставить датаграмму на сокет, может подменить discovery/keepalive. Воспроизведение: отправить валидный пакет с другого loopback-сокета и вызвать `recv_discovery()`/`recv_keepalive()` — пакет будет принят. Ожидается проверка ожидаемого peer и, для discovery, SSRC. Практический путь атаки зависит от сетевого окружения; это дефект проверки входа, не доказанная удалённая эксплуатация.
 
-4. **P2 — RotationSchedule не управляет ротацией сокета.** [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:196), [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:319). Расписание и `rotate()` существуют независимо: в API нет операции или цикла, который при `due()` вызывает ротацию и отправляет discovery, затем RR. Тесты отдельно проверяют расписание и отдельно ручной `rotate()`, поэтому требуемая последовательность через 60.08 с не проверяется. Минимальная проверка: поискать вызывающий код `RotationSchedule::due` и `UdpMediaSocket::rotate`; вызова нет. Ожидается связанный lifecycle, который по таймеру выполняет ротацию и проверяет порядок отправки.
+4. **P2 — RotationSchedule не управляет ротацией сокета.** [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:196), [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:319). Расписание и `rotate()` существуют независимо: в API нет операции или цикла, который при `due()` вызывает ротацию и отправляет discovery, затем RR. Тесты отдельно проверяют расписание и отдельно ручной `rotate()`, поэтому требуемая последовательность через 60.08 с не проверяется. Минимальная проверка: поискать вызывающий код `RotationSchedule::due` и `UdpMediaSocket::rotate`; вызова нет. Ожидается связанный lifecycle, который по таймеру выполняет ротацию и проверяет порядок отправки.
 
-5. **P3 — loopback-тесты могут засчитаться как успешные при skip.** [tests/udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/udp.rs:31). При `PermissionDenied` helper возвращает `None`, а тест завершается обычным `return`, то есть test runner отмечает его passed. Это скрывает отсутствие проверки транспорта в ограниченной среде. Ожидается skip, который отражается в результате прогона, либо явная фиксация skip в отчёте.
+5. **P3 — loopback-тесты могут засчитаться как успешные при skip.** [tests/udp.rs](/home/user/orca/project/rust/crates/discord-voice/tests/udp.rs:31). При `PermissionDenied` helper возвращает `None`, а тест завершается обычным `return`, то есть test runner отмечает его passed. Это скрывает отсутствие проверки транспорта в ограниченной среде. Ожидается skip, который отражается в результате прогона, либо явная фиксация skip в отчёте.
 
 **Проверено без замечаний:** discovery offset/длина/type/BE-поля соответствуют capture; keepalive байты, little-endian sequence и 5-секундный интервал согласуются с `strace-media-s3.jsonl`; ротация в capture происходит в `12:40:27.961577`, после неё идут discovery, RR и keepalive. `rotate()` действительно заменяет сокет, а `UdpMediaSocket::Debug` не выводит адрес сервера или содержимое пакетов. Тест parser-предикатов проверяет отсутствие паники, но сам по себе не доказывает корректность парсинга.
 
@@ -3556,15 +3556,15 @@ tokens used
 49 793
 **Findings**
 
-1. **P2 — Пустой RR не совпадает с наблюдаемым пакетом.** [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:331), тест [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/udp.rs:220), контракт [WAVE-PLAN.md](/home/sanya/orca/project/waves/RW-23/WAVE-PLAN.md:43). Код формирует `80 c9 00 07` и 24 нулевых байта. В реальном capture после ротации строка 112 содержит 28-байтный пакет с заголовком `80 c9 00 01` и ненулевым хвостом. Значит, тест подтверждает замороженный контракт, но не RE-поведение. Минимальная проверка: `sed -n '112p' /home/sanya/re-deep/voice/strace-media-s3.jsonl`; ожидаемый для RE разбор должен учитывать именно наблюдаемые байты и выяснить, что означает хвост, прежде чем называть его пустым RR.
+1. **P2 — Пустой RR не совпадает с наблюдаемым пакетом.** [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:331), тест [udp.rs](/home/user/orca/project/rust/crates/discord-voice/tests/udp.rs:220), контракт [WAVE-PLAN.md](/home/user/orca/project/waves/RW-23/WAVE-PLAN.md:43). Код формирует `80 c9 00 07` и 24 нулевых байта. В реальном capture после ротации строка 112 содержит 28-байтный пакет с заголовком `80 c9 00 01` и ненулевым хвостом. Значит, тест подтверждает замороженный контракт, но не RE-поведение. Минимальная проверка: `sed -n '112p' /home/user/clean-room-oracle/voice/strace-media-s3.jsonl`; ожидаемый для RE разбор должен учитывать именно наблюдаемые байты и выяснить, что означает хвост, прежде чем называть его пустым RR.
 
-2. **P2 — `encode()` создаёт невалидные Response без ошибки.** [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:157). Метод обрезает адрес длиннее 64 байт, а также кодирует пустой или не-IP адрес и порт 0; результат затем отклоняется `parse()`. Воспроизведение: создать `Response { address: "x".repeat(65), port: 0, .. }`, закодировать и проверить `DiscoveryPacket::parse(&packet)` — будет ошибка. Ожидается отказ при кодировании либо API, который не позволяет представить невалидный Response. Контракт явно ограничивает адрес и требует порт 1..=65535.
+2. **P2 — `encode()` создаёт невалидные Response без ошибки.** [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:157). Метод обрезает адрес длиннее 64 байт, а также кодирует пустой или не-IP адрес и порт 0; результат затем отклоняется `parse()`. Воспроизведение: создать `Response { address: "x".repeat(65), port: 0, .. }`, закодировать и проверить `DiscoveryPacket::parse(&packet)` — будет ошибка. Ожидается отказ при кодировании либо API, который не позволяет представить невалидный Response. Контракт явно ограничивает адрес и требует порт 1..=65535.
 
-3. **P2 — приём UDP не проверяет адрес отправителя.** [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:278) и [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:293). Оба метода отбрасывают `SocketAddr`, возвращённый `recv_from`; discovery также не сверяет SSRC с отправленным запросом. Любая сторона, способная доставить датаграмму на сокет, может подменить discovery/keepalive. Воспроизведение: отправить валидный пакет с другого loopback-сокета и вызвать `recv_discovery()`/`recv_keepalive()` — пакет будет принят. Ожидается проверка ожидаемого peer и, для discovery, SSRC. Практический путь атаки зависит от сетевого окружения; это дефект проверки входа, не доказанная удалённая эксплуатация.
+3. **P2 — приём UDP не проверяет адрес отправителя.** [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:278) и [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:293). Оба метода отбрасывают `SocketAddr`, возвращённый `recv_from`; discovery также не сверяет SSRC с отправленным запросом. Любая сторона, способная доставить датаграмму на сокет, может подменить discovery/keepalive. Воспроизведение: отправить валидный пакет с другого loopback-сокета и вызвать `recv_discovery()`/`recv_keepalive()` — пакет будет принят. Ожидается проверка ожидаемого peer и, для discovery, SSRC. Практический путь атаки зависит от сетевого окружения; это дефект проверки входа, не доказанная удалённая эксплуатация.
 
-4. **P2 — RotationSchedule не управляет ротацией сокета.** [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:196), [udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/udp.rs:319). Расписание и `rotate()` существуют независимо: в API нет операции или цикла, который при `due()` вызывает ротацию и отправляет discovery, затем RR. Тесты отдельно проверяют расписание и отдельно ручной `rotate()`, поэтому требуемая последовательность через 60.08 с не проверяется. Минимальная проверка: поискать вызывающий код `RotationSchedule::due` и `UdpMediaSocket::rotate`; вызова нет. Ожидается связанный lifecycle, который по таймеру выполняет ротацию и проверяет порядок отправки.
+4. **P2 — RotationSchedule не управляет ротацией сокета.** [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:196), [udp.rs](/home/user/orca/project/rust/crates/discord-voice/src/udp.rs:319). Расписание и `rotate()` существуют независимо: в API нет операции или цикла, который при `due()` вызывает ротацию и отправляет discovery, затем RR. Тесты отдельно проверяют расписание и отдельно ручной `rotate()`, поэтому требуемая последовательность через 60.08 с не проверяется. Минимальная проверка: поискать вызывающий код `RotationSchedule::due` и `UdpMediaSocket::rotate`; вызова нет. Ожидается связанный lifecycle, который по таймеру выполняет ротацию и проверяет порядок отправки.
 
-5. **P3 — loopback-тесты могут засчитаться как успешные при skip.** [tests/udp.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/udp.rs:31). При `PermissionDenied` helper возвращает `None`, а тест завершается обычным `return`, то есть test runner отмечает его passed. Это скрывает отсутствие проверки транспорта в ограниченной среде. Ожидается skip, который отражается в результате прогона, либо явная фиксация skip в отчёте.
+5. **P3 — loopback-тесты могут засчитаться как успешные при skip.** [tests/udp.rs](/home/user/orca/project/rust/crates/discord-voice/tests/udp.rs:31). При `PermissionDenied` helper возвращает `None`, а тест завершается обычным `return`, то есть test runner отмечает его passed. Это скрывает отсутствие проверки транспорта в ограниченной среде. Ожидается skip, который отражается в результате прогона, либо явная фиксация skip в отчёте.
 
 **Проверено без замечаний:** discovery offset/длина/type/BE-поля соответствуют capture; keepalive байты, little-endian sequence и 5-секундный интервал согласуются с `strace-media-s3.jsonl`; ротация в capture происходит в `12:40:27.961577`, после неё идут discovery, RR и keepalive. `rotate()` действительно заменяет сокет, а `UdpMediaSocket::Debug` не выводит адрес сервера или содержимое пакетов. Тест parser-предикатов проверяет отсутствие паники, но сам по себе не доказывает корректность парсинга.
 

@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
      Running tests/notifications_contract.rs (/tmp/opencode/target-w34b/debug/deps/notifications_contract-46ee250d2c4bcc41)
 

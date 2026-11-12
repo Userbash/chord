@@ -111,7 +111,7 @@
 
 - [ ] Обновить `waves/RW-40/BUILDS/BUILD-003.md`: полный список `PR-125..PR-152`, инструкции `T2` по сценариям automod/webhooks/expressions/slash/onboarding/soundboard/stage.
 - [ ] `T0`: `node scripts/test-impact.mjs` по затронутым модулям (18 новых unit-файлов + 7 контрактов).
-- [ ] `T1`: `npm run typecheck`, `npm run test:meta` (102/102), `npm run test:unit` (112 файлов), `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --workspace` (42 файла `gui-spike`, из них 39 контрактных).
+- [ ] `T1`: `npm run typecheck`, `npm run test:meta` (102/102), `npm run test:unit` (112 файлов), `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --workspace` (42 файла `gui-spike`, из них 39 контрактных).
 - [ ] `T2`: прогон сборки `testing` по сценариям волны на живом окне после Фазы 0.
 - [ ] `T4`: `npm run gate:release` (`failOnSkips: true`, `flaky_rate = 0%`).
 - [ ] Выпустить `waves/RW-40/QUALITY/QA-BUILD-003-REPORT.md` с вердиктом `P0..P3`; условие перехода — `P0 = 0`, `P1 = 0`, `Pass P0/P1 = 100%`, `lines >= 90%`, `branches >= 90%`, `functions >= 80%`, мутации `5/5`.

@@ -2,7 +2,7 @@
 
 Владелец: NET-DESIGN. PM: DeepSeek. Read-only по дампу, без сети/окна.
 Вход: `NET/AUTH-CONTRACT.md`, `NET/LOGIN-UI-RE.md` (если готов), `NET/AUTH-RE.md` A-01…A-08,
-`/login` HTML в `/home/sanya/re-deep/app-asar|decoded`, `ui/00-app.png`, `DESIGN/tokens.css`,
+`/login` HTML в `reference-oracle/app-asar|decoded`, `ui/00-app.png`, `DESIGN/tokens.css`,
 `DESIGN/REFERENCES.md`.
 Если `LOGIN-UI-RE.md` ещё нет — работай по `/login` и `AUTH-RE`, пробелы помечай `[A]`.
 

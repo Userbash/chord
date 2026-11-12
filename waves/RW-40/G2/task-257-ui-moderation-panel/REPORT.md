@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-257` (`feature/task-257-ui-moderation-panel`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/rest-static.json:871-877` (`Endpoints.GUILD_BAN`), `/home/sanya/re-deep/rest-static.json:1240-1246` (`Endpoints.GUILD_AUDIT_LOG`), `rust/gui-spike/src/moderation.rs` (`MAX_AUDIT_REASON_CHARS = 512`, `MAX_BAN_DELETE_MESSAGE_SECONDS = 604_800`, положительный числовой Snowflake `1..20` цифр).
+- **Оракулы**: `reference-oracle/rest-static.json:871-877` (`Endpoints.GUILD_BAN`), `reference-oracle/rest-static.json:1240-1246` (`Endpoints.GUILD_AUDIT_LOG`), `rust/gui-spike/src/moderation.rs` (`MAX_AUDIT_REASON_CHARS = 512`, `MAX_BAN_DELETE_MESSAGE_SECONDS = 604_800`, положительный числовой Snowflake `1..20` цифр).
 
 ## Сделано
 1. `tests/unit/moderation-panel.test.mjs` (`// @ts-check`, Strict TDD: Red → Green, 8 unit-тестов в 3 suites):
@@ -21,8 +21,8 @@
    - реализованы и экспортированы `BAN_DELETE_OPTIONS_RU`, `filterAuditEntries` и `createModerationPanelController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/moderation-panel.test.mjs > /home/sanya/orca/project/waves/RW-40/G2/task-257-ui-moderation-panel/red.log 2>&1` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`).
-- **Green**: `node --test tests/unit/moderation-panel.test.mjs > /home/sanya/orca/project/waves/RW-40/G2/task-257-ui-moderation-panel/green.log 2>&1` → `exit=0` (`tests 8, suites 3, pass 8, fail 0`).
+- **Red**: `node --test tests/unit/moderation-panel.test.mjs > /home/user/orca/project/waves/RW-40/G2/task-257-ui-moderation-panel/red.log 2>&1` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`).
+- **Green**: `node --test tests/unit/moderation-panel.test.mjs > /home/user/orca/project/waves/RW-40/G2/task-257-ui-moderation-panel/green.log 2>&1` → `exit=0` (`tests 8, suites 3, pass 8, fail 0`).
 - **Typecheck**:
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `exit=0` (0 ошибок);
   - `./node_modules/.bin/tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --noUncheckedIndexedAccess --skipLibCheck --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/moderation-panel.js tests/unit/moderation-panel.test.mjs` → `exit=0` (0 ошибок).
@@ -32,8 +32,8 @@
 ```
 25231dfa4b572e1cf8ae89a261d73d9b  rust/gui-spike/ui/features/moderation-panel.js
 c97150c308b5dcecaa26ff1937888373  tests/unit/moderation-panel.test.mjs
-f65a02ae08125665f45c00b3813979ec  /home/sanya/orca/project/waves/RW-40/G2/task-257-ui-moderation-panel/red.log
-58f2486b097a9edc58814d524561f0c4  /home/sanya/orca/project/waves/RW-40/G2/task-257-ui-moderation-panel/green.log
+f65a02ae08125665f45c00b3813979ec  /home/user/orca/project/waves/RW-40/G2/task-257-ui-moderation-panel/red.log
+58f2486b097a9edc58814d524561f0c4  /home/user/orca/project/waves/RW-40/G2/task-257-ui-moderation-panel/green.log
 ```
 
 ## Риски

@@ -21,9 +21,9 @@ test at tests/unit/gui-spike-features.test.mjs:825:3
   - 'привет😀 мир'
            ^
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:838:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:71:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:826:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:838:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:71:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:826:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 1)
       at async Suite.run (node:internal/test_runner/test:1905:7)

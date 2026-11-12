@@ -3,7 +3,7 @@
 - **Ревьюер:** Технический ревьюер (DeepSeek), RW-40 / G1.
 - **Карточка:** task-137 (BE-RE-01), находка F-GW-01 из `waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL.md` §2.2.
 - **Ветка / worktree:** `feature/task-137-zstd-stream-flush`, HEAD `4e24048`, worktree
-  `/home/sanya/orca/workspaces/project/feature-task-137-zstd-stream-flush`.
+  `/home/user/orca/workspaces/project/feature-task-137-zstd-stream-flush`.
 - **Дата:** 2026-10-30.
 - **Вердикт: PASS / Ready for Merge** — P0 = 0, P1 = 0, P2 = 1 (доки вне write-scope),
   P3 = 3. Целевые тесты 623/623, мутации 5/5 killed, red-фаза воспроизведена независимо.
@@ -56,7 +56,7 @@
 ## 3. Тесты и линты (прогон ревьюера)
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline \
   --manifest-path rust/Cargo.toml -p discord-codec -p discord-core
 → 623 passed, 0 failed, exit 0 (59 «test result: ok», 0 warning)
 ```

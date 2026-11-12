@@ -30,7 +30,7 @@
 
 - **Команда:**
   ```bash
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_retry --test rest_client --lib 2>&1 | tee /home/sanya/orca/project/waves/RW-40/G1/task-170-rest-retry-policy/red.log
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_retry --test rest_client --lib 2>&1 | tee /home/user/orca/project/waves/RW-40/G1/task-170-rest-retry-policy/red.log
   ```
 - **Результат:** 15 ошибок компиляции в `rest_retry.rs` (отсутствие констант `DEFAULT_RETRY_AFTER`, `MAX_RETRY_AFTER`, `RETRYABLE_SERVER_STATUSES`, функций `is_retryable_server_status`, `parse_retry_after_or_default`, `retry_delay_client_parity`, `should_retry_client_parity`, полей `limit` и `scope`, а также конструктора `RateLimitInfo::new`).
 - **Лог:** сохранён в `waves/RW-40/G1/task-170-rest-retry-policy/red.log`.
@@ -41,7 +41,7 @@
 
 - **Команда:**
   ```bash
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_retry --test rest_client --lib 2>&1 | tee /home/sanya/orca/project/waves/RW-40/G1/task-170-rest-retry-policy/green.log
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_retry --test rest_client --lib 2>&1 | tee /home/user/orca/project/waves/RW-40/G1/task-170-rest-retry-policy/green.log
   ```
 - **Результат:** Все тесты успешно пройдены:
   - `rest_retry`: 16 passed, 0 failed (11 исходных + 5 новых contract-тестов P1–P5)

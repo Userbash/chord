@@ -1,12 +1,12 @@
 # task-155 — Расчёт окон подписок гильдии OP 37 [0, 99] при прокрутке и группировка по ролям в `members.js`
 
 - **batch/карточка:** RW-40 / G2 Frontend / `task-155` (FE-P1-03: расчёт окон подписок гильдии OP 37 `[0, 99]` при прокрутке и группировка по ролям в `rust/gui-spike/ui/features/members.js`).
-- **worktree:** `/home/sanya/orca/workspaces/project/feature-task-155-members-guild-subs`.
+- **worktree:** `/home/user/orca/workspaces/project/feature-task-155-members-guild-subs`.
 - **файлы (write-scope):**
   - `rust/gui-spike/ui/features/members.js`;
   - `tests/unit/members-subscriptions.test.mjs` (новый файл unit-тестов);
-  - синхронизация approved артефактов типизации: `tests/unit/dispatch_ui.test.mjs`, `rust/gui-spike/ui/features/dispatch-model.js`, `rust/gui-spike/ui/features/dispatch-view.js` из `/home/sanya/orca/project`;
-  - отчёт и логи в `/home/sanya/orca/project/waves/RW-40/G2/task-155-members-guild-subs/`.
+  - синхронизация approved артефактов типизации: `tests/unit/dispatch_ui.test.mjs`, `rust/gui-spike/ui/features/dispatch-model.js`, `rust/gui-spike/ui/features/dispatch-view.js` из `/home/user/orca/project`;
+  - отчёт и логи в `/home/user/orca/project/waves/RW-40/G2/task-155-members-guild-subs/`.
 
 ## Сделано
 

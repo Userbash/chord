@@ -1,5 +1,5 @@
 === GREEN: cargo test --offline -p discord-gui-spike --test search_contract -- --nocapture ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.46s
      Running tests/search_contract.rs (target/debug/deps/search_contract-c5836221419f214a)
 
@@ -33,7 +33,7 @@ test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 exit=0
 
 === GREEN: cargo test --offline -p discord-gui-spike --lib search -- --nocapture ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-97c354e3033ff0e8)
 

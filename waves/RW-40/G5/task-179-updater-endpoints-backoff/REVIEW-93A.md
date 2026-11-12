@@ -46,7 +46,7 @@ md5 совпадают с §файлы `REPORT.md` и не изменились 
 
 ## 2. Прогоны
 
-Команды из ТЗ на общем таргете `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Команды из ТЗ на общем таргете `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 
 ```
 cargo test   -p discord-updater --test updater_contract --lib
@@ -87,7 +87,7 @@ Baseline и restore: md5 `201b0e576a62032adfb331a12c6c18c2`; после restore 
 
 ## 4. Сверка с оракулом
 
-Источник: `/home/sanya/re-deep/app-asar/bundle.js`, `splashScreenPreload.js`, `main-arch.md` §5.1–§5.4.
+Источник: `reference-oracle/app-asar/bundle.js`, `splashScreenPreload.js`, `main-arch.md` §5.1–§5.4.
 
 | Контракт | Оракул | Код | Итог |
 | --- | --- | --- | --- |

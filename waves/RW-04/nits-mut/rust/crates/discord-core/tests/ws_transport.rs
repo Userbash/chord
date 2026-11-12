@@ -9,7 +9,7 @@
 //!   после каждого полезного терма идёт «филлер» — валидный терм-строка ~1536 Б, прокручивающий
 //!   окно ruzstd (удержание `распаковано − окно`, RW-02), иначе полезный терм задерживается;
 //! - HELLO-контракт (интервал 41 250 мс, `d.heartbeat_interval`) — ядро RW-03;
-//! - lab-поток `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/zstd-frames-95974_1389.hexl` —
+//! - lab-поток `{RE_LAB_ROOT:-/home/user/clean-room-oracle}/gw-proto/zstd-frames-95974_1389.hexl` —
 //!   снимок `capture-run2.jsonl`, 137 кадров, 104 066 Б сжатых (оракул RW-02: распаковка
 //!   824 816 Б, ruzstd отдаёт 759 280 Б = распаковка − окно 65 536);
 //! - таймлайн `gw-proto/timeline-95974_1389.tsv` — независимое подтверждение, что в потоке
@@ -251,10 +251,10 @@ async fn expect_pong(ws: &mut StubSocket, expected: &[u8], limit: Duration) -> R
 // Lab-файлы (skip-aware)
 // ---------------------------------------------------------------------------
 
-/// Lab-корень: `RE_LAB_ROOT` или `/home/sanya/re-deep` (как в тестах RW-02/RW-03).
+/// Lab-корень: `RE_LAB_ROOT` или `/home/user/clean-room-oracle` (как в тестах RW-02/RW-03).
 fn lab_root() -> PathBuf {
     PathBuf::from(
-        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/sanya/re-deep".to_string()),
+        std::env::var("RE_LAB_ROOT").unwrap_or_else(|_| "/home/user/clean-room-oracle".to_string()),
     )
 }
 

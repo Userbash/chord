@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0599]: no variant, associated function, or constant named `Storage` found for enum `ReactionError` in the current scope
    --> tests/reactions_contract.rs:105:24
     |

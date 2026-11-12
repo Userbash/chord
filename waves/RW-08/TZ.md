@@ -1,6 +1,6 @@
 # ТЗ RW-08 — REST-клиент (P1-07 / T-REST-01…03): параллельная волна
 
-**Проект:** discord-lab + Rust-клиент. Корень: `/home/sanya/orca/project`; cargo-воркспейс: `rust/`.
+**Проект:** discord-lab + Rust-клиент. Корень: `/home/user/orca/project`; cargo-воркспейс: `rust/`.
 **Карточка:** P1-07 (`docs/rust-client/PLAN.md`) — «REST-клиент: base v9, 6 заголовков, коды,
 ретраи, таймауты»; тесты T-REST-01…03 (`docs/rust-client/TEST-PLAN.md`).
 **Дата старта:** 2026-10-19. **Тип:** первый параллельный запуск (PROCESS.md §3.13, пожелания
@@ -47,12 +47,12 @@
 
 **Запрещено всем:** `Cargo.toml`/`Cargo.lock`; любые другие `src/`/`tests/`; `docs/`; `fixtures/`;
 `TASKS.md`, `PROCESS.md`, `AGENTS.md`, `waves/` (кроме чтения); `logs/`, `functions/`, `evidence/`,
-`/home/sanya/re-deep`; `git commit/push/reset/checkout`; `cargo clean`; новые зависимости; сеть
+`reference-oracle/`; `git commit/push/reset/checkout`; `cargo clean`; новые зависимости; сеть
 дальше loopback. Чужие тест-данные и тесты не редактируются — расхождение = вопрос координатору.
 
 ## 2. Общие процедуры воркера (strict TDD)
 
-Рабочая папка: `/home/sanya/orca/project`; прогоны — `cd rust && cargo test --offline …`.
+Рабочая папка: `/home/user/orca/project`; прогоны — `cd rust && cargo test --offline …`.
 Логи/артефакты: `/tmp/opencode/rw-08/w8a|w8b|w8c/` (каталоги создать).
 
 1. **Заглушка (red-основа).** В своём продукт-файле — полный контракт §4/§5/§6 с телами-заглушками
@@ -64,7 +64,7 @@
    (не skip): выдержки лежат в репозитории.
 3. **Red-прогон и фиксация.**
    ```bash
-   cd /home/sanya/orca/project/rust
+   cd /home/user/orca/project/rust
    bash -c 'cargo test --offline -p discord-core --test rest_<имя> 2>&1 | tee /tmp/opencode/rw-08/w8X/red.log; echo "# EXIT=${PIPESTATUS[0]}" | tee -a /tmp/opencode/rw-08/w8X/red.log'
    md5sum crates/discord-core/tests/rest_<имя>.rs | tee -a /tmp/opencode/rw-08/w8X/red.log
    cp crates/discord-core/tests/rest_<имя>.rs /tmp/opencode/rw-08/w8X/rest_<имя>-red.rs

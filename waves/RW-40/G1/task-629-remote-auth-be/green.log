@@ -1,6 +1,6 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-629-remote-auth-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-629-remote-auth-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 6.97s
-     Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-a7b2d962798c0e91)
+     Running unittests src/main.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-a7b2d962798c0e91)
 
 running 13 tests
 test wiring_tests::channels_command_is_local_and_carries_no_token ... ok
@@ -19,7 +19,7 @@ test wiring_tests::search_page_command_passes_query_filters_and_cursor ... ok
 
 test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
 
-     Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-0146c165794097d2)
+     Running tests/ipc_wiring_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_wiring_contract-0146c165794097d2)
 
 running 9 tests
 test channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field ... ok
@@ -34,7 +34,7 @@ test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
 
-     Running tests/remote_auth_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/remote_auth_contract-c09bdcab40ba7f20)
+     Running tests/remote_auth_contract.rs (/home/user/orca/project/rust/target/debug/deps/remote_auth_contract-c09bdcab40ba7f20)
 
 running 9 tests
 test t04_ws_url_resolution_and_protocol_version_validation ... ok

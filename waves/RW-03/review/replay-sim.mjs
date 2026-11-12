@@ -4,7 +4,7 @@
 import fs from "node:fs";
 
 const rows = fs
-  .readFileSync("/home/sanya/re-deep/gw-proto/timeline-95974_1389.tsv", "utf8")
+  .readFileSync("/home/user/clean-room-oracle/gw-proto/timeline-95974_1389.tsv", "utf8")
   .split("\n")
   .filter((l) => l && !l.startsWith("#"))
   .map((l) => {

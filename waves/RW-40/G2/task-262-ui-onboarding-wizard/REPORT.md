@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-262` (`feature/task-262-ui-onboarding-wizard`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракул**: `/home/sanya/re-deep/rest-static.json` (`GUILD_ONBOARDING`, `GUILD_WELCOME_SCREEN`; до 5 каналов приветствия, описание до 140 символов, обязательные вопросы адаптации)
+- **Оракул**: `reference-oracle/rest-static.json` (`GUILD_ONBOARDING`, `GUILD_WELCOME_SCREEN`; до 5 каналов приветствия, описание до 140 символов, обязательные вопросы адаптации)
 
 ## Сделано
 1. `tests/unit/onboarding-wizard.test.mjs` (`// @ts-check`, Strict TDD: Red → Green, 8 unit-тестов в 3 suites):
@@ -19,8 +19,8 @@
    - реализованы и экспортированы `MAX_WELCOME_CHANNELS`, `MAX_WELCOME_DESCRIPTION_CHARS`, `isValidWelcomeDescription`, `areRequiredPromptsSatisfied` и `createOnboardingWizardController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/onboarding-wizard.test.mjs` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-262-ui-onboarding-wizard/red.log`.
-- **Green**: `node --test tests/unit/onboarding-wizard.test.mjs` → `exit=0` (`tests 8, suites 3, pass 8, fail 0`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-262-ui-onboarding-wizard/green.log`.
+- **Red**: `node --test tests/unit/onboarding-wizard.test.mjs` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-262-ui-onboarding-wizard/red.log`.
+- **Green**: `node --test tests/unit/onboarding-wizard.test.mjs` → `exit=0` (`tests 8, suites 3, pass 8, fail 0`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-262-ui-onboarding-wizard/green.log`.
 - **Typecheck**:
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `exit=0` (0 ошибок);
   - `./node_modules/.bin/tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --noUncheckedIndexedAccess --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/onboarding-wizard.js tests/unit/onboarding-wizard.test.mjs` → `exit=0` (0 ошибок).
@@ -30,8 +30,8 @@
 ```
 18ba4d9a9404c5979b814363ed1e8de2  rust/gui-spike/ui/features/onboarding-wizard.js
 b47a7a25207dd47cec83e584260afe76  tests/unit/onboarding-wizard.test.mjs
-381bfcd66112704578350a18c9c8d50b  /home/sanya/orca/project/waves/RW-40/G2/task-262-ui-onboarding-wizard/red.log
-f634619fc679a4fbb44ea99af90b655d  /home/sanya/orca/project/waves/RW-40/G2/task-262-ui-onboarding-wizard/green.log
+381bfcd66112704578350a18c9c8d50b  /home/user/orca/project/waves/RW-40/G2/task-262-ui-onboarding-wizard/red.log
+f634619fc679a4fbb44ea99af90b655d  /home/user/orca/project/waves/RW-40/G2/task-262-ui-onboarding-wizard/green.log
 ```
 
 ## Риски

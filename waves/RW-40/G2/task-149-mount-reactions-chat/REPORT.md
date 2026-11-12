@@ -1,7 +1,7 @@
 # Отчёт по карточке task-149 (FE-P0-04): Монтаж `createReactionsController` в `chat.js` и интерактивные реакции
 
 - **Волна / Отдел / Карточка**: `RW-40` / `G2 Frontend (WebView UI & DOM/A11y)` / `task-149` (`FE-P0-04` из `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md`, спецификация `waves/RW-40/DESIGN/REACTIONS-EXTENDED-SPEC.md`)
-- **Ворктри**: `/home/sanya/orca/workspaces/project/feature-task-149-mount-reactions-chat`
+- **Ворктри**: `/home/user/orca/workspaces/project/feature-task-149-mount-reactions-chat`
 - **Статус**: Выполнено (Strict TDD: Red → Green → Mutation Kill 5/5)
 
 ## 1. Сделано
@@ -35,13 +35,13 @@
 ## 2. Red-прогон
 
 - Команда: `node --test tests/unit/reactions-ui.test.mjs tests/unit/gui-spike-dom.test.mjs`
-- Лог: `/home/sanya/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/red.log`
+- Лог: `/home/user/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/red.log`
 - Результат: **EXIT_CODE=1** (6 падений в новых тестах до реализации `createReactionsController` и его монтажа в `chat.js`).
 
 ## 3. Green-прогон и Typecheck
 
 - Команда: `node --test tests/unit/reactions-ui.test.mjs tests/unit/gui-spike-dom.test.mjs && npx tsc -p tsconfig.json`
-- Лог: `/home/sanya/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/green.log`
+- Лог: `/home/user/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/green.log`
 - Результат:
   - `tests/unit/reactions-ui.test.mjs` + `tests/unit/gui-spike-dom.test.mjs`: **44/44 pass, 0 fail, 0 skip**.
   - `npx tsc -p tsconfig.json` и `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit`: **0 ошибок (exit 0)**.
@@ -49,7 +49,7 @@
 
 ## 4. Мутационное тестирование
 
-- Лог: `/home/sanya/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/mutations.log`
+- Лог: `/home/user/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/mutations.log`
 - Проверено 5 целевых мутантов (`M1` — снятие переключения `.active` на пилюле; `M2` — подмена `type=1` на `type=0` при `burst=true`; `M3` — отключение lazy-destroy `#reaction-picker-popover` в `closePicker`; `M4` — поломка переключения вкладки `Супер-реакции` `type=1` в `#reaction-users-modal`; `M5` — отключение монтирования `createReactionsController` в `chat.js`).
 - Результат: **5/5 мутантов убиты (KILLED)**, контрольные суммы MD5 файлов полностью восстановлены (`match=true`).
 
@@ -61,9 +61,9 @@
 | `rust/gui-spike/ui/features/reactions.js` | modified | `aa45fe323a0844ed4f675ffe42b0307d` |
 | `tests/unit/reactions-ui.test.mjs` | created | `8b814efb01b8305c0b35523e4608734e` |
 | `tests/unit/gui-spike-dom.test.mjs` | modified | `018c247adbce6eec1f903c966833b905` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/red.log` | created | `cdb1a5f27900ac4918a0b71bf12682d1` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/green.log` | created | `9876b1fbc9a3a11f397144c39ca85c93` |
-| `/home/sanya/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/mutations.log` | created | `5d041d58c176cc42cb9d18dc14b2a942` |
+| `/home/user/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/red.log` | created | `cdb1a5f27900ac4918a0b71bf12682d1` |
+| `/home/user/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/green.log` | created | `9876b1fbc9a3a11f397144c39ca85c93` |
+| `/home/user/orca/project/waves/RW-40/G2/task-149-mount-reactions-chat/mutations.log` | created | `5d041d58c176cc42cb9d18dc14b2a942` |
 
 ## 6. Риски и заметки
 

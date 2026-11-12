@@ -31,8 +31,8 @@ failures:
 
 test result: FAILED. 16 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.42s
      Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
 error: test failed, to rerun pass `-p discord-core --test settings_proto`

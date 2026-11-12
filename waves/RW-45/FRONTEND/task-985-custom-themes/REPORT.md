@@ -9,20 +9,20 @@
 
 ## 1. Сделано
 
-1. **Подзадача 985.1 — Нативный модуль пользовательских тем и палитры [`rust/discord-gpui/src/custom_themes.rs`](file:///home/sanya/orca/project/rust/discord-gpui/src/custom_themes.rs) + WebView/DOM контроллер [`rust/gui-spike/ui/features/custom-themes.js`](file:///home/sanya/orca/project/rust/gui-spike/ui/features/custom-themes.js):**
+1. **Подзадача 985.1 — Нативный модуль пользовательских тем и палитры [`rust/discord-gpui/src/custom_themes.rs`](file:///home/user/orca/project/rust/discord-gpui/src/custom_themes.rs) + WebView/DOM контроллер [`rust/gui-spike/ui/features/custom-themes.js`](file:///home/user/orca/project/rust/gui-spike/ui/features/custom-themes.js):**
    - Реализована поддержка 4 встроенных тем Discord (`dark`, `light`, `midnight`, `amoled` с чистым чёрным `#000000` для OLED-экранов) и реестра пользовательских тем (до `MAX_INSTALLED_CUSTOM_THEMES = 8`, включая импорт пакетов `.serein-extension` v1).
    - Реализовано горячее переключение тем (`applyTheme` / `apply_theme`) без перезагрузки интерфейса (`reloaded: false`, `domReloadCount === 0`, задержка `< 8.33 мс` в бюджете 120 FPS) через динамическую инъекцию CSS custom properties в `:root` (`document.documentElement.style` и `<style id="discord-custom-theme-palette">`), переходы интерактивных состояний `theme-preview` (`dark -> highlight theme -> applied`) и аварийный сброс по хоткею `Ctrl+Shift+F12`.
    - Реализован строгий валидатор контрастности WCAG 2.2 AA/AAA (`validateThemeWcagContrast` / `audit_palette_wcag_aa`: `>= 4.5:1` для обычного текста, `>= 7.0:1` AAA для основного текста `--text-strong`/`--text`, `>= 3.0:1` для нетекстовых индикаторов и `--focus-ring`) и санитайзер CSS-токенов (`sanitizeCustomThemeTokens` / `sanitize_css_token_entry`), блокирующий `url()`, `@import`, `@font-face`, `expression()`, `javascript:`, `!important`.
-   - Выполнена сверка с независимыми оракулами (`verifyCustomThemesOracleParity`): [`waves/kanban-board.json`](file:///home/sanya/orca/project/waves/kanban-board.json) (`TASK-985`), [`rust/gui-spike/ui/tokens.css`](file:///home/sanya/orca/project/rust/gui-spike/ui/tokens.css) (204 базовых токена `:root`), [`waves/RW-40/theme-spec.json`](file:///home/sanya/orca/project/waves/RW-40/theme-spec.json) (57 переопределений `light`), [`rust/gui-spike/ui/features/token-map.js`](file:///home/sanya/orca/project/rust/gui-spike/ui/features/token-map.js) (25 канонических токенов и 7 разрешённых коллизий), [`docs/re/frontend-d03.json`](file:///home/sanya/orca/project/docs/re/frontend-d03.json) (`theme-dark images-dark`, `customTheme`) и [`midnight.serein-extension`](file:///home/sanya/orca/project/docs/reference-projects/sources/Serein/extensions/themes/midnight.serein-extension).
+   - Выполнена сверка с независимыми оракулами (`verifyCustomThemesOracleParity`): [`waves/kanban-board.json`](file:///home/user/orca/project/waves/kanban-board.json) (`TASK-985`), [`rust/gui-spike/ui/tokens.css`](file:///home/user/orca/project/rust/gui-spike/ui/tokens.css) (204 базовых токена `:root`), [`waves/RW-40/theme-spec.json`](file:///home/user/orca/project/waves/RW-40/theme-spec.json) (57 переопределений `light`), [`rust/gui-spike/ui/features/token-map.js`](file:///home/user/orca/project/rust/gui-spike/ui/features/token-map.js) (25 канонических токенов и 7 разрешённых коллизий), [`docs/re/frontend-d03.json`](file:///home/user/orca/project/docs/re/frontend-d03.json) (`theme-dark images-dark`, `customTheme`) и [`midnight.serein-extension`](file:///home/user/orca/project/docs/reference-projects/sources/Serein/extensions/themes/midnight.serein-extension).
 
-2. **Подзадача 985.2 — Контрактный и модульный тест [`tests/unit/custom-themes-985.test.mjs`](file:///home/sanya/orca/project/tests/unit/custom-themes-985.test.mjs) (Strict TDD):**
+2. **Подзадача 985.2 — Контрактный и модульный тест [`tests/unit/custom-themes-985.test.mjs`](file:///home/user/orca/project/tests/unit/custom-themes-985.test.mjs) (Strict TDD):**
    - Покрыты все 6 тестовых секций (`SUB-985-0`..`SUB-985-5`), все 9 измерений `TEST-POLICY.md` (`evaluateCustomThemesEdgeDimensions`), маскирование секретов (`redactThemeTelemetryLogs`), лимиты размера кода (`< 800` строк на модуль, `< 50` строк на функцию) и мутационный гейт `5/5` (`100%` kill rate) как для Rust, так и для JS.
 
 ---
 
 ## 2. Red-прогон (TDD)
 
-Лог: [`waves/RW-45/FRONTEND/task-985-custom-themes/red.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-985-custom-themes/red.log):
+Лог: [`waves/RW-45/FRONTEND/task-985-custom-themes/red.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-985-custom-themes/red.log):
 
 ```text
 ▶ TASK-985: Пользовательские темы оформления и динамическая CSS палитра (custom_themes.rs + custom-themes.js)
@@ -39,7 +39,7 @@
 
 ## 3. Green-прогон (TDD)
 
-Лог: [`waves/RW-45/FRONTEND/task-985-custom-themes/green.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-985-custom-themes/green.log):
+Лог: [`waves/RW-45/FRONTEND/task-985-custom-themes/green.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-985-custom-themes/green.log):
 
 ```text
 ▶ TASK-985: Пользовательские темы оформления и динамическая CSS палитра (custom_themes.rs + custom-themes.js)
@@ -59,7 +59,7 @@
 
 - **Targeted (`node --test tests/unit/custom-themes-985.test.mjs`):** `6/6 pass (0 fail, 0 skip)`.
 - **Rust (`rustc --test --edition 2024 -D warnings` + `rustfmt --check --edition 2024`):** `4/4 pass`, `0 warnings`.
-- **Мутационный гейт ([`waves/RW-45/FRONTEND/task-985-custom-themes/mutation.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-985-custom-themes/mutation.log)):**
+- **Мутационный гейт ([`waves/RW-45/FRONTEND/task-985-custom-themes/mutation.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-985-custom-themes/mutation.log)):**
   1. `MUT-985-RS-01` / `JS-01` (Ослабление порога WCAG 2.2 AA `4.5 -> 1.5`) — **KILLED**
   2. `MUT-985-RS-02` / `JS-04` (Принудительная перезагрузка `reloaded: false -> true`) — **KILLED**
   3. `MUT-985-RS-03` / `JS-03` (Подмена истинного чёрного `#000000` в теме AMOLED) — **KILLED**

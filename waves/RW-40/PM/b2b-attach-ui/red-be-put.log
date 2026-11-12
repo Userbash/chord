@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved imports `discord_gui_spike::attachments::upload_attachment_bytes`, `discord_gui_spike::attachments::upload_put_input`, `discord_gui_spike::attachments::UploadBytes`, `discord_gui_spike::attachments::UploadPutInput`, `discord_gui_spike::attachments::DEFAULT_UPLOAD_CONTENT_TYPE`
   --> tests/attachments_contract.rs:21:5
    |
@@ -44,7 +44,7 @@ For more information about an error, try `rustc --explain E0407`.
 error: could not compile `discord-gui-spike` (test "attachments_contract") due to 4 previous errors
 warning: build failed, waiting for other jobs to finish...
 EXIT_CODE=101
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.83s
      Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
 

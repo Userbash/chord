@@ -1,6 +1,6 @@
 # Maintainer: discord-lab DevOps <devops@discord-lab.local>
 # TASK-964: Arch Linux PKGBUILD specification for native Rust GPUI client (discord-gpui)
-# Reference oracle: rust/dist/SHA256SUMS, docs/SYSTEM-REQUIREMENTS.md, /home/sanya/re-deep/native-re.md (§2.1-2.2)
+# Reference oracle: rust/dist/SHA256SUMS, docs/SYSTEM-REQUIREMENTS.md, /home/user/clean-room-oracle/native-re.md (§2.1-2.2)
 
 pkgname=discord-gpui
 _upstream_ver=1.0.0-beta.1

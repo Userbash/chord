@@ -17,7 +17,7 @@
 
 test at tests/unit/wan-network-profiles-978.test.mjs:34:3
 ✖ SUB-978-1: инициализирует профиль WAN 3G/LTE (150ms RTT, 5% loss, 30ms jitter), UI-токены эмулятора и сверяет контракты с RE-оракулами rtp-pt120-oracle.json и rtc-frames.jsonl (0.718633ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/wan-simulation.mjs' imported from /home/sanya/orca/project/tests/unit/wan-network-profiles-978.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/wan-simulation.mjs' imported from /home/user/orca/project/tests/unit/wan-network-profiles-978.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -29,12 +29,12 @@ test at tests/unit/wan-network-profiles-978.test.mjs:34:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/wan-simulation.mjs'
+    url: 'file:///home/user/orca/project/scripts/wan-simulation.mjs'
   }
 
 test at tests/unit/wan-network-profiles-978.test.mjs:139:3
 ✖ SUB-978-2: подтверждает непрерывность голоса при 5% потерь, 150ms RTT и 30ms jitter за счёт Opus PLC и In-Band FEC (0.383926ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/wan-simulation.mjs' imported from /home/sanya/orca/project/tests/unit/wan-network-profiles-978.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/wan-simulation.mjs' imported from /home/user/orca/project/tests/unit/wan-network-profiles-978.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -46,12 +46,12 @@ test at tests/unit/wan-network-profiles-978.test.mjs:139:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/wan-simulation.mjs'
+    url: 'file:///home/user/orca/project/scripts/wan-simulation.mjs'
   }
 
 test at tests/unit/wan-network-profiles-978.test.mjs:201:3
 ✖ SUB-978-3: проверяет битовую точность RTCP Generic NACK (PT=205, FMT=1), RTP RTX (RFC 4588) и 100% восстановление ключевых кадров (0.289946ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/wan-simulation.mjs' imported from /home/sanya/orca/project/tests/unit/wan-network-profiles-978.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/wan-simulation.mjs' imported from /home/user/orca/project/tests/unit/wan-network-profiles-978.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -63,12 +63,12 @@ test at tests/unit/wan-network-profiles-978.test.mjs:201:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/wan-simulation.mjs'
+    url: 'file:///home/user/orca/project/scripts/wan-simulation.mjs'
   }
 
 test at tests/unit/wan-network-profiles-978.test.mjs:311:3
 ✖ SUB-978-4: проверяет граничные/негативные сценарии (5% vs 10% vs 10.1% Error 2003, битые NACK/RTX, SRTP GCM) и CLI scripts/wan-simulation.mjs (0.646413ms)
-  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/sanya/orca/project/scripts/wan-simulation.mjs' imported from /home/sanya/orca/project/tests/unit/wan-network-profiles-978.test.mjs
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/user/orca/project/scripts/wan-simulation.mjs' imported from /home/user/orca/project/tests/unit/wan-network-profiles-978.test.mjs
       at finalizeResolution (node:internal/modules/esm/resolve:241:11)
       at moduleResolve (node:internal/modules/esm/resolve:846:10)
       at defaultResolve (node:internal/modules/esm/resolve:973:11)
@@ -80,5 +80,5 @@ test at tests/unit/wan-network-profiles-978.test.mjs:311:3
       at node:internal/modules/esm/loader:639:32
       at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
     code: 'ERR_MODULE_NOT_FOUND',
-    url: 'file:///home/sanya/orca/project/scripts/wan-simulation.mjs'
+    url: 'file:///home/user/orca/project/scripts/wan-simulation.mjs'
   }

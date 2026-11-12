@@ -1,14 +1,14 @@
 ## P1
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:646): `parse_fence` can panic on the valid UTF-8 input `"```\n"`. With no closing fence, `open_end` is `3`, then `rest[open_end + 1..]` slices at byte 4 of a 4-byte string. The markdown truncation test does not cover this exact input and does not catch unwinds. This violates the no-panic requirement for untrusted markdown.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:646): `parse_fence` can panic on the valid UTF-8 input `"```\n"`. With no closing fence, `open_end` is `3`, then `rest[open_end + 1..]` slices at byte 4 of a 4-byte string. The markdown truncation test does not cover this exact input and does not catch unwinds. This violates the no-panic requirement for untrusted markdown.
 
 ## P2
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:498): Plural exact selectors are built with `format!("={v:.0}")`, which rounds fractional inputs. For `v = 1.5`, a branch `=2` is selected before CLDR category handling. Exact selectors must compare the original numeric value; the tests exercise integer counts only.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:498): Plural exact selectors are built with `format!("={v:.0}")`, which rounds fractional inputs. For `v = 1.5`, a branch `=2` is selected before CLDR category handling. Exact selectors must compare the original numeric value; the tests exercise integer counts only.
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:510): Russian cardinal selection uses `abs() as i64` and never returns `other` for fractions. For example, `1.5` is classified as `one` instead of CLDR `other`; negative values also lose their sign. The Russian plural tests cover only positive integers.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:510): Russian cardinal selection uses `abs() as i64` and never returns `other` for fractions. For example, `1.5` is classified as `one` instead of CLDR `other`; negative values also lose their sign. The Russian plural tests cover only positive integers.
 
-- [discord-i18n/src/lib.rs](/home/sanya/orca/project/rust/crates/discord-i18n/src/lib.rs:661): Link parsing uses the final `)` in the remaining input and accepts any destination beginning with an allowed scheme. An input such as `[x](https://safe.test) [y](javascript:alert(1))` can be parsed as one link whose destination includes the later markup. The test checks a direct `javascript:` URL but not mixed or delimiter-injection input; if the returned markdown is rendered downstream, this can undermine the link-scheme restriction.
+- [discord-i18n/src/lib.rs](/home/user/orca/project/rust/crates/discord-i18n/src/lib.rs:661): Link parsing uses the final `)` in the remaining input and accepts any destination beginning with an allowed scheme. An input such as `[x](https://safe.test) [y](javascript:alert(1))` can be parsed as one link whose destination includes the later markup. The test checks a direct `javascript:` URL but not mixed or delimiter-injection input; if the returned markdown is rendered downstream, this can undermine the link-scheme restriction.
 
 ## Test Oracle Review
 

@@ -3,7 +3,7 @@
 48d01ef823c7babff52614ad95b0e60d  rust/gui-spike/src/lib.rs
 dc1d395fd083020f5a7d5e038925cd1d  rust/gui-spike/src/main.rs
 c071c086a4467568789d4ddd09148c22  rust/gui-spike/tests/attachments_contract.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
      Running tests/attachments_contract.rs (/tmp/target-int01/debug/deps/attachments_contract-10b1b5f3f7986118)
 
@@ -50,7 +50,7 @@ error: test failed, to rerun pass `-p discord-gui-spike --test attachments_contr
 EXIT_CODE_STAGE1=101
 
 === RED STAGE 2: Compile-time RED (new UploadPutCommandArgs contract against unmodified src/) ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved imports `discord_gui_spike::attachments::upload_put_command`, `discord_gui_spike::attachments::UploadPutCommandArgs`, `discord_gui_spike::attachments::UPLOAD_PUT_COMMAND_PARAM_KEYS`
   --> tests/attachments_contract.rs:21:30
    |
@@ -81,7 +81,7 @@ warning: build failed, waiting for other jobs to finish...
 EXIT_CODE_STAGE2=101
 
 === RED STAGE 3: Runtime assertion RED in both attachments_contract and main.rs wiring_tests (old main.rs without id) ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 4.42s
      Running unittests src/main.rs (/tmp/target-int01/debug/deps/discord_gui_spike-a7a35ec2f90a6824)
 

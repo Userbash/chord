@@ -34,7 +34,7 @@
 test at tests/unit/test-impact.test.mjs:57:3
 ✖ docs-файл и каталог docs включают meta docs-sync (0.692486ms)
   AssertionError [ERR_ASSERTION]: docs: нет docs-sync
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/test-impact.test.mjs:61:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/test-impact.test.mjs:61:14)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -62,7 +62,7 @@ test at tests/unit/test-impact.test.mjs:86:3
   -   'cargo test --offline --manifest-path rust/Cargo.toml -p discord-core'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/test-impact.test.mjs:90:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/test-impact.test.mjs:90:14)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -83,7 +83,7 @@ test at tests/unit/test-impact.test.mjs:86:3
 test at tests/unit/test-impact.test.mjs:129:3
 ✖ каталог src/cli и файл дают cli-run + smoke, а не все unit-тесты (0.154206ms)
   AssertionError [ERR_ASSERTION]: src/cli: нет cli-run
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/test-impact.test.mjs:132:14)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/test-impact.test.mjs:132:14)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -111,7 +111,7 @@ test at tests/unit/test-impact.test.mjs:157:3
   +   '--json'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/test-impact.test.mjs:159:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/test-impact.test.mjs:159:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

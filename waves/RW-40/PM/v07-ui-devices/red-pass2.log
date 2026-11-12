@@ -36,7 +36,7 @@ test at tests/unit/voice-devices-settings.test.mjs:153:3
   + null
   - 'mic-builtin'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:157:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:157:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -57,8 +57,8 @@ test at tests/unit/voice-devices-settings.test.mjs:153:3
 test at tests/unit/voice-devices-settings.test.mjs:196:3
 ✖ длинное имя устройства: полный текст и title, без обрезки в DOM (0.334794ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-input
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:201:19)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:201:19)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -78,8 +78,8 @@ test at tests/unit/voice-devices-settings.test.mjs:196:3
 test at tests/unit/voice-devices-settings.test.mjs:207:3
 ✖ явный выбор устройства: один вызов сервиса, состояние и select синхронны (0.161362ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-input
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:209:19)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:209:19)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -97,8 +97,8 @@ test at tests/unit/voice-devices-settings.test.mjs:207:3
 test at tests/unit/voice-devices-settings.test.mjs:223:3
 ✖ нельзя выбрать устройство чужого типа или неизвестное (0.124112ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-input
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:225:19)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:225:19)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -121,7 +121,7 @@ test at tests/unit/voice-devices-settings.test.mjs:240:3
   + null
   - 'mic-builtin'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:250:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:250:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -142,7 +142,7 @@ test at tests/unit/voice-devices-settings.test.mjs:255:3
   
   null !== 'mic-usb'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:262:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:262:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -163,7 +163,7 @@ test at tests/unit/voice-devices-settings.test.mjs:296:3
   
   0 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:305:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:305:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -181,8 +181,8 @@ test at tests/unit/voice-devices-settings.test.mjs:296:3
 test at tests/unit/voice-devices-settings.test.mjs:326:3
 ✖ громкость микрофона клампится в 0..100 и сервис получает кламп (0.134522ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-input-volume
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:328:19)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:328:19)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -200,8 +200,8 @@ test at tests/unit/voice-devices-settings.test.mjs:326:3
 test at tests/unit/voice-devices-settings.test.mjs:345:3
 ✖ громкость вывода клампится в 0..200 по оракулу aUJ062 (0.158412ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-output-volume
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:347:19)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:347:19)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -219,8 +219,8 @@ test at tests/unit/voice-devices-settings.test.mjs:345:3
 test at tests/unit/voice-devices-settings.test.mjs:374:3
 ✖ переключатель PTT меняет режим и показывает задержку (0.196263ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-ptt
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:376:17)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:376:17)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -238,8 +238,8 @@ test at tests/unit/voice-devices-settings.test.mjs:374:3
 test at tests/unit/voice-devices-settings.test.mjs:411:3
 ✖ releaseDelayMs клампится в 0..2000 мс (0.124022ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-ptt
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:413:5)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:413:5)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -257,8 +257,8 @@ test at tests/unit/voice-devices-settings.test.mjs:411:3
 test at tests/unit/voice-devices-settings.test.mjs:436:3
 ✖ thresholdDb клампится по i8 (−128..127) (0.115722ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-vad-threshold
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:438:19)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:438:19)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -276,8 +276,8 @@ test at tests/unit/voice-devices-settings.test.mjs:436:3
 test at tests/unit/voice-devices-settings.test.mjs:458:3
 ✖ захват клавиши PTT: Escape отменяет, модификатор игнорируется, Space назначается (0.133542ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-ptt-key
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:460:23)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:460:23)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -295,8 +295,8 @@ test at tests/unit/voice-devices-settings.test.mjs:458:3
 test at tests/unit/voice-devices-settings.test.mjs:487:3
 ✖ effectiveMute = userMute || selfDeaf, deafen не трогает userMute (0.137732ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-user-mute
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:489:18)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:489:18)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -319,7 +319,7 @@ test at tests/unit/voice-devices-settings.test.mjs:544:3
   + null
   - 'Голос и видео'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:546:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:546:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -337,8 +337,8 @@ test at tests/unit/voice-devices-settings.test.mjs:544:3
 test at tests/unit/voice-devices-settings.test.mjs:591:3
 ✖ ошибка сервиса показывается в alert, а не глотается (0.112291ms)
   AssertionError [ERR_ASSERTION]: в контроллере нет #voice-devices-input
-      at byId (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/voice-devices-settings.test.mjs:598:19)
+      at byId (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:126:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/voice-devices-settings.test.mjs:598:19)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

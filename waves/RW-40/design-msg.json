@@ -6,9 +6,9 @@
     "waves/RW-39/DESIGN/SPEC-P3-02.md",
     "waves/RW-39/DESIGN/tokens.css",
     "waves/RW-39/DESIGN/DOM-CONTRACT.md",
-    "/home/sanya/re-deep/ui/01-msg-menu-items.json",
-    "/home/sanya/re-deep/ui/00-app.png",
-    "/home/sanya/re-deep/ui8/*",
+    "/home/user/clean-room-oracle/ui/01-msg-menu-items.json",
+    "/home/user/clean-room-oracle/ui/00-app.png",
+    "/home/user/clean-room-oracle/ui8/*",
     "waves/RW-39/NET/LOGIN-SPEC.md"
   ],
   "legend": {
@@ -39,7 +39,7 @@
   "messageMenu": {
     "count": 15,
     "countMark": "D",
-    "source": "/home/sanya/re-deep/ui/01-msg-menu-items.json",
+    "source": "/home/user/clean-room-oracle/ui/01-msg-menu-items.json",
     "items": [
       {"order": 1, "text": ":thumbsup: :+1: :thumbup: :thumbs_up:", "disabled": false},
       {"order": 2, "text": ":fire: :flame:", "disabled": false},

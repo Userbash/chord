@@ -22,10 +22,10 @@
 test at tests/unit/gui-spike-features.test.mjs:3201:3
 ✖ ready скрыт; connecting/reconnecting — «Переподключение…», retry только в offline (22.794661ms)
   AssertionError [ERR_ASSERTION]: нет #net-status
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3203:22
-      at withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3202:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3203:22
+      at withNetApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3202:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -41,10 +41,10 @@ test at tests/unit/gui-spike-features.test.mjs:3201:3
 test at tests/unit/gui-spike-features.test.mjs:3243:3
 ✖ offline/error: «Нет соединения» + «Повторить»; retry — ровно один net_connect, без авто-цикла (7.779038ms)
   AssertionError [ERR_ASSERTION]: нет #net-status
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3245:22
-      at withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3244:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3245:22
+      at withNetApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3244:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -58,10 +58,10 @@ test at tests/unit/gui-spike-features.test.mjs:3243:3
 test at tests/unit/gui-spike-features.test.mjs:3287:3
 ✖ ошибка net_connect (401) видима, retry ручной, без тихого цикла и console.error (9.273016ms)
   AssertionError [ERR_ASSERTION]: нет #net-status
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
-      at withNetApp.status (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3290:24)
-      at withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3288:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at withNetApp.status (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3290:24)
+      at withNetApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3288:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -78,9 +78,9 @@ test at tests/unit/gui-spike-features.test.mjs:3320:3
   
   false !== true
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3322:14
-      at withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3321:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3322:14
+      at withNetApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3194:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3321:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -94,10 +94,10 @@ test at tests/unit/gui-spike-features.test.mjs:3320:3
 test at tests/unit/gui-spike-features.test.mjs:3338:3
 ✖ без auth ready нет поллинга net_status (гейт не пройден) (4.634298ms)
   AssertionError [ERR_ASSERTION]: нет #net-status
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3344:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:78:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3339:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3344:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:78:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3339:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -114,9 +114,9 @@ test at tests/unit/gui-spike-features.test.mjs:3348:3
   
   false !== true
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3361:14
-      at async withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3349:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3361:14
+      at async withNetApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3194:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3349:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -130,10 +130,10 @@ test at tests/unit/gui-spike-features.test.mjs:3348:3
 test at tests/unit/gui-spike-features.test.mjs:3365:3
 ✖ фокус не крадётся появлением баннера и возвращается в чат при ready (5.526333ms)
   AssertionError [ERR_ASSERTION]: нет #net-retry
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3374:21
-      at async withNetApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3194:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3366:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:91:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3374:21
+      at async withNetApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3194:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3366:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -147,7 +147,7 @@ test at tests/unit/gui-spike-features.test.mjs:3365:3
 test at tests/unit/gui-spike-features.test.mjs:3388:3
 ✖ index.html подключает net-status.css; баннер в потоке, не поверх чата (0.227393ms)
   AssertionError [ERR_ASSERTION]: net-status.css не подключён в index.html
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:3390:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:3390:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

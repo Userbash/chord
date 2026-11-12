@@ -1,22 +1,22 @@
 # RE-VOICE-STATS — RTCP/RTP-оракул для P4-07 (B07/RW-26)
 
 Seat: RE-1. Дата: 2026-10-22. Метод: статический/офлайн-разбор pcap, живой Discord не
-подключался, сеть не использовалась. Golden `/home/sanya/re-deep` — только чтение.
+подключался, сеть не использовалась. Golden `reference-oracle/` — только чтение.
 
 ## 1. Источники и провенанс
 
 | Артефакт | sha256 | Использование |
 |---|---|---|
-| `/home/sanya/re-deep/voice/voice-udp4.pcap` | `0e6e2f8c…d40e1e2` | RR-структура, RTP-заголовки, DTX-кадры |
-| `/home/sanya/re-deep/voice/voice-udp3.pcap` | `b655c13a…495926f3` | второй прогон, SR-структура |
-| `/home/sanya/re-deep/voice/rtp-analyze.mjs` | — | сверка раскладки pcap (linktype 276) |
-| `/home/sanya/re-deep/voice/engine-log-session1.txt` | — | ранжирование регионов |
+| `reference-oracle/voice/voice-udp4.pcap` | `0e6e2f8c…d40e1e2` | RR-структура, RTP-заголовки, DTX-кадры |
+| `reference-oracle/voice/voice-udp3.pcap` | `b655c13a…495926f3` | второй прогон, SR-структура |
+| `reference-oracle/voice/rtp-analyze.mjs` | — | сверка раскладки pcap (linktype 276) |
+| `reference-oracle/voice/engine-log-session1.txt` | — | ранжирование регионов |
 
 Разбор: `waves/RW-26/research/rtcp-extract.py` (Python stdlib, read-only скрипт).
 
 ```sh
 python3 waves/RW-26/research/rtcp-extract.py \
-  /home/sanya/re-deep/voice/voice-udp4.pcap waves/RW-26/research/rtcp-udp4.json --fixture 20
+  reference-oracle/voice/voice-udp4.pcap waves/RW-26/research/rtcp-udp4.json --fixture 20
 ```
 
 Выход: `rtcp-udp4.json` (все RTCP/RTP-потоки), `fixtures/rtcp-voice-udp4-server.bin`

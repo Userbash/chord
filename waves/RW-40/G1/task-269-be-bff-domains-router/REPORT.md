@@ -4,12 +4,12 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-269` (`BE-INT-12` / `bff_domains_router`) — единый типизированный роутер команд BFF для доменов `slash_commands`, `onboarding`, `soundboard` и `stage_instances` (`SUPPORTED_BFF_DOMAINS`, `BffDomainAction`, `UpdateGuildOnboardingRequest`, `is_supported_bff_domain`, `dispatch_bff_domain_action`).
-- **Ветка / worktree**: `feature/task-269-be-bff-domains-router`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-269-be-bff-domains-router`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/bff_domains_router.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/bff_domains_router_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-269-be-bff-domains-router/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-269-be-bff-domains-router/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Согласование контракта и оракулов
 
@@ -35,7 +35,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-269-be-bff-domains-router/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-269-be-bff-domains-router/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::bff_domains_router`
@@ -50,7 +50,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-269-be-bff-domains-router/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-269-be-bff-domains-router/green.log`:
 
 ```text
 running 8 tests
@@ -67,7 +67,7 @@ test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 ```
 
 Дополнительно проверено:
-- `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml -p discord-gui-spike --test bff_domains_router_contract --lib -- -D warnings` — `0 warnings`, `exit=0`.
+- `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml -p discord-gui-spike --test bff_domains_router_contract --lib -- -D warnings` — `0 warnings`, `exit=0`.
 - `rustfmt --edition 2021 --check rust/gui-spike/src/bff_domains_router.rs rust/gui-spike/tests/bff_domains_router_contract.rs` — `exit=0`.
 
 ## 6. Файлы + md5

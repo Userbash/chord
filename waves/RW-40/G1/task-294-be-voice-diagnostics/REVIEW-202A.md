@@ -32,13 +32,13 @@
 
 1. **Контрактные тесты:**
    ```bash
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test voice_diagnostics_contract
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test voice_diagnostics_contract
    ```
    **Результат:** `21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s`.
 
 2. **Clippy:**
    ```bash
-   CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test voice_diagnostics_contract -- -D warnings
+   CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test voice_diagnostics_contract -- -D warnings
    ```
    **Результат:** `0 warnings / 0 errors`.
 

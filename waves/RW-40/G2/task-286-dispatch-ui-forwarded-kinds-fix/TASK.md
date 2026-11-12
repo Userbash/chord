@@ -8,9 +8,9 @@
 ## Разрешённые файлы для записи (Write-Scope)
 - `rust/gui-spike/ui/features/dispatch.js` (или целевой UI-файл с `FORWARDED_KINDS`)
 - `tests/unit/dispatch_ui.test.mjs`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-286-dispatch-ui-forwarded-kinds-fix/red.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-286-dispatch-ui-forwarded-kinds-fix/green.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-286-dispatch-ui-forwarded-kinds-fix/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/G2/task-286-dispatch-ui-forwarded-kinds-fix/red.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-286-dispatch-ui-forwarded-kinds-fix/green.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-286-dispatch-ui-forwarded-kinds-fix/REPORT.md`
 
 ## Шаги выполнения (Strict TDD: Red -> Green)
 1. **Red:** Запусти `node --test tests/unit/dispatch_ui.test.mjs` и сохрани падение теста `A2: FORWARDED_KINDS` (`AssertionError: CHANNEL_CREATE форвардится бэкендом, но отбрасывается UI`) в `red.log`.

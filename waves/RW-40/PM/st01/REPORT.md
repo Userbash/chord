@@ -2,8 +2,8 @@
 
 Дата: 2026-10-24. PM: DeepSeek. Режим: офлайн (`node:test` + DOM-шим), без live/окна/сети/
 `cargo`/`gate`/commit. Источник истины по структуре — `G6-REPORT-RW40-02.md` §3.11/§4 и
-оракул `/home/sanya/re-deep/ui8/23-settings-categories.json` (63 записи) + HTML-дамп
-`/home/sanya/re-deep/ui8/23-settings-voice.html` (для профиля/класса `destructive`).
+оракул `reference-oracle/ui8/23-settings-categories.json` (63 записи) + HTML-дамп
+`reference-oracle/ui8/23-settings-voice.html` (для профиля/класса `destructive`).
 
 ## Сделано
 

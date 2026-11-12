@@ -2,7 +2,7 @@
 
 Дата: 2026-10-20. Источники: `docs/re/rest-d02.md`, `docs/re/rest-d02.json`,
 `docs/rust-client/{PLAN,TEST-PLAN,STATUS,ROADMAP}.md`, `fixtures/gateway/by-type/*`,
-`rust/crates/discord-core/src/{rest,state}`. Сеть, живой Discord, golden и `/home/sanya/re-deep`
+`rust/crates/discord-core/src/{rest,state}`. Сеть, живой Discord, golden и `reference-oracle/`
 не использовались.
 
 ## 1. Постановка

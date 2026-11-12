@@ -2,14 +2,14 @@
 
 - **Карточка / Задача:** `TASK-623` (`task_8f6f84d732d6`, dispatch `ctx_72fa84ef20c0`)
 - **Отдел / Роль:** `G5 Voice & Platform`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-623-dave-mls-v2`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-623-dave-mls-v2`
 - **Ветка:** `feature/task-623-dave-mls-v2`
 
 ---
 
 ## 1. Сделано
 
-1. **Сверка с эталонным RE-оракулом (`/home/sanya/re-deep/native-re/raw/discord_voice/strings-a-n6.txt` и `nm-all-demangled.txt`):**
+1. **Сверка с эталонным RE-оракулом (`reference-oracle/native-re/raw/discord_voice/strings-a-n6.txt` и `nm-all-demangled.txt`):**
    - Извлечены точные контракты `libdave` (`mls_key_ratchet.cpp`, `cryptor_manager.cpp`, `mls/session.cpp`) и `mlspp::HashRatchet`:
      - Метка экспорта пользовательских медиа-ключей: `DAVE_MLS_USER_MEDIA_KEY_BASE_LABEL = b"Discord Secure Frames v0"` (`strings-a-n6.txt:76085`).
      - Метки продвижения `mlspp::HashRatchet`: `MLS 1.0 key`, `MLS 1.0 nonce`, `MLS 1.0 secret` (`strings-a-n6.txt:76715-76730`, `238131-238136`).
@@ -30,7 +30,7 @@
 - **Тестовый файл:** `rust/crates/discord-voice/tests/srtp_contract.rs`
 - **Команда:**
   ```sh
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test srtp_contract
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test srtp_contract
   ```
 - **Лог:** `waves/RW-40/G5/task-623-dave-mls-v2/red.log`
 - **Результат Red-фазы (до реализации в `srtp.rs` и `dave.rs`):**
@@ -46,18 +46,18 @@
 
 - **Targeted-прогон (`srtp_contract`):**
   ```sh
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test srtp_contract
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test srtp_contract
   ```
   Результат: **`24 passed; 0 failed`**.
 - **Полный прогон пакета `discord-voice` (`waves/RW-40/G5/task-623-dave-mls-v2/green.log`):**
   ```sh
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice
   ```
   Результат: **`227 passed; 0 failed`** (включая `35` unit-тестов и `192` интеграционных/контрактных теста по всем 11 тестовым наборам `discord-voice`).
 - **Форматирование и статический анализ (`rustfmt` + `clippy`):**
   ```sh
   rustfmt --edition 2024 --check rust/crates/discord-voice/src/dave.rs rust/crates/discord-voice/src/srtp.rs rust/crates/discord-voice/tests/srtp_contract.rs
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --all-targets -- -D warnings
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --all-targets -- -D warnings
   ```
   Результат: **`0 warnings, 0 errors`**.
 

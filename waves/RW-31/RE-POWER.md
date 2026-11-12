@@ -1,6 +1,6 @@
 # RE: питание, ингибиторы и idle (P6-06)
 
-Дата: 2026-10-22. Источник — только чтение `/home/sanya/re-deep/backend-ipc.md`,
+Дата: 2026-10-22. Источник — только чтение `reference-oracle/backend-ipc.md`,
 `main-arch.md`, `native-re.md`, `docs/re/architecture.md`.
 
 ## 1. Что делает клиент

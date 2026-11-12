@@ -1,7 +1,7 @@
 //! Base64 (RFC 4648) для `X-Super-Properties` — волна RW-09 / P1-08 (T-REST-04), воркер W9a.
 //!
 //! **Провенанс оракулов** (независимые артефакты и правила, не подгонка под реализацию):
-//! - Живой снимок `/home/sanya/re-deep/d02-snapshot/capture-run2.snap.jsonl`,
+//! - Живой снимок `/home/user/clean-room-oracle/d02-snapshot/capture-run2.snap.jsonl`,
 //!   md5 `abfe14b76cec1e559c3b45522bc44b7a`; запрос `requestId = "95974.2323"`
 //!   (GET `/api/v9/channels/{id}/messages?limit=12`), заголовок `X-Super-Properties`.
 //! - `tests/data/rest-super-properties-2323.b64` — 1084 символа + `\n`, md5

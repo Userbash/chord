@@ -1,4 +1,4 @@
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
 error[E0425]: cannot find function `to_json_string` in crate `discord_json`
    --> crates/discord-json/tests/json_contract.rs:225:30
     |

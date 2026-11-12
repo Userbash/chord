@@ -10,7 +10,7 @@
 `rust/gui-spike/ui/features/search.js`, `rust/gui-spike/ui/features/search-overlay.js`,
 `rust/gui-spike/ui/index.html`, `rust/gui-spike/ui/components/chat.css`,
 `rust/gui-spike/src/search.rs`, `tests/unit/search-remote-real-index.test.mjs`,
-`/home/sanya/re-deep/{en,ru}-catalog.json`. Ни один файл, кроме этого отчёта, не изменён.
+`reference-oracle/{en,ru}-catalog.json`. Ни один файл, кроме этого отчёта, не изменён.
 
 ## P1 — блокируют приёмку
 
@@ -142,7 +142,7 @@ map в `localStorage` под ключом `GuildNSFWAgreeStore` (`:596-598`). А
 2. **`DEFAULT_SEARCH_LIMIT` не существует** (§1.1, `:65`). В `search.rs:19`
    константа называется `MAX_SEARCH_LIMIT`.
 3. **Таблица i18n (`:79-97`) цитирует каталоги неточно.** Сверено с
-   `/home/sanya/re-deep/{en,ru}-catalog.json`:
+   `reference-oracle/{en,ru}-catalog.json`:
    - токеновые строки в каталоге без двоеточия: `1TUdFo` = `"from"` / `"от"`,
      `0B74eY` = `"pinned"` / `"закреплённые"`, `us8IQi` = `"authorType"` /
      `"ТипАвтора"` — двоеточие дописывает клиент, в колонке «значение в

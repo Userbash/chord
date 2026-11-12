@@ -13,8 +13,8 @@
    - экспортированы `REACTION_TYPES`, `REACTORS_DIALOG_TITLE_RU`, `BURST_BADGE_LABEL_RU`, `REACTIONS_EMPTY_STATE_RU` и `createReactionsUiController(containerEl, options)`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/reactions-ui.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-212-ui-reactions-controller/red.log`.
-- **Green**: `node --test tests/unit/reactions-ui.test.mjs` → `tests 13, suites 4, pass 13, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-212-ui-reactions-controller/green.log`.
+- **Red**: `node --test tests/unit/reactions-ui.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-212-ui-reactions-controller/red.log`.
+- **Green**: `node --test tests/unit/reactions-ui.test.mjs` → `tests 13, suites 4, pass 13, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-212-ui-reactions-controller/green.log`.
 - **Typecheck (targeted)**: `npx tsc -p tsconfig.json` и `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` — `0 errors` в `rust/gui-spike/ui/features/reactions-ui.js` и `tests/unit/reactions-ui.test.mjs`.
 - **Gate**: полный `gate:worker` не запускался (режим ТЗ карточки); чужие файлы не затронуты.
 
@@ -22,8 +22,8 @@
 ```
 c2bd5e9c1469eb6747c8dffc117e97f6  rust/gui-spike/ui/features/reactions-ui.js
 551b7dd2ddf2f200117bcef63db55c59  tests/unit/reactions-ui.test.mjs
-b1ea10b8e065e27717221eafee0616c7  /home/sanya/orca/project/waves/RW-40/G2/task-212-ui-reactions-controller/red.log
-8aa4d844bf19b37d9fde0021fa937b3d  /home/sanya/orca/project/waves/RW-40/G2/task-212-ui-reactions-controller/green.log
+b1ea10b8e065e27717221eafee0616c7  /home/user/orca/project/waves/RW-40/G2/task-212-ui-reactions-controller/red.log
+8aa4d844bf19b37d9fde0021fa937b3d  /home/user/orca/project/waves/RW-40/G2/task-212-ui-reactions-controller/green.log
 ```
 
 ## Риски

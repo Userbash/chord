@@ -1,7 +1,7 @@
 # RW-37 / W37a — RE-контракт раскладки и пагинации Discord
 
 - Дата: 2026-10-23. Воркер: W37a (REA). Волна: RW-37, карточка-основание: `TZ.md` §5 (P3-01 + оконная модель).
-- Источники: **только чтение** `/home/sanya/re-deep` (CDP-захваты `ui/`, `ui2/`, `ui3/`, `ui5/`, `ui6/`, `ui8/`,
+- Источники: **только чтение** `reference-oracle/` (CDP-захваты `ui/`, `ui2/`, `ui3/`, `ui5/`, `ui6/`, `ui8/`,
   `frontend-d03.*`, `gateway-schema.*`, `gateway-protocol.*`, `rest-d02.*`, `rest-static.*`,
   распакованные бандлы `decoded/`). Сеть не использовалась, Discord не запускался, golden не изменялся.
 - Сессия захвата: Discord web/desktop сборка 1.0.162 (Chromium 148 / Electron 42), тема dark, язык ru,
@@ -284,11 +284,11 @@ x=0        64        375                              1792        2048
 ## 9. Воспроизведение
 
 ```bash
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 python3 waves/RW-37/RE/extract.py > waves/RW-37/RE/extract.log 2>&1   # exit 0
 ```
 
-Скрипт читает только `/home/sanya/re-deep` и печатает для каждого числа `value / src / how`. Полный вывод —
+Скрипт читает только `reference-oracle/` и печатает для каждого числа `value / src / how`. Полный вывод —
 `extract.log`, машинночитаемая копия — `layout.json` (и `/tmp/opencode/rw37-re.json` при прогоне).
 
 ---

@@ -1,6 +1,6 @@
 # REPORT — task-290 (`RE-22-04`, G2 Frontend): `voice-diagnostics.js` + unit-тесты
 
-- **Ветка:** `feature/task-290-fe-voice-diagnostics` (рабочее дерево `/home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics`)
+- **Ветка:** `feature/task-290-fe-voice-diagnostics` (рабочее дерево `/home/user/orca/workspaces/project/feature-task-290-fe-voice-diagnostics`)
 - **Волна / отдел:** `RW-40` / `G2 Frontend (WebView UI & DOM/A11y)`, уровень `L2`, приоритет `P1`
 - **Модель:** `opencode --model deepseek/deepseek-v4.1-flash`
 - **Дата:** 2026-10-31
@@ -46,7 +46,7 @@ Error [ERR_MODULE_NOT_FOUND]: Cannot find module '.../rust/gui-spike/ui/features
 
 ## 4. Соответствие RE-оракулу
 
-Оракул: `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0` (read-only), документы `RE-GAP-22-VOICE-DIAGNOSTICS.md` и `BACKLOG-RE-22.md` §`RE-22-04`.
+Оракул: `reference-oracle/decoded/3eefa7dae1e2c234_0` (read-only), документы `RE-GAP-22-VOICE-DIAGNOSTICS.md` и `BACKLOG-RE-22.md` §`RE-22-04`.
 
 | Элемент контракта | Реализация | Оракул |
 |---|---|---|
@@ -90,7 +90,7 @@ Error [ERR_MODULE_NOT_FOUND]: Cannot find module '.../rust/gui-spike/ui/features
 ## 7. Проверка приёмки (команды для ревьюера)
 
 ```bash
-cd /home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics
+cd /home/user/orca/workspaces/project/feature-task-290-fe-voice-diagnostics
 node --test tests/unit/voice-diagnostics.test.mjs          # 67/67
 npx tsc -p tsconfig.json --noEmit                          # 0 errors
 npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit        # 0 errors

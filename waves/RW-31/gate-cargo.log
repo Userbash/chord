@@ -1,10 +1,10 @@
 FMT_EXIT=0
-    Checking discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
-    Checking discord-store v0.1.0 (/home/sanya/orca/project/rust/crates/discord-store)
+    Checking discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
+    Checking discord-store v0.1.0 (/home/user/orca/project/rust/crates/discord-store)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.20s
 CLIPPY_EXIT=0
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
-   Compiling discord-store v0.1.0 (/home/sanya/orca/project/rust/crates/discord-store)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
+   Compiling discord-store v0.1.0 (/home/user/orca/project/rust/crates/discord-store)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
      Running unittests src/main.rs (target/debug/deps/discord_rs-d56b5f24e58ead0a)
 

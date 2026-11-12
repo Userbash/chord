@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-174-platform-notifications-router/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/feature-task-174-platform-notifications-router/rust/crates/discord-platform)
 error[E0432]: unresolved imports `discord_platform::notifications::Event`, `discord_platform::notifications::IncomingMessageNotification`, `discord_platform::notifications::NotificationDispatchDecision`, `discord_platform::notifications::NotificationRouter`, `discord_platform::notifications::redact_secrets`
   --> crates/discord-platform/tests/notifications_contract.rs:16:5
    |

@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/feature-task-240-ui-forum-view/tests/unit/forum-view.test.mjs:11
+file:///home/user/orca/workspaces/project/feature-task-240-ui-forum-view/tests/unit/forum-view.test.mjs:11
   FORUM_LAYOUT_VIEWS,
   ^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/forum-view.js' does not provide an export named 'FORUM_LAYOUT_VIEWS'

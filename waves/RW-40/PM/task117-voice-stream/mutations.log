@@ -5,7 +5,7 @@ fcf0410d132703eb87adeb1ba4a3945b  rust/crates/discord-voice/tests/session_contra
 ==================================================================
 === M1: apply_device_selection: input_volume > MAX_OUTPUT_VOLUME -> >= MAX_OUTPUT_VOLUME (boundary 200 rejected) ===
 976829c1226f5b42a0991527e190e6c4  rust/crates/discord-voice/src/session.rs
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
      Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
 
@@ -50,7 +50,7 @@ error: test failed, to rerun pass `-p discord-voice --test session_contract`
 ==================================================================
 === M2: apply_device_selection: effective_mute ignores self_deaf ===
 a911c18f1c94947de4f09cd78ef95f32  rust/crates/discord-voice/src/session.rs
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
      Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
 
@@ -95,7 +95,7 @@ error: test failed, to rerun pass `-p discord-voice --test session_contract`
 ==================================================================
 === M3: start_screen_share: does not bind active_stream_key to session ===
 02c7ad5816a14960819a6f30eacae41d  rust/crates/discord-voice/src/session.rs
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
      Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
 
@@ -142,7 +142,7 @@ error: test failed, to rerun pass `-p discord-voice --test session_contract`
 ==================================================================
 === M4: stop_screen_share: clone instead of take (does not unbind active_stream_key) ===
 3deb5c9f8feeef6dc88473e26af4569c  rust/crates/discord-voice/src/session.rs
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
      Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
 
@@ -189,7 +189,7 @@ error: test failed, to rerun pass `-p discord-voice --test session_contract`
 ==================================================================
 === M5: on_stream_dispatch(STREAM_DELETE): ignore unavailable=true priority rule (A-REDUCER-DELETE) ===
 68d64851a0324d8fe60acc21a0b970e6  rust/crates/discord-voice/src/session.rs
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
      Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
 
@@ -237,7 +237,7 @@ error: test failed, to rerun pass `-p discord-voice --test session_contract`
 === RESTORED BASELINE MD5 & GREEN CHECK ===
 2a84f53056d5398cdb6d27e914780bba  rust/crates/discord-voice/src/session.rs
 fcf0410d132703eb87adeb1ba4a3945b  rust/crates/discord-voice/tests/session_contract.rs
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-117-voice-stream-wiring/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
      Running tests/session_contract.rs (/tmp/target-task117/debug/deps/session_contract-1e1736ef44e4fc78)
 

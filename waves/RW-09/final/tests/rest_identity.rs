@@ -10,7 +10,7 @@
 //!   вариант `(b[8] & 0x3f) | 0x80`, формат `8-4-4-4-12`, hex в нижнем регистре.
 //!   Контроль маскирования — все `0xFF` → `ffffffff-ffff-4fff-bfff-ffffffffffff`.
 //! - Живой снимок, из которого взяты наблюдаемые поля (22 ключа, base64 1084 симв.):
-//!   `/home/sanya/re-deep/d02-snapshot/capture-run2.snap.jsonl`, md5
+//!   `/home/user/clean-room-oracle/d02-snapshot/capture-run2.snap.jsonl`, md5
 //!   `abfe14b76cec1e559c3b45522bc44b7a`, requestId `95974.2323`; человекочитаемый разбор —
 //!   `docs/re/rest-d02.md` §6.2 (md5 `c7e61929677efab6bdac86a05a778fce`). Поля идентичности
 //!   нашего клиента намеренно **свои** (`discord-lab`, версия крейта, build 0) — §6.1.

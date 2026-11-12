@@ -20,7 +20,7 @@
 test at tests/unit/spellchecker-native-1006.test.mjs:128:3
 ✖ SUB-1006-0: модули rust/discord-gpui/src/chat/spellchecker.rs и scripts/verify-spellchecker.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений (0.661385ms)
   AssertionError [ERR_ASSERTION]: Модуль rust/discord-gpui/src/chat/spellchecker.rs должен существовать
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/spellchecker-native-1006.test.mjs:129:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/spellchecker-native-1006.test.mjs:129:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Promise.all (index 0)
@@ -37,7 +37,7 @@ test at tests/unit/spellchecker-native-1006.test.mjs:128:3
 test at tests/unit/spellchecker-native-1006.test.mjs:207:3
 ✖ SUB-1006-1: сверяет дизайн-токены, макет Text Input Context, интерактивные состояния misspelled-word, 6 IPC-каналов DISCORD_SPELLCHECK_* и словари hunspell с независимыми оракулами (0.223565ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/spellchecker-native-1006.test.mjs:208:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/spellchecker-native-1006.test.mjs:208:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -52,7 +52,7 @@ test at tests/unit/spellchecker-native-1006.test.mjs:207:3
 test at tests/unit/spellchecker-native-1006.test.mjs:309:3
 ✖ SUB-1006-2: валидирует словари .aff/.dic, токенизирует текст с фильтрацией URL, e-mail, inline-кода, упоминаний и эмодзи, проверяет слова и генерирует до 5 подсказок замены (0.177406ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/spellchecker-native-1006.test.mjs:310:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/spellchecker-native-1006.test.mjs:310:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -67,7 +67,7 @@ test at tests/unit/spellchecker-native-1006.test.mjs:309:3
 test at tests/unit/spellchecker-native-1006.test.mjs:386:3
 ✖ SUB-1006-3: реализует дебаунс 150 мс при наборе текста, состояния red-wavy-underline (#f23f43), контекстное меню ПКМ и замену слова в 1 клик (0.167936ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/spellchecker-native-1006.test.mjs:387:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/spellchecker-native-1006.test.mjs:387:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -82,7 +82,7 @@ test at tests/unit/spellchecker-native-1006.test.mjs:386:3
 test at tests/unit/spellchecker-native-1006.test.mjs:465:3
 ✖ SUB-1006-4: покрывает все 9 обязательных измерений TEST-POLICY.md, маскирует секреты и проверяет CLI scripts/verify-spellchecker.mjs (коды выхода 0 / 1 / 2) (0.155426ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/spellchecker-native-1006.test.mjs:466:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/spellchecker-native-1006.test.mjs:466:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
@@ -97,7 +97,7 @@ test at tests/unit/spellchecker-native-1006.test.mjs:465:3
 test at tests/unit/spellchecker-native-1006.test.mjs:519:3
 ✖ SUB-1006-5: проходит мутационный гейт 5/5 (100% kill rate) для Rust и JS реализаций по контракту scripts/quality-gate.mjs (0.158316ms)
   AssertionError [ERR_ASSERTION]: Тестовый бинарник Rust должен быть собран
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/spellchecker-native-1006.test.mjs:520:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/spellchecker-native-1006.test.mjs:520:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {

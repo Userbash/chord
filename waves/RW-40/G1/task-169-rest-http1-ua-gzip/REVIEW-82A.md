@@ -24,7 +24,7 @@
 ## 2. Результаты статического анализа и тестов
 
 1. **Targeted cargo test**:
-   `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_http1 --test rest_transport --lib`
+   `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test rest_http1 --test rest_transport --lib`
    - `lib.rs`: 33 passed, 0 failed.
    - `tests/rest_http1.rs`: 27 passed, 0 failed.
    - `tests/rest_transport.rs`: 14 passed, 0 failed.
@@ -32,7 +32,7 @@
    - **Суммарно**: 100/100 passed (`0 failed`, `0 flakes`).
 
 2. **Cargo clippy**:
-   `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_http1 --lib -- -D warnings`
+   `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-core --test rest_http1 --lib -- -D warnings`
    - Статус: Clean (0 warnings, 0 errors).
 
 ---

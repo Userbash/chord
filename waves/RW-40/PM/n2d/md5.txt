@@ -20,7 +20,7 @@ b0903582f12e4d06930865e5fa40ab2b  docs/re/frontend-d03.md
 49e5186e3ce759a6b6bfc063492f6dfa  waves/RW-40/DESIGN/SERVER-MENU.md
 b3c9d0782502c6815ac9e02ddccb2766  rust/gui-spike/ui/tokens.css
 
-## Lab evidence (read-only, /home/sanya/re-deep)
+## Lab evidence (read-only, /home/user/clean-room-oracle)
 
 ef5a88b552e9cc90e322f8da598a46dd  voice/ui/01-voice-panel.html
 f7b1c241854fcc4c86d63e6084af2471  voice/ui/01-joined.png
@@ -34,5 +34,5 @@ cba4e34e462d8de68b5793b340b35f62  voice/ui-s2/03-voice-module-api.json
 ## Not modified
 
 - `rust/**`, `src/**`, `tests/**`, `package.json` — не трогались.
-- `logs/**`, `functions/**`, `evidence/**`, `/home/sanya/re-deep/**` — только чтение.
+- `logs/**`, `functions/**`, `evidence/**`, `/home/user/clean-room-oracle/**` — только чтение.
 - `tokens.css`, `index.html`, `actions.js`, CSS — не трогались (зона G2/интеграции).

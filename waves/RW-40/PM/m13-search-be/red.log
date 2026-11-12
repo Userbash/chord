@@ -1,5 +1,5 @@
 === RED PASS 1: untouched src/search.rs (Pass 1 baseline) ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
 error[E0624]: method `execute` is private
    --> tests/search_contract.rs:568:10
     |
@@ -217,7 +217,7 @@ error: could not compile `discord-gui-spike` (test "search_contract") due to 22 
 exit=101
 
 === RED PASS 2: runtime assertion failures before Pass 2 contract implementation ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/rw40-m13-search-202-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.74s
      Running tests/search_contract.rs (target/debug/deps/search_contract-c5836221419f214a)
 

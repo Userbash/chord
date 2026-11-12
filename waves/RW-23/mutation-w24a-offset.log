@@ -1,4 +1,4 @@
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running tests/udp.rs (target/debug/deps/udp-2085edaca45a0fbf)
 

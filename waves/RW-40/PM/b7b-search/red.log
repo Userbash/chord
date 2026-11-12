@@ -1,5 +1,5 @@
 === RED PASS 1: untouched src/search.rs ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0560]: struct `SearchParams` has no field named `author_id`
    --> tests/search_contract.rs:273:9
     |
@@ -239,7 +239,7 @@ warning: build failed, waiting for other jobs to finish...
 exit=101
 
 === RED PASS 2: runtime assertion failures before execute() implementation ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.13s
      Running tests/net_contract.rs (/tmp/target-g1-spike/debug/deps/net_contract-a61c1bda61eccf56)
 

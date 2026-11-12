@@ -13,7 +13,7 @@
 клиента (байтовое смещение в `4d2a64cb5df5fc4e_0`); **[A]** — наше решение/дефолт, паритет не
 заявлен; **[P]** — правит Team Lead.
 
-Входные документы: `waves/RW-40/RE-DEEP-REA.md` §6 (оракул опкодов и полей),
+Входные документы: `waves/RW-40/reference-oracle-REA.md` §6 (оракул опкодов и полей),
 `waves/RW-40/DESIGN/STREAM.md` (дизайн, §1 разделение слоёв, §2.1 состояния, §2.6 start/stop,
 §2.10 ошибки, §3.3–3.4 ключ и шлюз, §8.3 G5), `waves/RW-40/DESIGN/STREAM-REVIEW.md` (блокеры
 RE-3, PL-07, B-08), `waves/RW-40/NETWORK-CONTRACTS.md` §3.3.
@@ -62,7 +62,7 @@ STUB-27 на уровне шлюза — это **пять исходящих о
 ## 0.1 Источник истины и якоря
 
 Артефакт: `4d2a64cb5df5fc4e_0` (декодированный бандл эталонного клиента), лаборатория
-`/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`, 12 410 287 Б,
+`reference-oracle/decoded/4d2a64cb5df5fc4e_0`, 12 410 287 Б,
 `md5 934b1289b7ebf17bc0fd09569b23b438`. Смещения — **байтовые**, проверены чтением по смещению;
 `len` — длина процитированного фрагмента в байтах UTF-8.
 
@@ -86,7 +86,7 @@ STUB-27 на уровне шлюза — это **пять исходящих о
 | `A-PAUSE-UI` | 710 516 | 96 | пауза идёт через `_z` (ключ строится из `{streamType,guildId,channelId,ownerId}`) | `function y(e,t){let n=(0,d._z)(e);…type:"STREAM_SET_PAUSED"…}` |
 | `A-REST` | 292 006 | 115 | REST-ветка `/streams/{key}/{preview,notify,stream}` | `STREAM_PREVIEW:e=>\`/streams/${e}/preview\`…` |
 
-Якоря построены на тех же call-site'ах, что §6 `RE-DEEP-REA.md` (`@4996751`, `@4998992`,
+Якоря построены на тех же call-site'ах, что §6 `reference-oracle-REA.md` (`@4996751`, `@4998992`,
 `@4937840`, `@4954827`, `@710570`, `@292006`); окна расширены до границ функции/модуля, поэтому
 смещение иногда начинается раньше указанного в §6. `A-KEY-*`, `A-STREAMTYPE`, `A-REASONS`,
 `A-PHASES`, `A-REDUCER-*`, `A-STOP-HELPER`, `A-PING-CALLSITE` добавлены этой карточкой (тот же

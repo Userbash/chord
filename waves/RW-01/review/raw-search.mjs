@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import zlib from "node:zlib";
 
-const lines = readFileSync("/home/sanya/re-deep/capture-run2.jsonl", "utf8")
+const lines = readFileSync("/home/user/clean-room-oracle/capture-run2.jsonl", "utf8")
   .split("\n").map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
 
 const frames = lines.filter((r) => r.ev === "wsrecv" && r.requestId === "95974.1389");

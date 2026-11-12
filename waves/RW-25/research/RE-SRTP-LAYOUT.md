@@ -1,7 +1,7 @@
 # RE-SRTP-LAYOUT — разбор раскладки байт SRTP/SRTCP по capture сессии 3
 
 Seat: RE-1 (protocol research). Дата: 2026-10-22. Волна: B06 / RW-25, карточка **P4-03**.
-Источник: `/home/sanya/re-deep/voice/strace-media-s3.jsonl` (**только чтение**), скрипт
+Источник: `reference-oracle/voice/strace-media-s3.jsonl` (**только чтение**), скрипт
 разбора — `waves/RW-25/research/media-packet-layout.mjs`.
 Вторичный источник: `docs/re/voice-deep.md` §2.3–2.5, §3.
 

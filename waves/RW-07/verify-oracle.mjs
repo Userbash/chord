@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const root = "/home/sanya/re-deep/gw-proto";
+const root = "/home/user/clean-room-oracle/gw-proto";
 const files = [
   "msgs-run1-57992_5112.jsonl",
   "msgs-run2-95974_1389.jsonl",

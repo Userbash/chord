@@ -56,7 +56,7 @@ test at tests/unit/moderation-panel.test.mjs:410:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:437:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:437:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -105,7 +105,7 @@ test at tests/unit/moderation-panel.test.mjs:410:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:453:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:453:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -158,7 +158,7 @@ test at tests/unit/moderation-panel.test.mjs:329:3
   -   'a-2'
   - ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:336:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:336:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -204,7 +204,7 @@ test at tests/unit/moderation-panel.test.mjs:329:3
 test at tests/unit/moderation-panel.test.mjs:307:3
 ✖ T-257-02: фильтрует по options.actionType (> 0) и возвращает все записи при actionType <= 0 или без фильтра (0.48764ms)
   AssertionError [ERR_ASSERTION]: элементы должны клонироваться
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:326:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:326:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -251,7 +251,7 @@ test at tests/unit/moderation-panel.test.mjs:307:3
 test at tests/unit/moderation-panel.test.mjs:480:3
 ✖ T-257-06: вызывает onUnbanMember(userId) при клике на [data-mod-unban-btn] (0.48253ms)
   AssertionError [ERR_ASSERTION]: должна быть кнопка разбана для первого пользователя
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:494:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-257-ui-moderation-panel/tests/unit/moderation-panel.test.mjs:494:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

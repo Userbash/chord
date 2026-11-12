@@ -20,7 +20,7 @@
      +   'k25_migrator_with_live_keyring'
        ]
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/meta/keyring-live.test.mjs:272:12)
+         at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/meta/keyring-live.test.mjs:272:12)
          at Test.runInAsyncScope (node:async_hooks:226:14)
          at Test.run (node:internal/test_runner/test:1402:25)
          at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -55,7 +55,7 @@
      + ]
      - []
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/meta/plan-sync.test.mjs:148:12)
+         at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/meta/plan-sync.test.mjs:148:12)
          at async Test.run (node:internal/test_runner/test:1409:7)
          at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
        generatedMessage: false,
@@ -110,7 +110,7 @@
    test at tests/unit/dispatch_ui.test.mjs:264:3
    ✖ A2: FORWARDED_KINDS — 21 имя DispatchKind::as_str + MESSAGE_REACTION_REMOVE (2.534976ms)
      AssertionError [ERR_ASSERTION]: CHANNEL_CREATE форвардится бэкендом, но отбрасывается UI
-         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/dispatch_ui.test.mjs:279:14)
+         at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/unit/dispatch_ui.test.mjs:279:14)
          at Test.runInAsyncScope (node:async_hooks:226:14)
          at Test.run (node:internal/test_runner/test:1402:25)
          at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -167,25 +167,25 @@
          Adding zstd v0.14.3
          Adding zstd-safe v8.2.0
          Adding zstd-sys v2.1.2+zstd.1.5.7
-      Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/crates/discord-codec)
-      Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/crates/discord-json)
-      Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/crates/discord-platform)
-      Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike)
-      Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/crates/discord-core)
+      Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/crates/discord-codec)
+      Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/crates/discord-json)
+      Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/crates/discord-platform)
+      Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike)
+      Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/crates/discord-core)
        Finished `test` profile [unoptimized + debuginfo] target(s) in 12.86s
-        Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-991828a952381867)
-        Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-a14056bbd2ccf8e5)
-        Running tests/attachments_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/attachments_contract-b67759161b405c7c)
-        Running tests/auth_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/auth_contract-56b6cace80b4302e)
-        Running tests/channels_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/channels_contract-437dc3965549a9e5)
-        Running tests/core_bridge.rs (/home/sanya/orca/project/rust/target/debug/deps/core_bridge-eb7ac81a1cf57a1f)
-        Running tests/data_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/data_contract-5d6d0bda6519e594)
-        Running tests/dm_friends_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_friends_contract-8311aac0b81a9027)
-        Running tests/guilds_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/guilds_contract-0f84a82a8eeb6e93)
-        Running tests/history_before_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/history_before_contract-6d83ec822fb1188e)
-        Running tests/invites_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/invites_contract-8dc9c287ffa0cc0b)
-        Running tests/ipc_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_contract-fc829f91fba69496)
-        Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-3769126d82cb27c9)
+        Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-991828a952381867)
+        Running unittests src/main.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-a14056bbd2ccf8e5)
+        Running tests/attachments_contract.rs (/home/user/orca/project/rust/target/debug/deps/attachments_contract-b67759161b405c7c)
+        Running tests/auth_contract.rs (/home/user/orca/project/rust/target/debug/deps/auth_contract-56b6cace80b4302e)
+        Running tests/channels_contract.rs (/home/user/orca/project/rust/target/debug/deps/channels_contract-437dc3965549a9e5)
+        Running tests/core_bridge.rs (/home/user/orca/project/rust/target/debug/deps/core_bridge-eb7ac81a1cf57a1f)
+        Running tests/data_contract.rs (/home/user/orca/project/rust/target/debug/deps/data_contract-5d6d0bda6519e594)
+        Running tests/dm_friends_contract.rs (/home/user/orca/project/rust/target/debug/deps/dm_friends_contract-8311aac0b81a9027)
+        Running tests/guilds_contract.rs (/home/user/orca/project/rust/target/debug/deps/guilds_contract-0f84a82a8eeb6e93)
+        Running tests/history_before_contract.rs (/home/user/orca/project/rust/target/debug/deps/history_before_contract-6d83ec822fb1188e)
+        Running tests/invites_contract.rs (/home/user/orca/project/rust/target/debug/deps/invites_contract-8dc9c287ffa0cc0b)
+        Running tests/ipc_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_contract-fc829f91fba69496)
+        Running tests/ipc_wiring_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_wiring_contract-3769126d82cb27c9)
    error: test failed, to rerun pass `--test ipc_wiring_contract`
    
 ✖ workspace-rust — 7.2 с [код выхода ≠ 0]
@@ -266,8 +266,8 @@
    
    test at tests/smoke/gui-spike.smoke.test.mjs:22:3
    ✖ открывает окно и публикует проверяемый DOM-снимок (1.174533ms)
-     AssertionError [ERR_ASSERTION]: нет бинарника /home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/target/debug/discord-gui-spike: на дисплее smoke обязателен (cargo build)
-         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/smoke/gui-spike.smoke.test.mjs:30:14)
+     AssertionError [ERR_ASSERTION]: нет бинарника /home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/target/debug/discord-gui-spike: на дисплее smoke обязателен (cargo build)
+         at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/smoke/gui-spike.smoke.test.mjs:30:14)
          at Test.runInAsyncScope (node:async_hooks:226:14)
          at Test.run (node:internal/test_runner/test:1402:25)
          at Test.start (node:internal/test_runner/test:1262:17)
@@ -287,12 +287,12 @@
    
    test at tests/smoke/gui-window.smoke.test.mjs:16:3
    ✖ находит окно, элементы и снимает PNG (164.733455ms)
-     AssertionError [ERR_ASSERTION]: gui-window-probe: FAIL: нет бинарника /home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/target/debug/discord-gui-spike (соберите: cargo build)
+     AssertionError [ERR_ASSERTION]: gui-window-probe: FAIL: нет бинарника /home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/rust/gui-spike/target/debug/discord-gui-spike (соберите: cargo build)
      
      
      1 !== 0
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/smoke/gui-window.smoke.test.mjs:35:14)
+         at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/tests/smoke/gui-window.smoke.test.mjs:35:14)
          at Test.runInAsyncScope (node:async_hooks:226:14)
          at Test.run (node:internal/test_runner/test:1402:25)
          at Test.start (node:internal/test_runner/test:1262:17)
@@ -311,7 +311,7 @@
      }
    
 
-Отчёт гейта: /home/sanya/orca/workspaces/project/feature-task-182-ui-tooltip-component/.gate/worker-2026-10-30T19-33-44-135Z.json
+Отчёт гейта: /home/user/orca/workspaces/project/feature-task-182-ui-tooltip-component/.gate/worker-2026-10-30T19-33-44-135Z.json
 ⚠ smoke: пропущено 1 тестов — пропуск прохождением не считается
 Вердикт: failed
 Приёмка: н/д (worker-гейт)

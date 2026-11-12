@@ -16,7 +16,7 @@
 | `g4_qa` | **G4 — QA (Test Automation & Verification)** | Централизованное тестирование ветки `testing`, `scripts/test-impact.mjs`, `tests/{meta,unit,smoke,e2e}/`, `QA-BUILD-*.md` | Полный матричный прогон `npm run gate:worker` + `cargo test --workspace` |
 | `g5_voice_platform` | **G5 — Voice & Platform** | `rust/crates/discord-voice/**`, `rust/crates/discord-platform/**`, `rust/gui-spike/src/voice_devices.rs`, опкоды `18..=22`, SRTP/DAVE, `discord-ipc-0` | `cargo test -p discord-voice -p discord-platform`, `--test voice_devices_contract` |
 | `g6_tech_writer` | **G6 — Tech Writer & Parity** | `waves/RW-*/PARITY/MERGE-READINESS-*.md`, `RELEASE-NOTES-*.md`, матрицы паритета | `node --test tests/meta/docs-sync.test.mjs tests/meta/plan-sync.test.mjs` |
-| `g7_re_rea` | **G7 — Reverse Engineering (`G7 RE / REA`)** | Read-only сверка с `/home/sanya/re-deep/`, `docs/reference-projects/` и `rea`; отчёты `waves/RW-*/RE-AUDIT/RE-GAP-*.md` | Инструменты MCP `rea` и `understand` |
+| `g7_re_rea` | **G7 — Reverse Engineering (`G7 RE / REA`)** | Read-only сверка с `cleanroom reference oracle`, `docs/reference-projects/` и `rea`; отчёты `waves/RW-*/RE-AUDIT/RE-GAP-*.md` | Инструменты MCP `rea` и `understand` |
 | `devops` | **DevOps / Release & Integration** | `scripts/{release.sh,ci.sh,gate.mjs}`, SBOM, `SHA256SUMS`, конвейер `unstable -> testing -> beta -> main` | `bash scripts/release.sh --verify`, `npm run gate:release` |
 | `pm_review` | **Product Manager (PM)** | Приёмка `ACCEPT.md`, проверка пользовательских сценариев и DoD | Сверка 9 измерений тестирования и DoD |
 | `tech_reviewer` | **Technical Reviewer (DeepSeek)** | Независимое ревью `REVIEW.md` и уничтожение `5/5` мутантов | Перезапуск тестов, MD5, мутационный гейт `5/5` |

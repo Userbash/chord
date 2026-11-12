@@ -42,7 +42,7 @@
   - артефакты: `/tmp/opencode/rw-08/w8a/{red.log, green.log, clippy.log, gate-worker.log,
     rest_routes-red.rs, report.md}`.
   Границы соблюдены: `Cargo.toml`/`Cargo.lock`, `tests/data/*`, чужие `src`/`tests`, `docs/`,
-  `waves/`, golden и `/home/sanya/re-deep` не менялись; git-мутаций не было; сеть не использовалась.
+  `waves/`, golden и `reference-oracle/` не менялись; git-мутаций не было; сеть не использовалась.
 - **риски/вопросы:**
   1. `find` — линейный поиск по 47 элементам (O(47), без аллокаций). Для каталога такого размера
      этого достаточно; индексация/`match` не нужны, контракт §4.1 не требует.

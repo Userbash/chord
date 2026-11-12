@@ -8,9 +8,9 @@
 ## Разрешённые файлы для записи (Write-Scope)
 - `tests/unit/profile-modal.test.mjs`
 - `tests/unit/appearance-settings.test.mjs`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-280-unit-tsc-fix-batch1/red.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-280-unit-tsc-fix-batch1/green.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-280-unit-tsc-fix-batch1/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/G2/task-280-unit-tsc-fix-batch1/red.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-280-unit-tsc-fix-batch1/green.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-280-unit-tsc-fix-batch1/REPORT.md`
 
 ## Шаги выполнения (Strict TDD: Red -> Green)
 1. **Red:** Запусти `npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E "profile-modal\.test\.mjs|appearance-settings\.test\.mjs"` и сохрани вывод (51 ошибка) в `red.log`.

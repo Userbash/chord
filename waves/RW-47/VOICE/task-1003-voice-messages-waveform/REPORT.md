@@ -19,7 +19,7 @@
    - Полная валидация 9 измерений `TEST-POLICY.md`: граничные Snowflake (`0`, `u64::MAX`), длина текста (`2000`), вложения (`1..=10`, `25 МБ`), `offset <= 9975`, громкость `0..=200%`, бейдж `99+`, HTTP-статусы `200/202/204/400/401/403/404/413/429 (retry_after_ms)/5xx`, права доступа (`SEND_VOICE_MESSAGES`, `ATTACH_FILES`, `AGE_GATED_SPACES`) и маскирование секретов (`Authorization`, `upload_url`, `token=`, `sig=`).
 
 2. **GPUI-плеер голосовых сообщений (`rust/discord-gpui/src/chat/voice_message_player.rs`):**
-   - Компонент `VoiceMessagePlayer` с рендерингом `32 / 64 / 128` вертикальных полосок волны, декодированием Base64 `waveform` (включая реальный RE-оракул из `/home/sanya/re-deep/decoded/50f2a9f76680271b_0`: `id=1359580913469751459`, `size=26921`, `duration_secs=8.119976997375488`, `flags=8192`).
+   - Компонент `VoiceMessagePlayer` с рендерингом `32 / 64 / 128` вертикальных полосок волны, декодированием Base64 `waveform` (включая реальный RE-оракул из `reference-oracle/decoded/50f2a9f76680271b_0`: `id=1359580913469751459`, `size=26921`, `duration_secs=8.119976997375488`, `flags=8192`).
    - Подсветка прогресса воспроизведения цветом `#23a55a` (`WAVEFORM_PLAYED_COLOR`) и непросчитанных полосок цветом `#4e5058` (`WAVEFORM_UNPLAYED_COLOR`).
    - Мгновенная перемотка по клику на полоску/координату (`seek_by_click`, `seek_by_bar_index`) с пересчётом `current_time_secs` и числа подсвеченных полосок.
    - Циклическое переключение скорости воспроизведения `1x -> 1.5x -> 2x -> 1x` (`PlaybackSpeed`) с сохранением высоты тона голоса (`pitch_preserved: true`, ресемплинг WSOLA `resample_preserve_pitch`).

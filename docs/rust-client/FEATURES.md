@@ -1,216 +1,214 @@
-# Каталог функций Rust-клиента (по данным обратного инжиниринга)
+# Rust Client Feature Catalog (Cleanroom Reverse-Engineering Specification)
 
-Каждая строка: **ID** → функция → зачем нужна → как работает (механика, снятая RE) → источник →
-фаза плана (`PLAN.md`). Фазы: P0 спайки → P1 ядро сети → P2 данные → P3 UI → P4 голос →
-P5 видео/стрим → P6 платформа → P7 полировка.
+Each row documents: **ID** -> Feature name -> Purpose -> Operational mechanics (cleanroom reverse-engineered facts) -> Specification source -> Architectural plan phase (`PLAN.md`). Phases: P0 spikes -> P1 network core -> P2 data & state -> P3 UI -> P4 voice -> P5 video/streaming -> P6 platform -> P7 polish.
 
-## GW — шлюз событий
+## GW — Gateway Event Stream
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-GW-01 | Подключение к шлюзу | Канал событий реального времени | `wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream`; сервер может вернуть `resume_gateway_url` (напр. `us-east1-c/d`) | `gateway-protocol.md` §1 | P1 |
-| F-GW-02 | HELLO/Identify | Регистрация сессии | op10 HELLO `{heartbeat_interval: 41250}`; op2 IDENTIFY (~943 B) с token/properties; 4 свежих логина в захвате | `gateway-protocol.md` §4 | P1 |
-| F-GW-03 | Heartbeat/ACK | Держать соединение живым, мерить RTT | op1 каждые 41,25 с (~90 B), ответ op11 ACK (196 всего) | `gateway-protocol.md` §4 | P1 |
-| F-GW-04 | RESUME | Пережить разрыв без потери событий | op6 (~173/176 B) с session_id/last_seq → `RESUMED`; серия `s` продолжается (95→663, 664→722, 332→371) | `gateway-protocol.md` §4 | P1 |
-| F-GW-05 | Реконнект | Восстановление по инициативе сервера/клиента | op7 RECONNECT → закрыть сокет → новый + RESUME; клиентский реконнект ~2,9 с после закрытия | `gateway-protocol.md` §4 | P1 |
-| F-GW-06 | Роутер диспатчей | Типизированная доставка событий | op0 (21 тип всего): READY, READY_SUPPLEMENTAL, RESUMED, THREAD_LIST_SYNC, SESSIONS_REPLACE, CHANNEL_INFO, GUILD_MEMBER_LIST_UPDATE (1048), GUILD_MEMBERS_CHUNK, PRESENCE_UPDATE (107), MESSAGE_CREATE (31), MESSAGE_UPDATE (24), MESSAGE_ACK, VOICE_STATE_UPDATE, VOICE_CHANNEL_*, SOUNDBOARD_SOUNDS, MESSAGE_POLL_VOTE_ADD, TYPING_START, MESSAGE_REACTION_ADD, USER_SETTINGS_PROTO_UPDATE (1340 событий всего) | `gateway-protocol.md` §4 | P1 |
-| F-GW-07 | Ленивые подписки | Экономия трафика для больших гильдий | op37 SUBSCRIPTIONS: диапазоны `[[0,99]]` на список участников; дозагрузка при скролле | `gateway-protocol.md` §4, `gateway-schema.md` §4 | P2 |
-| F-GW-08 | QoS-телеметрия | Сервер оценивает качество канала | op40 (`ver:31`) периодически (~41 с) | `gateway-protocol.md` §4 | P1 |
-| F-GW-09 | Запрос информации о канале | Догрузка каналов вне READY | op43 REQUEST_CHANNEL_INFO → dispatch CHANNEL_INFO | `gateway-protocol.md` §4 | P2 |
-| F-GW-10 | Присутствие (отправка) | Управление своим статусом | op3 PRESENCE; в захвате — `invisible` | `gateway-protocol.md` §4 | P2 |
-| F-GW-11 | Голосовое состояние | Вход/выход из голосового канала | op4 VOICE_STATE_UPDATE (клиент→шлюз) → VOICE_SERVER_UPDATE с RTC-эндпоинтом | `voice-deep.md` §1 | P4 |
+| F-GW-01 | Gateway Connection | Real-time bidirectional event transport | `wss://gateway.discord.gg/?encoding=etf&v=9&compress=zstd-stream`; server may provide `resume_gateway_url` (e.g. `us-east1-c/d`) | `gateway-protocol.md` §1 | P1 |
+| F-GW-02 | HELLO & Identify | Initial session negotiation and authentication | Opcode 10 HELLO `{heartbeat_interval: 41250}`; Opcode 2 IDENTIFY (~943 B) with token and client properties | `gateway-protocol.md` §4 | P1 |
+| F-GW-03 | Heartbeat & ACK | Keepalive and RTT latency measurement | Opcode 1 heartbeat sent every 41.25s (~90 B); server responds with Opcode 11 ACK | `gateway-protocol.md` §4 | P1 |
+| F-GW-04 | Session Resume | Seamless reconnect without losing state events | Opcode 6 RESUME (~173 B) with `session_id` and last received sequence `s` -> dispatches `RESUMED` | `gateway-protocol.md` §4 | P1 |
+| F-GW-05 | Gateway Reconnect | Clean connection recovery on server/client drop | Opcode 7 RECONNECT -> close socket -> establish new socket + issue RESUME (~2.9s backoff) | `gateway-protocol.md` §4 | P1 |
+| F-GW-06 | Event Dispatch Router | Strongly typed dispatch event multiplexing | Opcode 0 (21 core types): READY, READY_SUPPLEMENTAL, RESUMED, THREAD_LIST_SYNC, SESSIONS_REPLACE, CHANNEL_INFO, GUILD_MEMBER_LIST_UPDATE, GUILD_MEMBERS_CHUNK, PRESENCE_UPDATE, MESSAGE_CREATE, MESSAGE_UPDATE, MESSAGE_ACK, VOICE_STATE_UPDATE, VOICE_CHANNEL_*, SOUNDBOARD_SOUNDS, MESSAGE_POLL_VOTE_ADD, TYPING_START, MESSAGE_REACTION_ADD, USER_SETTINGS_PROTO_UPDATE | `gateway-protocol.md` §4 | P1 |
+| F-GW-07 | Lazy Member Subscriptions | Bandwidth conservation for large servers | Opcode 37 SUBSCRIPTIONS: visible ranges `[[0, 99]]` for guild member roster; dynamic viewport updates on scroll | `gateway-protocol.md` §4, `gateway-schema.md` §4 | P2 |
+| F-GW-08 | QoS Connection Telemetry | Network connection quality reporting | Opcode 40 (`ver: 31`) periodic reports (~41s interval) | `gateway-protocol.md` §4 | P1 |
+| F-GW-09 | Channel Info Request | On-demand retrieval of channel metadata | Opcode 43 REQUEST_CHANNEL_INFO -> dispatches CHANNEL_INFO | `gateway-protocol.md` §4 | P2 |
+| F-GW-10 | Presence Updates | Client status management | Opcode 3 PRESENCE update; supports online, idle, dnd, and invisible states | `gateway-protocol.md` §4 | P2 |
+| F-GW-11 | Voice Channel State | Joining and leaving voice channels | Opcode 4 VOICE_STATE_UPDATE -> dispatches VOICE_SERVER_UPDATE with RTC signaling endpoint | `voice-deep.md` §1 | P4 |
 
-## ENC — кодеки транспорта
+## ENC — Transport Codecs & Encodings
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-ENC-01 | ETF-кодек | Бинарный формат шлюза | 11 фактических тегов; big-int: тег 110/111, длина, **знак до цифр**, LE-байты; snowflake — строка с суффиксом `n`; nil → «nil» | `gateway-protocol.md` §2 | P1 |
-| F-ENC-02 | zstd-stream | Сжатие потока шлюза | Потоковый контекст на сокет; магия `28 B5 2F FD` только в кадре 0; инкрементальный декод без `end()` | `gateway-protocol.md` §3 | P1 |
-| F-ENC-03 | Порядок/дедуп событий | Консистентность состояния | `s`-номер в каждом диспатче; разрывов не наблюдалось; при resume — продолжение | `gateway-protocol.md` §4 | P1 |
+| F-ENC-01 | ETF Binary Codec | Binary Erlang External Term Format parser | 11 wire tags; big-int: tags 110/111, length byte, sign flag before bytes, LE bytes; snowflake string formatting; nil -> None | `gateway-protocol.md` §2 | P1 |
+| F-ENC-02 | zstd Stream Decompressor | Real-time payload decompression | Shared decompression context per connection; magic bytes `28 B5 2F FD` present only in frame 0; streaming decode | `gateway-protocol.md` §3 | P1 |
+| F-ENC-03 | Event Ordering & Deduplication | State machine consistency | Monotonic sequence number `s` on every dispatch; gapless sequencing; sequence continuity across RESUME | `gateway-protocol.md` §4 | P1 |
 
-## AUTH — вход и сессия
+## AUTH — Authentication & Session Management
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-AUTH-01 | Вход e-mail/пароль + MFA | Первичная авторизация | REST-поток логина (наблюдались заголовки auth; MFA-ветка — по статике) | `rest-d02.md` §6 | P1 |
-| F-AUTH-02 | Хранилище токена | Безопасность | keyring (Secret Service/KWallet); в файлах токена нет; редактирование в логах | политика проекта | P1 |
-| F-AUTH-03 | Сессия/резюм | Непрерывность | `session_id`, `resume_gateway_url`, `auth_session_id_hash`; авто-resume при старте | `gateway-schema.md` §3 | P1 |
-| F-AUTH-04 | Смена/выход | Мультиаккаунт | Смена токена, очистка кэшей, переподключение шлюза | — | P6 |
-| F-AUTH-05 | WebAuthn/MFA-ключи | Безопасный вход | Наблюдались каналы и REST (`/users/@me/mfa/webauthn/credentials`); регистрация/аутентификация | `main-arch.md` §4.2 | P7 |
+| F-AUTH-01 | Email/Password & MFA Login | Initial user authentication | REST login flow (`POST /auth/login`), captcha handling, TOTP and SMS MFA challenges | `rest-d02.md` §6 | P1 |
+| F-AUTH-02 | Secure Token Vault | Secure credential storage | System Keyring (Secret Service / KWallet / Keychain); zero plaintext tokens on disk; log redaction | Security Policy | P1 |
+| F-AUTH-03 | Session Persistence | Persistent client state | In-memory storage of `session_id`, `resume_gateway_url`, and `auth_session_id_hash`; automatic fast resume | `gateway-schema.md` §3 | P1 |
+| F-AUTH-04 | Account Switcher & Logout | Multi-account management | Multi-token storage, secure cache invalidation, clean gateway reconnection | Project Architecture | P6 |
+| F-AUTH-05 | WebAuthn Security Keys | FIDO2 hardware key authentication | WebAuthn registration and authentication via `/users/@me/mfa/webauthn/credentials` | `main-arch.md` §4.2 | P7 |
 
-## API — REST v9
+## API — REST v9 Client Surface
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-API-01 | REST-клиент | Все действия вне шлюза | База `https://discord.com/api/v9`; 6 заголовков auth-группы; коды 200/204/304/404/429 | `rest-d02.md` §2, §6 | P1 |
-| F-API-02 | Супер-свойства | Параметры клиента в каждом запросе | `X-Super-Properties` — base64 JSON, 22 поля (os/browser/build 641004…); политика: свои честные значения, конфигурируемо | `rest-d02.md` §6.2 | P1 |
-| F-API-03 | Отправка сообщений | Основная функция | `POST /channels/{id}/messages` (multipart с вложениями при загрузке) | `rest-d02.md` §3–4 | P3 |
-| F-API-04 | Ack/read | Снятие непрочитанного | `POST /channels/{id}/messages/{id}/ack` `{token, last_viewed}` | `rest-d02.md` §4 | P2 |
-| F-API-05 | Реакции | Взаимодействие | `PUT/DELETE /channels/{id}/messages/{id}/reactions/{emoji}/@me` (204) | `rest-d02.md` §2 | P3 |
-| F-API-06 | Правка/удаление | Управление сообщениями | `PATCH/DELETE /channels/{id}/messages/{id}` | `rest-d02.md` §8.2 | P3 |
-| F-API-07 | История и пины | Чтение канала | `GET /channels/{id}/messages` (11 запросов), `GET /channels/{id}/messages/pins` | `rest-d02.md` §2 | P2 |
-| F-API-08 | Поиск | Найти сообщения | `GET /guilds/{id}/messages/search` + 45 query-параметров (author/mentions/has/link/embed/file и др.) | `rest-d02.md` §3 | P3 |
-| F-API-09 | Треды | Ветки обсуждений | `GET /channels/{id}/threads/search`, `THREAD_LIST_SYNC`, THREAD_CREATE/UPDATE | `rest-d02.md` §2, `gateway-protocol.md` §4 | P3 |
-| F-API-10 | Профили | Карточка пользователя | `GET /users/{id}/profile` (bio, роли, активности) | `rest-d02.md` §2 | P3 |
-| F-API-11 | Настройки (proto) | Синхронизация настроек | `GET/PATCH /users/@me/settings-proto/{num}` — протобуф (`(non-json)`); декодер полей | `rest-d02.md` §4 | P2 |
-| F-API-12 | Rate-limit | Устойчивость | 429 наблюдался (`/users/@me/survey`); парсить `Retry-After`/X-RateLimit-*, экспоненциальный бэкофф | `rest-d02.md` §2 | P1 |
-| F-API-13 | Прочие ресурсы | Полнота | quests/promotions/entitlements/library/widgets/games/collectibles — только отображение | `rest-d02.md` §2 | P6 |
-| F-API-14 | Телеметрия off | Приватность | `POST /science`, `POST /beaker` — не отправлять (по умолчанию) | `rest-d02.md` §2 | P1 |
+| F-API-01 | REST API Client Engine | Non-gateway API interactions | Base URL `https://discord.com/api/v9`; 6 authentication and fingerprint headers; HTTP 200/204/304/404/429 parsing | `rest-d02.md` §2, §6 | P1 |
+| F-API-02 | Client Super Properties | Identifying client properties header | `X-Super-Properties` base64 JSON payload with 22 fields; configurable; honest native values | `rest-d02.md` §6.2 | P1 |
+| F-API-03 | Message Dispatching | Sending text and attachments | `POST /channels/{id}/messages` with multipart/form-data for media payloads | `rest-d02.md` §3–4 | P3 |
+| F-API-04 | Message Acknowledgements | Marking channels as read | `POST /channels/{id}/messages/{id}/ack` with `{token, last_viewed}` payload | `rest-d02.md` §4 | P2 |
+| F-API-05 | Message Reactions | Interacting with emoji reactions | `PUT` and `DELETE` on `/channels/{id}/messages/{id}/reactions/{emoji}/@me` | `rest-d02.md` §2 | P3 |
+| F-API-06 | Edit & Delete Messages | Modifying message history | `PATCH` and `DELETE` on `/channels/{id}/messages/{id}` | `rest-d02.md` §8.2 | P3 |
+| F-API-07 | History & Pinned Messages | Retrieving channel history | `GET /channels/{id}/messages`, `GET /channels/{id}/messages/pins` | `rest-d02.md` §2 | P2 |
+| F-API-08 | Full-Text Message Search | Locating messages across servers | `GET /guilds/{id}/messages/search` with 45 query filters (`author_id`, `mentions`, `has`, `link`, `embed`, etc.) | `rest-d02.md` §3 | P3 |
+| F-API-09 | Thread Management | Thread lifecycle operations | `GET /channels/{id}/threads/search`, `THREAD_LIST_SYNC`, `THREAD_CREATE`, `THREAD_UPDATE` | `rest-d02.md` §2, `gateway-protocol.md` §4 | P3 |
+| F-API-10 | User Profiles | User card data retrieval | `GET /users/{id}/profile` (biography, badges, server roles, connected accounts) | `rest-d02.md` §2 | P3 |
+| F-API-11 | User Settings Synchronization | Synchronizing client settings | `GET` and `PATCH` on `/users/@me/settings-proto/{num}` containing serialized protobuf payloads | `rest-d02.md` §4 | P2 |
+| F-API-12 | Rate Limit Handling | Backoff and quota compliance | HTTP 429 parsing: dynamic `Retry-After`, `X-RateLimit-*` headers, exponential backoff | `rest-d02.md` §2 | P1 |
+| F-API-13 | Extended Ecosystem Endpoints | Parity surface | Quests, promotions, entitlements, library, and collectibles catalog endpoints | `rest-d02.md` §2 | P6 |
+| F-API-14 | Telemetry Opt-Out Policy | User privacy enforcement | Outbound requests to `POST /science` and `POST /beaker` blocked by default | `rest-d02.md` §2 | P1 |
 
-## DATA — состояние и хранилище
+## DATA — State Machine & Local Storage
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-DATA-01 | Парсер READY | Начальное состояние | 40 ключей; `guilds[]` (в крупной гильдии 83 канала, 34 роли, 46 эмодзи, 24 229 участников), 17 ЛС, 60 связей, 146 users, 157 read_state, сессии, `user_settings_proto` | `gateway-protocol.md` §5, `gateway-schema.md` §3 | P2 |
-| F-DATA-02 | Хранилище структур | Офлайн-старт и скорость | SQLite: guilds/channels/roles/users/emoji; сортировки, папки, позиции | план | P2 |
-| F-DATA-03 | Ленивые участники | Большие списки | GUILD_MEMBER_LIST_UPDATE с ops sync/insert/update/delete; GUILD_MEMBERS_CHUNK; подписки op37 | `gateway-schema.md` §4 | P2 |
-| F-DATA-04 | Read-state | Бейджи непрочитанного | 157 записей из READY; обновления MESSAGE_ACK; расчёт mentions | `gateway-protocol.md` §5 | P2 |
-| F-DATA-05 | Настройки пользователя | Единый профиль настроек | `settings-proto` (4400 Б в дампе) → модель (тема, плотность, уведомления, голос) | `gateway-schema.md` §3 | P2 |
-| F-DATA-06 | Кэш сообщений | Быстрый скролл/офлайн | Локальная БД, пагинация вверх/вниз, лимиты, TTL, индексы по каналу/времени | план | P2 |
-| F-DATA-07 | Отношения | Друзья/блокировки | READY.relationships (60), запросы, блокировки | `gateway-protocol.md` §5 | P2 |
-| F-DATA-08 | Голосовые статусы в дереве | UX звонков | VOICE_STATE_UPDATE/CHANNEL_STATUS_UPDATE/START_TIME_UPDATE → участники и таймер | `gateway-protocol.md` §4 | P4 |
-| F-DATA-09 | Замена сессий | Мультиустройство | SESSIONS_REPLACE (8 за сессию) → актуальный список | `gateway-protocol.md` §4 | P6 |
+| F-DATA-01 | READY Event State Ingestion | Bootstrap initial client state | 40 top-level payload keys: `guilds[]`, channels, roles, emojis, private channels, relationships, users, read states | `gateway-protocol.md` §5, `gateway-schema.md` §3 | P2 |
+| F-DATA-02 | Relational Local Storage | Fast startup and offline access | SQLite database with WAL journaling: guilds, channels, roles, users, cached messages, and permissions | Architectural Plan | P2 |
+| F-DATA-03 | Lazy Member Roster State | Handling massive member lists | `GUILD_MEMBER_LIST_UPDATE` dispatch ops (SYNC, INSERT, UPDATE, DELETE); `GUILD_MEMBERS_CHUNK` paging | `gateway-schema.md` §4 | P2 |
+| F-DATA-04 | Unread State & Mentions | Notification badges | 157 read state records from READY; incremental updates via `MESSAGE_ACK`; mention count tracking | `gateway-protocol.md` §5 | P2 |
+| F-DATA-05 | User Settings Model | Unified settings storage | `settings-proto` decoding into typed settings model (appearance, voice, notifications, privacy) | `gateway-schema.md` §3 | P2 |
+| F-DATA-06 | Local Message Cache | Seamless chat scrolling | Local message store, bidirectional pagination, TTL caching policies, channel/timestamp indices | Architectural Plan | P2 |
+| F-DATA-07 | Relationships & Friendships | Friends roster and blocked lists | READY `relationships[]` parsing, friend request dispatch events, user blocking rules | `gateway-protocol.md` §5 | P2 |
+| F-DATA-08 | Voice Channel Presence State | Call rosters in channel tree | Real-time tracking of participants via `VOICE_STATE_UPDATE` and `CHANNEL_STATUS_UPDATE` | `gateway-protocol.md` §4 | P4 |
+| F-DATA-09 | Multi-Device Session Roster | Active user session awareness | `SESSIONS_REPLACE` dispatch event tracking active desktop, mobile, and web sessions | `gateway-protocol.md` §4 | P6 |
 
-## MSG — сообщения
+## MSG — Messaging & Interaction
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-MSG-01 | Текст + markdown | Общение | Разметка сообщений (23 правила rich-формата), эмодзи/упоминания/ссылки; спойлеры/цитаты | `i18n-deep.md` §3 | P3 |
-| F-MSG-02 | Вложения | Файлы и медиа | upload с прогрессом, download в кэш, превью изображений/видео, лимиты | `rest-d02.md` §4 | P3 |
-| F-MSG-03 | Ответы | Контекст | Reply-ссылки, упоминание автора, переход к оригиналу | `frontend-d03.md` (меню) | P3 |
-| F-MSG-04 | Реакции | Быстрый отклик | Пикер реакций из контекстного меню; счётчики; список поставивших | `frontend-d03.md` §2.3 | P3 |
-| F-MSG-05 | Правка/удаление/меню | Управление | Контекстное меню сообщения (12+ пунктов), редактирование inline | `frontend-d03.md` §5.4 | P3 |
-| F-MSG-06 | Typing | Живость | TYPING_START (28/сессию) → индикатор «печатает» | `gateway-protocol.md` §4 | P3 |
-| F-MSG-07 | Опросы | Голосования | MESSAGE_POLL_VOTE_ADD (MESSAGE_POLL_VOTE_REMOVE не наблюдался); отображение результатов | `gateway-protocol.md` §4 | P6 |
-| F-MSG-08 | Стикеры/GIF/звуки | Выразительность | SOUNDBOARD_SOUNDS (21), стикеры в гильдии (6), GIF-поиск | `gateway-protocol.md` §4 | P6 |
-| F-MSG-09 | Треды | Ветки | THREAD_LIST_SYNC (7), создание/архив/активность | `gateway-protocol.md` §4 | P3 |
-| F-MSG-10 | Системные сообщения | Полнота истории | join/boost/pin/инвайты; разделители новых сообщений | `frontend-d03.md` | P3 |
-| F-MSG-11 | Черновики | UX ввода | Локальное сохранение на канал/тред, восстановление | план | P3 |
-| F-MSG-12 | Saved messages/поиск-сохранение | Личные заметки | `GET /users/@me/saved-messages` (404 у тест-аккаунта; маршрут известен) | `rest-d02.md` §2 | P7 |
+| F-MSG-01 | Rich Markdown Rendering | User text communication | 23 markdown rules: bold, italic, underline, strikethrough, code blocks, syntax highlighting, spoiler tags, blockquotes, user/channel mentions | `i18n-deep.md` §3 | P3 |
+| F-MSG-02 | File Attachments | Sharing files and media | Chunked file uploads with progress monitoring; image/video/audio in-line players | `rest-d02.md` §4 | P3 |
+| F-MSG-03 | Message Quote Replies | Replying in context | Reference message quoting, author mention toggle, jump to referenced message | `frontend-d03.md` | P3 |
+| F-MSG-04 | Emoji Reactions | Expressive feedback | Emoji reaction picker, reaction count badges, list of reacting users | `frontend-d03.md` §2.3 | P3 |
+| F-MSG-05 | Message Actions Context Menu | Managing sent messages | Message context menu: edit, delete, copy text, pin, create thread, mark unread | `frontend-d03.md` §5.4 | P3 |
+| F-MSG-06 | Real-Time Typing Indicators | Live chat awareness | `TYPING_START` dispatch events with automatic timeout cancellation | `gateway-protocol.md` §4 | P3 |
+| F-MSG-07 | Native Polls Engine | Interactive voting in chat | `MESSAGE_POLL_VOTE_ADD` events; real-time vote percentage calculation | `gateway-protocol.md` §4 | P6 |
+| F-MSG-08 | Stickers, GIFs & Soundboard | Rich expressive media | `SOUNDBOARD_SOUNDS` integration, custom guild stickers, Tenor GIF search integration | `gateway-protocol.md` §4 | P6 |
+| F-MSG-09 | Thread Channels | Focused side discussions | `THREAD_LIST_SYNC`, thread sidebar, active and archived thread lifecycle | `gateway-protocol.md` §4 | P3 |
+| F-MSG-10 | System Messages | Server event announcements | Member join, server boost, pin, and invite system message rendering | `frontend-d03.md` | P3 |
+| F-MSG-11 | Message Drafts | Preserving unfinished messages | Local per-channel and per-thread draft preservation across navigation | Architectural Plan | P3 |
+| F-MSG-12 | Saved Messages / Bookmarks | Bookmarking important messages | `GET /users/@me/saved-messages` integration | `rest-d02.md` §2 | P7 |
 
-## SRCH — поиск
+## SRCH — Search & Discovery
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-SRCH-01 | Панель фильтров | Точный поиск | 7 секций фильтров + чипы; `from/mentions/has/link/embed/file/…`; сортировка (актуальность/дата) | `frontend-d03.md` §1.2–1.3 | P3 |
-| F-SRCH-02 | Результаты | Переход к контексту | `total_results`, пагинация, подсветка, прыжок к сообщению | `frontend-d03.md` §1.1 | P3 |
-| F-SRCH-03 | Не повторять баг UI | Корректность | В официальном UI чип канала даёт `total_results: 0` — реализовать правильно | `frontend-d03.md` §1.4 | P3 |
-| F-SRCH-04 | QuickSwitcher | Навигация | Ctrl+K → каналы/ЛС/гильдии, fuzzy | `frontend-d03.md` §5.4 | P3 |
-| F-SRCH-05 | Автокомплит эмодзи | Ввод | `:fire` → 10 результатов в поповере | `frontend-d03.md` §2 | P3 |
+| F-SRCH-01 | Advanced Search Filter Tokens | Granular message search | 7 search filter tokens: `from:`, `mentions:`, `has:`, `link:`, `embed:`, `file:`, `before:`, `after:`; sort by recency or relevance | `frontend-d03.md` §1.2–1.3 | P3 |
+| F-SRCH-02 | Search Result Navigation | Contextual result viewing | `total_results` pagination, keyword highlighting, jump to message in channel | `frontend-d03.md` §1.1 | P3 |
+| F-SRCH-03 | Cleanroom Search Correction | Defect-free search execution | Fixes official client bug where selecting channel search chip yields `total_results: 0` | `frontend-d03.md` §1.4 | P3 |
+| F-SRCH-04 | Global QuickSwitcher | Keyboard-first navigation | Ctrl+K / Cmd+K fuzzy search across channels, DMs, voice rooms, and servers | `frontend-d03.md` §5.4 | P3 |
+| F-SRCH-05 | Emoji Autocomplete | Rapid emoji entry | Typing `:shortcode` triggers popover with top 10 matching emojis | `frontend-d03.md` §2 | P3 |
 
-## PRES — присутствие
+## PRES — Presence & Activities
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-PRES-01 | Статусы | Видимость | online/idle/dnd/invisible (op3); сохраняется в настройках; idle по бездействию | `gateway-protocol.md` §4, `backend-ipc.md` (idle) | P2 |
-| F-PRES-02 | Активности | Что делает друг | PRESENCE_UPDATE (107) с activities; отображение в списках/поповере | `gateway-protocol.md` §4 | P2 |
-| F-PRES-03 | Кастомный статус | Самовыражение | текст/эмодзи + срок; часть settings/профиля | `frontend-d03.md` §5 | P6 |
-| F-PRES-04 | Группировка | Читаемость | Сортировка участников/друзей по статусу и роли | `frontend-d03.md` §3 | P3 |
+| F-PRES-01 | User Status States | Visibility and availability | `online`, `idle`, `dnd`, and `invisible` states (Opcode 3); idle timeout transition | `gateway-protocol.md` §4, `backend-ipc.md` | P2 |
+| F-PRES-02 | Rich Presence Activities | Activity broadcasting | `PRESENCE_UPDATE` events parsing game, Spotify music, and streaming activities | `gateway-protocol.md` §4 | P2 |
+| F-PRES-03 | Custom Status Message | Custom user status | Custom text and emoji with expiration timestamp | `frontend-d03.md` §5 | P6 |
+| F-PRES-04 | Presence Grouping | Roster organization | Sorting guild member lists and friends roster by status and role hierarchy | `frontend-d03.md` §3 | P3 |
 
-## VOICE — голос
+## VOICE — Voice Engine & WebRTC
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-VOICE-01 | Join/Leave | Голосовая связь | op4 → VOICE_SERVER_UPDATE → RTC WS `wss://c-<region>-<hash>.discord.media:2053/2096` (v=9); выход — close 1000 «Force Close» | `voice-deep.md` §1 | P4 |
-| F-VOICE-02 | Identify (RTC) | Вход в сессию | op0: server_id, channel_id, user_id, session_id, token, `max_dave_protocol_version:1`, video, streams `[{type:video, rid:"100", quality:100}]` | `voice-deep.md` §1 | P4 |
-| F-VOICE-03 | Select Protocol | Выбор транспорта | op1: protocol udp, `codecs:[{opus PT 120 priority 1000},{AV1 PT 101}]` | `voice-deep.md` §1 | P4 |
-| F-VOICE-04 | Ready | Параметры медиа | op2: `ssrc`, `ip`, `port`, `modes:["aead_aes256_gcm_rtpsize","aead_xchacha20_poly1305_rtpsize"]`, experiments | `voice-deep.md` §1 | P4 |
-| F-VOICE-05 | Session Description | Ключ и режим | op4: `mode`, `secret_key` (32 Б), `media_session_id`, `dave_protocol_version:1`, `secure_frames_version:1` | `voice-deep.md` §1 | P4 |
-| F-VOICE-06 | UDP discovery | NAT-адрес | 74 Б: type 1/2, ssrc, ASCII-адрес, порт BE @72; повтор до Ready | `voice-deep.md` §2.1 | P4 |
-| F-VOICE-07 | Keepalive | Держать NAT | 8 Б: `1337cafe`/`1337f00d` каждые 5 с | `voice-deep.md` §2.2 | P4 |
-| F-VOICE-08 | RTP Opus | Речь | PT 120, 20 мс, 48 кГц стерео; ext 0xBEDE (2 слова); seq/ts | `voice-deep.md` §2.3 | P4 |
-| F-VOICE-09 | SRTP-крипта | Шифрование медиа | GCM-тег 16 Б + хвостовой 4-Б LE-счётчик (клиент `0x80000000|n`, сквозной RTP+RTCP); AAD = заголовок; режимы 0–6 | `voice-deep.md` §2.3–2.4 | P4 |
-| F-VOICE-10 | RTCP | Качество связи | SR 60 Б ~5,2 с, RR сервера 52 Б 1/с; пустой RR 28 Б после ротации; тела шифрованы → своя статистика | `voice-deep.md` §2.4 | P4 |
-| F-VOICE-11 | DTX/CN | Экономия полосы | При тишине ~10 пакетов (200 мс), затем CN; пауза не рвёт соединение | `voice-deep.md` §2.3 | P4 |
-| F-VOICE-12 | Ротация сокета | Устойчивость NAT | Ровно +60,08 с: `socket()` → discovery (тот же ssrc) → новый порт → пустой RR | `voice-deep.md` §2.5 | P4 |
-| F-VOICE-13 | Mute/Deafen/Speaking | Контроль | setSelfMute/Deafen; speaking callback → индикатор; эхо и жёлтая рамка | `voice-deep.md` §0/§4 | P4 |
-| F-VOICE-14 | PTT | Хоткей-речь | Глобальный хоткей, режимы «по кнопке/активности», приоритет; idle-детект для активности | `backend-ipc.md`, R1 | P4 |
-| F-VOICE-15 | Устройства | Гибкость | Выбор in/out, AGC/AEC/NS (38 тумблеров вкладки), hot-plug и перезапрос | `frontend-d03.md` §4.2 | P4 |
-| F-VOICE-16 | Шумоподавление | Чистота звука | Аналог krisp: модели `.kef` (5 шт.), уровни; в Rust — RNNoise/свой инференс | `native-re.md` §4 | P4 |
-| F-VOICE-17 | DAVE/MLS (E2EE) | Приватность голоса | `dave_protocol_version:1`, `secure_frames_version:1`; MLS-фрейминг поверх медиа (Cisco mlspp — референс); пороговые версии участников | `voice-deep.md` §1, `native-re.md` §3.5 | P4.5 |
-| F-VOICE-18 | Регионы/латентность | Лучший сервер | RTCLatencyTestManager: UDP-зонды по регионам, ранжирование (fra/arn/…), выбор первого | `voice-deep.md` §1 | P4 |
-| F-VOICE-19 | Статистика связи | Диагностика | RTT через op3/op6, потери/джиттер из RTCP (нужен свой парсинг после расшифровки) | `voice-deep.md` §2.4 | P4 |
-| F-VOICE-20 | Soundboard | Звуки в канал | SOUNDBOARD_SOUNDS (21), воспроизведение всем участникам | `gateway-protocol.md` §4 | P6 |
-| F-VOICE-21 | Видео в звонке | Камера | streams rid/quality/active; видео-ssrc + rtx_ssrc | `voice-deep.md` §1 | P5 |
+| F-VOICE-01 | Join & Leave Voice Signaling | Establishing voice session | Gateway Opcode 4 -> `VOICE_SERVER_UPDATE` -> connects RTC WebSocket `wss://c-<region>-<hash>.discord.media:2053/2096` | `voice-deep.md` §1 | P4 |
+| F-VOICE-02 | Voice Identify Handshake | Authenticating voice transport | Voice Opcode 0: `server_id`, `channel_id`, `user_id`, `session_id`, `token`, `max_dave_protocol_version: 1`, stream descriptors | `voice-deep.md` §1 | P4 |
+| F-VOICE-03 | Select Protocol Handshake | Negotiating transport and codecs | Voice Opcode 1: protocol `udp`, audio codec `opus` (PT 120, priority 1000), video codec `AV1` (PT 101) | `voice-deep.md` §1 | P4 |
+| F-VOICE-04 | Voice Ready Handshake | Server media endpoint response | Voice Opcode 2: `ssrc`, `ip`, `port`, encryption modes `aead_aes256_gcm_rtpsize` and `aead_xchacha20_poly1305_rtpsize` | `voice-deep.md` §1 | P4 |
+| F-VOICE-05 | Session Description Handshake | Finalizing encryption keys | Voice Opcode 4: negotiated encryption `mode`, 32-byte `secret_key`, `media_session_id`, `dave_protocol_version: 1` | `voice-deep.md` §1 | P4 |
+| F-VOICE-06 | UDP IP Discovery | NAT public IP/port discovery | 74-byte UDP probe: type 1/2, SSRC, ASCII IP string, port BE@72; repeated until Voice Ready | `voice-deep.md` §2.1 | P4 |
+| F-VOICE-07 | NAT Keepalive | Maintaining UDP state | 8-byte UDP packet: `1337cafe` or `1337f00d` transmitted every 5 seconds | `voice-deep.md` §2.2 | P4 |
+| F-VOICE-08 | RTP Opus Audio Transport | Audio packet framing | RTP payload type 120, 20ms frame duration, 48 kHz stereo; header extension `0xBEDE`; sequence numbers and timestamps | `voice-deep.md` §2.3 | P4 |
+| F-VOICE-09 | SRTP Media Encryption | Encrypting audio payloads | AES-256-GCM (16-byte authentication tag + 4-byte LE counter tail; client counter `0x80000000 | n`); AAD = RTP header | `voice-deep.md` §2.3–2.4 | P4 |
+| F-VOICE-10 | RTCP Telemetry & Quality | Monitoring call metrics | Sender Report (SR) ~5.2s interval; Receiver Report (RR) 1s interval; loss and jitter metrics | `voice-deep.md` §2.4 | P4 |
+| F-VOICE-11 | Discontinuous Transmission (DTX) | Bandwidth conservation | Silence detection transmits ~10 comfort noise packets (200ms) before muting stream | `voice-deep.md` §2.3 | P4 |
+| F-VOICE-12 | Socket Port Rotation | Network path agility | Periodic socket rotation at +60s: allocate new UDP socket -> issue IP discovery with existing SSRC -> swap active port | `voice-deep.md` §2.5 | P4 |
+| F-VOICE-13 | Speaking State & Indicators | Audio activity detection | Voice Opcode 5 speaking state; green speaking rings around avatars | `voice-deep.md` §0/§4 | P4 |
+| F-VOICE-14 | Push-to-Talk (PTT) | Input activation modes | Voice Activity Detection (VAD) and Push-to-Talk via global hotkeys | `backend-ipc.md`, R1 | P4 |
+| F-VOICE-15 | Audio Device Management | Hardware configuration | Audio input/output device enumeration, hotplug detection, volume controls, echo cancellation (AEC), automatic gain control (AGC) | `frontend-d03.md` §4.2 | P4 |
+| F-VOICE-16 | Neural Noise Suppression | Audio clarity enhancement | RNNoise neural audio filter integration with adjustable suppression levels | `native-re.md` §4 | P4 |
+| F-VOICE-17 | DAVE / MLS End-to-End Encryption | Secure group voice calls | RFC 9420 MLS protocol integration; epoch ratchets; truncated 8-byte authentication tags | `voice-deep.md` §1, `native-re.md` §3.5 | P4.5 |
+| F-VOICE-18 | Region Latency Probing | Optimal voice server routing | UDP ping probes across server regions (e.g. Frankfurt, Stockholm) to select lowest latency node | `voice-deep.md` §1 | P4 |
+| F-VOICE-19 | Real-Time Call Diagnostics | Diagnostic telemetry HUD | RTT latency, packet loss percentage, audio bitrate, and jitter buffer health overlay | `voice-deep.md` §2.4 | P4 |
+| F-VOICE-20 | Soundboard Player | In-channel audio soundboard | `SOUNDBOARD_SOUNDS` dispatch; audio decoding and soft mixing into voice channel | `gateway-protocol.md` §4 | P6 |
+| F-VOICE-21 | In-Call Video Streams | Video camera feeds | Video stream descriptors `streams[{type: video, rid: "100", quality: 100}]`; video SSRC and RTX SSRC binding | `voice-deep.md` §1 | P5 |
 
-## MEDIA — видео и трансляция
+## MEDIA — Video & Screen Streaming
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-MEDIA-01 | Камера | Видеозвонки | Захват → энкод → RTP; превью локально | `voice-deep.md` §1 | P5 |
-| F-MEDIA-02 | Go Live | Демонстрация экрана | Выбор источника, quality `rid:100`, зрители через SFU | `voice-deep.md` §1 | P5 |
-| F-MEDIA-03 | Захват экрана | Linux-путь | PipeWire (Wayland) / X11; окно/монитор/регион; выбор через системный диалог | `native-re.md` §2.2 (pipewire dlopen) | P5 |
-| F-MEDIA-04 | Системный звук стрима | Звук при демонстрации | Аналог venmic (PipeWire monitor); R5-бэклог | `feature-backlog.md` R5-* | P5 |
-| F-MEDIA-05 | GPU-энкод | Производительность | У Discord: Nvidia cuda+vulkan (h264/h265/av1), AMD vaapi (h264), Intel — нет; в Rust — vaapi/vulkan/nvenc | README (GPU-кодировщики) | P5 |
-| F-MEDIA-06 | Плеер вложений | Просмотр медиа | Видео/GIF/аудио в чате, тултипы размеров | `frontend-d03.md` §5 | P3 |
-| F-MEDIA-07 | Клипы | Нарезка (необязательно) | Официально — внешний `discord_clips` exe; в Rust — опционально, низкий приоритет | `main-arch.md` §3.5 | P7 |
+| F-MEDIA-01 | Camera Video Capture | Video calling | V4L2 device capture -> hardware encoder -> RTP video packetization | `voice-deep.md` §1 | P5 |
+| F-MEDIA-02 | Screen Share (Go Live) | Desktop streaming | Window or monitor screen capture; dynamic resolution/framerate adaptation (720p/1080p, 30/60 FPS) | `voice-deep.md` §1 | P5 |
+| F-MEDIA-03 | Linux Screen Capture Engine | Wayland and X11 capture | PipeWire XDG Desktop Portal integration for Wayland; X11 fallback capture | `native-re.md` §2.2 | P5 |
+| F-MEDIA-04 | Desktop Audio Loopback | Sharing system audio | Desktop audio capture via PipeWire monitor source | `feature-backlog.md` R5-* | P5 |
+| F-MEDIA-05 | Hardware Video Acceleration | Low-overhead encoding | Hardware-accelerated encoding via VA-API, Vulkan Video, or NVENC (H.264 / AV1) | GPU Codec Specifications | P5 |
+| F-MEDIA-06 | Inline Media Players | Embedded media previews | Custom in-line players for MP4, WebM, GIF, and audio files in message stream | `frontend-d03.md` §5 | P3 |
+| F-MEDIA-07 | Gaming Clips Engine | Recording gameplay clips | In-game clip recording and clipping tool integration | `main-arch.md` §3.5 | P7 |
 
-## UI — интерфейс
+## UI — User Interface & Components
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-UI-01 | Каркас окна | Основной экран | Тема dark/light, плотности cozy/compact, min-size, frameless/тайтлбар по платформе | `frontend-d03.md` §6 | P3 |
-| F-UI-02 | Гильд-рейл | Навигация | Иконки/папки/бейджи, порядок, drag-сортировка | `frontend-d03.md` §3 | P3 |
-| F-UI-03 | Дерево каналов | Навигация | Категории, коллапс, непрочитанные, голосовые участники, треды | `frontend-d03.md` §3 | P3 |
-| F-UI-04 | Чат-вью | Основная работа | Виртуализированный список, группировка по автору, день-разделители, embeds/реакции/hover-меню | `frontend-d03.md` §5.4–5.12 | P3 |
-| F-UI-05 | Композер | Ввод | Текст, эмодзи-автокомплит, mentions, upload, кнопки вложений | `frontend-d03.md` §2 | P3 |
-| F-UI-06 | Список участников | Соц. функции | Виртуализация до 24k, группы роли/статусы, поиск по участникам | `gateway-protocol.md` §5 | P3 |
-| F-UI-07 | ЛС/друзья | Личные чаты | Список, активность, запросы, группы | `frontend-d03.md` §3 | P3 |
-| F-UI-08 | Оверлей поиска | Найти всё | Фильтры, результаты, сортировка | `frontend-d03.md` §1 | P3 |
-| F-UI-09 | Эмодзи-пикер | Выразительность | 3 вкладки, 10 категорий, 50 видимых, «часто используемые», поиск | `frontend-d03.md` §2 | P3 |
-| F-UI-10 | Настройки | Управление | Категории + «Голос и видео» (38 тумблеров), язык, клавиши, уведомления | `frontend-d03.md` §4 | P3 |
-| F-UI-11 | Поповер пользователя | Профиль | Аватар/баннер, bio, роли, активности, заметка | `frontend-d03.md` (popover) | P3 |
-| F-UI-12 | Меню Mana | Действия | Пункты colorDefault/danger, чекбоксы, радио, субменю; Escape/стрелки | `frontend-d03.md` §5.3 | P3 |
-| F-UI-13 | Модалки | Диалоги | Фокус-ловушка, aria, анимации, закрытие | `frontend-d03.md` §5.5 | P3 |
-| F-UI-14 | Тултипы | Подсказки | Обычные + mini-premium | `frontend-d03.md` §5.7 | P3 |
-| F-UI-15 | Тумблеры/слайдеры | Настройки | switch (react-aria-совместимый), слайдеры с marks | `frontend-d03.md` §5.8–5.9 | P3 |
-| F-UI-16 | Аватары/статус-рамки | Соц. идентичность | Стеки, ring, grayscale для offline | `frontend-d03.md` §5.10 | P3 |
-| F-UI-17 | Бейджи | Уведомления | Number/icon/premium, badge сервера | `frontend-d03.md` §5.11 | P3 |
-| F-UI-18 | Скроллеры | Большие списки | Thin/auto/none, gutter, виртуализация | `frontend-d03.md` §5.12 | P3 |
-| F-UI-19 | Дизайн-токены | Стиль | 5132 переменные → токены; маппинг 12 контрактов; темы/плотности | `frontend-d03.md` §6 | P3 |
-| F-UI-20 | Звуки интерфейса | Обратная связь | 15 mp3 (join/leave/mute/message/ring) | R1 (ассеты кэша) | P3 |
-| F-UI-21 | Шорткаты | Скорость | Ctrl+K (QuickSwitcher), Ctrl+F (поиск), Ctrl+E (эмодзи), mod+f | `frontend-d03.md` §5.4 | P3 |
-| F-UI-22 | Слои/поповеры | Правильное наложение | positionLayer, клик-аутсайд, scroll-lock, фокус | `frontend-d03.md` §5.6 | P3 |
-| F-UI-23 | Доступность | Инклюзивность | role=dialog/menu, aria-label(s), фокус-порядок | `frontend-d03.md` §5.5 | P3 |
-| F-UI-24 | Анимации | Живость | Переходы модалок/меню, loading spinner, fade | `frontend-d03.md` §5 | P3 |
+| F-UI-01 | Application Window & Shell | Main client window | Dark and light themes, compact and cozy density modes, frameless or system titlebar | `frontend-d03.md` §6 | P3 |
+| F-UI-02 | Server Rail Navigation | Guild list navigation | Server icons, folder hierarchies, unread mention badges, drag-and-drop server reordering | `frontend-d03.md` §3 | P3 |
+| F-UI-03 | Channel Tree Navigation | Channel hierarchy | Category folders, collapse toggles, unread highlights, active voice participants, threads | `frontend-d03.md` §3 | P3 |
+| F-UI-04 | Virtualized Chat View | High-performance message display | Virtualized list handling 100k+ messages, author grouping, day dividers, rich embeds, inline editing | `frontend-d03.md` §5.4–5.12 | P3 |
+| F-UI-05 | Message Composer Bar | Text input and drafting | Multi-line text editor, emoji autocomplete, mention picker, file attachment tray | `frontend-d03.md` §2 | P3 |
+| F-UI-06 | Guild Member List | Server member roster | Virtualized list handling up to 24k members, role-based grouping, member search | `gateway-protocol.md` §5 | P3 |
+| F-UI-07 | Direct Messages Home | Private chats and friends | Friends list tabs (Online, All, Pending, Blocked), direct message channels | `frontend-d03.md` §3 | P3 |
+| F-UI-08 | Search Overlay Dialog | Message search UI | Filter chips, search results list, sorting toggles, jump-to-message action | `frontend-d03.md` §1 | P3 |
+| F-UI-09 | Emoji & Sticker Picker | Expression selector | 3 tabs (emojis, stickers, GIFs), 10 category headers, frequently used section, search filter | `frontend-d03.md` §2 | P3 |
+| F-UI-10 | Settings Dialog | Client configuration | Settings categories, Voice & Video configuration (38 controls), Keybinds, Language, Notifications | `frontend-d03.md` §4 | P3 |
+| F-UI-11 | User Profile Popover | User information card | Avatar, banner, username, custom status, biography, badges, mutual guilds and friends | `frontend-d03.md` | P3 |
+| F-UI-12 | Context Menus | Action menus | Accessible context menus with default and danger item styling, submenus, keyboard navigation | `frontend-d03.md` §5.3 | P3 |
+| F-UI-13 | Modal Dialogs | Overlays and wizards | Focus traps, ARIA dialog attributes, smooth open/close transitions, Escape key dismissal | `frontend-d03.md` §5.5 | P3 |
+| F-UI-14 | Tooltip Overlays | Contextual hints | Standard tooltips and rich badges with positioning algorithms | `frontend-d03.md` §5.7 | P3 |
+| F-UI-15 | Form Controls & Sliders | Settings UI controls | Accessible toggle switches, sliders with tick marks, radio groups, and text fields | `frontend-d03.md` §5.8–5.9 | P3 |
+| F-UI-16 | Avatars & Status Rings | Visual user identity | Circular avatars with status indicator cutouts (online, idle, dnd, offline) | `frontend-d03.md` §5.10 | P3 |
+| F-UI-17 | Notification Badges | Visual notification indicators | Numbered unread badges, mention badges, guild notification pips | `frontend-d03.md` §5.11 | P3 |
+| F-UI-18 | Custom Scrollbars | Content scrolling | Thin, auto-hiding scrollbars with smooth scrolling and gutter reservations | `frontend-d03.md` §5.12 | P3 |
+| F-UI-19 | Design Token System | Visual styling consistency | 5,132 cleanroom-extracted variables mapped into cohesive CSS / GPUI styling tokens | `frontend-d03.md` §6 | P3 |
+| F-UI-20 | Interface Sound Effects | Audio feedback | 15 distinct sound effects (message, join, leave, mute, unmute, ring, incoming call) | Audio Assets Specification | P3 |
+| F-UI-21 | Keyboard Shortcuts | Accelerator navigation | Global shortcuts: Ctrl+K (QuickSwitcher), Ctrl+F (Search), Ctrl+E (Emoji), Esc (Close) | `frontend-d03.md` §5.4 | P3 |
+| F-UI-22 | Layer & Popover Stacking | Z-index and popup management | Portal layers, click-outside dismissal, scroll locking, and focus restoration | `frontend-d03.md` §5.6 | P3 |
+| F-UI-23 | Accessibility (A11y) | Inclusive user experience | WCAG 2.2 AAA compliance, AT-SPI screen reader accessibility, roving tabindex | `frontend-d03.md` §5.5 | P3 |
+| F-UI-24 | Interface Animations | Visual smoothness | Hardware-accelerated transitions, modal fade/scale animations, loading spinners | `frontend-d03.md` §5 | P3 |
 
-## I18N — локализация
+## I18N — Internationalization & Catalogs
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-I18N-01 | Рантайм сообщений | Локализация | Собственный AST (не IntlMessageFormat); выбор по локали | `i18n-deep.md` §1 | P3 |
-| F-I18N-02 | Ключ-функция | Адресация строк | `xxh64(LE-байты строки) → base64 → 6 символов` (36 бит) | `i18n-deep.md` §0 | P3 |
-| F-I18N-03 | Плурализация | Грамматика | CLDR (one/few/many/other) + точные `=N`; демо ru: 1/2/5/11/21/22/101 | `i18n-deep.md` §2 | P3 |
-| F-I18N-04 | Rich-разметка | Форматирование | 23 правила (bold/italic/underline/strike/code/link/emoji/user/channel/…), экранирование | `i18n-deep.md` §3 | P3 |
-| F-I18N-05 | Форматы данных | Даты/числа | Разделители, даты/время, «N участников» | `i18n-deep.md` §5–6 | P3 |
-| F-I18N-06 | Локали и fallback | 36 языков | 31 из 36 файлов в сборке; fallback en-US; системная локаль; смена на лету | `i18n-deep.md` §7 | P7 |
-| F-I18N-07 | Свой каталог строк | Наши тексты | Отдельные строки приложения (не копировать чужие ассеты) | план | P3 |
+| F-I18N-01 | Custom Message Format Engine | String localization | Custom AST runtime for string interpolation with argument formatting | `i18n-deep.md` §1 | P3 |
+| F-I18N-02 | Key Hashing Function | Fast translation lookup | `xxh64(LE string bytes) -> base64 -> first 6 characters` (36-bit compact hash key) | `i18n-deep.md` §0 | P3 |
+| F-I18N-03 | CLDR Pluralization Rules | Grammatical correctness | Full CLDR plural categories (`zero`, `one`, `two`, `few`, `many`, `other`) + exact `=N` matches | `i18n-deep.md` §2 | P3 |
+| F-I18N-04 | Rich Text Tag Formatting | Formatted localized strings | 23 rich-text tag formatting rules (bold, italic, links, embedded UI components) | `i18n-deep.md` §3 | P3 |
+| F-I18N-05 | Locale-Aware Formats | Numbers and dates | Cultural number grouping separators, relative timestamps, localized dates | `i18n-deep.md` §5–6 | P3 |
+| F-I18N-06 | Language Switcher & Fallback | Multi-language support | 36 supported languages; deterministic fallback to `en-US`; runtime locale switching | `i18n-deep.md` §7 | P7 |
+| F-I18N-07 | Open-Source Translation Strings | Cleanroom localization text | Independent, original open-source string catalogs | Architectural Plan | P3 |
 
-## SYS — платформенные функции
+## SYS — Platform Integration & Operating System
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-SYS-01 | Трей | Фоновый режим | Иконка/меню/состояния, закрытие в трей, мигание непрочитанного | `backend-ipc.md` (SYSTEM_TRAY_*) | P6 |
-| F-SYS-02 | Бейдж лончера | Счётчик | `APP_SET_BADGE_COUNT`/dock-bounce (Linux: Unity launcher API) | `backend-ipc.md` | P6 |
-| F-SYS-03 | Уведомления | Внимание | D-Bus notify с действиями (открыть/ответить); на Linux официальный клиент не поддерживает — делаем своё | `main-arch.md` §3.2 | P6 |
-| F-SYS-04 | Deep links | Интеграция | `discord://` → открытие канала/сообщения; single-instance | `main-arch.md` | P6 |
-| F-SYS-05 | Автозапуск | Старт с системой | XDG autostart, флаг «открывать свёрнутым» | `backend-ipc.md` (OPEN_ON_STARTUP) | P6 |
-| F-SYS-06 | Обновление | Доставка версий | Свой updater: манифест, подпись, staged-замена; без Electron-updater | `main-arch.md` §5 | P8 |
-| F-SYS-07 | Буфер обмена | Удобство | Копировать текст/картинки; вставка изображения → загрузка | `backend-ipc.md` (CLIPBOARD_*) | P6 |
-| F-SYS-08 | Блокировка сна | Звонок не рвётся | ScreenSaver/Login1 inhibitor во время звонка/стрима | `backend-ipc.md` (POWER_SAVE_*) | P6 |
-| F-SYS-09 | Idle-детект | Авто-статус | Wayland idle (ext-idle-notify) / X11; idle → статус | `backend-ipc.md` (POWER_MONITOR_*) | P6 |
-| F-SYS-10 | Spellcheck | Грамотность | Hunspell-словари системы (аналог `cld.node`); подчёркивание/замена | `native-re.md` §6 | P6 |
-| F-SYS-11 | Клипы (файлы) | Просмотр клипов | В официальном клиенте — внешний exe; в Rust — опционально | `main-arch.md` §3.5 | P7 |
-| F-SYS-12 | Мультиокна | Попауты | Отдельные окна для каналов/видео (popout) | `main-arch.md` §2.3 | P7 |
-| F-SYS-13 | Win/macOS | Кроссплатформа | После Linux: WASAPI/CoreAudio, трей, хоткеи | план | P7 |
+| F-SYS-01 | System Tray Integration | Background operation | System tray icon, context menu, minimize-to-tray, unread notification flashing | `backend-ipc.md` | P6 |
+| F-SYS-02 | Application Launcher Badge | Unread badge counters | Desktop dock/taskbar unread counter badges (Unity API on Linux, Dock on macOS) | `backend-ipc.md` | P6 |
+| F-SYS-03 | Desktop Notifications | System alert integration | FreeDesktop D-Bus Notifications (`org.freedesktop.Notifications`) with action buttons | `main-arch.md` §3.2 | P6 |
+| F-SYS-04 | Deep Link URI Handler | Protocol scheme integration | `discord://` URI scheme registration with single-instance IPC forwarding | `main-arch.md` | P6 |
+| F-SYS-05 | Desktop Autostart | Boot-time startup | XDG autostart `.desktop` entry generation with `--start-minimized` flag | `backend-ipc.md` | P6 |
+| F-SYS-06 | In-App Auto-Updater | Binary delivery | Standalone updater engine: release manifest parsing, Ed25519 signature checks, atomic rollback | `main-arch.md` §5 | P8 |
+| F-SYS-07 | System Clipboard Integration | Media copy-pasting | Text and image clipboard access; direct paste-to-upload in composer | `backend-ipc.md` | P6 |
+| F-SYS-08 | Power Management Inhibitor | Uninterrupted calls | System sleep inhibition (`org.freedesktop.ScreenSaver` / `systemd-logind`) during active voice calls | `backend-ipc.md` | P6 |
+| F-SYS-09 | Idle State Detection | Automatic user status | Wayland idle detection (`ext-idle-notify-v1`) and X11 Screensaver extension | `backend-ipc.md` | P6 |
+| F-SYS-10 | Native Spellchecker | Language correctness | Hunspell dictionary integration via native FFI; wavy red underline and correction popup | `native-re.md` §6 | P6 |
+| F-SYS-11 | Game Clips Management | Video clip viewing | Local file management for recorded video clips | `main-arch.md` §3.5 | P7 |
+| F-SYS-12 | Detachable Popout Windows | Multi-window support | Detachable video call and channel popout windows | `main-arch.md` §2.3 | P7 |
+| F-SYS-13 | Cross-Platform Support | Windows and macOS parity | Native platform backends: WASAPI / CoreAudio, native trays, global shortcuts | Architectural Plan | P7 |
 
-## SEC — безопасность и приватность
+## SEC — Security & Privacy Architecture
 
-| ID | Функция | Зачем | Как работает (RE-факты) | Источник | Фаза |
+| ID | Feature | Purpose | Cleanroom Reverse-Engineered Mechanics | Source Reference | Phase |
 |---|---|---|---|---|---|
-| F-SEC-01 | Секреты только в keyring | Защита аккаунта | Никаких токенов в файлах; очистка при выходе | политика | P1 |
-| F-SEC-02 | Редакция логов | Безопасные баг-репорты | Фильтр по ключам (token/session/secret/email) + паттернам | `sanitize-jsonl.mjs` (лаборатория) | P1 |
-| F-SEC-03 | Телеметрия off | Приватность | science/beaker не отправляются | `rest-d02.md` §2 | P1 |
-| F-SEC-04 | Отпечаток клиента | Управляемая идентичность | Супер-свойства конфигурируемы; честные значения по умолчанию | `rest-d02.md` §6.2 | P1 |
-| F-SEC-05 | Подпись обновлений | Целостность | Ed25519-подпись манифеста и бинаря | план | P8 |
-| F-SEC-06 | Без DRM/обхода | Правовая чистота | Видео/аудио — только официальные CDN-потоки | README (правовая рамка) | — |
+| F-SEC-01 | Keyring-Only Token Storage | Protecting user credentials | Authentication tokens stored exclusively in system Keyring; zero plaintext on disk | Security Policy | P1 |
+| F-SEC-02 | Sensitive Log Redaction | Safe diagnostic logging | Automatic filtering and masking of tokens, session IDs, passwords, and private IPs | Log Sanitizer Specification | P1 |
+| F-SEC-03 | Telemetry Opt-Out | User privacy protection | Analytics and tracking endpoints disabled by default | `rest-d02.md` §2 | P1 |
+| F-SEC-04 | Honest Client Fingerprint | Transparent network identity | Transparent and configurable `X-Super-Properties` headers without anti-abuse spoofing | `rest-d02.md` §6.2 | P1 |
+| F-SEC-05 | Cryptographic Update Signing | Update package integrity | Ed25519 cryptographic signatures on update manifests and release binaries | Architectural Plan | P8 |
+| F-SEC-06 | Cleanroom Asset Licensing | Legal and copyright integrity | Original and permissively licensed open-source assets with zero proprietary distribution | Legal Framework | — |

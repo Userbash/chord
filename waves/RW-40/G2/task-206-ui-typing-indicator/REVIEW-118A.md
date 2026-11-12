@@ -22,6 +22,6 @@
 - P2: в рабочем дереве нет trim `displayName` в prune — по REPORT это осознанно (обрезка в форматтере); строка `getTypingText`-пути тогда покажет имя с пробелами.
 - P3: `Number(raw.startedAtMs)` принимает numeric string; тест это не фиксирует.
 - P3: соседний `formatTypingText` даёт `…`, новый `formatTypingIndicatorRu` — ASCII `...`; расхождение задокументировано в REPORT, унификация отдельной карточкой.
-- Копия в `/home/sanya/orca/project` (md5 `8c50cf9b...`) — другая ревизия без task-206; ревью относится к ветке воркера.
+- Копия в `/home/user/orca/project` (md5 `8c50cf9b...`) — другая ревизия без task-206; ревью относится к ветке воркера.
 
 Тесты не ослаблялись, `git commit` не делал.

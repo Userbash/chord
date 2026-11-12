@@ -4,12 +4,12 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-228` (`BE-P1-21`) — Rust Guild Invites & Vanity Code BFF Contract (`ALLOWED_INVITE_MAX_AGES`, `ALLOWED_INVITE_MAX_USES`, `CreateChannelInviteRequest`, `validate_invite_code`, `build_invite_resolve_route`, `build_create_channel_invite_route_and_body`).
-- **Ветка / worktree**: `feature/task-228-be-invites-contract`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-228-be-invites-contract`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/invites.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/invites_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-228-be-invites-contract/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-228-be-invites-contract/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Что сделано
 
@@ -29,7 +29,7 @@
 
 ## 3. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-228-be-invites-contract/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-228-be-invites-contract/red.log`:
 
 ```text
 error[E0432]: unresolved imports `discord_gui_spike::invites::build_create_channel_invite_route_and_body`, `discord_gui_spike::invites::build_invite_resolve_route`, `discord_gui_spike::invites::validate_invite_code`, `discord_gui_spike::invites::CreateChannelInviteRequest`, `discord_gui_spike::invites::ALLOWED_INVITE_MAX_AGES`, `discord_gui_spike::invites::ALLOWED_INVITE_MAX_USES`
@@ -40,7 +40,7 @@ EXIT_CODE=101
 
 ## 4. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-228-be-invites-contract/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-228-be-invites-contract/green.log`:
 
 ```text
 running 25 tests

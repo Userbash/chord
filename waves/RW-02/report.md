@@ -5,8 +5,8 @@
 ## Отчёт по PROCESS.md §4.2
 
 **сделано**
-- `tests/data/synth-zstd-frame.hexl` скопирован из `/home/sanya/re-deep/gw-proto/`, md5 совпал с эталоном ТЗ (`0a7742ae…`).
-- `tests/zstd_stream.rs` — 9 кейсов из ТЗ, только публичный API (`ZstdStream`, `ZstdError`, `etf`), оракулы независимые: hex-константы ТЗ (HELLO, терм payload ×4096), lab-файлы `{RE_LAB_ROOT:-/home/sanya/re-deep}/gw-proto/*.hexl` (skip-aware: нет файла → `eprintln!("skip: …")` + return; прочие ошибки чтения не глотаются).
+- `tests/data/synth-zstd-frame.hexl` скопирован из `reference-oracle/gw-proto/`, md5 совпал с эталоном ТЗ (`0a7742ae…`).
+- `tests/zstd_stream.rs` — 9 кейсов из ТЗ, только публичный API (`ZstdStream`, `ZstdError`, `etf`), оракулы независимые: hex-константы ТЗ (HELLO, терм payload ×4096), lab-файлы `{RE_LAB_ROOT:-reference-oracle/}/gw-proto/*.hexl` (skip-aware: нет файла → `eprintln!("skip: …")` + return; прочие ошибки чтения не глотаются).
 - `src/zstd.rs` — реализация: один `FrameDecoder` на поток, `pending`, флаг магии, переиспользуемый буфер выдачи 64 КиБ; доккомментарии по-русски (семантика Err/терминальности, удержание окна 64 КиБ: 824 816 − 65 536 = 759 280, переподключение = новый `ZstdStream`).
 - `src/lib.rs` — точечно: `pub mod zstd;`, `pub use zstd::{ZstdError, ZstdStream};`, строка статуса (строки 9–10) обновлена на «прототип (RW-02/P0-03; T-ENC-04)».
 - Факты ТЗ перепроверены независимо (Node): 137 строк/104 066 Б сжатых, 44 терма/смещение 758 576/остаток 704, 8158 = 74 Б без магии; payload md5 `4dbd601d…` совпал; скан порчи индекса 12 подтверждён (`MalformedSectionHeader { expected_len: 7456, remaining_bytes: 40 }`).
@@ -21,7 +21,7 @@
 - `cargo fmt -p discord-codec` → затем `--check` → exit 0 (другие крейты не форматировались; mtime `etf.rs`/прочих не менялся).
 Логи: `green.txt`, `green-crate.txt`, `clippy.txt`, `fmt.txt` в `/tmp/opencode/rw-02/`.
 
-**gate:worker** — `npm run gate:worker` → **passed** (typecheck ✔; meta 22/22; unit 169/169; smoke 20/20; skip 0). Артефакт: `/home/sanya/orca/project/.gate/worker-2026-10-19T11-27-32-889Z.json`. Лог: `gate.txt`.
+**gate:worker** — `npm run gate:worker` → **passed** (typecheck ✔; meta 22/22; unit 169/169; smoke 20/20; skip 0). Артефакт: `/home/user/orca/project/.gate/worker-2026-10-19T11-27-32-889Z.json`. Лог: `gate.txt`.
 
 **файлы (только из ТЗ; Cargo.toml/Cargo.lock не трогались)**
 

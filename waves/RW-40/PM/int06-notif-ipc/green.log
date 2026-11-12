@@ -1,5 +1,5 @@
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.08s
      Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-3d1478e09f262dd5)
 
@@ -24,7 +24,7 @@ running 0 tests
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s
 
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --lib --bins --test notifications_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.76s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
 
@@ -69,7 +69,7 @@ test oracle_ready_and_rest_static_parity_for_user_guild_settings ... ok
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
 $ (cd rust/gui-spike && cargo clippy --offline -p discord-gui-spike --lib --bins --test ipc_wiring_contract -- -D warnings)
-    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Checking discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.52s
 $ rustfmt --edition 2021 --check rust/gui-spike/src/main.rs rust/gui-spike/tests/ipc_wiring_contract.rs
 $ node --test tests/meta/ipc-path.test.mjs

@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-220` (`feature/task-220-ui-member-list`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/frontend-d03.md` (§3 «Участники (правый сайдбар)»: `aside[class*=membersWrap]`, группы `NAME — COUNT`, строки участников), `/home/sanya/re-deep/ui8/22-members.json`.
+- **Оракулы**: `reference-oracle/frontend-d03.md` (§3 «Участники (правый сайдбар)»: `aside[class*=membersWrap]`, группы `NAME — COUNT`, строки участников), `reference-oracle/ui8/22-members.json`.
 
 ## Сделано
 1. `tests/unit/member-list.test.mjs` (Red → Green, 7 тестов в 2 suites, `// @ts-check` + JSDoc, минимальный DOM-шим):
@@ -21,8 +21,8 @@
    - экспортированы `DEFAULT_GROUP_LABELS_RU`, `groupMembersByHoistedRole` и `createMemberListController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/member-list.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-220-ui-member-list/red.log`.
-- **Green**: `node --test tests/unit/member-list.test.mjs` → `tests 7, suites 2, pass 7, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-220-ui-member-list/green.log`.
+- **Red**: `node --test tests/unit/member-list.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-220-ui-member-list/red.log`.
+- **Green**: `node --test tests/unit/member-list.test.mjs` → `tests 7, suites 2, pass 7, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-220-ui-member-list/green.log`.
 - **Typecheck (targeted)**: `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` (`0 errors`) и `0 errors` в `member-list.js` / `member-list.test.mjs` при проверке `npx tsc -p tsconfig.json --noEmit`.
 - **Gate**: полный `gate:worker` не запускался (режим ТЗ карточки); чужие файлы не затронуты.
 
@@ -30,8 +30,8 @@
 ```
 e91643fa1484861b4f60d1dee992b026  rust/gui-spike/ui/features/member-list.js
 60cf19aaf0219e548c98b7646dcb5558  tests/unit/member-list.test.mjs
-56bf942f6ce3da61a584e5b2f272fa88  /home/sanya/orca/project/waves/RW-40/G2/task-220-ui-member-list/red.log
-08e4edb6648105f21b28ead4bce491cf  /home/sanya/orca/project/waves/RW-40/G2/task-220-ui-member-list/green.log
+56bf942f6ce3da61a584e5b2f272fa88  /home/user/orca/project/waves/RW-40/G2/task-220-ui-member-list/red.log
+08e4edb6648105f21b28ead4bce491cf  /home/user/orca/project/waves/RW-40/G2/task-220-ui-member-list/green.log
 ```
 
 ## Риски

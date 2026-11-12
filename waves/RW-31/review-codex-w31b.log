@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,21 +11,21 @@ reasoning summaries: none
 session id: 01a164c8-cdfb-7532-9c20-9189605d73a4
 --------
 user
-Независимое ревью RW-31/P2-03 SQLite-store (FFI к системному libsqlite3). ЖЁСТКИЕ ПРАВИЛА: (1) НЕ редактируй /home/sanya/orca/project; (2) писать только в /tmp/opencode/w31b-codex, НЕ копируй весь workspace (без target/.git); (3) CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31b; (4) без сети/git commit. Проверь: waves/RW-31/TZ-W31b.md; SQLITE-DECISION.md; discord-store/src/{lib.rs,ffi.rs}; Cargo.toml (только unsafe_code=deny); tests/store_contract.rs; waves/RW-31/sqlite/oracle.py; логи workers/W31b; run-mutations-w31b.py; mutations-w31b.log; REPORT-W31b.md. Воспроизведи targeted-тесты (14) в своём target-dir; мутации в /tmp-копии (7/7, restore по md5, baseline без SKIP, --nocapture); независимо проверь БД Python sqlite3 (user_version, схема, FK, порядок/keyset, отсутствие дублей), утечки prepared statements, корректность bind (никакой конкатенации), обработку ошибок/NUL/больших значений, отсутствие unsafe вне ffi.rs и SAFETY-комментарии, md5 в отчёте. В конце вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
+Независимое ревью RW-31/P2-03 SQLite-store (FFI к системному libsqlite3). ЖЁСТКИЕ ПРАВИЛА: (1) НЕ редактируй /home/user/orca/project; (2) писать только в /tmp/opencode/w31b-codex, НЕ копируй весь workspace (без target/.git); (3) CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31b; (4) без сети/git commit. Проверь: waves/RW-31/TZ-W31b.md; SQLITE-DECISION.md; discord-store/src/{lib.rs,ffi.rs}; Cargo.toml (только unsafe_code=deny); tests/store_contract.rs; waves/RW-31/sqlite/oracle.py; логи workers/W31b; run-mutations-w31b.py; mutations-w31b.log; REPORT-W31b.md. Воспроизведи targeted-тесты (14) в своём target-dir; мутации в /tmp-копии (7/7, restore по md5, baseline без SKIP, --nocapture); независимо проверь БД Python sqlite3 (user_version, схема, FK, порядок/keyset, отсутствие дублей), утечки prepared statements, корректность bind (никакой конкатенации), обработку ошибок/NUL/больших значений, отсутствие unsafe вне ffi.rs и SAFETY-комментарии, md5 в отчёте. В конце вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала сверю HEAD и чистоту назначенных файлов, затем прочитаю контекст и только указанные материалы. Ревью и любые временные мутации буду выполнять исключительно в `/tmp/opencode/w31b-codex`, с отдельным `CARGO_TARGET_DIR`.
 exec
-/usr/bin/bash -lc "git rev-parse HEAD && git status --short && sed -n '1,180p' PROJECT-CONTEXT.md && rg -n 'RW-31|W31b|P2-03' TASKS.md PROCESS.md TEAM.md waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "git rev-parse HEAD && git status --short && sed -n '1,180p' PROJECT-CONTEXT.md && rg -n 'RW-31|W31b|P2-03' TASKS.md PROCESS.md TEAM.md waves/STATE.md" in /home/user/orca/project
  exited 2 in 0ms:
 171a6d597620cc99c9bfb35f9c1121c0e9336364
  M rust/crates/discord-platform/src/lib.rs
@@ -61,7 +61,7 @@ exec
 
 ## Состояние
 
-- `/home/sanya/orca/project`, `main`, HEAD `ebf5efd`; принятые волны RW-10…RW-29 закоммичены и запушены; RW-30 — коммит
+- `/home/user/orca/project`, `main`, HEAD `ebf5efd`; принятые волны RW-10…RW-29 закоммичены и запушены; RW-30 — коммит
   следующим шагом; коммиты/пуш — координатор.
 - **Принято 42 / 90** карточек (хвосты P7-01b/c/d/e в 90 не входят). Последние волны 2026-10-22:
   - **RW-30**: P7-01d DurationFormat, P6-02 D-Bus-уведомления (headless, без новых крейтов);
@@ -91,7 +91,7 @@ exec
 ## Правила (кратко)
 
 - Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
-- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение.
 - Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
 - Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
 
@@ -114,8 +114,8 @@ MCP: rea, socraticode, github, basic-memory, context7.
   `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
   ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
 - RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
-  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
-  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+  `/home/user/clean-room-oracle/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/user/qwen-uncens` из запроса не существует.
 - P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
   `ru-RU`-fallback) — в `waves/STATE.md` §7.
 rg: TEAM.md: No such file or directory (os error 2)
@@ -129,7 +129,7 @@ TASKS.md:41:headless-остатки — P6-06 (power/idle) и P2-03 (SQLite че
 codex
 Рабочее дерево уже содержит незакоммиченные артефакты RW-31 и изменения в `discord-store`; считаю их предметом ревью и не буду менять. Применяю `discord-lab-context` для навигации по репозиторию, затем соберу в `/tmp` только минимальный Cargo workspace и перечисленные материалы, нужные для воспроизведения.
 exec
-/usr/bin/bash -lc "sed -n '1,180p' .agents/skills/discord-lab-context/SKILL.md; rg --files waves/RW-31 rust | rg '(RW-31/(TZ-W31b|SQLITE-DECISION|REPORT-W31b|mutations-w31b|run-mutations-w31b|sqlite/oracle|workers/W31b)|discord-store/(src/(lib|ffi)\\.rs|tests/store_contract\\.rs|Cargo\\.toml)|rust/Cargo\\.toml)"'$'"'" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,180p' .agents/skills/discord-lab-context/SKILL.md; rg --files waves/RW-31 rust | rg '(RW-31/(TZ-W31b|SQLITE-DECISION|REPORT-W31b|mutations-w31b|run-mutations-w31b|sqlite/oracle|workers/W31b)|discord-store/(src/(lib|ffi)\\.rs|tests/store_contract\\.rs|Cargo\\.toml)|rust/Cargo\\.toml)"'$'"'" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -166,7 +166,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -192,7 +192,7 @@ rust/crates/discord-store/src/ffi.rs
 rust/crates/discord-store/src/lib.rs
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' waves/RW-31/TZ-W31b.md; sed -n '1,220p' waves/RW-31/SQLITE-DECISION.md; sed -n '1,260p' rust/crates/discord-store/src/lib.rs; sed -n '1,300p' rust/crates/discord-store/src/ffi.rs; sed -n '1,260p' rust/crates/discord-store/tests/store_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' waves/RW-31/TZ-W31b.md; sed -n '1,220p' waves/RW-31/SQLITE-DECISION.md; sed -n '1,260p' rust/crates/discord-store/src/lib.rs; sed -n '1,300p' rust/crates/discord-store/src/ffi.rs; sed -n '1,260p' rust/crates/discord-store/tests/store_contract.rs" in /home/user/orca/project
  succeeded in 0ms:
 # TZ W31b — P2-03 SQLite-store через FFI к системному libsqlite3
 
@@ -1180,7 +1180,7 @@ fn s05_keyset_pagination_is_strict_and_gapless() {
 codex
 Контракт требует 14 целевых тестов, а проверка на больших значениях и NUL должна различать допустимые значения и C-строковые ограничения. Сейчас изучаю остаток реализации, FFI Drop/finalize и mutation runner, после чего запущу тесты из изолированной копии.
 exec
-/usr/bin/bash -lc "sed -n '180,520p' rust/crates/discord-store/src/lib.rs; sed -n '180,520p' rust/crates/discord-store/src/ffi.rs; sed -n '1,100p' rust/crates/discord-store/Cargo.toml; sed -n '1,160p' rust/Cargo.toml; sed -n '1,160p' waves/RW-31/sqlite/oracle.py; sed -n '1,220p' waves/RW-31/run-mutations-w31b.py; sed -n '1,100p' waves/RW-31/REPORT-W31b.md; rg --files waves/RW-31/workers" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '180,520p' rust/crates/discord-store/src/lib.rs; sed -n '180,520p' rust/crates/discord-store/src/ffi.rs; sed -n '1,100p' rust/crates/discord-store/Cargo.toml; sed -n '1,160p' rust/Cargo.toml; sed -n '1,160p' waves/RW-31/sqlite/oracle.py; sed -n '1,220p' waves/RW-31/run-mutations-w31b.py; sed -n '1,100p' waves/RW-31/REPORT-W31b.md; rg --files waves/RW-31/workers" in /home/user/orca/project
  succeeded in 0ms:
 }
 
@@ -2290,7 +2290,7 @@ waves/RW-31/workers/W31a/red.log
 waves/RW-31/workers/W31a/green.log
 
 exec
-/usr/bin/bash -lc "sed -n '1,200p' rust/crates/discord-store/src/ffi.rs; sed -n '200,440p' rust/crates/discord-store/src/ffi.rs; sed -n '1,100p' rust/crates/discord-store/Cargo.toml; sed -n '1,100p' rust/Cargo.toml; rg -n '"'^#'"\\[test\\]|"'^fn s|''^def |''^    def test|SKIP|keyset|PRAGMA|CREATE TABLE|index'"' rust/crates/discord-store/tests/store_contract.rs waves/RW-31/sqlite/oracle.py; sed -n '1,100p' waves/RW-31/workers/W31b/red.log; tail -n 45 waves/RW-31/workers/W31b/green.log; rg -n 'Cargo.toml|md5|targeted|мутац|restore|unsafe' waves/RW-31/REPORT-W31b.md; git diff -- rust/crates/discord-store/Cargo.toml" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,200p' rust/crates/discord-store/src/ffi.rs; sed -n '200,440p' rust/crates/discord-store/src/ffi.rs; sed -n '1,100p' rust/crates/discord-store/Cargo.toml; sed -n '1,100p' rust/Cargo.toml; rg -n '"'^#'"\\[test\\]|"'^fn s|''^def |''^    def test|SKIP|keyset|PRAGMA|CREATE TABLE|index'"' rust/crates/discord-store/tests/store_contract.rs waves/RW-31/sqlite/oracle.py; sed -n '1,100p' waves/RW-31/workers/W31b/red.log; tail -n 45 waves/RW-31/workers/W31b/green.log; rg -n 'Cargo.toml|md5|targeted|мутац|restore|unsafe' waves/RW-31/REPORT-W31b.md; git diff -- rust/crates/discord-store/Cargo.toml" in /home/user/orca/project
  succeeded in 0ms:
 //! Тонкая обёртка над системным `libsqlite3` — единственное место крейта, где есть `unsafe`.
 //!
@@ -2852,7 +2852,7 @@ rust/crates/discord-store/tests/store_contract.rs:611:fn s13_nul_rejected_and_la
 rust/crates/discord-store/tests/store_contract.rs:645:#[test]
 rust/crates/discord-store/tests/store_contract.rs:646:fn s14_unknown_cursor_yields_empty_page() {
 rust/crates/discord-store/tests/store_contract.rs:742:        .map(|index| u8::from_str_radix(&text[index..index + 2], 16).expect("hex-байт"))
-   Compiling discord-store v0.1.0 (/home/sanya/orca/project/rust/crates/discord-store)
+   Compiling discord-store v0.1.0 (/home/user/orca/project/rust/crates/discord-store)
 error[E0432]: unresolved imports `discord_store::ChannelRow`, `discord_store::MessageRow`, `discord_store::Store`, `discord_store::StoreError`
   --> crates/discord-store/tests/store_contract.rs:11:21
    |
@@ -2946,9 +2946,9 @@ exec
 Failed to create unified exec process: No such file or directory (os error 2)
 2026-10-22T18:04:39.257966Z ERROR codex_core::tools::router: error=exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: No such file or directory (os error 2)\")" }
 exec
-/usr/bin/bash -lc 'mkdir -p /tmp/opencode/w31b-codex/rust/crates/discord-store/src /tmp/opencode/w31b-codex/rust/crates/discord-store/tests /tmp/opencode/w31b-codex/waves/RW-31/sqlite /tmp/opencode/w31b-codex/waves/RW-31/workers/W31b && cp rust/Cargo.toml rust/Cargo.lock /tmp/opencode/w31b-codex/rust/ && cp rust/crates/discord-store/Cargo.toml /tmp/opencode/w31b-codex/rust/crates/discord-store/ && cp rust/crates/discord-store/src/lib.rs rust/crates/discord-store/src/ffi.rs /tmp/opencode/w31b-codex/rust/crates/discord-store/src/ && cp rust/crates/discord-store/tests/store_contract.rs /tmp/opencode/w31b-codex/rust/crates/discord-store/tests/ && cp waves/RW-31/run-mutations-w31b.py waves/RW-31/sqlite/oracle.py /tmp/opencode/w31b-codex/waves/RW-31/ && cp waves/RW-31/workers/W31b/red.log waves/RW-31/workers/W31b/green.log /tmp/opencode/w31b-codex/waves/RW-31/workers/W31b && CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31b cargo test --offline -p discord-store --test store_contract -- --nocapture' in /home/sanya/orca/project
+/usr/bin/bash -lc 'mkdir -p /tmp/opencode/w31b-codex/rust/crates/discord-store/src /tmp/opencode/w31b-codex/rust/crates/discord-store/tests /tmp/opencode/w31b-codex/waves/RW-31/sqlite /tmp/opencode/w31b-codex/waves/RW-31/workers/W31b && cp rust/Cargo.toml rust/Cargo.lock /tmp/opencode/w31b-codex/rust/ && cp rust/crates/discord-store/Cargo.toml /tmp/opencode/w31b-codex/rust/crates/discord-store/ && cp rust/crates/discord-store/src/lib.rs rust/crates/discord-store/src/ffi.rs /tmp/opencode/w31b-codex/rust/crates/discord-store/src/ && cp rust/crates/discord-store/tests/store_contract.rs /tmp/opencode/w31b-codex/rust/crates/discord-store/tests/ && cp waves/RW-31/run-mutations-w31b.py waves/RW-31/sqlite/oracle.py /tmp/opencode/w31b-codex/waves/RW-31/ && cp waves/RW-31/workers/W31b/red.log waves/RW-31/workers/W31b/green.log /tmp/opencode/w31b-codex/waves/RW-31/workers/W31b && CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31b cargo test --offline -p discord-store --test store_contract -- --nocapture' in /home/user/orca/project
  exited 101 in 0ms:
-error: could not find `Cargo.toml` in `/home/sanya/orca/project` or any parent directory
+error: could not find `Cargo.toml` in `/home/user/orca/project` or any parent directory
 
 exec
 /usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31b cargo test --offline -p discord-store --test store_contract -- --nocapture' in /tmp/opencode/w31b-codex/rust
@@ -2990,7 +2990,7 @@ error: test failed, to rerun pass `-p discord-store --test store_contract`
 codex
 Первый изолированный прогон выявил только ошибку моей раскладки временной копии: тест ожидает оракул в `waves/RW-31/sqlite/oracle.py`, а файл оказался уровнем выше. Исправлю расположение внутри `/tmp` и повторю targeted-прогон; исходный workspace не менялся.
 exec
-/usr/bin/bash -lc 'cp /home/sanya/orca/project/waves/RW-31/sqlite/oracle.py /tmp/opencode/w31b-codex/waves/RW-31/sqlite/oracle.py && CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31b cargo test --offline -p discord-store --test store_contract -- --nocapture' in /tmp/opencode/w31b-codex/rust
+/usr/bin/bash -lc 'cp /home/user/orca/project/waves/RW-31/sqlite/oracle.py /tmp/opencode/w31b-codex/waves/RW-31/sqlite/oracle.py && CARGO_TARGET_DIR=/tmp/opencode/target-codex-w31b cargo test --offline -p discord-store --test store_contract -- --nocapture' in /tmp/opencode/w31b-codex/rust
  succeeded in 0ms:
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
      Running tests/store_contract.rs (/tmp/opencode/target-codex-w31b/debug/deps/store_contract-c31bf509e85e802b)
@@ -3072,7 +3072,7 @@ md5 после restore: b9016340be1146f8dca889a22b95c7e7 — OK
 codex
 Изолированный targeted-прогон зелёный (14/14, без SKIP); Python 3.54 независимо подтвердил version, схему/индексы, FK, порядок и keyset. Mutation runner убил 6 мутаций, но 7-я не запустилась: поисковый фрагмент `soft_delete_flag_cleared` не совпадает с форматированием исходника. Проверю причину и воспроизведу её в копии, не меняя runner или исходник в проекте.
 exec
-/usr/bin/bash -lc "rg -n -C 4 'UPDATE messages|soft_delete_flag_cleared|md5|## 6|## 7|baseline' rust/crates/discord-store/src/lib.rs waves/RW-31/run-mutations-w31b.py waves/RW-31/mutations-w31b.log waves/RW-31/REPORT-W31b.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -C 4 'UPDATE messages|soft_delete_flag_cleared|md5|## 6|## 7|baseline' rust/crates/discord-store/src/lib.rs waves/RW-31/run-mutations-w31b.py waves/RW-31/mutations-w31b.log waves/RW-31/REPORT-W31b.md" in /home/user/orca/project
  succeeded in 0ms:
 waves/RW-31/REPORT-W31b.md-97-если `python3`/`sqlite3` нет (проверено прогоном бинарника с `PATH=/nonexistent`: 1 passed,
 waves/RW-31/REPORT-W31b.md-98-SKIP в выводе). Отсутствие `libsqlite3` проявилось бы на этапе линковки (это не runtime-skip);
@@ -3291,7 +3291,7 @@ waves/RW-31/run-mutations-w31b.py-216-    lines.append("## Итог")
 waves/RW-31/run-mutations-w31b.py-217-    lines.append("мутаций: %d" % len(MUTATIONS))
 
 exec
-/usr/bin/bash -lc "sed -n '600,700p' rust/crates/discord-store/tests/store_contract.rs; sed -n '1,200p' waves/RW-31/sqlite/oracle.py; rg -n 'unsafe|SAFETY:' rust/crates/discord-store/src rust/crates/discord-store/Cargo.toml; md5sum rust/crates/discord-store/src/lib.rs rust/crates/discord-store/src/ffi.rs rust/crates/discord-store/Cargo.toml rust/crates/discord-store/tests/store_contract.rs waves/RW-31/sqlite/oracle.py waves/RW-31/run-mutations-w31b.py waves/RW-31/workers/W31b/*.log; rg -n 'safety|before|cursor|курсор|migration|no-op|NUL|больш|ошиб' waves/RW-31/TZ-W31b.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '600,700p' rust/crates/discord-store/tests/store_contract.rs; sed -n '1,200p' waves/RW-31/sqlite/oracle.py; rg -n 'unsafe|SAFETY:' rust/crates/discord-store/src rust/crates/discord-store/Cargo.toml; md5sum rust/crates/discord-store/src/lib.rs rust/crates/discord-store/src/ffi.rs rust/crates/discord-store/Cargo.toml rust/crates/discord-store/tests/store_contract.rs waves/RW-31/sqlite/oracle.py waves/RW-31/run-mutations-w31b.py waves/RW-31/workers/W31b/*.log; rg -n 'safety|before|cursor|курсор|migration|no-op|NUL|больш|ошиб' waves/RW-31/TZ-W31b.md" in /home/user/orca/project
  succeeded in 0ms:
         [format!(
             "ch-1|g-1|{}|0|2",
@@ -3735,7 +3735,7 @@ index 3797662fe3606fa900bab67aa654efb69711ff1d..fc83b590868188cbc07853b2269fda8a
      ),
 
 exec
-/usr/bin/bash -lc "cp /home/sanya/orca/project/waves/RW-31/REPORT-W31b.md /tmp/opencode/w31b-codex/waves/RW-31/REPORT-W31b.md && cat waves/RW-31/mutations-w31b.log && rg -n 'md5|"'`rust/'"' waves/RW-31/REPORT-W31b.md; md5sum rust/crates/discord-store/src/lib.rs rust/crates/discord-store/src/ffi.rs rust/crates/discord-store/Cargo.toml rust/crates/discord-store/tests/store_contract.rs waves/RW-31/sqlite/oracle.py waves/RW-31/run-mutations-w31b.py waves/RW-31/mutations-w31b.log waves/RW-31/workers/W31b/red.log waves/RW-31/workers/W31b/green.log" in /tmp/opencode/w31b-codex
+/usr/bin/bash -lc "cp /home/user/orca/project/waves/RW-31/REPORT-W31b.md /tmp/opencode/w31b-codex/waves/RW-31/REPORT-W31b.md && cat waves/RW-31/mutations-w31b.log && rg -n 'md5|"'`rust/'"' waves/RW-31/REPORT-W31b.md; md5sum rust/crates/discord-store/src/lib.rs rust/crates/discord-store/src/ffi.rs rust/crates/discord-store/Cargo.toml rust/crates/discord-store/tests/store_contract.rs waves/RW-31/sqlite/oracle.py waves/RW-31/run-mutations-w31b.py waves/RW-31/mutations-w31b.log waves/RW-31/workers/W31b/red.log waves/RW-31/workers/W31b/green.log" in /tmp/opencode/w31b-codex
  succeeded in 0ms:
 # W31b — мутации SQLite-store (`discord-store/src/lib.rs`)
 
@@ -4479,7 +4479,7 @@ index 3797662fe3606fa900bab67aa654efb69711ff1d..fc83b590868188cbc07853b2269fda8a
      ),
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-store/src/lib.rs | sed -n '225,280p'; nl -ba rust/crates/discord-store/src/lib.rs | sed -n '370,405p'; nl -ba waves/RW-31/REPORT-W31b.md | sed -n '115,150p'; nl -ba waves/RW-31/run-mutations-w31b.py | sed -n '70,80p'; md5sum rust/crates/discord-store/src/lib.rs rust/crates/discord-store/src/ffi.rs rust/crates/discord-store/Cargo.toml rust/crates/discord-store/tests/store_contract.rs waves/RW-31/sqlite/oracle.py waves/RW-31/run-mutations-w31b.py waves/RW-31/mutations-w31b.log waves/RW-31/workers/W31b/red.log waves/RW-31/workers/W31b/green.log" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-store/src/lib.rs | sed -n '225,280p'; nl -ba rust/crates/discord-store/src/lib.rs | sed -n '370,405p'; nl -ba waves/RW-31/REPORT-W31b.md | sed -n '115,150p'; nl -ba waves/RW-31/run-mutations-w31b.py | sed -n '70,80p'; md5sum rust/crates/discord-store/src/lib.rs rust/crates/discord-store/src/ffi.rs rust/crates/discord-store/Cargo.toml rust/crates/discord-store/tests/store_contract.rs waves/RW-31/sqlite/oracle.py waves/RW-31/run-mutations-w31b.py waves/RW-31/mutations-w31b.log waves/RW-31/workers/W31b/red.log waves/RW-31/workers/W31b/green.log" in /home/user/orca/project
  succeeded in 0ms:
    225	    /// Создаёт схему v1 и выставляет `user_version = 1`. Идемпотентно.
    226	    ///
@@ -4649,7 +4649,7 @@ index 3797662fe3606fa900bab67aa654efb69711ff1d..fc83b590868188cbc07853b2269fda8a
 codex
 Адаптированный только во временной копии runner завершил все 7 мутаций: baseline `exit=0`, `SKIP=0`, каждая мутация убита, `lib.rs` после каждого restore совпал по md5 `b901…`. Следовательно, тесты ловят дефекты, но поставленный в репозитории runner сейчас не может воспроизвести результат из отчёта из-за несовпадения шаблона; текущие хэши двух source-файлов и теста также расходятся с таблицей отчёта.
 exec
-/usr/bin/bash -lc "sed -n '1,150p' waves/RW-31/mutations-w31b.log; sed -n '1,35p' waves/RW-31/workers/W31b/green.log; sed -n '1,35p' waves/RW-31/workers/W31b/red.log; rg -n '"'^unsafe| unsafe|unsafe '"\\{' rust/crates/discord-store/src/*.rs; rg -n '"'^'"\\s*// SAFETY:' rust/crates/discord-store/src/ffi.rs | wc -l; rg -n 'unsafe \\{' rust/crates/discord-store/src/ffi.rs | wc -l;" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,150p' waves/RW-31/mutations-w31b.log; sed -n '1,35p' waves/RW-31/workers/W31b/green.log; sed -n '1,35p' waves/RW-31/workers/W31b/red.log; rg -n '"'^unsafe| unsafe|unsafe '"\\{' rust/crates/discord-store/src/*.rs; rg -n '"'^'"\\s*// SAFETY:' rust/crates/discord-store/src/ffi.rs | wc -l; rg -n 'unsafe \\{' rust/crates/discord-store/src/ffi.rs | wc -l;" in /home/user/orca/project
  succeeded in 0ms:
 # W31b — мутации SQLite-store (`discord-store/src/lib.rs`)
 
@@ -4725,7 +4725,7 @@ md5 после restore: b1aa67ff5017fca6dbeda02838949aec — OK
 мутаций: 7
 все мутации убиты, все файлы восстановлены
 # cmd: cd rust && CARGO_TARGET_DIR=/tmp/opencode/target-w31b cargo test --offline -p discord-store --test store_contract -- --nocapture
-   Compiling discord-store v0.1.0 (/home/sanya/orca/project/rust/crates/discord-store)
+   Compiling discord-store v0.1.0 (/home/user/orca/project/rust/crates/discord-store)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running tests/store_contract.rs (/tmp/opencode/target-w31b/debug/deps/store_contract-c31bf509e85e802b)
 
@@ -4759,7 +4759,7 @@ column=channels|position|INTEGER|1|0
 table=kv
 column=kv|key|TEXT|1|1
 column=kv|value|TEXT|1|0
-   Compiling discord-store v0.1.0 (/home/sanya/orca/project/rust/crates/discord-store)
+   Compiling discord-store v0.1.0 (/home/user/orca/project/rust/crates/discord-store)
 error[E0432]: unresolved imports `discord_store::ChannelRow`, `discord_store::MessageRow`, `discord_store::Store`, `discord_store::StoreError`
   --> crates/discord-store/tests/store_contract.rs:11:21
    |
@@ -4823,8 +4823,8 @@ codex
 
 **P2**
 
-- Runner не воспроизводит заявленные 7/7 мутаций на текущем исходнике: шаблон soft delete в [run-mutations-w31b.py](/home/sanya/orca/project/waves/RW-31/run-mutations-w31b.py:75) не совпадает с форматированием `lib.rs`, и runner останавливается на мутации 05. В копии под `/tmp` я адаптировал только этот шаблон: baseline прошёл с `SKIP=0`, все 7 мутаций были убиты, после каждого восстановления md5 `lib.rs` совпадал (`b9016340be1146f8dca889a22b95c7e7`). Обновить runner и сохранить актуальный результат.
-- md5 в таблице [REPORT-W31b.md](/home/sanya/orca/project/waves/RW-31/REPORT-W31b.md:138) устарели для трёх файлов: `lib.rs` сейчас `b9016340be1146f8dca889a22b95c7e7` вместо `b1aa67ff5017fca6dbeda02838949aec`; `ffi.rs` — `cb95e6833354bf60099dd50a894555dc` вместо `57dec43220e3a28bd556ed03a9f7f588`; тест — `5a5c671a5751b2e71d038673f2eecfe2` вместо `941331a1b584767cd23d37a830dc0d4b`. Остальные перечисленные в отчёте md5 совпали.
+- Runner не воспроизводит заявленные 7/7 мутаций на текущем исходнике: шаблон soft delete в [run-mutations-w31b.py](/home/user/orca/project/waves/RW-31/run-mutations-w31b.py:75) не совпадает с форматированием `lib.rs`, и runner останавливается на мутации 05. В копии под `/tmp` я адаптировал только этот шаблон: baseline прошёл с `SKIP=0`, все 7 мутаций были убиты, после каждого восстановления md5 `lib.rs` совпадал (`b9016340be1146f8dca889a22b95c7e7`). Обновить runner и сохранить актуальный результат.
+- md5 в таблице [REPORT-W31b.md](/home/user/orca/project/waves/RW-31/REPORT-W31b.md:138) устарели для трёх файлов: `lib.rs` сейчас `b9016340be1146f8dca889a22b95c7e7` вместо `b1aa67ff5017fca6dbeda02838949aec`; `ffi.rs` — `cb95e6833354bf60099dd50a894555dc` вместо `57dec43220e3a28bd556ed03a9f7f588`; тест — `5a5c671a5751b2e71d038673f2eecfe2` вместо `941331a1b584767cd23d37a830dc0d4b`. Остальные перечисленные в отчёте md5 совпали.
 
 **Проверки**
 
@@ -4855,8 +4855,8 @@ tokens used
 
 **P2**
 
-- Runner не воспроизводит заявленные 7/7 мутаций на текущем исходнике: шаблон soft delete в [run-mutations-w31b.py](/home/sanya/orca/project/waves/RW-31/run-mutations-w31b.py:75) не совпадает с форматированием `lib.rs`, и runner останавливается на мутации 05. В копии под `/tmp` я адаптировал только этот шаблон: baseline прошёл с `SKIP=0`, все 7 мутаций были убиты, после каждого восстановления md5 `lib.rs` совпадал (`b9016340be1146f8dca889a22b95c7e7`). Обновить runner и сохранить актуальный результат.
-- md5 в таблице [REPORT-W31b.md](/home/sanya/orca/project/waves/RW-31/REPORT-W31b.md:138) устарели для трёх файлов: `lib.rs` сейчас `b9016340be1146f8dca889a22b95c7e7` вместо `b1aa67ff5017fca6dbeda02838949aec`; `ffi.rs` — `cb95e6833354bf60099dd50a894555dc` вместо `57dec43220e3a28bd556ed03a9f7f588`; тест — `5a5c671a5751b2e71d038673f2eecfe2` вместо `941331a1b584767cd23d37a830dc0d4b`. Остальные перечисленные в отчёте md5 совпали.
+- Runner не воспроизводит заявленные 7/7 мутаций на текущем исходнике: шаблон soft delete в [run-mutations-w31b.py](/home/user/orca/project/waves/RW-31/run-mutations-w31b.py:75) не совпадает с форматированием `lib.rs`, и runner останавливается на мутации 05. В копии под `/tmp` я адаптировал только этот шаблон: baseline прошёл с `SKIP=0`, все 7 мутаций были убиты, после каждого восстановления md5 `lib.rs` совпадал (`b9016340be1146f8dca889a22b95c7e7`). Обновить runner и сохранить актуальный результат.
+- md5 в таблице [REPORT-W31b.md](/home/user/orca/project/waves/RW-31/REPORT-W31b.md:138) устарели для трёх файлов: `lib.rs` сейчас `b9016340be1146f8dca889a22b95c7e7` вместо `b1aa67ff5017fca6dbeda02838949aec`; `ffi.rs` — `cb95e6833354bf60099dd50a894555dc` вместо `57dec43220e3a28bd556ed03a9f7f588`; тест — `5a5c671a5751b2e71d038673f2eecfe2` вместо `941331a1b584767cd23d37a830dc0d4b`. Остальные перечисленные в отчёте md5 совпали.
 
 **Проверки**
 

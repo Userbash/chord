@@ -40,9 +40,9 @@ test at tests/unit/gui-spike-regressions.test.mjs:292:3
   + 'listitem'
   - 'button'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:309:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:309:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:293:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -58,10 +58,10 @@ test at tests/unit/gui-spike-regressions.test.mjs:292:3
 test at tests/unit/gui-spike-regressions.test.mjs:330:3
 ✖ отображение отображаемого имени, тега/юзернейма, статуса и ролей участника (12.571066ms)
   AssertionError [ERR_ASSERTION]: нет #user-profile-popover
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:343:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:331:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:343:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:331:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -75,10 +75,10 @@ test at tests/unit/gui-spike-regressions.test.mjs:330:3
 test at tests/unit/gui-spike-regressions.test.mjs:358:3
 ✖ закрытие по кнопке закрытия возвращает фокус на триггер и сбрасывает aria-expanded (9.272195ms)
   AssertionError [ERR_ASSERTION]: нет #user-profile-popover
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:370:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:359:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:370:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:359:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -92,10 +92,10 @@ test at tests/unit/gui-spike-regressions.test.mjs:358:3
 test at tests/unit/gui-spike-regressions.test.mjs:384:3
 ✖ закрытие по клавише Escape возвращает фокус на триггер и сбрасывает aria-expanded (10.433159ms)
   AssertionError [ERR_ASSERTION]: нет #user-profile-popover
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:396:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:385:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:396:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:385:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -109,10 +109,10 @@ test at tests/unit/gui-spike-regressions.test.mjs:384:3
 test at tests/unit/gui-spike-regressions.test.mjs:409:3
 ✖ закрытие по клику вне поповера возвращает фокус на триггер и сбрасывает aria-expanded (9.789472ms)
   AssertionError [ERR_ASSERTION]: нет #user-profile-popover
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:421:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:410:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:421:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:410:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -126,10 +126,10 @@ test at tests/unit/gui-spike-regressions.test.mjs:409:3
 test at tests/unit/gui-spike-regressions.test.mjs:434:3
 ✖ клавиатурная активация по Enter и Space открывает поповер (10.192259ms)
   AssertionError [ERR_ASSERTION]: нет #user-profile-popover
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:446:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:435:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:446:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:435:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -148,9 +148,9 @@ test at tests/unit/gui-spike-regressions.test.mjs:461:3
   + 'member-profile-popover'
   - 'user-profile-popover'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:469:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:466:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:469:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:466:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -164,10 +164,10 @@ test at tests/unit/gui-spike-regressions.test.mjs:461:3
 test at tests/unit/gui-spike-regressions.test.mjs:497:3
 ✖ закрытие открытого поповера при переключении экрана (body[data-active-screen]) (9.939232ms)
   AssertionError [ERR_ASSERTION]: нет #user-profile-popover
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:509:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:498:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:509:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:498:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -181,10 +181,10 @@ test at tests/unit/gui-spike-regressions.test.mjs:497:3
 test at tests/unit/gui-spike-regressions.test.mjs:522:3
 ✖ закрытие открытого поповера при смене канала (9.747763ms)
   AssertionError [ERR_ASSERTION]: нет #user-profile-popover
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:534:23
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:523:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:75:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:534:23
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:53:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:523:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -198,7 +198,7 @@ test at tests/unit/gui-spike-regressions.test.mjs:522:3
 test at tests/unit/gui-spike-regressions.test.mjs:549:3
 ✖ стили members.css оформлены строго на токенах (без hex/rgb и без !important) (0.253409ms)
   AssertionError [ERR_ASSERTION]: нет селектора .profile-avatar-skeleton в members.css
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-regressions.test.mjs:558:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-regressions.test.mjs:558:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

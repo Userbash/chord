@@ -1,5 +1,5 @@
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --test ipc_wiring_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.97s
      Running tests/ipc_wiring_contract.rs (target/debug/deps/ipc_wiring_contract-46f8193065e72d2d)
 
@@ -17,7 +17,7 @@ test every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main ... ok
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 $ (cd rust/gui-spike && cargo test -p discord-gui-spike --lib --bins --test notifications_contract -- --nocapture)
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.59s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-bbbfe6ae5aee9125)
 
@@ -62,7 +62,7 @@ test oracle_ready_and_rest_static_parity_for_user_guild_settings ... ok
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
 $ (cd rust/gui-spike && cargo clippy --offline -p discord-gui-spike --lib --bins --test ipc_wiring_contract -- -D warnings)
-    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
+    Checking discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/bugfix-task-109-ipc-oracle-strict/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.34s
 $ rustfmt --edition 2021 --check rust/gui-spike/src/main.rs rust/gui-spike/tests/ipc_wiring_contract.rs
 $ node --test tests/meta/ipc-path.test.mjs

@@ -30,7 +30,7 @@
 test at tests/unit/app-shell-wiring.test.mjs:439:1
 ✖ app.js: импортирует createAppShellWiring и createComposerPopoversBridge из ./features (3.717662ms)
   AssertionError [ERR_ASSERTION]: нет импорта createAppShellWiring из ./features/app-shell-wiring.js
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:442:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:442:10)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -44,7 +44,7 @@ test at tests/unit/app-shell-wiring.test.mjs:439:1
 test at tests/unit/app-shell-wiring.test.mjs:454:1
 ✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.971981ms)
   AssertionError [ERR_ASSERTION]: в boot() не создан shellWiring через createAppShellWiring
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:457:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:457:10)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -67,7 +67,7 @@ test at tests/unit/app-shell-wiring.test.mjs:486:1
   -   'createComposerPopoversBridge'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:489:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:489:10)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

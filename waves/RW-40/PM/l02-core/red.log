@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error[E0599]: no method named `with_dispatch_handler` found for struct `SupervisorConfig` in the current scope
    --> crates/discord-core/tests/gateway_supervisor.rs:825:36
     |

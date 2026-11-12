@@ -367,9 +367,9 @@ test at tests/unit/gui-spike-features.test.mjs:2620:3
   
   null !== 'menu'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2623:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2621:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2623:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2621:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -385,11 +385,11 @@ test at tests/unit/gui-spike-features.test.mjs:2620:3
 test at tests/unit/gui-spike-features.test.mjs:2677:3
 ✖ keyboard: ↑/↓/Home/End, Escape закрывает и возвращает фокус, клик вне тоже (6.279402ms)
   AssertionError [ERR_ASSERTION]: нет #server-menu
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
-      at openServerMenu (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2680:18
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2678:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
+      at openServerMenu (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2680:18
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2678:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -403,10 +403,10 @@ test at tests/unit/gui-spike-features.test.mjs:2677:3
 test at tests/unit/gui-spike-features.test.mjs:2710:3
 ✖ owner: leave disabled, подтверждение не открывается и IPC не уходит (6.565538ms)
   AssertionError [ERR_ASSERTION]: нет .guild-item[data-guild="1"]
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2712:20
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2711:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2712:20
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2711:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -420,12 +420,12 @@ test at tests/unit/gui-spike-features.test.mjs:2710:3
 test at tests/unit/gui-spike-features.test.mjs:2726:3
 ✖ открытие confirm: alertdialog, безопасный фокус, отмена без IPC (8.265041ms)
   AssertionError [ERR_ASSERTION]: нет #server-menu
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
-      at openServerMenu (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
-      at openLeaveDialog (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2728:13
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2727:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
+      at openServerMenu (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
+      at openLeaveDialog (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2728:13
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2727:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -441,12 +441,12 @@ test at tests/unit/gui-spike-features.test.mjs:2726:3
 test at tests/unit/gui-spike-features.test.mjs:2750:3
 ✖ 2xx: один invoke(«leave_guild», {guildId, lurking}), удаление плитки, выбор предыдущей (11.985843ms)
   AssertionError [ERR_ASSERTION]: нет #server-menu
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
-      at openServerMenu (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
-      at openLeaveDialog (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2753:13
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2751:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
+      at openServerMenu (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
+      at openLeaveDialog (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2753:13
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2751:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -460,10 +460,10 @@ test at tests/unit/gui-spike-features.test.mjs:2750:3
 test at tests/unit/gui-spike-features.test.mjs:2772:3
 ✖ lurking берётся из явного состояния плитки, а не хардкодится (4.138011ms)
   AssertionError [ERR_ASSERTION]: нет .guild-item[data-guild="1"]
-      at firstNode (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2774:20
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2773:5)
+      at firstNode (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:108:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2774:20
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2773:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -477,12 +477,12 @@ test at tests/unit/gui-spike-features.test.mjs:2772:3
 test at tests/unit/gui-spike-features.test.mjs:2784:3
 ✖ двойной клик по «Покинуть сервер» даёт ровно один IPC (3.764077ms)
   AssertionError [ERR_ASSERTION]: нет #server-menu
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
-      at openServerMenu (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
-      at openLeaveDialog (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2787:13
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2785:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
+      at openServerMenu (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
+      at openLeaveDialog (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2787:13
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2785:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -496,12 +496,12 @@ test at tests/unit/gui-spike-features.test.mjs:2784:3
 test at tests/unit/gui-spike-features.test.mjs:2797:3
 ✖ 401: видимая ошибка, диалог и плитка остаются (3.78858ms)
   AssertionError [ERR_ASSERTION]: нет #server-menu
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
-      at openServerMenu (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
-      at openLeaveDialog (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2803:13
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2798:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
+      at openServerMenu (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
+      at openLeaveDialog (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2803:13
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2798:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -515,12 +515,12 @@ test at tests/unit/gui-spike-features.test.mjs:2797:3
 test at tests/unit/gui-spike-features.test.mjs:2815:3
 ✖ 403: «Недостаточно прав», плитка на месте; 429: обратный отсчёт в тексте (3.328068ms)
   AssertionError [ERR_ASSERTION]: нет #server-menu
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
-      at openServerMenu (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
-      at openLeaveDialog (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2822:13
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2816:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
+      at openServerMenu (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
+      at openLeaveDialog (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2612:3)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2822:13
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2816:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -534,11 +534,11 @@ test at tests/unit/gui-spike-features.test.mjs:2815:3
 test at tests/unit/gui-spike-features.test.mjs:2837:3
 ✖ нет мёртвых обработчиков: все data-action меню/диалога отрабатывают без ACTION_FAILED (3.34223ms)
   AssertionError [ERR_ASSERTION]: нет #server-menu
-      at byId (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
-      at openServerMenu (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2839:7
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:2838:5)
+      at byId (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:86:10)
+      at openServerMenu (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2595:10)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2839:7
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:73:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:2838:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

@@ -1,7 +1,7 @@
 # Отчёт — task-284 (`BE-FIX-01`, Pass 2: `bff_domains_router.rs`) / RW-40 / G1
 
 - **batch/карточка:** `RW-40` / `task-284` (`BE-FIX-01`, `P1`, `L2`), Pass 2 по `REVIEW-182A` (P3-1 и P3-2).
-- **Ветка / worktree:** `bugfix/task-284-be-bff-router-pass2`, `/home/sanya/orca/workspaces/project/bugfix-task-284-be-bff-router-pass2`, база `886ec1e` (`unstable`-линия), `git commit` не выполнялся.
+- **Ветка / worktree:** `bugfix/task-284-be-bff-router-pass2`, `/home/user/orca/workspaces/project/bugfix-task-284-be-bff-router-pass2`, база `886ec1e` (`unstable`-линия), `git commit` не выполнялся.
 - **Модель:** `deepseek/deepseek-v4.1-flash` (`--agent opencode`), `TZ=Asia/Shanghai` 14:43–15:05 (суббота — окно DeepSeek разрешено).
 
 ## 1. Сделано
@@ -33,7 +33,7 @@
 ## 2. Red
 
 ```
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract
 error[E0432]: unresolved imports `discord_gui_spike::bff_domains_router::resolve_bff_domain_action`,
   `discord_gui_spike::bff_domains_router::BffResolvedAction`
@@ -48,13 +48,13 @@ exit_code=101
 ## 3. Green
 
 ```
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract
 running 10 tests
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 exit_code=0
 
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract --lib -- -D warnings
 Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.93s
 0 warnings, exit_code=0
@@ -63,7 +63,7 @@ $ rustfmt --edition 2021 --check rust/gui-spike/src/bff_domains_router.rs \
   rust/gui-spike/tests/bff_domains_router_contract.rs
 exit_code=0
 
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --lib
 test result: ok. 17 passed; 0 failed
 exit_code=0
@@ -84,7 +84,7 @@ exit_code=0
 
 ## 5. Oracle
 
-Методы и маршруты сверены с read-only дампом `/home/sanya/re-deep/rest-static.md`, не с кодом
+Методы и маршруты сверены с read-only дампом `reference-oracle/rest-static.md`, не с кодом
 реализации:
 
 | Домен | Ожидание теста | Оракул (файл:строка) |
@@ -154,4 +154,4 @@ md5 `c2e178bd8db5a104d5b8b2978e6b23ed`; после восстановления 
 ## 10. Следующий шаг
 
 PR в `unstable` → приёмка PM (соответствие `REVIEW-182A` P3-1/P3-2) → Technical Review
-(мутации 5/5 на финальных байтах + сверка с `/home/sanya/re-deep/rest-static.md`).
+(мутации 5/5 на финальных байтах + сверка с `reference-oracle/rest-static.md`).

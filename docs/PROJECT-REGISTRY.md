@@ -1,61 +1,61 @@
-# Единый реестр проекта discord-lab (Unified Project Registry)
+# Unified Project Registry — discord-lab
 
-> **Статус документа:** `Canonical Project Registry (v2.1)`  
-> **Дата актуализации:** 12 ноября 2026 г.  
-> **Репозиторий:** `discord-lab` (Линейка нативного клиента `discord-gpui` + BFF & Core Rust)  
-> **Оркестратор:** ECC 2.0 Control Plane (`scripts/ecc`) + Orca Engine  
+> **Document Status:** `Canonical Project Registry (v2.1)`  
+> **Updated:** November 12, 2026  
+> **Repository:** `discord-lab` (Native client line `discord-gpui` + BFF & Core Rust)  
+> **Control Plane:** ECC 2.0 Control Plane (`scripts/ecc`) + Orca Engine  
 
 ---
 
-## 1. Паспорт проекта
+## 1. Project Passport
 
-| Параметр | Значение |
+| Parameter | Value |
 | :--- | :--- |
-| **Название проекта** | `discord-lab` |
-| **Основной продукт** | Высокопроизводительный нативный Linux-клиент Discord на Rust GPUI (`discord-gpui`) |
-| **Графический стек** | `gpui-kit` / WGPU (Vulkan / OpenGL llvmpipe), 120 FPS, нативный композитинг |
-| **Язык и рантайм** | Rust (Edition 2024 / MSRV 1.85+), Tokio асинхронный рантайм, Node.js 24 (тесты/инструменты) |
-| **Текущая волна** | **Wave RW-47**: Sprints 1–5 Feature Parity, Soundboard, Voice Messages, Polls, Threads & Packaging |
-| **Релизный артефакт** | [`rust/dist/discord-gpui`](file:///home/sanya/orca/project/rust/dist/discord-gpui) (42 МБ, stripped ELF, Thin LTO, opt-level 3) |
-| **Контрольная сумма SHA-256**| `d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e` |
-| **Целевые платформы** | Linux (Wayland: GNOME, KDE, Hyprland, Sway; X11 fallback), Windows (WiX MSI/Portable), macOS (DMG) |
-| **Статус задач** | **220 выполнено (Done)** из 220 задач на канбан-доске (**100.0%**) |
-| **Статус тестов** | **1500+ тестов** (147 meta, 920+ unit, 391+ GPUI contract/e2e/chaos) — 100% Passed (5/5 мутаций убиты) |
+| **Project Name** | `discord-lab` |
+| **Primary Product** | High-performance native Linux Discord client in pure Rust GPUI (`discord-gpui`) |
+| **Graphics Stack** | `gpui-kit` / WGPU (Vulkan / OpenGL llvmpipe), 120 FPS, native compositing |
+| **Language & Runtime** | Rust (Edition 2024 / MSRV 1.85+), Tokio async runtime, Node.js 24 (testing & tooling) |
+| **Current Wave** | **Wave RW-47**: Sprints 1–5 Feature Parity, Soundboard, Voice Messages, Polls, Threads & Packaging |
+| **Release Artifact** | [`rust/dist/discord-gpui`](rust/dist/discord-gpui) (42 MB, stripped ELF, Thin LTO, opt-level 3) |
+| **SHA-256 Checksum** | `d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e` |
+| **Target Platforms** | Linux (Wayland: GNOME, KDE, Hyprland, Sway; X11 fallback), Windows (WiX MSI/Portable), macOS (DMG) |
+| **Task Status** | **220 Completed (Done)** out of 220 kanban board tasks (**100.0%**) |
+| **Test Status** | **1500+ tests** (147 meta, 920+ unit, 391+ GPUI contract/e2e/chaos) — 100% Passed (5/5 mutations killed) |
 
 ---
 
-## 2. Реестр крейтов Rust (Workspace Crates)
+## 2. Workspace Crates Registry
 
-| Крейт | Путь | Назначение и ключевые подсистемы | Тестовые контракты |
+| Crate | Path | Subsystems and Core Responsibilities | Test Contracts |
 | :--- | :--- | :--- | :--- |
-| **`discord-gpui`** | `rust/discord-gpui/` | **Основное нативное GUI-приложение**: Server Rail, виртуализированный чат 100k сообщений, 8 вкладок настроек, модалки трансляции экрана, интерактивные опросы (`poll_view`), треды (`thread_sidebar`), эмодзи/стикер пикер (`emoji_picker`), плеер голосовых сообщений (`voice_player`), сетка саундборда (`soundboard_view`), радар пространственного звука (`spatial_radar`), WebRTC HUD, AT-SPI. | `gpui_e2e_contract.rs`<br>`visual_regression_contract.rs`<br>`chaos_engineering_contract.rs`<br>`a11y_atspi_contract.rs`<br>`perf_benchmark_contract.rs`<br>`manual_qa_suite_contract.rs`<br>`release_smoke_contract.rs` |
-| **`discord-core`** | `rust/crates/discord-core/` | **Ядро протокола**: клиент REST v9, шлюз Gateway v9 (HELLO, Heartbeat, IDENTIFY, RESUME, VOICE_STATE_UPDATE), форумные каналы (`forum.rs`), жизненный цикл тредов (`threads.rs`), движок опросов (`polls.rs`), редьюсер состояния, битовые маски прав доступа (64-бит). | `permissions_contract.rs`<br>`ready_read_state.rs`<br>`channels_contract.rs`<br>`threads-lifecycle-1002a`<br>`polls-core-1004a` |
-| **`discord-voice`** | `rust/crates/discord-voice/` | **Голосовой и медиа-стек**: голосовой UDP-стример, IP Discovery (74B), Keepalive (8B), RTP/RTCP пакеты, SRTP (AES-256-GCM / ChaCha20), DAVE E2EE MLS v1 (`RFC 9420`), рекордер голосовых сообщений OGG Opus (`voice_message_recorder.rs`), саундборд Opcode 18 (`soundboard.rs`) и линейный `tanh()` микшер, пространственный фильтр HRTF 360°. | `reception_contract.rs`<br>`rtcp_contract.rs`<br>`rtp_video_contract.rs`<br>`soundboard-sfx-1012`<br>`voice-recorder-1003a`<br>`spatial-audio-filter-1017a` |
-| **`discord-media`** | `rust/crates/discord-media/` | **Аппаратные медиа-буферы и кэш**: кольцевой буфер `AudioRingBuffer` без аллокаций, двухзвенный кэш эмодзи и стикеров (256 МБ RAM LRU + дисковый ETag, `emoji_cache.rs`), коннекторы захвата экрана X11 и Wayland Portal. | `buffer_contract.rs`<br>`ring_buffer_contract.rs`<br>`capture_contract.rs`<br>`emoji-cache-1005a` |
-| **`discord-platform`** | `rust/crates/discord-platform/` | **Платформенные интеграции**: `org.freedesktop.portal.ScreenCast`, D-Bus уведомления, системный трей, Keyring через FFI к libsecret, автозапуск XDG autostart (`autostart.rs`), интеграция Spotify D-Bus MPRIS (`spotify_mpris.rs`), FFI проверки орфографии libenchant/hunspell (`spellcheck.rs`), геймпад gilrs & SteamOS клавиатура. | `screencast_contract.rs`<br>`keyring_contract.rs`<br>`autostart-xdg-1015`<br>`spotify-mpris-presence-1013`<br>`steam-deck-gamepad-1014` |
-| **`discord-store`** | `rust/crates/discord-store/` | **Локальное хранилище данных**: SQLite FTS5 полнотекстовый поиск, режим WAL, кэш сообщений и настроек, безопасные миграции схемы. | `store_contract.rs`<br>`fts5_contract.rs` |
-| **`discord-codec`** | `rust/crates/discord-codec/` | **Кодеки и декомпрессия**: декодер и энкодер ETF бинарного формата, zstd-стриминг, защита от compression-bomb атак. | `zstd_bomb_contract.rs`<br>`etf_properties.rs` |
-| **`discord-i18n`** | `rust/crates/discord-i18n/` | **Локализация и интернационализация**: 36 языков, парсер AST, CLDR плюрализация, хеши ключей xxh64→base64. | `i18n_contract.rs` |
+| **`discord-gpui`** | `rust/discord-gpui/` | **Primary native GUI application**: Server Rail, virtualized 100k-message chat, 8 settings tabs, screen share modals, interactive polls (`poll_view`), thread sidebar (`thread_sidebar`), emoji/sticker picker (`emoji_picker`), voice message player (`voice_player`), soundboard grid (`soundboard_view`), 360° spatial audio radar (`spatial_radar`), WebRTC RTCP HUD, AT-SPI accessibility. | `gpui_e2e_contract.rs`<br>`visual_regression_contract.rs`<br>`chaos_engineering_contract.rs`<br>`a11y_atspi_contract.rs`<br>`perf_benchmark_contract.rs`<br>`manual_qa_suite_contract.rs`<br>`release_smoke_contract.rs` |
+| **`discord-core`** | `rust/crates/discord-core/` | **Protocol Core**: REST API v9 client, Gateway v9 (HELLO, Heartbeat, IDENTIFY, RESUME, VOICE_STATE_UPDATE), forum channels (`forum.rs`), thread lifecycle (`threads.rs`), poll engine (`polls.rs`), state reducer, 64-bit permission bitmasks. | `permissions_contract.rs`<br>`ready_read_state.rs`<br>`channels_contract.rs`<br>`threads-lifecycle-1002a`<br>`polls-core-1004a` |
+| **`discord-voice`** | `rust/crates/discord-voice/` | **Voice & Media Stack**: Voice UDP streamer, IP Discovery (74B), Keepalive (8B), RTP/RTCP packets, SRTP (AES-256-GCM / ChaCha20), DAVE E2EE MLS v1 (`RFC 9420`), OGG Opus voice message recorder (`voice_message_recorder.rs`), Opcode 18 soundboard (`soundboard.rs`) with linear `tanh()` mixer, HRTF 360° spatial audio filter. | `reception_contract.rs`<br>`rtcp_contract.rs`<br>`rtp_video_contract.rs`<br>`soundboard-sfx-1012`<br>`voice-recorder-1003a`<br>`spatial-audio-filter-1017a` |
+| **`discord-media`** | `rust/crates/discord-media/` | **Hardware Media Buffers & Cache**: Zero-allocation `AudioRingBuffer`, two-tier emoji and sticker cache (256 MB RAM LRU + disk ETag, `emoji_cache.rs`), X11 and Wayland Portal screen capture connectors. | `buffer_contract.rs`<br>`ring_buffer_contract.rs`<br>`capture_contract.rs`<br>`emoji-cache-1005a` |
+| **`discord-platform`** | `rust/crates/discord-platform/` | **Desktop Platform Integrations**: `org.freedesktop.portal.ScreenCast`, D-Bus notifications, system tray, FFI Keyring via libsecret, XDG autostart (`autostart.rs`), Spotify D-Bus MPRIS status (`spotify_mpris.rs`), FFI spellchecking via libenchant/hunspell (`spellcheck.rs`), gilrs gamepad & SteamOS on-screen keyboard. | `screencast_contract.rs`<br>`keyring_contract.rs`<br>`autostart-xdg-1015`<br>`spotify-mpris-presence-1013`<br>`steam-deck-gamepad-1014` |
+| **`discord-store`** | `rust/crates/discord-store/` | **Local Data Storage**: SQLite FTS5 full-text search, WAL mode, message and settings cache, safe schema migrations. | `store_contract.rs`<br>`fts5_contract.rs` |
+| **`discord-codec`** | `rust/crates/discord-codec/` | **Binary Codecs & Decompression**: ETF binary decoder/encoder, zstd streaming, compression-bomb attack mitigation. | `zstd_bomb_contract.rs`<br>`etf_properties.rs` |
+| **`discord-i18n`** | `rust/crates/discord-i18n/` | **Internationalization**: 36 locales, AST message parser, CLDR pluralization rules, xxh64→base64 key hashing. | `i18n_contract.rs` |
 
 ---
 
-## 3. Реестр релизных артефактов и манифестов
+## 3. Release Artifacts and Manifests Registry
 
-| Артефакт | Путь | Описание / Метрики |
+| Artifact | Path | Description / Metrics |
 | :--- | :--- | :--- |
-| **Релизный бинарник** | [`rust/dist/discord-gpui`](file:///home/sanya/orca/project/rust/dist/discord-gpui) | 42 МБ, stripped ELF, Thin LTO, opt-level 3 |
-| **Манифест сумм** | [`rust/dist/SHA256SUMS`](file:///home/sanya/orca/project/rust/dist/SHA256SUMS) | SHA-256 контрольные суммы релизных бинарников |
-| **Манифест SBOM** | `rust/dist/sbom.spdx.json` | SPDX 2.3 воспроизводимый манифест лицензий зависимостей |
-| **Кросс-платформенная упаковка** | `packaging/` | Windows WiX MSI (`packaging/windows/wix.xml`), macOS DMG (`packaging/macos/build-dmg.sh`), Flatpak, AppImage, Arch PKGBUILD, Debian .deb |
-| **15 Golden эталонов** | `rust/discord-gpui/tests/goldens/*.png` | Эталонные снимки экрана GPUI (чат, настройки, модалки) |
-| **Динамические JSON-маски** | `rust/discord-gpui/tests/goldens/dynamic_masks_*.json` | Маски исключений (часы, FPS, аватары, пинг) |
-| **Интерактивный HTML Diff** | `rust/discord-gpui/tests/goldens/visual_diff_report.html` | Интерактивный отчёт сравнения скриншотов (Slider / Onion Skin / Red Diff) |
-| **Канбан-доска (JSON)** | [`waves/kanban-board.json`](file:///home/sanya/orca/project/waves/kanban-board.json) | 220 задач со статусами, отделами и критериями приёмки |
-| **Канбан-доска (HTML)** | [`waves/kanban-board.html`](file:///home/sanya/orca/project/waves/kanban-board.html) | Интерактивный интерфейс канбан-доски |
+| **Release Binary** | [`rust/dist/discord-gpui`](rust/dist/discord-gpui) | 42 MB, stripped ELF, Thin LTO, opt-level 3 |
+| **Checksum Manifest** | [`rust/dist/SHA256SUMS`](rust/dist/SHA256SUMS) | SHA-256 checksums of release binaries |
+| **SBOM Manifest** | `rust/dist/sbom.spdx.json` | SPDX 2.3 reproducible dependency license manifest |
+| **Packaging Specs** | `packaging/` | Windows WiX MSI (`packaging/windows/wix.xml`), macOS DMG (`packaging/macos/build-dmg.sh`), Flatpak, AppImage, Arch PKGBUILD, Debian .deb |
+| **15 Golden References** | `rust/discord-gpui/tests/goldens/*.png` | Golden visual screenshots of GPUI views (chat, settings, modals) |
+| **Dynamic JSON Masks** | `rust/discord-gpui/tests/goldens/dynamic_masks_*.json` | Dynamic exclusion masks (clocks, FPS counter, avatars, ping) |
+| **Interactive HTML Diff** | `rust/discord-gpui/tests/goldens/visual_diff_report.html` | Interactive visual comparison report (Slider / Onion Skin / Red Diff) |
+| **Kanban Board (JSON)** | [`waves/kanban-board.json`](waves/kanban-board.json) | 220 tasks with statuses, departments, and acceptance criteria |
+| **Kanban Board (HTML)** | [`waves/kanban-board.html`](waves/kanban-board.html) | Interactive visual kanban board interface |
 
 ---
 
-## 4. Реестр тестовых наборов и верификации (Пирамида T0–T4)
+## 4. Test Pyramid & Verification Hierarchy (T0–T4)
 
 ```
        ▲
@@ -70,35 +70,35 @@
 T0: Targeted    (Targeted test impact: node scripts/test-impact.mjs --run, <1 sec)
 ```
 
-| Уровень | Тестовый набор | Файл | Кол-во тестов | Время / Результат |
+| Level | Test Suite | Path / Command | Test Count | Execution Time / Status |
 | :---: | :--- | :--- | :---: | :---: |
-| **T0** | Test Impact Analyzer | `scripts/test-impact.mjs` | целевые | `< 1 с` (Green) |
-| **T1** | Meta Test Suite | `tests/meta/*.test.mjs` | 147 | `< 1 с` (100% Green) |
-| **T1** | Unit Test Suite | `tests/unit/*.test.mjs` | 920+ | `< 5 с` (100% Green) |
-| **T2** | GPUI Headless Smoke | `rust/discord-gpui/src/main.rs --headless-smoke` | 1 | `< 500 мс`, VmRSS 11.26 МБ |
-| **T2** | GPUI 50 E2E Journeys | `rust/discord-gpui/tests/gpui_e2e_contract.rs` | 50 | 0.08 с (100% Green) |
-| **T2** | GPUI Core Contracts | `rust/discord-gpui/tests/gpui_contract_test.rs` | 127 | 1.80 с (100% Green) |
-| **T2** | Visual SSIM Regression | `rust/discord-gpui/tests/visual_regression_contract.rs` | 10 | 1.82 с (SSIM > 0.995) |
-| **T2** | Chaos Engineering Lab | `rust/discord-gpui/tests/chaos_engineering_contract.rs` | 53 | 0.08 с (100% Green) |
-| **T2** | AT-SPI D-Bus Driver | `rust/discord-gpui/tests/a11y_atspi_contract.rs` | 34 | 0.08 с (100% Green) |
-| **T2** | 120 FPS Benchmark | `rust/discord-gpui/tests/perf_benchmark_contract.rs` | 53 | 0.08 с (100% Green) |
-| **T2** | Manual QA Matrix Suite | `rust/discord-gpui/tests/manual_qa_suite_contract.rs` | 56 | 0.08 с (100% Green) |
-| **T3** | Мутационный гейт | В каждом контрактном тесте | 5/5 на срез | **100% (5/5 killed)** |
-| **T3** | Headless Smoke Release | `rust/discord-gpui/tests/release_smoke_contract.rs` | 3 | 0.15 с (100% Green) |
-| **T3** | Network Fuzz Targets | `rust/fuzz/` (5 fuzz-мишеней) | 5 | 1 000 000 итераций |
+| **T0** | Test Impact Analyzer | `scripts/test-impact.mjs` | targeted | `< 1s` (Green) |
+| **T1** | Meta Test Suite | `tests/meta/*.test.mjs` | 147 | `< 1s` (100% Green) |
+| **T1** | Unit Test Suite | `tests/unit/*.test.mjs` | 920+ | `< 5s` (100% Green) |
+| **T2** | GPUI Headless Smoke | `rust/discord-gpui/src/main.rs --headless-smoke` | 1 | `< 500ms`, VmRSS 11.26 MB |
+| **T2** | GPUI 50 E2E Journeys | `rust/discord-gpui/tests/gpui_e2e_contract.rs` | 50 | 0.08s (100% Green) |
+| **T2** | GPUI Core Contracts | `rust/discord-gpui/tests/gpui_contract_test.rs` | 127 | 1.80s (100% Green) |
+| **T2** | Visual SSIM Regression | `rust/discord-gpui/tests/visual_regression_contract.rs` | 10 | 1.82s (SSIM > 0.995) |
+| **T2** | Chaos Engineering Lab | `rust/discord-gpui/tests/chaos_engineering_contract.rs` | 53 | 0.08s (100% Green) |
+| **T2** | AT-SPI D-Bus Driver | `rust/discord-gpui/tests/a11y_atspi_contract.rs` | 34 | 0.08s (100% Green) |
+| **T2** | 120 FPS Benchmark | `rust/discord-gpui/tests/perf_benchmark_contract.rs` | 53 | 0.08s (100% Green) |
+| **T2** | Manual QA Matrix Suite | `rust/discord-gpui/tests/manual_qa_suite_contract.rs` | 56 | 0.08s (100% Green) |
+| **T3** | Mutation Gate | Across all contract tests | 5/5 per slice | **100% (5/5 killed)** |
+| **T3** | Headless Smoke Release | `rust/discord-gpui/tests/release_smoke_contract.rs` | 3 | 0.15s (100% Green) |
+| **T3** | Network Fuzz Targets | `rust/fuzz/` (5 targets) | 5 | 1,000,000 iterations |
 | **T4** | Keyring & Qualification | `scripts/gate.mjs --scope qualify` | full | 100% Green |
 
 ---
 
-## 5. Реестр инструментов автоматизации (Scripts & Tools)
+## 5. Automation Tooling Registry (Scripts & Tools)
 
 1. **`scripts/ecc`**:
-   * Точка входа в ECC 2.0 Control Plane. Управляет графами знаний, профилями отделов, проверками соответствия правилам и синхронизацией памяти (`ecc graph connector-sync --all`).
+   * Control plane entrypoint for ECC 2.0. Manages knowledge graphs, department profiles, rule compliance, and memory synchronization (`ecc graph connector-sync --all`).
 2. **`scripts/ci.sh`**:
-   * Единый скрипт локального и CI конвейера. Выполняет проверку форматирования, clippy, workspace тесты, запуск headless smoke GPUI, E2E и визуальной регрессии.
+   * Unified local and CI execution script. Enforces formatting, Clippy, workspace tests, headless smoke GPUI, E2E, and visual regression suites.
 3. **`scripts/gate.mjs`**:
-   * Мощный фазовый раннер с профилями `worker`, `release` и `qualify`. Сохраняет структурированные JSON-артефакты в `.gate/`.
+   * Multi-phase gate runner supporting `worker`, `release`, and `qualify` profiles with structured JSON output under `.gate/`.
 4. **`scripts/release.sh`**:
-   * Скрипт сборки релизного бинарника `discord-gpui` с LTO/strip, генерацией `SHA256SUMS` и SBOM.
+   * Release builder for `discord-gpui` with LTO/strip optimization, `SHA256SUMS` generation, and SBOM export.
 5. **`scripts/mcp-kanban-board.mjs`**:
-   * Инструмент генерации и управления канбан-доской (`--export`, `--stats`, `--card`).
+   * Kanban board management CLI (`--export`, `--stats`, `--card`).

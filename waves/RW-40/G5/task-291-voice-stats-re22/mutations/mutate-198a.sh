@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # 5/5 manual mutation check for task-291 stats.rs (TR-198A)
 set -u
-WT=/home/sanya/orca/workspaces/project/feature-task-291-voice-stats-re22
+WT=/home/user/orca/workspaces/project/feature-task-291-voice-stats-re22
 F="$WT/rust/crates/discord-voice/src/stats.rs"
 BAK=/tmp/opencode/stats.rs.orig
 OUT=/tmp/opencode/mutations-198a.log
-export CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target
+export CARGO_TARGET_DIR=/home/user/orca/project/rust/target
 
 BASELINE_MD5=d5debf4cf1831c5a6e473fbedabfe447
 cp "$F" "$BAK"

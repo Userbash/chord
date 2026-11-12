@@ -1,8 +1,8 @@
 # RW-18 / P2-09 — research: presence
 
 Дата: 2026-10-20. Только чтение: `fixtures/`, `docs/re/`, снимок веб-клиента
-`/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` и
-`/home/sanya/re-deep/pretty/mod-595528.pretty.js`. Живой Discord не использовался.
+`reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` и
+`reference-oracle/pretty/mod-595528.pretty.js`. Живой Discord не использовался.
 
 ## 1. Подтверждённый capture
 

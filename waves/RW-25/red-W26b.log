@@ -2,7 +2,7 @@
 # дата: 2026-10-22
 # target-dir: /tmp/opencode/target-w26b (свой, общий занят другими лейнами)
 
-$ cd /home/sanya/orca/project/rust
+$ cd /home/user/orca/project/rust
 $ export CARGO_TARGET_DIR=/tmp/opencode/target-w26b
 $ cargo test --offline -p discord-perf --test perf_contract
 
@@ -45,13 +45,13 @@ $ cargo test --offline -p discord-perf --test perf_contract
    Compiling ruzstd v0.9.1
    Compiling memchr v2.8.3
    Compiling futures-util v0.3.34
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
    Compiling webpki-roots v1.0.9
    Compiling http v1.5.0
    Compiling webpki-roots v0.26.11
    Compiling syn v3.0.9
    Compiling hybrid-array v0.4.15
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
    Compiling getrandom v0.2.17
    Compiling socket2 v0.6.5
    Compiling mio v1.2.4
@@ -69,8 +69,8 @@ $ cargo test --offline -p discord-perf --test perf_contract
    Compiling tokio-rustls v0.26.6
    Compiling tungstenite v0.30.0
    Compiling tokio-tungstenite v0.30.0
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+   Compiling discord-perf v0.1.0 (/home/user/orca/project/rust/crates/discord-perf)
 error[E0432]: unresolved imports `discord_perf::workload::Metric`, `discord_perf::workload::PERF_GUILD_ID`, `discord_perf::workload::PERF_MEMBER_LIST_ID`, `discord_perf::workload::PerfReport`, `discord_perf::workload::REGRESSION_THRESHOLD_PCT`, `discord_perf::workload::Regression`, `discord_perf::workload::Workload`, `discord_perf::workload::WorkloadSpec`, `discord_perf::workload::base_state`, `discord_perf::workload::build_workload`, `discord_perf::workload::compare`, `discord_perf::workload::measure`, `discord_perf::workload::report_from_json`, `discord_perf::workload::report_to_json`
   --> crates/discord-perf/tests/perf_contract.rs:17:5
    |

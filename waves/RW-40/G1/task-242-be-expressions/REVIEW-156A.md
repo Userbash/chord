@@ -3,7 +3,7 @@
 - **Ревьюер**: Technical Reviewer (DeepSeek V4.1 Flash), term `term_a0a474ef-874b-42bd-9902-75aff4c73685`
 - **Волна / отдел**: `RW-40`, `G1` (Backend)
 - **Ветка / worktree**: `feature/task-242-be-expressions`,
-  `/home/sanya/orca/workspaces/project/feature-task-242-be-expressions`
+  `/home/user/orca/workspaces/project/feature-task-242-be-expressions`
 - **Предмет ревью**: `rust/gui-spike/src/expressions.rs`,
   `rust/gui-spike/tests/expressions_contract.rs`, отчёт
   `waves/RW-40/G1/task-242-be-expressions/REPORT.md`
@@ -40,7 +40,7 @@
 Команда:
 
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test expressions_contract
 ```
 

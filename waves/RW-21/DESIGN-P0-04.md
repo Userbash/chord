@@ -6,7 +6,7 @@
 ## 1. Цель
 
 Дать тестам один детерминированный загрузчик фикстур: сначала курированный `fixtures/`
-репозитория, затем сырьё `/home/sanya/re-deep` (переопределяется `RE_LAB_ROOT`). Ошибки
+репозитория, затем сырьё `reference-oracle/` (переопределяется `RE_LAB_ROOT`). Ошибки
 типизированы, путь и источник видны в отчёте; отсутствие lab — skip-aware на уровне теста,
 а не паника загрузчика.
 
@@ -18,7 +18,7 @@ pub struct Fixture { pub name: String, pub source: FixtureSource, pub path: Path
 pub enum ConformanceError { InvalidName{..}, NotFound{..}, Io{..}, Utf8{..} }
 
 pub fn fixtures_root() -> PathBuf;   // RE_FIXTURES_ROOT | <repo>/fixtures
-pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | /home/sanya/re-deep
+pub fn lab_root() -> PathBuf;        // RE_LAB_ROOT | reference-oracle/
 pub fn manifest_path() -> PathBuf;
 pub fn manifest_text() -> Result<String, ConformanceError>;
 pub fn resolve(name: &str) -> Result<Fixture, ConformanceError>; // repo → lab

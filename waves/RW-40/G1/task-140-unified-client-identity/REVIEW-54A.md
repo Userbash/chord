@@ -2,7 +2,7 @@
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер (DeepSeek), Review 54A.
 Ветка: `feature/task-140-unified-client-identity`, worktree
-`/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity`,
+`/home/user/orca/workspaces/project/feature-task-140-unified-client-identity`,
 HEAD `4e24048`. Режим: чтение диффа + целевые тесты + 5 мутационных прогонов.
 
 ## Вердикт

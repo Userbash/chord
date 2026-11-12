@@ -11,9 +11,9 @@
 - `rust/gui-spike/ui/features/invite-parser.js` (строки 33–34)
 - `rust/gui-spike/ui/features/svg-icons.js` (строки 74–104)
 - `rust/gui-spike/ui/features/token-map.js` (строка 75)
-- `/home/sanya/orca/project/waves/RW-40/G2/task-279-ui-features-tsc-clean/red.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-279-ui-features-tsc-clean/green.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-279-ui-features-tsc-clean/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/G2/task-279-ui-features-tsc-clean/red.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-279-ui-features-tsc-clean/green.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-279-ui-features-tsc-clean/REPORT.md`
 
 ## Точный список ошибок `tsc` (оракул Red)
 ```text

@@ -3,13 +3,13 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import zlib from "node:zlib";
 
-const repoHexl = "/home/sanya/orca/project/rust/crates/discord-codec/tests/data/synth-zstd-frame.hexl";
-const reHexl = "/home/sanya/re-deep/gw-proto/synth-zstd-frame.hexl";
-const termHexl = "/home/sanya/re-deep/gw-proto/synth-zstd-payload-term.hexl";
+const repoHexl = "/home/user/orca/project/rust/crates/discord-codec/tests/data/synth-zstd-frame.hexl";
+const reHexl = "/home/user/clean-room-oracle/gw-proto/synth-zstd-frame.hexl";
+const termHexl = "/home/user/clean-room-oracle/gw-proto/synth-zstd-payload-term.hexl";
 
 const repoText = readFileSync(repoHexl, "utf8");
 const reText = readFileSync(reHexl, "utf8");
-console.log(`repo hexl == re-deep hexl: ${repoText === reText}`);
+console.log(`repo hexl == clean-room-oracle hexl: ${repoText === reText}`);
 console.log(`md5(repo)=${createHash("md5").update(repoText).digest("hex")}`);
 
 const frame = Buffer.from(repoText.trim(), "hex");
@@ -30,6 +30,6 @@ console.log(`магия кадра: ${frame.subarray(0, 4).toString("hex")}`);
 console.log(`FHD=0x${frame[4].toString(16)} (FCS-размер по битам 7-6; Single_Segment=${(frame[4] >> 5) & 1})`);
 
 // сверка терма с PAYLOAD_TERM_HEX из тест-файла
-const testSrc = readFileSync("/home/sanya/orca/project/rust/crates/discord-codec/tests/zstd_stream.rs", "utf8");
+const testSrc = readFileSync("/home/user/orca/project/rust/crates/discord-codec/tests/zstd_stream.rs", "utf8");
 const m = testSrc.match(/const PAYLOAD_TERM_HEX: &str =\s*\n?\s*"([0-9a-f]+)"/);
-console.log(`PAYLOAD_TERM_HEX найден: ${!!m}; совпадает с re-deep термом: ${m ? m[1] === termHex : false}`);
+console.log(`PAYLOAD_TERM_HEX найден: ${!!m}; совпадает с clean-room-oracle термом: ${m ? m[1] === termHex : false}`);

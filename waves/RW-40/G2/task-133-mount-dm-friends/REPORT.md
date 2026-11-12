@@ -31,7 +31,7 @@
 
 ## 2. Доказательства TDD (Red → Green → Mutations)
 
-- **Red-прогон** (`/home/sanya/orca/project/waves/RW-40/G2/task-133-mount-dm-friends/red.log`):
+- **Red-прогон** (`/home/user/orca/project/waves/RW-40/G2/task-133-mount-dm-friends/red.log`):
   ```text
   node --test tests/unit/gui-spike-features.test.mjs
   ℹ tests 123
@@ -40,7 +40,7 @@
   ```
   Все 12 новых тестов `FE-P0-01 / task-133` упали до внесения продуктовых правок в `index.html` и `app.js`.
 
-- **Green-прогон** (`/home/sanya/orca/project/waves/RW-40/G2/task-133-mount-dm-friends/green.log`):
+- **Green-прогон** (`/home/user/orca/project/waves/RW-40/G2/task-133-mount-dm-friends/green.log`):
   ```text
   node --test tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-dom.test.mjs tests/unit/dm-friends-ui.test.mjs tests/meta/ipc-path.test.mjs tests/meta/test-policy.test.mjs
   ℹ tests 209

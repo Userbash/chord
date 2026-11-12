@@ -1,9 +1,9 @@
 # green: 2026-10-31T00:32:10+05:00
 # git HEAD: b8183f5
-# command 1: CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test profile_contract --lib
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-181-user-profile-rest/rust/gui-spike)
+# command 1: CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test profile_contract --lib
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-181-user-profile-rest/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.14s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-225e1ecc24b7c0ff)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-225e1ecc24b7c0ff)
 
 running 17 tests
 test attachments::tests::retry_after_accepts_seconds_and_fractions ... ok
@@ -26,7 +26,7 @@ test typing::tests::decode_accepts_200_and_classifies_the_rest ... ok
 
 test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/profile_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/profile_contract-b5572a930a88bc30)
+     Running tests/profile_contract.rs (/home/user/orca/project/rust/target/debug/deps/profile_contract-b5572a930a88bc30)
 
 running 26 tests
 test absent_profile_type_is_omitted_instead_of_written_empty ... ok
@@ -60,13 +60,13 @@ test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 # test_exit: 0
 
-# command 2: CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test profile_contract --lib -- -D warnings
+# command 2: CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test profile_contract --lib -- -D warnings
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on build directory
-    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-181-user-profile-rest/rust/gui-spike)
+    Checking discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-181-user-profile-rest/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 11.42s
 # clippy_exit: 0
 

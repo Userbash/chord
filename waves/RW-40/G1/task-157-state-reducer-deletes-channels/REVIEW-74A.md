@@ -1,7 +1,7 @@
 # Technical Review (Pass 74A) — task-157 (`BE-P1-02` / `F-GW-06`: State Reducer for Message Delete & Channel/Thread CRUD)
 
 - **Карточка:** `task-157` (`BE-P1-02` / `F-GW-06`)
-- **Ворктри:** `/home/sanya/orca/workspaces/project/feature-task-157-state-reducer-deletes-channels`
+- **Ворктри:** `/home/user/orca/workspaces/project/feature-task-157-state-reducer-deletes-channels`
 - **Проверяемые файлы:**
   * `rust/crates/discord-core/src/state/types.rs` (`76959f14e9b8e52c19f8cd930124ac64`)
   * `rust/crates/discord-core/src/state/reducer.rs` (`c792da047c48423aa2ab6d4b1096d178`)
@@ -13,9 +13,9 @@
 
 ## 1. Проверка компиляции и тестов
 
-Запущен тестовый набор с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Запущен тестовый набор с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 ```bash
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test state_contract --test state_reducer --test state_types --test state_selectors --lib
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-core --test state_contract --test state_reducer --test state_types --test state_selectors --lib
 ```
 
 **Результаты прогона:**

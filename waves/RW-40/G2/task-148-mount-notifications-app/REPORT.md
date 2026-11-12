@@ -37,7 +37,7 @@
 
 ## 2. Red-прогон (Strict TDD)
 
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-148-mount-notifications-app/red.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-148-mount-notifications-app/red.log`
 - **Команда**:
   ```sh
   node --test tests/unit/notifications.test.mjs tests/unit/gui-spike-features.test.mjs
@@ -48,7 +48,7 @@
 
 ## 3. Green-прогон и проверка типов
 
-- **Лог**: `/home/sanya/orca/project/waves/RW-40/G2/task-148-mount-notifications-app/green.log`
+- **Лог**: `/home/user/orca/project/waves/RW-40/G2/task-148-mount-notifications-app/green.log`
 - **Команды**:
   ```sh
   node --test tests/unit/notifications.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-dom.test.mjs

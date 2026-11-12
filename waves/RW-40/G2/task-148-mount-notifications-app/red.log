@@ -253,7 +253,7 @@
 test at tests/unit/gui-spike-features.test.mjs:4928:3
 ✖ 1. В app.js импортирован и инициализирован createNotificationsController при старте приложения, в DOM есть #guild-list и #channel-list (0.685902ms)
   AssertionError [ERR_ASSERTION]: в app.js не найден createNotificationsController
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:4930:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:4930:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -274,8 +274,8 @@ test at tests/unit/gui-spike-features.test.mjs:4928:3
 test at tests/unit/gui-spike-features.test.mjs:4964:3
 ✖ 2. Отрисовка бейджей непрочитанных сообщений (.guild-unread-pill) и счётчиков упоминаний (1..99 и '99+' с aria-label) в #guild-list и #channel-list (23.186879ms)
   AssertionError [ERR_ASSERTION]: нет #guild-list
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:4977:25)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:4977:25)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -289,8 +289,8 @@ test at tests/unit/gui-spike-features.test.mjs:4964:3
 test at tests/unit/gui-spike-features.test.mjs:5054:3
 ✖ 3. Автоматический вызов ackChannel(channelId, lastMessageId) (ack_channel_message) при переключении активного текстового канала (15.970418ms)
   AssertionError [ERR_ASSERTION]: нет #channel-list
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:5069:9)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:5069:9)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -304,8 +304,8 @@ test at tests/unit/gui-spike-features.test.mjs:5054:3
 test at tests/unit/gui-spike-features.test.mjs:5109:3
 ✖ 4. Контекстное меню гильдии / настройки уведомлений (Mute 15m/1h/8h/24h/indefinitely и All/Mentions/Nothing -> update_guild_notification_settings) и очистка при destroy() (13.319722ms)
   AssertionError [ERR_ASSERTION]: нет #guild-list
-      at byId (file:///home/sanya/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:125:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:5124:9)
+      at byId (file:///home/user/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:125:10)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/gui-spike-features.test.mjs:5124:9)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -319,7 +319,7 @@ test at tests/unit/gui-spike-features.test.mjs:5109:3
 test at tests/unit/notifications.test.mjs:1466:3
 ✖ FE-P0-03 / task-148: createNotificationsController в app.js управляет индикаторами #guild-list/#channel-list, ackChannel и контекстным меню гильдии (71.624492ms)
   AssertionError [ERR_ASSERTION]: нет гильдии 501 в #guild-list
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/notifications.test.mjs:1498:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-148-mount-notifications-app/tests/unit/notifications.test.mjs:1498:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

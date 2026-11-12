@@ -116,7 +116,7 @@ standalone-харнессом (`/tmp/opencode/rw-09/w9r/scratch_padding.rs`, в�
   нет (в трёх модулях только `std`).
 - `src/rest/mod.rs` — `0eba823bf46c2958cac102dbb42cbb06` (заморожен).
 - Тест-данные — md5 из ТЗ §3.2, не менялись; golden (`logs/`, `functions/`, `evidence/`) и снимок
-  `/home/sanya/re-deep/d02-snapshot` — только чтение (ни одного файла новее старта волны; md5 снимка
+  `reference-oracle/d02-snapshot` — только чтение (ни одного файла новее старта волны; md5 снимка
   совпал с `snapshot-md5.txt`).
 - Тесты не «подогнаны»: оракулы — внешние файлы (снимок → выдержки → TSV), §6.2-константы,
   RFC-векторы; нет `#[ignore]`/`should_panic`, нет skip-путей (файл тест-данных отсутствует →

@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-210` (`feature/task-210-ui-message-actions-controller`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/ui/01-msg-menu-items.json`, `/home/sanya/re-deep/frontend-d03.md` (§5 Modal / Toolbar / Menu).
+- **Оракулы**: `reference-oracle/ui/01-msg-menu-items.json`, `reference-oracle/frontend-d03.md` (§5 Modal / Toolbar / Menu).
 
 ## Сделано
 1. `tests/unit/message-actions.test.mjs` (Red → Green, 9 тестов в 3 suites, `// @ts-check` + JSDoc):
@@ -19,8 +19,8 @@
    - экспортированы `QUICK_REACTION_EMOJIS`, `MAX_FORWARD_DESTINATIONS` и `createMessageActionsController(containerEl, options)`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/message-actions.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-210-ui-message-actions-controller/red.log`.
-- **Green**: `node --test tests/unit/message-actions.test.mjs` → `tests 9, suites 3, pass 9, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-210-ui-message-actions-controller/green.log`.
+- **Red**: `node --test tests/unit/message-actions.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-210-ui-message-actions-controller/red.log`.
+- **Green**: `node --test tests/unit/message-actions.test.mjs` → `tests 9, suites 3, pass 9, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-210-ui-message-actions-controller/green.log`.
 - **Typecheck (targeted)**: проверка `rust/gui-spike/ui/features/message-actions.js` и `tests/unit/message-actions.test.mjs` через `npx tsc -p tsconfig.json --noEmit` — `0 errors`.
 - **Gate**: полный `gate:worker` не запускался (режим ТЗ карточки); чужие файлы не затронуты.
 
@@ -28,8 +28,8 @@
 ```
 ca5fac6fb925cc5b83df26801e7242de  rust/gui-spike/ui/features/message-actions.js
 54b3f0d853b3cd2a63013f8a4ac33451  tests/unit/message-actions.test.mjs
-64f3dc82f61a9cd6a0541d78fa1c670d  /home/sanya/orca/project/waves/RW-40/G2/task-210-ui-message-actions-controller/red.log
-12f83be3abf7fc86b1b9b6a46368dc31  /home/sanya/orca/project/waves/RW-40/G2/task-210-ui-message-actions-controller/green.log
+64f3dc82f61a9cd6a0541d78fa1c670d  /home/user/orca/project/waves/RW-40/G2/task-210-ui-message-actions-controller/red.log
+12f83be3abf7fc86b1b9b6a46368dc31  /home/user/orca/project/waves/RW-40/G2/task-210-ui-message-actions-controller/green.log
 ```
 
 ## Риски

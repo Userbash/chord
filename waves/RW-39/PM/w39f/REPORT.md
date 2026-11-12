@@ -3,7 +3,7 @@
 - Карточка: **W39f**, волна RW-39, дата 2026-10-23.
 - Выходы: `waves/RW-39/DESIGN/RE-EXTRA.md`, `waves/RW-39/DESIGN/re-extra.json`,
   логи — `waves/RW-39/PM/w39f/` (`sources.log`, `verify.log`, `verify-extra.mjs`).
-- Метод: чтение дампа `/home/sanya/re-deep` (read-only): JSON/HTML-срезы DOM, CSS-чанки и модули
+- Метод: чтение дампа `reference-oracle/` (read-only): JSON/HTML-срезы DOM, CSS-чанки и модули
   веб-бандла (`decoded/*`), i18n-каталоги `ru-catalog.json`/`en-catalog.json`, токены
   `ui/tokens.json`; lossless PNG — визуальный осмотр кропов в `/tmp/opencode/w39f/`.
   **REA не потребовался** (бинарь/рантайм не нужен — контракты есть в артефактах).

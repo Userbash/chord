@@ -43,7 +43,7 @@
 test at tests/unit/gui-spike-model.test.mjs:232:3
 ✖ короткая не-последняя страница → RangeError (иначе дыра в окне навсегда) (0.432801ms)
   AssertionError [ERR_ASSERTION]: Missing expected rejection.
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:243:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:243:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

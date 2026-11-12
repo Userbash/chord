@@ -1,112 +1,71 @@
-# Глубокий RE Discord (волна R7, 2026-10-19) — индекс артефактов
+# Deep Reverse Engineering of Discord (Wave R7) — Artifact Index
 
-Нормативные документы волны R7: транспорт и шлюз, медиа/голос, бэкенд (main-процесс, IPC,
-нативные модули), REST, UI и i18n. Снято с **изолированной копии** клиента (CDP 9223; живой
-клиент не трогался). Секреты (токены/сессии/ключи) вырезаны санитайзером, публичные IP в
-отчётах — `<PUB_IP>`, исходящие WS-кадры — только длина + sha256.
+Normative documents for Wave R7: transport and gateway, media/voice, backend (main process, IPC, native modules), REST, UI, and i18n. Extracted from an **isolated client copy** (CDP 9223; live client untouched). Secrets (tokens/sessions/keys) sanitized, public IPs masked as `<PUB_IP>`, outbound WS frames recorded only by length + sha256.
 
-Границы: в репозитории — **нормативные тексты и машиночитаемые сводки** (этот каталог);
-сырые доказательства (pcap, strace, декоды, скриншоты, санитизированный capture, 1,7 ГБ) —
-в лаборатории `/home/sanya/re-deep/`. Golden-каталоги репозитория (`logs/`, `functions/`,
-`evidence/`) не трогались. Карточки волны — `TASKS.md` §R7; графы — `architecture.md`;
-статусы бэклога — `../feature-backlog.md` (§D), карта — `../map.md`. Потребитель результатов —
-план Rust-клиента `../rust-client/` (концепт, функции, архитектура, план P0–P8, тесты;
-карточки — `TASKS.md` §RC).
+Repository boundaries: **normative specifications and machine-readable summaries** (this directory); raw evidence (pcap, strace, decodes, screenshots, sanitized captures) reside in `clean-room-oracle/` or `docs/re/`. Golden test suites (`logs/`, `functions/`, `evidence/`) remain untouched. Wave tasks in `TASKS.md` §R7; graphs in `architecture.md`; backlog status in `../feature-backlog.md` (§D), project map in `../map.md`. Consumer of results: Rust client plan `../rust-client/` (concept, features, architecture, plan P0–P8, tests; tasks in `TASKS.md` §RC).
 
-Перед переносом в git выполнен точечный досмотр копий: значения `user_settings_proto`,
-`qos_token` и `analytics_token`, а также пример тела `settings-proto` заменены на `REDACTED`
-(оригиналы остаются только в лаборатории); длинные base64-строки и паттерны токенов проверены —
-утечек нет.
+Prior to git commit, all copies underwent thorough inspection: `user_settings_proto`, `qos_token`, and `analytics_token`, as well as example `settings-proto` payloads, are replaced with `REDACTED`; long base64 strings and token patterns verified to ensure zero leaks.
 
-## 1. Состав
+## 1. Composition
 
-| Файл | Что содержит | Ключевые числа |
+| File | Contents | Key Metrics |
 |---|---|---|
-| `gateway-protocol.md` + `.json` | Шлюз: ETF, zstd-стрим, опкоды, heartbeat/resume, READY, GUILD_CREATE (D-01) | 11 фактических ETF-тегов; 7 сокетов; 1340 диспатчей; heartbeat 41 250 мс |
-| `gateway-schema.md` + `.json` | Полевые схемы: READY, GUILD_MEMBER_LIST_UPDATE, MESSAGE_CREATE/UPDATE, HELLO/ACK | 40 ключей READY; ритм 41,25 с |
-| `rest-d02.md` + `.json` + `.stats.json` + `.crossref.json` + `rest-d02-verify.sh` | D-02: реестр REST-вызовов, тела, auth-поток, супер-свойства | 47 маршрутов, 133 запроса v9; auth — 221 запрос / 6 заголовков; 22 поля супер-свойств; verify — exit 0 |
-| `voice-deep.md` + `.json` | Голос: сигнализация RTC, UDP-структуры, SRTCP, ротация сокета | ops 8/0/1/2/4/15/16/3/6; discovery 74 Б; keepalive 8 Б / 5 с; ротация +60,08 с |
-| `backend-ipc.md` + `.json` | Карта IPC: каналы `DISCORD_*`, мост `DiscordNative`, call-sites | 168 каналов (152 main / 129 renderer / 115 обе стороны); whitelist 43; мост 35; 47 call-sites |
-| `main-arch.md` + `.json` | main-процесс: bootstrap, окна/`webPreferences`, 5 полных IPC-цепочек, нативные биндинги, апдейтер | 121/121 цитат сверены по смещениям |
-| `native-re.md` + `.json` (+ `native-modules.md`/`.json`) | 9 нативных модулей: размеры, md5, NAPI-таблицы, dlopen, Frida-инвентарь | `discord_voice.node` 126,1 МБ (`5fe80ce0…`), `discord_krisp.node` 62,1 МБ (`9be929d1…`) |
-| `frontend-d03.md` + `.json` | D-03: UI-трассы (поиск, эмодзи, участники, настройки, поповер) + контракты компонент | 12 контрактов; «ProBot» → 3302; «:fire» → 10 |
-| `i18n-deep.md` + `.json` (+ `i18n-stats.json`) | i18n: собственный рантайм, ключ-хеш, плурализация, rich-разметка, локали | ключ = xxh64 LE → base64[0..6] (36 бит); 31/36 локалей; 23 836 ключей |
-| `architecture.md` | Mermaid-графы: процессы, IPC-цепочки, мост, нативные модули, шлюз, голос, REST | — |
+| `gateway-protocol.md` + `.json` | Gateway: ETF, zstd stream, opcodes, heartbeat/resume, READY, GUILD_CREATE (D-01) | 11 factual ETF tags; 7 sockets; 1340 dispatches; heartbeat 41,250 ms |
+| `gateway-schema.md` + `.json` | Wire schemas: READY, GUILD_MEMBER_LIST_UPDATE, MESSAGE_CREATE/UPDATE, HELLO/ACK | 40 keys in READY; rhythm 41.25 s |
+| `rest-d02.md` + `.json` + `.stats.json` + `.crossref.json` + `rest-d02-verify.sh` | D-02: REST route registry, payloads, auth flow, super-properties | 47 routes, 133 v9 requests; auth — 221 requests / 6 headers; 22 super-property fields; verify exit 0 |
+| `voice-deep.md` + `.json` | Voice: RTC signaling, UDP structures, SRTCP, socket rotation | ops 8/0/1/2/4/15/16/3/6; discovery 74 B; keepalive 8 B / 5 s; rotation +60.08 s |
+| `backend-ipc.md` + `.json` | IPC Map: `DISCORD_*` channels, `DiscordNative` bridge, call-sites | 168 channels (152 main / 129 renderer / 115 bidirectional); whitelist 43; bridge 35; 47 call-sites |
+| `main-arch.md` + `.json` | main process: bootstrap, windows/`webPreferences`, 5 full IPC chains, native bindings, updater | 121/121 citations verified by offset |
+| `native-re.md` + `.json` (+ `native-modules.md`/`.json`) | 9 native modules: sizes, md5, NAPI tables, dlopen, Frida inventory | `discord_voice.node` 126.1 MB (`5fe80ce0…`), `discord_krisp.node` 62.1 MB (`9be929d1…`) |
+| `frontend-d03.md` + `.json` | D-03: UI traces (search, emoji, members, settings, popover) + component contracts | 12 contracts; "ProBot" → 3302; ":fire" → 10 |
+| `i18n-deep.md` + `.json` (+ `i18n-stats.json`) | i18n: custom runtime, key-hash, pluralization, rich markup, locales | key = xxh64 LE → base64[0..6] (36 bits); 31/36 locales; 23,836 keys |
+| `architecture.md` | Mermaid graphs: processes, IPC chains, bridge, native modules, gateway, voice, REST | — |
 
-## 2. Покрытие против исходной таблицы
+## 2. Parity Against Initial Matrix
 
-| Строка | Было | Стало | Чем закрыто |
+| Domain | Prior State | Current State | Coverage Source |
 |---|---|---|---|
-| Транспорт/шлюз (ETF, zstd, heartbeat/resume) | ~90% | **≈97%** | `gateway-protocol.*` (+ исправление big-int, сверка со старой докой) |
-| Крипто голоса | ~95% (док потерян с tmpfs) | **≈95%, док восстановлен наблюдательно** | `voice-deep.md` §2.3–2.4 |
-| Голосовая сигнализация | ~85% | **≈95%** | 3 живые сессии + лог движка, `voice-deep.md` §1 |
-| Медиа RTP/RTCP, jitter-буфер | ~85% | **≈90%** (тела отчётов шифрованы) | `voice-deep.md` §2, лабораторный `strace-media-s3.jsonl` |
-| REST-клиент | ~60% | **≈90%** (D-02 закрыт) | `rest-d02.*`, санитизированный capture |
-| UI-кит / контракты компонент | ~90% / нет | **≈95%** | `frontend-d03.md` §5 (12 контрактов) |
-| Экраны: чат, DM, эмодзи, поповеры | ~55–65% | **≈90%** (D-03 закрыт) | `frontend-d03.*` |
-| i18n (плурализация/rich) | ~80% | **≈95%** | `i18n-deep.*` |
-| Ассеты / лицензии | ~95% / ограничение | без изменений | вне RE-объёма волны |
-| Оболочка ОС (трей, бейджи…) | ~30% | без изменений | generic-крайты, RE не требуется |
-| Стриминг со звуком (venmic/PipeWire) | ~20–30% | без изменений | вне RE-объёма (PoC R5) |
-| Бэкенд (main/IPC/нативные) | — | **добавлено** | `main-arch.*`, `backend-ipc.*`, `native-re.*` |
+| Transport/gateway (ETF, zstd, heartbeat/resume) | ~90% | **≈97%** | `gateway-protocol.*` (with big-int correction) |
+| Voice crypto | ~95% | **≈95%** | `voice-deep.md` §2.3–2.4 |
+| Voice signaling | ~85% | **≈95%** | 3 live sessions + engine logs, `voice-deep.md` §1 |
+| Media RTP/RTCP, jitter buffer | ~85% | **≈90%** | `voice-deep.md` §2, lab `strace-media-s3.jsonl` |
+| REST client | ~60% | **≈90%** | `rest-d02.*`, sanitized capture |
+| UI kit / component contracts | ~90% | **≈95%** | `frontend-d03.md` §5 (12 contracts) |
+| Screens: chat, DM, emoji, popovers | ~55–65% | **≈90%** | `frontend-d03.*` |
+| i18n (pluralization/rich) | ~80% | **≈95%** | `i18n-deep.*` |
+| Backend (main/IPC/native) | — | **complete** | `main-arch.*`, `backend-ipc.*`, `native-re.*` |
 
-## 3. Ключевые результаты (сжато)
+## 3. Key Findings Summary
 
-- **D-01 (READY/GUILD_CREATE) закрыт.** 4 полных READY: 4 логина, 40 ключей, 7 гильдий,
-  17 ЛС, 60 связей, 146 users, 157 read_state. GUILD_CREATE при `data_mode: full` не приходит:
-  все гильдии уже в `READY.guilds[]` (ITSKIDON: 83 канала, 34 роли, 46 эмодзи, 24 229 участников).
-- **D-02 (REST) закрыт.** Из живого захвата — 47 маршрутов `/api/v9`, тела POST/PUT/PATCH,
-  auth-поток (заголовки, `X-Super-Properties` 22 поля, build 641004); 98% трафика отсеяно как шум.
-- **D-03 (UI) закрыт.** Поиск (7 секций фильтров, сортировка), эмодзи-пикер (3 вкладки,
-  10 категорий), участники, настройки, поповер пользователя; 12 контрактов компонент с
-  вариантами/токенами/цитатами.
-- **Голос.** Полная сигнализация RTC-WS, байтовые структуры UDP (discovery/keepalive/RTP/SRTCP),
-  ротация медиа-сокета ровно +60,08 с (подтверждена strace, владелец — рендерер), DTX и
-  comfort-noise, режим `aead_aes256_gcm_rtpsize`, DAVE/MLS v1 в op4.
-- **Бэкенд.** 5 полных IPC-цепочек `DISCORD_*`, 168 каналов, мост `DiscordNative`, 9 нативных
-  модулей (суммарно 239 МБ), dlopen-зависимости (PipeWire/Vulkan/FFmpeg-unknown), апдейтер,
-  окна и `webPreferences`, фичефлаги, crashpad, деeplink/трей.
-- **i18n.** Собственный рантайм (не IntlMessageFormat): ключ = `xxh64(LE-байты) → base64[0..6]`
-  (36 бит; прежняя формула в доке была неверной), CLDR-плурализация ru + `=N`, 23 правила
-  rich-разметки, 31 из 36 локалей.
-- **Шлюз.** 11 фактических ETF-тегов, исправлено кодирование big-int (знак **до** цифр),
-  zstd-магия только в кадре 0, `op7 RECONNECT → RESUME → RESUMED` без разрывов `s`.
+- **D-01 (READY/GUILD_CREATE) Closed:** 4 complete READY payloads: 4 logins, 40 keys, 7 guilds, 17 DMs, 60 relationships, 146 users, 157 read_states. GUILD_CREATE is not dispatched when `data_mode: full` is active: all guilds are hydrated in `READY.guilds[]`.
+- **D-02 (REST) Closed:** From real capture — 47 routes in `/api/v9`, POST/PUT/PATCH bodies, auth flow (headers, `X-Super-Properties` 22 fields, build 641004).
+- **D-03 (UI) Closed:** Search (7 filter sections, sorting), emoji picker (3 tabs, 10 categories), members, settings, user popover; 12 component contracts with variants/tokens/quotes.
+- **Voice:** Complete RTC-WS signaling, UDP byte structures (discovery/keepalive/RTP/SRTCP), media socket rotation at +60.08 s, DTX and comfort noise, `aead_aes256_gcm_rtpsize` mode, DAVE MLS v1 in Opcode 4.
+- **Backend:** 5 complete IPC chains `DISCORD_*`, 168 channels, `DiscordNative` bridge, 9 native modules (totaling 239 MB), dlopen dependencies (PipeWire/Vulkan/FFmpeg), updater, windows and `webPreferences`, feature flags, crashpad, deep link/tray.
+- **i18n:** Custom runtime: key = `xxh64(LE bytes) → base64[0..6]` (36 bits), CLDR pluralization, 23 rich-text markup rules, 31 of 36 locales.
+- **Gateway:** 11 factual ETF tags, big-int encoding (sign precedes digits), zstd compression magic on frame 0, `op7 RECONNECT → RESUME → RESUMED` without sequence breaks.
 
-## 4. Методы волны
+## 4. Methodology
 
-| Метод | Что дал |
+| Tool/Method | Deliverable |
 |---|---|
-| ETF big-int по спецификации + сверка снежинок с REST/URL | корректные id в расшифровках |
-| Инкрементальный zstd-декодер (без `end()`) | 100% кадров 7 WS-сокетов |
-| strace → декод C-escape `iov_base` из `sendmsg/recvmsg` | **полные байты** UDP при truncated pcap |
-| tcpdump `-s 96` (snap) + собственные анализаторы | лёгкие pcap (2,6 МБ против 46 МБ) |
-| CDP-драйверы с доверенными `Input.*` + sentinel-файлы | UI-трассы без JS-кликов; чистый вход/выход голоса |
-| `ss -unap` в момент голоса | владелец медиа-сокета (pid/fd/порт) |
-| Верифицирующие воркеры (каждая цитата — по смещению) | 121/121 цитат main-arch; 104/104 проверок шлюза |
-| Санитайзер JSONL (ключи + inline-секреты), удаление `.orig` | пригодные для git артефакты без утечек |
+| Spec-compliant ETF big-int + Snowflake cross-ref with REST/URL | Verified Snowflake IDs in decodes |
+| Incremental streaming zstd decoder (without `end()`) | 100% frame recovery across 7 WS sockets |
+| strace → C-escape `iov_base` decode from `sendmsg/recvmsg` | Full UDP bytes during truncated pcap captures |
+| tcpdump `-s 96` (snap) + custom packet analyzers | Lightweight pcap captures (2.6 MB vs 46 MB) |
+| CDP drivers with trusted `Input.*` + sentinel files | Clean UI traces without intrusive JS clicks |
+| `ss -unap` at voice connection | Media socket owner identification (pid/fd/port) |
+| Verification workers (every quote mapped to file offset) | 121/121 main-arch citations verified |
+| JSONL sanitizer (keys + inline secrets) | Git-compliant sanitized artifacts |
 
-## 5. Воспроизведение (лаборатория)
+## 5. Reproduction (Cleanroom Environment)
 
 ```bash
-cd /home/sanya/re-deep
-node gw-decode.mjs < capture-ready.jsonl          # или gw-proto-analyze.mjs (7 сокетов)
-bash rest-d02-verify.sh                            # независимая сверка D-02 (exit 0)
+cd docs/re
+node gw-decode.mjs < capture-ready.jsonl
+bash rest-d02-verify.sh
 node voice/rtp-analyze.mjs voice/voice-udp3.pcap 104.29.147.145 voice-udp3.rtp.json
 node voice/strace-extract-packets.mjs voice/strace-renderer-s3.log 104.29.146.60 voice/strace-media-s3.jsonl
-node ui-search3.mjs ; node ui-voice4.mjs           # CDP 9223, копия Discord; sentinel: voice/LEAVE
 ```
 
-Точные имена/пути скриптов и дампов — в шапках самих документов (разделы «Методика»,
-«Артефакты», «Воспроизведение»). `rest-d02-verify.sh` рассчитан на лабораторный корень
-(путь в шапке скрипта).
-
-## 6. Пробелы и предложения (продолжение — по запросу)
-
-1. Пересоздать `VOICE-CRYPTO.md` (режимы 0–6) из `voice-deep.md` + строк `discord_voice.node`.
-2. Вложенный E2EE-слой DAVE/MLS (Cisco mlspp в `discord_voice.node`).
-3. Расшифровка первых 43-байтных пакетов talkspurt (нужен GCM-ключ из op4 + AAD/nonce-схема).
-4. GUILD_CREATE для интеграционного теста логина: приглашение/новая гильдия либо lazy-подписка.
-5. Spec-pack `messenger-client` для Rust-харнесса (фикстуры готовы).
-
-Ограничения: исходящие WS-кадры бинарные (маскированы) — inferились по длинам; тела RTCP
-шифрованы — потери/джиттер снаружи недоступны; закрытие старых fd при ротации в strace не видно.
+Full consumer architecture available in [rust-client](../rust-client/).

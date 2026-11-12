@@ -1,5 +1,5 @@
 $ flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-i18n --test i18n_contract exact_selector_offset_and_pound_use_plural_rules -- --exact
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: unused variable: `exact`
    --> crates/discord-i18n/src/lib.rs:515:17
     |

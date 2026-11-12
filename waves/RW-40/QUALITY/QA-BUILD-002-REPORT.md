@@ -3,7 +3,7 @@
 - **Задача QA:** `qa/task-120-qa-build-002` (`task_b08ae872706d`, `ctx_b606d5a5b3e3`)
 - **Роль:** Тестировщик QA (`G4 QA`)
 - **Рабочая ветка:** `qa/task-120-qa-build-002`
-- **Номер сборки:** `BUILD-002` ([waves/RW-40/BUILDS/BUILD-002.md](file:///home/sanya/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/BUILDS/BUILD-002.md))
+- **Номер сборки:** `BUILD-002` ([waves/RW-40/BUILDS/BUILD-002.md](file:///home/user/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/BUILDS/BUILD-002.md))
 - **Дата и время тестирования:** 2026-10-30, 20:26–20:44 +05:00
 - **Финальный вердикт по сборке `BUILD-002`:** **QA Passed** (`P0 = 0`, `P1 = 0`, `P2 = 3` — неблокирующие замечания)
 
@@ -30,7 +30,7 @@
 
 ## 2. Состав `BUILD-002` и сверка MD5
 
-Новые задачи поверх `BUILD-001` — `task-110` (`M-13-SEARCH-202-NSFW-BACKEND` Pass 2, [PR-04](file:///home/sanya/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/PR/PR-04-task-110-search-202-be.md)) и `task-109` (`BUGFIX-IPC-ORACLE-STRICT`, [PR-05](file:///home/sanya/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/PR/PR-05-task-109-ipc-oracle-strict.md)). Дополнительно проверены артефакты `task-116` ([PR-06](file:///home/sanya/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/PR/PR-06-task-116-qa-build-001.md)) и `task-118` ([PR-07](file:///home/sanya/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/PR/PR-07-task-118-parity-wave10.md)).
+Новые задачи поверх `BUILD-001` — `task-110` (`M-13-SEARCH-202-NSFW-BACKEND` Pass 2, [PR-04](file:///home/user/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/PR/PR-04-task-110-search-202-be.md)) и `task-109` (`BUGFIX-IPC-ORACLE-STRICT`, [PR-05](file:///home/user/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/PR/PR-05-task-109-ipc-oracle-strict.md)). Дополнительно проверены артефакты `task-116` ([PR-06](file:///home/user/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/PR/PR-06-task-116-qa-build-001.md)) и `task-118` ([PR-07](file:///home/user/orca/workspaces/project/qa-task-120-qa-build-002/waves/RW-40/PR/PR-07-task-118-parity-wave10.md)).
 
 | Файл | MD5 в `BUILD-002.md` | Фактический MD5 | Итог |
 |---|---|---|---|
@@ -97,7 +97,7 @@
 
 **Функциональное покрытие `PR-05` (строгий IPC-оракул) подтверждено тестами:** `channel_override_input_into_patch_rejects_foreign_channel_and_supports_override_field`, `every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main`, `tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or`, `tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or`, `ipc_error_kinds_serialize_to_expected_frontend_tags_without_leaking_secrets`.
 
-Дополнительно сверил живой UI-вызов: [notifications.js](file:///home/sanya/orca/workspaces/project/qa-task-120-qa-build-002/rust/gui-spike/ui/features/notifications.js) (`submitChannelOverridePatch`, строка ~1606) передаёт `override: overridePatch` верхним полем и конверт `patch.channel_overrides[channelId]` с тем же `channelId`. Строгий путь без fallback (`main.rs:841-857`) этот вызов не ломает — регрессии на рабочем сценарии нет.
+Дополнительно сверил живой UI-вызов: [notifications.js](file:///home/user/orca/workspaces/project/qa-task-120-qa-build-002/rust/gui-spike/ui/features/notifications.js) (`submitChannelOverridePatch`, строка ~1606) передаёт `override: overridePatch` верхним полем и конверт `patch.channel_overrides[channelId]` с тем же `channelId`. Строгий путь без fallback (`main.rs:841-857`) этот вызов не ломает — регрессии на рабочем сценарии нет.
 
 ### Шаг 2. Мета-политики (`BUILD-002.md` §2.2)
 

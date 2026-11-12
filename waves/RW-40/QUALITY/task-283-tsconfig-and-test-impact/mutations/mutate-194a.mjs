@@ -7,8 +7,8 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 
-const root = "/home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact";
-const artifacts = "/home/sanya/orca/project/waves/RW-40/QUALITY/task-283-tsconfig-and-test-impact";
+const root = "/home/user/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact";
+const artifacts = "/home/user/orca/project/waves/RW-40/QUALITY/task-283-tsconfig-and-test-impact";
 const target = join(root, "scripts/test-impact.mjs");
 const backup = join(artifacts, "mutations/test-impact.orig.mjs");
 const testLogs = join(artifacts, "mutations");

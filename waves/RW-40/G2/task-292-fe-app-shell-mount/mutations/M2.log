@@ -33,7 +33,7 @@ mutation applied, exit=1
 test at tests/unit/app-shell-wiring.test.mjs:454:1
 ✖ app.js: создаёт shellWiring и composerPopoversBridge внутри boot() с onDispatchIpc -> invoke (1.427511ms)
   AssertionError [ERR_ASSERTION]: shellWiring не прокидывает onDispatchIpc в invoke(command, payload)
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:474:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/unit/app-shell-wiring.test.mjs:474:12)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

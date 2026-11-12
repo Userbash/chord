@@ -290,14 +290,14 @@ describe("TASK-634: Константы RE-оракула Remote Auth v2 и чи�
     assert.equal(isValidSnowflake("18446744073709551616"), false);
 
     const userWithAvatar = parseRemoteAuthUserPayload(
-      "1301880740245405707:0:a_1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d:sanya_discord",
+      "1301880740245405707:0:a_1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d:remote_test_user",
     );
     assert.ok(userWithAvatar);
     assert.equal(userWithAvatar.id, "1301880740245405707");
     assert.equal(userWithAvatar.discriminator, "0");
     assert.equal(userWithAvatar.avatar, "a_1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d");
-    assert.equal(userWithAvatar.username, "sanya_discord");
-    assert.equal(userWithAvatar.tag, "sanya_discord");
+    assert.equal(userWithAvatar.username, "remote_test_user");
+    assert.equal(userWithAvatar.tag, "remote_test_user");
 
     const userZeroAvatar = parseRemoteAuthUserPayload("1301880740245405707:0421:0:legacy_user");
     assert.ok(userZeroAvatar);
@@ -358,7 +358,7 @@ describe("TASK-634: Интерактивный контроллер модалк
             },
             user: {
               id: "1301880740245405707",
-              username: "sanya_discord",
+              username: "remote_test_user",
               discriminator: "0",
             },
             timeout_ms: 120000,

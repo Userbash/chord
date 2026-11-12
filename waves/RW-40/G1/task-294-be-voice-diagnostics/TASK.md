@@ -21,7 +21,7 @@
 
 ## 2. Точный контракт (`rust/gui-spike/src/voice_diagnostics.rs`)
 
-Оракул `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0`:
+Оракул `reference-oracle/decoded/3eefa7dae1e2c234_0`:
 - Модуль `978171` (`offset 7458500..7465900`) — поля попапа `RTCConnectionPopout`.
 - Модуль `412780` (`offset 9264635`) — секции `RTCDebugModal` (`zWA`: `TRANSPORT`, `OUTBOUND`, `INBOUND`, `SCREENSHARE`, `CAMERA`, `CLIPS`, `STREAMS_OUTBOUND`, `STREAMS_INBOUND`), скользящее окно `600` точек `{ value, time }` в `RTCDebugStore` и `30` снимков в `MediaEngineStatsStore`.
 - Модули `917592` (`offset 6025550`) и `998759` (`offset 7464200`) — `Voice Privacy Code` (DAVE / Secure Frames): 30 десятичных цифр, разбитых на 6 групп по 5 цифр.
@@ -75,10 +75,10 @@
 
 ## 3. Команды верификации (Targeted T0)
 
-Используй общий `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Используй общий `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 ```bash
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test voice_diagnostics_contract
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test voice_diagnostics_contract -- -D warnings
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test voice_diagnostics_contract
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test voice_diagnostics_contract -- -D warnings
 node --test tests/unit/test-impact.test.mjs
 ```
 Отчёт оформи в `waves/RW-40/G1/task-294-be-voice-diagnostics/REPORT.md`. Не делай git merge в `unstable`.

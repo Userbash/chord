@@ -3,7 +3,7 @@
 - **Карточка:** `task-166` (`BE-P2-07`)
 - **Волна:** `RW-40`
 - **Роль:** Воркер G5 Platform / Voice
-- **Оракул:** `/home/sanya/re-deep/voice-deep.json` (`udp.rtcp.rr_client_empty` 28 Б layout, `udp.socket_lifecycle`: ротация каждые 60 080 мс, пустой RR 28 Б сразу после ротации), `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (§BE-P2-07).
+- **Оракул:** `reference-oracle/voice-deep.json` (`udp.rtcp.rr_client_empty` 28 Б layout, `udp.socket_lifecycle`: ротация каждые 60 080 мс, пустой RR 28 Б сразу после ротации), `waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (§BE-P2-07).
 
 ---
 
@@ -49,7 +49,7 @@ error[E0599]: no method named `rotate_if_due_srtcp` found for struct `UdpMediaSo
 Лог зафиксирован в `waves/RW-40/G5/task-166-voice-udp-rotate-srtcp/green.log`.
 Команда целевого прогона:
 ```bash
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice --test media_contract --test udp --lib
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice --test media_contract --test udp --lib
 ```
 Результаты:
 - `unittests src/lib.rs`: 14 passed, 0 failed

@@ -8,14 +8,14 @@
 | Карточка | Seat | Файлы (только эти) | Зависит от | Оракул |
 |---|---|---|---|---|
 | P7-01b ListFormat | CLIENT-1 / W27a | `discord-i18n/src/{list.rs,list_data.rs,lib.rs}`, `discord-i18n/tests/list_contract.rs` | P7-01 `[x]` | Node 24 `Intl.ListFormat`: `waves/RW-27/fixtures/list-oracle.json`, `generated/list_data.rs` |
-| P6-04 Deep links | PLATFORM-1 / W27b | `discord-platform/src/{deep_link.rs,lib.rs}`, `discord-platform/tests/deep_link_contract.rs` | P3-01 (headless-часть) | `docs/re/main-arch.md` §9.4, строки бандлов `/home/sanya/re-deep/out/bundles/*.js` |
+| P6-04 Deep links | PLATFORM-1 / W27b | `discord-platform/src/{deep_link.rs,lib.rs}`, `discord-platform/tests/deep_link_contract.rs` | P3-01 (headless-часть) | `docs/re/main-arch.md` §9.4, строки бандлов `reference-oracle/out/bundles/*.js` |
 | P6-03 Автозапуск + бейдж | PLATFORM-1 / W27b | `discord-platform/src/{autostart.rs,lib.rs}`, `discord-platform/tests/autostart_contract.rs` | P3-01 (headless-часть) | XDG Desktop Entry 1.5, Unity Launcher API; RE: `X-GNOME-Autostart-enabled` |
 
 Общие файлы: `discord-i18n/src/lib.rs` — только W27a; `discord-platform/src/lib.rs` — только W27b.
 Крейты разные, пересечения файлов нет. TL-2 принимает интеграционный дифф и запускает batch gate.
 
 Запрещено: чужие модули/тесты, `Cargo.toml`/`Cargo.lock`, `discord-core`, `discord-ui`, доки
-`STATE/STATUS/ROADMAP/TASKS/map`, golden (`logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`
+`STATE/STATUS/ROADMAP/TASKS/map`, golden (`logs/`, `functions/`, `evidence/`, `reference-oracle/`
 на запись), сеть, live Discord, `git commit/push`, `unsafe`.
 
 ## 2. Замороженный контракт

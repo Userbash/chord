@@ -2,7 +2,7 @@
 
 - **Роли:** DevOps / Integration + G4 QA Lead + G6 Tech Writer + PM Review
 - **Проверяемая сборка:** `discord-lab` (ветка `testing` / `main`, рабочее дерево `BUILD-004`)
-- **Манифест сборки:** [waves/RW-40/BUILDS/BUILD-004.md](file:///home/sanya/orca/project/waves/RW-40/BUILDS/BUILD-004.md)
+- **Манифест сборки:** [waves/RW-40/BUILDS/BUILD-004.md](file:///home/user/orca/project/waves/RW-40/BUILDS/BUILD-004.md)
 - **Дата и время сертификации:** 2026-11-07, 14:36 +05:00
 - **Финальный вердикт:** **QA Passed / Ready for Release** — `P0 = 0`, `P1 = 0`, `P2 = 0`.
 - **Мутационный гейт:** **5/5 мутаций убиты (100%)**, исходники побайтно верифицированы.
@@ -18,7 +18,7 @@
 | **ОС / Ядро** | `Linux 7.3.0-5-cachyos x86_64` |
 | **Node.js / npm** | `v26.13.0` / `11.20.0` |
 | **TypeScript (`tsc`)** | `Version 7.0.2` (`tsconfig.json` + `tsconfig.agent.json` — 0 ошибок) |
-| **Rust** | `rustc 1.99.0` / `cargo 1.99.0` (`CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`) |
+| **Rust** | `rustc 1.99.0` / `cargo 1.99.0` (`CARGO_TARGET_DIR=/home/user/orca/project/rust/target`) |
 | **Release бинарь** | `rust/dist/discord-rs` (SHA256: `42ba8f0938a03d998eac713f61aa56d1210b7ffb4e1261b719ed35bba93b12ae`) |
 | **SBOM спецификация** | `rust/dist/sbom.spdx.json` (98 пакетов, SHA256: `acb867f70bd6b4891a274388677363fbb9a521213234bbf384c14f9806de2921`) |
 | **Контрольные суммы** | `rust/dist/SHA256SUMS` (`sha256sum -c SHA256SUMS` — **ЦЕЛ**) |

@@ -1,4 +1,4 @@
-# window/layout facts from /home/sanya/orca/project/docs/re/main-arch.md
+# window/layout facts from /home/user/orca/project/docs/re/main-arch.md
 182:    width: 300, height: LOADING_WINDOW_HEIGHT, transparent: !1, frame: !1, resizable: !1, center: !0, show: !1,
 218:let mainWindowOptions = {
 219:    title: "Discord", backgroundColor: getBackgroundColor(), width: 1280, height: 720,

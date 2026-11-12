@@ -2,14 +2,14 @@
 
 - **Карточка / Задача:** `TASK-615` (`task_ab20b2b54613`, dispatch `ctx_c4357b09400f`)
 - **Отдел / Роль:** `G5 Voice & Platform` (Voice Lead)
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-615-rtp-video-dave`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-615-rtp-video-dave`
 - **Ветка:** `feature/task-615-rtp-video-dave`
 
 ---
 
 ## 1. Сделано
 
-1. **Сверка с эталонным RE-оракулом (`/home/sanya/re-deep/voice-deep.md` и `docs/re/voice-deep.md`):**
+1. **Сверка с эталонным RE-оракулом (`reference-oracle/voice-deep.md` и `docs/re/voice-deep.md`):**
    - Подтверждены константы видеокодеков из `default_client_codecs`: `AV1` (`PT=101`, `RTX PT=102`), `H265` (`PT=103`, `RTX PT=104`), `H264` (`PT=105`, `RTX PT=106`), `VP8` (`PT=107`, `RTX PT=108`), тактовая частота видео `90_000` Гц (`3_000` тиков/кадр для 30 fps, `1_500` тиков/кадр для 60 fps).
    - Подтверждены опкоды видеостриминга основного шлюза Discord `18..=22`: `STREAM_CREATE (18)`, `STREAM_DELETE (19)`, `STREAM_WATCH (20)`, `STREAM_PING (21)`, `STREAM_SET_PAUSED (22)` и формат `StreamKey` (`guild:{guild_id}:{channel_id}:{owner_id}`, `call:{channel_id}:{owner_id}`).
 2. **Реализован модуль `rust/crates/discord-voice/src/rtp/video.rs` (и `src/rtp/mod.rs`):**
@@ -41,7 +41,7 @@
 - **Тестовый файл:** `rust/crates/discord-voice/tests/rtp_video_contract.rs`
 - **Команда:**
   ```sh
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test rtp_video_contract
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test rtp_video_contract
   ```
 - **Лог:** `waves/RW-40/G5/task-615-rtp-video-dave/red.log`
 - **Результат Red-фазы (до реализации `rtp::video` и интеграции в `dave`):**
@@ -58,18 +58,18 @@
 
 - **Targeted-прогон (`rtp_video_contract`):**
   ```sh
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test rtp_video_contract
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice --test rtp_video_contract
   ```
   Результат: **`8 passed; 0 failed`**.
 - **Полный прогон пакета `discord-voice` (`waves/RW-40/G5/task-615-rtp-video-dave/green.log`):**
   ```sh
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p discord-voice
   ```
   Результат: **`225 passed; 0 failed`** (включая `35` unit-тестов и `190` интеграционных/контрактных тестов по всем 11 тестовым наборам `discord-voice`).
 - **Форматирование и статический анализ (`rustfmt` + `clippy`):**
   ```sh
   rustfmt --edition 2024 --check rust/crates/discord-voice/src/dave.rs rust/crates/discord-voice/src/rtp/mod.rs rust/crates/discord-voice/src/rtp/video.rs rust/crates/discord-voice/tests/rtp_video_contract.rs
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --all-targets -- -D warnings
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --all-targets -- -D warnings
   ```
   Результат: **`0 warnings, 0 errors`**.
 

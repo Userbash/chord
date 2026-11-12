@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
 error[E0063]: missing field `voice_states` in initializer of `discord_core::state::ReadySupplemental`
    --> crates/discord-core/tests/state_reducer.rs:433:50
     |

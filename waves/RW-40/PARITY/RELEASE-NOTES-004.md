@@ -11,7 +11,7 @@
 | **Мутации** | **5/5 (100%)** — полный срез мутационного тестирования пройден |
 | **SBOM & Release** | `rust/dist/discord-rs` + `rust/dist/sbom.spdx.json` (98 пакетов) + `SHA256SUMS` (верифицировано) |
 | **Предыдущая сборка** | `BUILD-003` (`PR-95`..`PR-124`, `RELEASE-NOTES-003.md`) |
-| **Манифест QA** | [waves/RW-40/QUALITY/QA-BUILD-004-REPORT.md](file:///home/sanya/orca/project/waves/RW-40/QUALITY/QA-BUILD-004-REPORT.md) |
+| **Манифест QA** | [waves/RW-40/QUALITY/QA-BUILD-004-REPORT.md](file:///home/user/orca/project/waves/RW-40/QUALITY/QA-BUILD-004-REPORT.md) |
 
 > **Примечание:** В соответствии с директивой Product Manager, сборка `BUILD-004` фиксируется в предрелизной ветке `beta` для проведения стресс-тестирования, интеграции видеоконвейера Go Live и серверного поиска, без публикации в стабильную ветку `main` («приложение на этапе активного тестирования, не релизить»).
 

@@ -8,9 +8,9 @@
 - **Файлы воркера**: `rust/crates/discord-core/src/identify.rs`,
   `rust/crates/discord-core/src/rest/identity.rs`. `super_properties.rs` не понадобился.
 - **Ветка/worktree**: `feature-task-140-unified-client-identity`, HEAD `4e24048`,
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Независимые оракулы**: код веб-клиента, `handleIdentify` в бандле
-  `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` —
+  `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` —
   `properties: {...L.default.getSuperProperties(), client_app_state, is_fast_connect,
   gateway_connect_reasons, ...installation_id}`; живые значения 22 полей —
   `docs/re/rest-d02.json` (`auth.superProperties`, `95974.2323`).

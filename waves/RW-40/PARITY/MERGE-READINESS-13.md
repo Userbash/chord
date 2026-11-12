@@ -1,6 +1,6 @@
 # MERGE-READINESS-13 — RW-40: 38 приёмок, beta/BUILD-004 = 38/38 IPC, unstable = 38/41
 
-Дата: **2026-10-31, 00:55 +05**. Снимок сделан по рабочему дереву `/home/sanya/orca/project`
+Дата: **2026-10-31, 00:55 +05**. Снимок сделан по рабочему дереву `/home/user/orca/project`
 и по веткам `main` / `unstable` / `testing` / `beta`.
 Воркер: **G6 Parity**, карточка **G6-PARITY-SYNC-13**, задача `task_17e8a0993772`.
 Режим — **read-only по продуктовому коду и тестам**: `cargo` не запускался, `git commit` не

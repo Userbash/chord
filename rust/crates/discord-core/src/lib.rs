@@ -12,6 +12,7 @@
 //! T-GW-02/04) и роутер диспатчей (RW-07/P1-06: op0 → 21 типизированный вид, raw со счётчиком,
 //! `events`/`take_events`, T-GW-08) реализованы и покрыты тестами.
 
+pub mod audit_log;
 pub mod dispatch;
 pub mod gateway;
 pub mod history;

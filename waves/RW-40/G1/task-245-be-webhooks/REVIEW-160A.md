@@ -11,14 +11,14 @@
 |---|---|
 | `rust/gui-spike/src/webhooks.rs` | `f4aab665ef767512aa9693affebb863d` |
 | `rust/gui-spike/tests/webhooks_contract.rs` | `1ec829a980b532208aadd86d01b413b7` |
-| `/home/sanya/orca/project/waves/RW-40/G1/task-245-be-webhooks/REPORT.md` | прочитан |
+| `/home/user/orca/project/waves/RW-40/G1/task-245-be-webhooks/REPORT.md` | прочитан |
 
 MD5 исходника совпадает с заявленным в `REPORT.md` §4 (`f4aab665ef767512aa9693affebb863d`), теста — с `1ec829a980b532208aadd86d01b413b7`.
 
 ## 2. Targeted-прогон (T0)
 
 ```sh
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test webhooks_contract
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test webhooks_contract
 ```
 
 Результат: `exit=0`, `test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out`. Совпадает с `green.log` из отчёта. Полный `--workspace`, `clippy`, `fmt` не запускались — по ТЗ это T1 integration-лейна.
@@ -41,7 +41,7 @@ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path
 
 ## 4. Проверка контракта по существу
 
-- **Константы:** `WEBHOOK_TYPE_INCOMING = 1`, `WEBHOOK_TYPE_CHANNEL_FOLLOWER = 2`, `WEBHOOK_TYPE_APPLICATION = 3`, границы имени `1..=80` — соответствуют Discord API v9 и ссылкам на `/home/sanya/re-deep/rest-static.json` (`CHANNEL_WEBHOOKS`, `CHANNEL_FOLLOWERS`).
+- **Константы:** `WEBHOOK_TYPE_INCOMING = 1`, `WEBHOOK_TYPE_CHANNEL_FOLLOWER = 2`, `WEBHOOK_TYPE_APPLICATION = 3`, границы имени `1..=80` — соответствуют Discord API v9 и ссылкам на `reference-oracle/rest-static.json` (`CHANNEL_WEBHOOKS`, `CHANNEL_FOLLOWERS`).
 - **Snowflake:** `1..=20` ASCII-цифр, без ведущего `'0'`, отрицательные/пробельные/буквенные отклоняются; границы `"1"` и 20 девяток покрыты тестами.
 - **`validate_webhook_name`:** `trim()` применяется до подсчёта длины; длина считается `chars().count()` (`ж` × 80 = 160 байт проходит), запрет `"clyde"` — точное совпадение после `to_lowercase()`, `ClydeBot` разрешён, `"discord"` — подстрока без учёта регистра.
 - **Маршруты и тела:** `/api/v9/channels/{channel_id}/webhooks` с `{"name", "avatar"}` (включая `null`) и `/api/v9/channels/{news_channel_id}/followers` с `{"webhook_channel_id"}`; самоподписка отклоняется явной ошибкой.

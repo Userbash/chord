@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path("/home/sanya/orca/workspaces/project/feature-task-271-ui-app-shell-wiring")
+REPO = Path("/home/user/orca/workspaces/project/feature-task-271-ui-app-shell-wiring")
 TARGET = REPO / "rust/gui-spike/ui/features/app-shell-wiring.js"
 TEST = REPO / "tests/unit/app-shell-wiring.test.mjs"
 ORIG_MD5 = "928cbb029bee1ae75ce4e80336a7a356"

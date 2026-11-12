@@ -41,31 +41,31 @@
          Adding zstd v0.14.3
          Adding zstd-safe v8.2.0
          Adding zstd-sys v2.1.2+zstd.1.5.7
-      Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-codec)
-      Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-json)
-      Compiling discord-platform v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-platform)
-      Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike)
-      Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-core)
+      Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-codec)
+      Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-json)
+      Compiling discord-platform v0.1.0 (/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-platform)
+      Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike)
+      Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/crates/discord-core)
        Finished `test` profile [unoptimized + debuginfo] target(s) in 11.50s
-        Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-8e41e2cb7a33998a)
-        Running unittests src/main.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-2a4610afc01a6de0)
-        Running tests/attachments_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/attachments_contract-35c7c9ee145b1c19)
-        Running tests/auth_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/auth_contract-ace10aa74d40df94)
-        Running tests/automod_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/automod_contract-7a57d88bf2b31f5a)
-        Running tests/bff_domains_router_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/bff_domains_router_contract-a0bb4013842d4a36)
-        Running tests/channels_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/channels_contract-1cb6150dc05253ed)
-        Running tests/core_bridge.rs (/home/sanya/orca/project/rust/target/debug/deps/core_bridge-3c8655ad34ae7102)
-        Running tests/data_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/data_contract-e56b284fa6b33574)
-        Running tests/dm_channels_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_channels_contract-81d0af1c309c3b53)
-        Running tests/dm_friends_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_friends_contract-87fcbf08462ea532)
-        Running tests/expressions_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/expressions_contract-edd6a2a9e37e4e00)
-        Running tests/forum_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/forum_contract-e0d93ef0ba52ee4e)
-        Running tests/guilds_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/guilds_contract-6606314a7310e605)
-        Running tests/history_before_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/history_before_contract-d4d92ca381f0403c)
-        Running tests/invites_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/invites_contract-64c7f15982b70679)
-        Running tests/ipc_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_contract-49abb5db1a649cbc)
-        Running tests/ipc_ext_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_ext_contract-55ca11259d83c4dd)
-        Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-15e345211bf223ea)
+        Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-8e41e2cb7a33998a)
+        Running unittests src/main.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-2a4610afc01a6de0)
+        Running tests/attachments_contract.rs (/home/user/orca/project/rust/target/debug/deps/attachments_contract-35c7c9ee145b1c19)
+        Running tests/auth_contract.rs (/home/user/orca/project/rust/target/debug/deps/auth_contract-ace10aa74d40df94)
+        Running tests/automod_contract.rs (/home/user/orca/project/rust/target/debug/deps/automod_contract-7a57d88bf2b31f5a)
+        Running tests/bff_domains_router_contract.rs (/home/user/orca/project/rust/target/debug/deps/bff_domains_router_contract-a0bb4013842d4a36)
+        Running tests/channels_contract.rs (/home/user/orca/project/rust/target/debug/deps/channels_contract-1cb6150dc05253ed)
+        Running tests/core_bridge.rs (/home/user/orca/project/rust/target/debug/deps/core_bridge-3c8655ad34ae7102)
+        Running tests/data_contract.rs (/home/user/orca/project/rust/target/debug/deps/data_contract-e56b284fa6b33574)
+        Running tests/dm_channels_contract.rs (/home/user/orca/project/rust/target/debug/deps/dm_channels_contract-81d0af1c309c3b53)
+        Running tests/dm_friends_contract.rs (/home/user/orca/project/rust/target/debug/deps/dm_friends_contract-87fcbf08462ea532)
+        Running tests/expressions_contract.rs (/home/user/orca/project/rust/target/debug/deps/expressions_contract-edd6a2a9e37e4e00)
+        Running tests/forum_contract.rs (/home/user/orca/project/rust/target/debug/deps/forum_contract-e0d93ef0ba52ee4e)
+        Running tests/guilds_contract.rs (/home/user/orca/project/rust/target/debug/deps/guilds_contract-6606314a7310e605)
+        Running tests/history_before_contract.rs (/home/user/orca/project/rust/target/debug/deps/history_before_contract-d4d92ca381f0403c)
+        Running tests/invites_contract.rs (/home/user/orca/project/rust/target/debug/deps/invites_contract-64c7f15982b70679)
+        Running tests/ipc_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_contract-49abb5db1a649cbc)
+        Running tests/ipc_ext_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_ext_contract-55ca11259d83c4dd)
+        Running tests/ipc_wiring_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_wiring_contract-15e345211bf223ea)
    error: test failed, to rerun pass `--test ipc_wiring_contract`
    
 ✖ workspace-rust — 4.9 с [код выхода ≠ 0]
@@ -146,8 +146,8 @@
    
    test at tests/smoke/gui-spike.smoke.test.mjs:22:3
    ✖ открывает окно и публикует проверяемый DOM-снимок (0.998151ms)
-     AssertionError [ERR_ASSERTION]: нет бинарника /home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike/target/debug/discord-gui-spike: на дисплее smoke обязателен (cargo build)
-         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/smoke/gui-spike.smoke.test.mjs:30:14)
+     AssertionError [ERR_ASSERTION]: нет бинарника /home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike/target/debug/discord-gui-spike: на дисплее smoke обязателен (cargo build)
+         at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/smoke/gui-spike.smoke.test.mjs:30:14)
          at Test.runInAsyncScope (node:async_hooks:226:14)
          at Test.run (node:internal/test_runner/test:1402:25)
          at Test.start (node:internal/test_runner/test:1262:17)
@@ -167,12 +167,12 @@
    
    test at tests/smoke/gui-window.smoke.test.mjs:16:3
    ✖ находит окно, элементы и снимает PNG (76.99802ms)
-     AssertionError [ERR_ASSERTION]: gui-window-probe: FAIL: нет бинарника /home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike/target/debug/discord-gui-spike (соберите: cargo build)
+     AssertionError [ERR_ASSERTION]: gui-window-probe: FAIL: нет бинарника /home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike/target/debug/discord-gui-spike (соберите: cargo build)
      
      
      1 !== 0
      
-         at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/smoke/gui-window.smoke.test.mjs:35:14)
+         at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/tests/smoke/gui-window.smoke.test.mjs:35:14)
          at Test.runInAsyncScope (node:async_hooks:226:14)
          at Test.run (node:internal/test_runner/test:1402:25)
          at Test.start (node:internal/test_runner/test:1262:17)
@@ -191,7 +191,7 @@
      }
    
 
-Отчёт гейта: /home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/.gate/worker-2026-10-31T07-20-45-799Z.json
+Отчёт гейта: /home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/.gate/worker-2026-10-31T07-20-45-799Z.json
 ⚠ smoke: пропущено 1 тестов — пропуск прохождением не считается
 Вердикт: failed
 Приёмка: н/д (worker-гейт)

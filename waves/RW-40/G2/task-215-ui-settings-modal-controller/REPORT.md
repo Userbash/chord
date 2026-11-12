@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-215` (`feature/task-215-ui-settings-modal-controller`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/ui8/23-settings-categories.json`, `/home/sanya/re-deep/ui8/23-settings-voice.html`, `/home/sanya/re-deep/frontend-d03.md` (§4.1–§4.2, §5 Modal).
+- **Оракулы**: `reference-oracle/ui8/23-settings-categories.json`, `reference-oracle/ui8/23-settings-voice.html`, `reference-oracle/frontend-d03.md` (§4.1–§4.2, §5 Modal).
 
 ## Сделано
 1. `tests/unit/settings-modal.test.mjs` (Red → Green, 10 тестов в 5 suites, `// @ts-check` + JSDoc):
@@ -20,8 +20,8 @@
    - экспортированы `SETTINGS_TABS_RU`, `DEFAULT_SETTINGS_CONFIG`, `CLOSE_SETTINGS_LABEL_RU`, `LOGOUT_BUTTON_LABEL_RU`, `LOGOUT_CONFIRM_PROMPT_RU` и `createSettingsModalController(containerEl, initialConfig, options)`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/settings-modal.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-215-ui-settings-modal-controller/red.log`.
-- **Green**: `node --test tests/unit/settings-modal.test.mjs` → `tests 10, suites 5, pass 10, fail 0`, лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-215-ui-settings-modal-controller/green.log`.
+- **Red**: `node --test tests/unit/settings-modal.test.mjs` → `tests 1, pass 0, fail 1` (`ERR_MODULE_NOT_FOUND`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-215-ui-settings-modal-controller/red.log`.
+- **Green**: `node --test tests/unit/settings-modal.test.mjs` → `tests 10, suites 5, pass 10, fail 0`, лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-215-ui-settings-modal-controller/green.log`.
 - **Typecheck (targeted)**: проверка `rust/gui-spike/ui/features/settings-modal.js` и `tests/unit/settings-modal.test.mjs` через `npx tsc -p tsconfig.json --noEmit` — `0 errors`.
 - **Gate**: полный `gate:worker` не запускался (режим ТЗ карточки); чужие файлы не затронуты.
 
@@ -29,8 +29,8 @@
 ```
 dd3f783716ae3fc15f9ac2522d7564bf  rust/gui-spike/ui/features/settings-modal.js
 deb64673bd4fdf2ea8d2cb53b58affe5  tests/unit/settings-modal.test.mjs
-634fe077c2991e41508e9a82516844c1  /home/sanya/orca/project/waves/RW-40/G2/task-215-ui-settings-modal-controller/red.log
-629d8e730232c78c5a584d5c70c41567  /home/sanya/orca/project/waves/RW-40/G2/task-215-ui-settings-modal-controller/green.log
+634fe077c2991e41508e9a82516844c1  /home/user/orca/project/waves/RW-40/G2/task-215-ui-settings-modal-controller/red.log
+629d8e730232c78c5a584d5c70c41567  /home/user/orca/project/waves/RW-40/G2/task-215-ui-settings-modal-controller/green.log
 ```
 
 ## Риски

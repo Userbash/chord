@@ -1,7 +1,7 @@
 # B2a-ATTACH-TIER-FIX green (после restore мутаций) — 2026-10-30T16:58:21+05:00
 
 ## CARGO_TARGET_DIR=/tmp/target-g1-attach cargo test --offline -p discord-gui-spike --test attachments_contract
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.89s
      Running tests/attachments_contract.rs (/tmp/target-g1-attach/debug/deps/attachments_contract-10b1b5f3f7986118)
 

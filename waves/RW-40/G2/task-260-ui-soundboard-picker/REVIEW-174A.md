@@ -20,7 +20,7 @@
 | `git status` по целевым файлам | оба `??` (untracked), коммитов нет, посторонних правок нет |
 
 Оракульная сверка: маршруты из `REPORT.md` подтверждены в RE-дампе —
-`/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`:
+`reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`:
 `GUILD_SOUNDBOARD_SOUNDS: e => "/guilds/${e}/soundboard-sounds"`,
 `SEND_SOUNDBOARD_SOUND: e => "/channels/${e}/send-soundboard-sound"`.
 Лимиты `2..=32` символа, `524288` байт и громкость `0..1` зафиксированы тестом T-260-01 и соответствуют карточке.

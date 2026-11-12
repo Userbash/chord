@@ -1,7 +1,7 @@
 # PR #01 — `rw40/review-search-202-p2` -> `staging/rw-40`
 
-- **Ветка источника:** `rw40/review-search-202-p2` (`/home/sanya/orca/workspaces/project/rw40-review-search-202-p2`)
-- **Целевая промежуточная ветка:** `staging/rw-40` (`/home/sanya/orca/workspaces/project/staging-rw-40`)
+- **Ветка источника:** `rw40/review-search-202-p2` (`/home/user/orca/workspaces/project/rw40-review-search-202-p2`)
+- **Целевая промежуточная ветка:** `staging/rw-40` (`/home/user/orca/workspaces/project/staging-rw-40`)
 - **Воркер / Ревьюер:** `ctx_b018645a67c3` (`opencode` / `deepseek/deepseek-v4.1-flash`)
 - **Вердикт PM & DeepSeek:** **PASS (P0=0, P1=0, P2=0)**
 - **Файлы в PR:**

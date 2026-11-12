@@ -1,174 +1,161 @@
-# TEST-POLICY — запрет ослабления тестов и решений мимо проверок
+# TEST-POLICY — Prohibition of Test Weakening and Decisions Bypassing Verification
 
-Статус: **обязательна** для всех ролей (PM, воркеры, ревьюеры, координатор, владелец).
-Дата: 2026-10-23. Основание: инциденты RW-38/LOOP-01, RW-39 (e2e skip, UI без coverage).
+Status: **Mandatory** across all roles (Product Managers, developers, reviewers, coordinator, owner).  
+Date: 2026-10-23. Baseline: Incidents RW-38/LOOP-01, RW-39 (e2e skip, UI without coverage).
 
-## 1. Область
+---
 
-Правило действует для любого изменения: код, тесты, фикстуры, CSS, разметка, скрипты,
-конфиги, документация контрактов, сетевые модули. «Маленькое» изменение не исключение.
+## 1. Scope
 
-## 2. Абсолютные запреты (нарушение = P0, работа возвращается целиком)
+This policy governs every change: source code, tests, fixtures, CSS, markup, automation scripts, configuration, wire contracts, and network modules. "Minor" changes are not exempt.
 
-1. **Ослаблять тесты**: удалять/комментировать `assert`, понижать пороги, расширять допуски,
-   заменять точное сравнение «примерно», отключать проверки, увеличивать таймауты без причины.
-2. **Подгонять тест под код**: менять ожидания, чтобы «позеленело», без изменения контракта.
-3. **Прятать падения**: `skip`/`todo`/`only`, пустые тесты, `assert.ok(true)`, `try/catch`
-   вокруг проверки, `console.log` вместо assert.
-4. **Отключать инструменты**: `--no-verify`, отключение линтера/типов, `@ts-ignore`,
-   `eslint-disable` в тестах без письменного обоснования, правка `tsconfig` ради «зелени».
-5. **Принимать работу мимо проверок**: «я посмотрел», скриншот без команды, слова «должно
-   работать», отчёт без логов, решение PM «по опыту», устное «ок» владельца без записи.
-6. **Сливать/пушить с красным или неизвестным статусом** проверок.
-7. **Менять оракул** (эталонные значения, фикстуры, эталонный дамп) без независимого
-   доказательства: RE-дамп, измерение, спецификация, решение PM в `DECISIONS.md`.
-8. **Удалять/переименовывать тест**, чтобы скрыть падение; удаление теста = отдельная карточка
-   с обоснованием и приёмкой.
+---
 
-## 3. Обязательный цикл (TDD)
+## 2. Absolute Prohibitions (Violation = P0 Blocker, Work Rejected)
 
-1. **RED**: тест, который падает по правильной причине. Зафиксировать команду, exit code,
-   первую строку ошибки, путь лога.
-2. **GREEN**: минимальный код, чтобы тест прошёл; без «заодно».
-3. **TARGETED**: тесты своего модуля + смежных контрактов.
-4. **GATE**: `npm run gate:worker` (или `gate:release` на приёмке) + Rust-тесты.
-5. **REVIEW**: автор ≠ ревьюер; проверяется диф тестов и отсутствие ослаблений.
-6. **MUTATION** (для новых инвариантов): мутант должен быть caught; missed — карточка.
+1. **Weakening Tests:** Deleting or commenting out `assert` calls, lowering coverage thresholds, broadening tolerance ranges, replacing exact equality with approximate checks, disabling assertions, or increasing timeouts without justification.
+2. **Fitting Tests to Code:** Modifying expected values to force a passing status without an underlying contract change.
+3. **Concealing Failures:** Using `skip`, `todo`, `only`, empty test bodies, `assert.ok(true)`, wrapping assertions in empty `try/catch` blocks, or substituting assertions with `console.log`.
+4. **Disabling Quality Tools:** Using `--no-verify`, bypassing linters or type checkers, using `@ts-ignore` or `eslint-disable` in test suites without written justification, or relaxing `tsconfig` flags to mask errors.
+5. **Accepting Work Bypassing Verification (decisions bypassing tests):** Visual inspections without automated commands, screenshots lacking reproducible command logs, verbal assurances that code "should work", reports without execution logs, or undocumented sign-offs.
+6. **Merging or Pushing Unverified Code:** Merging code with failing or unexecuted test suites.
+7. **Modifying Oracles:** Changing golden references, fixtures, or clean-room dumps without independent provenance: clean-room traces, measured data, formal specifications, or logged architectural decisions in `DECISIONS.md`.
+8. **Deleting or Renaming Tests to Hide Failures:** Deleting tests requires a distinct task card with explicit architectural justification and review.
 
-Без RED-лога продуктовый код не принимается. Исключение — чисто механическая правка
-(форматирование, переименование без поведения), но и она проходит целевые тесты.
+---
 
-## 4. Доказательства (evidence)
+## 3. Mandatory Development Cycle (Strict TDD)
 
-Каждая проверка оформляется строкой:
+1. **RED:** Write a test that fails for the expected reason. Record the command, exit code, error line, and log path.
+2. **GREEN:** Write the minimal code necessary to satisfy the test.
+3. **TARGETED:** Execute targeted tests for the modified module and adjacent integration boundaries.
+4. **GATE:** Run the standard worker gate `npm run gate:worker` (or `gate:release` for release acceptance).
+5. **REVIEW:** Author ≠ Reviewer. Reviewers inspect test diffs to ensure no assertions were weakened.
+6. **MUTATION:** Verify that control mutations are killed (`5/5`); surviving mutants require remediation.
 
+Production code is never accepted without red-phase verification logs. Mechanical refactoring (formatting, non-semantic renaming) must still pass targeted test suites.
+
+---
+
+## 4. Verification Evidence
+
+Every verification step is documented as:
+
+```text
+command → exit code → artifact (path to log / JSON / test report)
 ```
-команда → exit code → артефакт (путь к логу/JSON/PNG)
-```
 
-- Логи не переписываются после факта; повтор — новый файл.
-- Скриншот/PDF без команды — не доказательство.
-- «Зелёный» отчёт без exit code — не принимается.
-- Для live-проверок: PID, окно, PNG, AT-SPI-снимок, запись в `window-runs.jsonl`.
+- Logs must not be modified retroactively; repeated executions produce new timestamped files.
+- Screenshots without accompanying reproduction commands do not constitute proof.
+- Reports lacking exit codes are invalid.
+- For live desktop verifications: process PID, window ID, AT-SPI dump, and entries in `window-runs.jsonl`.
 
-## 5. Изменение тестов (единственный легальный путь)
+---
 
-Разрешено только при **изменении контракта**, и только так:
+## 5. Test Modifications (Canonical Procedure)
 
-1. Есть независимый источник: RE-дамп, измерение, SPEC, ADR, решение PM.
-2. В отчёте — таблица `old → new → основание`.
-3. Мутация доказывает, что новый тест ловит старое поведение (или явно фиксируется
-   эквивалентность).
-4. Диф тестов проверяет **не автор**; PM подтверждает.
-5. Запись в `DECISIONS.md` (ID, дата, причина, риск).
+Test modification is permitted **only when the underlying specification or contract changes**, following this protocol:
 
-## 6. Отступления (waiver)
+1. **Independent Provenance:** Reference a clean-room trace, empirical measurement, formal specification, or approved ADR.
+2. **Audit Table:** Include a diff table: `Old Contract → New Contract → Technical Justification`.
+3. **Mutation Proof:** Demonstrate that the updated test detects regressions to the prior implementation.
+4. **Independent Review:** The test diff must be reviewed and approved by an engineer other than the author.
+5. **Audit Trail:** Record the modification in `DECISIONS.md` (ID, timestamp, rationale, impact).
 
-- Только письменно, только владелец/Team Lead, только в `DECISIONS.md`/`WAIVERS.md`.
-- Обязательны: область, срок, риск, компенсирующий контроль, кто проверяет.
-- **Запрещены waiver'ы**: на P0/безопасность, на отсутствие тестов у нового кода, на
-  красный gate, на e2e/QA-матрицу при приёмке релиза.
-- Истёкший waiver = нарушение.
+---
 
-## 7. Роли и ответственность
+## 6. Waivers and Exemptions (waiver)
 
-| Роль | Обязанность |
+- Granted strictly in writing by the Project Owner or Team Lead in `DECISIONS.md` / `WAIVERS.md`.
+- Required fields: Scope, expiration date, technical risk, compensating controls, designated verifier.
+- **Prohibited Waivers:** No waivers may be granted for P0 security items, new code without unit tests, failing release gates, or missing release regression matrices.
+- Expired waivers are treated as policy violations.
+
+---
+
+## 7. Roles and Responsibilities
+
+| Role | Responsibility |
 |---|---|
-| Автор | red-first, тесты, логи, не трогать чужие тесты |
-| Ревьюер | проверить диф тестов, отсутствие ослаблений, воспроизвести ключевую команду |
-| PM | независимая проверка команд, запрет приёмки без evidence, ведение `LOOP-LEDGER` |
-| Координатор | не коммитить/не пушить без зелёного gate и QA-вердикта |
-| QA | матрица кнопок, live/AT-SPI, дефекты только с repro |
-
-## 8. Принуждение
-
-- `tests/meta/test-policy.test.mjs` — автоматически запрещает `.only`, пустые assert,
-  `todo`, `--no-verify`, проверяет наличие политики и фаз гейта.
-- Codex-Review / REV-1 — независимый проход по diff тестов.
-- `loop-guard.mjs` — 3-я одинаковая попытка запрещена; смена подхода обязательна.
-- Нарушение: возврат работы, откат правки теста, запись в `LOOP-LEDGER`, при повторном —
-  эскалация владельцу.
-
-## 9. Definition of Done изменения
-
-- [ ] RED-лог (команда + ошибка) до кода.
-- [ ] GREEN + targeted-тесты.
-- [ ] Новые инварианты покрыты; мутации caught.
-- [ ] `gate:worker`/`gate:release` — passed (skip только с причиной и не на дисплее).
-- [ ] Диф тестов проверен не автором.
-- [ ] Нет ослаблений: assert/skip/threshold/coverage не ухудшены.
-- [ ] Evidence приложен; md5 файлов совпадают.
-- [ ] Для live — окно согласовано, запись в бюджете.
-
-## 10. Что считается «решением мимо тестов»
-
-- «Проверил глазами» без команды.
-- «Тест флейкует, поэтому отключил».
-- «Поменял ожидание, потому что код правильный».
-- «e2e всё равно skip, примем так».
-- «PM сказал, что работает».
-- «Сеть недоступна» без `EnvFail` и записи причины.
-- Любое «потом добавим тест» после слияния.
-
-Такие решения недействительны; работа возвращается, решение отменяется.
-
+| Author | Strict TDD (red-first), comprehensive test suites, logs, strictly respecting file scopes |
+| Reviewer | Audits test diffs, confirms no assertions were weakened, reproduces key commands |
+| Product Manager (PM) | Validates command execution, rejects work lacking evidence, maintains decision ledgers |
+| Coordinator | Enforces green CI gates and QA verdicts before merging or tagging releases |
+| QA Specialist | Validates edge-case matrices, AT-SPI accessibility, and reproduces defects |
 
 ---
 
-## 11. Двенадцать уровней тестирования (`TEST-STRATEGY-V2`)
+## 8. Automated Enforcement and Guardrails
 
-Полная детализация — в `waves/RW-40/QUALITY/TEST-STRATEGY-V2.md`. В проекте поддерживаются 12 уровней:
-1. **Unit:** чистые функции, парсеры CLI (`args`, `calls`, `csv`, `domains`, `nm`, `paths`), редьюсеры `discord-core`, изолированные рендереры.
-2. **Integration:** связка `discord-core <-> discord-gui-spike` (`core_bridge`, `data_contract`), `discord-store` (SQLite), конвейер `Frida <-> CDP <-> Walk Log`.
-3. **Contract:** `38/38` IPC-оракул (`tests/meta/ipc-path.test.mjs` + `rust/gui-spike/tests/ipc_wiring_contract.rs`), `stream_gateway_contract.rs` (`OP 18..=22`), `002-READY.json`, `waves-sync`, `plan-sync`.
-4. **API (REST/HTTP Mock):** проверка методов, маршрутов, заголовков (`Authorization`, `X-Super-Properties`), query-параметров и статусов (`200`, `202`, `204`, `400`, `401`, `403`, `404`, `413`, `429`, `5xx`) на локальном `TcpListener` (`127.0.0.1:0`).
-5. **E2E:** сквозные сценарии в Playwright + бинарник (`m2-auth-gate`, `m2-channel-send`, `m2-guild-switch`, `m2-reconnect`, `m2-search-error`, `m2-settings-reload`, `m2-voice-idle`, `walk-fixture`).
-6. **UI:** компонентные и интерактивные состояния DOM (`gui-spike-dom`, `gui-spike-features`, `notifications-ui`, `voice-devices-settings`, `dm-friends-ui`, `search-remote-real-index`, `attachments-render`, `chat-reactions`).
-7. **Visual:** CSS-брейкпоинты и токены (`design-breakpoints.test.mjs`) + геометрия окна под Xvfb (`gui-window.smoke.test.mjs`).
-8. **Accessibility (A11y):** роли (`dialog`, `tablist`, `tab`, `status`, `alert`), `aria-live`, `aria-busy`, `aria-selected`, `focus trap`, клавиатура (`Escape`, `Tab`, `Enter`, `Arrow*`).
-9. **Performance:** бюджеты парсинга `002-READY.json` и редьюсера (`perf_contract.rs`) + микробенчмарки UI (`gui-spike-bench.test.mjs`).
-10. **Security:** системный Keyring (`keyring_contract`, `keyring_offline_contract`), защита от XSS (`textContent`, запрет `javascript:`/`data:` URL в аттачах), SRTP (`srtp_contract`), SBOM и `SHA256SUMS`.
-11. **Regression:** исторические баги и гонки состояния (`gui-spike-regressions`, `channel-switch`, `read-state-ui`).
-12. **Smoke:** проверка запускаемости CLI, нативных утилит и бинарника с кодами выхода `0`/`1`/`2` (`tests/smoke/*.smoke.test.mjs`).
+- `tests/meta/test-policy.test.mjs` — Automatically prevents `.only`, empty assertions, `todo`, and `--no-verify`, while validating mandatory testing phases.
+- Independent Review: Mandatory review pass specifically examining test diffs.
+- Continuous Loop Guard: A third identical failing attempt is blocked; developers must revise their approach.
+- Policy Violations: Work rejection, rollback of offending test modifications, and escalation.
 
 ---
 
-## 12. Распределение по критичности (`P0–P3`) и этапам CI (`T0–T4`)
+## 9. Definition of Done (DoD)
 
-- **Запрет понижения приоритета:** ни один существующий тест никогда не переводится в более низкий приоритет; все действующие тесты остаются блокирующими (`P0` или `P1`). Классы `P2` и `P3` применяются только к новым расширенным нагрузочным/стресс/soak проверкам.
-- **Этапы CI:**
-  - `T0 (Worker Targeted Gate, 3–8 с)`: `node scripts/test-impact.mjs --run` + целевой `cargo test --test <slice>_contract` + `meta` (`test-policy`, `ipc-path`) + `tsc`.
-  - `T1 (PR / Batch Gate -> unstable, 18–25 с)`: `npm run gate:worker` (все `P0/P1` + `5/5` мутаций).
-  - `T2 (Centralized QA Build -> testing, 35–45 с)`: 100% прогон без фильтрации `test-impact` + `npm run test:coverage` (`90/90/80`).
-  - `T3 (Pre-Release & Release Gate -> beta/main, 45–60 с)`: `npm run gate:release` (`failOnSkips: true`, `minPass`, live keyring, `SHA256SUMS`, SBOM).
-  - `T4 (Nightly / Soak)`: многократные повторы `e2e`/`smoke` и стресс-профили `discord-perf`.
-
----
-
-## 13. Девять обязательных измерений покрытия для каждого среза
-
-Каждый модуль обязан покрывать:
-1. **Негативные сценарии** (невалидные ID, пустые поля, отказ внешнего инструмента -> код `1`/`2`).
-2. **Граничные значения** (Snowflake `0`/`1`/`u64::MAX`, сообщение `0`/`2000`/`2001`/`4000` символов, `0`/`1`/`10` вложений и `25 МБ ± 1B`, поиск `offset=9975`, громкость `0..200`, бейдж `99+`).
-3. **Состояния ошибок** (`400`, `401` auth-gate, `403` Missing Access / NSFW, `404`, `413`, `429 retry_after_ms` с cooldown, `5xx`/disconnect).
-4. **Пустые состояния (`empty`)** (нет каналов, нет сообщений, `total_results: 0`, пустые списки друзей/устройств).
-5. **Загрузочные и индексные состояния (`loading` / `202`)** (`skeleton`, `aria-busy="true"`, `HTTP 202 Accepted` с повторным опросом вместо ошибки).
-6. **Права доступа и Capabilities** (`VIEW_CHANNEL`, `SEND_MESSAGES`, `ADD_REACTIONS`, `ATTACH_FILES`, `MANAGE_MESSAGES`, `STREAM`, `is_owner`, `AGE_GATED_SPACES`, `data-capability-*`).
-7. **Восстановление (`recovery`)** (`Gateway Resume OP 6 -> Identify OP 2`, `Voice Reconnect`, fallback настроек при битом JSON / недоступном Keyring).
-8. **Совместимость (`compatibility`)** (forward-compatible парсинг `002-READY.json`, миграция старых конфигов `settings_store.rs`, работа под `Xvfb`).
-9. **Наблюдаемость (`observability`)** (артефакты `.gate/*.json`, `logs/window-runs.jsonl`, метрики `stats_contract.rs`, маскирование секретов `[REDACTED]`).
+- [ ] RED phase log (command + error) recorded before implementation.
+- [ ] GREEN phase log + targeted tests passing.
+- [ ] New behavioral invariants covered; 5/5 control mutations killed.
+- [ ] `gate:worker` / `gate:release` passing (skips require explicit justification).
+- [ ] Test diff audited and approved by an independent reviewer.
+- [ ] No weakened assertions, lowered thresholds, or compromised coverage.
+- [ ] Verification evidence attached; file SHA-256 hashes verified.
 
 ---
 
-## 14. Карантин Flaky-тестов и пороги качества CI
+## 10. Prohibited Workarounds / Decisions Bypassing Tests (decisions bypassing tests)
 
-- **Протокол карантина (`SLA <= 24ч`):** тест, прошедший в `scripts/gate.mjs` только со 2-й попытки (`attempts === 2` в `.gate/e2e.json`), помечается как `FLAKE-DETECTED (P1)`, не отключается и не понижается в приоритете; создаётся `bugfix/task-*` со сроком исправления `<= 24ч`.
-- **Пороги качества CI:** `Pass Rate (P0/P1) = 100%`, `lines >= 90%`, `branches >= 90%`, `functions >= 80%`, `Mutation Score = 100% (5/5 killed)`, `IPC Parity = 38/38 (100%)`, `Flaky Rate = 0%` на `beta`/`main`.
-
+The following practices are invalid and will result in rejected pull requests:
+- "Visually verified" without a reproducible command.
+- "Disabled the test because it was flaky."
+- "Updated assertions to match code because the code is correct."
+- "Accepted with failing E2E because E2E is skipped anyway."
+- "The PM verbally said it works."
+- "Network unavailable" without logging a structured `EnvFail` code.
+- Deferring tests with promises to "add tests later after merge."
 
 ---
 
-## 15. Независимый RE-оракул `/home/sanya/re-deep` и верификация через `rea`
+## 11. The Twelve Testing Tiers (`TEST-STRATEGY-V2`)
 
-- Эталонным оракулом для контрактных, модульных и UI-тестов (наряду с `logs/golden/`) служит каталог `/home/sanya/re-deep/` и инструменты MCP-сервера `rea` (`reverse-engineer-anything`).
-- При проверке незнакомых функций или спорных контрактов (например, диапазонов VAD, структуры ошибок REST, правил сериализации Snowflake/ETF, ключей локализации `xxh64` или DOM-структуры компонентов) тест и реализация обязаны опираться на фактические данные из `/home/sanya/re-deep/` или прямую трассировку через `rea` на артефактах / отдельном процессе Discord, а не на предположения автора кода.
+1. **Unit:** Pure functions, CLI parsers (`args`, `calls`, `csv`, `domains`), core reducers, isolated view helpers.
+2. **Integration:** Core and GUI bridge integration, SQLite storage engines, Frida / CDP pipelines.
+3. **Contract:** IPC contracts, Gateway streaming contracts (Opcodes `18..=22`), `002-READY.json` schemas, journal integrity.
+4. **API (REST/HTTP Mock):** Endpoints, headers (`Authorization`, `X-Super-Properties`), query parameters, and HTTP status codes (`200..5xx`) via local mock servers.
+5. **E2E:** End-to-end user journeys in Playwright and native harnesses (authentication, messaging, voice idle, search errors).
+6. **UI:** Component layout and interaction states (composer, reactions, friends list, attachment shelf).
+7. **Visual:** Responsive breakpoint verification, CSS design tokens, and window geometry under virtual displays (Xvfb).
+8. **Accessibility (A11y):** ARIA roles (`dialog`, `tablist`, `alert`), `aria-live`, focus traps, keyboard navigation (`Escape`, `Tab`, `Arrow*`), and AT-SPI D-Bus integration.
+9. **Performance:** Ready-payload parse budgets, reducer execution timings (`perf_contract`), and frame rendering budgets (`< 8.33 ms` for 120 FPS).
+10. **Security:** OS Keyring storage (`keyring_contract`), XSS prevention (`textContent`, scheme validation), SRTP voice crypto, and SBOM / SHA256SUMS integrity.
+11. **Regression:** Targeted regression suites preventing historical defects and race conditions.
+12. **Smoke:** Cold startup verification for CLI and GUI binaries with explicit exit codes (`0`/`1`/`2`).
+
+---
+
+## 12. Severity Classification (`P0–P3`) and CI Stages (`T0–T4`)
+
+- **No Priority Downgrades:** Existing test cases must never have their severity demoted; all current suites are blocking (`P0` or `P1`).
+- **CI Pipeline Stages:**
+  - `T0 (Worker Targeted Gate, 3–8s)`: `node scripts/test-impact.mjs --run` + targeted contract tests.
+  - `T1 (PR / Batch Gate -> unstable, 18–25s)`: `npm run gate:worker` (`P0/P1` suites + 5/5 mutation gate).
+  - `T2 (Centralized QA Build -> testing, 35–45s)`: Full test suite execution + coverage verification (`90/90/80`).
+  - `T3 (Release Gate -> beta/main, 45–60s)`: `npm run gate:release` (`failOnSkips: true`, package checksums, SBOM).
+  - `T4 (Nightly / Soak)`: Extended multi-hour soak stability tests and fuzzing targets.
+
+---
+
+## 13. Nine Mandatory Coverage Dimensions per Slice
+
+1. **Negative Scenarios:** Malformed inputs, missing identifiers, graceful recovery (exit codes `1`/`2`).
+2. **Boundary Conditions:** Snowflake bounds (`0`/`1`/`u64::MAX`), message character limits (`0`/`2000`/`4000`), file attachments (`10` files, `25 MB ± 1B`), volume bounds (`0..200%`).
+3. **Error Handling:** HTTP error responses (`400`, `401`, `403` NSFW, `404`, `413`, `429 retry_after_ms`, `5xx`).
+4. **Empty States:** Empty channel list, zero search results, unpopulated friends rosters.
+5. **Loading & Processing States:** Skeletons, `aria-busy="true"`, HTTP `202 Accepted` polling loops.
+6. **Permissions & Capabilities:** Channel visibility, message transmission rights, administrative privilege flags.
+7. **Recovery & Reconnection:** Gateway Resume (Opcode 6) → Identify (Opcode 2), voice stream reconnection, corrupt store fallback.
+8. **Backward & Forward Compatibility:** Schema migrations, parsing historical format variations.
+9. **Observability & Diagnostics:** Telemetry logging, error stacks, token redacting (`mfa.[REDACTED]`).

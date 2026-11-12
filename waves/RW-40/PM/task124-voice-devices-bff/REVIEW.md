@@ -14,7 +14,7 @@
 
 | Проверка | Команда | Результат |
 |---|---|---|
-| Контрактные тесты | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --offline --test voice_devices_contract` | **14 passed, 0 failed** (повторено дважды, лог `REVIEW-test.log`) |
+| Контрактные тесты | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --offline --test voice_devices_contract` | **14 passed, 0 failed** (повторено дважды, лог `REVIEW-test.log`) |
 | Clippy по карточке | `cargo clippy ... --test voice_devices_contract -- -D warnings` | **EXIT=0**, чисто (лог `REVIEW-clippy.log`) |
 | Clippy по пакету | `cargo clippy ... --all-targets -- -D warnings` | EXIT=101, но падения только в `tests/net_contract.rs:782` и `src/main.rs:1703` (чужие карточки, `type_complexity`); ни одного замечания в `voice_devices.rs`/`voice_devices_contract.rs` — grep по «voice_devices» в выводе даёт 0 совпадений |
 | Форматирование | `rustfmt --edition 2021 --check rust/gui-spike/src/voice_devices.rs rust/gui-spike/tests/voice_devices_contract.rs` | EXIT=0 |

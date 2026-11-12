@@ -2,7 +2,7 @@
 
 - **Ревьюер:** Технический ревьюер (DeepSeek), TR-201A
 - **Проверяемая ветка:** `feature/task-295-fe-voice-diagnostics-wiring`, HEAD `648ba83` = `unstable` (коммитов в PR нет, ревью по рабочему дереву)
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/feature-task-295-fe-voice-diagnostics-wiring`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/feature-task-295-fe-voice-diagnostics-wiring`
 - **Дата:** 2026-10-31, Node `v26.13.0`
 - **Вердикт:** **APPROVED** — `P0 = 0`, `P1 = 0`, мутации `5/5` убиты, targeted-тесты `114/114` PASS, `unit` `2008/2008` PASS, `meta` `102/102` PASS, оба `tsc` — 0 ошибок.
 

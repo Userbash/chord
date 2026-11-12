@@ -1,4 +1,4 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-157-state-reducer-deletes-channels/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-157-state-reducer-deletes-channels/rust/crates/discord-core)
 warning: unused imports: `ChannelInfo` and `Message`
   --> crates/discord-core/tests/state_contract.rs:13:5
    |

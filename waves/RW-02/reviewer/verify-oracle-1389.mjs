@@ -7,9 +7,9 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import zlib from "node:zlib";
 
-const framesPath = process.argv[2] ?? "/home/sanya/re-deep/gw-proto/zstd-frames-95974_1389.hexl";
-const msgsPath = process.argv[3] ?? "/home/sanya/re-deep/gw-proto/msgs-run2-95974_1389.jsonl";
-const testPath = "/home/sanya/orca/project/rust/crates/discord-codec/tests/zstd_stream.rs";
+const framesPath = process.argv[2] ?? "/home/user/clean-room-oracle/gw-proto/zstd-frames-95974_1389.hexl";
+const msgsPath = process.argv[3] ?? "/home/user/clean-room-oracle/gw-proto/msgs-run2-95974_1389.jsonl";
+const testPath = "/home/user/orca/project/rust/crates/discord-codec/tests/zstd_stream.rs";
 
 const frames = readFileSync(framesPath, "utf8").trim().split("\n").map((l) => Buffer.from(l, "hex"));
 console.log(`кадров=${frames.length}, сжато=${frames.reduce((a, f) => a + f.length, 0)} Б`);

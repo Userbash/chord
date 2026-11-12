@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-265` (`BE-P1-32` / `stage_instances`) — Rust Stage Channel Instances & Speaker Request BFF Contract (`MIN_STAGE_TOPIC_CHARS`, `MAX_STAGE_TOPIC_CHARS`, `STAGE_PRIVACY_GUILD_ONLY`, `CreateStageInstanceRequest`, `UpdateSelfVoiceStageRequest`, `validate_create_stage_instance`, `build_create_stage_instance_route_and_body`, `build_update_self_stage_voice_state_route_and_body`).
-- **Ветка / worktree**: `feature/task-265-be-stage-instances`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-265-be-stage-instances`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/stage_instances.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/stage_instances_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-265-be-stage-instances/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-265-be-stage-instances/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`:
+Сверено с `reference-oracle/rest-static.json`:
 
 - `STAGE_INSTANCES` (`rest-static.json:8088-8099`): `POST /stage-instances` (`{channel_id,topic,privacy_level,guild_scheduled_event_id,send_start_notification}`).
 - `STAGE_INSTANCE` (`rest-static.json:8114-8124`): `DELETE|PATCH /stage-instances/{arg}` (`{topic,privacy_level}`).
@@ -44,7 +44,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-265-be-stage-instances/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-265-be-stage-instances/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::stage_instances`
@@ -59,7 +59,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-265-be-stage-instances/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-265-be-stage-instances/green.log`:
 
 ```text
 running 7 tests

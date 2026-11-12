@@ -6,7 +6,7 @@
 - **Автор ревью:** Product Manager (PM)
 
 ## Проверка соответствия ТЗ и DoD
-1. **Маршрут и query-параметры по оракулу `/home/sanya/re-deep/rest-static.json` (`USER_PROFILE`):**
+1. **Маршрут и query-параметры по оракулу `reference-oracle/rest-static.json` (`USER_PROFILE`):**
    - `USER_PROFILE_PATH_TEMPLATE = "/users/{id}/profile"` и `DEFAULT_POPOUT_QUERY = "type=popout&with_mutual_guilds=true&with_mutual_friends=true&with_mutual_friends_count=false"`.
    - `build_user_profile_path` проверяет снежинки `user_id` и `guild_id` (`u64`, ASCII-цифры) и защищает `type` от query-инъекций до обращения к сети.
 2. **Типизированный ответ и обработка ошибок:**

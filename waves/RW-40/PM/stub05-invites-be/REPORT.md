@@ -1,6 +1,6 @@
 # RW-40 / STUB-05-INVITES-BACKEND — создание приглашения на канал (`POST /channels/{id}/invites`)
 
-- **batch/карточка:** `RW-40 / STUB-05-INVITES-BACKEND` (`waves/RW-40/RE-DEEP-REA.md` §4.3, `waves/RW-40/DESIGN/INVITES-SPEC.md` §1.2);
+- **batch/карточка:** `RW-40 / STUB-05-INVITES-BACKEND` (`waves/RW-40/reference-oracle-REA.md` §4.3, `waves/RW-40/DESIGN/INVITES-SPEC.md` §1.2);
 - **роль:** Воркер G1 GUI-Spike Rust Backend (`CARGO_TARGET_DIR=/tmp/target-g1-invites`);
 - **сделано:**
   1. В `rust/gui-spike/src/invites.rs` добавлены константы оракула:
@@ -22,7 +22,7 @@
   - `cargo test --offline -p discord-gui-spike --test invites_contract` → `20 passed; 0 failed` (`exit=0`);
   - `cargo clippy --offline -p discord-gui-spike --test invites_contract -- -D warnings` → 0 предупреждений (`exit=0`);
   - `rustfmt --edition 2021 --check rust/gui-spike/src/invites.rs rust/gui-spike/tests/invites_contract.rs` → чисто (`exit=0`).
-- **oracle:** `waves/RW-40/RE-DEEP-REA.md` §4.3 (`4d2a64cb5df5fc4e_0@632264`, `@270160`, `@1933819`), модуль `558213`/`735547` дампа RE (`MAX_AGE_OPTIONS`, `MAX_USES_OPTIONS`), `waves/RW-40/DESIGN/INVITES-SPEC.md` §1.2–§1.4.
+- **oracle:** `waves/RW-40/reference-oracle-REA.md` §4.3 (`4d2a64cb5df5fc4e_0@632264`, `@270160`, `@1933819`), модуль `558213`/`735547` дампа RE (`MAX_AGE_OPTIONS`, `MAX_USES_OPTIONS`), `waves/RW-40/DESIGN/INVITES-SPEC.md` §1.2–§1.4.
 - **мутации:** 5/5 `KILLED`, эквивалентных — 0, survivors — 0 (`waves/RW-40/PM/stub05-invites-be/mutations.log`):
   - `MUT-1-allow-dot-in-channel-id` (md5 `bf6fa0fd44887aea6d4fb10939fa69ed`) — разрешение `.` в `validate_channel_id` → `KILLED` тестом `create_invite_rejects_unsafe_channel_id_before_network` (`exit=101`);
   - `MUT-2-drop-max-age-table-validation` (md5 `6faa9354d2ecf740d5fdc886ed9f27b1`) — отключение проверки `VALID_INVITE_MAX_AGES` → `KILLED` тестом `create_invite_rejects_unlisted_max_age_and_max_uses_with_invalid_request_before_network` (`exit=101`);

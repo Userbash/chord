@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
 error[E0432]: unresolved import `discord_platform::deep_link`
   --> crates/discord-platform/tests/deep_link_contract.rs:11:23
    |

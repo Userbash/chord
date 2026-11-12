@@ -18,7 +18,7 @@
 ## 2. Baseline
 
 ```
-$ CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+$ CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test bff_domains_router_contract
 running 10 tests
 test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; exit_code=0
@@ -51,7 +51,7 @@ $ rustfmt --edition 2021 --check <оба файла>   → exit_code=0
 срез `channel_id="0"`) и `bff_domain_request_wire_format_matches_tagged_domain_action` (буквальный
 JSON внешней теггировки + отказ плоскому конверту `{domain, action}`).
 
-## 4. Сверка с оракулом `/home/sanya/re-deep/rest-static.md` (read-only)
+## 4. Сверка с оракулом `reference-oracle/rest-static.md` (read-only)
 
 | Домен | Метод/маршрут в тесте | Оракул |
 |---|---|---|

@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/feature-task-206-ui-typing-indicator/tests/unit/typing-indicator.test.mjs:12
+file:///home/user/orca/workspaces/project/feature-task-206-ui-typing-indicator/tests/unit/typing-indicator.test.mjs:12
   formatTypingIndicatorRu,
   ^^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/typing-indicator.js' does not provide an export named 'formatTypingIndicatorRu'

@@ -61,7 +61,7 @@ test at tests/unit/gui-spike-dom.test.mjs:862:3
   + 'undefined'
   - 'function'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:863:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:863:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -82,71 +82,71 @@ test at tests/unit/gui-spike-dom.test.mjs:862:3
 test at tests/unit/gui-spike-dom.test.mjs:869:3
 ✖ прогрессивное создание узла #chat-typing-indicator с нужными атрибутами и переиспользование (7.456548ms)
   TypeError [Error]: createTypingController is not a function
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:872:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:870:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:872:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:870:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-dom.test.mjs:894:3
 ✖ форматирование русского текста: 1, 2, 3 и >3 человек (10.346421ms)
   TypeError [Error]: createTypingController is not a function
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:896:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:895:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:896:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:895:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-dom.test.mjs:925:3
 ✖ игнорирование собственного currentUserId (7.102676ms)
   TypeError [Error]: createTypingController is not a function
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:927:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:926:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:927:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:926:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-dom.test.mjs:944:3
 ✖ автоматическое истечение через TYPING_TTL_MS и мгновенное снятие по onMessageCreated (7.069135ms)
   TypeError [Error]: createTypingController is not a function
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:947:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:945:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:947:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:945:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-dom.test.mjs:978:3
 ✖ хранение активных печатающих по каналам (не более 5 каналов с вытеснением самого старого) (8.98014ms)
   TypeError [Error]: createTypingController is not a function
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:980:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:979:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:980:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:979:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-dom.test.mjs:1007:3
 ✖ исходящий notifyInput: игнорирование пустого ввода и троттлинг TYPING_RESEND_MS (6.979095ms)
   TypeError [Error]: createTypingController is not a function
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1011:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1008:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:1011:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:1008:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-dom.test.mjs:1047:3
 ✖ ошибка 429 RateLimited выставляет data-state='slowmode' и блокирует повторную отправку (6.980535ms)
   TypeError [Error]: createTypingController is not a function
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1051:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1048:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:1051:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:1048:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)
 
 test at tests/unit/gui-spike-dom.test.mjs:1081:3
 ✖ прочие ошибки invoke выставляют data-state='error' (8.97552ms)
   TypeError [Error]: createTypingController is not a function
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1083:26
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:1082:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:1083:26
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:1082:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

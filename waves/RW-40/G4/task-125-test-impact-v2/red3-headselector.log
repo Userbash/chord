@@ -83,7 +83,7 @@ test at tests/unit/test-impact.test.mjs:110:3
   + 'T1 (batch)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:112:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:112:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -107,7 +107,7 @@ test at tests/unit/test-impact.test.mjs:272:5
   
   1 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -131,7 +131,7 @@ test at tests/unit/test-impact.test.mjs:272:5
   
   1 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -154,7 +154,7 @@ test at tests/unit/test-impact.test.mjs:272:5
   
   1 !== 2
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:289:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -172,7 +172,7 @@ test at tests/unit/test-impact.test.mjs:272:5
 test at tests/unit/test-impact.test.mjs:272:5
 ✖ rust/gui-spike/ui/features/search.js → профильный тест + общие контракты (0.090511ms)
   AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/search.js: в плане нет tests/unit/search-remote-real-index.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -190,7 +190,7 @@ test at tests/unit/test-impact.test.mjs:272:5
 test at tests/unit/test-impact.test.mjs:272:5
 ✖ rust/gui-spike/ui/features/search-overlay.js → профильный тест + общие контракты (0.071591ms)
   AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/search-overlay.js: в плане нет tests/unit/search-remote-real-index.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -208,7 +208,7 @@ test at tests/unit/test-impact.test.mjs:272:5
 test at tests/unit/test-impact.test.mjs:272:5
 ✖ rust/gui-spike/ui/features/reactions.js → профильный тест + общие контракты (0.076681ms)
   AssertionError [ERR_ASSERTION]: rust/gui-spike/ui/features/reactions.js: в плане нет tests/unit/chat-reactions.test.mjs: npm run typecheck | node --test tests/unit/gui-spike-dom.test.mjs tests/unit/gui-spike-model.test.mjs tests/unit/gui-spike-bench.test.mjs tests/unit/gui-spike-features.test.mjs tests/unit/gui-spike-auth.test.mjs tests/unit/gui-spike-regressions.test.mjs tests/unit/guild-rail.test.mjs tests/unit/voice-ui.test.mjs tests/unit/channel-switch.test.mjs | node waves/RW-39/PM/w39c/geometry-check.mjs
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:277:16)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -226,7 +226,7 @@ test at tests/unit/test-impact.test.mjs:272:5
 test at tests/unit/test-impact.test.mjs:419:3
 ✖ несколько новых модулей объединяются без потери профильных тестов (0.179782ms)
   AssertionError [ERR_ASSERTION]: объединённый план без chat-reactions.test.mjs
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:430:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:430:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -251,7 +251,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test auth_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -279,7 +279,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test core_bridge --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -306,7 +306,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test data_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -331,7 +331,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test guilds_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -356,7 +356,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test invites_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -381,7 +381,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test messages_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -406,7 +406,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test net_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -431,7 +431,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test reactions_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -456,7 +456,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test rest_failure_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -481,7 +481,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test search_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -506,7 +506,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test settings_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -531,7 +531,7 @@ test at tests/unit/test-impact.test.mjs:465:5
   -   'cargo test --offline --manifest-path rust/gui-spike/Cargo.toml --test typing_contract --test ipc_contract'
     ]
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:468:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -549,7 +549,7 @@ test at tests/unit/test-impact.test.mjs:465:5
 test at tests/unit/test-impact.test.mjs:489:3
 ✖ каждый pub mod из lib.rs покрыт правилом (0.273174ms)
   AssertionError [ERR_ASSERTION]: lib.rs: pub mod auth без таргета --test auth_contract: npm run typecheck | cargo test --offline --manifest-path rust/gui-spike/Cargo.toml
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:499:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:499:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -572,7 +572,7 @@ test at tests/unit/test-impact.test.mjs:538:5
   + 'T0 (targeted)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -598,7 +598,7 @@ test at tests/unit/test-impact.test.mjs:538:5
   + 'T0 (targeted)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -623,7 +623,7 @@ test at tests/unit/test-impact.test.mjs:538:5
   + 'T0 (targeted)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -646,7 +646,7 @@ test at tests/unit/test-impact.test.mjs:538:5
   + 'T1 (batch)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -669,7 +669,7 @@ test at tests/unit/test-impact.test.mjs:538:5
   + 'T1 (batch)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -692,7 +692,7 @@ test at tests/unit/test-impact.test.mjs:538:5
   + 'T1 (batch)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:540:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -715,7 +715,7 @@ test at tests/unit/test-impact.test.mjs:564:3
   + 'T0 (targeted)'
   - 'T2 (release)'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:566:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/qa-task-125-test-impact-v2/tests/unit/test-impact.test.mjs:566:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)

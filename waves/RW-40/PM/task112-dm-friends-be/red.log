@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 5.75s
      Running tests/dm_friends_contract.rs (target/debug/deps/dm_friends_contract-a6b95d0d0a5c72b0)
 

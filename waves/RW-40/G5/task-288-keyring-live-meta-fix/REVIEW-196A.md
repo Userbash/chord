@@ -2,7 +2,7 @@
 
 - **Ревьюер:** Технический ревьюер (DeepSeek), TR-196A
 - **Проверяемая ветка:** `bugfix/task-288-keyring-live-meta-fix`, база/HEAD `06d89e4` (Merge PR-167), коммитов в PR нет
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/bugfix-task-288-keyring-live-meta-fix`
 - **Дата:** 2026-10-31
 - **Вердикт:** **APPROVED** — `P0 = 0`, `P1 = 0`, мутации `5/5` убиты, исходники после каждой мутации восстановлены побайтно (MD5 совпадают)
 - **Дополнение scope:** координатор согласовал (`ask`, ответ `A:fix-gate-in-scope`) правку `scripts/gate.mjs`: без неё PR молча снимал живое исполнение `k25` (см. §7). Правка — один элемент массива `args` в `keyringLivePhase`.
@@ -61,7 +61,7 @@ IDENTICAL: k13..k26 (354 строки) побайтно совпадают с б
 
 ## 5. Тесты
 
-Все прогоны с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+Все прогоны с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 
 | Проверка | Результат | Лог |
 | --- | --- | --- |

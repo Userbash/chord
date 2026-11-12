@@ -2,7 +2,7 @@
 
 Статус: дизайн-контракт. Дата: 2026-10-24. Владелец: Design.
 Вход: `waves/RW-39/DESIGN/SPEC-P3-02.md`, `tokens.css`, `DOM-CONTRACT.md`,
-`/home/sanya/re-deep/ui/01-msg-menu-items.json`, `ui/00-app.png`, `ui8/*`,
+`reference-oracle/ui/01-msg-menu-items.json`, `ui/00-app.png`, `ui8/*`,
 `waves/RW-39/NET/LOGIN-SPEC.md`.
 Ассеты RE не копируются: используются только наблюдения, тексты и размеры.
 
@@ -10,9 +10,9 @@
 
 | Метка | Значение | Источник |
 |-|-|-|
-| `[M]` | измерено на пикселях | `/home/sanya/re-deep/ui/00-app.png`, `/home/sanya/re-deep/ui8/*` |
+| `[M]` | измерено на пикселях | `reference-oracle/ui/00-app.png`, `reference-oracle/ui8/*` |
 | `[T]` | токен | `waves/RW-39/DESIGN/tokens.css` |
-| `[D]` | факт DOM/CSS/JSON дампа | `/home/sanya/re-deep/ui/01-msg-menu-items.json`, `ui8/*`, `SPEC-P3-02.md` |
+| `[D]` | факт DOM/CSS/JSON дампа | `reference-oracle/ui/01-msg-menu-items.json`, `ui8/*`, `SPEC-P3-02.md` |
 | `[A]` | решение или пробел контракта | это документ; требуется подтверждение до реализации |
 
 Каждое числовое значение ниже имеет метку и источник. Если значение выражено токеном,
@@ -77,7 +77,7 @@ disabled через `--state-disabled-opacity`.
 
 ## 3. Message menu
 
-Источник состава — `/home/sanya/re-deep/ui/01-msg-menu-items.json`: **15 пунктов** `[D]`.
+Источник состава — `reference-oracle/ui/01-msg-menu-items.json`: **15 пунктов** `[D]`.
 Первые 4 — быстрые реакции; остальные 11 — команды. Контейнер использует `--menu-min-w`
 (188), `--menu-pad` (8), `--menu-border` (1), `--menu-radius`, `--shadow-popover`, строки
 `--row-menu-item` (32); все значения `[T]`, кроме ширины/строки, которые в tokens.css

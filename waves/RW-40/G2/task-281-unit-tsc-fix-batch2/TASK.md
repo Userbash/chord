@@ -8,9 +8,9 @@
 ## Разрешённые файлы для записи (Write-Scope)
 - `tests/unit/svg-icons.test.mjs`
 - `tests/unit/channel-tree.test.mjs`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-281-unit-tsc-fix-batch2/red.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-281-unit-tsc-fix-batch2/green.log`
-- `/home/sanya/orca/project/waves/RW-40/G2/task-281-unit-tsc-fix-batch2/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/G2/task-281-unit-tsc-fix-batch2/red.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-281-unit-tsc-fix-batch2/green.log`
+- `/home/user/orca/project/waves/RW-40/G2/task-281-unit-tsc-fix-batch2/REPORT.md`
 
 ## Шаги выполнения (Strict TDD: Red -> Green)
 1. **Red:** Запусти `npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E "svg-icons\.test\.mjs|channel-tree\.test\.mjs"` и сохрани вывод (44 ошибки) в `red.log`.

@@ -10,7 +10,7 @@
 - `rust/gui-spike/ui/tokens.css` (источник дизайн-токенов DL: поверхности, акценты, типографика, радиусы, тени, motion);
 - `waves/RW-40/THEME-SPEC.md` §2 (таблицы dark → light для поверхностей, текста, границ, акцентов, WCAG AA 4.5:1), §4 (CSS-контракт селекторов `:root[data-theme="light"]`);
 - `waves/RW-40/PARITY/PARITY-MATRIX.md` (строки P-03 и M-08, DoD, границы, `[S]` и `[L]` evidence);
-- `waves/RW-40/RE-DEEP-REA.md` §2, §4, §8 (оракулы форматирования и разметки);
+- `waves/RW-40/reference-oracle-REA.md` §2, §4, §8 (оракулы форматирования и разметки);
 - `AGENTS.md` (правила воркеров, strict TDD, запрет изменения продуктового кода).
 
 ---
@@ -19,7 +19,7 @@
 
 | Метка | Значение | Источник |
 |---|---|---|
-| `[D]` | Факт из дампа / live-бандла / REA | `RE-DEEP-REA.md`, `PARITY-MATRIX.md` (B162, G162, S162) |
+| `[D]` | Факт из дампа / live-бандла / REA | `reference-oracle-REA.md`, `PARITY-MATRIX.md` (B162, G162, S162) |
 | `[T]` | Токен проекта из `ui/tokens.css` | `rust/gui-spike/ui/tokens.css` |
 | `[L]` | Значение и правила light-темы | `THEME-SPEC.md` §2, §2.6, §4 |
 | `[A]` | Проектное решение / адаптация под архитектуру DL | Данный документ (проверяемо до кода) |

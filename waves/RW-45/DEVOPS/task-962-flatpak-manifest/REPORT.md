@@ -9,16 +9,16 @@
 
 ## 1. Сделано
 
-1. **Подзадача 962.1 — Манифест Flatpak [`packaging/flatpak/com.discord_lab.DiscordGpui.yml`](file:///home/sanya/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml):**
+1. **Подзадача 962.1 — Манифест Flatpak [`packaging/flatpak/com.discord_lab.DiscordGpui.yml`](file:///home/user/orca/project/packaging/flatpak/com.discord_lab.DiscordGpui.yml):**
    - Задан идентификатор приложения `app-id: com.discord_lab.DiscordGpui`, базовый рантайм `runtime: org.freedesktop.Platform`, версия `runtime-version: "23.08"`, SDK `sdk: org.freedesktop.Sdk` и точка входа `command: discord-gpui`.
-   - Сформирована минимальная конфигурация песочницы `finish-args` со строгой сверкой с эталонным RE-дампом `/home/sanya/re-deep/native-re.md` (§2.1–2.2, `$XDG_RUNTIME_DIR/pipewire-0`, `org.freedesktop.portal.ScreenCast`) и модулем системного хранилища [`rust/crates/discord-platform/src/keyring.rs`](file:///home/sanya/orca/project/rust/crates/discord-platform/src/keyring.rs):
+   - Сформирована минимальная конфигурация песочницы `finish-args` со строгой сверкой с эталонным RE-дампом `reference-oracle/native-re.md` (§2.1–2.2, `$XDG_RUNTIME_DIR/pipewire-0`, `org.freedesktop.portal.ScreenCast`) и модулем системного хранилища [`rust/crates/discord-platform/src/keyring.rs`](file:///home/user/orca/project/rust/crates/discord-platform/src/keyring.rs):
      - `--socket=wayland` и `--socket=fallback-x11` (нативный Wayland с резервным X11 без прямого `--socket=x11`);
      - `--filesystem=xdg-run/pipewire-0` и `--socket=pulseaudio` (PipeWire DMA-BUF захват экрана и низколатентное аудио);
      - `--talk-name=org.freedesktop.secrets` и `--talk-name=org.freedesktop.portal.Desktop` (Secret Service portal для хранения токенов и XDG Desktop Portal для ScreenCast/Secret);
      - `--device=dri`, `--share=ipc`, `--share=network`, `--talk-name=org.freedesktop.Notifications`, `--talk-name=org.kde.StatusNotifierWatcher`, `--talk-name=org.a11y.Bus`, `--env=RUST_LOG=info`.
-   - Описан сборочный модуль `discord-gpui` (`buildsystem: simple`) с установкой stripped-бинарника, SPDX SBOM и лицензионных файлов и побайтовой привязкой `sha256` к оракулу [`rust/dist/SHA256SUMS`](file:///home/sanya/orca/project/rust/dist/SHA256SUMS).
+   - Описан сборочный модуль `discord-gpui` (`buildsystem: simple`) с установкой stripped-бинарника, SPDX SBOM и лицензионных файлов и побайтовой привязкой `sha256` к оракулу [`rust/dist/SHA256SUMS`](file:///home/user/orca/project/rust/dist/SHA256SUMS).
 
-2. **Подзадача 962.2 — Контрактный и модульный тест [`tests/unit/flatpak-manifest-962.test.mjs`](file:///home/sanya/orca/project/tests/unit/flatpak-manifest-962.test.mjs) (Strict TDD):**
+2. **Подзадача 962.2 — Контрактный и модульный тест [`tests/unit/flatpak-manifest-962.test.mjs`](file:///home/user/orca/project/tests/unit/flatpak-manifest-962.test.mjs) (Strict TDD):**
    - Реализована проверка схемы манифеста через независимый системный оракул `python3` (`PyYAML` `yaml.safe_load`) и сверка хешей `sha256` с оракулом `rust/dist/SHA256SUMS` и фактическими файлами в `rust/dist/`.
    - Покрыты все обязательные права песочницы, запрет избыточных разрешений (`--filesystem=host/home`, `--socket=x11`, `--device=all`, `--socket=session-bus/system-bus`, `--allow=devel`) и негативные/граничные сценарии валидатора `validateFlatpakManifest`.
 
@@ -26,7 +26,7 @@
 
 ## 2. Red-прогон (TDD)
 
-Лог: [`waves/RW-45/DEVOPS/task-962-flatpak-manifest/red.log`](file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-962-flatpak-manifest/red.log) (запуск до создания `packaging/flatpak/com.discord_lab.DiscordGpui.yml`):
+Лог: [`waves/RW-45/DEVOPS/task-962-flatpak-manifest/red.log`](file:///home/user/orca/project/waves/RW-45/DEVOPS/task-962-flatpak-manifest/red.log) (запуск до создания `packaging/flatpak/com.discord_lab.DiscordGpui.yml`):
 
 ```text
 ▶ TASK-962: Манифест Flatpak com.discord_lab.DiscordGpui.yml и песочница Wayland/PipeWire
@@ -42,7 +42,7 @@
 
 ## 3. Green-прогон (TDD)
 
-Лог: [`waves/RW-45/DEVOPS/task-962-flatpak-manifest/green.log`](file:///home/sanya/orca/project/waves/RW-45/DEVOPS/task-962-flatpak-manifest/green.log):
+Лог: [`waves/RW-45/DEVOPS/task-962-flatpak-manifest/green.log`](file:///home/user/orca/project/waves/RW-45/DEVOPS/task-962-flatpak-manifest/green.log):
 
 ```text
 ▶ TASK-962: Манифест Flatpak com.discord_lab.DiscordGpui.yml и песочница Wayland/PipeWire

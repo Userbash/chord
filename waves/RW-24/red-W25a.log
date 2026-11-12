@@ -1,4 +1,4 @@
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
 warning: struct `LocaleFormatData` is never constructed
  --> crates/discord-i18n/src/format_data.rs:8:19
   |
@@ -502,7 +502,7 @@ warning: function `data` is never used
     |               ^^^^
 
 warning: `discord-i18n` (lib) generated 38 warnings
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
      Running tests/locale_contract.rs (rust/target/debug/deps/locale_contract-a9f436064cd54c41)
 
@@ -759,7 +759,7 @@ warning: function `data` is never used
     |               ^^^^
 
 warning: `discord-i18n` (lib) generated 38 warnings
-   Compiling discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+   Compiling discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      Running tests/format_contract.rs (rust/target/debug/deps/format_contract-9421ae848a51de36)
 

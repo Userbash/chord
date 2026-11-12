@@ -1,9 +1,9 @@
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
     Blocking waiting for file lock on package cache
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-136-net-forwarded-dispatches/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-136-net-forwarded-dispatches/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
-     Running tests/ipc_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_contract-4939e923719eac42)
+     Running tests/ipc_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_contract-4939e923719eac42)
 
 running 20 tests
 test accepts_values_exactly_at_the_floors ... ok

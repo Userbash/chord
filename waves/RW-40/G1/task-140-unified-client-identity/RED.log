@@ -1,6 +1,6 @@
-   Compiling discord-json v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-json)
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-codec)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+   Compiling discord-json v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-json)
+   Compiling discord-codec v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-codec)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
 error[E0432]: unresolved import `crate::rest::identity::ClientIdentity`
   --> crates/discord-core/src/identify.rs:15:5
    |

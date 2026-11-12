@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Закрытие нитов RW-07: восстановление продукта после red-мутаций и зелёный прогон.
 set -u
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 LOG=/tmp/opencode/rw-07/green-gap.log
 : > "$LOG"
 

@@ -1,6 +1,6 @@
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -12,22 +12,22 @@ session id: 01a15ce9-4ac0-7813-b51c-916d4ed49b4e
 user
 Независимое ревью ТОЛЬКО карточки P2-08 (settings-proto). Не редактируй файлы. Читай: waves/RW-21/DESIGN-P2-08.md, TEST-MATRIX-P2-08.md, REPORT-P2-08.md, logs/*.log, mutations/*.log, rust/crates/discord-core/src/settings/{wire,preloaded,frecency,mod}.rs, tests/settings_proto.rs, src/lib.rs, tests/data/settings-*.b64. Проверь varint/overflow/bounds, wrapper presence, signed timezone, fixed64, unknown preservation, type 1/2 mapping без выдуманной семантики, Debug redaction, независимость тестов и соответствие логам. Игнорируй остальные uncommitted changes. Верни вердикт accepted / accepted with P3 / changes required и findings P0/P1/P2/P3 с file:line, сценарием и воспроизведением. Если P0/P1/P2 нет — явно 0.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 exec
-/usr/bin/bash -lc 'cat .agents/skills/discord-lab-context/SKILL.md && git status --short && git diff -- rust/crates/discord-core/src/settings/wire.rs rust/crates/discord-core/src/settings/preloaded.rs rust/crates/discord-core/src/settings/frecency.rs rust/crates/discord-core/src/settings/mod.rs rust/crates/discord-core/tests/settings_proto.rs rust/crates/discord-core/src/lib.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat .agents/skills/discord-lab-context/SKILL.md && git status --short && git diff -- rust/crates/discord-core/src/settings/wire.rs rust/crates/discord-core/src/settings/preloaded.rs rust/crates/discord-core/src/settings/frecency.rs rust/crates/discord-core/src/settings/mod.rs rust/crates/discord-core/tests/settings_proto.rs rust/crates/discord-core/src/lib.rs' in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -62,7 +62,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -259,7 +259,7 @@ index 5e2291c..e5b2904 100644
      connect_and_run_with, encode_heartbeat,
 
 exec
-/usr/bin/bash -lc "cat waves/RW-21/DESIGN-P2-08.md && cat waves/RW-21/TEST-MATRIX-P2-08.md && cat waves/RW-21/REPORT-P2-08.md && rg --files waves/RW-21 | sort && rg --files rust/crates/discord-core/src/settings rust/crates/discord-core/tests | rg 'settings|settings-'" in /home/sanya/orca/project
+/usr/bin/bash -lc "cat waves/RW-21/DESIGN-P2-08.md && cat waves/RW-21/TEST-MATRIX-P2-08.md && cat waves/RW-21/REPORT-P2-08.md && rg --files waves/RW-21 | sort && rg --files rust/crates/discord-core/src/settings rust/crates/discord-core/tests | rg 'settings|settings-'" in /home/user/orca/project
  succeeded in 0ms:
 # RW-21 / DESIGN-P2-08 — settings-proto
 
@@ -443,7 +443,7 @@ two's-complement из varint. `fixed64` — little-endian.
 # RW-21 / TEST-MATRIX-P2-08 — settings-proto
 
 Дата: 2026-10-21. Контракт: `DESIGN-P2-08.md` §2–§4. Оракул: `oracle.py`, READY/UPDATE
-из `/home/sanya/re-deep` (read-only). Бюджет M: 16 тестов, 10 мутаций.
+из `/home/user/clean-room-oracle` (read-only). Бюджет M: 16 тестов, 10 мутаций.
 
 ## Фикстуры
 
@@ -543,7 +543,7 @@ npm run gate:worker
 
 ## 3. Фикстуры и независимый оракул
 
-Фикстуры скопированы из `/home/sanya/re-deep` (read-only) в
+Фикстуры скопированы из `/home/user/clean-room-oracle` (read-only) в
 `rust/crates/discord-core/tests/data/`; тесты не читают RE-дамп.
 
 | Файл | base64 | raw | raw sha256 | файл md5 |
@@ -647,27 +647,27 @@ rust/crates/discord-core/tests/data/settings-frecency-update-8269.b64
 rust/crates/discord-core/tests/data/settings-preloaded-ready-4400.b64
 
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/logs/p08-core.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/logs/p08-core.log' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/tests/settings_proto.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/tests/settings_proto.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/mod.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/mod.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/logs/p08-clippy-workspace.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/logs/p08-clippy-workspace.log' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/gate-worker.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/gate-worker.log' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/logs/p08-targeted-final.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/logs/p08-targeted-final.log' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/frecency.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/frecency.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/preloaded.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/preloaded.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/wire.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/wire.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/logs/p08-workspace.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/logs/p08-workspace.log' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/reviews/codex-p2-08.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/reviews/codex-p2-08.log' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: settings-proto (RW-21).
      2	//!
@@ -782,7 +782,7 @@ exec
      1	//! P2-08: settings-proto decoder (RW-21).
      2	//!
      3	//! Оракул — `waves/RW-21/oracle.py` и реальные READY/UPDATE-фикстуры из
-     4	//! `/home/sanya/re-deep` (read-only). Тесты не вызывают Python и не сверяются с
+     4	//! `/home/user/clean-room-oracle` (read-only). Тесты не вызывают Python и не сверяются с
      5	//! текущей реализацией: ожидания захардкожены из независимого разбора.
      6	
      7	use discord_core::settings::{
@@ -1097,8 +1097,8 @@ exec
    316	}
 
  succeeded in 0ms:
-     1	    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-     2	    Checking discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+     1	    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+     2	    Checking discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
      3	    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.48s
      4	# EXIT=0
 
@@ -1146,7 +1146,7 @@ exec
     41	}
 
  succeeded in 0ms:
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.80s
      3	     Running unittests src/lib.rs (target/debug/deps/discord_core-013ef6b2760c3c7c)
      4	
@@ -1977,7 +1977,7 @@ exec
      8	✔ unit — 0.1 с (тесты 169: pass 169, fail 0, skip 0)
      9	✔ smoke — 1.1 с (тесты 20: pass 20, fail 0, skip 0)
     10	
-    11	Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-20T21-09-26-532Z.json
+    11	Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-20T21-09-26-532Z.json
     12	Вердикт: passed
     13	# GATE_EXIT=0
 
@@ -2812,7 +2812,7 @@ exec
  succeeded in 0ms:
      1	OpenAI Codex v0.162.1
      2	--------
-     3	workdir: /home/sanya/orca/project
+     3	workdir: /home/user/orca/project
      4	model: gpt-6-luna
      5	provider: codexsale
      6	approval: never
@@ -2824,22 +2824,22 @@ exec
     12	user
     13	Независимое ревью ТОЛЬКО карточки P2-08 (settings-proto). Не редактируй файлы. Читай: waves/RW-21/DESIGN-P2-08.md, TEST-MATRIX-P2-08.md, REPORT-P2-08.md, logs/*.log, mutations/*.log, rust/crates/discord-core/src/settings/{wire,preloaded,frecency,mod}.rs, tests/settings_proto.rs, src/lib.rs, tests/data/settings-*.b64. Проверь varint/overflow/bounds, wrapper presence, signed timezone, fixed64, unknown preservation, type 1/2 mapping без выдуманной семантики, Debug redaction, независимость тестов и соответствие логам. Игнорируй остальные uncommitted changes. Верни вердикт accepted / accepted with P3 / changes required и findings P0/P1/P2/P3 с file:line, сценарием и воспроизведением. Если P0/P1/P2 нет — явно 0.
     14	warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-    15	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-    16	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-    17	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+    15	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+    16	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+    17	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
     18	  ... and 6 more ignored settings.
     19	warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-    20	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-    21	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-    22	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+    20	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+    21	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+    22	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
     23	  ... and 6 more ignored settings.
     24	warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-    25	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-    26	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-    27	  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+    25	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+    26	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+    27	  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
     28	  ... and 6 more ignored settings.
     29	exec
-    30	/usr/bin/bash -lc 'cat .agents/skills/discord-lab-context/SKILL.md && git status --short && git diff -- rust/crates/discord-core/src/settings/wire.rs rust/crates/discord-core/src/settings/preloaded.rs rust/crates/discord-core/src/settings/frecency.rs rust/crates/discord-core/src/settings/mod.rs rust/crates/discord-core/tests/settings_proto.rs rust/crates/discord-core/src/lib.rs' in /home/sanya/orca/project
+    30	/usr/bin/bash -lc 'cat .agents/skills/discord-lab-context/SKILL.md && git status --short && git diff -- rust/crates/discord-core/src/settings/wire.rs rust/crates/discord-core/src/settings/preloaded.rs rust/crates/discord-core/src/settings/frecency.rs rust/crates/discord-core/src/settings/mod.rs rust/crates/discord-core/tests/settings_proto.rs rust/crates/discord-core/src/lib.rs' in /home/user/orca/project
     31	 succeeded in 0ms:
     32	---
     33	name: discord-lab-context
@@ -2874,7 +2874,7 @@ exec
     62	## Только для чтения
     63	
     64	- `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-    65	- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+    65	- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
     66	
     67	## Команды
     68	
@@ -3071,7 +3071,7 @@ exec
    259	     connect_and_run_with, encode_heartbeat,
    260	
    261	exec
-   262	/usr/bin/bash -lc "cat waves/RW-21/DESIGN-P2-08.md && cat waves/RW-21/TEST-MATRIX-P2-08.md && cat waves/RW-21/REPORT-P2-08.md && rg --files waves/RW-21 | sort && rg --files rust/crates/discord-core/src/settings rust/crates/discord-core/tests | rg 'settings|settings-'" in /home/sanya/orca/project
+   262	/usr/bin/bash -lc "cat waves/RW-21/DESIGN-P2-08.md && cat waves/RW-21/TEST-MATRIX-P2-08.md && cat waves/RW-21/REPORT-P2-08.md && rg --files waves/RW-21 | sort && rg --files rust/crates/discord-core/src/settings rust/crates/discord-core/tests | rg 'settings|settings-'" in /home/user/orca/project
    263	 succeeded in 0ms:
    264	# RW-21 / DESIGN-P2-08 — settings-proto
    265	
@@ -3255,7 +3255,7 @@ exec
    443	# RW-21 / TEST-MATRIX-P2-08 — settings-proto
    444	
    445	Дата: 2026-10-21. Контракт: `DESIGN-P2-08.md` §2–§4. Оракул: `oracle.py`, READY/UPDATE
-   446	из `/home/sanya/re-deep` (read-only). Бюджет M: 16 тестов, 10 мутаций.
+   446	из `/home/user/clean-room-oracle` (read-only). Бюджет M: 16 тестов, 10 мутаций.
    447	
    448	## Фикстуры
    449	
@@ -3355,7 +3355,7 @@ exec
    543	
    544	## 3. Фикстуры и независимый оракул
    545	
-   546	Фикстуры скопированы из `/home/sanya/re-deep` (read-only) в
+   546	Фикстуры скопированы из `/home/user/clean-room-oracle` (read-only) в
    547	`rust/crates/discord-core/tests/data/`; тесты не читают RE-дамп.
    548	
    549	| Файл | base64 | raw | raw sha256 | файл md5 |
@@ -3460,7 +3460,7 @@ exec
    648	
 
  succeeded in 0ms:
-     1	   Compiling discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+     1	   Compiling discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
      3	     Running unittests src/main.rs (target/debug/deps/discord_rs-e03fdf132612d286)
      4	
@@ -4443,7 +4443,7 @@ exec
    981	# WORKSPACE_EXIT=0
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/frecency.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/frecency.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: `FrecencyUserSettings` (type 2) — structural wrapper (RW-21).
      2	//!
@@ -4488,13 +4488,13 @@ exec
     41	}
 
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/oracle.py' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/oracle.py' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/oracle.txt' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/oracle.txt' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/preloaded.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/preloaded.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/mod.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/src/settings/mod.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	#!/usr/bin/env python3
      2	"""Independent P2-08 settings-proto oracle (stdlib only).
@@ -4515,7 +4515,7 @@ exec
     17	import sys
     18	from pathlib import Path
     19	
-    20	RE_DEEP = Path("/home/sanya/re-deep")
+    20	RE_DEEP = Path("/home/user/clean-room-oracle")
     21	DEFAULT_READY = RE_DEEP / "gateway/by-type/002-READY.json"
     22	DEFAULT_MSGS = RE_DEEP / "gw-proto/msgs-run2-95974_13072.jsonl"
     23	
@@ -4822,7 +4822,7 @@ exec
     18	  },
     19	  "raw_len": 3300,
     20	  "sha256": "c79fca65e321cae5135401f22ee9041809958a34e52e959d0a1a63a04f7c5672",
-    21	  "source": "/home/sanya/re-deep/gateway/by-type/002-READY.json",
+    21	  "source": "/home/user/clean-room-oracle/gateway/by-type/002-READY.json",
     22	  "status": {
     23	    "show_current_game": false,
     24	    "status": "invisible",
@@ -4896,7 +4896,7 @@ exec
     92	  "partial": "false",
     93	  "raw_len": 13077,
     94	  "sha256": "8cd02970195054bbf5bfc481486264df9027213101432548f4a1b26a8d1531e5",
-    95	  "source": "/home/sanya/re-deep/gw-proto/msgs-run2-95974_13072.jsonl",
+    95	  "source": "/home/user/clean-room-oracle/gw-proto/msgs-run2-95974_13072.jsonl",
     96	  "top_level": [
     97	    1,
     98	    2,
@@ -5381,12 +5381,12 @@ exec
    352	}
 
 exec
-/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/tests/settings_proto.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba rust/crates/discord-core/tests/settings_proto.rs' in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: settings-proto decoder (RW-21).
      2	//!
      3	//! Оракул — `waves/RW-21/oracle.py` и реальные READY/UPDATE-фикстуры из
-     4	//! `/home/sanya/re-deep` (read-only). Тесты не вызывают Python и не сверяются с
+     4	//! `/home/user/clean-room-oracle` (read-only). Тесты не вызывают Python и не сверяются с
      5	//! текущей реализацией: ожидания захардкожены из независимого разбора.
      6	
      7	use discord_core::settings::{
@@ -5701,7 +5701,7 @@ exec
    316	}
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-core/src/settings/mod.rs | sed -n '25,130p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-core/src/settings/mod.rs | sed -n '25,130p'" in /home/user/orca/project
  succeeded in 0ms:
     25	/// `PRELOADED_USER_SETTINGS` из enum `UserSettingsProtoType`.
     26	pub const PRELOADED_USER_SETTINGS_TYPE: u64 = 1;
@@ -5789,12 +5789,12 @@ exec
    108	}
 
 exec
-/usr/bin/bash -lc "nl -ba rust/crates/discord-core/tests/settings_proto.rs | sed -n '1,205p'" in /home/sanya/orca/project
+/usr/bin/bash -lc "nl -ba rust/crates/discord-core/tests/settings_proto.rs | sed -n '1,205p'" in /home/user/orca/project
  succeeded in 0ms:
      1	//! P2-08: settings-proto decoder (RW-21).
      2	//!
      3	//! Оракул — `waves/RW-21/oracle.py` и реальные READY/UPDATE-фикстуры из
-     4	//! `/home/sanya/re-deep` (read-only). Тесты не вызывают Python и не сверяются с
+     4	//! `/home/user/clean-room-oracle` (read-only). Тесты не вызывают Python и не сверяются с
      5	//! текущей реализацией: ожидания захардкожены из независимого разбора.
      6	
      7	use discord_core::settings::{
@@ -5998,13 +5998,13 @@ exec
    205	    let SettingsProto::Unsupported {
 
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/mutations/M6.log && nl -ba waves/RW-21/mutations/M7.log && nl -ba waves/RW-21/mutations/M8.log && nl -ba waves/RW-21/mutations/M9.log && nl -ba waves/RW-21/mutations/M10.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/mutations/M6.log && nl -ba waves/RW-21/mutations/M7.log && nl -ba waves/RW-21/mutations/M8.log && nl -ba waves/RW-21/mutations/M9.log && nl -ba waves/RW-21/mutations/M10.log' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'nl -ba waves/RW-21/mutations/M1.log && nl -ba waves/RW-21/mutations/M2.log && nl -ba waves/RW-21/mutations/M3.log && nl -ba waves/RW-21/mutations/M4.log && nl -ba waves/RW-21/mutations/M5.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'nl -ba waves/RW-21/mutations/M1.log && nl -ba waves/RW-21/mutations/M2.log && nl -ba waves/RW-21/mutations/M3.log && nl -ba waves/RW-21/mutations/M4.log && nl -ba waves/RW-21/mutations/M5.log' in /home/user/orca/project
 exec
-/usr/bin/bash -lc "for f in waves/RW-21/logs/p08-red-compile.log waves/RW-21/logs/p08-green-targeted.log waves/RW-21/logs/p08-targeted-final.log waves/RW-21/logs/p08-core.log waves/RW-21/logs/p08-workspace.log waves/RW-21/logs/p08-clippy-workspace.log waves/RW-21/gate-worker.log; do printf '\\n== %s ==\\n' \""'$f"; tail -n 12 "$f"; done' in /home/sanya/orca/project
+/usr/bin/bash -lc "for f in waves/RW-21/logs/p08-red-compile.log waves/RW-21/logs/p08-green-targeted.log waves/RW-21/logs/p08-targeted-final.log waves/RW-21/logs/p08-core.log waves/RW-21/logs/p08-workspace.log waves/RW-21/logs/p08-clippy-workspace.log waves/RW-21/gate-worker.log; do printf '\\n== %s ==\\n' \""'$f"; tail -n 12 "$f"; done' in /home/user/orca/project
  succeeded in 0ms:
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6044,7 +6044,7 @@ exec
     38	
     39	error: test failed, to rerun pass `-p discord-core --test settings_proto`
     40	EXIT=101
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6136,7 +6136,7 @@ exec
     90	
     91	error: test failed, to rerun pass `-p discord-core --test settings_proto`
     92	EXIT=101
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6208,7 +6208,7 @@ exec
     70	
     71	error: test failed, to rerun pass `-p discord-core --test settings_proto`
     72	EXIT=101
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6248,7 +6248,7 @@ exec
     38	
     39	error: test failed, to rerun pass `-p discord-core --test settings_proto`
     40	EXIT=101
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6360,8 +6360,8 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 # WORKSPACE_EXIT=0
 
 == waves/RW-21/logs/p08-clippy-workspace.log ==
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-    Checking discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+    Checking discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.48s
 # EXIT=0
 
@@ -6375,12 +6375,12 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 ✔ unit — 0.1 с (тесты 169: pass 169, fail 0, skip 0)
 ✔ smoke — 1.1 с (тесты 20: pass 20, fail 0, skip 0)
 
-Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-20T21-09-26-532Z.json
+Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-20T21-09-26-532Z.json
 Вердикт: passed
 # GATE_EXIT=0
 
  succeeded in 0ms:
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.47s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6419,7 +6419,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
     37	
     38	error: test failed, to rerun pass `-p discord-core --test settings_proto`
     39	EXIT=101
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	warning: unused variable: `start`
      3	   --> crates/discord-core/src/settings/wire.rs:426:9
      4	    |
@@ -6466,7 +6466,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
     45	
     46	error: test failed, to rerun pass `-p discord-core --test settings_proto`
     47	EXIT=101
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6505,7 +6505,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
     37	
     38	error: test failed, to rerun pass `-p discord-core --test settings_proto`
     39	EXIT=101
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.37s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6544,7 +6544,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
     37	
     38	error: test failed, to rerun pass `-p discord-core --test settings_proto`
     39	EXIT=101
-     1	   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+     1	   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
      2	    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
      3	     Running tests/settings_proto.rs (target/debug/deps/settings_proto-367838d0deac0271)
      4	
@@ -6588,11 +6588,11 @@ Varint/bounds, wrapper presence, signed timezone, fixed64 parsing, unknown prese
 
 Review comment:
 
-- [P2] Redact sensitive values from section Debug output — /home/sanya/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:262-263
+- [P2] Redact sensitive values from section Debug output — /home/user/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:262-263
   Когда вызывающий код форматирует публичные секции напрямую, `NotificationSettings` печатает `notification_center_acked_before_id`, а `LocalizationSettings` печатает locale и timezone name: оба типа используют производный `Debug`. Поэтому проверка `Debug` только для внешнего `PreloadedUserSettings` не предотвращает утечку этих значений в логи через секции; примените redacted `Debug` и к этим типам.
 Varint/bounds, wrapper presence, signed timezone, fixed64 parsing, unknown preservation, type 1/2 mapping и независимость тестов соответствуют контракту; заявленные green-прогоны также подтверждаются логами. Однако Debug секций может раскрыть id и локализационные значения, поэтому требуется исправление P2.
 
 Review comment:
 
-- [P2] Redact sensitive values from section Debug output — /home/sanya/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:262-263
+- [P2] Redact sensitive values from section Debug output — /home/user/orca/project/rust/crates/discord-core/src/settings/preloaded.rs:262-263
   Когда вызывающий код форматирует публичные секции напрямую, `NotificationSettings` печатает `notification_center_acked_before_id`, а `LocalizationSettings` печатает locale и timezone name: оба типа используют производный `Debug`. Поэтому проверка `Debug` только для внешнего `PreloadedUserSettings` не предотвращает утечку этих значений в логи через секции; примените redacted `Debug` и к этим типам.

@@ -12,52 +12,52 @@
     },
     "sources": [
       {
-        "file": "/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0",
+        "file": "/home/user/clean-room-oracle/decoded/4d2a64cb5df5fc4e_0",
         "what": "web.4d4b2f75fdea5470.js (12 410 287 Б) — web-бандл Discord 1.0.162, декодирован из HTTP-кэша",
         "md5": "934b1289b7ebf17bc0fd09569b23b438"
       },
       {
-        "file": "/home/sanya/re-deep/decoded/8fed1c84bcaee32d_0",
+        "file": "/home/user/clean-room-oracle/decoded/8fed1c84bcaee32d_0",
         "what": "assets/…js chunk 290966 — MFA UI (слайды totp/sms/webauthn/backup/password)",
         "md5": "e0c020f12d8fe0fc6b90925736414f85"
       },
       {
-        "file": "/home/sanya/re-deep/decoded/43644898c0897078_0",
+        "file": "/home/user/clean-room-oracle/decoded/43644898c0897078_0",
         "what": "HTML страницы /login с window.GLOBAL_ENV",
         "md5": "4fbb7d4afc37f27d16f65a66ba146d27"
       },
       {
-        "file": "/home/sanya/re-deep/decoded/dbd05750a1cb3484_0",
+        "file": "/home/user/clean-room-oracle/decoded/dbd05750a1cb3484_0",
         "what": "assets/ae9016b5ac149349.js — login-страница (формы, MFA-обёртка, handoff)",
         "md5": "b581000d340631f5ffdada7d6c61797a"
       },
       {
-        "file": "/home/sanya/re-deep/asar-extract/core/bundle.js",
+        "file": "/home/user/clean-room-oracle/asar-extract/core/bundle.js",
         "what": "discord_desktop_core main process: safeStorage IPC, чтение токена из Local Storage",
         "md5": "08edd888cca8426f0cbc6c3bb2edbf17"
       },
       {
-        "file": "/home/sanya/re-deep/out/bundles/discord.com_assets_fast-connect.7c1098d4887bc4b0.js",
+        "file": "/home/user/clean-room-oracle/out/bundles/discord.com_assets_fast-connect.7c1098d4887bc4b0.js",
         "what": "assets/fast-connect.js — ранний IDENTIFY (is_fast_connect:true)",
         "md5": "0fdec99340144310f131c7a9f68a7a4c"
       },
       {
-        "file": "/home/sanya/orca/project/docs/re/rest-d02.md",
+        "file": "/home/user/orca/project/docs/re/rest-d02.md",
         "what": "живой REST/WS-захват (6654 req), auth-поток",
         "md5": "c7e61929677efab6bdac86a05a778fce"
       },
       {
-        "file": "/home/sanya/orca/project/docs/re/gateway-protocol.md",
+        "file": "/home/user/orca/project/docs/re/gateway-protocol.md",
         "what": "ETL/zstd/опкоды/READY по живому захвату",
         "md5": "a766e52a585faf5eba2bf2dd2cde8abf"
       },
       {
-        "file": "/home/sanya/orca/project/fixtures/rest/rest-static.json",
+        "file": "/home/user/orca/project/fixtures/rest/rest-static.json",
         "what": "статическая карта REST (904 записи) + секция auth",
         "md5": "8e0ead46addbb2f54f143343d0de2108"
       },
       {
-        "file": "/home/sanya/orca/project/fixtures/gw-proto/facts-frozen.json",
+        "file": "/home/user/orca/project/fixtures/gw-proto/facts-frozen.json",
         "what": "снимок шлюзового трафика (HELLO, sent-кадры, op-счётчики)",
         "md5": "6bf6aab01e04f27ea3ac2065465ed517"
       }

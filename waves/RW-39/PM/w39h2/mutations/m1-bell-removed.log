@@ -24,9 +24,9 @@ test at tests/unit/gui-spike-dom.test.mjs:224:3
       'members'
     ]
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:230:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:225:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:230:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:92:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:225:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 1)
       at async Suite.run (node:internal/test_runner/test:1905:7)

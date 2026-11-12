@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-233` (`BE-P1-23` / `relationships`) — BFF-контракт связей и заявок в друзья (`RELATIONSHIP_FRIEND`, `RELATIONSHIP_BLOCKED`, `RELATIONSHIP_PENDING_INCOMING`, `RELATIONSHIP_PENDING_OUTGOING`, `MAX_USERNAME_CHARS`, `SendFriendRequest`, `validate_friend_request_username`, `build_send_friend_request_body`, `build_relationship_user_route`, `build_block_user_body`).
-- **Ветка / worktree**: `feature/task-233-be-relationships`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-233-be-relationships`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/relationships.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/relationships_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-233-be-relationships/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-233-be-relationships/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json` и `waves/RW-40/DM-FRIENDS-RE.md`:
+Сверено с `reference-oracle/rest-static.json` и `waves/RW-40/DM-FRIENDS-RE.md`:
 
 - `USER_RELATIONSHIPS` (`rest-static.json:19-33`, `DM-FRIENDS-RE.md` §4.2): `POST /users/@me/relationships` с JSON-телом `{"username": trimmed, "discriminator": null}` для Pomelo-аккаунтов.
 - `USER_RELATIONSHIP` (`rest-static.json:34-44`, `DM-FRIENDS-RE.md` §4.3): `PUT/DELETE /users/@me/relationships/{user_id}`; блокировка пользователя отправляет `{"type": 2}`.
@@ -45,7 +45,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-233-be-relationships/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-233-be-relationships/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::relationships`
@@ -60,7 +60,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-233-be-relationships/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-233-be-relationships/green.log`:
 
 ```text
 running 7 tests

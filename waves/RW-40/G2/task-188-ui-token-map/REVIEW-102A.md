@@ -19,6 +19,6 @@
 | M5 | снят `Object.freeze` с `RESOLVED_COLLISIONS` | KILLED (fail=1) |
 
 ## Замечания
-- P2: значения токенов Discord не сверены с `/home/sanya/re-deep` (заявлено в REPORT.md);
+- P2: значения токенов Discord не сверены с `reference-oracle/` (заявлено в REPORT.md);
   подтвердить при интеграции.
 - Файл в git не отслеживается (`??`), коммитов нет — соответствует режиму.

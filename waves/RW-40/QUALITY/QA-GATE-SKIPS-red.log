@@ -33,10 +33,10 @@
 test at tests/meta/test-policy.test.mjs:152:3
 ✖ failOnSkips превращает skip в провал фазы (пример, а не декларация) (0.964536ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции phaseOutcome
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at phaseOutcome (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:139:30)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:153:21)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at phaseOutcome (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:139:30)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:153:21)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -54,10 +54,10 @@ test at tests/meta/test-policy.test.mjs:152:3
 test at tests/meta/test-policy.test.mjs:159:3
 ✖ без failOnSkips тот же skip не валит фазу (unit/smoke skip-aware) (0.156533ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции phaseOutcome
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at phaseOutcome (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:139:30)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:160:21)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at phaseOutcome (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:139:30)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:160:21)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -75,10 +75,10 @@ test at tests/meta/test-policy.test.mjs:159:3
 test at tests/meta/test-policy.test.mjs:165:3
 ✖ нулевой pass — e2e_unmet даже без skip (0.162613ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции phaseOutcome
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at phaseOutcome (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:139:30)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:166:21)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at phaseOutcome (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:139:30)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:166:21)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -96,10 +96,10 @@ test at tests/meta/test-policy.test.mjs:165:3
 test at tests/meta/test-policy.test.mjs:172:3
 ✖ выполненный набор без skip и fail проходит (0.149832ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции phaseOutcome
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at phaseOutcome (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:139:30)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:173:18)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at phaseOutcome (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:139:30)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:173:18)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -117,10 +117,10 @@ test at tests/meta/test-policy.test.mjs:172:3
 test at tests/meta/test-policy.test.mjs:177:3
 ✖ вердикт при упавшей e2e-фазе — failed, а не passed_with_skips (0.207724ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции computeVerdict
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at computeVerdict (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:141:32)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:178:21)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at computeVerdict (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:141:32)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:178:21)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -138,10 +138,10 @@ test at tests/meta/test-policy.test.mjs:177:3
 test at tests/meta/test-policy.test.mjs:185:3
 ✖ live-фаза без среды — passed_with_unmet, не passed и не skip (0.155953ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции computeVerdict
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at computeVerdict (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:141:32)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:186:21)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at computeVerdict (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:141:32)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:186:21)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -159,10 +159,10 @@ test at tests/meta/test-policy.test.mjs:185:3
 test at tests/meta/test-policy.test.mjs:193:3
 ✖ Rust ignored не смешивается с e2e-skip (0.144762ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции computeVerdict
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at computeVerdict (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:141:32)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:194:21)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at computeVerdict (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:141:32)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:194:21)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -180,10 +180,10 @@ test at tests/meta/test-policy.test.mjs:193:3
 test at tests/meta/test-policy.test.mjs:204:3
 ✖ статус e2e считается по counts: pass 0 / skip 4 ⇒ unmet (0.162022ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции e2eStatus
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at e2eStatus (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:143:27)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:205:20)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at e2eStatus (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:143:27)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:205:20)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -201,10 +201,10 @@ test at tests/meta/test-policy.test.mjs:204:3
 test at tests/meta/test-policy.test.mjs:213:3
 ✖ приёмка запрещена без fixture-доказательства и без live в qualify (0.199163ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции computeAcceptance
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at loadGateFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:53:26)
-      at computeAcceptance (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:145:35)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:214:24)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at loadGateFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:53:26)
+      at computeAcceptance (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:145:35)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:214:24)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -222,8 +222,8 @@ test at tests/meta/test-policy.test.mjs:213:3
 test at tests/meta/test-policy.test.mjs:226:3
 ✖ fixture-набор e2e исключает live и объявлен с failOnSkips (0.183973ms)
   AssertionError [ERR_ASSERTION]: в scripts/gate.mjs нет функции e2eFixturePhase
-      at extractFunction (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:35:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:227:21)
+      at extractFunction (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:35:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:227:21)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -241,7 +241,7 @@ test at tests/meta/test-policy.test.mjs:226:3
 test at tests/meta/test-policy.test.mjs:241:3
 ✖ live-фаза отдельная и только в qualify (0.187913ms)
   AssertionError [ERR_ASSERTION]: release/qualify обязаны гонять fixture e2e
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:244:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:244:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -259,7 +259,7 @@ test at tests/meta/test-policy.test.mjs:241:3
 test at tests/meta/test-policy.test.mjs:250:3
 ✖ оба результата повтора сохраняются в attempts[] (0.216964ms)
   AssertionError [ERR_ASSERTION]: у попытки должна быть причина
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/meta/test-policy.test.mjs:253:12)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/meta/test-policy.test.mjs:253:12)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

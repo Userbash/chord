@@ -190,7 +190,7 @@ md5 вендоринга отличается от источника ровно
    справочные RE. В CSS взяты line-height 22px и gutter 64px; менять шаг на 26/48 нельзя без
    правки DOM-теста. Если PM хочет RE-плотность — отдельная карточка, иначе DOM-тест красный.
 5. Визуальная сверка (`gui-window-probe.py`, `/tmp/opencode/gui-window.png` vs
-   `/home/sanya/re-deep/ui/00-app.png`) и AT-SPI не выполнялись — запрет на запуск окна
+   `reference-oracle/ui/00-app.png`) и AT-SPI не выполнялись — запрет на запуск окна
    на этом шаге. После замены `index.html` — прогон probe и сверка по SPEC §14.
 6. Коммитов/пушей не делал, сеть не использовал, чужие файлы (`index.html`, `app.js`,
    `model.js`, `src/**`, тесты) не менял. `rust/gui-spike/ui/` в git пока untracked — это

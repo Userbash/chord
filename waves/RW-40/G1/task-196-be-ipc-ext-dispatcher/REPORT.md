@@ -4,16 +4,16 @@
 
 - **Волна**: `RW-40`, отдел `G1` (Backend).
 - **Карточка**: `task-196` — расширенный IPC-диспетчер (`ExtendedIpcCommand`, `ExtendedIpcPlan`, `validate_and_build_plan`).
-- **Ветка / worktree**: `feature/task-196-be-ipc-ext-dispatcher`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка / worktree**: `feature/task-196-be-ipc-ext-dispatcher`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Write-Scope (единственные изменённые файлы)**:
   - `rust/gui-spike/src/ipc_ext.rs`
   - `rust/gui-spike/src/lib.rs`
   - `rust/gui-spike/tests/ipc_ext_contract.rs`
-  - `/home/sanya/orca/project/waves/RW-40/G1/task-196-be-ipc-ext-dispatcher/REPORT.md` (и `red.log`, `green.log`)
+  - `/home/user/orca/project/waves/RW-40/G1/task-196-be-ipc-ext-dispatcher/REPORT.md` (и `red.log`, `green.log`)
 
 ## 2. Оракул (read-only)
 
-Сверено с `/home/sanya/re-deep/rest-static.json`, `/home/sanya/re-deep/rest-d02.json` и модулями `profile.rs`, `messages.rs`, `reactions.rs`, `search.rs`:
+Сверено с `reference-oracle/rest-static.json`, `reference-oracle/rest-d02.json` и модулями `profile.rs`, `messages.rs`, `reactions.rs`, `search.rs`:
 
 - `USER_PROFILE`: `GET /users/{id}/profile?with_mutual_guilds={bool}&with_mutual_friends_count={bool}[&guild_id={id}]`, тело `None`.
 - `BULK_ACK`: `POST /read-states/ack-bulk`, тело `{"read_states": [...]}` (`1..=100` элементов `BulkReadStateEntry` = `crate::messages::AckBulkEntry`).
@@ -36,7 +36,7 @@
 
 ## 4. RED-прогон
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-196-be-ipc-ext-dispatcher/red.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-196-be-ipc-ext-dispatcher/red.log`:
 
 ```text
 error[E0432]: unresolved import `discord_gui_spike::ipc_ext`
@@ -51,7 +51,7 @@ EXIT_CODE=101
 
 ## 5. GREEN-прогон и проверки (Targeted + Clippy + Rustfmt)
 
-Сохранено в `/home/sanya/orca/project/waves/RW-40/G1/task-196-be-ipc-ext-dispatcher/green.log`:
+Сохранено в `/home/user/orca/project/waves/RW-40/G1/task-196-be-ipc-ext-dispatcher/green.log`:
 
 ```text
 running 12 tests

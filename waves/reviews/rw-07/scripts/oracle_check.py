@@ -16,7 +16,7 @@ import tempfile
 from collections import Counter
 from pathlib import Path
 
-LAB = Path("/home/sanya/re-deep/gw-proto")
+LAB = Path("/home/user/clean-room-oracle/gw-proto")
 TMP = Path("/tmp/opencode/review-rw-07")
 TMP.mkdir(parents=True, exist_ok=True)
 
@@ -334,8 +334,8 @@ check(tl_dispatch == 113, f"таймлайн: диспатчей op0 = {tl_dispa
 print("timeline rows:", tl_total, "op0:", tl_dispatch)
 
 # ---------------- 6. Сверка с константами ----------------
-test_src = Path("/home/sanya/orca/project/rust/crates/discord-core/tests/dispatch_router.rs").read_text()
-lib_src = Path("/home/sanya/orca/project/rust/crates/discord-core/src/lib.rs").read_text()
+test_src = Path("/home/user/orca/project/rust/crates/discord-core/tests/dispatch_router.rs").read_text()
+lib_src = Path("/home/user/orca/project/rust/crates/discord-core/src/lib.rs").read_text()
 
 
 def parse_names(block):

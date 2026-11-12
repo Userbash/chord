@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/task-620-context-menu/tests/unit/context-menu.test.mjs:14
+file:///home/user/orca/workspaces/project/task-620-context-menu/tests/unit/context-menu.test.mjs:14
   bindContextMenuTrigger,
   ^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/context-menu.js' does not provide an export named 'bindContextMenuTrigger'

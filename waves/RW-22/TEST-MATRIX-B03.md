@@ -22,7 +22,7 @@
 | `xxh64`/`message_key` | `hash_vectors_and_locale_selection` | 6 векторов из RE: `ru`, `en-US`, `AKA`, `OK`, `PS4`, `PS5`; пустая строка |
 | 36/31/5 локалей, exact/case/base/disabled | `locale_math_is_consistent`, `hash_vectors_and_locale_selection` | `docs/re/i18n-deep.md` §7 / `inline/lang-list.json` |
 | Каталог/AST/fallback/plural/tags | `catalog_translate_plural_and_rich_tags`, `plural_exact_and_fractional_categories_are_cldr_safe`, `number_formatting_uses_locale_separators_and_keeps_fraction` | синтетические AST + CLDR-категории; `=0`, `=2`, offset, ru/en, `#` |
-| Реальные ru/en каталоги | `real_catalogs_match_independent_inventory` | `/home/sanya/re-deep/{ru,en}-catalog.json`: 23 836 / 23 903, `hPBScv`, `323362` с `$link` |
+| Реальные ru/en каталоги | `real_catalogs_match_independent_inventory` | `reference-oracle/{ru,en}-catalog.json`: 23 836 / 23 903, `hPBScv`, `323362` с `$link` |
 | Markdown/XSS/panic | `markdown_is_safe_and_handles_unclosed_markers` | `javascript:`, смешанные ссылки, вложенные скобки, 10 000 truncation-префиксов |
 
 ## 3. P4-01 — headless RTC signaling

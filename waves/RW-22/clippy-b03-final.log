@@ -1,5 +1,5 @@
-    Checking discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-    Checking discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
-    Checking discord-i18n v0.1.0 (/home/sanya/orca/project/rust/crates/discord-i18n)
+    Checking discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+    Checking discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
+    Checking discord-i18n v0.1.0 (/home/user/orca/project/rust/crates/discord-i18n)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.93s

@@ -8,7 +8,7 @@
 ## Разрешённые файлы для записи (Write-Scope)
 - `rust/gui-spike/ui/tsconfig.json`
 - `scripts/test-impact.mjs`
-- `/home/sanya/orca/project/waves/RW-40/QUALITY/task-283-tsconfig-and-test-impact/REPORT.md`
+- `/home/user/orca/project/waves/RW-40/QUALITY/task-283-tsconfig-and-test-impact/REPORT.md`
 
 ## Шаги выполнения
 1. В `rust/gui-spike/ui/tsconfig.json` замени массив `"include"` на:

@@ -3,11 +3,11 @@
 # target-dir: /tmp/opencode/target-w26b (свой, общий занят другими лейнами)
 # все команды офлайн: --offline
 
-$ cd /home/sanya/orca/project/rust
+$ cd /home/user/orca/project/rust
 $ export CARGO_TARGET_DIR=/tmp/opencode/target-w26b
 
 $ cargo test --offline -p discord-perf --test perf_contract
-   Compiling discord-perf v0.1.0 (/home/sanya/orca/project/rust/crates/discord-perf)
+   Compiling discord-perf v0.1.0 (/home/user/orca/project/rust/crates/discord-perf)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
      Running tests/perf_contract.rs (/tmp/opencode/target-w26b/debug/deps/perf_contract-af0442fb430cf45e)
 

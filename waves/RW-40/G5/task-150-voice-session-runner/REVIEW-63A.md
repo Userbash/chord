@@ -9,7 +9,7 @@
 
 ## 1. Проверка статических анализаторов, компиляции и тестов
 
-Все команды выполнены в чистом рабочем окружении с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Все команды выполнены в чистом рабочем окружении с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 
 1. `cargo test --manifest-path rust/Cargo.toml -p discord-voice`
    - Результат: **ok** (14 unit + 135 integration tests во всех 10 integration suites = 149 passed; 0 failed).

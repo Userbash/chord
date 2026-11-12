@@ -9,7 +9,7 @@
 
 1. **P1 (чтение внешнего RE-бандла в `t_stream_00_anchors_match_contract_and_oracle_bundle`)**:
    - В `rust/crates/discord-core/tests/stream_gateway_contract.rs` удалено превращение ошибки `fs::read(lab_path).ok()` в `None` и условные блоки `if let Some(ref bytes) = artifact_bytes`.
-   - Чтение эталонного RE-артефакта `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` сделано безусловно обязательным (`fs::read(lab_path).unwrap_or_else(|e| panic!(...))` с явным сообщением об обязательности внешнего RE-оракула по `TEST-POLICY.md`).
+   - Чтение эталонного RE-артефакта `reference-oracle/decoded/4d2a64cb5df5fc4e_0` сделано безусловно обязательным (`fs::read(lab_path).unwrap_or_else(|e| panic!(...))` с явным сообщением об обязательности внешнего RE-оракула по `TEST-POLICY.md`).
    - Проверка длины бандла (`expected_bytes == 12_410_287` Б и `bytes.len() == expected_bytes`) и побайтовая сверка всех 17 якорей (`&bytes[offset..offset + len] == quote`) теперь выполняются безусловно на каждом запуске `t_stream_00_anchors_match_contract_and_oracle_bundle`.
 2. **P1 (`pub mod stream;` в `rust/crates/discord-core/src/lib.rs`)**:
    - Подключение `pub mod stream;` в `rust/crates/discord-core/src/lib.rs` официально подтверждено и принято Team Lead; файл не изменялся в рамках данного фикса (md5 сохранён: `e847d7c368fe2ff7e3615dd745ac65a9`).
@@ -48,4 +48,4 @@
 ## 5. Риски
 
 - Другие файлы репозитория не затрагивались, `git commit` не выполнялся.
-- Внешний RE-бандл `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` (`12 410 287` Б) прочитан и побайтово сверен по всем 17 якорям (`A-OPCODES`…`A-REST`).
+- Внешний RE-бандл `reference-oracle/decoded/4d2a64cb5df5fc4e_0` (`12 410 287` Б) прочитан и побайтово сверен по всем 17 якорям (`A-OPCODES`…`A-REST`).

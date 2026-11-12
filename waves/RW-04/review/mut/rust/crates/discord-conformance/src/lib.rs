@@ -1,7 +1,7 @@
 //! # discord-conformance
 //!
 //! Доступ к курированным конформанс-фикстурам RE (`fixtures/` в корне репозитория;
-//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/sanya/re-deep`).
+//! провенанс — `fixtures/MANIFEST.json`, полное сырьё — `/home/user/clean-room-oracle`).
 //!
 //! Тесты уровня L1–L3 (`docs/rust-client/TEST-PLAN.md` §3) читают артефакты отсюда,
 //! поэтому путь переопределяется переменной `RE_FIXTURES_ROOT` (например, для CI).

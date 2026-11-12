@@ -1,222 +1,221 @@
-# Стратегия комплексной автоматизации тестирования и Регламент QA отдела для `discord-gpui`
+# Comprehensive QA Automation Strategy & Department Protocol for `discord-gpui`
 
-**Дата утверждения:** 2026-11-11  
-**Версия документа:** v2.0 (Native GPUI & Modern Testing Ecosystem)  
-**Ответственный отдел:** G4 QA & Automation Lead  
-**Статус доски задач:** 8 новых микро-декомпозированных задач загружены в Бэклог (`waves/kanban-board.json` & `waves/kanban-board.html`)
-
----
-
-## 1. Сопроводительное письмо: Философия, Методология и Цели QA
-
-Данный регламент определяет архитектуру тестирования, подходы к проверке качества кода и нативного интерфейса, правила приёмки (Definition of Done) и дорожную карту развития автоматизации для клиента **`discord-gpui`** (WGPU, 120 FPS, нативный Rust).
-
-### Ключевые цели QA-инженерии проекта:
-1. **0 регрессий:** ни один коммит не должен ломать существующие контракты protocols (Gateway, REST v9, Voice opcodes 18..=22, DAVE MLS v1).
-2. **Строгий фреймрейт 120 FPS:** бюджет отрисовки кадра составляет строго **< 8.33 мс** (p95 < 2 мс).
-3. **Память и утечки:** стабильный Resident Set Size (**VmRSS < 60 МБ**) под непрерывной суточной нагрузкой.
-4. **Безопасность данных и сквозное шифрование:** 100% защита от утечек токенов в логах и полная проверка криптографических инвариантов DAVE E2EE (RFC 9420 KDF, 8-байтный тег, anti-replay window).
-5. **Мутационный гейт 5/5 (100% Mutation Kill Rate):** тесты обязаны падать при намеренном внесении дефектов в логику.
+**Approval Date:** 2026-11-11  
+**Document Version:** v2.0 (Native GPUI & Modern Testing Ecosystem)  
+**Owning Department:** G4 QA & Automation Lead  
+**Task Board Status:** 8 micro-decomposed tasks loaded in Backlog (`waves/kanban-board.json` & `waves/kanban-board.html`)  
 
 ---
 
-## 2. Комплексная матрица тестирования: Что, Где и Как применять
+## 1. QA Mission Statement: Philosophy, Methodology, and Objectives
 
-```
+This specification defines the testing architecture, quality assurance procedures, Definition of Done, and automation roadmap for the **`discord-gpui`** native client (WGPU, 120 FPS, pure Rust).
+
+### Core QA Engineering Objectives:
+1. **0 Regressions:** Zero commits may break established wire protocols (Gateway, REST v9, Voice opcodes 18..=22, DAVE MLS v1).
+2. **Strict 120 FPS Frame Budget:** Frame render budget strictly **< 8.33 ms** (p95 < 2 ms).
+3. **Memory Footprint & Leaks:** Stable Resident Set Size (**VmRSS < 60 MB**) under 24-hour continuous workload.
+4. **Data Security & E2EE:** 100% protection against unmasked tokens in logs and full verification of DAVE E2EE cryptographic invariants (RFC 9420 KDF, 8-byte authentication tag, anti-replay window).
+5. **Mutation Gate 5/5 (100% Mutation Kill Rate):** Tests must fail when intentional faults are injected into logic.
+
+---
+
+## 2. Comprehensive Testing Matrix: What, Where, and How to Apply
+
+```text
                                       ▲
                                      / \       E2E (End-to-End User Journeys)
-                                    /   \      Headless Wayland, Mock Gateway, чистый бинарник
+                                    /   \      Headless Wayland, Mock Gateway, release binary
                                    /-----\     
                                   /       \    Visual Regression & Perceptual Diff
-                                 /         \   SSIM > 0.99, маскирование динамических зон
+                                 /         \   SSIM > 0.99, dynamic region masking
                                 /-----------\  
                                /             \ GUI & Component (AT-SPI Driver)
-                              /               \Семантическое дерево org.a11y.Bus, Tab-навигация
+                              /               \Semantic tree org.a11y.Bus, Tab navigation
                              /-----------------\
                             /                   \ Chaos & Fault Injection
-                           /                     \Джиттер 20-60мс, обрывы сокетов, реконнекты
+                           /                     \Jitter 20-60ms, socket drops, reconnects
                           /-----------------------\
                          /                         \ Fuzzing (cargo-fuzz / libFuzzer)
-                        /                           \10M итераций сетевых парсеров и RTP
+                        /                           \10M iterations of parsers and RTP
                        /-----------------------------\
                       /                               \ Contract / Interface
-                     /                                 \Эталонные дампы /home/sanya/re-deep/
+                     /                                 \Reference cleanroom oracles docs/re/
                     /-----------------------------------\
                    /                                     \ Unit & Property-Based
-                  /                                       \Чистая логика, proptest, NIST KAT
+                  /                                       \Pure logic, proptest, NIST KAT
                  ◄─────────────────────────────────────────►
 ```
 
-| Уровень / Тип тестирования | Где применяется | Используемые инструменты | Скорость | Что проверяет |
+| Level / Test Type | Scope | Tooling | Execution Speed | Verified Domain |
 |---|---|---|---|---|
-| **Static & Linter** | Все файлы Rust (`src/**/*.rs`) | `cargo clippy -D warnings`, `rustfmt`, `cargo-deny` | ~1–2 с | Чистота кода, отсутствие UB, размер функций (<50 строк), модулей (<800 строк) |
-| **Unit-тесты** | Изолированные модули бизнес-логики | `cargo test --lib` | Микросекунды (µs) | Парсинг Snowflake, хэширование, расчет битрейта, валидаторы |
-| **Property-Based** | Алгоритмы очередей, парсеры структур | `proptest`, `quickcheck` | Миллисекунды (ms) | Инварианты работы при случайных входных последовательностях и граничных байтах |
-| **Contract-тесты** | Сетевые протоколы, IPC, REST, Голос | Оракулы `/home/sanya/re-deep/` | ~5–10 мс | Строгое соответствие Wire-протоколам Discord, JSON Schema, ETF big-int |
-| **Fuzzing (Фаззинг)** | Сетевые парсеры, RTP, DAVE E2EE | `cargo-fuzz` (libFuzzer) + ASan | Часы / ночные прогоны | Устойчивость к враждебным/битым пакетам, переполнениям, паникам |
-| **GUI Component** | Окна, сайдбары, меню, модалки | `gpui-kit`, `cx.listener`, `cx.notify` | ~1–5 мс | Реактивные обновления `AppState`, генерация элементов, фильтрация |
-| **Accessibility (A11y)**| Доступность интерфейса | D-Bus AT-SPI (`org.a11y.Bus`) | ~10–20 мс | Навигация с клавиатуры (Tab), роли элементов, контраст цветов WCAG 2.2 AAA |
-| **Visual Regression** | Внешний вид экранов и компонентов | Perceptual SSIM (>0.99), `llvmpipe` | ~100 мс | Сравнение скриншотов с эталонами (Goldens) с масками часов/аватарок |
-| **Chaos Testing** | Сетевой стек, сокеты, аудиодрайвер | Эмулятор сбоев, packet dropper | Секунды | Потери 5–30% UDP пакетов, скачки джиттера, реконнект (Opcode 6/7) |
-| **Performance Benchmark**| Графический конвейер, скролл | High-res clock, `/proc/self/statm` | Миллисекунды | Время кадра < 8.33 мс (120 FPS), память VmRSS < 60 МБ |
-| **Mutation Testing** | Все продуктовые PR | Скрипт инжекции мутаций | Секунды | Обязательное уничтожение 5 из 5 мутаций на модуль |
-| **Manual QA (Ручное)** | Финальный релизный смоук | Чек-листы, Bug-bash сессии | Минуты | Удобство пользователя (UX), поведение на GNOME/KDE/X11 |
+| **Static & Linter** | All Rust sources (`src/**/*.rs`) | `cargo clippy -D warnings`, `rustfmt`, `cargo-deny` | ~1–2 s | Code hygiene, zero UB, function size (<50 lines), module size (<800 lines) |
+| **Unit Tests** | Isolated business logic | `cargo test --lib` | Microseconds (µs) | Snowflake parsing, hashing, bitrate computation, validators |
+| **Property-Based** | Queue algorithms, parsers | `proptest`, `quickcheck` | Milliseconds (ms) | Invariants under random inputs and boundary byte sequences |
+| **Contract Tests** | Network protocols, IPC, REST, Voice | Cleanroom oracles `docs/re/` | ~5–10 ms | Strict Discord wire protocol conformance, JSON Schema, ETF big-int |
+| **Fuzzing** | Network parsers, RTP, DAVE E2EE | `cargo-fuzz` (libFuzzer) + ASan | Hours / Overnight | Robustness against malformed packets, overflows, panics |
+| **GUI Component** | Windows, sidebars, menus, modals | `gpui-kit`, `cx.listener`, `cx.notify` | ~1–5 ms | Reactive `AppState` updates, layout calculation, filtering |
+| **Accessibility (A11y)**| UI accessibility | D-Bus AT-SPI (`org.a11y.Bus`) | ~10–20 ms | Keyboard navigation (Tab), element roles, WCAG 2.2 AAA contrast |
+| **Visual Regression** | Screen rendering and layout | Perceptual SSIM (>0.99), `llvmpipe` | ~100 ms | Screenshot comparison with golden references with dynamic region masking |
+| **Chaos Testing** | Network stack, sockets, audio | Fault injector, packet dropper | Seconds | 5–30% UDP drop rate, jitter spikes, Opcode 6/7 reconnects |
+| **Performance Benchmark**| Render pipeline, scroll | High-res clock, `/proc/self/statm` | Milliseconds | Frame latency < 8.33 ms (120 FPS), VmRSS < 60 MB |
+| **Mutation Testing** | All production PRs | Mutation injector script | Seconds | Mandatory kill rate: 5 of 5 mutants per module |
+| **Manual QA** | Pre-release sanity check | Checklists, Bug-bash sessions | Minutes | UX evaluation, behavior across GNOME/KDE/X11 |
 
 ---
 
-## 3. Правила и Регламенты проверки кода (Code Review Checklist)
+## 3. Code Review & Quality Checklist
 
-### 3.1. Статические проверки и лимиты архитектуры:
-- [ ] **Никаких `unwrap()` / `expect()` в продакшн-путях:** любая сетевая ошибка или битый пакет должны возвращать `Result<T, AppError>`. Паника запрещена.
-- [ ] **Функции < 50 строк:** каждая функция строго сфокусирована на одной задаче.
-- [ ] **Файлы < 800 строк:** при превышении мягкого потолка логика выносится в подмодули.
-- [ ] **Неизменяемость (Immutability):** предпочтение чистым трансформациям без мутации общих ссылок.
-- [ ] **Zero-Allocation на горячих путях:** в циклах обработки 120 FPS и аудио-пакетов (Opus/RTP) запрещены динамические аллокации `String` и `Vec` — использование переиспользуемых кольцевых буферов (`AudioRingBuffer`).
+### 3.1. Static Checks and Architectural Limits:
+- [ ] **Zero `unwrap()` / `expect()` in production paths:** Network faults or malformed packets must return `Result<T, AppError>`. Panics strictly forbidden.
+- [ ] **Functions < 50 lines:** Every function has a single, cohesive responsibility.
+- [ ] **Files < 800 lines:** Soft ceiling; extract logic to submodules when exceeded.
+- [ ] **Immutability:** Pure transformations preferred over in-place reference mutations.
+- [ ] **Zero Allocations on Hot Paths:** 120 FPS render loops and audio packet handlers (Opus/RTP) forbid dynamic `String` and `Vec` allocations; use reusable ring buffers (`AudioRingBuffer`).
 
-### 3.2. Что и как проверять в GUI (нативный GPUI):
-1. **Рендеринг и верстка:**
-   - Нет наложений текста при сжатии окна до минимального разрешения (900x600).
-   - Flexbox использует `min_h_0` / `min_w_0` для дочерних прокручиваемых контейнеров.
-   - Нижняя плашка пользователя (`UserPanel`) фиксирована и не выталкивается длинным списком каналов.
-2. **Виртуализация и скролл:**
-   - Чат со 100 000 сообщениями не держит в памяти 100k элементов GPUI — только видимое окно (~30 элементов).
-   - Позиция скролла заякорена при подгрузке старых сообщений вверх (`GET /channels/{id}/messages?before=...`).
-3. **Интерактивные состояния:**
-   - Все кликабельные элементы имеют явные состояния: `Default`, `Hover`, `Active`, `Focus`.
-   - Подсказки (Tooltips) появляются с задержкой 300мс и не перекрывают элементы управления.
-4. **Семантика дерева доступности (AT-SPI):**
-   - У каждого интерактивного элемента есть понятное `Accessible Name` (например, «Настройки пользователя», а не пустая строка или иконка ⚙️).
-   - Все модальные окна перехватывают фокус клавиатуры и закрываются по клавише `Escape`.
-
----
-
-## 4. Подробная декомпозиция задач автоматизации (Задачи -> Подзадачи -> Микро-шаги)
-
-Все 8 задач внесены на канбан-доску проекта в статус `📋 Бэклог задач` (`status: "backlog"`):
-
-### TASK-901: Архитектурный каркас нативного E2E-харнесса (Virtual Wayland + Mock Gateway)
-- **Подзадача 901.1: Изолированный композитор Wayland в оперативной памяти**
-  - *Микро-шаг 1.1:* Настройка запуска `cage`/`wlroots` без физического монитора через скрипт `scripts/run-headless-compositor.sh`.
-  - *Микро-шаг 1.2:* Интеграция программного рендерера `llvmpipe` (`LIBGL_ALWAYS_SOFTWARE=1`) для стабильного рендеринга на CI машинах без GPU.
-  - *Микро-шаг 1.3:* Автоматический захват и аллокация виртуального сокета `wayland-99` с изоляцией от рабочего стола пользователя.
-- **Подзадача 901.2: Локальный Mock Discord Gateway Daemon на базе Tokio**
-  - *Микро-шаг 2.1:* Реализация HTTP/2 Mock сервера для REST v9 маршрутов (`/users/@me`, `/guilds`, `/channels/{id}/messages`).
-  - *Микро-шаг 2.2:* Реализация WebSocket сервера с поддержкой Discord Gateway v9 (Heartbeat ACK, Opcode 2 IDENTIFY, Opcode 4 VOICE_STATE_UPDATE).
-  - *Микро-шаг 2.3:* Загрузчик эталонных трасс `/home/sanya/re-deep/capture-ready.jsonl` для 100% реалистичной гидратации состояния.
-- **Подзадача 901.3: E2E LifeCycle Runner & Process Orchestrator**
-  - *Микро-шаг 3.1:* Rust крейт тестового раннера `tests/e2e/harness/runner.rs` с автоматическим стартом и graceful shutdown.
-  - *Микро-шаг 3.2:* Перехват логов stdout/stderr и дамп бэктрейсов при панике бинарника.
-  - *Микро-шаг 3.3:* Проверка отсутствия зависших зомби-процессов и файловых дескрипторов после завершения сценария.
-
-### TASK-902: Семантический драйвер GUI и автоматизация тестирования через D-Bus AT-SPI
-- **Подзадача 902.1: Экспозиция дерева доступности в компонентах GPUI**
-  - *Микро-шаг 1.1:* Проверка экспозиции Accessible Roles для всех кнопок, инпутов и списков (`Role::PushButton`, `Role::Text`, `Role::List`).
-  - *Микро-шаг 1.2:* Привязка Accessible Name и Accessible Description из i18n-каталога без хардкода.
-  - *Микро-шаг 1.3:* Поддержка состояний компонентов (`State::Focused`, `State::Selected`, `State::Checked`, `State::Disabled`).
-- **Подзадача 902.2: Реализация высокоуровневого Page-Object DSL (`AppDriver`)**
-  - *Микро-шаг 2.1:* Метод `driver.find_by_role_and_name('button', 'Войти')` с детерминированным ожиданием появления элемента.
-  - *Микро-шаг 2.2:* Метод `driver.click(element)` через вызов метода D-Bus `do_action(0)`.
-  - *Микро-шаг 2.3:* Метод `driver.type_text(element, 'Текст')` с эмуляцией посимвольного ввода и проверкой реактивного редьюсера.
-  - *Микро-шаг 2.4:* Метод `driver.press_hotkey('Ctrl+K')` для проверки клавиатурных сочетаний.
-- **Подзадача 902.3: Автоматизированный аудит доступности WCAG 2.2**
-  - *Микро-шаг 3.1:* Валидация контрастности цветов текста ко всем фонам (минимальный коэффициент 4.5:1 для нормального текста, 7:1 для AAA).
-  - *Микро-шаг 3.2:* Тестирование сквозной навигации исключительно с клавиатуры (`Tab`, `Shift+Tab`, `Enter`, `Space`, `Escape`, `Стрелки`).
-  - *Микро-шаг 3.3:* Проверка отсутствия «клавиатурных ловушек» (Focus Traps) во всех модальных окнах.
-
-### TASK-903: Комплексный фаззинг сетевых протоколов и криптографии DAVE MLS v1 (`cargo-fuzz`)
-- **Подзадача 903.1: Фаззинг-мишени для сетевых парсеров Discord Gateway и Voice**
-  - *Микро-шаг 1.1:* Создание fuzz-мишени `fuzz_gateway_json_etf` для парсера входящих сообщений шлюза.
-  - *Микро-шаг 1.2:* Создание fuzz-мишени `fuzz_voice_udp_packets` для 74-байтных IP Discovery и 8-байтных Keepalive пакетов.
-  - *Микро-шаг 1.3:* Создание fuzz-мишени `fuzz_rtp_header_extensions` для парсера заголовков RTP (`0xBEDE`, One-Byte/Two-Byte Header).
-- **Подзадача 903.2: Фаззинг сквозного шифрования Discord DAVE E2EE MLS v1**
-  - *Микро-шаг 2.1:* Фаззинг дешифратора `Aes128GcmTruncated8` на случайных и усеченных байтах с проверкой отсутствия утечек памяти.
-  - *Микро-шаг 2.2:* Проверка обработки поврежденных MLS Commit и Proposal сообщений в `DaveVoiceSession`.
-  - *Микро-шаг 2.3:* Тестирование защиты от атак повторного воспроизведения (Anti-Replay sliding window) на переполнениях u64.
-- **Подзадача 903.3: Автоматизированная интеграция в CI и сбор краш-корпуса**
-  - *Микро-шаг 3.1:* Настройка запуска `cargo fuzz run` на 1 000 000 итераций в ночном CI пайплайне.
-  - *Микро-шаг 3.2:* Сохранение и минимизация корпуса интересных входных данных в `tests/fuzz/corpus/`.
-  - *Микро-шаг 3.3:* Автоматический генератор отчёта при обнаружении паники или out-of-bounds чтения.
-
-### TASK-904: Автоматизация визуальной регрессии GPUI на базе SSIM (>0.99) и маскирования
-- **Подзадача 904.1: Генератор детерминированных скриншотов из FrameBuffer**
-  - *Микро-шаг 1.1:* Снятие RGBA пикселей напрямую из виртуального буфера кадра GPUI/WGPU без сжатия.
-  - *Микро-шаг 1.2:* Принудительное отключение субпиксельного сглаживания шрифтов в тестовом режиме для кросс-платформенной стабильности.
-  - *Микро-шаг 1.3:* Фиксация системных часов (Frozen Clock) для устранения рассинхрона времени в сообщениях.
-- **Подзадача 904.2: Алгоритм перцептивного сравнения SSIM с масками исключений**
-  - *Микро-шаг 2.1:* Реализация модуля вычисления Structural Similarity Index (SSIM) с порогом допуска 0.995.
-  - *Микро-шаг 2.2:* Определение JSON-масок динамических регионов (прямоугольники таймстемпов, аватарок, индикаторов FPS и пинга).
-  - *Микро-шаг 2.3:* Генерация наглядных HTML-диффов с наложением красных пикселей расхождений (Visual Diff Report).
-- **Подзадача 904.3: Базовый набор золотых эталонов (Golden Snapshots)**
-  - *Микро-шаг 3.1:* Снятие эталонов главного окна в темной теме Discord Dark при 1280x720 и 1920x1080.
-  - *Микро-шаг 3.2:* Снятие эталонов диалога настроек `SettingsDialog` для всех 8 вкладок.
-  - *Микро-шаг 3.3:* Снятие эталонов модальных окон `CaptchaModal`, `CreateGuildModal`, `ScreenShareModal`.
-  - *Микро-шаг 3.4:* Снятие эталонов контекстного меню ПКМ и всплывающих тултипов профилей.
-
-### TASK-905: Стенд Chaos Engineering: сетевые обрывы, джиттер 20-60мс и аварийное восстановление
-- **Подзадача 905.1: Сетевой хаос-инжектор (Network Fault Injection)**
-  - *Микро-шаг 1.1:* Эмуляция обрыва TCP соединения шлюза (Socket Reset / EOF) каждые N секунд.
-  - *Микро-шаг 1.2:* Проверка плавного перехода в режим RESUME (Opcode 6) с сохранением seq и сессионного токена.
-  - *Микро-шаг 1.3:* Искусственное внедрение HTTP 429 Too Many Requests со случайным `retry_after_ms` для проверки экспоненциального бэкоффа.
-  - *Микро-шаг 1.4:* Инжекция 5%, 15% и 30% потерь UDP пакетов голоса для проверки адаптивного битрейта Opus и PLC.
-- **Подзадача 905.2: Аппаратный и системный хаос (Audio/Video Driver Faults)**
-  - *Микро-шаг 2.1:* Внезапное удаление активного аудиоустройства в процессе звонка и автоматическое переключение на Default.
-  - *Микро-шаг 2.2:* Имитация аварийного перезапуска демона PipeWire во время активной трансляции экрана.
-  - *Микро-шаг 2.3:* Тестирование нехватки памяти (OOM Injection) и проверка сброса кэша изображений `MediaCache`.
-- **Подзадача 905.3: Метрики живучести и целостности состояния (State Integrity Audit)**
-  - *Микро-шаг 3.1:* Проверка отсутствия дубликатов сообщений в ленте после серии реконнектов.
-  - *Микро-шаг 3.2:* Проверка сохранения черновика текста сообщения при внезапном закрытии модалок.
-  - *Микро-шаг 3.3:* Проверка корректного освобождения файловых дескрипторов и сокетов после сбоев.
-
-### TASK-906: Бенчмаркинг 120 FPS и профилирование утечек памяти в реальном времени (Heap/RSS < 60 MB)
-- **Подзадача 906.1: Непрерывный замер бюджета кадра 120 FPS (<8.33 мс)**
-  - *Микро-шаг 1.1:* Внедрение таймеров высокой точности (High-Resolution Clock) на каждом шаге цикла layout & render.
-  - *Микро-шаг 1.2:* Сбор перцентилей p50, p95, p99 времени кадра при скроллинге чата на 100 000 сообщений.
-  - *Микро-шаг 1.3:* Автоматический фейл теста при превышении времени отрисовки > 8.33 мс более чем в 0.1% кадров.
-- **Подзадача 906.2: Профилирование памяти и обнаружение утечек (Memory Leak Detection)**
-  - *Микро-шаг 2.1:* Снятие профилей аллокаций кучи (Heap Profiling) через `jemalloc` / `heaptrack` в процессе 24-часового стресс-теста.
-  - *Микро-шаг 2.2:* Проверка стабильности VmRSS под нагрузкой: жесткий лимит < 60 МБ для всего приложения.
-  - *Микро-шаг 2.3:* Тестирование сборки мусора и выгрузки неиспользуемых текстур аватарок и вложений из GPU VRAM.
-- **Подзадача 906.3: Бенчмарк скорости холодного старта (Cold Start Time)**
-  - *Микро-шаг 3.1:* Замер времени от старта процесса до отрисовки первого интерактивного кадра First Meaningful Paint.
-  - *Микро-шаг 3.2:* Бюджет холодного старта: < 150 мс при прогретом кэше SQLite, < 300 мс при чистом запуске.
-  - *Микро-шаг 3.3:* Публикация графиков перформанса в артефакты CI сборки.
-
-### TASK-907: Автоматизированный гейт качества кода: Clippy, ASan/TSan санитайзеры и 5/5 мутационный гейт
-- **Подзадача 907.1: Статический анализ и строгий линтинг Rust**
-  - *Микро-шаг 1.1:* Настройка `cargo clippy --all-targets -- -D warnings` для блокировки любого коммита с варнингами.
-  - *Микро-шаг 1.2:* Проверка форматирования через `rustfmt --check --edition 2024`.
-  - *Микро-шаг 1.3:* Аудит уязвимостей зависимостей через `cargo audit` и проверка лицензий через `cargo-deny`.
-  - *Микро-шаг 1.4:* Статический контроль размера исходников: функции < 50 строк, файлы модулей < 800 строк.
-- **Подзадача 907.2: Динамические санитайзеры LLVM (ASan & TSan)**
-  - *Микро-шаг 2.1:* Сборка и прогон контрактных тестов с `RUSTFLAGS="-Zsanitizer=address"` для поиска use-after-free и buffer overflow.
-  - *Микро-шаг 2.2:* Сборка и прогон с `RUSTFLAGS="-Zsanitizer=thread"` для выявления гонок данных (Data Races) в многопоточных кольцевых буферах.
-  - *Микро-шаг 2.3:* Проверка отсутствия дедлоков в связке Tokio <-> GPUI Event Loop.
-- **Подзадача 907.3: Мутационный гейт тестирования (Mutation Testing Gate)**
-  - *Микро-шаг 3.1:* Автоматическая генерация 5 контрольных мутаций на каждый изменяемый модуль (инверсия условий, замена констант, пропуск валидации).
-  - *Микро-шаг 3.2:* Запуск таргетированных тестов против мутированного кода.
-  - *Микро-шаг 3.3:* Обязательное условие приёмки: ровно 5 из 5 мутаций должны быть пойманы и убиты (100% kill rate).
-
-### TASK-908: Регламент, чек-листы и сценарии ручного исследовательского тестирования (Manual QA Suite)
-- **Подзадача 908.1: Чек-листы приемочного тестирования (Smoke & Sanity Checklists)**
-  - *Микро-шаг 1.1:* Чек-лист авторизации (вход по паролю, QR-код, капча 40003, сохранение токена, выход из аккаунта).
-  - *Микро-шаг 1.2:* Чек-лист чата (отправка текста, эмодзи, вложения до 25 МБ, закрепление, редактирование, удаление, цитирование).
-  - *Микро-шаг 1.3:* Чек-лист голоса (подключение, mute/deafen, переключение аудиоустройств, Push-to-Talk, индикатор громкости).
-  - *Микро-шаг 1.4:* Чек-лист шаринга экрана (выбор экранов, окон, пресеты 720p/1080p, переключение в процессе стрима).
-- **Подзадача 908.2: Кросс-платформенная матрица тестирования Linux Desktop**
-  - *Микро-шаг 2.1:* Тестирование в GNOME 46/47 Wayland (проверка интеграции с треем AppIndicator и нативными уведомлениями).
-  - *Микро-шаг 2.2:* Тестирование в KDE Plasma 6 Wayland (проверка PipeWire portal и масштабирования Fractional Scaling 125%/150%).
-  - *Микро-шаг 2.3:* Тестирование в Hyprland / Sway (тилинговые оконные менеджеры, корректность размеров и ресайза окон).
-  - *Микро-шаг 2.4:* Тестирование в классической сессии X11 (Xfce / i3) с проверкой fallback захвата экрана X11 SHM.
-- **Подзадача 908.3: Сценарии исследовательского тестирования (Exploratory Testing Charters)**
-  - *Микро-шаг 3.1:* Сценарий стрессового ввода: длинные сообщения (2000 символов), спецсимволы Unicode, RTL-текст, битые Markdown теги.
-  - *Микро-шаг 3.2:* Сценарий быстрого переключения серверов и каналов (Monkey Testing мышью со скоростью 10 кликов в секунду).
-  - *Микро-шаг 3.3:* Сценарий работы с нестабильным интернетом: физическое отключение кабеля и включение через 30 секунд.
-  - *Микро-шаг 3.4:* Фиксация дефектов в баг-трекере с воспроизводимыми шагами, скриншотами, логами GDB и классификацией P0-P3.
+### 3.2. GUI Validation (Native GPUI):
+1. **Rendering & Layout:**
+   - No text collisions when compressed to minimum resolution (900x600).
+   - Flexbox utilizes `min_h_0` / `min_w_0` on child scrollable containers.
+   - User panel (`UserPanel`) remains pinned without being pushed out by long channel rosters.
+2. **Virtualization & Scrolling:**
+   - Chat with 100,000 messages allocates only the visible window (~30 items) in memory.
+   - Scroll position remains anchored during upward message history fetching (`GET /channels/{id}/messages?before=...`).
+3. **Interactive States:**
+   - Clickable elements expose clear states: `Default`, `Hover`, `Active`, `Focus`.
+   - Tooltips render with a 300 ms delay without obstructing controls.
+4. **Accessibility Tree Semantics (AT-SPI):**
+   - Interactive elements expose clear `Accessible Name` values.
+   - Modal views trap keyboard focus and dismiss upon `Escape`.
 
 ---
 
-## 5. Доступ к интерактивной канбан-доске
+## 4. Granular Task Decomposition (Tasks -> Subtasks -> Micro-steps)
 
-- **Файл данных доски:** [`waves/kanban-board.json`](file:///home/sanya/orca/project/waves/kanban-board.json) (128 карточек: 120 Done, 8 Backlog).
-- **Интерактивный HTML-интерфейс доски:** [`waves/kanban-board.html`](file:///home/sanya/orca/project/waves/kanban-board.html) (с фильтрацией по отделам, приоритетам P0–P3 и полнотекстовым поиском).
-- Все задачи ожидают команды на запуск. Разработка кода не начиналась.
+All 8 tasks are registered in the project Kanban board under status `📋 Backlog` (`status: "backlog"`):
+
+### TASK-901: Native E2E Test Harness Architecture (Virtual Wayland + Mock Gateway)
+- **Subtask 901.1: Headless In-Memory Wayland Compositor**
+  - *Micro-step 1.1:* Launch `cage`/`wlroots` headlessly via `scripts/run-headless-compositor.sh`.
+  - *Micro-step 1.2:* Software renderer integration with `llvmpipe` (`LIBGL_ALWAYS_SOFTWARE=1`) for GPU-free CI environments.
+  - *Micro-step 1.3:* Automatic allocation of isolated virtual socket `wayland-99`.
+- **Subtask 901.2: Local Tokio-Based Mock Discord Gateway Daemon**
+  - *Micro-step 2.1:* HTTP/2 mock server for REST v9 routes (`/users/@me`, `/guilds`, `/channels/{id}/messages`).
+  - *Micro-step 2.2:* WebSocket server implementing Discord Gateway v9 (Heartbeat ACK, Opcode 2 IDENTIFY, Opcode 4 VOICE_STATE_UPDATE).
+  - *Micro-step 2.3:* Fixture loader for `docs/re/capture-ready.jsonl` traces for realistic state hydration.
+- **Subtask 901.3: E2E Lifecycle Runner & Process Orchestrator**
+  - *Micro-step 3.1:* Rust test runner crate `tests/e2e/harness/runner.rs` with automatic startup and graceful shutdown.
+  - *Micro-step 3.2:* Intercept stdout/stderr and dump backtraces on crash.
+  - *Micro-step 3.3:* Confirm zero orphaned processes or lingering file descriptors upon test completion.
+
+### TASK-902: Semantic GUI Driver and Test Automation via D-Bus AT-SPI
+- **Subtask 902.1: Accessibility Tree Exposure in GPUI Components**
+  - *Micro-step 1.1:* Verify Accessible Roles for buttons, inputs, and lists (`Role::PushButton`, `Role::Text`, `Role::List`).
+  - *Micro-step 1.2:* Bind Accessible Name and Description from i18n catalog.
+  - *Micro-step 1.3:* Expose component states (`State::Focused`, `State::Selected`, `State::Checked`, `State::Disabled`).
+- **Subtask 902.2: High-Level Page-Object DSL (`AppDriver`)**
+  - *Micro-step 2.1:* Method `driver.find_by_role_and_name('button', 'Log In')` with deterministic waiting.
+  - *Micro-step 2.2:* Method `driver.click(element)` invoking D-Bus `do_action(0)`.
+  - *Micro-step 2.3:* Method `driver.type_text(element, 'Text')` emulating keystrokes.
+  - *Micro-step 2.4:* Method `driver.press_hotkey('Ctrl+K')` for keyboard navigation.
+- **Subtask 902.3: Automated WCAG 2.2 Accessibility Audit**
+  - *Micro-step 3.1:* Validate color contrast against backgrounds (minimum 4.5:1 for normal text, 7:1 for AAA).
+  - *Micro-step 3.2:* Verify keyboard-only navigation (`Tab`, `Shift+Tab`, `Enter`, `Space`, `Escape`, arrow keys).
+  - *Micro-step 3.3:* Ensure zero focus traps in modal dialogs.
+
+### TASK-903: Network Protocol and DAVE MLS v1 Cryptography Fuzzing (`cargo-fuzz`)
+- **Subtask 903.1: Fuzz Targets for Discord Gateway and Voice Parsers**
+  - *Micro-step 1.1:* Fuzz target `fuzz_gateway_json_etf` for inbound gateway messages.
+  - *Micro-step 1.2:* Fuzz target `fuzz_voice_udp_packets` for 74-byte IP Discovery and 8-byte keepalives.
+  - *Micro-step 1.3:* Fuzz target `fuzz_rtp_header_extensions` for RTP header parsing (`0xBEDE`, One-Byte/Two-Byte Header).
+- **Subtask 903.2: Discord DAVE E2EE MLS v1 Cryptography Fuzzing**
+  - *Micro-step 2.1:* Fuzz decryptor `Aes128GcmTruncated8` against random and truncated byte sequences.
+  - *Micro-step 2.2:* Validate handling of corrupted MLS Commit and Proposal packets in `DaveVoiceSession`.
+  - *Micro-step 2.3:* Test anti-replay sliding window against u64 overflow attacks.
+- **Subtask 903.3: Automated CI Integration and Crash Corpus Aggregation**
+  - *Micro-step 3.1:* Configure `cargo fuzz run` across 1,000,000 iterations in nightly CI pipeline.
+  - *Micro-step 3.2:* Save and minimize interesting corpus samples in `tests/fuzz/corpus/`.
+  - *Micro-step 3.3:* Automated report generation upon encountering panics or out-of-bounds reads.
+
+### TASK-904: GPUI Visual Regression Automation via SSIM (>0.99) and Region Masking
+- **Subtask 904.1: Deterministic FrameBuffer Screenshot Generator**
+  - *Micro-step 1.1:* Capture uncompressed RGBA pixels directly from GPUI/WGPU virtual framebuffer.
+  - *Micro-step 1.2:* Forcibly disable subpixel font antialiasing in test mode for cross-platform consistency.
+  - *Micro-step 1.3:* Freeze system time (Frozen Clock) to eliminate timestamp layout shift.
+- **Subtask 904.2: Perceptual SSIM Comparison with Region Masks**
+  - *Micro-step 2.1:* Structural Similarity Index (SSIM) computation module with 0.995 tolerance threshold.
+  - *Micro-step 2.2:* JSON region mask definitions (timestamps, avatars, FPS/ping badges).
+  - *Micro-step 2.3:* Generate HTML visual difference report with highlighted pixel deviations.
+- **Subtask 904.3: Golden Baseline Snapshots**
+  - *Micro-step 3.1:* Capture baseline screenshots of main window in Discord Dark at 1280x720 and 1920x1080.
+  - *Micro-step 3.2:* Capture baselines for all 8 tabs in `SettingsDialog`.
+  - *Micro-step 3.3:* Capture baselines for modals `CaptchaModal`, `CreateGuildModal`, `ScreenShareModal`.
+  - *Micro-step 3.4:* Capture baselines for context menus and profile popovers.
+
+### TASK-905: Chaos Engineering Testbed: Network Drops, Jitter, and Fault Recovery
+- **Subtask 905.1: Network Fault Injection**
+  - *Micro-step 1.1:* Emulate TCP socket resets every N seconds.
+  - *Micro-step 1.2:* Verify seamless transition to RESUME (Opcode 6) retaining seq and session token.
+  - *Micro-step 1.3:* Inject HTTP 429 Too Many Requests with randomized `retry_after_ms` validating backoff.
+  - *Micro-step 1.4:* Inject 5%, 15%, and 30% voice UDP packet loss validating Opus adaptive bitrate and PLC.
+- **Subtask 905.2: Hardware and Driver Faults (Audio/Video Driver Faults)**
+  - *Micro-step 2.1:* Sudden audio device disconnection during call with automatic fallback to Default.
+  - *Micro-step 2.2:* Simulate PipeWire daemon restart during active screen share.
+  - *Micro-step 2.3:* Out-of-memory fault injection verifying cache pruning in `MediaCache`.
+- **Subtask 905.3: State Integrity Audit**
+  - *Micro-step 3.1:* Verify zero duplicate messages in chat feed after reconnection storms.
+  - *Micro-step 3.2:* Verify draft message preservation across unexpected modal closures.
+  - *Micro-step 3.3:* Confirm proper file descriptor and socket reclamation post-failure.
+
+### TASK-906: 120 FPS Benchmark and Real-Time Memory Profiling (Heap/RSS < 60 MB)
+- **Subtask 906.1: 120 FPS Frame Budget Monitoring (<8.33 ms)**
+  - *Micro-step 1.1:* High-resolution timestamps at every step of layout and rendering.
+  - *Micro-step 1.2:* Aggregate p50, p95, p99 frame duration percentiles while scrolling 100,000 messages.
+  - *Micro-step 1.3:* Fail test if frame render duration exceeds 8.33 ms in >0.1% of frames.
+- **Subtask 906.2: Memory Leak Profiling**
+  - *Micro-step 2.1:* Heap allocation profiling via `jemalloc` / `heaptrack` across 24-hour soak tests.
+  - *Micro-step 2.2:* Enforce VmRSS ceiling: strictly < 60 MB across the application.
+  - *Micro-step 2.3:* Test garbage collection and GPU VRAM texture release for avatars and attachments.
+- **Subtask 906.3: Cold Start Benchmark**
+  - *Micro-step 3.1:* Measure duration from process launch to First Meaningful Paint.
+  - *Micro-step 3.2:* Target: < 150 ms with warm SQLite cache, < 300 ms cold boot.
+  - *Micro-step 3.3:* Publish performance trends in CI build artifacts.
+
+### TASK-907: Automated Code Quality Gate: Clippy, ASan/TSan, and 5/5 Mutation Gate
+- **Subtask 907.1: Static Analysis and Rust Linting**
+  - *Micro-step 1.1:* Enforce `cargo clippy --all-targets -- -D warnings`.
+  - *Micro-step 1.2:* Validate formatting via `rustfmt --check --edition 2024`.
+  - *Micro-step 1.3:* Audit dependencies via `cargo audit` and licenses via `cargo-deny`.
+  - *Micro-step 1.4:* File size limits: functions < 50 lines, modules < 800 lines.
+- **Subtask 907.2: LLVM Sanitizers (ASan & TSan)**
+  - *Micro-step 2.1:* Run contract tests with `RUSTFLAGS="-Zsanitizer=address"` to detect use-after-free and buffer overflows.
+  - *Micro-step 2.2:* Run with `RUSTFLAGS="-Zsanitizer=thread"` to surface data races in concurrent ring buffers.
+  - *Micro-step 2.3:* Confirm zero deadlocks between Tokio runtime and GPUI Event Loop.
+- **Subtask 907.3: Mutation Testing Gate**
+  - *Micro-step 3.1:* Generate 5 mutation variants per modified module.
+  - *Micro-step 3.2:* Execute targeted test suite against mutated binaries.
+  - *Micro-step 3.3:* Mandatory pass criteria: strictly 5 out of 5 mutants killed (100% kill rate).
+
+### TASK-908: Manual Exploratory Testing Suite & Checklists
+- **Subtask 908.1: Smoke & Sanity Checklists**
+  - *Micro-step 1.1:* Authentication checklist (password login, QR code, captcha 40003, token storage, logout).
+  - *Micro-step 1.2:* Chat checklist (text, emoji, 25 MB attachments, pinning, editing, deletion, quotes).
+  - *Micro-step 1.3:* Voice checklist (connection, mute/deafen, audio devices, Push-to-Talk, volume).
+  - *Micro-step 1.4:* Screen share checklist (screen/window selection, 720p/1080p, on-the-fly switching).
+- **Subtask 908.2: Linux Desktop Cross-Platform Matrix**
+  - *Micro-step 2.1:* GNOME 46/47 Wayland (AppIndicator tray and native notifications).
+  - *Micro-step 2.2:* KDE Plasma 6 Wayland (PipeWire portal and fractional scaling at 125%/150%).
+  - *Micro-step 2.3:* Hyprland / Sway (tiling window managers and window resizing).
+  - *Micro-step 2.4:* X11 session (Xfce / i3) with X11 SHM fallback verification.
+- **Subtask 908.3: Exploratory Testing Charters**
+  - *Micro-step 3.1:* Stress input charter: 2000 character boundaries, Unicode, RTL text, malformed Markdown.
+  - *Micro-step 3.2:* Rapid navigation monkey test (10 clicks per second).
+  - *Micro-step 3.3:* Network disruption scenario: 30-second disconnect recovery.
+  - *Micro-step 3.4:* Defect logging in issue tracker with reproduction steps, screenshots, GDB traces, and P0-P3 ranking.
+
+---
+
+## 5. Interactive Kanban Board Access
+
+- **Board Data File:** [`waves/kanban-board.json`](waves/kanban-board.json) (128 cards: 120 Done, 8 Backlog).
+- **Interactive HTML Interface:** [`waves/kanban-board.html`](waves/kanban-board.html) (filtering by department, priority P0–P3, and full-text search).

@@ -3,7 +3,7 @@
 - **Карточка:** `RE-22-03` (`waves/RW-40/PM/BACKLOG-RE-22.md`)
 - **ТЗ:** `waves/RW-40/G3/task-289-voice-diagnostics-spec/TASK.md`
 - **Отдел / исполнитель:** G3 Design / `opencode --model deepseek/deepseek-v4.1-flash`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/design-task-289-voice-diagnostics-spec` (`branch:design/task-289-voice-diagnostics-spec`)
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/design-task-289-voice-diagnostics-spec` (`branch:design/task-289-voice-diagnostics-spec`)
 - **База:** `70c0473` (Merge PR-166, task-286)
 - **Дата:** 2026-10-31
 - **Тип работы:** docs-only. Продуктовый код, тесты, `tokens.css`, `PLAN/STATUS/TASKS/waves/*` не менялись. `git commit/push` не выполнялся.
@@ -41,7 +41,7 @@
 
 ## 2. Верификация по оракулу (вместо red-прогона)
 
-Red-прогон не применялся: задача не пишет продуктовый код и тесты, strict TDD относится к `RE-22-04`. Вместо него выполнена сверка каждого числа с эталонным дампом прямым `grep` по `/home/sanya/re-deep/`.
+Red-прогон не применялся: задача не пишет продуктовый код и тесты, strict TDD относится к `RE-22-04`. Вместо него выполнена сверка каждого числа с эталонным дампом прямым `grep` по `reference-oracle/`.
 
 **Оракулы:** `decoded/3eefa7dae1e2c234_0` (`md5 934b1289b7ebf17bc0fd09569b23b438`), `decoded/e6811dfca6ffcd34_0` (`md5 8ab1304fc4d29d637bcc1d51dcd35a2a`), `voice/ui/01-voice-panel.html` (`md5 ef5a88b552e9cc90e322f8da598a46dd`), `ru-catalog.json` (`md5 09272320cecfa79d479a2b03df7adce1`).
 

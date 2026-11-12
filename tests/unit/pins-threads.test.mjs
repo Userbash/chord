@@ -198,7 +198,7 @@ describe("FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts)", (
 
     const mounted = mod.mountPinsThreadsDom(rootEl, {
       pins: [
-        { id: "m-101", author: "Sanya", content: "Релиз в пятницу", timestamp: "14:20" },
+        { id: "m-101", author: "Alex", content: "Релиз в пятницу", timestamp: "14:20" },
         { id: "m-102", author: "Bot", content: "Правила канала", timestamp: "15:00" },
       ],
       onJumpToMessage: (/** @type {string} */ id) => {
@@ -216,7 +216,7 @@ describe("FE-P0-06 / task-152: mountPinsThreadsDom(rootEl, controllerOrOpts)", (
 
     let cards = pinsPopover.querySelectorAll(".pin-item");
     assert.equal(cards.length, 2, "должно быть отрендерено 2 закреплённых сообщения");
-    assert.ok(cards[0]?.textContent.includes("Sanya"), "автор первого пина");
+    assert.ok(cards[0]?.textContent.includes("Alex"), "автор первого пина");
     assert.ok(cards[0]?.textContent.includes("Релиз в пятницу"), "текст первого пина");
     assert.ok(cards[1]?.textContent.includes("Bot"), "автор второго пина");
     assert.ok(cards[1]?.textContent.includes("Правила канала"), "текст второго пина");

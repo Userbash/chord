@@ -1,5 +1,5 @@
     Blocking waiting for file lock on build directory
-    Checking discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Checking discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.52s
 # EXIT=0

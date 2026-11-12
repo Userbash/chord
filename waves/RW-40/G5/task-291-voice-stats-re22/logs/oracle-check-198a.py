@@ -2,7 +2,7 @@
 """Independent oracle check for task-291 (TR-198A).
 
 Reimplements the reference JS behaviour taken verbatim from
-/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0 (module 613681) and recomputes
+/home/user/clean-room-oracle/decoded/3eefa7dae1e2c234_0 (module 613681) and recomputes
 the expectations asserted by the Rust tests, so the tests are compared against
 the shipped bundle, not against the Rust implementation.
 """

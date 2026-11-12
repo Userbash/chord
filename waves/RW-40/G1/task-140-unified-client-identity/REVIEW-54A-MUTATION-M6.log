@@ -31,7 +31,7 @@ failures:
 
 test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-140-unified-client-identity/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
      Running unittests src/lib.rs (rust/target/debug/deps/discord_core-4882ab9b72c43b0c)
 error: test failed, to rerun pass `-p discord-core --lib`

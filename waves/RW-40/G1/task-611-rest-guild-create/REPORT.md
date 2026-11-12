@@ -1,7 +1,7 @@
 # REPORT — TASK-611 (G1 Backend): REST `POST /guilds` для создания сервера пользователем
 
 - **Ветка:** `feature/task-611-rest-guild-create`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/task-611-rest-guild-create`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/task-611-rest-guild-create`
 - **Отдел:** `G1 Backend (Rust Core & Tauri BFF)`
 - **Затронутые карточки:** `TASK-611` (`REST POST /api/v9/guilds`)
 - **Дата:** 2026-11-07
@@ -13,8 +13,8 @@
 
 1. **Изучены RE-оракулы и спецификации:**
    - `AGENTS.md`, `PROCESS.md` §4.2, `docs/re/rest-d02.md` §6.1–§6.2 (полный набор из 6 auth-заголовков Discord: `Authorization`, `X-Super-Properties`, `X-Discord-Locale: ru`, `X-Discord-Timezone`, `X-Debug-Options: bugReporterEnabled`, `Accept-Language: ru` + `Content-Type: application/json`).
-   - `/home/sanya/re-deep/rest-static.json` (`Endpoints.GUILDS = "/guilds"`).
-   - `/home/sanya/re-deep/out/bundles/web.4d4b2f75fdea5470.js`:
+   - `reference-oracle/rest-static.json` (`Endpoints.GUILDS = "/guilds"`).
+   - `reference-oracle/out/bundles/web.4d4b2f75fdea5470.js`:
      - битовая маска `system_channel_flags` (`1 << 0` `SUPPRESS_JOIN_NOTIFICATIONS`, `1 << 1` `SUPPRESS_PREMIUM_SUBSCRIPTIONS`, `1 << 2` `SUPPRESS_GUILD_REMINDER_NOTIFICATIONS`, `1 << 3` `SUPPRESS_JOIN_NOTIFICATION_REPLIES`);
      - коды ошибок `400` (`MAXIMUM_GUILDS = 30005` / `TOO_MANY_USER_GUILDS = 30001`) и `403` (`NO_VERIFIED_PHONE` / `40002`).
 2. **Реализован модуль `rust/crates/discord-core/src/rest/guilds.rs` (экспортирован в `rust/crates/discord-core/src/rest/mod.rs`):**
@@ -39,7 +39,7 @@
 ### Red-прогон (до реализации):
 
 - **Команда:**
-  `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test guild_create_contract`
+  `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test guild_create_contract`
 - **Результат:** `exit 101` (ошибка компиляции из-за отсутствия модуля `discord_core::rest::guilds`, типов `CreateGuildRequest`/`CreateGuildFullOutcome` и вариантов `CreateGuildError::MaximumGuilds` / `NoVerifiedPhone`):
   ```text
   error[E0432]: unresolved import `discord_core::rest::guilds`
@@ -54,15 +54,15 @@
 
 1. **Целевой контрактный тест `guild_create_contract`:**
    - **Команда:**
-     `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test guild_create_contract`
+     `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test guild_create_contract`
    - **Результат:** `8 passed; 0 failed; 0 ignored` (exit 0, прогнано 5 раз подряд — `flaky_rate = 0%`).
 2. **Регрессионный контрактный тест `guilds_contract`:**
    - **Команда:**
-     `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test guilds_contract`
+     `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/gui-spike/Cargo.toml --test guilds_contract`
    - **Результат:** `31 passed; 0 failed; 0 ignored` (exit 0).
 3. **Форматирование и линтер (`rustfmt` + `clippy`):**
    - `rustfmt --edition 2024 --check rust/crates/discord-core/src/rest/mod.rs rust/crates/discord-core/src/rest/guilds.rs rust/gui-spike/src/guilds.rs rust/gui-spike/tests/guild_create_contract.rs` → `exit 0` (чисто).
-   - `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test guild_create_contract` → `0 warnings` в затронутых файлах (`guilds.rs`, `guild_create_contract.rs`).
+   - `CARGO_TARGET_DIR=/home/user/orca/project/rust/target flock /tmp/discord-lab-cargo.lock cargo clippy --manifest-path rust/gui-spike/Cargo.toml --test guild_create_contract` → `0 warnings` в затронутых файлах (`guilds.rs`, `guild_create_contract.rs`).
 
 ---
 

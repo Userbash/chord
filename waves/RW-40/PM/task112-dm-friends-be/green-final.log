@@ -3,11 +3,11 @@
 # MD5 src/dm_friends.rs: 6e74f81b47b9579bb0f863889c453479
 # MD5 tests/dm_friends_contract.rs: 920b11eef5ef5de7bebf715a9846f5ad
 
-## 1. CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test dm_friends_contract --test ipc_wiring_contract
+## 1. CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/gui-spike/Cargo.toml --test dm_friends_contract --test ipc_wiring_contract
     Blocking waiting for file lock on build directory
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.77s
-     Running tests/dm_friends_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_friends_contract-a6b95d0d0a5c72b0)
+     Running tests/dm_friends_contract.rs (/home/user/orca/project/rust/target/debug/deps/dm_friends_contract-a6b95d0d0a5c72b0)
 
 running 6 tests
 test error_display_and_debug_never_leak_token_or_sensitive_headers ... ok
@@ -19,7 +19,7 @@ test ready_private_channels_and_rest_static_oracle_parity ... ok
 
 test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
 
-     Running tests/ipc_wiring_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/ipc_wiring_contract-84ba0c800473fb28)
+     Running tests/ipc_wiring_contract.rs (/home/user/orca/project/rust/target/debug/deps/ipc_wiring_contract-84ba0c800473fb28)
 
 running 8 tests
 test ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables ... ok
@@ -36,7 +36,7 @@ test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 TEST_EXIT=0
 
 ## 2. cargo clippy --manifest-path rust/gui-spike/Cargo.toml -p discord-gui-spike --test dm_friends_contract -- -D warnings
-    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
+    Checking discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-112-dm-friends-be/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.87s
 CLIPPY_EXIT=0
 

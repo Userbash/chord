@@ -246,7 +246,7 @@
    Compiling keyboard-types v0.8.3
    Compiling idna v1.1.0
    Compiling serialize-to-javascript-impl v0.1.2
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
    Compiling url v2.5.8
    Compiling proc-macro-crate v1.3.1
    Compiling serialize-to-javascript v0.1.2
@@ -254,8 +254,8 @@
    Compiling mime v0.3.17
    Compiling toml v0.8.2
    Compiling proc-macro-crate v2.0.2
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
    Compiling tungstenite v0.30.0
    Compiling urlpattern v0.6.0
    Compiling system-deps v6.2.2
@@ -263,7 +263,7 @@
    Compiling tokio-tungstenite v0.30.0
    Compiling gtk3-macros v0.18.2
    Compiling glib-macros v0.18.5
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
    Compiling glib-sys v0.18.1
    Compiling gobject-sys v0.18.0
    Compiling gio-sys v0.18.1
@@ -286,7 +286,7 @@
    Compiling javascriptcore-rs v1.1.2
    Compiling tauri v2.12.5
    Compiling tauri-macros v2.7.4
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
    Compiling pango v0.18.3
    Compiling gdk-pixbuf v0.18.5
    Compiling soup3 v0.5.0

@@ -521,7 +521,7 @@
 
 Отдельно, без кода: **BE-P3-09** — синхронизировать `docs/re/` и `routes.rs`
 (в `docs/re/rest-d02.json` уже лежит копия оракула; если она разошлась с
-`/home/sanya/re-deep/rest-d02.json` — обновить и зафиксировать md5).
+`reference-oracle/rest-d02.json` — обновить и зафиксировать md5).
 
 ---
 

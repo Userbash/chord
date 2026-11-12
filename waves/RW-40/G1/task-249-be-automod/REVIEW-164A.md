@@ -4,7 +4,7 @@
 
 - **Wave / отдел**: `RW-40` / `G1` (Backend).
 - **Карточка**: `task-249` — BFF-контракт правил автомодерации гильдии.
-- **Ветка**: `feature/task-249-be-automod`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- **Ветка**: `feature/task-249-be-automod`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - **Ревизуемые артефакты**: `rust/gui-spike/src/automod.rs`, `rust/gui-spike/tests/automod_contract.rs`, отчёт `waves/RW-40/G1/task-249-be-automod/REPORT.md`.
 - **Режим**: token-lean, только targeted-прогон; workspace-тесты, `clippy` по всему крейту и `git commit` не выполнялись.
 

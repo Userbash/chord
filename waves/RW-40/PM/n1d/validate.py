@@ -7,7 +7,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path("/home/sanya/orca/project")
+ROOT = Path("/home/user/orca/project")
 DOC = ROOT / "waves/RW-40/DESIGN/SERVER-MENU.md"
 DATA = ROOT / "waves/RW-40/DESIGN/server-menu.json"
 TOKENS = ROOT / "rust/gui-spike/ui/tokens.css"
@@ -116,7 +116,7 @@ check("unconfirmed" not in doc.lower(), "doc has no unconfirmed feature flag")
 check("blocked" not in doc.lower(), "doc has no blocked join state")
 
 # 8. dump facts
-dump = Path("/home/sanya/re-deep")
+dump = Path("/home/user/clean-room-oracle")
 cat = json.loads((dump / "ru-catalog.json").read_text(encoding="utf-8"))
 check(len(cat) == 23836, f"ru-catalog keys == 23836 (actual {len(cat)})")
 for key in ("cs48bs", "Ts/9Ac", "AVazqJ", "5AkWAd", "FDsl+J"):

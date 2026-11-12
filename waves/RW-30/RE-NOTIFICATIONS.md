@@ -1,6 +1,6 @@
 # RE: уведомления Discord на Linux (P6-02)
 
-Дата: 2026-10-22. Источники — только чтение: `/home/sanya/re-deep/main-arch.md`,
+Дата: 2026-10-22. Источники — только чтение: `reference-oracle/main-arch.md`,
 `backend-ipc.md`, `native-re.md`, asar-extract.
 
 ## 1. Как это устроено в клиенте

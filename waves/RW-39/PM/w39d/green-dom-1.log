@@ -56,9 +56,9 @@
 test at tests/unit/gui-spike-dom.test.mjs:379:3
 ✖ PageStore: loadedRows ≤500 в UI_SNAPSHOT для чата и участников (2.020529ms)
   AssertionError [ERR_ASSERTION]: UI_SNAPSHOT не опубликован — нечего проверять
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:382:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:380:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:382:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:380:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -72,9 +72,9 @@ test at tests/unit/gui-spike-dom.test.mjs:379:3
 test at tests/unit/gui-spike-dom.test.mjs:395:3
 ✖ эмодзи: 10 вкладок, клик по второй меняет активную вкладку и сетку (2.817189ms)
   AssertionError [ERR_ASSERTION]: сетка не перерисовалась на другую категорию
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:418:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:396:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:418:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:396:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -91,9 +91,9 @@ test at tests/unit/gui-spike-dom.test.mjs:478:3
   
   0 !== 38
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:482:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:479:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:482:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:479:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
@@ -107,9 +107,9 @@ test at tests/unit/gui-spike-dom.test.mjs:478:3
 test at tests/unit/gui-spike-dom.test.mjs:495:3
 ✖ клик по тумблеру меняет checked и не создаёт новых тумблеров (2.831879ms)
   AssertionError [ERR_ASSERTION]: тумблер должен быть HTMLInputElement (instanceof в app.js)
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:501:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:496:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:501:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:496:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -123,9 +123,9 @@ test at tests/unit/gui-spike-dom.test.mjs:495:3
 test at tests/unit/gui-spike-dom.test.mjs:511:3
 ✖ UI_SNAPSHOT: все поля контракта и actions=true (1.798139ms)
   AssertionError [ERR_ASSERTION]: report_ui_snapshot не вызывался
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:514:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:512:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:514:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:512:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -142,9 +142,9 @@ test at tests/unit/gui-spike-dom.test.mjs:538:3
   
   0 !== 1
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:540:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:539:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:540:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:539:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -158,9 +158,9 @@ test at tests/unit/gui-spike-dom.test.mjs:538:3
 test at tests/unit/gui-spike-dom.test.mjs:550:3
 ✖ process_metrics: RAM/потоки обновляются, интервал записан, но сам не тикает (1.742439ms)
   AssertionError [ERR_ASSERTION]: первый опрос метрик не выполнен
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:552:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:551:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:552:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:551:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -181,9 +181,9 @@ test at tests/unit/gui-spike-dom.test.mjs:602:3
   + ]
   - []
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:627:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:603:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:627:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:603:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -204,9 +204,9 @@ test at tests/unit/gui-spike-dom.test.mjs:674:3
   + ]
   - []
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:683:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:675:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:683:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:91:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:675:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

@@ -11,10 +11,10 @@ failures:
 thread 'ci_dry_run_prints_full_plan_without_running_tools' (97763) panicked at crates/discord-conformance/tests/ci_contract.rs:43:9:
 в плане нет "release.sh":
 ci: dry-run (сеть и cargo не запускаются)
-+ cargo fmt --manifest-path /home/sanya/orca/project/rust/Cargo.toml --all -- --check
-+ cargo clippy --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --workspace --all-targets --all-features -- -D warnings
-+ cargo test --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --workspace
-+ cargo run --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --release -p discord-codec --example etf_bench -- --iterations 2000
++ cargo fmt --manifest-path /home/user/orca/project/rust/Cargo.toml --all -- --check
++ cargo clippy --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --workspace --all-targets --all-features -- -D warnings
++ cargo test --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --workspace
++ cargo run --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --release -p discord-codec --example etf_bench -- --iterations 2000
 + cargo deny check (cwd=rust, если cargo-deny установлен; иначе SKIP)
 + release skipped
 ci: OK

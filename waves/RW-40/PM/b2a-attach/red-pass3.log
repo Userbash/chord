@@ -230,11 +230,11 @@
    Compiling dom_query v0.28.0
    Compiling serde_repr v0.1.21
    Compiling mime v0.3.17
-   Compiling discord-json v0.1.0 (/home/sanya/orca/project/rust/crates/discord-json)
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-json v0.1.0 (/home/user/orca/project/rust/crates/discord-json)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
    Compiling futures-executor v0.3.34
    Compiling icu_provider v2.4.0
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
    Compiling toml_datetime v0.6.3
    Compiling serde_spanned v0.6.9
    Compiling icu_normalizer v2.4.0
@@ -262,7 +262,7 @@
    Compiling urlpattern v0.6.0
    Compiling gtk3-macros v0.18.2
    Compiling tokio-tungstenite v0.30.0
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
    Compiling glib-macros v0.18.5
    Compiling glib-sys v0.18.1
    Compiling gobject-sys v0.18.0
@@ -286,7 +286,7 @@
    Compiling javascriptcore-rs v1.1.2
    Compiling tauri v2.12.5
    Compiling tauri-macros v2.7.4
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
    Compiling gdk-pixbuf v0.18.5
    Compiling pango v0.18.3
    Compiling soup3 v0.5.0

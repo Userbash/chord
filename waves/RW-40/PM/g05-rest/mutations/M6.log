@@ -63,9 +63,9 @@
 test at tests/unit/server-menu.test.mjs:559:3
 ✖ 3 с → тик каждую секунду до 0, затем кнопка активна, автоповтора нет (8.085406ms)
   AssertionError [ERR_ASSERTION]: кнопка активна сразу после 429
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:576:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:560:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:576:14
+      at async withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:560:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

@@ -3,7 +3,7 @@
 Волна №2 в режиме `PROCESS.md` §3.13: три воркера одновременно (W9a / W9b / W9c), затем
 рефакторинг W9d и независимое ревью W9r. Контракты заморожены каркасом-заглушками, ТЗ —
 `waves/RW-09/TZ.md` (md5 `5dc28158…`). Новых зависимостей нет; сеть не использовалась;
-golden и снимок `/home/sanya/re-deep` — только чтение.
+golden и снимок `reference-oracle/` — только чтение.
 
 ## 1. Итоги
 
@@ -17,7 +17,7 @@ golden и снимок `/home/sanya/re-deep` — только чтение.
 
 ## 2. Оракулы
 
-- Живой снимок `/home/sanya/re-deep/d02-snapshot/capture-run2.snap.jsonl`
+- Живой снимок `reference-oracle/d02-snapshot/capture-run2.snap.jsonl`
   (md5 `abfe14b76cec1e559c3b45522bc44b7a`, сверено с `snapshot-md5.txt`), запрос `95974.2323`,
   заголовок `X-Super-Properties`: 1084 симв. base64 → 811 Б JSON, 22 поля (18 строк, 2×u32,
   1 bool, 1 null).

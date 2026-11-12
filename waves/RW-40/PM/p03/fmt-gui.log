@@ -1,4 +1,4 @@
-Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:181:
+Diff in /home/user/orca/project/rust/gui-spike/src/typing.rs:181:
          if token.trim().is_empty() {
              return Err(TypingError::Unauthorized);
          }
@@ -8,7 +8,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:181:
 (B[m         let auth = ApiAuth::from_token(token, &identity, "en-US", "UTC")
              .map_err(|_| TypingError::InvalidArg)?;
          let client = ApiClient::new(ApiConfig {
-Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:208:
+Diff in /home/user/orca/project/rust/gui-spike/src/typing.rs:208:
  
      async fn execute(&self, channel_id: &str) -> Result<Option<TypingCooldowns>, TypingError> {
          validate_channel_id(channel_id)?;
@@ -19,7 +19,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:208:
 (B[m         let path =
              routes::render_path(route, &[channel_id]).map_err(|_| TypingError::InvalidArg)?;
          // Тело отсутствует по контракту §1.6: пустой срез, а не `{}`.
-Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:257:
+Diff in /home/user/orca/project/rust/gui-spike/src/typing.rs:257:
      match response.status {
          200 => parse_body(&response.body),
          status if (200..300).contains(&status) => Err(TypingError::InvalidResponse),
@@ -30,7 +30,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:257:
 (B[m     }
  }
  
-Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:310:
+Diff in /home/user/orca/project/rust/gui-spike/src/typing.rs:310:
              (500, TypingError::Server { status: 500 }),
              (503, TypingError::Server { status: 503 }),
          ] {
@@ -43,7 +43,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:310:
 (B[m         }
      }
  
-Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:318:
+Diff in /home/user/orca/project/rust/gui-spike/src/typing.rs:318:
      fn api_error_is_classified_by_the_shared_module() {
          use discord_core::rest::client::ApiError;
          let error: TypingError =
@@ -64,7 +64,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/src/typing.rs:318:
 (B[m         assert_eq!(error, TypingError::Server { status: 502 });
      }
  }
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:25:
+Diff in /home/user/orca/project/rust/gui-spike/tests/typing_contract.rs:25:
  const ORACLE_PATH: &str = "/channels/{id}/typing";
  
  /// Дословные ключи тела ответа из §1.6 (wire — snake_case, не имена Rust-полей).
@@ -76,7 +76,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:25:
 (B[m 
  /// Выдержка frozen D-02: 47 live-маршрутов. `/typing` в ней отсутствует — это
  /// доказывает, что контракт не подогнан под захват.
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:176:
+Diff in /home/user/orca/project/rust/gui-spike/tests/typing_contract.rs:176:
      }));
      assert_eq!(
          run(send_typing(&failing, CHANNEL_ID)),
@@ -87,7 +87,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:176:
 (B[m     );
  }
  
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:398:
+Diff in /home/user/orca/project/rust/gui-spike/tests/typing_contract.rs:398:
          "D-02 не подтверждает typing — оракул отдельный [S]"
      );
      assert!(
@@ -98,7 +98,7 @@ Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:398:
 (B[m         "frozen каталог D-02 не расширяется"
      );
  
-Diff in /home/sanya/orca/project/rust/gui-spike/tests/typing_contract.rs:445:
+Diff in /home/user/orca/project/rust/gui-spike/tests/typing_contract.rs:445:
      let source = include_str!("../src/main.rs");
      let commands = registered_commands(source);
      assert_eq!(

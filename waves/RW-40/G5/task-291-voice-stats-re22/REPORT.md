@@ -1,11 +1,11 @@
 # REPORT — task-291 (`RE-22-01`, G5 Voice): `ConnectionQuality`, `PingHistory` (199/20), `RtcConnectionStatsSnapshot`
 
 - **Отдел:** G5 Voice / Platform, `L2 / P1`
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/feature-task-291-voice-stats-re22`
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/feature-task-291-voice-stats-re22`
 - **Ветка:** `feature/task-291-voice-stats-re22` (HEAD `d7eff40`)
 - **Изменённый файл (1):** `rust/crates/discord-voice/src/stats.rs`
 - **`md5sum rust/crates/discord-voice/src/stats.rs`:** `d5debf4cf1831c5a6e473fbedabfe447`
-- **Оракул:** `/home/sanya/re-deep/decoded/3eefa7dae1e2c234_0` — модуль `613681` (`getAveragePing` @ `2474810`, `_handlePing` / `_handlePingTimeout` @ `2504200`), модуль `206959` (пороги `quality`), модуль `978171` (`getShortHostname` @ `7459580`).
+- **Оракул:** `reference-oracle/decoded/3eefa7dae1e2c234_0` — модуль `613681` (`getAveragePing` @ `2474810`, `_handlePing` / `_handlePingTimeout` @ `2504200`), модуль `206959` (пороги `quality`), модуль `978171` (`getShortHostname` @ `7459580`).
 
 ## Что сделано
 
@@ -29,7 +29,7 @@
 - **Green (`green.log`):** `cargo test --offline --manifest-path rust/Cargo.toml -p discord-voice` — все таргеты зелёные: lib `36 passed`, `stats_contract 16`, `session_contract 5`, `reception_contract 16`, `rtcp_contract 10`, `srtp_contract 10`, `reconnect_contract 10`, `devices_contract 16`, `crypto_vectors 18`, `media_contract 22`, `regions_contract 20`, `udp 15`, doc-tests 0. Ошибок нет.
 - **Clippy (`green.log`, хвост):** `cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-voice --tests -- -D warnings` — `Finished` без предупреждений.
 - **fmt:** `cargo fmt --manifest-path rust/Cargo.toml -p discord-voice -- --check` — чисто.
-- Все прогоны с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`, `--offline`.
+- Все прогоны с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`, `--offline`.
 
 ## Замечания и риски
 

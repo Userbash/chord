@@ -1,6 +1,6 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-173-settings-proto-http/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/feature-task-173-settings-proto-http/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.74s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_core-3437253fdebb6978)
 
 running 33 tests
 test dispatch::tests::channel_create_update_delete_etf_and_json_typed_parsing ... ok
@@ -39,7 +39,7 @@ test dispatch::tests::canonical_21_dispatch_kinds_preserved_and_disjoint_from_8_
 
 test result: ok. 33 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
 
-     Running tests/settings_proto.rs (/home/sanya/orca/project/rust/target/debug/deps/settings_proto-f6c37ec7c7c6ebdc)
+     Running tests/settings_proto.rs (/home/user/orca/project/rust/target/debug/deps/settings_proto-f6c37ec7c7c6ebdc)
 
 running 18 tests
 test p08t11_unsupported_type_preserves_wire ... ok
@@ -63,7 +63,7 @@ test p08t18_max_fields_boundary ... ok
 
 test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
-     Running tests/settings_proto_http.rs (/home/sanya/orca/project/rust/target/debug/deps/settings_proto_http-667a608918d00bcb)
+     Running tests/settings_proto_http.rs (/home/user/orca/project/rust/target/debug/deps/settings_proto_http-667a608918d00bcb)
 
 running 9 tests
 test t01_wire_encode_roundtrip_all_wire_types ... ok

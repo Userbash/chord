@@ -1,4 +1,4 @@
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.94s
      Running tests/pins_threads_contract.rs (/tmp/target-g1-pins/debug/deps/pins_threads_contract-5fe6d5921f88b1f1)
 

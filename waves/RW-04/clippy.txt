@@ -1,4 +1,4 @@
-    Checking discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+    Checking discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
 # EXIT=0
 # tests/ws_transport.rs md5: 1d091ee2c237cdb74258d79c564b6d4e

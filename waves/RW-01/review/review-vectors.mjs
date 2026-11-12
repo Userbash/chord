@@ -6,11 +6,11 @@
 // Запуск: node review-vectors.mjs
 import { readFileSync } from "node:fs";
 
-const TEST_VECTORS = "/home/sanya/orca/project/rust/crates/discord-codec/tests/etf_vectors.rs";
-const TEST_PROPS = "/home/sanya/orca/project/rust/crates/discord-codec/tests/etf_properties.rs";
+const TEST_VECTORS = "/home/user/orca/project/rust/crates/discord-codec/tests/etf_vectors.rs";
+const TEST_PROPS = "/home/user/orca/project/rust/crates/discord-codec/tests/etf_properties.rs";
 const FRESH = "/tmp/opencode/rw-01/review/oracle-fresh.txt";
-const JSONL = "/home/sanya/re-deep/gw-proto/msgs-run2-95974_1389.jsonl";
-const SPEC = "/home/sanya/orca/project/docs/re/gateway-protocol.md";
+const JSONL = "/home/user/clean-room-oracle/gw-proto/msgs-run2-95974_1389.jsonl";
+const SPEC = "/home/user/orca/project/docs/re/gateway-protocol.md";
 
 let failures = 0;
 const results = [];

@@ -99,7 +99,7 @@
 
 ### Находка 1: Поведение в AFK-канале (`🔕 AFK-ROOM [ZzZz]`)
 - **Симптом:** При переходе в AFK-канал статус-виджет показывает `"RTC… · 0.0% Ожидание ответа сервера Discord..."`.
-- **REA-анализ по дампу `/home/sanya/re-deep/`:**
+- **REA-анализ по дампу `reference-oracle/`:**
   - В оригинальном клиенте Discord сервер при подключении к AFK-каналу (`channel_id == guild.afk_channel_id`) присылает `VOICE_STATE_UPDATE` (где пользователь насильно переводится в `server_mute = true`), но сервер **не выделяет голосовой сервер** (`VOICE_SERVER_UPDATE` приходит с `endpoint = null` или не отправляется вовсе), так как в AFK передача и приём звука отключены.
 - **Корректное решение:**
   - В `rust/gui-spike/ui/app.js` при подключении к каналу с `is_afk == true` или `channelId == guild.afkChannelId` отображать статус `"🔕 AFK-канал (микрофон и звук отключены)"` вместо ожидания ответа голосового сервера.
@@ -116,7 +116,7 @@
     ).await?;
     ```
   - `backend.token()` читает токен **только из Linux Secret Service Keyring**. Если в тестовой или портативной сессии токен находится в оперативной памяти сессии (`data::resolve_live_token()`), то при отсутствии токена в Keyring helper `token_or` возвращает `MissingToken`.
-  - Кроме того, в API Discord (`/home/sanya/re-deep/rest-static.md`) эндпоинт `GET /api/v9/invites/{code}` является **публичным** и не требует обязательного заголовка Authorization.
+  - Кроме того, в API Discord (`reference-oracle/rest-static.md`) эндпоинт `GET /api/v9/invites/{code}` является **публичным** и не требует обязательного заголовка Authorization.
 - **Корректное решение:**
   - В `token_or` добавить бесшовный fallback на `data::resolve_live_token()`.
   - В `resolve_invite` разрешить анонимный запрос без токена, если токен не найден.

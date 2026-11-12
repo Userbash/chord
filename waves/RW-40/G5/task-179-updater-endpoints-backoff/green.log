@@ -1,14 +1,14 @@
 # GREEN: 2026-10-31T03:30:47+08:00
-# CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-updater --test updater_contract --lib
-   Compiling discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
+# CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-updater --test updater_contract --lib
+   Compiling discord-updater v0.1.0 (/home/user/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_updater-377bc9cf830c13b5)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_updater-377bc9cf830c13b5)
 
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/updater_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/updater_contract-fd91db638e905d79)
+     Running tests/updater_contract.rs (/home/user/orca/project/rust/target/debug/deps/updater_contract-fd91db638e905d79)
 
 running 46 tests
 test linux_download_url_k ... ok
@@ -65,13 +65,13 @@ test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 # Дополнительно: 2026-10-31T03:30:54+08:00
 # cargo test --manifest-path rust/Cargo.toml -p discord-updater --all-targets
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_updater-377bc9cf830c13b5)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_updater-377bc9cf830c13b5)
 
 running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-     Running tests/updater_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/updater_contract-fd91db638e905d79)
+     Running tests/updater_contract.rs (/home/user/orca/project/rust/target/debug/deps/updater_contract-fd91db638e905d79)
 
 running 46 tests
 test linux_download_url_k ... ok
@@ -132,7 +132,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 46 tests
 test result: ok. 46 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 # exit=0
-    Checking discord-updater v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
+    Checking discord-updater v0.1.0 (/home/user/orca/workspaces/project/feature-task-179-updater-endpoints-backoff/rust/crates/discord-updater)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
 # clippy exit=0
 # rustfmt(2024) exit=0

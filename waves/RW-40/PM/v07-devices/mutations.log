@@ -3,7 +3,7 @@ BASELINE_MD5=ceaa10efd2729455e76ba05656f2fc98
 
 --- MUT-1: effective_mute ignores self_deaf (returns self.user_mute only) ---
 MUTANT_MD5=d6d5cc0e9fe209259c591e9fde793b26
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
      Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
 
@@ -40,7 +40,7 @@ RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
 
 --- MUT-2: reconcile_kind picks first device instead of is_default device on fallback ---
 MUTANT_MD5=153a42db1bcfb7942419dc92b3fe3622
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
      Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
 
@@ -73,7 +73,7 @@ RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
 
 --- MUT-3: is_transmitting ignores effective_mute gate ---
 MUTANT_MD5=7517f2a32fe1a75ebc6c0afddb8d6466
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.16s
      Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
 
@@ -104,7 +104,7 @@ RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
 
 --- MUT-4: PTT release_delay_ms ignored (strictly 0 instead of release_delay_ms) ---
 MUTANT_MD5=09cf2e0c0fd0aaa0734382eca68a0c64
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 warning: unused variable: `release_delay_ms`
    --> crates/discord-voice/src/devices.rs:415:42
     |
@@ -144,7 +144,7 @@ RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
 
 --- MUT-5: set_output_volume clamps to MAX_INPUT_VOLUME (100) instead of MAX_OUTPUT_VOLUME (200) ---
 MUTANT_MD5=b28b6b2bb527165d0796061afd60b90d
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
      Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
 
@@ -176,7 +176,7 @@ EXIT_CODE=101
 RESTORED_MD5=ceaa10efd2729455e76ba05656f2fc98
 
 === FINAL VERIFY AFTER RESTORE ===
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s
      Running tests/devices_contract.rs (/tmp/target-g5-devices/debug/deps/devices_contract-de5ee880da578919)
 

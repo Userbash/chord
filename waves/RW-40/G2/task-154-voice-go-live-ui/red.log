@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/feature-task-154-voice-go-live-ui/tests/unit/voice-ui.test.mjs:32
+file:///home/user/orca/workspaces/project/feature-task-154-voice-go-live-ui/tests/unit/voice-ui.test.mjs:32
   createGoLiveModal,
   ^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/voice.js' does not provide an export named 'createGoLiveModal'

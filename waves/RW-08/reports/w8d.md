@@ -25,7 +25,7 @@
   Базовый прогон до правок: `cargo test --offline -p discord-core` → 94 passed / 0 failed,
   `EXIT=0` (исходное дерево уже зелёное, отчёты W8a/W8b/W8c).
 - **green:**
-  - `cd /home/sanya/orca/project/rust && cargo test --offline -p discord-core` — **×3 подряд**,
+  - `cd /home/user/orca/project/rust && cargo test --offline -p discord-core` — **×3 подряд**,
     каждый прогон **94 passed / 0 failed**, `EXIT=0`; логи
     `/tmp/opencode/rw-08/w8d/test-package-{1,2,3}.log` (2 unit + 12 dispatch + 15 gateway +
     16 identify + 5 headers + 10 retry + 8 routes + 13 resume + 13 ws; doc-tests 0);

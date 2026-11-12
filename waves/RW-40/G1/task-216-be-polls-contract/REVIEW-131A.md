@@ -19,7 +19,7 @@
 ## 2. Targeted-тест (baseline, до мутаций)
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
   cargo test --manifest-path rust/gui-spike/Cargo.toml --test polls_contract
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```

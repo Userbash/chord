@@ -3,7 +3,7 @@
 - **batch/карточка:** RW-40 / BE-P1-02-UI (task-138; продолжение находки F-GW-03 и
   отчёта `waves/RW-40/G1/task-136-net-forwarded-dispatches/REPORT.md`, риск №3 —
   «UI-фильтр всё ещё 6 имён»).
-- **worktree:** `/home/sanya/orca/workspaces/project/feature-task-138-ui-forwarded-kinds`
+- **worktree:** `/home/user/orca/workspaces/project/feature-task-138-ui-forwarded-kinds`
   (HEAD `4e24048`).
 - **файлы (write-scope):**
   - `rust/gui-spike/ui/features/dispatch-model.js`;

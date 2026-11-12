@@ -8,7 +8,7 @@ import json
 import subprocess
 from pathlib import Path
 
-ROOT = Path("/home/sanya/orca/project")
+ROOT = Path("/home/user/orca/project")
 RUST = ROOT / "rust"
 OUT = ROOT / "waves/RW-24/mutations"
 LOCK = "/tmp/opencode/discord-cargo.lock"

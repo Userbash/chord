@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import zlib from "node:zlib";
 
-const FILE = process.argv[2] ?? "/home/sanya/re-deep/capture-run2.jsonl";
+const FILE = process.argv[2] ?? "/home/user/clean-room-oracle/capture-run2.jsonl";
 const lines = readFileSync(FILE, "utf8")
   .split("\n")
   .map((l) => {

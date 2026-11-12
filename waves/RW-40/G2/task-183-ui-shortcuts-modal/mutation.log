@@ -46,7 +46,7 @@ test at tests/unit/shortcuts.test.mjs:153:3
   
   'n' !== 'm'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:159:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:159:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -66,7 +66,7 @@ test at tests/unit/shortcuts.test.mjs:153:3
 test at tests/unit/shortcuts.test.mjs:178:3
 ✖ находит каждый шорткат по его сочетанию (0.349431ms)
   AssertionError [ERR_ASSERTION]: Ctrl+Shift+M не сопоставлен
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:187:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:187:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -92,7 +92,7 @@ test at tests/unit/shortcuts.test.mjs:212:3
   + undefined
   - 'toggle_mute'
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:224:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:224:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -167,7 +167,7 @@ test at tests/unit/shortcuts.test.mjs:212:3
   + }
   - null
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:229:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:229:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -199,7 +199,7 @@ test at tests/unit/shortcuts.test.mjs:246:3
   + }
   - null
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:250:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:250:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -220,7 +220,7 @@ test at tests/unit/shortcuts.test.mjs:382:3
   
   true !== false
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:388:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:388:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -284,7 +284,7 @@ test at tests/unit/shortcuts.test.mjs:345:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:355:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:355:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -305,7 +305,7 @@ test at tests/unit/shortcuts.test.mjs:359:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:364:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:364:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -326,7 +326,7 @@ test at tests/unit/shortcuts.test.mjs:376:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:379:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:379:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -347,7 +347,7 @@ test at tests/unit/shortcuts.test.mjs:382:3
   
   false !== true
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:391:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:391:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -411,7 +411,7 @@ test at tests/unit/shortcuts.test.mjs:406:3
   
   true !== false
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:415:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:415:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -475,7 +475,7 @@ test at tests/unit/shortcuts.test.mjs:311:3
   
   true !== false
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:325:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:325:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -496,7 +496,7 @@ test at tests/unit/shortcuts.test.mjs:367:3
   
   1 !== 0
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:372:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/feature-task-183-ui-shortcuts-modal/tests/unit/shortcuts.test.mjs:372:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

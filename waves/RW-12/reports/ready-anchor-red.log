@@ -1,5 +1,5 @@
 # команда: cd rust && cargo test --offline -p discord-core --test ready_fixture
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
      Running tests/ready_fixture.rs (target/debug/deps/ready_fixture-f5dc378fde7757cf)
 

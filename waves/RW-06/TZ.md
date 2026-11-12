@@ -18,9 +18,9 @@ resume. Плюс политика плана: малый разрыв (3 с) →
   обязаны остаться зелёными **без правок**.
 
 ## Оракулы (только чтение)
-- `/home/sanya/re-deep/rest-static.md` §4: RESUME `{token, session_id, seq}`; «при INVALID_SESSION
+- `reference-oracle/rest-static.md` §4: RESUME `{token, session_id, seq}`; «при INVALID_SESSION
   (false) → IDENTIFY»; бандл веб-клиента — `_doResume`/`GatewaySocket._connect`.
-- `/home/sanya/re-deep/gw-proto/msgs-run2-95974_8269.jsonl` — resume #1: op10 HELLO, 569 op0,
+- `reference-oracle/gw-proto/msgs-run2-95974_8269.jsonl` — resume #1: op10 HELLO, 569 op0,
   s 95..663, RESUMED при s=96.
 - `…/msgs-run2-95974_8608.jsonl` — resume #2: 59 op0, s 664..722, RESUMED при s=668
   (шов: 663 + 1 = 664).
@@ -90,6 +90,6 @@ accept в одной задаче стаба; кейс с задержкой (е
 
 ## Запреты
 - Живой Discord/сеть за пределами `127.0.0.1` — нельзя; golden (`logs/`, `functions/`,
-  `evidence/`, `/home/sanya/re-deep`) — только чтение; коммитов не делать.
+  `evidence/`, `reference-oracle/`) — только чтение; коммитов не делать.
 - Не «зеленить» тесты правкой тестов под код: оракул — lab-файлы и `rest-static.md` §4.
 - Токены/сессии в логи не писать (Debug-редакция — часть контракта).

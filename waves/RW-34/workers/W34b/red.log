@@ -1,4 +1,4 @@
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
 error[E0560]: struct `Hints` has no field named `image_path`
    --> crates/discord-platform/tests/notifications_contract.rs:974:9
     |

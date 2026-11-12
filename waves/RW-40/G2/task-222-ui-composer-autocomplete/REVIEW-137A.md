@@ -3,7 +3,7 @@
 - **Задача**: `task-222`, ветка `feature/task-222-ui-composer-autocomplete`, база `unstable` (`69dcb8f`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
 - **Ревьюер**: DeepSeek (Technical Review, REVIEW-137A)
-- **Режим**: token-lean (без docs/PROCESS/re-deep, без `gate:worker` и полного прогона тестов)
+- **Режим**: token-lean (без docs/PROCESS/reference-oracle, без `gate:worker` и полного прогона тестов)
 
 ## Verdict: APPROVED
 

@@ -1,4 +1,4 @@
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-175-voice-ops-dave-discovery/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/workspaces/project/feature-task-175-voice-ops-dave-discovery/rust/crates/discord-voice)
 error[E0599]: no variant, associated function, or constant named `Speaking` found for enum `VoiceOp` in the current scope
    --> crates/discord-voice/tests/signaling.rs:610:22
     |

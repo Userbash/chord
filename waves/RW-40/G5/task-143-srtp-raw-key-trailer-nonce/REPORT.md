@@ -2,7 +2,7 @@
 
 - **batch/карточка**: `RW-40 / task-143 (BE-RE-05 / F-VC-01 — SRTP *_rtpsize raw key & trailer nonce)`
 - **сделано**:
-  1. Проведена сверка схемы шифрования `aead_aes256_gcm_rtpsize` и `aead_xchacha20_poly1305_rtpsize` по `/home/sanya/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL.md` (§6.2 `F-VC-01`), `/home/sanya/orca/project/waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (`RE-P1-06 + BE-P1-06`), эталонным дампам `/home/sanya/re-deep/voice-deep.json` и `/home/sanya/re-deep/voice-deep.md`, а также по дизассемблированию `discord::SocketClient::SetEncryptionSettings` (`0x3f84f0`), `discord::encryption::PacketCrypter::Encrypt` (`0x46d6c0`) и `discord::encryption::PacketCrypter::Decrypt` (`0x46d4c0`) в нативном модуле `discord_voice.node`.
+  1. Проведена сверка схемы шифрования `aead_aes256_gcm_rtpsize` и `aead_xchacha20_poly1305_rtpsize` по `/home/user/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL.md` (§6.2 `F-VC-01`), `/home/user/orca/project/waves/RW-40/PM/BACKLOG-RE-BACKEND.md` (`RE-P1-06 + BE-P1-06`), эталонным дампам `reference-oracle/voice-deep.json` и `reference-oracle/voice-deep.md`, а также по дизассемблированию `discord::SocketClient::SetEncryptionSettings` (`0x3f84f0`), `discord::encryption::PacketCrypter::Encrypt` (`0x46d6c0`) и `discord::encryption::PacketCrypter::Decrypt` (`0x46d4c0`) в нативном модуле `discord_voice.node`.
   2. По Strict TDD сначала добавлены модульные red-тесты в `rust/crates/discord-voice/src/srtp.rs` (`srtp::tests`), проверяющие побайтовый формат пакета `*_rtpsize` (`[RTP header AAD][ciphertext][16B AEAD tag][4B LE nonce trailer]`) с прямым 32-байтным `secret_key` из OP 4 `SESSION_DESCRIPTION` и `nonce` из 4-байтного трейлера с нулями в старших байтах (`12 Б` для `AES-256-GCM`, `24 Б` для `XChaCha20-Poly1305`), а также round-trip шифрование/расшифровку между двумя независимыми контекстами и приём пакета от медиа-сервера. Зафиксирован red-лог (`exit code 101`, 3 упавших теста).
   3. Реализована поддержка канонического формата `*_rtpsize` в `rust/crates/discord-voice/src/srtp.rs`:
      - в режимах `aead_aes256_gcm_rtpsize` и `aead_xchacha20_poly1305_rtpsize` (`mode.covers_header()`) 32-байтный `secret_key` используется **напрямую** как ключ AEAD (`AES-256-GCM` / `XChaCha20-Poly1305`) без промежуточного `HKDF-SHA1`;
@@ -18,8 +18,8 @@
   - `tests/srtp_contract.rs` (22 контракта) — ok
   - `tests/crypto_vectors.rs` (16 KAT-векторов) — ok
 - **oracle**:
-  - `/home/sanya/re-deep/voice-deep.json` и `/home/sanya/re-deep/voice-deep.md` (§3 Режимы шифрования, строки движка `aead_aes256_gcm_rtpsize`, `aead_xchacha20_poly1305_rtpsize`, исходник `/workspace/discord_voice/dave/src/discord/packet_crypter.cpp`);
-  - `/home/sanya/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL.md` (§6.2 `F-VC-01`);
+  - `reference-oracle/voice-deep.json` и `reference-oracle/voice-deep.md` (§3 Режимы шифрования, строки движка `aead_aes256_gcm_rtpsize`, `aead_xchacha20_poly1305_rtpsize`, исходник `/workspace/discord_voice/dave/src/discord/packet_crypter.cpp`);
+  - `/home/user/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL.md` (§6.2 `F-VC-01`);
   - дизассемблирование `discord_voice.node`:
     - `discord::SocketClient::SetEncryptionSettings` (`0x3f84f0`): проверяет `secret_key.size() == 32`, копирует 32-байтный `secret_key` напрямую в `PacketCrypter::State` (`offset 0x04..0x24`) без KDF/соли и инициализирует `state.nonce = 0x80000000` (`offset 0x24`);
     - `discord::encryption::PacketCrypter::Encrypt` (`0x46d6c0`): обнуляет 24-байтный буфер `nonce` на стеке (`xorps %xmm0, %xmm0`), записывает 4-байтный `u32` счётчик в `nonce[0..4]`, вызывает `crypto_aead_aes256gcm_encrypt` / `crypto_aead_xchacha20poly1305_ietf_encrypt` с прямым 32-байтным ключом и `AAD = packet[..header_len]`, затем дописывает 4 байта `nonce[0..4]` в конец пакета;

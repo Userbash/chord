@@ -195,9 +195,9 @@ $ node --test tests/unit/gui-spike-features.test.mjs
 test at tests/unit/gui-spike-features.test.mjs:3624:3
 ✖ монтирует createVoiceDevicesSettings в модалку настроек (#settings-dialog / #settings-modal) и управляет аудио-состоянием (7.801787ms)
   AssertionError [ERR_ASSERTION]: currentApp().voiceDevices не инициализирован
-      at file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3627:14
-      at withApp (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:112:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3625:5)
+      at file:///home/user/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3627:14
+      at withApp (file:///home/user/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:112:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3625:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -213,7 +213,7 @@ test at tests/unit/gui-spike-features.test.mjs:3624:3
 test at tests/unit/gui-spike-features.test.mjs:3672:3
 ✖ связывает #server-menu-notifications (#guild-notifications-dialog) и #channel-notif-menu с текущим состоянием гильдии и каналов (10.67983ms)
   AssertionError [ERR_ASSERTION]: currentApp().notifications не инициализирован
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3715:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/rw40-int07-ui-app-mount/tests/unit/gui-spike-features.test.mjs:3715:14)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

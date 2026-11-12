@@ -22,7 +22,7 @@ test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 $ audit: gate
 p2-10-gate-worker.log mtime: 2026-10-21 01:31:37.022093002 +0500
-Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-20T20-31-37-021Z.json
+Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-20T20-31-37-021Z.json
 Вердикт: passed
 waves/B01/gate-worker.json mtime: 2026-10-21 00:58:33.505912131 +0500
   "startedAt": "2026-10-20T19:58:21.221Z",

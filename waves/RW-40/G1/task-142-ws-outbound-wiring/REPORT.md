@@ -1,8 +1,8 @@
 # task-142 (BE-RE-03 / F-GW-02): подключение кодировщиков исходящих опкодов 3/4/8/37 к живому транспорту `ws.rs`
 
 - **batch/карточка:** RW-40 / G1, `task-142` (продолжение BE-RE-03 / F-GW-02, карточка бэклога BE-P1-01 в `waves/RW-40/PM/BACKLOG-RE-BACKEND.md:35`).
-- **worktree / ветка:** `/home/sanya/orca/workspaces/project/feature-task-142-ws-outbound-wiring`, ветка `feature/task-142-ws-outbound-wiring`, HEAD `4e24048`.
-- **write-scope:** `rust/crates/discord-core/src/ws.rs` (+ предварительная синхронизация файлов PR-23 `task-137` и PR-24 `task-139` из `/home/sanya/orca/project`).
+- **worktree / ветка:** `/home/user/orca/workspaces/project/feature-task-142-ws-outbound-wiring`, ветка `feature/task-142-ws-outbound-wiring`, HEAD `4e24048`.
+- **write-scope:** `rust/crates/discord-core/src/ws.rs` (+ предварительная синхронизация файлов PR-23 `task-137` и PR-24 `task-139` из `/home/user/orca/project`).
 
 ## Сделано
 
@@ -32,28 +32,28 @@
 
 - **RED-прогон:**
   ```
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
   → exit 101 (E0432 / E0599: отсутствуют типы и методы send_presence_update, send_voice_state_update, send_request_guild_members, send_guild_subscriptions_bulk, queue_*, frames_sent, bytes_sent)
   ```
   Лог: `waves/RW-40/G1/task-142-ws-outbound-wiring/RED.log`.
 
 - **GREEN-прогон (targeted `--lib`):**
   ```
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib
   → exit 0 (14 passed; 0 failed — включая 5 новых тестов в ws::tests)
   ```
   Лог: `waves/RW-40/G1/task-142-ws-outbound-wiring/GREEN-LIB.log`.
 
 - **GREEN-прогон (весь крейт `discord-core`):**
   ```
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core
   → exit 0 (588 passed; 0 failed; 0 ignored)
   ```
   Лог: `waves/RW-40/G1/task-142-ws-outbound-wiring/GREEN.log`.
 
 - **Clippy и форматирование:**
   ```
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings
   → exit 0
   cargo fmt --manifest-path rust/Cargo.toml --all -- --check
   → exit 0
@@ -71,7 +71,7 @@
 ## Файлы и контрольные суммы (md5)
 
 - `rust/crates/discord-core/src/ws.rs` — `9976b056a9ff18559867c1ad110a290f` (основной файл задачи)
-- Синхронизированные файлы PR-23 / PR-24 из `/home/sanya/orca/project`:
+- Синхронизированные файлы PR-23 / PR-24 из `/home/user/orca/project`:
   - `rust/crates/discord-core/src/gateway.rs` — `958a3708bc00f4caf6126686e7d91f4f`
   - `rust/crates/discord-codec/src/zstd.rs` — `6563379e4a71ec6875ad1b678d31975b`
   - `rust/crates/discord-codec/Cargo.toml` — `0708cbb594c521dd30e4b6870159d238`

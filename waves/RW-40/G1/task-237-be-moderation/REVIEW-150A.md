@@ -3,7 +3,7 @@
 **Вердикт: APPROVED**
 
 - Ревьюер: техническое ревью (мутационное тестирование по политике 5/5).
-- Worktree: `feature/task-237-be-moderation`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`.
+- Worktree: `feature/task-237-be-moderation`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`.
 - Дата: 2026-10-31.
 
 ## 1. Что проверялось

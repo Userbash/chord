@@ -1,6 +1,6 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.68s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_core-5cd0374147882a35)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_core-5cd0374147882a35)
 
 running 2 tests
 test rest::search::tests::computes_exponential_backoff_capped_at_30s ... ok
@@ -8,10 +8,10 @@ test rest::search::tests::parses_inline_tokens_and_builds_canonical_guild_endpoi
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 34 filtered out; finished in 0.00s
 
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.78s
-     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+     Running tests/search_contract.rs (/home/user/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
 
 running 35 tests
 test deterministic_uuid_v4_oracle_shape ... ok
@@ -52,9 +52,9 @@ test retries_http_202_against_local_mock_http_server_and_parses_200_ok ... ok
 
 test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
 
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.10s
-     Running unittests src/lib.rs (/home/sanya/orca/project/rust/target/debug/deps/discord_gui_spike-eb641c80cda3fe3f)
+     Running unittests src/lib.rs (/home/user/orca/project/rust/target/debug/deps/discord_gui_spike-eb641c80cda3fe3f)
 
 running 4 tests
 test search::tests::m13_constants_and_indexing_error_format_match_spec ... ok

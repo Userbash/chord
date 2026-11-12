@@ -8,5 +8,5 @@
 ✔ unit — 0.1 с (тесты 169: pass 169, fail 0, skip 0)
 ✔ smoke — 1.1 с (тесты 20: pass 20, fail 0, skip 0)
 
-Отчёт гейта: /home/sanya/orca/project/.gate/worker-2026-10-21T06-06-33-352Z.json
+Отчёт гейта: /home/user/orca/project/.gate/worker-2026-10-21T06-06-33-352Z.json
 Вердикт: passed

@@ -1,7 +1,7 @@
 //! # IDENTIFY (op2): сборка терма идентификации (RW-05, P1-04 / T-GW-02)
 //!
 //! Структура — из кода реального веб-клиента Discord (бандл
-//! `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
+//! `/home/user/clean-room-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
 //! `_doIdentify` (~5017678) собирает `{token, capabilities, properties, presence,
 //! compress, client_state, qos_token}`, `handleIdentify` (~4907630) — свойства.
 //!

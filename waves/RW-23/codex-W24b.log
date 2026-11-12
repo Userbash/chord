@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,21 +11,21 @@ reasoning summaries: none
 session id: 01a15d64-85d6-7d32-b2ee-cf8c3b1c1d85
 --------
 user
-Ты — воркер W24b волны RW-23/B04 проекта discord-lab. Работай строго по ТЗ /home/sanya/orca/project/waves/RW-23/TZ-W24b.md и WAVE-PLAN.md. Только файлы scripts/sbom.mjs, scripts/ci.sh, scripts/release.sh, rust/crates/discord-conformance/tests/sbom_contract.rs. Не трогай Cargo.toml, Cargo.lock, Rust-крейты, доки, waves (кроме своих логов red/green/mutation в waves/RW-23/). Strict TDD: сначала тест sbom_contract.rs, red-прогон с flock exit 101, затем реализация до green. SBOM только offline: cargo metadata --offline --no-deps, Cargo.lock и локальный registry src; никакой сети/curl/wget. SPDX 2.3, allowlist лицензий, детерминированный namespace, --check/--check-license/--dry-run. Обнови ci.sh и release.sh, не сломай старый ci_contract. Сделай минимум 4 мутации (allowlist/SPDX field/lock parse/ci hook), каждую с логом caught и восстановлением. После green targeted повторно. Отчёт: red/green команды и exit, тесты, мутации, md5, риски. Не коммить.
+Ты — воркер W24b волны RW-23/B04 проекта discord-lab. Работай строго по ТЗ /home/user/orca/project/waves/RW-23/TZ-W24b.md и WAVE-PLAN.md. Только файлы scripts/sbom.mjs, scripts/ci.sh, scripts/release.sh, rust/crates/discord-conformance/tests/sbom_contract.rs. Не трогай Cargo.toml, Cargo.lock, Rust-крейты, доки, waves (кроме своих логов red/green/mutation в waves/RW-23/). Strict TDD: сначала тест sbom_contract.rs, red-прогон с flock exit 101, затем реализация до green. SBOM только offline: cargo metadata --offline --no-deps, Cargo.lock и локальный registry src; никакой сети/curl/wget. SPDX 2.3, allowlist лицензий, детерминированный namespace, --check/--check-license/--dry-run. Обнови ci.sh и release.sh, не сломай старый ci_contract. Сделай минимум 4 мутации (allowlist/SPDX field/lock parse/ci hook), каждую с логом caught и восстановлением. После green targeted повторно. Отчёт: red/green команды и exit, тесты, мутации, md5, риски. Не коммить.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Применяю контекстный регламент discord-lab. Сначала сверю процесс, план волны и точное ТЗ, затем проверю занятость разрешённых файлов и состояние рабочей копии перед red-фазой.
 exec
-/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md; sed -n '1,240p' PROCESS.md; sed -n '1,240p' docs/rust-client/TEAM.md; sed -n '1,260p' waves/RW-23/TZ-W24b.md; sed -n '1,260p' WAVE-PLAN.md; sed -n '1,220p' TASKS.md; sed -n '1,220p' TDD-PLAN.md; sed -n '1,220p' waves/STATE.md; git status --short" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' .agents/skills/discord-lab-context/SKILL.md; sed -n '1,240p' PROCESS.md; sed -n '1,240p' docs/rust-client/TEAM.md; sed -n '1,260p' waves/RW-23/TZ-W24b.md; sed -n '1,260p' WAVE-PLAN.md; sed -n '1,220p' TASKS.md; sed -n '1,220p' TDD-PLAN.md; sed -n '1,220p' waves/STATE.md; git status --short" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -60,7 +60,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -146,7 +146,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -561,7 +561,7 @@ P2-09 accept — отдельная review-лейна REV-1 + TL-1, не тре�
 | Проверка B01 | Владелец | Артефакт |
 # ТЗ W24b — P8-04: reproducible SBOM/licenses
 
-Волна: RW-23 / B04. Владелец: W24b. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-23 / B04. Владелец: W24b. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -577,7 +577,7 @@ P2-09 accept — отдельная review-лейна REV-1 + TL-1, не тре�
 Strict TDD. Сначала тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 node --test rust/crates/discord-conformance/tests/sbom_contract.rs 2>/dev/null || true
 cd rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract \
@@ -653,7 +653,7 @@ P1-02, P0-04, P0-07); B03/RW-22 принят (P3-15, P4-01, P7-04, P8-03); сл�
 - Полный список кейсов живёт в тестовых файлах; здесь — кластеры поведения и ссылки.
   Добавили кейс — добавьте строку микрозадачи в соответствующую таблицу.
 - Репозиторий: git (ветка `master`); параллельные писатели работают в ОДНОЙ папке
-  `/home/sanya/orca/project` с непересекающимися файлами — уровень L1 процесса
+  `/home/user/orca/project` с непересекающимися файлами — уровень L1 процесса
   (`PROCESS.md` §2); orca-worktree + ветка `w/<task>` — уровень L2, включается
   при появлении remote/CI. Коммиты делает координатор.
 
@@ -1072,7 +1072,7 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
   HEAD `0163945`; рабочее дерево **dirty**: RW-10…RW-22, I1,
   P2-01/P2-02/P2-04…P2-11, B01/B02/B03 accepted, удаление legacy `ready_data` и правки доков
   **не закоммичены**. Коммит/push — только координатор.
-- Golden (`logs/`, `functions/`, `evidence/`) и `/home/sanya/re-deep` — только чтение.
+- Golden (`logs/`, `functions/`, `evidence/`) и `/home/user/clean-room-oracle` — только чтение.
 - Копия живого Discord (PID 95828) запущена — не трогать без команды владельца.
 
 ## 1. Факт
@@ -1423,13 +1423,13 @@ npm run gate:qualify  # квалификация: release + tarball + изоли
 ?? waves/reviews/review-rw-10-11.md
 
 exec
-/usr/bin/bash -lc "sed -n '1,260p' docs/rust-client/TEAM.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' docs/rust-client/TEAM.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'cat waves/RW-23/TZ-W24b.md' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat waves/RW-23/TZ-W24b.md' in /home/user/orca/project
  succeeded in 0ms:
 # ТЗ W24b — P8-04: reproducible SBOM/licenses
 
-Волна: RW-23 / B04. Владелец: W24b. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-23 / B04. Владелец: W24b. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
@@ -1445,7 +1445,7 @@ exec
 Strict TDD. Сначала тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project
+cd /home/user/orca/project
 node --test rust/crates/discord-conformance/tests/sbom_contract.rs 2>/dev/null || true
 cd rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract \
@@ -1741,7 +1741,7 @@ P2-09 accept — отдельная review-лейна REV-1 + TL-1, не тре�
 Остальные batch — в `WAVE-PLAN.md`; UI/SQLite/keyring/live ждут решения владельца.
 
 exec
-/usr/bin/bash -lc "rg -n -C 3 '4\\.2|batch|mutation|mutat|cargo' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -C 3 '4\\.2|batch|mutation|mutat|cargo' PROCESS.md" in /home/user/orca/project
  succeeded in 0ms:
 34-| 1. Задача, issue, карточка | Карточка в `TASKS.md`: ID, микрозадача, владелец, статус `[ ]/[~]/[x]`; срок = волна; история решений — TASKS + отчёты `.gate/*.json` |
 35-| 2. Концепт (видит игрок) | Видимый контракт CLI: команды/флаги/вывод/коды (TDD-PLAN §6, ТЗ). Стенд = прогон после реализации; владелец говорит «Да»/«Доработать» |
@@ -1765,7 +1765,7 @@ exec
 65:| Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 66-| Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 67-| Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-68-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+68-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 --
 82-
 83-3.3 **Декомпозиция.** Batch-волна `RW-NN`: 3–6 микрозадач, матрица «файлы воркера / запрещено»,
@@ -1908,7 +1908,7 @@ exec
 306-**Гейт** — прогон проверок (§5). **Kit** — собранный tarball + план выкладки/откат (§3.7).
 
 exec
-/usr/bin/bash -lc "rg -n -C 4 'W24b|W24|RW-23|SBOM|sbom' docs/rust-client/WAVE-PLAN.md waves/RW-23/WAVE-PLAN.md WAVE-PLAN.md 2>/dev/null" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -C 4 'W24b|W24|RW-23|SBOM|sbom' docs/rust-client/WAVE-PLAN.md waves/RW-23/WAVE-PLAN.md WAVE-PLAN.md 2>/dev/null" in /home/user/orca/project
  exited 2 in 0ms:
 waves/RW-23/WAVE-PLAN.md:1:# RW-23 / B04 — план волны
 waves/RW-23/WAVE-PLAN.md-2-
@@ -1977,13 +1977,13 @@ docs/rust-client/WAVE-PLAN.md-141-## 7. Управление тестами
 codex
 ТЗ фиксирует четыре файла и офлайн-контракт. В рабочей копии уже есть незакоммиченные изменения, включая `scripts/ci.sh`, `scripts/release.sh` и множество Rust-тестов; учту их как исходное состояние и прочитаю оба скрипта вместе с `ci_contract.rs`, чтобы сохранить текущие договорённости.
 exec
-/usr/bin/bash -lc "sed -n '1,240p' rust/Cargo.toml" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' rust/Cargo.toml" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,280p' rust/crates/discord-conformance/tests/ci_contract.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,280p' rust/crates/discord-conformance/tests/ci_contract.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,220p' rust/deny.toml; sed -n '1,220p' rust/Cargo.lock" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,220p' rust/deny.toml; sed -n '1,220p' rust/Cargo.lock" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' scripts/ci.sh; sed -n '1,260p' scripts/release.sh" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' scripts/ci.sh; sed -n '1,260p' scripts/release.sh" in /home/user/orca/project
  succeeded in 0ms:
 # Каркас нативного клиента Discord на Rust (фазы P0/P1 плана docs/rust-client/PLAN.md).
 # Внешние зависимости: ruzstd 0.9.1 (чистый Rust, карточка RW-02) и — с RW-04 — транспорт
@@ -2535,7 +2535,7 @@ echo "release: артефакт $DIST/discord-rs"
 echo "release: checksum $DIST/SHA256SUMS"
 
 exec
-/usr/bin/bash -lc "rg -n -C 5 'P8-04|T-HARN-07|SBOM|license' docs/rust-client/PLAN.md docs/rust-client/TEST-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -C 5 'P8-04|T-HARN-07|SBOM|license' docs/rust-client/PLAN.md docs/rust-client/TEST-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 docs/rust-client/TEST-PLAN.md-262-| T-HARN-02 | L2 | реплей gateway-потока: байты → JSON побитово | `gw-proto/` |
 docs/rust-client/TEST-PLAN.md-263-| T-HARN-03 | L2 | реплей REST-транскрипта: N запросов воспроизводимы | `rest-d02.json` |
@@ -2565,7 +2565,7 @@ codex
 Старые CI/release уже поддерживают dry-run и имеют отдельный контракт; новый хук встрою между deny и release и сохраню поведение `--skip-release`. Сейчас добавлю только новый Rust-контрактный тест, затем выполню его до реализации и зафиксирую ожидаемый `flock`-прогон с exit 101.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs
+/home/user/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..c84a82425f044ee34f657c085b145d61942e01ba
@@ -2789,7 +2789,7 @@ index 0000000000000000000000000000000000000000..c84a82425f044ee34f657c085b145d61
 +}
 
 exec
-/usr/bin/bash -lc "sed -n '1,160p' rust/crates/discord-conformance/Cargo.toml; mkdir -p waves/RW-23; set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/red-w24b.log; status="'${PIPESTATUS[0]}; printf '"'\\nRED_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/red-w24b.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,160p' rust/crates/discord-conformance/Cargo.toml; mkdir -p waves/RW-23; set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/red-w24b.log; status="'${PIPESTATUS[0]}; printf '"'\\nRED_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/red-w24b.log; exit 0' in /home/user/orca/project
  succeeded in 0ms:
 [package]
 name = "discord-conformance"
@@ -2800,7 +2800,7 @@ description = "Доступ к конформанс-фикстурам лабо�
 
 [lints.rust]
 unsafe_code = "forbid"
-   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+   Compiling discord-conformance v0.1.0 (/home/user/orca/project/rust/crates/discord-conformance)
 error[E0433]: cannot find module or crate `serde_json` in this scope
   --> crates/discord-conformance/tests/sbom_contract.rs:36:9
    |
@@ -2937,7 +2937,7 @@ codex
 Первый red-прогон получился exit 101, но выявил ограничение самого тестового крейта: `serde_json` не подключён, а добавлять зависимость запрещено. Переведу проверку JSON на уже обязательный Node runtime, не меняя Cargo-файлы, и повторю red-прогон до ожидаемого отсутствующего SBOM-скрипта.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs
+/home/user/orca/project/rust/crates/discord-conformance/tests/sbom_contract.rs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -3167,9 +3167,9 @@ index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d0
 +}
 
 exec
-/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/red-w24b.log; status=${PIPESTATUS[0]}; printf '"'\\nRED_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/red-w24b.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/red-w24b.log; status=${PIPESTATUS[0]}; printf '"'\\nRED_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/red-w24b.log; exit 0' in /home/user/orca/project
  succeeded in 0ms:
-   Compiling discord-conformance v0.1.0 (/home/sanya/orca/project/rust/crates/discord-conformance)
+   Compiling discord-conformance v0.1.0 (/home/user/orca/project/rust/crates/discord-conformance)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
      Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
 
@@ -3199,7 +3199,7 @@ stderr=node:internal/modules/cjs/loader:1568
   throw err;
   ^
 
-Error: Cannot find module '/home/sanya/orca/project/scripts/sbom.mjs'
+Error: Cannot find module '/home/user/orca/project/scripts/sbom.mjs'
     at Module._resolveFilename (node:internal/modules/cjs/loader:1564:15)
     at wrapResolveFilename (node:internal/modules/cjs/loader:1118:27)
     at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1142:10)
@@ -3222,7 +3222,7 @@ stderr=node:internal/modules/cjs/loader:1568
   throw err;
   ^
 
-Error: Cannot find module '/home/sanya/orca/project/scripts/sbom.mjs'
+Error: Cannot find module '/home/user/orca/project/scripts/sbom.mjs'
     at Module._resolveFilename (node:internal/modules/cjs/loader:1564:15)
     at wrapResolveFilename (node:internal/modules/cjs/loader:1118:27)
     at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1142:10)
@@ -3369,9 +3369,9 @@ codex
 Red зафиксирован: все четыре теста падают на отсутствующем генераторе/CI-хуке (exit 101). Перехожу к реализации в трёх разрешённых скриптах: Cargo.lock будет разбираться локально, метаданные запрашиваться только через `cargo metadata --offline --no-deps`, а timestamp SPDX сделаю воспроизводимым через `SOURCE_DATE_EPOCH` с фиксированным epoch по умолчанию.
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/ci.sh
-/home/sanya/orca/project/scripts/release.sh
-/home/sanya/orca/project/scripts/sbom.mjs
+/home/user/orca/project/scripts/ci.sh
+/home/user/orca/project/scripts/release.sh
+/home/user/orca/project/scripts/sbom.mjs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -4039,7 +4039,7 @@ index 0000000000000000000000000000000000000000..5a5bcdd6f76fb198329dee134488f27e
 +}
 
 exec
-/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b.log; exit 0' in /home/user/orca/project
  succeeded in 0ms:
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
      Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
@@ -4412,19 +4412,19 @@ index 0000000000000000000000000000000000000000..5a5bcdd6f76fb198329dee134488f27e
 codex
 Первые два теста уже проходят, но запуск генератора из-под `cargo test` не может создать дочерний процесс `cargo` (`spawnSync cargo EPERM`). Проверяю, не наследуется ли проблема из `flock`/окружения; если ограничение именно вложенный Cargo, построю metadata-lookup так, чтобы сохранить обязательное выполнение команды, используя проверенный абсолютный Cargo path.
 exec
-/usr/bin/bash -lc 'command -v cargo; ls -l "$(command -v cargo)"; cargo metadata --offline --no-deps --format-version 1 --manifest-path rust/Cargo.toml >/dev/null; printf '"'direct=%s\\n' \""'$?"' in /home/sanya/orca/project
+/usr/bin/bash -lc 'command -v cargo; ls -l "$(command -v cargo)"; cargo metadata --offline --no-deps --format-version 1 --manifest-path rust/Cargo.toml >/dev/null; printf '"'direct=%s\\n' \""'$?"' in /home/user/orca/project
  succeeded in 0ms:
 /usr/bin/cargo
 lrwxrwxrwx 1 nobody nobody 15 Sep  2 00:09 /usr/bin/cargo -> /usr/bin/rustup
 direct=0
 
 exec
-/usr/bin/bash -lc "node -e \"require('node:child_process').execFileSync('cargo',['metadata','--offline','--no-deps','--format-version','1','--manifest-path','rust/Cargo.toml'],{stdio:'ignore'}); console.log('node cargo ok')\"" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e \"require('node:child_process').execFileSync('cargo',['metadata','--offline','--no-deps','--format-version','1','--manifest-path','rust/Cargo.toml'],{stdio:'ignore'}); console.log('node cargo ok')\"" in /home/user/orca/project
  succeeded in 0ms:
 node cargo ok
 
 exec
-/usr/bin/bash -lc 'node --check scripts/sbom.mjs; node scripts/sbom.mjs --dry-run' in /home/sanya/orca/project
+/usr/bin/bash -lc 'node --check scripts/sbom.mjs; node scripts/sbom.mjs --dry-run' in /home/user/orca/project
  exited 1 in 0ms:
 sbom: spawnSync cargo EPERM
 
@@ -4762,7 +4762,7 @@ index 0000000000000000000000000000000000000000..5a5bcdd6f76fb198329dee134488f27e
 +}
 
 exec
-/usr/bin/bash -lc "node -e \"const {execFileSync}=require('node:child_process'); try { const x=execFileSync('cargo',['metadata','--offline','--no-deps','--format-version','1','--manifest-path',process.cwd()+'/rust/Cargo.toml'],{cwd:process.cwd(),encoding:'utf8'}); console.log(x.length) } catch(e) { console.error(e.code,e.message,e.stderr?.toString().slice(0,500)) }\"" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e \"const {execFileSync}=require('node:child_process'); try { const x=execFileSync('cargo',['metadata','--offline','--no-deps','--format-version','1','--manifest-path',process.cwd()+'/rust/Cargo.toml'],{cwd:process.cwd(),encoding:'utf8'}); console.log(x.length) } catch(e) { console.error(e.code,e.message,e.stderr?.toString().slice(0,500)) }\"" in /home/user/orca/project
  succeeded in 0ms:
 EPERM spawnSync cargo EPERM 
 
@@ -5100,7 +5100,7 @@ index 0000000000000000000000000000000000000000..5a5bcdd6f76fb198329dee134488f27e
 +}
 
 exec
-/usr/bin/bash -lc "node -e \"const {execFileSync}=require('node:child_process'); for(const opts of [{stdio:'pipe'},{encoding:'utf8',maxBuffer:16*1024*1024},{encoding:'utf8',stdio:'pipe',maxBuffer:16*1024*1024}]) try { const x=execFileSync('/usr/bin/cargo',['metadata','--offline','--no-deps','--format-version','1','--manifest-path',process.cwd()+'/rust/Cargo.toml'],opts); console.log('ok',String(x).length) } catch(e) { console.error(opts,e.code,e.message) }\"" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e \"const {execFileSync}=require('node:child_process'); for(const opts of [{stdio:'pipe'},{encoding:'utf8',maxBuffer:16*1024*1024},{encoding:'utf8',stdio:'pipe',maxBuffer:16*1024*1024}]) try { const x=execFileSync('/usr/bin/cargo',['metadata','--offline','--no-deps','--format-version','1','--manifest-path',process.cwd()+'/rust/Cargo.toml'],opts); console.log('ok',String(x).length) } catch(e) { console.error(opts,e.code,e.message) }\"" in /home/user/orca/project
  succeeded in 0ms:
 { stdio: 'pipe' } EPERM spawnSync /usr/bin/cargo EPERM
 { encoding: 'utf8', maxBuffer: 16777216 } EPERM spawnSync /usr/bin/cargo EPERM
@@ -5440,10 +5440,10 @@ index 0000000000000000000000000000000000000000..5a5bcdd6f76fb198329dee134488f27e
 +}
 
 exec
-/usr/bin/bash -lc 'rustup which cargo; ls -l "$(rustup which cargo)"; node -e "const {execFileSync}=require('"'node:child_process'); const p=execFileSync('rustup',['which','cargo'],{encoding:'utf8'}).trim(); try { console.log(execFileSync(p,['metadata','--offline','--no-deps','--format-version','1','--manifest-path',process.cwd()+'/rust/Cargo.toml'],{encoding:'utf8',maxBuffer:16*1024*1024}).length) } catch(e) { console.error(e.code,e.message) }\"" in /home/sanya/orca/project
+/usr/bin/bash -lc 'rustup which cargo; ls -l "$(rustup which cargo)"; node -e "const {execFileSync}=require('"'node:child_process'); const p=execFileSync('rustup',['which','cargo'],{encoding:'utf8'}).trim(); try { console.log(execFileSync(p,['metadata','--offline','--no-deps','--format-version','1','--manifest-path',process.cwd()+'/rust/Cargo.toml'],{encoding:'utf8',maxBuffer:16*1024*1024}).length) } catch(e) { console.error(e.code,e.message) }\"" in /home/user/orca/project
  exited 1 in 0ms:
-/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo
--rwxr-xr-x 1 sanya sanya 36160240 Oct  3 11:30 /home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo
+/home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo
+-rwxr-xr-x 1 user user 36160240 Oct  3 11:30 /home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo
 <ref *1> node:child_process:981
     throw err;
     ^
@@ -5469,11 +5469,11 @@ Error: spawnSync rustup EPERM
   signal: null,
   output: [
     null,
-    '/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo\n',
+    '/home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo\n',
     ''
   ],
   pid: 28,
-  stdout: '/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo\n',
+  stdout: '/home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo\n',
   stderr: ''
 }
 
@@ -5813,7 +5813,7 @@ index 0000000000000000000000000000000000000000..5a5bcdd6f76fb198329dee134488f27e
 +}
 
 exec
-/usr/bin/bash -lc "node -e \"const {execFileSync}=require('node:child_process'); try { const x=execFileSync('/home/sanya/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo',['metadata','--offline','--no-deps','--format-version','1','--manifest-path',process.cwd()+'/rust/Cargo.toml'],{encoding:'utf8',maxBuffer:16*1024*1024}); console.log(x.length) } catch(e) { console.error(e.code,e.status,e.stdout?.length,e.stderr?.toString()) }\"" in /home/sanya/orca/project
+/usr/bin/bash -lc "node -e \"const {execFileSync}=require('node:child_process'); try { const x=execFileSync('/home/user/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo',['metadata','--offline','--no-deps','--format-version','1','--manifest-path',process.cwd()+'/rust/Cargo.toml'],{encoding:'utf8',maxBuffer:16*1024*1024}); console.log(x.length) } catch(e) { console.error(e.code,e.status,e.stdout?.length,e.stderr?.toString()) }\"" in /home/user/orca/project
  succeeded in 0ms:
 EPERM 0 25913 
 
@@ -6152,7 +6152,7 @@ index 0000000000000000000000000000000000000000..5a5bcdd6f76fb198329dee134488f27e
 
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/sbom.mjs
+/home/user/orca/project/scripts/sbom.mjs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -6836,9 +6836,9 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 +}
 
 exec
-/usr/bin/bash -lc 'node scripts/sbom.mjs --dry-run; set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'node scripts/sbom.mjs --dry-run; set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b.log; status=${PIPESTATUS[0]}; printf '"'\\nGREEN_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b.log; exit 0' in /home/user/orca/project
  succeeded in 0ms:
-sbom: SPDX-2.3, 85 packages, output=/home/sanya/orca/project/rust/dist/sbom.spdx.json
+sbom: SPDX-2.3, 85 packages, output=/home/user/orca/project/rust/dist/sbom.spdx.json
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
      Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
 
@@ -7226,7 +7226,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 codex
 Генерация SPDX проходит, а строгий `--check` выявил реальные локальные лицензии вне заданного allowlist (`CDLA-Permissive-2.0`) и `NOASSERTION` у некоторых lock-записей. Сверяю локальный registry и Cargo metadata, чтобы понять доступность лицензий этих пакетов без расширения allowlist и определить, корректно ли включать только реально используемые/разрешённые locked-зависимости.
 exec
-/usr/bin/bash -lc "rg -n -C 4 'CDLA|r-efi|wasi|windows-sys|webpki-roots' rust/Cargo.lock" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -C 4 'CDLA|r-efi|wasi|windows-sys|webpki-roots' rust/Cargo.lock" in /home/user/orca/project
  succeeded in 0ms:
 116- "rustls",
 117- "tokio",
@@ -7364,17 +7364,17 @@ exec
 606-dependencies = [
 
 exec
-/usr/bin/bash -lc "rg -n '"'^license'"\\s*=|"'^license-file'"\\s*=' /home/sanya/.cargo/registry/src/*/{r-efi-6.0.0,wasi-0.11.1+wasi-snapshot-preview1,webpki-roots-0.26.11,webpki-roots-1.0.9,windows-link-0.2.1,windows-sys-0.52.0,windows-sys-0.61.2,windows-targets-0.52.6}/Cargo.toml 2>/dev/null" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n '"'^license'"\\s*=|"'^license-file'"\\s*=' /home/user/.cargo/registry/src/*/{r-efi-6.0.0,wasi-0.11.1+wasi-snapshot-preview1,webpki-roots-0.26.11,webpki-roots-1.0.9,windows-link-0.2.1,windows-sys-0.52.0,windows-sys-0.61.2,windows-targets-0.52.6}/Cargo.toml 2>/dev/null" in /home/user/orca/project
  exited 2 in 0ms:
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-1.0.9/Cargo.toml:26:license = "CDLA-Permissive-2.0"
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-0.26.11/Cargo.toml:25:license = "CDLA-Permissive-2.0"
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-1.0.9/Cargo.toml:26:license = "CDLA-Permissive-2.0"
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-0.26.11/Cargo.toml:25:license = "CDLA-Permissive-2.0"
 
 exec
-/usr/bin/bash -lc "printf 'CARGO_HOME=%s HOME=%s\\n' \""'$CARGO_HOME" "$HOME"; find "${CARGO_HOME:-$HOME/.cargo}/registry/src" -maxdepth 2 -type d '"\\( -name 'r-efi-*' -o -name 'wasi-*' -o -name 'webpki-roots-*' -o -name 'windows-link-*' \\) 2>/dev/null" in /home/sanya/orca/project
+/usr/bin/bash -lc "printf 'CARGO_HOME=%s HOME=%s\\n' \""'$CARGO_HOME" "$HOME"; find "${CARGO_HOME:-$HOME/.cargo}/registry/src" -maxdepth 2 -type d '"\\( -name 'r-efi-*' -o -name 'wasi-*' -o -name 'webpki-roots-*' -o -name 'windows-link-*' \\) 2>/dev/null" in /home/user/orca/project
  succeeded in 0ms:
-CARGO_HOME= HOME=/home/sanya
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-0.26.11
-/home/sanya/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-1.0.9
+CARGO_HOME= HOME=/home/user
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-0.26.11
+/home/user/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/webpki-roots-1.0.9
 
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
@@ -8408,24 +8408,24 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 codex
 Противоречие подтверждено по локальным `Cargo.toml`: обе версии `webpki-roots` явно объявляют CDLA; ещё ряд платформенных lock-записей не распакован в registry и потому дают `NOASSERTION`. Я оставил `--check` строгим и не подменял лицензию, пока жду решения по контракту. Продолжаю независимые проверки формата, shell dry-run и точности lock-зависимостей.
 exec
-/usr/bin/bash -lc 'bash -n scripts/ci.sh scripts/release.sh; bash scripts/ci.sh --dry-run; bash scripts/release.sh --dry-run' in /home/sanya/orca/project
+/usr/bin/bash -lc 'bash -n scripts/ci.sh scripts/release.sh; bash scripts/ci.sh --dry-run; bash scripts/release.sh --dry-run' in /home/user/orca/project
  succeeded in 0ms:
 ci: dry-run (сеть и cargo не запускаются)
-+ cargo fmt --manifest-path /home/sanya/orca/project/rust/Cargo.toml --all -- --check
-+ cargo clippy --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --workspace --all-targets --all-features -- -D warnings
-+ cargo test --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --workspace
-+ cargo run --offline --manifest-path /home/sanya/orca/project/rust/Cargo.toml --release -p discord-codec --example etf_bench -- --iterations 2000
++ cargo fmt --manifest-path /home/user/orca/project/rust/Cargo.toml --all -- --check
++ cargo clippy --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --workspace --all-targets --all-features -- -D warnings
++ cargo test --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --workspace
++ cargo run --offline --manifest-path /home/user/orca/project/rust/Cargo.toml --release -p discord-codec --example etf_bench -- --iterations 2000
 + cargo deny check (cwd=rust, если cargo-deny установлен; иначе SKIP)
-+ node scripts/sbom.mjs --check --output /home/sanya/orca/project/rust/dist/sbom.spdx.json (offline)
++ node scripts/sbom.mjs --check --output /home/user/orca/project/rust/dist/sbom.spdx.json (offline)
 + bash scripts/release.sh --dry-run
 ci: OK
 release: dry-run (сеть, cargo и запись файлов не выполняются)
-+ cargo build --offline --release -p discord-app --manifest-path /home/sanya/orca/project/rust/Cargo.toml
-+ install -m 0755 /home/sanya/orca/project/rust/target/release/discord-rs /home/sanya/orca/project/rust/dist/discord-rs
-+ sha256sum /home/sanya/orca/project/rust/dist/discord-rs > /home/sanya/orca/project/rust/dist/SHA256SUMS
++ cargo build --offline --release -p discord-app --manifest-path /home/user/orca/project/rust/Cargo.toml
++ install -m 0755 /home/user/orca/project/rust/target/release/discord-rs /home/user/orca/project/rust/dist/discord-rs
++ sha256sum /home/user/orca/project/rust/dist/discord-rs > /home/user/orca/project/rust/dist/SHA256SUMS
 
 exec
-/usr/bin/bash -lc "cargo metadata --offline --no-deps --format-version 1 --manifest-path rust/Cargo.toml | node -e \"let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const m=JSON.parse(s); console.log(m.packages.length); for(const p of m.packages) console.log(p.name,p.license)})\"" in /home/sanya/orca/project
+/usr/bin/bash -lc "cargo metadata --offline --no-deps --format-version 1 --manifest-path rust/Cargo.toml | node -e \"let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const m=JSON.parse(s); console.log(m.packages.length); for(const p of m.packages) console.log(p.name,p.license)})\"" in /home/user/orca/project
  succeeded in 0ms:
 11
 discord-app MIT OR Apache-2.0
@@ -8441,7 +8441,7 @@ discord-ui MIT OR Apache-2.0
 discord-voice MIT OR Apache-2.0
 
 exec
-/usr/bin/bash -lc "node scripts/sbom.mjs --output /tmp/w24b-check.spdx.json; node -e \"const d=require('/tmp/w24b-check.spdx.json'); console.log(d.packages.length,d.relationships.length,d.packages.filter(p=>p.licenseDeclared==='NOASSERTION').length)\"" in /home/sanya/orca/project
+/usr/bin/bash -lc "node scripts/sbom.mjs --output /tmp/w24b-check.spdx.json; node -e \"const d=require('/tmp/w24b-check.spdx.json'); console.log(d.packages.length,d.relationships.length,d.packages.filter(p=>p.licenseDeclared==='NOASSERTION').length)\"" in /home/user/orca/project
  succeeded in 0ms:
 sbom: создан /tmp/w24b-check.spdx.json (85 packages)
 85 128 14
@@ -8791,7 +8791,7 @@ codex
 Проверки показали 11 workspace-пакетов и 85 записей в lock, поэтому SBOM содержит workspace плюс все locked deps. Нашёл ещё один release edge case: при `--output DIR` checksum ищет SBOM в каталоге артефакта, хотя вход находится в `rust/dist`; поправлю release так, чтобы он сначала копировал существующий SBOM рядом с бинарником.
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/release.sh
+/home/user/orca/project/scripts/release.sh
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -9479,7 +9479,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 +}
 
 exec
-/usr/bin/bash -lc "git status --short -- scripts/sbom.mjs scripts/ci.sh scripts/release.sh rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23; bash -n scripts/ci.sh scripts/release.sh; node --check scripts/sbom.mjs; node scripts/sbom.mjs --check-license MIT; printf 'MIT_EXIT=%s\\n' \""'$?"; node scripts/sbom.mjs --check-license GPL-3.0-only; printf '"'GPL_EXIT=%s\\n' \""'$?"; bash scripts/release.sh --dry-run' in /home/sanya/orca/project
+/usr/bin/bash -lc "git status --short -- scripts/sbom.mjs scripts/ci.sh scripts/release.sh rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23; bash -n scripts/ci.sh scripts/release.sh; node --check scripts/sbom.mjs; node scripts/sbom.mjs --check-license MIT; printf 'MIT_EXIT=%s\\n' \""'$?"; node scripts/sbom.mjs --check-license GPL-3.0-only; printf '"'GPL_EXIT=%s\\n' \""'$?"; bash scripts/release.sh --dry-run' in /home/user/orca/project
  succeeded in 0ms:
 ?? rust/crates/discord-conformance/tests/sbom_contract.rs
 ?? scripts/ci.sh
@@ -9490,9 +9490,9 @@ MIT_EXIT=0
 sbom: запрещённая лицензия: GPL-3.0-only
 GPL_EXIT=1
 release: dry-run (сеть, cargo и запись файлов не выполняются)
-+ cargo build --offline --release -p discord-app --manifest-path /home/sanya/orca/project/rust/Cargo.toml
-+ install -m 0755 /home/sanya/orca/project/rust/target/release/discord-rs /home/sanya/orca/project/rust/dist/discord-rs
-+ sha256sum /home/sanya/orca/project/rust/dist/discord-rs > /home/sanya/orca/project/rust/dist/SHA256SUMS
++ cargo build --offline --release -p discord-app --manifest-path /home/user/orca/project/rust/Cargo.toml
++ install -m 0755 /home/user/orca/project/rust/target/release/discord-rs /home/user/orca/project/rust/dist/discord-rs
++ sha256sum /home/user/orca/project/rust/dist/discord-rs > /home/user/orca/project/rust/dist/SHA256SUMS
 
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
@@ -10184,7 +10184,7 @@ codex
 Промежуточный ответ пока не пришёл; продолжу по наиболее строгой трактовке замороженного контракта: сохраняю заданный allowlist и не маскирую `CDLA`/`NOASSERTION`. Сейчас выполню четыре запрошенные мутации по очереди, фиксируя каждый caught-результат и восстанавливая исходник перед следующим опытом.
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/sbom.mjs
+/home/user/orca/project/scripts/sbom.mjs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -10872,7 +10872,7 @@ index 0000000000000000000000000000000000000000..dc1b2801da561433209dcc8f1857b107
 +}
 
 exec
-/usr/bin/bash -lc 'set +e; node scripts/sbom.mjs --check-license MIT >/tmp/w24b-mut1.out 2>&1; status=$?; printf '"'M1 allowlist: --check-license MIT exit=%s; expected 1 => %s\\n' \""'$status" "$([[ $status -eq 1 ]] && echo CAUGHT || echo MISSED)" | tee -a waves/RW-23/mutation-w24b.log; cat /tmp/w24b-mut1.out' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; node scripts/sbom.mjs --check-license MIT >/tmp/w24b-mut1.out 2>&1; status=$?; printf '"'M1 allowlist: --check-license MIT exit=%s; expected 1 => %s\\n' \""'$status" "$([[ $status -eq 1 ]] && echo CAUGHT || echo MISSED)" | tee -a waves/RW-23/mutation-w24b.log; cat /tmp/w24b-mut1.out' in /home/user/orca/project
  succeeded in 0ms:
 M1 allowlist: --check-license MIT exit=1; expected 1 => CAUGHT
 sbom: запрещённая лицензия: MIT
@@ -11222,7 +11222,7 @@ index 0000000000000000000000000000000000000000..dc1b2801da561433209dcc8f1857b107
 
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/sbom.mjs
+/home/user/orca/project/scripts/sbom.mjs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -11911,7 +11911,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/sbom.mjs
+/home/user/orca/project/scripts/sbom.mjs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -12599,7 +12599,7 @@ index 0000000000000000000000000000000000000000..f5b3a83900fcd7e76255f1f47cb1d7f9
 +}
 
 exec
-/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract generates_spdx_23_with_locked_packages_and_licenses >/tmp/w24b-mut2.out 2>&1; status=$?; printf '"'M2 SPDX field: targeted generation exit=%s; expected nonzero => %s\\n' \""'$status" "$([[ $status -ne 0 ]] && echo CAUGHT || echo MISSED)" | tee -a ../waves/RW-23/mutation-w24b.log; tail -n 16 /tmp/w24b-mut2.out; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract generates_spdx_23_with_locked_packages_and_licenses >/tmp/w24b-mut2.out 2>&1; status=$?; printf '"'M2 SPDX field: targeted generation exit=%s; expected nonzero => %s\\n' \""'$status" "$([[ $status -ne 0 ]] && echo CAUGHT || echo MISSED)" | tee -a ../waves/RW-23/mutation-w24b.log; tail -n 16 /tmp/w24b-mut2.out; exit 0' in /home/user/orca/project
  succeeded in 0ms:
 M2 SPDX field: targeted generation exit=101; expected nonzero => CAUGHT
   expected: 'SPDX-2.3',
@@ -12964,7 +12964,7 @@ index 0000000000000000000000000000000000000000..f5b3a83900fcd7e76255f1f47cb1d7f9
 
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/sbom.mjs
+/home/user/orca/project/scripts/sbom.mjs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -13653,7 +13653,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/sbom.mjs
+/home/user/orca/project/scripts/sbom.mjs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -14341,7 +14341,7 @@ index 0000000000000000000000000000000000000000..84856e499a0a918546de328b60d29fba
 +}
 
 exec
-/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract generates_spdx_23_with_locked_packages_and_licenses >/tmp/w24b-mut3.out 2>&1; status=$?; printf '"'M3 lock parse: generation targeted exit=%s; expected nonzero => %s\\n' \""'$status" "$([[ $status -ne 0 ]] && echo CAUGHT || echo MISSED)" | tee -a ../waves/RW-23/mutation-w24b.log; tail -n 15 /tmp/w24b-mut3.out; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract generates_spdx_23_with_locked_packages_and_licenses >/tmp/w24b-mut3.out 2>&1; status=$?; printf '"'M3 lock parse: generation targeted exit=%s; expected nonzero => %s\\n' \""'$status" "$([[ $status -ne 0 ]] && echo CAUGHT || echo MISSED)" | tee -a ../waves/RW-23/mutation-w24b.log; tail -n 15 /tmp/w24b-mut3.out; exit 0' in /home/user/orca/project
  succeeded in 0ms:
 M3 lock parse: generation targeted exit=101; expected nonzero => CAUGHT
   operator: '==',
@@ -14705,7 +14705,7 @@ index 0000000000000000000000000000000000000000..84856e499a0a918546de328b60d29fba
 
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/sbom.mjs
+/home/user/orca/project/scripts/sbom.mjs
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -15396,7 +15396,7 @@ codex
 Три мутации пойманы и восстановлены: исключение MIT из allowlist, SPDX 2.2 вместо 2.3, усечение lock-пакетов ниже порога. Четвёртая проверит, что контрактный тест замечает удалённый CI-хук; после неё сверю контрольные суммы исходников и повторю полный targeted-прогон.
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/ci.sh
+/home/user/orca/project/scripts/ci.sh
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -16074,7 +16074,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 +}
 
 exec
-/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract ci_and_release_dry_runs_keep_their_contracts >/tmp/w24b-mut4.out 2>&1; status=$?; printf '"'M4 ci hook: dry-run targeted exit=%s; expected nonzero => %s\\n' \""'$status" "$([[ $status -ne 0 ]] && echo CAUGHT || echo MISSED)" | tee -a ../waves/RW-23/mutation-w24b.log; tail -n 16 /tmp/w24b-mut4.out; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract ci_and_release_dry_runs_keep_their_contracts >/tmp/w24b-mut4.out 2>&1; status=$?; printf '"'M4 ci hook: dry-run targeted exit=%s; expected nonzero => %s\\n' \""'$status" "$([[ $status -ne 0 ]] && echo CAUGHT || echo MISSED)" | tee -a ../waves/RW-23/mutation-w24b.log; tail -n 16 /tmp/w24b-mut4.out; exit 0' in /home/user/orca/project
  succeeded in 0ms:
 M4 ci hook: dry-run targeted exit=101; expected nonzero => CAUGHT
 
@@ -16434,7 +16434,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 
 apply patch
 patch: completed
-/home/sanya/orca/project/scripts/ci.sh
+/home/user/orca/project/scripts/ci.sh
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -17467,7 +17467,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 codex
 Все четыре мутации дали caught и восстановлены. Поскольку контрактный конфликт не разрешён, финальный targeted-повтор фиксирует текущее состояние явно: генерация и CI dry-run тесты проходят, единственный отказ остаётся на требовании `--check` пройти с lock-файлом, содержащим CDLA и неустановленные platform crates; полный workspace не запускаю.
 exec
-/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b.log; status=${PIPESTATUS[0]}; printf '"'\\nTARGETED_REPEAT_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b.log; exit 0' in /home/sanya/orca/project
+/usr/bin/bash -lc 'set +e; cd rust; flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-conformance --test sbom_contract 2>&1 | tee ../waves/RW-23/green-w24b.log; status=${PIPESTATUS[0]}; printf '"'\\nTARGETED_REPEAT_EXIT=%s\\n' \""'$status" | tee -a ../waves/RW-23/green-w24b.log; exit 0' in /home/user/orca/project
  succeeded in 0ms:
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
      Running tests/sbom_contract.rs (target/debug/deps/sbom_contract-1b7fddfd11780ffb)
@@ -17856,7 +17856,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 +}
 
 exec
-/usr/bin/bash -lc "rg -n 'SPDX-2\\.|slice\\(0, 10\\)|Mutation:|sbom.mjs --check|sha256sum|sbom.spdx.json' scripts/sbom.mjs scripts/ci.sh scripts/release.sh rust/crates/discord-conformance/tests/sbom_contract.rs; md5sum scripts/sbom.mjs scripts/ci.sh scripts/release.sh rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23/red-w24b.log waves/RW-23/green-w24b.log waves/RW-23/mutation-w24b.log; git status --short -- scripts/sbom.mjs scripts/ci.sh scripts/release.sh rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n 'SPDX-2\\.|slice\\(0, 10\\)|Mutation:|sbom.mjs --check|sha256sum|sbom.spdx.json' scripts/sbom.mjs scripts/ci.sh scripts/release.sh rust/crates/discord-conformance/tests/sbom_contract.rs; md5sum scripts/sbom.mjs scripts/ci.sh scripts/release.sh rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23/red-w24b.log waves/RW-23/green-w24b.log waves/RW-23/mutation-w24b.log; git status --short -- scripts/sbom.mjs scripts/ci.sh scripts/release.sh rust/crates/discord-conformance/tests/sbom_contract.rs waves/RW-23" in /home/user/orca/project
  succeeded in 0ms:
 rust/crates/discord-conformance/tests/sbom_contract.rs:40:             assert.equal(d.spdxVersion,'SPDX-2.3');\
 scripts/sbom.mjs:115:    spdxVersion: 'SPDX-2.3',
@@ -18229,7 +18229,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 +}
 
 exec
-/usr/bin/bash -lc 'cat waves/RW-23/mutation-w24b.log' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat waves/RW-23/mutation-w24b.log' in /home/user/orca/project
  succeeded in 0ms:
 M1 allowlist: --check-license MIT exit=1; expected 1 => CAUGHT
 M2 SPDX field: targeted generation exit=101; expected nonzero => CAUGHT
@@ -18581,7 +18581,7 @@ index 0000000000000000000000000000000000000000..e4f0811b0a3dcf17d5bf2d89b942cbb2
 
 apply patch
 patch: completed
-/home/sanya/orca/project/waves/RW-23/mutation-w24b.log
+/home/user/orca/project/waves/RW-23/mutation-w24b.log
 diff --git a/rust/crates/discord-conformance/tests/sbom_contract.rs b/rust/crates/discord-conformance/tests/sbom_contract.rs
 new file mode 100644
 index 0000000000000000000000000000000000000000..d204ef0055df2e7dc2b03202720c42d050b52616
@@ -19295,9 +19295,9 @@ index 2da648f6e2de977aaf0a26ec693e55eb750db728..1486d9e94308ecb3ec7a0295c1aef90e
 +M4 ci hook: dry-run targeted exit=101; expected nonzero => CAUGHT; исходник восстановлен.
 
 codex
-Реализованы офлайн-генератор SPDX 2.3, проверка allowlist, CI-хук и включение существующего SBOM в release checksum. Мутации allowlist, SPDX-поля, разбора Cargo.lock и CI-хука пойманы и восстановлены; результаты записаны в [mutation-w24b.log](/home/sanya/orca/project/waves/RW-23/mutation-w24b.log).
+Реализованы офлайн-генератор SPDX 2.3, проверка allowlist, CI-хук и включение существующего SBOM в release checksum. Мутации allowlist, SPDX-поля, разбора Cargo.lock и CI-хука пойманы и восстановлены; результаты записаны в [mutation-w24b.log](/home/user/orca/project/waves/RW-23/mutation-w24b.log).
 
-**Приёмочный конфликт:** полный targeted-прогон пока не зелёный: 3 из 4 тестов проходят, exit 101. Текущий Cargo.lock содержит `webpki-roots` с лицензией `CDLA-Permissive-2.0`, которой нет в заданном allowlist, и platform-пакеты без локальных манифестов, получающие `NOASSERTION`. Поэтому требование «`--check` проходит на текущем lock» противоречит требованиям отклонять неразрешённые и неизвестные лицензии. Я сохранил строгий allowlist и не стал подменять лицензии. Red зафиксирован с exit 101 в [red-w24b.log](/home/sanya/orca/project/waves/RW-23/red-w24b.log); итоговый повтор — в [green-w24b.log](/home/sanya/orca/project/waves/RW-23/green-w24b.log), но он также завершился exit 101.
+**Приёмочный конфликт:** полный targeted-прогон пока не зелёный: 3 из 4 тестов проходят, exit 101. Текущий Cargo.lock содержит `webpki-roots` с лицензией `CDLA-Permissive-2.0`, которой нет в заданном allowlist, и platform-пакеты без локальных манифестов, получающие `NOASSERTION`. Поэтому требование «`--check` проходит на текущем lock» противоречит требованиям отклонять неразрешённые и неизвестные лицензии. Я сохранил строгий allowlist и не стал подменять лицензии. Red зафиксирован с exit 101 в [red-w24b.log](/home/user/orca/project/waves/RW-23/red-w24b.log); итоговый повтор — в [green-w24b.log](/home/user/orca/project/waves/RW-23/green-w24b.log), но он также завершился exit 101.
 
 Изменены только четыре файла по ТЗ. `node --check`, `bash -n`, CI/release dry-run прошли; workspace не запускал. Коммита нет.
 
@@ -19660,9 +19660,9 @@ index 2da648f6e2de977aaf0a26ec693e55eb750db728..1486d9e94308ecb3ec7a0295c1aef90e
 
 tokens used
 82 906
-Реализованы офлайн-генератор SPDX 2.3, проверка allowlist, CI-хук и включение существующего SBOM в release checksum. Мутации allowlist, SPDX-поля, разбора Cargo.lock и CI-хука пойманы и восстановлены; результаты записаны в [mutation-w24b.log](/home/sanya/orca/project/waves/RW-23/mutation-w24b.log).
+Реализованы офлайн-генератор SPDX 2.3, проверка allowlist, CI-хук и включение существующего SBOM в release checksum. Мутации allowlist, SPDX-поля, разбора Cargo.lock и CI-хука пойманы и восстановлены; результаты записаны в [mutation-w24b.log](/home/user/orca/project/waves/RW-23/mutation-w24b.log).
 
-**Приёмочный конфликт:** полный targeted-прогон пока не зелёный: 3 из 4 тестов проходят, exit 101. Текущий Cargo.lock содержит `webpki-roots` с лицензией `CDLA-Permissive-2.0`, которой нет в заданном allowlist, и platform-пакеты без локальных манифестов, получающие `NOASSERTION`. Поэтому требование «`--check` проходит на текущем lock» противоречит требованиям отклонять неразрешённые и неизвестные лицензии. Я сохранил строгий allowlist и не стал подменять лицензии. Red зафиксирован с exit 101 в [red-w24b.log](/home/sanya/orca/project/waves/RW-23/red-w24b.log); итоговый повтор — в [green-w24b.log](/home/sanya/orca/project/waves/RW-23/green-w24b.log), но он также завершился exit 101.
+**Приёмочный конфликт:** полный targeted-прогон пока не зелёный: 3 из 4 тестов проходят, exit 101. Текущий Cargo.lock содержит `webpki-roots` с лицензией `CDLA-Permissive-2.0`, которой нет в заданном allowlist, и platform-пакеты без локальных манифестов, получающие `NOASSERTION`. Поэтому требование «`--check` проходит на текущем lock» противоречит требованиям отклонять неразрешённые и неизвестные лицензии. Я сохранил строгий allowlist и не стал подменять лицензии. Red зафиксирован с exit 101 в [red-w24b.log](/home/user/orca/project/waves/RW-23/red-w24b.log); итоговый повтор — в [green-w24b.log](/home/user/orca/project/waves/RW-23/green-w24b.log), но он также завершился exit 101.
 
 Изменены только четыре файла по ТЗ. `node --check`, `bash -n`, CI/release dry-run прошли; workspace не запускал. Коммита нет.
 

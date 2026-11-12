@@ -6,11 +6,11 @@
 
 ### P2 — пустой READY оставляет устаревшие плитки в рейле
 
-[dispatch-model.js](/home/sanya/orca/project/rust/gui-spike/ui/features/dispatch-model.js:487): `projectReady` сохраняет пустой полный snapshot в store, но возвращает `[]` при `guilds.length === 0`. Поэтому `dispatch-view` не вызывает `rail.applyGuilds([])`, и ранее показанные серверы остаются в DOM. Это нарушает READY как полный snapshot и контракт очистки отсутствующих гильдий; валидный аккаунт без серверов также не сможет отобразить пустое состояние. В тестах нет кейса «непустой READY → пустой READY».
+[dispatch-model.js](/home/user/orca/project/rust/gui-spike/ui/features/dispatch-model.js:487): `projectReady` сохраняет пустой полный snapshot в store, но возвращает `[]` при `guilds.length === 0`. Поэтому `dispatch-view` не вызывает `rail.applyGuilds([])`, и ранее показанные серверы остаются в DOM. Это нарушает READY как полный snapshot и контракт очистки отсутствующих гильдий; валидный аккаунт без серверов также не сможет отобразить пустое состояние. В тестах нет кейса «непустой READY → пустой READY».
 
 ### P2 — числовой self ID может потерять точность
 
-[app.js](/home/sanya/orca/project/rust/gui-spike/ui/app.js:1184): `ready()` принимает `user.id` как `number` и приводит через `String()`. Для integer вне `Number.MAX_SAFE_INTEGER` точность уже потеряна до преобразования; сравнение с `user_id` из dispatch тогда неверно, и `me` у реакций может быть ошибочным. Тест подтверждает строковый snowflake и строкификацию отрицательного числа, но не проверяет unsafe integer на IPC-границе. Идентификатор следует принимать только строкой либо проверять безопасный диапазон до преобразования.
+[app.js](/home/user/orca/project/rust/gui-spike/ui/app.js:1184): `ready()` принимает `user.id` как `number` и приводит через `String()`. Для integer вне `Number.MAX_SAFE_INTEGER` точность уже потеряна до преобразования; сравнение с `user_id` из dispatch тогда неверно, и `me` у реакций может быть ошибочным. Тест подтверждает строковый snowflake и строкификацию отрицательного числа, но не проверяет unsafe integer на IPC-границе. Идентификатор следует принимать только строкой либо проверять безопасный диапазон до преобразования.
 
 ## Проверки
 

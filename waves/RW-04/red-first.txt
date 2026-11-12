@@ -73,7 +73,7 @@ warning: multiple fields are never read
 
 warning: `discord-core` (lib) generated 8 warnings (run `cargo fix --lib -p discord-core` to apply 7 suggestions)
 warning: `discord-core` (lib test) generated 8 warnings (8 duplicates)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.52s
      Running unittests src/lib.rs (target/debug/deps/discord_core-727086b8c91340bb)
 

@@ -202,7 +202,7 @@ StateDiagnostics {
 | W13c | `rust/crates/discord-core/src/state/selectors.rs`, `tests/state_selectors.rs` |
 | координатор | `src/state/mod.rs`, `src/lib.rs`, видимость `ready/guild.rs`/`ready/social.rs`, `tests/support/state_fixture.rs`, `tests/support/mod.rs`, `waves/RW-13/*` |
 
-Запрещено: чужие тесты, `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep`,
+Запрещено: чужие тесты, `logs/`, `functions/`, `evidence/`, `reference-oracle/`,
 `Cargo.toml`, сеть, SQLite/UI/новые зависимости.
 
 ## 10. Оракулы и приёмка

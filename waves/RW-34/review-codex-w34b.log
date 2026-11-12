@@ -1,6 +1,6 @@
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -13,7 +13,7 @@ user
 Независимое ревью RW-34b (расширенные hints a{sv}).
 
 ПРАВИЛА:
-1. НЕ редактируй /home/sanya/orca/project; писать только /tmp/opencode/w34-codex (<50 МБ).
+1. НЕ редактируй /home/user/orca/project; писать только /tmp/opencode/w34-codex (<50 МБ).
 2. НЕ копируй workspace/repo/target. Cargo: CARGO_TARGET_DIR=/tmp/opencode/target-codex-w34.
 3. Без сети/live/commit.
 
@@ -33,19 +33,19 @@ user
 В конце: вердикт (принято/доработка) и P0/P1/P2/P3 с файлом:строкой.
 
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сверю сначала состояние HEAD и указанные артефакты RW-34b с правилами проекта, затем воспроизведу тесты и независимые DBus/мутационные проверки. Репозиторий останется без изменений; для исполняемых проверок использую только разрешённую временную копию и отдельный Cargo target.
 exec
-/usr/bin/bash -lc "git status --short && git rev-parse HEAD && sed -n '1,220p' PROJECT-CONTEXT.md && rg -n \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md TEAM.md waves/STATE.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "git status --short && git rev-parse HEAD && sed -n '1,220p' PROJECT-CONTEXT.md && rg -n \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md TEAM.md waves/STATE.md" in /home/user/orca/project
  exited 2 in 0ms:
  M rust/crates/discord-platform/src/dbus/mod.rs
  M rust/crates/discord-platform/src/notifications.rs
@@ -61,7 +61,7 @@ c2c3f7525b7c74b71a4a8360d434a0d8d5ceb705
 
 ## Состояние
 
-- `/home/sanya/orca/project`, `main`, HEAD `86d260b`; RW-10…RW-32 закоммичены и запушены; RW-33 — коммит следующим шагом;
+- `/home/user/orca/project`, `main`, HEAD `86d260b`; RW-10…RW-32 закоммичены и запушены; RW-33 — коммит следующим шагом;
   коммиты/пуш — координатор.
 - **Принято 46 / 90** карточек (хвосты P7-01b/c/d/e и P6-02b в 90 не входят). Последние волны 2026-10-22:
   - **RW-33**: P1-10 keyring через libsecret FFI (live ksecretd + secret-tool);
@@ -93,7 +93,7 @@ c2c3f7525b7c74b71a4a8360d434a0d8d5ceb705
 ## Правила (кратко)
 
 - Strict TDD; только назначенные файлы; shared-файлы и `waves/*` — Team Lead/Tech Lead.
-- Golden `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение.
+- Golden `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение.
 - Без сети, установок, `package.json`-правок, live Discord и commit/push без разрешения.
 - Один `cargo` за раз; в batch полный gate — один раз в integration-лейне.
 
@@ -116,14 +116,14 @@ MCP: rea, socraticode, github, basic-memory, context7.
   `STATE.md`/`ROADMAP.md`/`TASKS.md` используют **B07 = GUI/keyring/SQLite**; WAVE-PLAN
   ждёт синхронизации TL. B10 (RW-28/RW-29) в WAVE-PLAN не отражён — как и прежние B06/B09.
 - RTP-фикстура `fixtures/voice/rtp-pt120-oracle.json` получена из golden-pcap
-  `/home/sanya/re-deep/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
-  (md5 `798dd8ae…`); путь `/home/sanya/qwen-uncens` из запроса не существует.
+  `/home/user/clean-room-oracle/voice/voice-udp4.pcap` генератором `waves/RW-29/gen-rtp-oracle.py`
+  (md5 `798dd8ae…`); путь `/home/user/qwen-uncens` из запроса не существует.
 - P3-бэклоги RW-26/RW-27 (SRTCP-трейлер, bounded `seen`, Exec `Name`-escaping,
   `ru-RU`-fallback) — в `waves/STATE.md` §7.
 rg: TEAM.md: No such file or directory (os error 2)
 
 exec
-/usr/bin/bash -lc "sed -n '1,180p' .agents/skills/discord-lab-context/SKILL.md 2>/dev/null || sed -n '1,180p' /home/sanya/orca/project/.agents/skills/discord-lab-context/SKILL.md; rg -n -C 3 \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md docs/rust-client/TEAM.md waves/STATE.md waves/RW-34" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,180p' .agents/skills/discord-lab-context/SKILL.md 2>/dev/null || sed -n '1,180p' /home/user/orca/project/.agents/skills/discord-lab-context/SKILL.md; rg -n -C 3 \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md docs/rust-client/TEAM.md waves/STATE.md waves/RW-34" in /home/user/orca/project
  succeeded in 0ms:
 ---
 name: discord-lab-context
@@ -160,7 +160,7 @@ Tauri). Разработка идёт волнами по hard TDD. Источн
 ## Только для чтения
 
 - `logs/`, `functions/`, `evidence/` — golden (не перезаписывать, не переименовывать).
-- `/home/sanya/re-deep/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
+- `/home/user/clean-room-oracle/` — внешние оракулы RE (`gw-proto/`, `rest-static.json`).
 
 ## Команды
 
@@ -200,7 +200,7 @@ waves/RW-34/review-codex-w34b.log-12-user
 waves/RW-34/review-codex-w34b.log:13:Независимое ревью RW-34b (расширенные hints a{sv}).
 waves/RW-34/review-codex-w34b.log-14-
 waves/RW-34/review-codex-w34b.log-15-ПРАВИЛА:
-waves/RW-34/review-codex-w34b.log-16-1. НЕ редактируй /home/sanya/orca/project; писать только /tmp/opencode/w34-codex (<50 МБ).
+waves/RW-34/review-codex-w34b.log-16-1. НЕ редактируй /home/user/orca/project; писать только /tmp/opencode/w34-codex (<50 МБ).
 --
 waves/RW-34/review-codex-w34b.log-18-3. Без сети/live/commit.
 waves/RW-34/review-codex-w34b.log-19-
@@ -214,12 +214,12 @@ waves/RW-34/review-codex-w34b.log-26-
 waves/RW-34/review-codex-w34b.log-27-Воспроизведи:
 waves/RW-34/review-codex-w34b.log-28-1. cargo test --offline -p discord-platform --test notifications_contract -- --nocapture (25 passed; harness-SKIP только live).
 --
-waves/RW-34/review-codex-w34b.log-43-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+waves/RW-34/review-codex-w34b.log-43-  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
 waves/RW-34/review-codex-w34b.log-44-  ... and 6 more ignored settings.
 waves/RW-34/review-codex-w34b.log-45-codex
 waves/RW-34/review-codex-w34b.log:46:Сверю сначала состояние HEAD и указанные артефакты RW-34b с правилами проекта, затем воспроизведу тесты и независимые DBus/мутационные проверки. Репозиторий останется без изменений; для исполняемых проверок использую только разрешённую временную копию и отдельный Cargo target.
 waves/RW-34/review-codex-w34b.log-47-exec
-waves/RW-34/review-codex-w34b.log:48:/usr/bin/bash -lc "git status --short && git rev-parse HEAD && sed -n '1,220p' PROJECT-CONTEXT.md && rg -n \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md TEAM.md waves/STATE.md" in /home/sanya/orca/project
+waves/RW-34/review-codex-w34b.log:48:/usr/bin/bash -lc "git status --short && git rev-parse HEAD && sed -n '1,220p' PROJECT-CONTEXT.md && rg -n \"RW-34b|W34b\" TASKS.md TDD-PLAN.md PROCESS.md TEAM.md waves/STATE.md" in /home/user/orca/project
 waves/RW-34/review-codex-w34b.log-49- exited 2 in 0ms:
 waves/RW-34/review-codex-w34b.log-50- M rust/crates/discord-platform/src/dbus/mod.rs
 waves/RW-34/review-codex-w34b.log-51- M rust/crates/discord-platform/src/notifications.rs
@@ -352,7 +352,7 @@ waves/RW-34/dbus/mock_hints2.py-8-Отличие от `waves/RW-30/dbus/mock_ser
 codex
 В дереве есть незакоммиченные изменения как раз в проверяемых файлах и параллельная часть RW-34a; их не буду затрагивать. Проверяю размеры исходников и механику мутационного скрипта, чтобы собрать минимальную временную копию без `target` и уложиться в лимит.
 exec
-/usr/bin/bash -lc "sed -n '1,180p' waves/RW-34/TZ-W34b.md; sed -n '1,200p' rust/crates/discord-platform/src/notifications.rs; sed -n '1,260p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '1,240p' waves/RW-34/run-mutations-w34b.py; du -sh rust rust/crates/discord-platform waves/RW-34 fixtures/dbus/hints-ext.json" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,180p' waves/RW-34/TZ-W34b.md; sed -n '1,200p' rust/crates/discord-platform/src/notifications.rs; sed -n '1,260p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '1,240p' waves/RW-34/run-mutations-w34b.py; du -sh rust rust/crates/discord-platform waves/RW-34 fixtures/dbus/hints-ext.json" in /home/user/orca/project
  succeeded in 0ms:
 # TZ W34b — P6-02d расширенные hints уведомлений (headless)
 
@@ -1119,7 +1119,7 @@ def main():
 12K	fixtures/dbus/hints-ext.json
 
 exec
-/usr/bin/bash -lc "du -sh --exclude=target rust; sed -n '1,140p' waves/RW-34/REPORT-W34b.md; sed -n '1,220p' waves/RW-34/mutations-w34b.log; rg -n \"e0[1-7]|mock_hints2|hints-ext|notify_with_hints|unsafe|unwrap\\(|panic"'!|NOTIFY_SIGNATURE" rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/src/notifications.rs waves/RW-34/dbus/mock_hints2.py' in /home/sanya/orca/project
+/usr/bin/bash -lc "du -sh --exclude=target rust; sed -n '1,140p' waves/RW-34/REPORT-W34b.md; sed -n '1,220p' waves/RW-34/mutations-w34b.log; rg -n \"e0[1-7]|mock_hints2|hints-ext|notify_with_hints|unsafe|unwrap\\(|panic"'!|NOTIFY_SIGNATURE" rust/crates/discord-platform/tests/notifications_contract.rs rust/crates/discord-platform/src/notifications.rs waves/RW-34/dbus/mock_hints2.py' in /home/user/orca/project
  succeeded in 0ms:
 58M	rust
 # REPORT W34b — P6-02d расширенные hints `a{sv}` (headless)
@@ -1243,7 +1243,7 @@ restore из снимка с проверкой md5.
 ## 7. Воспроизведение фикстуры
 
 ```sh
-cd /home/sanya/orca/project && python3 waves/RW-34/dbus/gen-hints-ext.py
+cd /home/user/orca/project && python3 waves/RW-34/dbus/gen-hints-ext.py
 # hints-ext.json: 6 наборов
 # md5 fixtures/dbus/hints-ext.json = d199e7aaa31248a3e81f6a4f0155b325
 ```
@@ -1380,9 +1380,9 @@ rust/crates/discord-platform/tests/notifications_contract.rs:1615:            no
 rust/crates/discord-platform/tests/notifications_contract.rs:1634:        .unwrap_or_else(|err| panic!("{name}: сборка сообщения: {err:?}"));
 
 exec
-/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w34 cargo test --offline -p discord-platform --test notifications_contract -- --nocapture' in /home/sanya/orca/project/rust
+/usr/bin/bash -lc 'CARGO_TARGET_DIR=/tmp/opencode/target-codex-w34 cargo test --offline -p discord-platform --test notifications_contract -- --nocapture' in /home/user/orca/project/rust
  succeeded in 565ms:
-   Compiling discord-platform v0.1.0 (/home/sanya/orca/project/rust/crates/discord-platform)
+   Compiling discord-platform v0.1.0 (/home/user/orca/project/rust/crates/discord-platform)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
      Running tests/notifications_contract.rs (/tmp/opencode/target-codex-w34/debug/deps/notifications_contract-46ee250d2c4bcc41)
 
@@ -1451,7 +1451,7 @@ print('cases', len(d['cases']))
 for c in d['cases']:
  print(c['name'], c.get('notify_hex','')[:16], c.keys())
 PY
-md5sum rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/tests/notifications_contract.rs waves/RW-34/dbus/mock_hints2.py waves/RW-34/dbus/gen-hints-ext.py fixtures/dbus/hints-ext.json waves/RW-34/run-mutations-w34b.py waves/RW-34/workers/W34b/red.log waves/RW-34/workers/W34b/green.log waves/RW-34/mutations-w34b.log" in /home/sanya/orca/project
+md5sum rust/crates/discord-platform/src/notifications.rs rust/crates/discord-platform/tests/notifications_contract.rs waves/RW-34/dbus/mock_hints2.py waves/RW-34/dbus/gen-hints-ext.py fixtures/dbus/hints-ext.json waves/RW-34/run-mutations-w34b.py waves/RW-34/workers/W34b/red.log waves/RW-34/workers/W34b/green.log waves/RW-34/mutations-w34b.log" in /home/user/orca/project
  succeeded in 0ms:
 # Каркас нативного клиента Discord на Rust (фазы P0/P1 плана docs/rust-client/PLAN.md).
 # Внешние зависимости: ruzstd 0.9.1 (чистый Rust, карточка RW-02) и — с RW-04 — транспорт
@@ -1733,7 +1733,7 @@ be0568de858d20dc1a049fbfae262a78  waves/RW-34/run-mutations-w34b.py
 49790fd0ceae0d8ec1d690e14a0b85d5  waves/RW-34/mutations-w34b.log
 
 exec
-/usr/bin/bash -lc "sed -n '560,640p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '940,1010p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '1560,1650p' rust/crates/discord-platform/tests/notifications_contract.rs; rg -n \"unsafe|\\bunwrap\\(|panic"'!|NOTIFY_SIGNATURE" rust/crates/discord-platform/src/notifications.rs; git status --short' in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '560,640p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '940,1010p' rust/crates/discord-platform/tests/notifications_contract.rs; sed -n '1560,1650p' rust/crates/discord-platform/tests/notifications_contract.rs; rg -n \"unsafe|\\bunwrap\\(|panic"'!|NOTIFY_SIGNATURE" rust/crates/discord-platform/src/notifications.rs; git status --short' in /home/user/orca/project
  succeeded in 0ms:
 // =================================================================================
 // W32b (P6-02b): hints `a{sv}`. Оракул — `waves/RW-32/dbus/mock_hints.py` на libdbus:
@@ -1989,20 +1989,20 @@ fn e07_hints_bytes_match_libgio_and_round_trip() {
 codex
 **Вердикт: доработка проверки; дефектов реализации не обнаружено.**
 
-- **P2 — [notifications_contract.rs](/home/sanya/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:589):** targeted-прогон завершился `25 passed`, но приватный `dbus-daemon` не смог bind-ить сокет (`Operation not permitted`). Поэтому DBus-тесты прошли через harness-SKIP; кроме намеренного live-skip, это не соответствует заявленному условию «SKIP только live». Среда не позволяет подтвердить прохождение e01–e06 через libdbus-мок.
-- **P2 — [run-mutations-w34b.py](/home/sanya/orca/project/waves/RW-34/run-mutations-w34b.py:174):** приложенный журнал сообщает baseline `SKIP=0` и 6/6 убитых мутаций, но независимо воспроизвести мутации в разрешённых условиях не удалось: скрипт пишет в исходники workspace, а копия ограничена 50 МБ. В текущей среде baseline также не может быть `SKIP=0`. Требуется повторить DBus-прогон и мутации в среде, где разрешён bind приватного сокета и доступна изолированная копия.
+- **P2 — [notifications_contract.rs](/home/user/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:589):** targeted-прогон завершился `25 passed`, но приватный `dbus-daemon` не смог bind-ить сокет (`Operation not permitted`). Поэтому DBus-тесты прошли через harness-SKIP; кроме намеренного live-skip, это не соответствует заявленному условию «SKIP только live». Среда не позволяет подтвердить прохождение e01–e06 через libdbus-мок.
+- **P2 — [run-mutations-w34b.py](/home/user/orca/project/waves/RW-34/run-mutations-w34b.py:174):** приложенный журнал сообщает baseline `SKIP=0` и 6/6 убитых мутаций, но независимо воспроизвести мутации в разрешённых условиях не удалось: скрипт пишет в исходники workspace, а копия ограничена 50 МБ. В текущей среде baseline также не может быть `SKIP=0`. Требуется повторить DBus-прогон и мутации в среде, где разрешён bind приватного сокета и доступна изолированная копия.
 
-e07 прошёл и сверил фикстуру libgio: сигнатуру `Notify`, форму и порядок `a{sv}`, типы значений и побайтовое совпадение собранного сообщения. В [notifications.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/notifications.rs:28) сигнатура `susssasa{sv}i` сохранена; восемь полей, порядок, фильтрация пустых строк и запись `Some(false)` соответствуют контракту. В продуктовом модуле нет `unsafe`, `panic!` или `unwrap()`.
+e07 прошёл и сверил фикстуру libgio: сигнатуру `Notify`, форму и порядок `a{sv}`, типы значений и побайтовое совпадение собранного сообщения. В [notifications.rs](/home/user/orca/project/rust/crates/discord-platform/src/notifications.rs:28) сигнатура `susssasa{sv}i` сохранена; восемь полей, порядок, фильтрация пустых строк и запись `Some(false)` соответствуют контракту. В продуктовом модуле нет `unsafe`, `panic!` или `unwrap()`.
 
 MD5 указанных файлов совпали со значениями в отчёте; рабочее дерево осталось без изменений. **P0/P1/P3: 0.**
 tokens used
 49 562
 **Вердикт: доработка проверки; дефектов реализации не обнаружено.**
 
-- **P2 — [notifications_contract.rs](/home/sanya/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:589):** targeted-прогон завершился `25 passed`, но приватный `dbus-daemon` не смог bind-ить сокет (`Operation not permitted`). Поэтому DBus-тесты прошли через harness-SKIP; кроме намеренного live-skip, это не соответствует заявленному условию «SKIP только live». Среда не позволяет подтвердить прохождение e01–e06 через libdbus-мок.
-- **P2 — [run-mutations-w34b.py](/home/sanya/orca/project/waves/RW-34/run-mutations-w34b.py:174):** приложенный журнал сообщает baseline `SKIP=0` и 6/6 убитых мутаций, но независимо воспроизвести мутации в разрешённых условиях не удалось: скрипт пишет в исходники workspace, а копия ограничена 50 МБ. В текущей среде baseline также не может быть `SKIP=0`. Требуется повторить DBus-прогон и мутации в среде, где разрешён bind приватного сокета и доступна изолированная копия.
+- **P2 — [notifications_contract.rs](/home/user/orca/project/rust/crates/discord-platform/tests/notifications_contract.rs:589):** targeted-прогон завершился `25 passed`, но приватный `dbus-daemon` не смог bind-ить сокет (`Operation not permitted`). Поэтому DBus-тесты прошли через harness-SKIP; кроме намеренного live-skip, это не соответствует заявленному условию «SKIP только live». Среда не позволяет подтвердить прохождение e01–e06 через libdbus-мок.
+- **P2 — [run-mutations-w34b.py](/home/user/orca/project/waves/RW-34/run-mutations-w34b.py:174):** приложенный журнал сообщает baseline `SKIP=0` и 6/6 убитых мутаций, но независимо воспроизвести мутации в разрешённых условиях не удалось: скрипт пишет в исходники workspace, а копия ограничена 50 МБ. В текущей среде baseline также не может быть `SKIP=0`. Требуется повторить DBus-прогон и мутации в среде, где разрешён bind приватного сокета и доступна изолированная копия.
 
-e07 прошёл и сверил фикстуру libgio: сигнатуру `Notify`, форму и порядок `a{sv}`, типы значений и побайтовое совпадение собранного сообщения. В [notifications.rs](/home/sanya/orca/project/rust/crates/discord-platform/src/notifications.rs:28) сигнатура `susssasa{sv}i` сохранена; восемь полей, порядок, фильтрация пустых строк и запись `Some(false)` соответствуют контракту. В продуктовом модуле нет `unsafe`, `panic!` или `unwrap()`.
+e07 прошёл и сверил фикстуру libgio: сигнатуру `Notify`, форму и порядок `a{sv}`, типы значений и побайтовое совпадение собранного сообщения. В [notifications.rs](/home/user/orca/project/rust/crates/discord-platform/src/notifications.rs:28) сигнатура `susssasa{sv}i` сохранена; восемь полей, порядок, фильтрация пустых строк и запись `Some(false)` соответствуют контракту. В продуктовом модуле нет `unsafe`, `panic!` или `unwrap()`.
 
 MD5 указанных файлов совпали со значениями в отчёте; рабочее дерево осталось без изменений. **P0/P1/P3: 0.**
 CODEX_EXIT=0

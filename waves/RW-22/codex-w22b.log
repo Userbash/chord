@@ -1,7 +1,7 @@
 Reading additional input from stdin...
 OpenAI Codex v0.162.1
 --------
-workdir: /home/sanya/orca/project
+workdir: /home/user/orca/project
 model: gpt-6-luna
 provider: codexsale
 approval: never
@@ -11,23 +11,23 @@ reasoning summaries: none
 session id: 01a15d27-510d-7903-8203-9a66cedcb287
 --------
 user
-Ты — кодовый воркер W22b волны RW-22 в репозитории /home/sanya/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22b.md. Выполни P4-01 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-voice/** (включая Cargo.toml). Не трогай workspace Cargo.toml/Cargo.lock, другие крейты, доки и waves/*. Используй foundation discord-json через workspace dependency. Для любых cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, DNS/TCP/UDP/TLS/WS-подключений, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, redaction-доказательство, риски, отложенное в P4-02.
+Ты — кодовый воркер W22b волны RW-22 в репозитории /home/user/orca/project. Прочитай AGENTS.md, PROCESS.md §4, waves/RW-22/WAVE-PLAN.md и своё ТЗ waves/RW-22/TZ-W22b.md. Выполни P4-01 строго по ТЗ: strict TDD (тесты первыми, red-лог), затем реализация до green. Твои файлы — только rust/crates/discord-voice/** (включая Cargo.toml). Не трогай workspace Cargo.toml/Cargo.lock, другие крейты, доки и waves/*. Используй foundation discord-json через workspace dependency. Для любых cargo-команд используй flock /tmp/opencode/discord-cargo.lock и --offline. Никакой сети, DNS/TCP/UDP/TLS/WS-подключений, live Discord, коммитов/push. Не запускай cargo test --workspace. Верни краткий отчёт: red/green команды и exit, файлы, число тестов, redaction-доказательство, риски, отложенное в P4-02.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 warning: Codex is ignoring 9 unrecognized configuration settings. Check for typos or deprecated settings.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
-  user (/home/sanya/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.chat_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.codex_endpoint` is ignored.
+  user (/home/user/.local/share/codex-resume-home/config.toml): `model_providers.codex-sale.models_endpoint` is ignored.
   ... and 6 more ignored settings.
 codex
 Сначала прочитаю обязательные процессные документы и карточку W22b, затем проверю состояние разрешённых файлов и выполню red-прогон до реализации. Все Cargo-команды проведу под указанным `flock` и с `--offline`; workspace-тесты запускать не буду.
 exec
-/usr/bin/bash -lc "pwd && rg --files -g 'AGENTS.md' -g 'PROCESS.md' -g 'WAVE-PLAN.md' -g 'TZ-W22b.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' | sort" in /home/sanya/orca/project
+/usr/bin/bash -lc "pwd && rg --files -g 'AGENTS.md' -g 'PROCESS.md' -g 'WAVE-PLAN.md' -g 'TZ-W22b.md' -g 'TEAM.md' -g 'TASKS.md' -g 'TDD-PLAN.md' -g 'STATE.md' | sort" in /home/user/orca/project
  succeeded in 0ms:
-/home/sanya/orca/project
+/home/user/orca/project
 AGENTS.md
 PROCESS.md
 TASKS.md
@@ -39,9 +39,9 @@ waves/RW-22/WAVE-PLAN.md
 waves/STATE.md
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' AGENTS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' AGENTS.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' PROCESS.md" in /home/user/orca/project
  succeeded in 0ms:
 # AGENTS.md — правила агентов в discord-lab
 
@@ -167,7 +167,7 @@ exec
 | Integration/build engineer | агент | сведение batch, `cargo`-прогоны, `gate:worker`, артефакты | не переписывает логику авторов |
 | Docs/journal engineer | агент/Team Lead | `STATE`/`STATUS`/`ROADMAP`/`TASKS`/`db.jsonl`/`map` **после** accepted | не обновляет доки в red-фазе |
 | Release/qualification engineer | L1 (Team Lead) | `gate:release`/`gate:qualify`, kit, qualification, откат | не выпускает без приёмки |
-| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/sanya/re-deep` — только чтение | не переименовывает и не «нормализует» golden |
+| Golden-keeper | все | `logs/`, `functions/`, `evidence/`, `/home/user/clean-room-oracle` — только чтение | не переименовывает и не «нормализует» golden |
 
 Координатор (Team Lead) сам делает только непараллелизуемое: очередь, ТЗ, контракты, интеграцию
 общих файлов, приёмку, выпуск и финальный журнал. Всё делимое уходит воркерам и Quality-гильдии.
@@ -362,20 +362,20 @@ DoD: red-лог с exit code; зелёный targeted; отчёт §4.2; фай�
 - [ ] пробный прогон на одном объекте;
 
 exec
-/usr/bin/bash -lc "sed -n '1,260p' waves/RW-22/TZ-W22b.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' waves/RW-22/TZ-W22b.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,240p' waves/RW-22/WAVE-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' waves/RW-22/WAVE-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 # ТЗ W22b — P4-01: headless RTC signaling
 
-Волна: RW-22 / B03. Владелец: W22b. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-22 / B03. Владелец: W22b. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
 `AGENTS.md`, `PROCESS.md` §4, `waves/RW-22/WAVE-PLAN.md`, `docs/re/voice-deep.md` §1,
 `docs/rust-client/PLAN.md` (P4-01), `docs/rust-client/TEST-PLAN.md` (T-VOICE-01…03),
 `rust/crates/discord-json/src/lib.rs`, `rust/crates/discord-voice/src/lib.rs`,
-`/home/sanya/re-deep/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
+`/home/user/clean-room-oracle/voice/rtc1-frames.jsonl`, `rtc2-frames.jsonl`,
 `rtc1-summary.json`, `rtc2-summary.json`.
 
 Твои файлы — **только** `rust/crates/discord-voice/**` (включая его `Cargo.toml`). Не трогай
@@ -387,7 +387,7 @@ exec
 Strict TDD. Сначала контрактные тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice \
   2>&1 | tee ../waves/RW-22/red-w22b.log
 ```
@@ -471,7 +471,7 @@ pub fn select_region(samples: &[(String, u32)], geo: &[String],
 1. Все 9 op из `OBSERVED_RTC_OPS`, mapping round-trip; неизвестный op.
 2. Реальные `rtc1`/`rtc2` wrappers: распаковать `payload`, `parse_frame`, проверить Hello v8
    13750, Ready ssrc/port/ip/modes, SessionDescription mode/key length/versions. Если
-   `/home/sanya/re-deep` нет — skip с причиной.
+   `/home/user/clean-room-oracle` нет — skip с причиной.
 3. Identify из capture: server/channel/user ids, max_dave=1, video=true, stream rid/quality.
 4. Select Protocol: protocol udp, codecs opus/AV1, PT120/101, priority 1000.
 5. Secret key: 32 bytes из base64; неверная длина/алфавит; Debug/Display redaction
@@ -594,7 +594,7 @@ unicode (включая `\uD83D\uDE00`). Ошибка содержит байт�
 5. Только после accepted — синхронизация `STATE/STATUS/ROADMAP/TASKS/map` и `waves/db.jsonl`.
 
 exec
-/usr/bin/bash -lc 'git status --short' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short' in /home/user/orca/project
  succeeded in 0ms:
  M AGENTS.md
  M PROCESS.md
@@ -729,7 +729,7 @@ exec
 codex
 В рабочем дереве много заранее существующих изменений, включая незакоммиченные правки workspace и `discord-json`; их оставляю нетронутыми. Есть ограничение: ваше «только discord-voice/**» запрещает писать red/green-логи в `waves/RW-22`, хотя шаблон ТЗ указывает это место, поэтому сохраню логи в `/tmp` и выполню тесты штатной командой.
 exec
-/usr/bin/bash -lc 'cat rust/crates/discord-voice/Cargo.toml' in /home/sanya/orca/project
+/usr/bin/bash -lc 'cat rust/crates/discord-voice/Cargo.toml' in /home/user/orca/project
  succeeded in 0ms:
 [package]
 name = "discord-voice"
@@ -742,17 +742,17 @@ description = "Голосовая сигнализация RTC: SRTP, keepalive,
 unsafe_code = "forbid"
 
 exec
-/usr/bin/bash -lc "sed -n '1,240p' docs/re/voice-deep.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,240p' docs/re/voice-deep.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,280p' rust/crates/discord-voice/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,280p' rust/crates/discord-voice/src/lib.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-json/src/lib.rs" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '1,260p' rust/crates/discord-json/src/lib.rs" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "sed -n '180,285p' PROCESS.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "sed -n '180,285p' PROCESS.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'ls -l /home/sanya/re-deep/voice/rtc{1,2}-{frames.jsonl,summary.json}' in /home/sanya/orca/project
+/usr/bin/bash -lc 'ls -l /home/user/clean-room-oracle/voice/rtc{1,2}-{frames.jsonl,summary.json}' in /home/user/orca/project
 exec
-/usr/bin/bash -lc "rg -n -A80 -B15 'P4-01|T-VOICE-0' docs/rust-client/PLAN.md docs/rust-client/TEST-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -A80 -B15 'P4-01|T-VOICE-0' docs/rust-client/PLAN.md docs/rust-client/TEST-PLAN.md" in /home/user/orca/project
  succeeded in 0ms:
 //! # discord-json
 //!
@@ -1200,10 +1200,10 @@ discovery с тем же ssrc → новый NAT-порт → пустой RR �
    в этом отчёте крипто-поля даны наблюдательно (mode 5, tag 16, 4 Б LE-счётчик в хвосте, ключ 32 Б).
 
  succeeded in 0ms:
--rw-r--r-- 1 sanya sanya 3370 Oct 19 11:47 /home/sanya/re-deep/voice/rtc1-frames.jsonl
--rw-r--r-- 1 sanya sanya 4540 Oct 19 11:47 /home/sanya/re-deep/voice/rtc1-summary.json
--rw-r--r-- 1 sanya sanya 3217 Oct 19 11:48 /home/sanya/re-deep/voice/rtc2-frames.jsonl
--rw-r--r-- 1 sanya sanya 4267 Oct 19 11:48 /home/sanya/re-deep/voice/rtc2-summary.json
+-rw-r--r-- 1 user user 3370 Oct 19 11:47 /home/user/clean-room-oracle/voice/rtc1-frames.jsonl
+-rw-r--r-- 1 user user 4540 Oct 19 11:47 /home/user/clean-room-oracle/voice/rtc1-summary.json
+-rw-r--r-- 1 user user 3217 Oct 19 11:48 /home/user/clean-room-oracle/voice/rtc2-frames.jsonl
+-rw-r--r-- 1 user user 4267 Oct 19 11:48 /home/user/clean-room-oracle/voice/rtc2-summary.json
 
  succeeded in 0ms:
 3.15 **Пропускная способность и KPI.** Ориентир: **2–3 batch-волны в день** и **6–8 принятых
@@ -1525,7 +1525,7 @@ docs/rust-client/PLAN.md-197-| Блокировки/429 на живом акка
 docs/rust-client/PLAN.md-198-| Юридический | всегда | лицензия/README, свои ассеты, телеметрия off |
 
 exec
-/usr/bin/bash -lc 'head -12 /home/sanya/re-deep/voice/rtc1-frames.jsonl' in /home/sanya/orca/project
+/usr/bin/bash -lc 'head -12 /home/user/clean-room-oracle/voice/rtc1-frames.jsonl' in /home/user/orca/project
  succeeded in 0ms:
 {"dir":"in","op":8,"payload":"{\"op\":8,\"d\":{\"v\":8,\"heartbeat_interval\":13750}}"}
 {"dir":"in","op":2,"payload":"{\"op\":2,\"d\":{\"streams\":[{\"type\":\"video\",\"ssrc\":7143,\"rtx_ssrc\":7144,\"rid\":\"100\",\"quality\":100,\"active\":false}],\"ssrc\":7142,\"port\":19334,\"modes\":[\"aead_aes256_gcm_rtpsize\",\"aead_xchacha20_poly1305_rtpsize\"],\"ip\":\"104.29.147.33\",\"experiments\":[\"fixed_keyframe_interval\"]}}"}
@@ -1541,7 +1541,7 @@ exec
 {"dir":"in","op":6,"payload":"{\"op\":6,\"d\":{\"t\":1792391129447}}"}
 
 exec
-/usr/bin/bash -lc 'head -12 /home/sanya/re-deep/voice/rtc2-frames.jsonl' in /home/sanya/orca/project
+/usr/bin/bash -lc 'head -12 /home/user/clean-room-oracle/voice/rtc2-frames.jsonl' in /home/user/orca/project
  succeeded in 0ms:
 {"dir":"in","op":8,"payload":"{\"op\":8,\"d\":{\"v\":8,\"heartbeat_interval\":13750}}"}
 {"dir":"in","op":2,"payload":"{\"op\":2,\"d\":{\"streams\":[{\"type\":\"video\",\"ssrc\":17844,\"rtx_ssrc\":17845,\"rid\":\"100\",\"quality\":100,\"active\":false}],\"ssrc\":17843,\"port\":19309,\"modes\":[\"aead_aes256_gcm_rtpsize\",\"aead_xchacha20_poly1305_rtpsize\"],\"ip\":\"104.29.147.145\",\"experiments\":[\"fixed_keyframe_interval\"]}}"}
@@ -1557,11 +1557,11 @@ exec
 {"dir":"out","op":0,"payload":"{\"op\":0,\"d\":{\"server_id\":\"1014537851418980372\",\"channel_id\":\"1176785373989445703\",\"user_id\":\"384299970632876032\",\"session_id\":\"REDACTED\",\"token\":\"REDACTED\",\"max_dave_protocol_version\":1,\"video\":true,\"streams\":[{\"type\":\"video\",\"rid\":\"100\",\"quality\":100}]}}"}
 
 exec
-/usr/bin/bash -lc "rg -n 'discord-json' rust/Cargo.toml rust/crates/*/Cargo.toml" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n 'discord-json' rust/Cargo.toml rust/crates/*/Cargo.toml" in /home/user/orca/project
 exec
-/usr/bin/bash -lc "rg -n -A14 -B3 'P4-01|T-VOICE-01|T-VOICE-02|T-VOICE-03' docs/rust-client/PLAN.md docs/rust-client/TEST-PLAN.md" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n -A14 -B3 'P4-01|T-VOICE-01|T-VOICE-02|T-VOICE-03' docs/rust-client/PLAN.md docs/rust-client/TEST-PLAN.md" in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'rg --files rust/crates/discord-voice' in /home/sanya/orca/project
+/usr/bin/bash -lc 'rg --files rust/crates/discord-voice' in /home/user/orca/project
  succeeded in 0ms:
 rust/crates/discord-json/Cargo.toml:2:name = "discord-json"
 rust/Cargo.toml:17:discord-json = { path = "crates/discord-json" }
@@ -1625,8 +1625,8 @@ codex
 Контракт и оракулы подтверждены: capture содержит JSONL-wrapper, а op4 намеренно санитизирован (`secret_key: REDACTED`), поэтому тест подставит известный валидный 32-байтовый base64 ключ в копию внутреннего payload и проверит остальные захваченные поля. Сейчас добавляю контрактные тесты и только crate-level workspace dependency, затем зафиксирую compile-red до появления API.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-voice/Cargo.toml
-/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs
+/home/user/orca/project/rust/crates/discord-voice/Cargo.toml
+/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs
 diff --git a/rust/crates/discord-voice/Cargo.toml b/rust/crates/discord-voice/Cargo.toml
 index ae3ac8a9fef71e85119bb6298b6a916a1cffd691..fca1cd274338e8b9a26789894b74dae77dea5913
 --- a/rust/crates/discord-voice/Cargo.toml
@@ -1694,8 +1694,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -1903,8 +1903,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -2046,9 +2046,9 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +}
 
 exec
-/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/red-w22b.log'" in /home/sanya/orca/project/rust
+/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/red-w22b.log'" in /home/user/orca/project/rust
  exited 101 in 0ms:
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 error[E0432]: unresolved imports `discord_voice::parse_frame`, `discord_voice::select_region`, `discord_voice::Hello`, `discord_voice::Identify`, `discord_voice::Ready`, `discord_voice::SelectProtocol`, `discord_voice::SessionDescription`, `discord_voice::VoiceOp`, `discord_voice::VoicePayload`, `discord_voice::VoiceServerUpdate`
  --> crates/discord-voice/tests/signaling.rs:3:5
   |
@@ -2141,8 +2141,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -2287,7 +2287,7 @@ codex
 Red-прогон завершился ожидаемым compile-red (exit 101): отсутствуют все новые публичные типы и функции. Добавляю реализацию парсинга через `discord-json`, валидацию полей и endpoint, выбор региона с правилом min latency для дубликатов; секреты и идентификаторы сессий получат ручной redacted `Debug`/`Display`.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs
+/home/user/orca/project/rust/crates/discord-voice/src/lib.rs
 diff --git a/rust/crates/discord-voice/Cargo.toml b/rust/crates/discord-voice/Cargo.toml
 index ae3ac8a9fef71e85119bb6298b6a916a1cffd691..fca1cd274338e8b9a26789894b74dae77dea5913
 --- a/rust/crates/discord-voice/Cargo.toml
@@ -2810,8 +2810,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -3474,8 +3474,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -3617,9 +3617,9 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +}
 
 exec
-/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/sanya/orca/project/rust
+/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/user/orca/project/rust
  exited 101 in 0ms:
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 error[E0277]: the trait bound `JsonValue: Eq` is not satisfied
    --> crates/discord-voice/src/lib.rs:220:26
     |
@@ -4159,8 +4159,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -4305,7 +4305,7 @@ codex
 Первый прогон после реализации поймал только derive-несовместимость: foundation `JsonValue` намеренно реализует `PartialEq`, но не `Eq`. Убираю лишний `Eq` у обёрток, содержащих raw JSON, и повторяю targeted-прогон.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs
+/home/user/orca/project/rust/crates/discord-voice/src/lib.rs
 diff --git a/rust/crates/discord-voice/Cargo.toml b/rust/crates/discord-voice/Cargo.toml
 index ae3ac8a9fef71e85119bb6298b6a916a1cffd691..fca1cd274338e8b9a26789894b74dae77dea5913
 --- a/rust/crates/discord-voice/Cargo.toml
@@ -4828,8 +4828,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -5492,8 +5492,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -5635,9 +5635,9 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +}
 
 exec
-/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/sanya/orca/project/rust
+/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/user/orca/project/rust
  succeeded in 171ms:
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
 warning: function `obj` is never used
   --> crates/discord-voice/tests/signaling.rs:10:4
    |
@@ -6205,8 +6205,8 @@ index 0000000000000000000000000000000000000000..5ea81e672386fffac4b62ff3a3e06aaa
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -6351,7 +6351,7 @@ codex
 Targeted suite теперь зелёный: 1 прежний unit-тест и 9 новых integration-тестов. Перед финальным прогоном убираю неиспользуемые тестовые помощники и усиливаю явную проверку точного формата redaction плюс Identify credentials; затем повторно выполню тот же targeted-тест и сверю изменённые файлы с границами карточки.
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs
+/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs
 diff --git a/rust/crates/discord-voice/Cargo.toml b/rust/crates/discord-voice/Cargo.toml
 index ae3ac8a9fef71e85119bb6298b6a916a1cffd691..fca1cd274338e8b9a26789894b74dae77dea5913
 --- a/rust/crates/discord-voice/Cargo.toml
@@ -6866,8 +6866,8 @@ index 0000000000000000000000000000000000000000..80cc876f281efc403a20a8b975369306
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -7518,8 +7518,8 @@ index 0000000000000000000000000000000000000000..80cc876f281efc403a20a8b975369306
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -7657,9 +7657,9 @@ index 0000000000000000000000000000000000000000..80cc876f281efc403a20a8b975369306
 +
 
 exec
-/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/sanya/orca/project/rust
+/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/user/orca/project/rust
  succeeded in 0ms:
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
      Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
 
@@ -8203,8 +8203,8 @@ index 0000000000000000000000000000000000000000..80cc876f281efc403a20a8b975369306
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -8343,7 +8343,7 @@ index 0000000000000000000000000000000000000000..80cc876f281efc403a20a8b975369306
 
 apply patch
 patch: completed
-/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs
+/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs
 diff --git a/rust/crates/discord-voice/Cargo.toml b/rust/crates/discord-voice/Cargo.toml
 index ae3ac8a9fef71e85119bb6298b6a916a1cffd691..fca1cd274338e8b9a26789894b74dae77dea5913
 --- a/rust/crates/discord-voice/Cargo.toml
@@ -8858,8 +8858,8 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -9511,8 +9511,8 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -9651,7 +9651,7 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 +
 
 exec
-/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/sanya/orca/project/rust
+/usr/bin/bash -lc "bash -o pipefail -c 'flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice 2>&1 | tee /tmp/green-w22b.log'" in /home/user/orca/project/rust
 diff --git a/rust/crates/discord-voice/Cargo.toml b/rust/crates/discord-voice/Cargo.toml
 index ae3ac8a9fef71e85119bb6298b6a916a1cffd691..fca1cd274338e8b9a26789894b74dae77dea5913
 --- a/rust/crates/discord-voice/Cargo.toml
@@ -10166,8 +10166,8 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -10306,7 +10306,7 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 +
 
  succeeded in 3083ms:
-   Compiling discord-voice v0.1.0 (/home/sanya/orca/project/rust/crates/discord-voice)
+   Compiling discord-voice v0.1.0 (/home/user/orca/project/rust/crates/discord-voice)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
      Running unittests src/lib.rs (target/debug/deps/discord_voice-37c479f94835c760)
 
@@ -10850,8 +10850,8 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -10992,18 +10992,18 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 codex
 Финальный targeted-прогон прошёл: 1 unit + 8 integration-тестов; все 10 000 усечённых префиксов проверены без паники. Сейчас сверяю diff-check, контрольные суммы и отсутствие сетевых API в разрешённой области, не запуская полный workspace gate.
 exec
-/usr/bin/bash -lc 'git status --short -- rust/crates/discord-voice' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git status --short -- rust/crates/discord-voice' in /home/user/orca/project
  succeeded in 0ms:
  M rust/crates/discord-voice/Cargo.toml
  M rust/crates/discord-voice/src/lib.rs
 ?? rust/crates/discord-voice/tests/
 
 exec
-/usr/bin/bash -lc 'git diff --stat -- rust/crates/discord-voice' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git diff --stat -- rust/crates/discord-voice' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'md5sum rust/crates/discord-voice/Cargo.toml rust/crates/discord-voice/src/lib.rs rust/crates/discord-voice/tests/signaling.rs' in /home/sanya/orca/project
+/usr/bin/bash -lc 'md5sum rust/crates/discord-voice/Cargo.toml rust/crates/discord-voice/src/lib.rs rust/crates/discord-voice/tests/signaling.rs' in /home/user/orca/project
 exec
-/usr/bin/bash -lc 'git diff --check -- rust/crates/discord-voice' in /home/sanya/orca/project
+/usr/bin/bash -lc 'git diff --check -- rust/crates/discord-voice' in /home/user/orca/project
  succeeded in 0ms:
  rust/crates/discord-voice/Cargo.toml |   3 +
  rust/crates/discord-voice/src/lib.rs | 437 ++++++++++++++++++++++++++++++++++-
@@ -11016,7 +11016,7 @@ exec
 
  succeeded in 0ms:
 exec
-/usr/bin/bash -lc "rg -n 'TcpStream|UdpSocket|reqwest|tokio::net|std::net' rust/crates/discord-voice" in /home/sanya/orca/project
+/usr/bin/bash -lc "rg -n 'TcpStream|UdpSocket|reqwest|tokio::net|std::net' rust/crates/discord-voice" in /home/user/orca/project
  exited 1 in 0ms:
 diff --git a/rust/crates/discord-voice/Cargo.toml b/rust/crates/discord-voice/Cargo.toml
 index ae3ac8a9fef71e85119bb6298b6a916a1cffd691..fca1cd274338e8b9a26789894b74dae77dea5913
@@ -11532,8 +11532,8 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -11676,7 +11676,7 @@ codex
 - **Red:** `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice` → exit 101, ожидаемый compile-red из-за отсутствующего API. Лог: `/tmp/red-w22b.log`.
 - **Green:** та же команда → exit 0; 9 тестов: 1 unit и 8 integration. Проверены оба capture, 10 000 усечённых префиксов, выбор региона и redaction. Лог: `/tmp/green-w22b.log`.
 - **Redaction:** тест проверяет `secret_key: "<redacted>"` и отсутствие ключа и `media_session_id` в Debug/Display; также проверяется сокрытие Identify token/session и токена `VoiceServerUpdate`. Ключ в capture заменён REDACTED, поэтому для проверки декодирования использован синтетический валидный 32-байтовый ключ.
-- **Файлы и MD5:** [Cargo.toml](/home/sanya/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
+- **Файлы и MD5:** [Cargo.toml](/home/user/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/user/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
 - **Гейт:** workspace gate не запускался. **P4-02:** UDP discovery, keepalive и ротация сокета остаются отложенными. Риск: capture ключ санитизирован, проверка выполнена на синтетическом значении.
 diff --git a/rust/crates/discord-voice/Cargo.toml b/rust/crates/discord-voice/Cargo.toml
 index ae3ac8a9fef71e85119bb6298b6a916a1cffd691..fca1cd274338e8b9a26789894b74dae77dea5913
@@ -12192,8 +12192,8 @@ index 0000000000000000000000000000000000000000..f5032509952159afbd080b3844cf8c61
 +
 +#[test]
 +fn capture_frames_match_signal_contract() {
-+    let first = captured_payloads("/home/sanya/re-deep/voice/rtc1-frames.jsonl");
-+    let second = captured_payloads("/home/sanya/re-deep/voice/rtc2-frames.jsonl");
++    let first = captured_payloads("/home/user/clean-room-oracle/voice/rtc1-frames.jsonl");
++    let second = captured_payloads("/home/user/clean-room-oracle/voice/rtc2-frames.jsonl");
 +    if first.is_empty() || second.is_empty() {
 +        eprintln!("skip: rtc1/rtc2 capture fixtures unavailable");
 +        return;
@@ -12337,5 +12337,5 @@ tokens used
 - **Red:** `flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice` → exit 101, ожидаемый compile-red из-за отсутствующего API. Лог: `/tmp/red-w22b.log`.
 - **Green:** та же команда → exit 0; 9 тестов: 1 unit и 8 integration. Проверены оба capture, 10 000 усечённых префиксов, выбор региона и redaction. Лог: `/tmp/green-w22b.log`.
 - **Redaction:** тест проверяет `secret_key: "<redacted>"` и отсутствие ключа и `media_session_id` в Debug/Display; также проверяется сокрытие Identify token/session и токена `VoiceServerUpdate`. Ключ в capture заменён REDACTED, поэтому для проверки декодирования использован синтетический валидный 32-байтовый ключ.
-- **Файлы и MD5:** [Cargo.toml](/home/sanya/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/sanya/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/sanya/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
+- **Файлы и MD5:** [Cargo.toml](/home/user/orca/project/rust/crates/discord-voice/Cargo.toml) `0ba871fe017590a2160ab56458037fd2`; [lib.rs](/home/user/orca/project/rust/crates/discord-voice/src/lib.rs) `6ada518b7dbd14c0d12189989a961858`; [signaling.rs](/home/user/orca/project/rust/crates/discord-voice/tests/signaling.rs) `8d9d22eb3dccfe1117dc24787c170202`. `git diff --check` чистый; сетевых API в crate не найдено.
 - **Гейт:** workspace gate не запускался. **P4-02:** UDP discovery, keepalive и ротация сокета остаются отложенными. Риск: capture ключ санитизирован, проверка выполнена на синтетическом значении.

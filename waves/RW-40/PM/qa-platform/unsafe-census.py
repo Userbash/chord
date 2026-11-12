@@ -1,7 +1,7 @@
 import re
 files=["rust/crates/discord-store/src/ffi.rs","rust/crates/discord-platform/src/ffi_secret.rs","rust/crates/discord-platform/src/ffi_hunspell.rs","rust/crates/discord-platform/src/dbus/fd.rs"]
 import os
-os.chdir("/home/sanya/orca/project")
+os.chdir("/home/user/orca/project")
 for f in files:
     lines=open(f,encoding="utf-8").read().split("\n")
     print("##",f)

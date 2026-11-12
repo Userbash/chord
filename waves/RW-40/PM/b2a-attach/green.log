@@ -1,7 +1,7 @@
 # B2a-ATTACH-BACKEND green (после restore мутаций) — 2026-10-30T16:28:10+05:00
 
 ## cargo test --offline --test attachments_contract
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.45s
      Running tests/attachments_contract.rs (target/debug/deps/attachments_contract-10b1b5f3f7986118)
 
@@ -27,7 +27,7 @@ test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 exit=0
 
 ## cargo test --offline --lib attachments
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
      Running unittests src/lib.rs (target/debug/deps/discord_gui_spike-69b2bc60abd98420)
 
@@ -43,6 +43,6 @@ exit=0
 exit=0
 
 ## cargo clippy --offline --all-targets -- -D warnings
-    Checking discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+    Checking discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.67s
 exit=0

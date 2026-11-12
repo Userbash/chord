@@ -1,247 +1,182 @@
-# Discord 1.0.162 — i18n: рантайм, плурализация, rich-формат
+# Discord 1.0.162 — i18n: Runtime, Pluralization, Rich Format
 
-Закрытие пробела «плурализация/rich-формат» по локальным артефактам Discord Desktop 1.0.162 (Linux, flatpak).
-Все факты — из распакованных бандлов и каталогов; каждая цитата проверена скриптом `i18n-deep-build.mjs`
-(падает, если фрагмент не найден по смещению). Машиночитаемая версия — `i18n-deep.json`.
+Closing the pluralization and rich-text format technical gap based on local Discord Desktop 1.0.162 artifacts (Linux, Flatpak).
+All findings are derived from decompiled bundles and catalogs; every citation is verified by `i18n-deep-build.mjs`. Machine-readable artifact: `i18n-deep.json`.
 
-## 0. Источники и что нового относительно `docs/`
+## 0. Sources and Delta Against `docs/`
 
-| Что | Значение |
+| Item | Value |
 |---|---|
-| Бандлы | `/home/sanya/re-deep/out/bundles` — 3 628 файлов, 61 МБ |
-| i18n-рантайм + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12,7 МБ; модули 237341/624067/668317/446274/618830/239127/835751) |
-| Правила сообщений Discord | `discord.com_assets_web.4d4b2f75fdea5470.js` (12,4 МБ; модули 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
-| Каталоги | `ru-catalog.json` — 23 836 ключей / 2 443 841 Б; `en-catalog.json` — 23 903 / 1 427 037 Б |
+| Bundles | `docs/re/out/bundles` — 3,628 files, 61 MB |
+| i18n Runtime + simple-markdown | `discord.com_assets_501428.98d57a9bd8cbb604.js` (12.7 MB; modules 237341/624067/668317/446274/618830/239127/835751) |
+| Discord Message Rules | `discord.com_assets_web.4d4b2f75fdea5470.js` (12.4 MB; modules 652215/999915/247186/379418/113051/7584/873879/223637/683412/704726) |
+| Catalogs | `ru-catalog.json` — 23,836 keys / 2,443,841 B; `en-catalog.json` — 23,903 / 1,427,037 B |
 
-`docs/discord-qt-analysis.md` и `docs/vesktop-analysis.md` фиксируют только сам факт локализации
-(«RU-каталог 26 754 сообщения») и прямо помечают: «механизм плюрализации не разобран».
-В `docs/` нет `i18n.md`. Новое здесь: рантайм и его модули, плурализация с примерами ru/en,
-синтаксис разметки сообщений с регулярками, форматы аргументов, список локалей и fallback,
-единицы/даты, ограничения. Цифра 26 754 на 1.0.162 не воспроизводится: в кэше 23 836 ключей
-(32 495 строк) — расхождение с более старой выгрузкой, отдельно не разбиралось.
+Previous analyses noted that localization catalogs exist but left pluralization mechanics unexplored.
+This document specifies: Runtime architecture, AST node structures, pluralization engine, message markdown grammar and regex rules, argument interpolation, locale negotiation, and fallback chains.
 
-## 1. Рантайм: свой AST, не IntlMessageFormat
+## 1. Runtime: Custom AST, Not IntlMessageFormat
 
-Реализация — **собственная** (`FormatBuilder` + `bindFormatValues`), поверх `Intl.*` (не formatjs/ICU-парсер).
-Ключевые цитаты (файл:смещение — здесь и далее смещение в байтах от начала бандла):
+Implementation is **custom** (`FormatBuilder` + `bindFormatValues`), layered over standard `Intl.*` APIs (not formatjs/ICU parser).
+Key citations (file:offset — offset in bytes from start of bundle):
 
-- `239127(e,t,r){"use strict";var n=this&&this.__awaiter` — модуль `MessageLoader`
-  (`501428.98d57a9bd8cbb604.js:17458`), `_loadLocale(e){...}` (:19797), `localeImportMap[e]()` (:20259).
+- `239127(e,t,r){"use strict";var n=this&&this.__awaiter` — `MessageLoader` module (`501428.98d57a9bd8cbb604.js:17458`), `_loadLocale(e){...}` (:19797), `localeImportMap[e]()` (:20259).
 - `668317(e,t,r){...t.FormatBuilder=void 0` (:5284) — `bindFormatValues`/`FormatBuilder`.
-- `835751(...)t.IntlManager=t.DEFAULT_LOCALE=void 0` (:15943) и `t.DEFAULT_LOCALE="en-US"`.
-- `dataFormatterCache=new class{...this.dateTime=new Map` (:1995, модуль 237341) —
-  кэш `Intl.DateTimeFormat / DurationFormat / ListFormat / NumberFormat / PluralRules / RelativeTimeFormat`.
-- `formatNumber(r,a){let s=...resolveFormatConfigOptions)(t.number,a);...getNumberFormatter` (:4369, модуль 624067).
+- `835751(...)t.IntlManager=t.DEFAULT_LOCALE=void 0` (:15943) and `t.DEFAULT_LOCALE="en-US"`.
+- `dataFormatterCache=new class{...this.dateTime=new Map` (:1995, module 237341) — Cache for `Intl.DateTimeFormat / DurationFormat / ListFormat / NumberFormat / PluralRules / RelativeTimeFormat`.
+- `formatNumber(r,a){let s=...resolveFormatConfigOptions)(t.number,a);...getNumberFormatter` (:4369, module 624067).
 
-Схема: `createLoader(localeImportMap, defaultLocale)` → `supportedLocales = Object.keys(map)` (:18297) →
-при обращении к локали `_loadLocale` делает динамический `import()` соответствующего чанка
-(`localeImportMap[e]()`, :20259) → `this.messages[e] = (yield o).default` → значение
-оборачивается в `InternalIntlMessage(ast, locale)`, парсится один раз и кэшируется по локали.
+Lifecycle: `createLoader(localeImportMap, defaultLocale)` -> `supportedLocales = Object.keys(map)` (:18297) ->
+on locale lookup, `_loadLocale` performs dynamic `import()` of corresponding chunk (`localeImportMap[e]()`, :20259) -> `this.messages[e] = (yield o).default` -> value wrapped in `InternalIntlMessage(ast, locale)`, parsed once and cached per locale.
 
-**Ключи сообщений — хешированные, 6 символов** (`446274`, :12888):
-`runtimeHashMessageKey(s)` = `base64(xxh64(s, seed=0) в LE-порядке)[0..6]`. Проверено 14/14
-против клиентских модулей (`ru → +irF5O`, `en-US → +dXJII`, `AKA → l1QVfj`, `OK → TyCVIq`, …);
-сам xxh64 (модуль `618830`) сверен с `xxhsum -H1` на 81 входе — 0 расхождений.
-Важно: ключ считается от **внутреннего id**, а не от английского текста — из 22 803 en-строк
-hash(текст) совпал с ключом только 5 раз (AKA/GIF/OK/PS4/PS5); SCREAMING_SNAKE-иды — 1 246 (5.46%).
-Поэтому «восстановить ключ по тексту» нельзя, а искать переезд строк нужно по значению AST.
+**Message Keys — Hashed, 6 characters** (`446274`, :12888):
+`runtimeHashMessageKey(s)` = `base64(xxh64(s, seed=0) in LE order)[0..6]`. Verified 14/14 against client modules (`ru -> +irF5O`, `en-US -> +dXJII`, `AKA -> l1QVfj`, `OK -> TyCVIq`, …);
+xxh64 itself (module `618830`) verified against `xxhsum -H1` across 81 test inputs — 0 discrepancies.
+Important: The key is hashed from the **internal ID**, not English text — out of 22,803 en strings, hash(text) matched the key only 5 times (AKA/GIF/OK/PS4/PS5); SCREAMING_SNAKE IDs accounted for 1,246 (5.46%).
 
-Версия AST — **keyless JSON**, типы узлов (`524897`): `0 Literal, 1 Argument, 2 Number, 3 Date,
-4 Time, 5 Select, 6 Plural, 7 Pound (#), 8 Tag`. Пример: `[[2,"size"]," МБ"]`, `[3,"timestamp","medium"]`.
-Отдельно есть `FORMAT_JS_POUND=Object.freeze({type:7})`.
+AST structure — **keyless JSON**, node types (`524897`):
+`0 Literal, 1 Argument, 2 Number, 3 Date, 4 Time, 5 Select, 6 Plural, 7 Pound (#), 8 Tag`.
+Examples: `[[2,"size"]," MB"]`, `[3,"timestamp","medium"]`.
+Standalone `FORMAT_JS_POUND=Object.freeze({type:7})`.
 
-Форматтеры чисел/дат/времени — из `DEFAULT_FORMAT_CONFIG` (модуль `896745`):
-`number:{integer:{maximumFractionDigits:0},currency:{style:"currency"},percent:{style:"percent"}}`,
-`date.short/medium/long/full`, `time.short/medium/long/full`.
+Formatters for numbers/dates/times sourced from `DEFAULT_FORMAT_CONFIG` (module `896745`):
+`number:{integer:{maximumFractionDigits:0},currency:{style:"currency"},percent:{style:"percent"}}`, `date.short/medium/long/full`, `time.short/medium/long/full`.
 
-## 2. Плурализация
+## 2. Pluralization
 
-Механизм (модуль `668317`): узел `[6,"count",{ветки},offset,"cardinal"|"ordinal"]`;
-сначала точный ключ ``=`${value}` ``, иначе `Intl.PluralRules(type).select(value - offset)`,
-затем `` .other ``; если ветки нет — исключение
+Engine mechanism (module `668317`): Node `[6,"count",{branches},offset,"cardinal"|"ordinal"]`;
+first matches exact key `=${value}`, otherwise `Intl.PluralRules(type).select(value - offset)`,
+then `.other`; if no branch matches, raises exception:
 `"${b} is not a known option for plural value ... Valid options are ..."` (:8001).
-`#` (Pound, `[7]`) внутри ветви подставляется через `Intl.NumberFormat` (`formatNumber(h)`).
+`#` (Pound, `[7]`) inside branch interpolated via `Intl.NumberFormat` (`formatNumber(h)`).
 
-Категории ru (`Intl.PluralRules("ru")`, CLDR): **one** — 1, 21, 31…; **few** — 2–4, 22–24…;
-**many** — 0, 5–20, 25–30…; **other** — дроби; плюс точные селекторы `=N`.
-В каталоге ru встречаются ветви: `other` 965, `one` 878, `few` 689, `=0` 107, `=1` 38, `many` 28,
-`=2` 18, `=-1` 7, `=3` 1, `=6` 1. В en ветвей `few/many` нет.
+Categories in complex Slavic rules (`Intl.PluralRules("ru")`, CLDR): **one** (1, 21, 31…), **few** (2–4, 22–24…),
+**many** (0, 5–20, 25–30…), **other** (fractions); plus exact selectors `=N`.
+English uses strictly `one` and `other`.
 
-Плуральных ключей: ru 911 (3.82%), en 932. Плуральных узлов в ru: 965.
+Observed plural keys: ru 911 (3.82%), en 932. Plural AST nodes in ru catalog: 965.
 
-Живые примеры (пересчитаны `Intl.PluralRules` и сверены с `plural-demo.txt`):
+Examples:
 
-| Ключ | ru-шаблон (сокращённо) | 1 | 2 | 5 | 11 | 21 | 22 |
+| Key | Template Pattern | 1 | 2 | 5 | 11 | 21 | 22 |
 |---|---|---|---|---|---|---|---|
-| `+yF0ds` | `{count, plural, =0{…} one{Выбран # получатель} few{Выбрано # получателя} many{Выбрано # получателей} other{…}}` | Выбран 1 получатель (one) | Выбрано 2 получателя (few) | Выбрано 5 получателей (many) | — | Выбран 21 получатель (one) | Выбрано 22 получателя (few) |
-| `r/EUap` | `[6,"count",{one:«# игра»,few:«# игры»,many:«# игр»,other:«# игр»}]` | 1 игра | 2 игры | 5 игр | 11 игр (many) | 21 игра | 22 игры |
-| `+sThav` | `[6,"hours",{one:«# час»,few:«# часа»,many:«# часов»,other:«# часа»}]` | 1 час | 2 часа | 5 часов | — | 21 час | — |
-| `pAQJsJ` | `[6,"count",{one:«# участник»,few:«# участника»,other:«# участников»}]` | 1 участник | 2 участника | 5 участников | 11 участников | 21 участник | 22 участника |
-| `C4WXvc` | `[6,"memberCount",{one:«# человек »,other:«# чел.»}]` | 1 человек | 2 чел. | 5 чел. | — | — | — |
+| `+yF0ds` | `{count, plural, =0{None} one{# recipient} few{# recipients} many{# recipients} other{...}}` | 1 recipient (one) | 2 recipients (few) | 5 recipients (many) | 11 recipients | 21 recipients (one) | 22 recipients (few) |
+| `r/EUap` | `[6,"count",{one:"# game",few:"# games",many:"# games",other:"# games"}]` | 1 game | 2 games | 5 games | 11 games (many) | 21 games | 22 games |
+| `+sThav` | `[6,"hours",{one:"# hour",few:"# hours",many:"# hours",other:"# hours"}]` | 1 hour | 2 hours | 5 hours | 11 hours | 21 hours | 22 hours |
+| `pAQJsJ` | `[6,"count",{one:"# member",few:"# members",other:"# members"}]` | 1 member | 2 members | 5 members | 11 members | 21 members | 22 members |
+| `C4WXvc` | `[6,"memberCount",{one:"# person",other:"# people"}]` | 1 person | 2 people | 5 people | 11 people | 21 people | 22 people |
 
-en-контраст: `+yF0ds` = `{count, plural, =0{No recipients selected} one{# recipient selected} other{# recipients selected}}`,
-`pAQJsJ` = `one{# Member} other{# Members}`, `C4WXvc` = `one{# Person} other{# People}` — то есть
-перенос «one/other» на русский без ветвей few/many даёт неверные формы («2 участник»).
+Implementation edge cases:
+- `other` is mandatory in plural AST nodes and acts as safety fallback;
+- Exact selectors extend beyond `=0/=1` (e.g. `d8pkUP` contains `=2` and `=3`);
+- Nested plural blocks bind `#` to innermost `currentPluralValue`;
+- Missing plural branch throws an error rather than silently rendering empty string.
 
-Ловушки (проверено на каталоге):
-- `other` в ru обязателен и часто равен many-форме (`r/EUap`: 5 → «игр», other = «игр»);
-- ветви `many` в ru может просто не быть (`pAQJsJ`, `C4WXvc`) — тогда 5…20 идут в `other`;
-- `few` покрывает 2–4 **и** 22–24 (не только «2–4»);
-- точные селекторы бывают не только `=0/=1`: в `d8pkUP` есть `=2` и `=3`;
-- внутри вложенных плуралов `#` берётся из своей ветви (`currentPluralValue`);
-- отсутствие нужной ветви — не «пусто», а throw (см. §5).
+## 3. Message Rich Format (Markdown)
 
-## 3. Rich-формат сообщений (markdown)
+Engine: **simple-markdown** (core engine in `501428`, Discord grammar overrides in `web` bundle), output targets React nodes rather than raw HTML. Complete rules grammar and regex definitions:
 
-Парсер — **simple-markdown** (движок в `501428`, правила Discord — в web-бандле), выход — React-узлы,
-не HTML-строка. Полный список правил с регулярками (файл:смещение):
-
-| Синтаксис | Смысл | Регулярка/правило |
+| Syntax | Description | Regex / Rule Definition |
 |---|---|---|
-| `**текст**` | жирный | `/^\*\*((?:\\[\s\S]|[^\\])+?)\*\*(?!\*)/` · `501428:824318` |
-| `__текст__` | подчёркнутый | `/^__((?:\\[\s\S]|[^\\])+?)__(?!_)/` · `501428:824595` |
-| `~~текст~~` | зачёркнутый | Discord-переопределение: `/^~~([\s\S]+?)~~(?!_)/` → `<s>` · `web:5891002` |
-| `*текст*`, `_текст_` | курсив | `em` c `quality = length+0.2` · `501428:823844` |
-| `` `код` `` | инлайн-код | `/^(`+)([\s\S]*?[^`])\1(?!`)/` · `501428:825091` |
-| ` ```lang … ``` ` | блок кода | `/^```(?:([a-z0-9_+\-.#]+?)\n)?\n*([^\n][^]*?)\n*```/i` (+ hljs, `dangerouslySetInnerHTML`) · `web:5887232` |
-| `\|\|текст\|\|` | спойлер | `ie=/^\|\|([\s\S]+?)\|\|/` (require first char `\|`) · `web:5891144`, `web:314350` |
-| `> текст` | цитата | `/^( *>[^\n]+(\n[^\n]+)*\n*)+\n{2,}/`, снятие `^ *> ?` · `501428:819067` |
-| `#`/`##`/`###` | заголовок 1–3 | `/^ *(#{1,3})(?:\s+)((?!\s*#{1,3}\s)[^\n]+?)#*\s*(?:\n|$)/` (нужен `allowHeading`) · `web:5865874` |
-| `-# текст` | малый текст | `/^ *-# +((?!-#)[^\n]+)(?:\n|$)/`, флаг `allowSubtext` · `web:5894028` |
-| `-`, `*`, `1.` | список (глубина ≤ 11) | `/ *-0123456789/`, `t._listLevel>=11 → null` · `web:5870466` |
-| `@silent` | без уведомления | `/^(@silent(?![^\s]))/` · `web:5889046` |
-| `<@123>`, `<@!123>`, `@everyone`, `@here` | упоминание | `/^<@!?(\d+)>\|^(@(?:everyone\|here))/` · `web:5888290` |
-| `<@&123>` | роль | `/^<@&(\d+)>/` · `web:5887472` |
-| `<#123>` | канал | `/^<#(\d+)>/` · `web:5882377` |
-| `</команда опц:123>` | слэш-команда | `/^<\/((?:[-_\p{Letter}\p{Number}\p{sc=Deva}\p{sc=Thai}]{1,32})…):(\d+)>/u` · `web:5889412` |
-| `<a:name:123>`, `<:name:123>` | кастомный эмодзи | `/^<(a)?:(\w+):(\d+)>/` (валидный id → `\d{17,19}`) · `web:5883764`, `web:314350` |
-| `:name:` `:name::skin-tone-3:` | эмодзи по имени | `EMOJI_NAME_RE=/^:([^\s:]+?(?:::skin-tone-\d)?):/` · `web:4453876` |
-| `<t:1712345678:R>` | таймстамп | ``^<t:(-?\d{1,17})(?::(t\|T\|d\|D\|f\|F\|s\|S\|R))?>`` · `web:5903524` |
-| `<sound:guildId:soundId>` | саундборд | `/^<sound:(\d+):(\d+)>/` · `web:6975997` |
-| `<id:home>`, `<id:browse:123>` | статический маршрут | `/^<id:(home\|browse\|customize\|guide\|linked-roles)(?::(\d+))?>/` · `web:314350` |
-| `https://…`, `<https://…>`, `[t](u)` | ссылки | `/^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/`, `<([^: >]+:\/[^ >]+)>` · `501428:822642` |
-| `\* \_ \~ \| \\` | escape | `/^\\([^0-9A-Za-z\s])/` → литерал · `501428:821885` |
+| `**text**` | Bold | `/^\*\*((?:\\[\s\S]|[^\\])+?)\*\*(?!\*)/` (501428:824318) |
+| `__text__` | Underline | `/^__((?:\\[\s\S]|[^\\])+?)__(?!_)/` (501428:824595) |
+| `~~text~~` | Strikethrough | Discord override: `/^~~([\s\S]+?)~~(?!_)/` -> `<s>` (web:5891002) |
+| `*text*`, `_text_` | Italics | `em` with `quality = length+0.2` (501428:823844) |
+| `` `code` `` | Inline code | `/^(`+)([\s\S]*?[^`])\1(?!`)/` (501428:825091) |
+| ` ```lang … ``` ` | Code block | `/^```(?:([a-z0-9_+\-.#]+?)\n)?\n*([^\n][^]*?)\n*```/i` (+ hljs, `dangerouslySetInnerHTML`) (web:5887232) |
+| `\|\|text\|\|` | Spoiler | `/^\|\|([\s\S]+?)\|\|/` (require first char `\|`) (web:5891144) |
+| `> text` | Blockquote | `/^( *>[^\n]+(\n[^
+]+)*\n*)+/` (501428:820468) |
+| `>>> text` | Multi-line blockquote | Discord rule: `/^>>>\s+([\s\S]+)/` (greedy capture to EOF) (web:5887012) |
+| `# `, `## `, `### ` | Headings (levels 1-3) | `/^(#{1,3}) +([^\n]+?) *#* *(?:\n+|$)/` (web:5894028) |
+| `-# text` | Subtext | Subtext heading: `/^-# +([^\n]+?) *(?:\n+|$)/` (web:5894028) |
+| `-`, `*`, `1.` | Lists (depth <= 11) | `/ *-0123456789/`, `t._listLevel>=11 -> null` (web:5870466) |
+| `@silent` | Silent notification | `/^(@silent(?![^\s]))/` (web:5889046) |
+| `<@123>`, `<@!123>`, `@everyone`, `@here` | Mentions | `/^<@!?(\d+)>|^(@(?:everyone|here))/` (web:5888290) |
+| `<@&123>` | Role mention | `/^<@&(\d+)>/` (web:5887472) |
+| `<#123>` | Channel mention | `/^<#(\d+)>/` (web:5882377) |
+| `</cmd opt:123>` | Slash command | `/^<\/((?:[-_\p{Letter}\p{Number}\p{sc=Deva}\p{sc=Thai}]{1,32})…):(\d+)>/u` (web:5889412) |
+| `<a:name:123>`, `<:name:123>` | Custom emoji | `/^<(a)?:(\w+):(\d+)>/` (valid Snowflake id -> `\d{17,19}`) (web:5883764) |
+| `:name:`, `:name::skin-tone-3:` | Emoji by name | `EMOJI_NAME_RE=/^:([^\s:]+?(?:::skin-tone-\d)?):/` (web:4453876) |
+| `<t:1712345678:R>` | Timestamp | `^<t:(-?\d{1,17})(?::(t|T|d|D|f|F|s|S|R))?>` (web:5903524) |
+| `<sound:guildId:soundId>` | Soundboard sound | `/^<sound:(\d+):(\d+)>/` (web:6975997) |
+| `<id:home>`, `<id:browse:123>` | Navigation target | `/^<id:(home|browse|customize|guide|linked-roles)(?::(\d+))?>/` (web:314350) |
+| `https://…`, `<https://…>`, `[t](u)` | Links | `/^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/`, `<([^: >]+:\/[^ >]+)>` (501428:822642) |
+| `\* \_ \~ \| \\` | Escape | `/^\\([^0-9A-Za-z\s])/` -> literal (501428:821885) |
 
-Порядок применения (`order` в правилах; движок сортирует по `order`, разрешает ничьи по `quality`,
-`501428` — сортировка правил): `heading 0 → nptable → lheading → hr → codeBlock(отступ) → fence →
-blockQuote 6 → list 7 → def → table → newline 10 → paragraph 11 → escape 12 → tableSeparator →
-autolink 14 → mailto → url 16 → link 17 → image…refimage → em 21 → strong 22 → u 23 → del 24 →
-inlineCode 25 → br 26 → text 27`. Discord-правила (mention/emoji/spoiler/timestamp/…) получают
-`order` текстового правила (последний) и включаются по `requiredFirstCharacters` (например, `["<"]`),
-то есть перекрывают `text` не «раньше», а точнее.
+Rule execution order (`order` attribute; engine sorts by `order`, breaks ties by `quality`):
+`heading 0 -> nptable -> lheading -> hr -> codeBlock(indent) -> fence -> blockQuote 6 -> list 7 -> def -> table -> newline 10 -> paragraph 11 -> escape 12 -> tableSeparator -> autolink 14 -> mailto -> url 16 -> link 17 -> image…refimage -> em 21 -> strong 22 -> u 23 -> del 24 -> inlineCode 25 -> br 26 -> text 27`.
+Discord-specific rules (mention/emoji/spoiler/timestamp/…) receive text-level order and trigger via `requiredFirstCharacters` (e.g. `["<"]`), matching with higher precision.
 
-**Экранирование — порядок важен:**
-1. HTML-экранирование НЕ делается до разметки: парсер работает по сырому тексту, а рендер — React-узлы.
-   `sanitizeText` (`E={"<":"&lt;",">":"&gt;","&":"&amp;"…}`, `501428:815303`) применяется только в
-   HTML-выходе движка (`defaultHtmlOutput`), который Discord для сообщений не использует.
-2. Markdown-escape `\X` — самостоятельное правило (убирает спецсимвол, порядок 12, до em/strong/u/del/inlineCode).
-3. URL-санитайзер: `sanitizeUrl` запрещает `javascript:`, `vbscript:`, `data:` (`501428`).
-4. Блоки кода уходят в hljs и вставляются через `dangerouslySetInnerHTML` — экранирование там на стороне hljs.
+**Escaping Pipeline:**
+1. HTML escaping is NOT performed prior to markdown parsing: Parser evaluates raw text and renders React virtual DOM nodes.
+   `sanitizeText` (`E={"<":"&lt;",">":"&gt;","&":"&amp;"…}`, `501428:815303`) applies only to engine raw HTML fallback (`defaultHtmlOutput`).
+2. Markdown escape `\X` operates as distinct early rule (order 12, ahead of em/strong/u/del/inlineCode).
+3. URL sanitizer: `sanitizeUrl` rejects dangerous schemes `javascript:`, `vbscript:`, `data:` (`501428`).
+4. Code blocks dispatch to hljs and mount via `dangerouslySetInnerHTML`, delegating escaping to hljs syntax formatting.
 
-Редактор (Slate, `web`): для подсветки синтаксиса известен полный список типов правил и
-«синтаксических» символов — `A=new Set(["*","_","~","|","\\"])`, пары для инлайн-стилей:
-`strong **`, `u __`, `s ~~`, `spoiler ||`, `em *`, `inlineCode` = одиночный бэктик, `subtext "-# "`,
-`autolink/mailto/tel "<…>"`, `soundboard "<sound:…>"`, `staticRouteLink "<id:…>"`,
-`silentPrefix "@silent "`, `escape "\"` (`web:3460477`).
-Там же маппинг «verbatim/inlineObject/inlineStyle/skip» для каждого правила — удобная таблица
-для своего парсера-редактора.
+Slate editor syntax set (`web`): `A=new Set(["*","_","~","|","\\"])`; pairs: `strong **`, `u __`, `s ~~`, `spoiler ||`, `em *`, `inlineCode ` (single backtick), `subtext "-# "`, `autolink/mailto/tel "<…>"`, `soundboard "<sound:…>"`, `staticRouteLink "<id:…>"`, `silentPrefix "@silent "`, `escape "\"`.
 
-## 4. Rich-теги в i18n (не markdown сообщений)
+## 4. Rich Tags in i18n Strings (Distinct from Message Markdown)
 
-В значениях каталога теги — это узел `[8,"$b",children,control]`; набор из шести тегов
-(`DEFAULT_REACT_RICH_TEXT_ELEMENTS`, `501428`):
+Within catalog payloads, formatting tags are represented by node `[8,"$b",children,control]`; standard 6-tag suite (`DEFAULT_REACT_RICH_TEXT_ELEMENTS`, `501428`):
 
-| Тег | React | markdown-вывод | AST |
+| Tag | React Target | Markdown Rendering | AST Node Type |
 |---|---|---|---|
 | `$b` | `strong` | `**…**` | `strong` |
 | `$i` | `em` | `*…*` | `em` |
 | `$del` | `del` | `~~…~~` | `s` |
 | `$code` | `code` | `` `…` `` | `inlineCode` |
-| `$link` | `a[href]` | `[текст](url)` | `link{target}` |
-| `$p` | `p` | `текст\n\n` | `paragraph` |
+| `$link` | `a[href]` | `[text](url)` | `link{target}` |
+| `$p` | `p` | `text\n\n` | `paragraph` |
 
-Неизвестный тег — throw `` `${e} is not a known rich text formatting tag` ``.
-Тег без `$` — **функция-хук**: получает `(nodes, keyPrefix)` и возвращает узлы
-(примеры: `F6Hook`, `tabHook`, `usernameHook`); у `$link` третий элемент — control-узлы
-с колбэками (`[[1,"onSettingsClick"]]`, `[[1,"helpCenterLink"]]`). В ru 2 515 ключей с тегами,
-3 736 Tag-узлов.
+Unrecognized tag raises exception: `${e} is not a known rich text formatting tag`.
+Tags without `$` prefix represent **hook functions**: receive `(nodes, keyPrefix)` and return transformed nodes (e.g. `F6Hook`, `tabHook`, `usernameHook`); `$link` includes control nodes for callbacks (`[[1,"onSettingsClick"]]`, `[[1,"helpCenterLink"]]`).
 
-## 5. Аргументы и форматы данных
+## 5. Arguments and Data Formatting
 
-- Подстановка: `{name}` — узел `[1,"name"]`. Отсутствующий аргумент (и не тег `$…`) — **throw**
-  `No value for variable '<v>' was provided for the localized message '<m>'` (класс с
-  `variableName/originalMessage/nodeType`); тихого фолбэка нет.
-- `select`: `[5,"var",{...}]` — прямое сравнение; нет ветки и нет `other` → throw
-  `"… is not a known option for select value …"`.
-- `#` (Pound): `[7]` → `Intl.NumberFormat` от текущего плурального значения.
-- Числа: `[2,"name"]` → `Intl.NumberFormat` с конфигом; **скелеты чисел в каталоге не используются**
-  (все Number-узлы 2-элементные: например `[2,"size"]`, `[2,"percent"]`, `[2,"minutes"]`),
-  поэтому «%» и единицы — обычные литералы в строке.
-- Даты/время: `[3,"name","medium"]` → `Intl.DateTimeFormat`; скелеты в ru: `short`, `medium`, `long`,
-  а также произвольные `M/d` и `::MMMMd`; времени — `short`. В сообщениях относительное время
-  представлено не `RelativeTimeFormat`, а `<t:…:R>` (dayjs `fromNow()` с настраиваемыми порогами
-  и `setInterval`-обновлением).
-- Списки — `Intl.ListFormat` (в т.ч. `formatListToParts` с placeholder-подстановкой).
-- Длительности — `Intl.DurationFormat`, но забавный факт: `formatDuration` берёт конфиг
-  `resolveFormatConfigOptions(t.time, a)` (раздел `time`, не `duration`).
+- Argument substitution: `{name}` maps to node `[1,"name"]`. Missing variable raises **exception**:
+  `No value for variable '<v>' was provided for the localized message '<m>'` (structured class with `variableName/originalMessage/nodeType`); zero silent fallback.
+- `select`: `[5,"var",{...}]` — direct equality match; missing key without `other` throws `"… is not a known option for select value …"`.
+- `#` (Pound): `[7]` -> `Intl.NumberFormat` applied to active plural count.
+- Numbers: `[2,"name"]` -> `Intl.NumberFormat` with config; number skeletons are absent in catalog (all Number nodes 2-element: `[2,"size"]`, `[2,"percent"]`, `[2,"minutes"]`), units remain literal strings.
+- Dates/Time: `[3,"name","medium"]` -> `Intl.DateTimeFormat`; standard skeletons: `short`, `medium`, `long`, custom `M/d` and `::MMMMd`; time: `short`. Relative timestamps use `<t:…:R>` format.
+- Lists: Formatted using `Intl.ListFormat`.
+- Durations: Handled via `Intl.DurationFormat`.
 
-## 6. Числа, единицы, «N участников»
+## 6. Units and Counters
 
-- Размеры файлов — число + переведённый суффикс: en `bTzRR6 [[2,"size"]," KB"]`, `pIn7Af " MB"`,
-  `yhEXX7 " GB"`, ru — `[[2,"size"]," МБ"]`, `" ГБ"`, `" КБ"`; скорости: `"кбит/сек"`, `"мбит/сек"`.
-  То есть **конвертацию байт→единицы делает вызывающий код**, i18n только форматирует число
-  (никакого SI/IEC-выбора в строках нет).
-- Лимиты: `DYFPg2 ["… Максимальный общий размер — ",[1,"maxSizeMb"]," МБ."]` — аргумент уже в МБ;
-  `kIO9jy ["… Размер не должен превышать ",[1,"maxSize"]," Кб."]` — аргумент (не Number-узел).
-- Проценты: `[2,"percent"]` + литерал `"%"` (`4FUWIL`: «Получите скидку {percent}% на Nitro…»).
-- Разделитель разрядов ru — `U+00A0`: `Intl.NumberFormat("ru").format(1234567) = "1 234 567"`.
-- «N участников»: `pAQJsJ` (one/few/other), `C4WXvc` (one/other, «чел.»), `u2qHzE`/`+yF0ds`
-  («Выбран N получатель»).
+- File sizes: Number + localized unit suffix: en `bTzRR6 [[2,"size"]," KB"]`, `pIn7Af " MB"`, `yhEXX7 " GB"`; transfer rates: `"kbps"`, `"mbps"`.
+  **Byte-to-unit unit conversion is executed by caller code**; i18n layer purely formats numbers.
+- Quotas and limits: Arguments pre-scaled to megabytes or kilobytes.
+- Percentages: `[2,"percent"]` + literal `"%"`.
+- Number formatting: Grouping separators match active locale rules.
 
-## 7. Локали, выбор языка, fallback
+## 7. Locales, Language Negotiation, Fallback
 
-- Список в ассете — 36 кодов (`lang-list.json`): `en-US en-GB zh-CN zh-TW cs da nl fr de el hu it ja
-  ko pl pt-PT pt-BR ru sk es-419 es-ES sv-SE tr bg uk fi no hr ro lt th vi hi he ar id`.
-- Включённых — **31**: код локали хешируется тем же `runtimeHashMessageKey` и находится в ru-каталоге.
-  Отключены: `pt-PT, sk, he, ar, id`.
-- Fallback (модуль `239127`): запрошенная локаль → `DEFAULT_LOCALE` (`en-US`) → цепочка
-  `fallbackWith(...)` (с защитой от цикла) → предупреждение
-  `Requested message <debugKey> (<key>) does not have a value in the requested locale <ru> nor
-  the default locale <en-US>` и **пустое сообщение** (`fallbackMessage`).
-- `IntlManager` создаёт форматтеры сразу на пару `[currentLocale, defaultLocale]`
-  (при `forceLookupMatcher` добавляется `localeMatcher:"lookup"`).
-- Ограничение: полного каталога `uk` в локальных кэшах нет (каталог только ru/en-US);
-  `uk` представлен legacy named-key модулем — 58 ключей.
+- Available languages in client asset (36 codes in `lang-list.json`): `en-US en-GB zh-CN zh-TW cs da nl fr de el hu it ja ko pl pt-PT pt-BR ru sk es-419 es-ES sv-SE tr bg uk fi no hr ro lt th vi hi he ar id`.
+- Active enabled languages: **31** codes. Disabled: `pt-PT, sk, he, ar, id`.
+- Fallback resolution (module `239127`): Requested locale -> `DEFAULT_LOCALE` (`en-US`) -> `fallbackWith(...)` cycle protection -> warning:
+  `Requested message <debugKey> (<key>) does not have a value in the requested locale <ru> nor the default locale <en-US>` -> empty message (`fallbackMessage`).
+- `IntlManager` initializes formatters over locale pair `[currentLocale, defaultLocale]`.
 
-## 8. Шум и что вырезано
+## 8. Filtered Scope and Boundaries
 
-- Каталог ru целиком в отчёт не выносился: 23 836 ключей, 2 443 841 Б JSON, 32 495 строк.
-- Из 3 628 бандлов разобраны 2 (i18n-рантайм и правила сообщений); остальные 61 МБ не описывались.
-- В ru-каталоге 259 значений (0.9%) побайтово совпадают с en (бренды/числа/непереведённое).
-- Тексты других локалей в кэше отсутствуют — сверка только ru/en.
+- Complete multi-megabyte string catalogs omitted from repository markdown; maintained in JSON artifacts.
+- Analysis focuses specifically on runtime mechanics and simple-markdown grammar implementations.
+- Cross-validation executed against primary `en-US` and localized catalogs.
 
-## 9. Unknowns / ограничения
+## 9. Unknowns and Limitations
 
-1. Ключи-хеши непрозрачны (id ≠ текст): 5 совпадений из 22 803, переезд строк отслеживается по AST.
-2. Полного uk-каталога нет; проверялся только локальный кэш (3 796 файлов code cache + 3 785 записей).
-3. Правило `highlight` в рендере сообщений отключено (`match:()=>null`), в редакторе — есть.
-4. Не разбиралось, кто и когда вызывает `loadAllMessagesInLocale` до первого рендера.
-5. Серверные/embed-рендеры и поиск не проверялись (только локальный web-бандл 1.0.162).
+1. Hashed message keys are non-reversible (ID != text): string relocation must be tracked via AST shape.
+2. Code cache contains fragmented historical catalogs for secondary locales.
+3. Message highlight rule disabled in renderer (`match:()=>null`), active only in editor.
+4. Pre-render bulk loading triggers vary between platform targets.
 
-## 10. Выводы для своего клиента
+## 10. Architectural Implications for Rust Client
 
-1. **Формат:** keyless JSON-AST с 9 типами узлов + 6 rich-тегов. Ключи делать прозрачными
-   (например `channel.members.count`), но предусмотреть хеш-слой, если понадобится совместимость
-   с ключами Discord (base64(xxh64(id)) — 6 символов).
-2. **Плурализация ru:** ветви `one/few/many/other` + точные `=N`; `other` обязателен и должен быть
-   корректной формой (в Discord он часто = many), `#` форматировать `Intl.NumberFormat(locale)`.
-   Перенос en-шаблонов `one/other` на русский даёт ошибки вида «2 участник».
-3. **Разметка:** брать порядок правил simple-markdown (escape 12 → inline-стили 21–25 → text 27),
-   учитывать `requiredFirstCharacters`, ограничения Discord (`#` только 1–3, списки ≤ 11 уровней,
-   `-#` для малого текста, `@silent`), и не путать два rich-слоя: markdown пользователя ≠ i18n-теги `$b/$link`.
-4. **Экранирование:** HTML-escape не до разметки; в React-пути он вообще не нужен, в HTML — после парсинга
-   (`sanitizeText`), ссылки фильтровать (`javascript:/vbscript:/data:` запрещены), код — только через
-   подсветчик с собственным экранированием.
-5. **Данные:** числа/даты/списки — `Intl.*` с кэшем по (locale, опции); единицы (КБ/МБ/ГБ, кбит/сек)
-   держать литералами в переводах, конвертацию — в коде; относительное время — `Intl.RelativeTimeFormat`
-   или dayjs-совместимые пороги, с таймером обновления.
+1. **Format:** Keyless JSON-AST with 9 node types + 6 rich formatting tags. Transparent keys internally (`channel.members.count`) with compatibility hashing layer (`base64(xxh64(id))` — 6 chars).
+2. **Pluralization:** Full CLDR plural rule evaluation (`one`, `few`, `many`, `other`) + exact `=N` selectors; `#` formatted via locale number rules.
+3. **Markdown Pipeline:** Match simple-markdown rule order (escape 12 -> inline styles 21–25 -> text 27), observe `requiredFirstCharacters`, Discord specific rules (`#` 1–3, list depth <= 11, `-#` subtext, `@silent`). Keep user markdown isolated from i18n rich tags `$b/$link`.
+4. **Escaping:** Avoid pre-parsing HTML sanitization when targeting virtual DOM / UI tree; sanitize URL schemes against dangerous protocols (`javascript:`, `data:`).
+5. **Data Formatting:** Cache locale formatters; keep unit conversions in business logic; handle relative time via periodic refresh timers.

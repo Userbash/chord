@@ -34,9 +34,9 @@
 test at tests/unit/gui-spike-dom.test.mjs:546:3
 ✖ ResizeObserver: изменение высоты контейнера пересчитывает окно строк (3.75348ms)
   AssertionError [ERR_ASSERTION]: окно не выросло: 27 → 27
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:559:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:547:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:559:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:547:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -50,9 +50,9 @@ test at tests/unit/gui-spike-dom.test.mjs:546:3
 test at tests/unit/gui-spike-dom.test.mjs:572:3
 ✖ скрытый экран рисует только overscan, показ экрана перерисовывает окно (4.02227ms)
   AssertionError [ERR_ASSERTION]: скрытый экран нарисовал 28 строк
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:579:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-dom.test.mjs:573:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:579:14
+      at async withApp (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:50:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-dom.test.mjs:573:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

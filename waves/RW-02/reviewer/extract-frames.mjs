@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 
-const FILE = process.argv[2] ?? "/home/sanya/re-deep/capture-run2.jsonl";
+const FILE = process.argv[2] ?? "/home/user/clean-room-oracle/capture-run2.jsonl";
 const SOCK = process.argv[3] ?? "95974.1389";
 const OUT = process.argv[4] ?? `/tmp/opencode/review-rw-02/frames-${SOCK.replace(".", "_")}.hexl`;
 

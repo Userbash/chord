@@ -48,20 +48,20 @@
   - `node --test tests/meta/ipc-path.test.mjs` → `12 passed; 0 failed`.
 - **Clippy-команда**:
   ```bash
-  (cd rust/gui-spike && CARGO_TARGET_DIR=/tmp/target-int01 cargo clippy --offline -p discord-gui-spike --lib --bin discord-gui-spike --test ipc_wiring_contract -- -D warnings && cd /home/sanya/orca/project && CARGO_TARGET_DIR=/tmp/target-int01 cargo clippy --manifest-path rust/Cargo.toml --offline -p discord-voice --lib --test devices_contract -- -D warnings) > waves/RW-40/PM/int01-rust-wiring/clippy.log 2>&1
+  (cd rust/gui-spike && CARGO_TARGET_DIR=/tmp/target-int01 cargo clippy --offline -p discord-gui-spike --lib --bin discord-gui-spike --test ipc_wiring_contract -- -D warnings && cd /home/user/orca/project && CARGO_TARGET_DIR=/tmp/target-int01 cargo clippy --manifest-path rust/Cargo.toml --offline -p discord-voice --lib --test devices_contract -- -D warnings) > waves/RW-40/PM/int01-rust-wiring/clippy.log 2>&1
   ```
 - **Результат Clippy**: exit `0`, 0 предупреждений (лог `waves/RW-40/PM/int01-rust-wiring/clippy.log`).
 
 ## 3.1. Oracle (независимые источники контракта, PROCESS.md §4.2)
 
 - **Вложения (`request_upload_slots`, тест `ipc_wrapper_request_upload_slots_delegates_and_enforces_contract`)**:
-  - Независимый RE-оракул `waves/RW-40/RE-DEEP-REA.md` §1 (строки 115–138, дамп `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0@6011428`, `@6804500`, `@6805978`) и `waves/RW-40/ATTACH-RE.md` §2:
+  - Независимый RE-оракул `waves/RW-40/reference-oracle-REA.md` §1 (строки 115–138, дамп `reference-oracle/decoded/4d2a64cb5df5fc4e_0@6011428`, `@6804500`, `@6805978`) и `waves/RW-40/ATTACH-RE.md` §2:
   - Подтверждает проверяемые в тесте ожидания: маршрут `POST /channels/{channel_id}/attachments`, структуру тела `{"files": [{"filename", "file_size", "id", "is_clip"}]}`, структуру ответа `{"attachments": [{"id", "upload_url", "upload_filename"}]}`, базовый лимит `MAX_UPLOAD_BYTES_FREE = 20 MiB` (`Math.max(0x1400000, tierLimit)` = `20_971_520` байт) и маппинг `413`/`40005` → `AttachmentError::EntityTooLarge` и `429 Retry-After` → `AttachmentError::RateLimited`.
 - **Приглашения (`create_channel_invite`, тест `ipc_wrapper_create_channel_invite_delegates_and_enforces_re_tables`)**:
-  - Независимый RE-оракул `waves/RW-40/RE-DEEP-REA.md` §3 (строки 318–355, таблицы TTL и `max_uses` из `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0@632264` и `@1933819`) и §4.3 (строки 435–460, `INSTANT_INVITES: e => "/channels/${e}/invites"` из `4d2a64cb5df5fc4e_0@270160`):
+  - Независимый RE-оракул `waves/RW-40/reference-oracle-REA.md` §3 (строки 318–355, таблицы TTL и `max_uses` из `reference-oracle/decoded/4d2a64cb5df5fc4e_0@632264` и `@1933819`) и §4.3 (строки 435–460, `INSTANT_INVITES: e => "/channels/${e}/invites"` из `4d2a64cb5df5fc4e_0@270160`):
   - Подтверждает проверяемые в тесте ожидания: маршрут `POST /channels/{channel_id}/invites`, поля `max_age`/`max_uses`/`temporary`, точные RE-таблицы `ALLOWED_MAX_AGE_SECS = [0, 1800, 3600, 21600, 43200, 86400, 604800]` и `ALLOWED_MAX_USES = [0, 1, 5, 10, 25, 50, 100]`, а также маппинг `429 Retry-After` и `403 Forbidden`.
 - **Пины и ветки (`list_channel_pins`, `pin_channel_message`, `unpin_channel_message`, `list_channel_threads`, тест `ipc_wrapper_pins_and_threads_route_get_put_delete_and_archived_flag`)**:
-  - Источник 1 (RE-дамп): `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0@266996` (`ALL_ARCHIVED_THREADS:(e,t)=>"/channels/${e}/threads/archived/${t}"` при `t="public"` → `/channels/{id}/threads/archived/public`) и `@270063..270155` (семейство маршрутов пинов канала).
+  - Источник 1 (RE-дамп): `reference-oracle/decoded/4d2a64cb5df5fc4e_0@266996` (`ALL_ARCHIVED_THREADS:(e,t)=>"/channels/${e}/threads/archived/${t}"` при `t="public"` → `/channels/{id}/threads/archived/public`) и `@270063..270155` (семейство маршрутов пинов канала).
   - Источник 2 (независимый согласованный контракт `[A]` бэкенд-модуля, принятый в `waves/RW-40/PM/m10-pins-be/ACCEPT.md` и `waves/RW-40/PM/m10-pins-be/REVIEW-PASS2.md`): специфицирует канонические REST v9/v10 маршруты проектного контракта `discord-gui-spike::pins_threads`, делегирование в которые проверяет данный IPC-тест:
     - `list_channel_pins` → `GET /channels/{id}/pins` (`[A]` контракт `pins_threads.rs`);
     - `pin_channel_message` → `PUT /channels/{id}/pins/{message_id}` (`204 No Content`, `[A]` контракт `pins_threads.rs`);

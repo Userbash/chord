@@ -1,8 +1,8 @@
 === M1: MAX_SEARCH_OFFSET 9975 -> 10000 in discord-core ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.81s
-     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+     Running tests/search_contract.rs (/home/user/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
 
 running 5 tests
 test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... ok
@@ -30,10 +30,10 @@ test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 30 filtered out;
 error: test failed, to rerun pass `--test search_contract`
 M1 KILLED
 === M2: hit_message m.hit -> !m.hit in discord-core ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.78s
-     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+     Running tests/search_contract.rs (/home/user/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
 
 running 5 tests
 test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... FAILED
@@ -61,10 +61,10 @@ test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 30 filtered out;
 error: test failed, to rerun pass `--test search_contract`
 M2 KILLED
 === M3: compute_429_exponential_backoff_ms 1_u64 << shift -> 1_u64 in discord-core ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
 warning: unused variable: `shift`
-   --> /home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/search.rs:804:9
+   --> /home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core/src/rest/search.rs:804:9
     |
 804 |     let shift = attempt.min(10);
     |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_shift`
@@ -73,7 +73,7 @@ warning: unused variable: `shift`
 
 warning: `discord-core` (lib) generated 1 warning (run `cargo fix --lib -p discord-core` to apply 1 suggestion)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.73s
-     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+     Running tests/search_contract.rs (/home/user/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
 
 running 5 tests
 test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... FAILED
@@ -109,10 +109,10 @@ test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 30 filtered out;
 error: test failed, to rerun pass `--test search_contract`
 M3 KILLED
 === M4: MAX_SEARCH_429_RETRIES 3 -> 1 in gui-spike/src/search.rs ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
-   Compiling discord-core v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-core v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/crates/discord-core)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.78s
-     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+     Running tests/search_contract.rs (/home/user/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
 
 running 5 tests
 test task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget ... FAILED
@@ -140,9 +140,9 @@ test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 30 filtered out;
 error: test failed, to rerun pass `--test search_contract`
 M4 KILLED
 === M5: search_cached caches 202 indexing responses in gui-spike/src/search.rs ===
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.33s
-     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+     Running tests/search_contract.rs (/home/user/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
 
 running 5 tests
 test task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors ... ok
@@ -174,9 +174,9 @@ M5 KILLED
 a2a284ad5b9b7fc92650d4469c9b8240  rust/crates/discord-core/src/rest/mod.rs
 7480942682dcb45680c352b98f662b72  rust/gui-spike/src/search.rs
 fa945c92abb85caaaab6538c87af61ea  rust/gui-spike/tests/search_contract.rs
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/task-617-rest-search-bff/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.31s
-     Running tests/search_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
+     Running tests/search_contract.rs (/home/user/orca/project/rust/target/debug/deps/search_contract-0584782cbfe21753)
 
 running 35 tests
 test deterministic_uuid_v4_oracle_shape ... ok

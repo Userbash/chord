@@ -12,7 +12,7 @@
 
 ## Входы (read-only)
 
-- `/home/sanya/re-deep` — дамп: `ui/`, `ui8/`, `ui/tokens.json`, `ui/log.json`.
+- `reference-oracle/` — дамп: `ui/`, `ui8/`, `ui/tokens.json`, `ui/log.json`.
 - `waves/RW-39/DESIGN/ref-manifest.json` — id → путь → md5.
 - `waves/RW-39/DESIGN/{SPEC.md,SPEC-P3-02.md,REFERENCES.md,layout.json,tokens.css,DOM-CONTRACT.md}`.
 - Текущий UI: `rust/gui-spike/ui/**` (для сверки, не для правок).

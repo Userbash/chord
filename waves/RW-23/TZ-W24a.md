@@ -1,12 +1,12 @@
 # ТЗ W24a — P4-02: UDP media transport
 
-Волна: RW-23 / B04. Владелец: W24a. Работать в `/home/sanya/orca/project`, не коммитить.
+Волна: RW-23 / B04. Владелец: W24a. Работать в `/home/user/orca/project`, не коммитить.
 
 ## 0. Обязательное чтение
 
 `AGENTS.md`, `PROCESS.md` §4, `waves/RW-23/WAVE-PLAN.md`, `docs/re/voice-deep.md` §2.1–2.5,
 `docs/rust-client/PLAN.md` (P4-02), `docs/rust-client/TEST-PLAN.md` (T-VOICE-04…06),
-`rust/crates/discord-voice/src/lib.rs`, `/home/sanya/re-deep/voice/strace-media-s3.jsonl`,
+`rust/crates/discord-voice/src/lib.rs`, `reference-oracle/voice/strace-media-s3.jsonl`,
 `rtc1-frames.jsonl`, `rtc2-frames.jsonl`.
 
 Твои файлы — только `rust/crates/discord-voice/src/udp.rs` и
@@ -18,7 +18,7 @@
 Strict TDD. Сначала тесты, red-лог:
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 flock /tmp/opencode/discord-cargo.lock cargo test --offline -p discord-voice --test udp \
   2>&1 | tee ../waves/RW-23/red-w24a.log
 ```

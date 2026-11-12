@@ -66,9 +66,9 @@ test at tests/unit/server-menu.test.mjs:183:3
   
   '' !== null
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:197:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:184:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:197:16
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:184:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)
@@ -87,9 +87,9 @@ test at tests/unit/server-menu.test.mjs:225:3
   
   '' !== null
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:239:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:226:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:239:14
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:226:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
@@ -106,9 +106,9 @@ test at tests/unit/server-menu.test.mjs:642:3
   
   '' !== null
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:661:16
-      at withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:643:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:661:16
+      at withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:643:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 0)
       at async Suite.run (node:internal/test_runner/test:1905:7)

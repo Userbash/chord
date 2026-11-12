@@ -5,10 +5,10 @@
 
 | Карточка | Тесты | Оракул | Red | Green |
 |---|---|---:|---|---|
-| P2-08 settings-proto | `settings_proto` 18 | `waves/RW-21/oracle.py` + READY/UPDATE из `/home/sanya/re-deep`; base64/raw sha256 в REPORT | `logs/p08-red-compile.log` | `logs/p08-targeted-final3.log` 18/18 |
+| P2-08 settings-proto | `settings_proto` 18 | `waves/RW-21/oracle.py` + READY/UPDATE из `reference-oracle/`; base64/raw sha256 в REPORT | `logs/p08-red-compile.log` | `logs/p08-targeted-final3.log` 18/18 |
 | P1-01 ETF full | `etf_full` 6 + принятые `etf_vectors` 13, `etf_properties` 9 | `docs/re/gateway-protocol.md` §2; реальные термы capture 95974.1389; канон RW-01 | `logs/etf-full-red.log` | `logs/b02-codec-targeted.log` 43/43 |
 | P1-02 zstd strict | `zstd_stream` 13 | lab `gw-proto/zstd-frames-95974_1389.hexl`; 759 280 Б = 824 816 − 65 536; synth-frame | `logs/zstd-strict-red.log` | `logs/b02-codec-targeted.log` 43/43 |
-| P0-04 conformance | `fixtures` 6 | `fixtures/MANIFEST.json` + `/home/sanya/re-deep`; `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` | `logs/conformance-red.log` | `logs/b02-conformance-require-green2.log` 6/6 |
+| P0-04 conformance | `fixtures` 6 | `fixtures/MANIFEST.json` + `reference-oracle/`; `RE_FIXTURES_ROOT`/`RE_LAB_ROOT` | `logs/conformance-red.log` | `logs/b02-conformance-require-green2.log` 6/6 |
 | P0-07 legal | docs-only (без runtime) | `README.md` §Правовая рамка, `CONCEPT.md` §1/§7 | — | `LEGAL.md` + README/rust-README |
 
 ## Проверки уровня batch

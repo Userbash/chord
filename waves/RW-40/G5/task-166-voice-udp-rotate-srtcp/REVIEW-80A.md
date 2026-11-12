@@ -21,10 +21,10 @@
 
 ## 2. Результаты тестов и статического анализа
 
-Использован общий каталог артефактов `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Использован общий каталог артефактов `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 - **Целевые тесты:**
   ```bash
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice --test media_contract --test udp --lib
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --manifest-path rust/Cargo.toml -p discord-voice --test media_contract --test udp --lib
   ```
   - `unittests src/lib.rs`: 14 passed, 0 failed
   - `tests/media_contract.rs`: 16 passed (включая `m14_srtcp_empty_rr_exact_byte_layout_oracle_28b`, `m15_udp_socket_rotation_due_at_60080ms_sends_discovery_and_28b_srtcp_rr`, `m16_udp_socket_rotation_closes_old_socket_and_increments_shared_counter`), 0 failed
@@ -33,7 +33,7 @@
 
 - **Clippy:**
   ```bash
-  CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --tests -- -D warnings
+  CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --manifest-path rust/Cargo.toml -p discord-voice --tests -- -D warnings
   ```
   - Результат: **0 warnings, clean**.
 
@@ -56,6 +56,6 @@
 
 ## 4. Итоговое заключение
 
-Код полностью соответствует оракулу RE (`/home/sanya/re-deep/voice-deep.json`), архитектурному контракту `BE-P2-07` и правилам Strict TDD. Блокирующих замечаний нет.
+Код полностью соответствует оракулу RE (`reference-oracle/voice-deep.json`), архитектурному контракту `BE-P2-07` и правилам Strict TDD. Блокирующих замечаний нет.
 
 **Рекомендация:** **APPROVED (Ready for Merge)**.

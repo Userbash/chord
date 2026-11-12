@@ -1,4 +1,4 @@
-#[path = "/home/sanya/orca/workspaces/project/feature-task-124-voice-devices-tauri-bff/rust/gui-spike/src/voice_devices.rs"]
+#[path = "/home/user/orca/workspaces/project/feature-task-124-voice-devices-tauri-bff/rust/gui-spike/src/voice_devices.rs"]
 mod voice_devices;
 
 use voice_devices::{AudioDevice, AudioDeviceKind, VoiceDevicesState};

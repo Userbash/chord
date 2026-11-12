@@ -1,9 +1,9 @@
 // @ts-check
 // TR-194A: поведенческая сверка новых правил scripts/test-impact.mjs с диском.
 import { existsSync } from "node:fs";
-import { planFor } from "/home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact/scripts/test-impact.mjs";
+import { planFor } from "/home/user/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact/scripts/test-impact.mjs";
 
-const root = "/home/sanya/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact";
+const root = "/home/user/orca/workspaces/project/qa-task-283-tsconfig-and-test-impact";
 
 const RUST = [
   "automod", "bff_domains_router", "dm_channels", "expressions", "forum", "ipc_ext",

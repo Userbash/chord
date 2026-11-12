@@ -6,7 +6,7 @@
 - **Карточка:** `task-141` / `BE-RE-06` (`BE-P2-06б` в `waves/RW-40/PM/BACKLOG-RE-BACKEND.md`), находка `F-GW-07` (`waves/RW-40/RE-AUDIT/RE-GAP-BACKEND-PROTOCOL.md` §3.6).
 - **Файл воркера:** только `rust/crates/discord-core/src/gateway/supervisor.rs`.
 - **Ветка / worktree:** `feature/task-141-gateway-reconnect-infinite`, HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
-- **Независимый оракул:** веб-бандл Discord 1.0.162 `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (md5 `934b1289b7ebf17bc0fd09569b23b438`):
+- **Независимый оракул:** веб-бандл Discord 1.0.162 `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (md5 `934b1289b7ebf17bc0fd09569b23b438`):
   - `_handleClose` (@5 014 326): останавливает переподключение только на фатальном коде `4004===t` (`connectionState = CLOSED`, `_reset`); на остальных кодах вызывает `this.gatewayBackoff.fail(() => this._connect())` и при `this.gatewayBackoff.fails > 4` вызывает `this._reset(e, t, n)`;
   - `_reset` (@5 015 390): `this.sessionId = null; this.seq = 0;` — следующая попытка идёт со свежим `IDENTIFY` (op=2), а не `RESUME` (op=6);
   - `gatewayBackoff = new Backoff(1e3, 6e4)` (`rest-static.md` §2): экспоненциальный backoff 1 000 мс ×2 с потолком 60 000 мс без жёсткого лимита на 8 попыток;

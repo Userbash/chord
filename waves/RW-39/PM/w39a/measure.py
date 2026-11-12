@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """RW-39 / W39a — пиксельные замеры референсов (read-only).
 
-Источники: /home/sanya/re-deep/ui/00-app.png (PNG, lossless),
-/home/sanya/re-deep/ui8/22-members.jpg (JPEG, панель участников),
-/home/sanya/re-deep/ui/log.json (dpr/размер окна), ui8/*.json (DOM rect'ы).
+Источники: /home/user/clean-room-oracle/ui/00-app.png (PNG, lossless),
+/home/user/clean-room-oracle/ui8/22-members.jpg (JPEG, панель участников),
+/home/user/clean-room-oracle/ui/log.json (dpr/размер окна), ui8/*.json (DOM rect'ы).
 
 Все числа на выходе — CSS px (пиксели PNG / dpr 1.25). Скрипт ничего не пишет
-в /home/sanya/re-deep. Запуск:
+в /home/user/clean-room-oracle. Запуск:
     python3 waves/RW-39/PM/w39a/measure.py            # таблица в stdout
     python3 waves/RW-39/PM/w39a/measure.py --json     # + measure.json рядом
 
@@ -22,7 +22,7 @@ from pathlib import Path
 
 from PIL import Image
 
-RE = Path('/home/sanya/re-deep')
+RE = Path('/home/user/clean-room-oracle')
 OUT = Path(__file__).resolve().parent
 APP = RE / 'ui/00-app.png'
 MEMBERS = RE / 'ui8/22-members.jpg'

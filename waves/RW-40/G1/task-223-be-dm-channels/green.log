@@ -4,9 +4,9 @@
       Adding zstd v0.14.3
       Adding zstd-safe v8.2.0
       Adding zstd-sys v2.1.2+zstd.1.5.7
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/workspaces/project/feature-task-223-be-dm-channels/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/workspaces/project/feature-task-223-be-dm-channels/rust/gui-spike)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 4.28s
-     Running tests/dm_channels_contract.rs (/home/sanya/orca/project/rust/target/debug/deps/dm_channels_contract-f4ea95970b0a2259)
+     Running tests/dm_channels_contract.rs (/home/user/orca/project/rust/target/debug/deps/dm_channels_contract-f4ea95970b0a2259)
 
 running 8 tests
 test build_create_dm_body_propagates_validation_errors ... ok

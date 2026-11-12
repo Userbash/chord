@@ -18,9 +18,9 @@ test at tests/unit/gui-spike-features.test.mjs:500:3
   
   null !== 'true'
   
-      at file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:546:14
-      at withApp (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:71:11)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-features.test.mjs:501:5)
+      at file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:546:14
+      at withApp (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:71:11)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-features.test.mjs:501:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 10)
       at async Suite.run (node:internal/test_runner/test:1905:7)

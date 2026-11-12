@@ -7,7 +7,7 @@ Batch: RW-40 / G2. Ветка: `feature/task-204-ui-search-panel-controller`.
 - `rust/gui-spike/ui/features/search-panel.js` — реализация парсера поисковых токенов, замороженного справочника русских подсказок фильтрации и контроллера панели поиска (`// @ts-check` + JSDoc, ESM).
 
 ## Контракт и RE-оракул
-- Оракулы `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0@7564745` (`SearchStore`/`queryKey`), `@318812` (`T_y = 25`, `MAX_SEARCH_OFFSET = 9975`) и `/home/sanya/re-deep/frontend-d03.md` §1.1–§1.3:
+- Оракулы `reference-oracle/decoded/4d2a64cb5df5fc4e_0@7564745` (`SearchStore`/`queryKey`), `@318812` (`T_y = 25`, `MAX_SEARCH_OFFSET = 9975`) и `reference-oracle/frontend-d03.md` §1.1–§1.3:
   - `parseSearchQueryTokens(rawQuery)` разбирает токены `from:<user>`, `in:<channel>`, `has:<link|embed|file|image|video>`, `mentions:<user>`, `pinned:<true|false>` и оставшийся свободный текст, возвращая `{ content: string, author: string[], channel: string[], has: string[], mentions: string[], pinned: boolean | null }`.
   - `SEARCH_FILTER_SUGGESTIONS_RU` заморожен (`Object.freeze`) и содержит 6 русских подсказок (`from:`, `in:`, `has:link`, `has:file`, `has:image`, `pinned:true`).
   - `createSearchPanelController(containerEl, options = { onSearch, onJumpToMessage })`:

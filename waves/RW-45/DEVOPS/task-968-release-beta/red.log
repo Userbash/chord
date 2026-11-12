@@ -18,8 +18,8 @@
 
 test at tests/unit/github-actions-release-968.test.mjs:248:3
 ✖ Шаг 1: файл .github/workflows/release-beta.yml существует, не содержит CRLF/табов и валиден по оракулу PyYAML (0.789149ms)
-  AssertionError [ERR_ASSERTION]: Файл workflow должен существовать: /home/sanya/orca/project/.github/workflows/release-beta.yml
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:249:12)
+  AssertionError [ERR_ASSERTION]: Файл workflow должен существовать: /home/user/orca/project/.github/workflows/release-beta.yml
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:249:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -44,13 +44,13 @@ test at tests/unit/github-actions-release-968.test.mjs:278:3
     File "<string>", line 2, in <module>
       with open(sys.argv[1], 'r', encoding='utf-8') as f:
            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/.github/workflows/release-beta.yml'
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/user/orca/project/.github/workflows/release-beta.yml'
   
   
   1 !== 0
   
-      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:87:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:279:20)
+      at parseYamlWithPythonOracle (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:87:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:279:20)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -74,13 +74,13 @@ test at tests/unit/github-actions-release-968.test.mjs:349:3
     File "<string>", line 2, in <module>
       with open(sys.argv[1], 'r', encoding='utf-8') as f:
            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/.github/workflows/release-beta.yml'
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/user/orca/project/.github/workflows/release-beta.yml'
   
   
   1 !== 0
   
-      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:87:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:350:20)
+      at parseYamlWithPythonOracle (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:87:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:350:20)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -102,13 +102,13 @@ test at tests/unit/github-actions-release-968.test.mjs:440:3
     File "<string>", line 2, in <module>
       with open(sys.argv[1], 'r', encoding='utf-8') as f:
            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/.github/workflows/release-beta.yml'
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/user/orca/project/.github/workflows/release-beta.yml'
   
   
   1 !== 0
   
-      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:87:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:457:20)
+      at parseYamlWithPythonOracle (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:87:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:457:20)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -130,13 +130,13 @@ test at tests/unit/github-actions-release-968.test.mjs:497:3
     File "<string>", line 2, in <module>
       with open(sys.argv[1], 'r', encoding='utf-8') as f:
            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  FileNotFoundError: [Errno 2] No such file or directory: '/home/sanya/orca/project/.github/workflows/release-beta.yml'
+  FileNotFoundError: [Errno 2] No such file or directory: '/home/user/orca/project/.github/workflows/release-beta.yml'
   
   
   1 !== 0
   
-      at parseYamlWithPythonOracle (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:87:10)
-      at TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/github-actions-release-968.test.mjs:498:25)
+      at parseYamlWithPythonOracle (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:87:10)
+      at TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/github-actions-release-968.test.mjs:498:25)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

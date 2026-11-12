@@ -15,7 +15,7 @@
 test at tests/unit/gui-spike-model.test.mjs:253:3
 ✖ последняя страница вернула 0 строк при capacity>0 → RangeError (симметрично R1) (0.872715ms)
   AssertionError [ERR_ASSERTION]: Missing expected rejection.
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/gui-spike-model.test.mjs:261:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/gui-spike-model.test.mjs:261:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Promise.all (index 7)
       at async Suite.run (node:internal/test_runner/test:1905:7)

@@ -22,7 +22,7 @@
    Compiling tokio v1.54.1
    Compiling webpki-roots v1.0.10
    Compiling webpki-roots v0.26.11
-   Compiling discord-codec v0.1.0 (/home/sanya/orca/project/rust/crates/discord-codec)
+   Compiling discord-codec v0.1.0 (/home/user/orca/project/rust/crates/discord-codec)
    Compiling hybrid-array v0.4.15
    Compiling crypto-common v0.2.2
    Compiling block-buffer v0.12.1
@@ -35,7 +35,7 @@
    Compiling tokio-rustls v0.26.6
    Compiling tungstenite v0.30.0
    Compiling tokio-tungstenite v0.30.0
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
    Compiling gio v0.18.4
    Compiling cairo-rs v0.18.5
    Compiling atk v0.18.2
@@ -53,7 +53,7 @@
    Compiling wry v0.57.1
    Compiling tauri-runtime-wry v2.12.3
    Compiling tauri v2.12.5
-   Compiling discord-gui-spike v0.1.0 (/home/sanya/orca/project/rust/gui-spike)
+   Compiling discord-gui-spike v0.1.0 (/home/user/orca/project/rust/gui-spike)
 error[E0432]: unresolved import `discord_gui_spike::core_bridge`
   --> tests/core_bridge.rs:13:5
    |

@@ -76,7 +76,7 @@ flowchart TD
 - **Исполнитель**: `antigravity` (`gemini-4-argon-high`, `--effort high`)
 - **Рабочая ветка**: `feature/task-611-rest-guild-create` (от `unstable`)
 - **Область записи**: `rust/gui-spike/src/guilds.rs`, `rust/crates/discord-core/src/rest/guilds.rs`, `rust/gui-spike/tests/guild_create_contract.rs`.
-- **RE-Оракул**: `/home/sanya/re-deep/rest-d02.md`, заголовки `X-Super-Properties`, `X-Discord-Locale: ru`.
+- **RE-Оракул**: `reference-oracle/rest-d02.md`, заголовки `X-Super-Properties`, `X-Discord-Locale: ru`.
 - **Критерии приёмки (DoD)**:
   1. Корректное формирование структуры тела запроса (`name`, `icon`, `channels`, `system_channel_flags`).
   2. Обработка успешного создания (HTTP 201 Created) с разбором полученной гильдии, каналов и немедленной интеграцией в локальный `GuildRail`.
@@ -92,7 +92,7 @@ flowchart TD
 - **Исполнитель**: `antigravity` (`gemini-4-argon-high`, `--effort high`)
 - **Рабочая ветка**: `feature/task-612-create-guild-wizard` (от `unstable`)
 - **Область записи**: `rust/gui-spike/ui/features/create-guild.js`, `rust/gui-spike/ui/styles/create-guild.css`, `tests/unit/create-guild-wizard.test.mjs`.
-- **RE-Оракул**: `/home/sanya/re-deep/frontend-d03.md` (модалка `CreateGuildModal`: шаги «Свой шаблон», «Для меня и друзей», «Клуб/сообщество»).
+- **RE-Оракул**: `reference-oracle/frontend-d03.md` (модалка `CreateGuildModal`: шаги «Свой шаблон», «Для меня и друзей», «Клуб/сообщество»).
 - **Критерии приёмки (DoD)**:
   1. Выбор категории шаблона автоматически предзаполняет дефолтные каналы (`#general`, `#gaming`, `🔊 Голосовой`).
   2. Валидация названия (1–100 символов, обрезка пробелов).
@@ -125,7 +125,7 @@ flowchart TD
 - **Исполнитель**: `antigravity` (`gemini-4-argon-high`, `--effort high`)
 - **Рабочая ветка**: `feature/task-615-rtp-video-dave` (от `unstable`)
 - **Область записи**: `rust/crates/discord-voice/src/rtp/video.rs`, `rust/crates/discord-voice/src/dave/mls.rs`.
-- **RE-Оракул**: `/home/sanya/re-deep/voice-deep.md`, опкоды 18 `STREAM_CREATE`, 20 `STREAM_WATCH`, 22 `STREAM_SET_PAUSED`.
+- **RE-Оракул**: `reference-oracle/voice-deep.md`, опкоды 18 `STREAM_CREATE`, 20 `STREAM_WATCH`, 22 `STREAM_SET_PAUSED`.
 - **Критерии приёмки (DoD)**:
   1. Пакетизация H.264 NALU (Single NAL, FU-A фрагментация > 1200 байт, STAP-A).
   2. Интеграция с ключами эпохи DAVE MLS v1 для видеопотока.
@@ -140,7 +140,7 @@ flowchart TD
 - **Исполнитель**: `antigravity` (`gemini-4-argon-high`, `--effort high`)
 - **Рабочая ветка**: `feature/task-616-stream-viewer-pip` (от `unstable`)
 - **Область записи**: `rust/gui-spike/ui/features/stream-viewer.js`, `rust/gui-spike/ui/styles/stream-viewer.css`.
-- **RE-Оракул**: `/home/sanya/re-deep/voice/ui7/` (компоненты стрима, оверлей стримера, бейдж LIVE).
+- **RE-Оракул**: `reference-oracle/voice/ui7/` (компоненты стрима, оверлей стримера, бейдж LIVE).
 - **Критерии приёмки (DoD)**:
   1. Отображение тайла стрима в голосовом канале.
   2. Сворачивание в плавающий PiP-виджет при переходе в чаты или настройки.

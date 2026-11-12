@@ -1,4 +1,4 @@
-import { createComposerPopoversBridge } from "/home/sanya/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike/ui/features/composer-popovers-bridge.js";
+import { createComposerPopoversBridge } from "/home/user/orca/workspaces/project/feature-task-292-fe-app-shell-mount/rust/gui-spike/ui/features/composer-popovers-bridge.js";
 
 const ipcCalls = [];
 const selected = [];

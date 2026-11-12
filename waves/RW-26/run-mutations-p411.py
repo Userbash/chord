@@ -17,10 +17,10 @@ import subprocess
 import time
 from pathlib import Path
 
-ROOT = Path("/home/sanya/orca/project")
+ROOT = Path("/home/user/orca/project")
 RUST = ROOT / "rust"
 OUT = ROOT / "waves/RW-26/mutations"
-TARGET_DIR = "/home/sanya/.cache/discord-lab-target-rw26-mut"
+TARGET_DIR = "/home/user/.cache/discord-lab-target-rw26-mut"
 
 # (id, файл, old, new, target, что именно ломается)
 MUTATIONS = [

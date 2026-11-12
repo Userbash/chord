@@ -3,13 +3,13 @@
 **Verdict: APPROVED**
 
 - Ревьюер: Technical Reviewer (DeepSeek), диспатч `ctx_452c6c2076e7`.
-- Worktree: `/home/sanya/orca/workspaces/project/feature-task-229-be-roles-contract`, HEAD `ae89c2f`.
+- Worktree: `/home/user/orca/workspaces/project/feature-task-229-be-roles-contract`, HEAD `ae89c2f`.
 - Write-scope соблюдён: изменены только `rust/gui-spike/src/roles.rs`, `rust/gui-spike/tests/roles_contract.rs`, `rust/gui-spike/src/lib.rs` (+ артефакты `waves/RW-40/G1/task-229-be-roles-contract/`). `git commit` не выполнялся.
 
 ## 1. Targeted-прогон (baseline)
 
 ```
-CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target \
+CARGO_TARGET_DIR=/home/user/orca/project/rust/target \
 cargo test --manifest-path rust/gui-spike/Cargo.toml --test roles_contract
 ```
 

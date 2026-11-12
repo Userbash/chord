@@ -112,7 +112,7 @@ describe("TASK-612: Шаблоны создания сервера (RE-конт�
   });
 
   it("рендерит 4 карточки шаблонов на шаге выбора и переходит к настройке выбранного шаблона", () => {
-    const { doc, opener, wizard } = createWizardTestEnv({ currentUsername: "Саня" });
+    const { doc, opener, wizard } = createWizardTestEnv({ currentUsername: "Alex" });
     wizard.open(opener);
 
     assert.equal(wizard.getStep(), "template");

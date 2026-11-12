@@ -47,7 +47,7 @@ md5 совпадают с §4 `REPORT.md` и восстановлены посл
 
 ## 2. Прогоны
 
-Команды из ТЗ, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Команды из ТЗ, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 
 ```
 cargo test   --manifest-path rust/Cargo.toml -p discord-platform --test keyring_contract --lib

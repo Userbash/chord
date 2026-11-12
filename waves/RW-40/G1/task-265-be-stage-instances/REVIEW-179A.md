@@ -5,7 +5,7 @@
 - **Ревьюер**: Технический ревьюер (DeepSeek), режим token-lean
 - **Дата**: 2026-10-31 14:14 CST (Asia/Shanghai)
 - **Ветка**: `feature/task-265-be-stage-instances` (worktree `feature-task-265-be-stage-instances`, HEAD `36dc676`)
-- **Окружение**: `cargo 1.99.0`, `rustc 1.99.0`, `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`
+- **Окружение**: `cargo 1.99.0`, `rustc 1.99.0`, `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`
 
 Проверялись только разрешённые файлы: `rust/gui-spike/src/stage_instances.rs`,
 `rust/gui-spike/tests/stage_instances_contract.rs`, `REPORT.md`. Полный `gate:worker`,

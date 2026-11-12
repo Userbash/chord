@@ -6,7 +6,7 @@
 set -uo pipefail
 
 WT=/tmp/opencode/l02-ui-mutation
-LOG=/home/sanya/orca/project/waves/RW-40/PM/l02-ui/logs
+LOG=/home/user/orca/project/waves/RW-40/PM/l02-ui/logs
 MODEL="$WT/rust/gui-spike/ui/features/dispatch-model.js"
 APP="$WT/rust/gui-spike/ui/app.js"
 PRISTINE="$WT/.pristine"

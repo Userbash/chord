@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/feature-task-231-ui-invite-modal/tests/unit/invite-modal.test.mjs:11
+file:///home/user/orca/workspaces/project/feature-task-231-ui-invite-modal/tests/unit/invite-modal.test.mjs:11
   INVITE_MAX_AGE_OPTIONS_RU,
   ^^^^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/invite-modal.js' does not provide an export named 'INVITE_MAX_AGE_OPTIONS_RU'

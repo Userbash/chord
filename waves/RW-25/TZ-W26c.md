@@ -247,7 +247,7 @@ API должен быть непротиворечивым.)
 ## 5. Red/green и сдача
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 export CARGO_TARGET_DIR=/tmp/opencode/target-w26c
 cargo test --offline -p discord-updater --test updater_contract   # red
 cargo test --offline -p discord-updater                              # green

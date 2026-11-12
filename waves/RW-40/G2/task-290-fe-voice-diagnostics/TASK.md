@@ -2,19 +2,19 @@
 
 - **Отдел:** G2 Frontend (WebView UI & DOM/A11y) (`DeepSeek` — `--agent opencode --model deepseek/deepseek-v4.1-flash`)
 - **Уровень сложности / Приоритет:** `L2 / P1` (по `waves/RW-40/PM/MODEL-ROUTING-CRITERIA.md`)
-- **Рабочее дерево:** `/home/sanya/orca/workspaces/project/feature-task-290-fe-voice-diagnostics` (`branch:feature/task-290-fe-voice-diagnostics`)
+- **Рабочее дерево:** `/home/user/orca/workspaces/project/feature-task-290-fe-voice-diagnostics` (`branch:feature/task-290-fe-voice-diagnostics`)
 - **Разрешённые к созданию/изменению файлы (строго 3 файла):**
   1. `rust/gui-spike/ui/features/voice-diagnostics.js` (новый файл, с `// @ts-check` и полными JSDoc-типами)
   2. `tests/unit/voice-diagnostics.test.mjs` (новый файл, с `// @ts-check`)
   3. `TDD-PLAN.md` (добавить ровно 1 строку в конец таблицы §8 для `tests/unit/voice-diagnostics.test.mjs`, чтобы `node --test tests/meta/plan-sync.test.mjs` проходил `5/5`)
 - **Артефакты отчёта:**
-  - `/home/sanya/orca/project/waves/RW-40/G2/task-290-fe-voice-diagnostics/REPORT.md`
-  - `/home/sanya/orca/project/waves/RW-40/G2/task-290-fe-voice-diagnostics/red.log`
-  - `/home/sanya/orca/project/waves/RW-40/G2/task-290-fe-voice-diagnostics/green.log`
+  - `/home/user/orca/project/waves/RW-40/G2/task-290-fe-voice-diagnostics/REPORT.md`
+  - `/home/user/orca/project/waves/RW-40/G2/task-290-fe-voice-diagnostics/red.log`
+  - `/home/user/orca/project/waves/RW-40/G2/task-290-fe-voice-diagnostics/green.log`
 
 ## Источники контракта (прочитай сразу, не сканируя весь репозиторий)
-- `/home/sanya/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`
-- `/home/sanya/orca/project/waves/RW-40/PM/BACKLOG-RE-22.md` (§ `RE-22-04`)
+- `/home/user/orca/project/waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`
+- `/home/user/orca/project/waves/RW-40/PM/BACKLOG-RE-22.md` (§ `RE-22-04`)
 
 ## Требования к реализации (Strict TDD: сначала `tests/unit/voice-diagnostics.test.mjs` -> `red.log`, затем `voice-diagnostics.js` -> `green.log`)
 

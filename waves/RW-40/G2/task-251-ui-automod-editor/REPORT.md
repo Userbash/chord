@@ -20,8 +20,8 @@
    - реализованы и экспортированы `AUTOMOD_TRIGGER_LABELS_RU`, `AUTOMOD_ACTION_LABELS_RU`, `parseKeywordListInput` и `createAutoModEditorController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/automod-editor.test.mjs` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-251-ui-automod-editor/red.log`.
-- **Green**: `node --test tests/unit/automod-editor.test.mjs` → `exit=0` (`tests 9, suites 3, pass 9, fail 0`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-251-ui-automod-editor/green.log`.
+- **Red**: `node --test tests/unit/automod-editor.test.mjs` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-251-ui-automod-editor/red.log`.
+- **Green**: `node --test tests/unit/automod-editor.test.mjs` → `exit=0` (`tests 9, suites 3, pass 9, fail 0`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-251-ui-automod-editor/green.log`.
 - **Typecheck**:
   - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `exit=0` (0 ошибок);
   - `./node_modules/.bin/tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --noUncheckedIndexedAccess --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/automod-editor.js tests/unit/automod-editor.test.mjs` → `exit=0` (0 ошибок).
@@ -31,8 +31,8 @@
 ```
 a0cb1574ba8df4ef99ebc4fa9a8cdd92  rust/gui-spike/ui/features/automod-editor.js
 512b7deeb0e0ee03a2a072a90f19222b  tests/unit/automod-editor.test.mjs
-86c518a70661774e3328d0917c94788d  /home/sanya/orca/project/waves/RW-40/G2/task-251-ui-automod-editor/red.log
-dfbefee946579e29e52f1453931f1890  /home/sanya/orca/project/waves/RW-40/G2/task-251-ui-automod-editor/green.log
+86c518a70661774e3328d0917c94788d  /home/user/orca/project/waves/RW-40/G2/task-251-ui-automod-editor/red.log
+dfbefee946579e29e52f1453931f1890  /home/user/orca/project/waves/RW-40/G2/task-251-ui-automod-editor/green.log
 ```
 
 ## Риски

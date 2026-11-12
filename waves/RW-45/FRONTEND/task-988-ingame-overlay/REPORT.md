@@ -9,21 +9,21 @@
 
 ## 1. Сделано
 
-1. **Подзадача 988.1 — Нативный модуль GPUI [`rust/discord-gpui/src/ingame_overlay.rs`](file:///home/sanya/orca/project/rust/discord-gpui/src/ingame_overlay.rs) и модуль интерфейса [`rust/gui-spike/ui/features/ingame-overlay.js`](file:///home/sanya/orca/project/rust/gui-spike/ui/features/ingame-overlay.js):**
+1. **Подзадача 988.1 — Нативный модуль GPUI [`rust/discord-gpui/src/ingame_overlay.rs`](file:///home/user/orca/project/rust/discord-gpui/src/ingame_overlay.rs) и модуль интерфейса [`rust/gui-spike/ui/features/ingame-overlay.js`](file:///home/user/orca/project/rust/gui-spike/ui/features/ingame-overlay.js):**
    - Реализована поддержка оверлея поверх полноэкранных игр под Wayland через протокол `ext-foreign-toplevel-list-v1` (`ext_foreign_toplevel_list_v1` / `ext_foreign_toplevel_handle_v1`, события `toplevel -> app_id -> title -> identifier -> done -> closed/finished`) и fallback на X11 (`OverrideRedirect` + `XShapeCombineRegion` `ShapeInput`).
    - Реализован прозрачный клик-сквозь (`input passthrough`) в режиме HUD (`wl_surface.set_input_region` с пустым `wl_region` `[]` под Wayland, `XShapeCombineRegion` с пустым регионом `ShapeInput` под X11, CSS `pointer-events: none`, `background: transparent`, `dimensions: "transparent 100vw x 100vh"`), при котором все клики мыши пробрасываются напрямую в полноэкранную игру (`forwardedToGame: true`, `interceptedByOverlay: false`).
    - Реализована машина интерактивных состояний `overlay-chat-bubble` (`default: "semi-transparent" -> hover: "opaque" -> active: "typing"`) и глобальные хоткеи (`Shift+Backquote` для разблокировки/блокировки оверлея, `Ctrl+Shift+M`, `Ctrl+Shift+D`, `CapsLock` Push-to-Talk) через портал `org.freedesktop.portal.GlobalShortcuts` и контракт `discord_utils.node` (`inputEventRegister`, `inputEventUnregister`, `inputWatchAll`, запрет одиночных символьных скан-кодов Linux `[24..33]`, `[38..46]`, `[52..58]`, исключение левой кнопки мыши `1`, лимит `4` событий и таймаут `5000` мс).
    - Реализован виджет отображения говорящих участников в верхнем левом углу (`anchor: "top-left"`, `x = 16`, `y = 16`, `padding = 16px`, `spacing = 8px`) с приоритетной сортировкой говорящих (`Voice OP 5 SPEAKING` биты `MICROPHONE = 1` и `SOUNDSHARE = 2`) и зелёным кольцом активности `#23a55a`.
-   - Выполнена сверка с независимыми оракулами: [`waves/kanban-board.json`](file:///home/sanya/orca/project/waves/kanban-board.json) (`TASK-988`), [`docs/re/main-arch.md`](file:///home/sanya/orca/project/docs/re/main-arch.md) (`--overlay-host`, `discord_overlay2/standalone_host.js`, `outOfProcessOverlay`), [`docs/re/backend-ipc.json`](file:///home/sanya/orca/project/docs/re/backend-ipc.json) (`DISCORD_WINDOW_IS_ALWAYS_ON_TOP`, `DISCORD_WINDOW_SET_ALWAYS_ON_TOP`, `DISCORD_GET_MOUSE_COORDINATES`) и [`docs/re/native-re.md`](file:///home/sanya/orca/project/docs/re/native-re.md) (§5 `discord_utils.node`).
+   - Выполнена сверка с независимыми оракулами: [`waves/kanban-board.json`](file:///home/user/orca/project/waves/kanban-board.json) (`TASK-988`), [`docs/re/main-arch.md`](file:///home/user/orca/project/docs/re/main-arch.md) (`--overlay-host`, `discord_overlay2/standalone_host.js`, `outOfProcessOverlay`), [`docs/re/backend-ipc.json`](file:///home/user/orca/project/docs/re/backend-ipc.json) (`DISCORD_WINDOW_IS_ALWAYS_ON_TOP`, `DISCORD_WINDOW_SET_ALWAYS_ON_TOP`, `DISCORD_GET_MOUSE_COORDINATES`) и [`docs/re/native-re.md`](file:///home/user/orca/project/docs/re/native-re.md) (§5 `discord_utils.node`).
 
-2. **Подзадача 988.2 — Контрактный и модульный тест [`tests/unit/ingame-overlay-988.test.mjs`](file:///home/sanya/orca/project/tests/unit/ingame-overlay-988.test.mjs) (Strict TDD):**
+2. **Подзадача 988.2 — Контрактный и модульный тест [`tests/unit/ingame-overlay-988.test.mjs`](file:///home/user/orca/project/tests/unit/ingame-overlay-988.test.mjs) (Strict TDD):**
    - Покрыты все 6 подсекций (`SUB-988-0`..`SUB-988-5`), все 9 измерений `TEST-POLICY.md` (`evaluateOverlayPolicyDimensions`), маскирование секретов (`redactOverlayTelemetry`), лимиты размера кода (`< 50` строк на функцию, `< 800` строк на модуль, `#![forbid(unsafe_code)]`, `0` `.unwrap()`/`.expect()` в prod-коде) и мутационный гейт `5/5` (`100%` kill rate) для Rust и JS модулей.
 
 ---
 
 ## 2. Red-прогон (TDD)
 
-Лог: [`waves/RW-45/FRONTEND/task-988-ingame-overlay/red.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-988-ingame-overlay/red.log) (запуск до создания `ingame_overlay.rs` и `ingame-overlay.js`):
+Лог: [`waves/RW-45/FRONTEND/task-988-ingame-overlay/red.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-988-ingame-overlay/red.log) (запуск до создания `ingame_overlay.rs` и `ingame-overlay.js`):
 
 ```text
 ▶ TASK-988: Глобальные хоткеи и Wayland In-Game Overlay (ingame_overlay.rs + ingame-overlay.js)
@@ -40,7 +40,7 @@
 
 ## 3. Green-прогон (TDD)
 
-Лог: [`waves/RW-45/FRONTEND/task-988-ingame-overlay/green.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-988-ingame-overlay/green.log):
+Лог: [`waves/RW-45/FRONTEND/task-988-ingame-overlay/green.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-988-ingame-overlay/green.log):
 
 ```text
 ▶ TASK-988: Глобальные хоткеи и Wayland In-Game Overlay (ingame_overlay.rs + ingame-overlay.js)
@@ -61,7 +61,7 @@
 - **Targeted (`node --test tests/unit/ingame-overlay-988.test.mjs`):** `6/6 pass (0 fail, 0 skip)`.
 - **Rust (`rustfmt --check --edition 2024` & `rustc --test --edition 2024 -D warnings`):** `0 errors, 0 warnings`.
 - **TypeScript (`tsc`):** `0 errors` в `rust/gui-spike/ui/features/ingame-overlay.js` и `tests/unit/ingame-overlay-988.test.mjs`.
-- **Мутационный гейт ([`waves/RW-45/FRONTEND/task-988-ingame-overlay/mutation.log`](file:///home/sanya/orca/project/waves/RW-45/FRONTEND/task-988-ingame-overlay/mutation.log)):**
+- **Мутационный гейт ([`waves/RW-45/FRONTEND/task-988-ingame-overlay/mutation.log`](file:///home/user/orca/project/waves/RW-45/FRONTEND/task-988-ingame-overlay/mutation.log)):**
   1. `M1` (`Hud inputPassthrough: true -> false`) — **KILLED** (Rust & JS)
   2. `M2` (`OVERLAY_PADDING_PX: 16 -> 64`) — **KILLED** (Rust & JS)
   3. `M3` (`ChatBubble Hover: "opaque" -> "semi-transparent"`) — **KILLED** (Rust & JS)

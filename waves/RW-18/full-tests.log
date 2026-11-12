@@ -1,5 +1,5 @@
-   Compiling discord-core v0.1.0 (/home/sanya/orca/project/rust/crates/discord-core)
-   Compiling discord-app v0.1.0 (/home/sanya/orca/project/rust/crates/discord-app)
+   Compiling discord-core v0.1.0 (/home/user/orca/project/rust/crates/discord-core)
+   Compiling discord-app v0.1.0 (/home/user/orca/project/rust/crates/discord-app)
     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.86s
      Running unittests src/main.rs (target/debug/deps/discord_rs-e03fdf132612d286)
 

@@ -25,7 +25,7 @@
 4. Перезамер на финальном бинаре: **PSS ≤ 300 МБ**, 60 fps, p95 ≤ 20 мс; артефакты в
    `waves/RW-37/`.
 5. RE-воркер: `waves/RW-37/RE/RESEARCH.md` + `layout.json` — реальные размеры раскладки и
-   пагинация из `/home/sanya/re-deep` (только чтение), с провенансом.
+   пагинация из `reference-oracle/` (только чтение), с провенансом.
 6. Ревью: P0/P1 = 0; мутации Rust/JS по назначенным файлам.
 
 ## 3. Файловая матрица
@@ -59,7 +59,7 @@ stats() -> { pages, loadedPages, loadedRows, maxPages, pageSize, totalRows }
 
 ## 5. RE-контракт (W37a)
 
-Источники (только чтение): `/home/sanya/re-deep/ui*/`, `docs/re/frontend-d03.md`,
+Источники (только чтение): `reference-oracle/ui*/`, `docs/re/frontend-d03.md`,
 `docs/re/gateway-schema.md`, `docs/re/rest-d02.md`.
 Нужно: ширины рейла/дерева/списка, высоты строк (cozy/compact), размеры вьюпорта,
 лимиты `GET /messages` и поведение пагинации, счётчики READY. Каждое число — с путём

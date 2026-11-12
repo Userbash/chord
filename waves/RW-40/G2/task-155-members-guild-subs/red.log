@@ -1,4 +1,4 @@
-file:///home/sanya/orca/workspaces/project/feature-task-155-members-guild-subs/tests/unit/members-subscriptions.test.mjs:25
+file:///home/user/orca/workspaces/project/feature-task-155-members-guild-subs/tests/unit/members-subscriptions.test.mjs:25
   computeSubscriptionRanges,
   ^^^^^^^^^^^^^^^^^^^^^^^^^
 SyntaxError: The requested module '../../rust/gui-spike/ui/features/members.js' does not provide an export named 'computeSubscriptionRanges'

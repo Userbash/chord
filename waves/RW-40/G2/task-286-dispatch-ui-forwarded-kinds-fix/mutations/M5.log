@@ -96,7 +96,7 @@ test at tests/unit/dispatch_ui.test.mjs:288:3
       'TYPING_START',
       'USER_SETTINGS_PROTO_UPDATE',
   
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:297:12)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:297:12)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -116,7 +116,7 @@ test at tests/unit/dispatch_ui.test.mjs:288:3
 test at tests/unit/dispatch_ui.test.mjs:335:3
 ✖ A5: имена вне канонического набора остаются за фильтром (0.15703ms)
   AssertionError [ERR_ASSERTION]: THREAD_CREATED в UI, но нет в оракуле ядра
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:338:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:338:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -134,7 +134,7 @@ test at tests/unit/dispatch_ui.test.mjs:335:3
 test at tests/unit/dispatch_ui.test.mjs:620:3
 ✖ B14b: 8 расширенных событий приняты моделью — skipped, не ignored (0.14706ms)
   AssertionError [ERR_ASSERTION]: THREAD_CREATE форвардится бэкендом, но отбрасывается UI
-      at TestContext.<anonymous> (file:///home/sanya/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:622:14)
+      at TestContext.<anonymous> (file:///home/user/orca/workspaces/project/bugfix-task-286-dispatch-ui-forwarded-kinds-fix/tests/unit/dispatch_ui.test.mjs:622:14)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)

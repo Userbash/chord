@@ -21,11 +21,11 @@
 
 Запрещено: `unsafe` (крейт с `unsafe_code = "forbid"`), внешние зависимости, сеть,
 `git commit/push`, доступ к живому Discord, запись в `logs/`, `functions/`, `evidence/`,
-`/home/sanya/re-deep`.
+`reference-oracle/`.
 
 ## 2. Оракул (RE, capture s3)
 
-Источник: `/home/sanya/re-deep/voice/strace-media-s3.jsonl` (только чтение), разбор —
+Источник: `reference-oracle/voice/strace-media-s3.jsonl` (только чтение), разбор —
 `waves/RW-25/research/media-packet-layout.mjs`. **Подтверждённая** раскладка:
 
 ```text
@@ -300,7 +300,7 @@ draft-irtf-cfrg-xchacha). **Сеть запрещена** — если конк�
 ## 6. Red/green и сдача
 
 ```bash
-cd /home/sanya/orca/project/rust
+cd /home/user/orca/project/rust
 export CARGO_TARGET_DIR=/tmp/opencode/target-w26a
 cargo test --offline -p discord-voice --test crypto_vectors   # red
 cargo test --offline -p discord-voice --test srtp_contract    # red

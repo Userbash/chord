@@ -2,7 +2,7 @@
 
 - **Дата**: 2026-10-31
 - **Ревьюер**: Технический ревьюер (DeepSeek), не автор кода
-- **Worktree**: `/home/sanya/orca/workspaces/project/feature-task-266-ui-stage-request-queue`
+- **Worktree**: `/home/user/orca/workspaces/project/feature-task-266-ui-stage-request-queue`
 - **Ветка**: `feature/task-266-ui-stage-request-queue` (`HEAD bc9f840`)
 - **PR**: PR-149
 - **Карточка**: `task-266` (`FE-P1-35`)

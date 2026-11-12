@@ -2,7 +2,7 @@
 
 - **Карточка / Ветка**: `task-247` (`feature/task-247-ui-events-modal`)
 - **Отдел**: G2 Frontend (WebView UI & DOM/A11y)
-- **Оракулы**: `/home/sanya/re-deep/rest-static.json:8205-8284` (`GUILD_EVENTS_FOR_GUILD`), `rust/gui-spike/src/scheduled_events.rs` (статусы событий `1..=4`, типы сущностей `1..=3`).
+- **Оракулы**: `reference-oracle/rest-static.json:8205-8284` (`GUILD_EVENTS_FOR_GUILD`), `rust/gui-spike/src/scheduled_events.rs` (статусы событий `1..=4`, типы сущностей `1..=3`).
 
 ## Сделано
 1. `tests/unit/events-modal.test.mjs` (`// @ts-check`, Strict TDD: Red → Green, 7 unit-тестов в 3 suites):
@@ -22,8 +22,8 @@
    - реализованы и экспортированы `EVENT_FILTER_TABS_RU`, `filterEventsByTab` и `createEventsModalController`.
 
 ## Прогоны (Red / Green / Targeted / Gate)
-- **Red**: `node --test tests/unit/events-modal.test.mjs` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-247-ui-events-modal/red.log`.
-- **Green**: `node --test tests/unit/events-modal.test.mjs` → `exit=0` (`tests 7, suites 3, pass 7, fail 0`), лог сохранён в `/home/sanya/orca/project/waves/RW-40/G2/task-247-ui-events-modal/green.log`.
+- **Red**: `node --test tests/unit/events-modal.test.mjs` → `exit=1` (`ERR_MODULE_NOT_FOUND`, `tests 1, pass 0, fail 1`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-247-ui-events-modal/red.log`.
+- **Green**: `node --test tests/unit/events-modal.test.mjs` → `exit=0` (`tests 7, suites 3, pass 7, fail 0`), лог сохранён в `/home/user/orca/project/waves/RW-40/G2/task-247-ui-events-modal/green.log`.
 - **Typecheck**:
    - `npx tsc -p rust/gui-spike/ui/tsconfig.json --noEmit` → `exit=0` (0 ошибок);
    - `./node_modules/.bin/tsc --ignoreConfig --noEmit --strict --allowJs --checkJs --noUncheckedIndexedAccess --target es2022 --module node20 --moduleResolution node16 --types node rust/gui-spike/ui/features/events-modal.js tests/unit/events-modal.test.mjs` → `exit=0` (0 ошибок).
@@ -33,8 +33,8 @@
 ```
 3e14e44521110a282863f7f855a0358b  rust/gui-spike/ui/features/events-modal.js
 3dd0638bb74b2c5507e9722a07d5f36c  tests/unit/events-modal.test.mjs
-1315123c4a8744f152ff79f7c5d43b87  /home/sanya/orca/project/waves/RW-40/G2/task-247-ui-events-modal/red.log
-d4a21a9bd6d39db421340808d669581e  /home/sanya/orca/project/waves/RW-40/G2/task-247-ui-events-modal/green.log
+1315123c4a8744f152ff79f7c5d43b87  /home/user/orca/project/waves/RW-40/G2/task-247-ui-events-modal/red.log
+d4a21a9bd6d39db421340808d669581e  /home/user/orca/project/waves/RW-40/G2/task-247-ui-events-modal/green.log
 ```
 
 ## Риски

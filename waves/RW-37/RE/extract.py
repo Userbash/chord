@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """RW-37 / W37a: воспроизводимое извлечение RE-констант раскладки и пагинации.
 
-Только чтение golden-дампа `/home/sanya/re-deep` (никаких записей туда).
+Только чтение golden-дампа `/home/user/clean-room-oracle` (никаких записей туда).
 Запуск:  python3 waves/RW-37/RE/extract.py > waves/RW-37/RE/extract.log 2>&1
 
 Каждое число в выводе сопровождается путём к артефакту и способом извлечения.
@@ -16,7 +16,7 @@ import re
 import sys
 from pathlib import Path
 
-RE = Path("/home/sanya/re-deep")
+RE = Path("/home/user/clean-room-oracle")
 OUT: dict = {}
 
 

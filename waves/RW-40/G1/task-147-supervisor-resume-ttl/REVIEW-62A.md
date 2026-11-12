@@ -2,7 +2,7 @@
 
 Дата: 2026-10-30. Ревьюер: Технический ревьюер, Review 62A.
 Ветка: `feature/task-147-supervisor-resume-ttl-and-opcodes`, worktree
-`/home/sanya/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes`,
+`/home/user/orca/workspaces/project/feature-task-147-supervisor-resume-ttl-and-opcodes`,
 HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 Режим: сверка с RE-оракулом + чтение диффа + целевые и интеграционные тесты + 5/5 мутационных прогонов.
 
@@ -18,8 +18,8 @@ HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 
 ## Что проверено
 
-- **Файловый скоуп:** относительно `/home/sanya/orca/project` изменён ровно один целевой файл карточки — `rust/crates/discord-core/src/gateway/supervisor.rs` (md5 `5af33f1994907ad686cbff2ade5df8e3`, совпадает с `REPORT.md` §5). Остальные модифицированные файлы в `git status` (`gateway.rs`, `zstd.rs`, `discord-codec/Cargo.toml`, `rust/Cargo.lock`, `zstd_stream.rs`, `dispatch_router.rs`, `ws_transport.rs`) побайтно идентичны уже влитым в `/home/sanya/orca/project` PR-23/PR-24/PR-28.
-- **Сверка с независимым оракулом:** проверены байтовые смещения в веб-бандле Discord 1.0.162 `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (md5 `934b1289b7ebf17bc0fd09569b23b438`):
+- **Файловый скоуп:** относительно `/home/user/orca/project` изменён ровно один целевой файл карточки — `rust/crates/discord-core/src/gateway/supervisor.rs` (md5 `5af33f1994907ad686cbff2ade5df8e3`, совпадает с `REPORT.md` §5). Остальные модифицированные файлы в `git status` (`gateway.rs`, `zstd.rs`, `discord-codec/Cargo.toml`, `rust/Cargo.lock`, `zstd_stream.rs`, `dispatch_router.rs`, `ws_transport.rs`) побайтно идентичны уже влитым в `/home/user/orca/project` PR-23/PR-24/PR-28.
+- **Сверка с независимым оракулом:** проверены байтовые смещения в веб-бандле Discord 1.0.162 `reference-oracle/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (md5 `934b1289b7ebf17bc0fd09569b23b438`):
   - `@5 019 509` (`_doResumeOrIdentify`): `let e = Date.now(); null !== this.sessionId && (null == this.lastHeartbeatAckTime || e - this.lastHeartbeatAckTime <= tI) ? this._doResume() : this._doIdentify()`, где `tI = 3 * L.A.Millis.MINUTE` (`180 000` мс);
   - `@5 018 140` (`_doIdentify`): `this.seq = 0, this.sessionId = null` при переходе к свежему `IDENTIFY`;
   - `@4 996 243` (таблица `e2`) и `@4 998 360..4 999 000` (`class e3`): `PRESENCE_UPDATE = 3`, `VOICE_STATE_UPDATE = 4`, `REQUEST_GUILD_MEMBERS = 8` (чанкование `userIds` по 100 на `@4 954 130`), `GUILD_SUBSCRIPTIONS_BULK = 37`, а также гейт `isSessionEstablished()` перед отправкой.
@@ -30,13 +30,13 @@ HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 
 ## Прогоны
 
-Все команды запускались последовательно с `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target`:
+Все команды запускались последовательно с `CARGO_TARGET_DIR=/home/user/orca/project/rust/target`:
 
 | Прогон | Команда | Результат | Лог |
 |---|---|---|---|
-| Targeted unit (`gateway::supervisor`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib gateway::supervisor` | **5 passed, 0 failed** (`EXIT=0`) | `REVIEW-62A-GREEN-LIB.log` |
-| Интеграционные тесты супервайзера | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test gateway_supervisor` | **14 passed, 0 failed** (`EXIT=0`) | `REVIEW-62A-SUPERVISOR-IT.log` |
-| Clippy (`discord-core --all-targets`) | `CARGO_TARGET_DIR=/home/sanya/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `REVIEW-62A-CLIPPY.log` |
+| Targeted unit (`gateway::supervisor`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --lib gateway::supervisor` | **5 passed, 0 failed** (`EXIT=0`) | `REVIEW-62A-GREEN-LIB.log` |
+| Интеграционные тесты супервайзера | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo test --offline --manifest-path rust/Cargo.toml -p discord-core --test gateway_supervisor` | **14 passed, 0 failed** (`EXIT=0`) | `REVIEW-62A-SUPERVISOR-IT.log` |
+| Clippy (`discord-core --all-targets`) | `CARGO_TARGET_DIR=/home/user/orca/project/rust/target cargo clippy --offline --manifest-path rust/Cargo.toml -p discord-core --all-targets -- -D warnings` | **0 предупреждений** (`EXIT=0`) | `REVIEW-62A-CLIPPY.log` |
 | Форматирование (`rustfmt`) | `cargo fmt --manifest-path rust/Cargo.toml -p discord-core -- --check` | **чисто** (`EXIT=0`) | `REVIEW-62A-FMT.log` |
 
 Контрольные суммы артефактов воркера проверены и совпадают с `REPORT.md` §5:
@@ -71,7 +71,7 @@ HEAD `4e240481e59ff4d49732ac8bd5ba08a006363748`.
 **P3-1. `ack_elapsed_override_ms` не сбрасывается в `absorb` и `reset_session` (`supervisor.rs:480-487, 592-597`).**
 Метод `note_heartbeat_ack()` очищает `self.ack_elapsed_override_ms = None`, однако `absorb()` при обновлении `self.last_ack_at = Some(Instant::now())` и `reset_session()` оставляют `ack_elapsed_override_ms` нетронутым. Это сделано намеренно, чтобы в тесте `resume_ttl_preserves_session_up_to_180s_and_resets_to_identify_after_180s` можно было задать `set_last_ack_elapsed_ms(...)` один раз перед `supervisor.run()`, но в многошаговых сценариях после `reset_session()` переопределение останется активным, пока вызывающий явно не сбросит его через `note_heartbeat_ack()`.
 
-**P3-2. Синхронизированные файлы из `/home/sanya/orca/project` и `package-lock.json` в `git status`.**
+**P3-2. Синхронизированные файлы из `/home/user/orca/project` и `package-lock.json` в `git status`.**
 В рабочем дереве ветки присутствуют синхронизированные из основной ветки файлы PR-23/PR-24/PR-28 и фоновое изменение `package-lock.json`. При формировании коммита карточки `task-147` нужно включать только `rust/crates/discord-core/src/gateway/supervisor.rs`.
 
 ## Границы доказательств

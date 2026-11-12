@@ -68,9 +68,9 @@ test at tests/unit/server-menu.test.mjs:373:3
   + 'ID сервера скопирован'
   - 'Не удалось скопировать ID'
   
-      at file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:382:14
-      at async withApp (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:49:5)
-      at async TestContext.<anonymous> (file:///home/sanya/orca/project/tests/unit/server-menu.test.mjs:374:5)
+      at file:///home/user/orca/project/tests/unit/server-menu.test.mjs:382:14
+      at async withApp (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:49:5)
+      at async TestContext.<anonymous> (file:///home/user/orca/project/tests/unit/server-menu.test.mjs:374:5)
       at async Test.run (node:internal/test_runner/test:1409:7)
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,

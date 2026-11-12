@@ -57,7 +57,7 @@ b47a7a25207dd47cec83e584260afe76  tests/unit/onboarding-wizard.test.mjs
 
 ## 5. Проверка контракта с оракулом
 
-Константы соответствуют `/home/sanya/re-deep/rest-static.json` (`GUILD_WELCOME_CHANNELS` = 5, описание ≤ 140 символов): `MAX_WELCOME_CHANNELS = 5`, `MAX_WELCOME_DESCRIPTION_CHARS = 140`. Лимит каналов защищён дважды — в `normalizeWelcomeChannels` (break на 5-м) и в `renderWelcomeSection` (`slice(0, MAX_WELCOME_CHANNELS)`), тест T-262-05 проверяет отсутствие 6-го и 7-го канала в DOM. Обязательность вопросов и `singleSelect` реализованы в чистой функции и повторно применяются обработчиком кнопки завершения, поэтому UI и валидация не расходятся.
+Константы соответствуют `reference-oracle/rest-static.json` (`GUILD_WELCOME_CHANNELS` = 5, описание ≤ 140 символов): `MAX_WELCOME_CHANNELS = 5`, `MAX_WELCOME_DESCRIPTION_CHARS = 140`. Лимит каналов защищён дважды — в `normalizeWelcomeChannels` (break на 5-м) и в `renderWelcomeSection` (`slice(0, MAX_WELCOME_CHANNELS)`), тест T-262-05 проверяет отсутствие 6-го и 7-го канала в DOM. Обязательность вопросов и `singleSelect` реализованы в чистой функции и повторно применяются обработчиком кнопки завершения, поэтому UI и валидация не расходятся.
 
 ## 6. Артефакты
 

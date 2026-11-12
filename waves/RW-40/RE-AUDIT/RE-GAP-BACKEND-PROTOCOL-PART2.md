@@ -9,7 +9,7 @@
 **Дата:** 2026-10-30. **Режим:** read-only по продуктовому коду; `cargo build/test` не запускались.
 **Что сверялось:** `rust/gui-spike/src/*.rs`, `rust/crates/discord-core/src/**`,
 `rust/crates/discord-voice/src/**`, `rust/crates/discord-platform/src/**` (≈35 тыс. строк).
-**Эталон:** `/home/sanya/re-deep/` — `README.md`, `rest-d02.{md,json}`, `rest-static.{md,json}`,
+**Эталон:** `reference-oracle/` — `README.md`, `rest-d02.{md,json}`, `rest-static.{md,json}`,
 `gateway-protocol.{md,json}`, `gateway-schema.{md,json}`, `backend-ipc.{md,json}`,
 `main-arch.{md,json}`, `voice-deep.{md,json}`, `decoded-index.json`, `decoded/`,
 `out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js` (веб-клиент, 12,4 МБ).
@@ -64,7 +64,7 @@
 
 | Что | Наш код | Оракул | Вердикт |
 |---|---|---|---|
-| 47 live-маршрутов D-02 | `rust/crates/discord-core/src/rest/routes.rs:71-161`, `ROUTES[49]` | `/home/sanya/re-deep/rest-d02.json` → `endpoints[0..46]`, `rest-d02.md:63-143` | ✔ Все 47 присутствуют (сверено множествами: `LIVE − OURS = ∅`) |
+| 47 live-маршрутов D-02 | `rust/crates/discord-core/src/rest/routes.rs:71-161`, `ROUTES[49]` | `reference-oracle/rest-d02.json` → `endpoints[0..46]`, `rest-d02.md:63-143` | ✔ Все 47 присутствуют (сверено множествами: `LIVE − OURS = ∅`) |
 | Сверх каталога | `POST /channels/{id}/messages` (`routes.rs:72-76`), `GET /guilds/{id}/messages/search` (`routes.rs:128`) | `POST` подтверждён `NETWORK-CONTRACTS.md` §1.1; `GET search` — `rest-static.md:885` (enum `SEARCH_GUILD`) + `README.md:32` (живой поиск, 3 302 результата) | ✔, но docstring `routes.rs:4-5` говорит «47 + POST» — фактически 47 + 2 |
 | `[S]`-расширения | `TYPING_PATH` (`routes.rs:185`), `INVITE_PATH` (`routes.rs:194`), `EXTENSIONS[3]` (`routes.rs:209-213`) | `rest-static.md:253` (typing), `NETWORK-CONTRACTS.md` §1.2/§1.4 | ✔ |
 | Query-параметры | каталог их не хранит; пагинация собирается в `history/pagination.rs:89-92` (`limit`, `before`, `after`, `around`) | `rest-d02.md:145-183` — 45 имён, пагинация `limit=12`, `before=<id>&limit=24`, `limit=30&around=<id>` | ✔ для сообщений; ✘ для остальных маршрутов (см. 2.8) |
@@ -458,7 +458,7 @@ U-06 (формат `Authorization`), U-08 (fingerprint), U-10 (живой фай
 
 ## 8. Приоритизированный список (передаётся PM)
 
-Полные карточки — `/home/sanya/orca/project/waves/RW-40/PM/BACKLOG-RE-BACKEND-PART2.md`.
+Полные карточки — `/home/user/orca/project/waves/RW-40/PM/BACKLOG-RE-BACKEND-PART2.md`.
 
 **P1 (6):**
 1. zstd-пайплайн шлюза без потери термов (3.4).

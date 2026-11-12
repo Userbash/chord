@@ -6,7 +6,7 @@
 - **Ветка:** `feature/task-628-advanced-settings-ui`
 - **Назначение:** Реализация UI-модуля расширенных настроек (`Advanced Settings UI`) с тремя разделами — «Горячие клавиши» (`Keybinds`), «Звуковая панель» (`Soundboard`) и «Видеонарезки» (`Clips`) в `rust/gui-spike/ui/features/advanced-settings.js`, таблицы стилей `rust/gui-spike/ui/styles/advanced-settings.css` и полного набора unit-тестов `tests/unit/advanced-settings.test.mjs`.
 
-## 2. Сверка с эталонным RE-дампом (`/home/sanya/re-deep/`)
+## 2. Сверка с эталонным RE-дампом (`reference-oracle/`)
 Все константы, действия, диапазоны, дефолты и русские строки сверены с эталонным RE-оракулом:
 1. **Вкладки и заголовки (`ru-catalog.json` / `en-catalog.json`):**
    - `T9DA2K`: `Горячие клавиши` (`Keybinds`)

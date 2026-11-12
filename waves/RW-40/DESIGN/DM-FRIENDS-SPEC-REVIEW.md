@@ -17,7 +17,7 @@ dispatch-переходов.
 `rust/gui-spike/ui/features/notifications.js`,
 `rust/crates/discord-core/src/{ready/social.rs,state/types.rs,state/presence.rs,dispatch.rs}`,
 `tests/unit/guild-rail.test.mjs`, `tests/support/gui-dom-harness.mjs`,
-`/home/sanya/re-deep/gateway/by-type/002-READY.json`, `/home/sanya/re-deep/rest-static.json`.
+`reference-oracle/gateway/by-type/002-READY.json`, `reference-oracle/rest-static.json`.
 Изменён только этот файл. HEAD `4e24048`, ветка `rw40/review-dm-friends-spec`.
 
 Классификация: **P0 — 0, P1 — 7, P2 — 12.**
@@ -358,7 +358,7 @@ G1 будет вынужден изобретать поведение: что �
   `pendingCount = max(incoming − spam − ignored, 0)` совпадают с RE §3.3,
   §4.7, §5.3.
 - **Живой READY-оракул.** `jq` по
-  `/home/sanya/re-deep/gateway/by-type/002-READY.json`: 17 каналов, все `type=1`,
+  `reference-oracle/gateway/by-type/002-READY.json`: 17 каналов, все `type=1`,
   60 связей (18 типа 1, 42 типа 2), 146 пользователей, 0 записей с
   `recipient_ids.len() != 1`, 0 записей с `id != user_id`. Числа в §1.1.3,
   §1.1.4 и `T-N107-READY-01` совпадают с данными, а не с пересказом.
