@@ -1353,12 +1353,12 @@ pub fn send_desktop_notification(
     let mut notifier = chord_platform::notifications::Notifier::connect(&address)
         .map_err(|e| format!("D-Bus Notifier connect error: {e:?}"))?;
     let mut hints = chord_platform::notifications::Hints::default();
-    hints.desktop_entry = Some("discord".to_string());
+    hints.desktop_entry = Some("chord".to_string());
     if let Some(cat) = category {
         hints.category = Some(cat.to_string());
     }
     let notif = chord_platform::notifications::Notification {
-        app_name: "Discord".to_string(),
+        app_name: "Chord".to_string(),
         summary: summary.to_string(),
         body: body.to_string(),
         replaces_id: 0,

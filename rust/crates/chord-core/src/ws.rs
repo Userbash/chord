@@ -2891,7 +2891,7 @@ fs.mkdirSync("/tmp/dv_data", { recursive: true });
 fs.mkdirSync("/tmp/dv_logs", { recursive: true });
 
 const scopeFix = require("/tmp/dv_scope_fix.node");
-const dv = require("/home/sanya/.config/discord/app-1.0.168/modules/chord_voice-1/chord_voice/chord_voice.node");
+const dv = require("/home/sanya/.config/discord/app-1.0.168/modules/discord_voice-1/discord_voice/discord_voice.node");
 
 function sendEv(obj) {
   try {
@@ -4203,7 +4203,7 @@ rl.on("line", (line) => {
 
 fn ensure_dv_native_bridge_files() -> bool {
     let dv_node = std::path::Path::new(
-        "/home/sanya/.config/discord/app-1.0.168/modules/chord_voice-1/chord_voice/chord_voice.node",
+        "/home/sanya/.config/discord/app-1.0.168/modules/discord_voice-1/discord_voice/discord_voice.node",
     );
     if !dv_node.exists() {
         return false;

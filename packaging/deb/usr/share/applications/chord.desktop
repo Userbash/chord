@@ -1,0 +1,16 @@
+[Desktop Entry]
+Version=1.0
+Name=Chord
+GenericName=Chat & Voice Client
+Comment=Open-source voice, video, and text communication — built in Rust with GPUI
+Comment[ru]=Открытый клиент голосового, видео и текстового общения на базе Rust GPUI
+Exec=/usr/bin/chord %U
+TryExec=/usr/bin/chord
+Icon=chord
+Terminal=false
+Type=Application
+Categories=Network;InstantMessaging;Chat;
+MimeType=x-scheme-handler/chord;application/x-chord-invite;
+Keywords=chord;chat;voice;video;gpui;wayland;pipewire;
+StartupWMClass=chord
+StartupNotify=true
