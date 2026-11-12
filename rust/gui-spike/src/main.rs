@@ -1709,20 +1709,24 @@ async fn voice_stream_start(
             chord_core::ws::clear_last_stream_key();
             data::reset_live_stream_state();
         }
-        if !spec.source_id.is_empty() {
+        if !spec.source_id.is_empty() && pipewire_node_id.is_none() {
+            // Non-PipeWire path: send source_id directly to native worker
             let clean_src = spec.source_id.trim();
             let target_kind = if clean_src.starts_with('{') || clean_src.starts_with("win") { "window" } else { "screen" };
             let _ = std::fs::write("/dev/shm/discord_capture_target.txt", clean_src.as_bytes());
             let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
             let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{clean_src}\"}}");
             chord_core::ws::send_native_stream_cmd(&ucmd);
-        } else if let Some(nid) = pipewire_node_id {
+        }
+        if let Some(nid) = pipewire_node_id {
             // PipeWire Portal capture — works on Wayland without X11 (Bug #1 fix)
+            // This MUST override the screen:X source sent by JS, as screen:0 doesn't
+            // work on Wayland. PipeWire nodeId provides actual screen capture.
             let _ = std::fs::write("/dev/shm/discord_capture_target.txt", format!("pipewire:{nid}").as_bytes());
             let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
             let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"pipewire\",\"nodeId\":{nid}}}");
             chord_core::ws::send_native_stream_cmd(&ucmd);
-            println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} to native worker");
+            println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} to native worker (overrides screen:{}))", spec.source_id);
         }
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, vvideo, true)?;

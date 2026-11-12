@@ -6940,6 +6940,18 @@ pub fn set_system_audio_device(
 ) -> Value {
     use std::sync::atomic::Ordering;
     if kind == "set_capture_source" {
+        // [BUG FIX] If PipeWire portal capture is active (nodeId was acquired),
+        // skip the screen:X override from JS. The PipeWire path sends the correct
+        // capture source via nodeId, and screen:0 doesn't work on Wayland.
+        if let Ok(current) = std::fs::read_to_string("/dev/shm/discord_capture_target.txt") {
+            if current.starts_with("pipewire:") {
+                let raw = device_id.unwrap_or_default().trim().to_string();
+                if raw.starts_with("screen:") || raw.starts_with("screens:") {
+                    println!("[IPC-TRACE] set_capture_source: SKIPPED (PipeWire active, ignoring screen:X override)");
+                    return json!({ "ok": true, "skipped": true, "reason": "pipewire_active" });
+                }
+            }
+        }
         let raw = device_id.unwrap_or_default().trim().to_string();
         let mut target_handle = String::new();
         let mut target_label = String::new();
