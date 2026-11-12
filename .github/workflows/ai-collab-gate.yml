@@ -1,6 +1,6 @@
-# AI Collaboration Gate — автоматическая проверка PR от любого ИИ-контрибьютора
-# Запускается на каждый PR в ветки: unstable, testing, beta, main
-# Блокирует merge при нарушении любого уровня L0–L3
+# AI Collaboration Gate — automatic checks for every PR from any AI contributor
+# Runs on every PR targeting: unstable, testing, beta, main
+# Blocks merge if any level L0-L3 check fails
 
 name: AI Collab Gate
 
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   # ─────────────────────────────────────────────────────────────
-  # L0-A: Формат кода (Rust)
+  # L0-A: Code formatting (Rust)
   # ─────────────────────────────────────────────────────────────
   l0-format:
     name: "L0 · Format (rustfmt)"
@@ -36,7 +36,7 @@ jobs:
         run: cargo fmt --all --check
 
   # ─────────────────────────────────────────────────────────────
-  # L0-B: Clippy — ноль предупреждений
+  # L0-B: Clippy — zero warnings
   # ─────────────────────────────────────────────────────────────
   l0-clippy:
     name: "L0 · Clippy (zero warnings)"
@@ -54,7 +54,7 @@ jobs:
         run: cargo clippy --workspace -- -D warnings
 
   # ─────────────────────────────────────────────────────────────
-  # L0-C: Тесты workspace
+  # L0-C: Workspace tests
   # ─────────────────────────────────────────────────────────────
   l0-tests:
     name: "L0 · Tests (workspace)"
@@ -78,7 +78,7 @@ jobs:
           retention-days: 7
 
   # ─────────────────────────────────────────────────────────────
-  # L0-D: Harness компилируется
+  # L0-D: Harness compiles
   # ─────────────────────────────────────────────────────────────
   l0-harness-build:
     name: "L0 · Harness build"
@@ -93,7 +93,7 @@ jobs:
         run: cargo build --manifest-path tests/e2e/harness/Cargo.toml
 
   # ─────────────────────────────────────────────────────────────
-  # L1: Файловые границы — один воркер = один scope
+  # L1: File boundaries — one worker = one scope
   # ─────────────────────────────────────────────────────────────
   l1-file-scope:
     name: "L1 · File Boundaries"
@@ -126,7 +126,7 @@ jobs:
           while IFS= read -r file; do
             for pattern in "${SHARED_PATTERNS[@]}"; do
               if echo "$file" | grep -qE "$pattern"; then
-                VIOLATIONS="$VIOLATIONS\n  ⚠️  SHARED FILE: $file (requires coordinator approval)"
+                VIOLATIONS="$VIOLATIONS\n  WARNING: SHARED FILE: $file (requires coordinator approval)"
               fi
             done
           done < /tmp/changed_files.txt
@@ -156,7 +156,7 @@ jobs:
           done
 
   # ─────────────────────────────────────────────────────────────
-  # L2: Контракт — нет breaking change без обновления .contracts/
+  # L2: Contract — no breaking change without updating .contracts/
   # ─────────────────────────────────────────────────────────────
   l2-contract:
     name: "L2 · Contract Compatibility"
@@ -180,13 +180,13 @@ jobs:
             echo "$PROD_CHANGED"
             echo ""
             echo "If public API changed, update .contracts/ files."
-            echo "If no public API changed, this is informational only."
+            echo "If no public API changed, this notice is informational only."
           else
-            echo "✅ Contract check passed"
+            echo "Contract check passed"
           fi
 
   # ─────────────────────────────────────────────────────────────
-  # L3: Secrets scan — утечки токенов, ключей
+  # L3: Secrets scan — no token or key leaks
   # ─────────────────────────────────────────────────────────────
   l3-secrets:
     name: "L3 · Secret Scan (gitleaks)"
@@ -201,7 +201,7 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   # ─────────────────────────────────────────────────────────────
-  # AUTO-LABEL: навешивает метки на PR по изменённым файлам
+  # AUTO-LABEL: attach labels to PR based on changed files
   # ─────────────────────────────────────────────────────────────
   auto-label:
     name: "Auto Label PR"
@@ -216,7 +216,7 @@ jobs:
           configuration-path: .github/labeler.yml
 
   # ─────────────────────────────────────────────────────────────
-  # SUMMARY: итоговый статус всех проверок
+  # SUMMARY: final status of all checks
   # ─────────────────────────────────────────────────────────────
   gate-summary:
     name: "✅ Gate Summary"
@@ -227,17 +227,17 @@ jobs:
       - name: Check all gates passed
         run: |
           FAILED=""
-          [ "${{ needs.l0-format.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L0 · Format"
-          [ "${{ needs.l0-clippy.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L0 · Clippy"
-          [ "${{ needs.l0-tests.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L0 · Tests"
-          [ "${{ needs.l0-harness-build.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L0 · Harness"
-          [ "${{ needs.l1-file-scope.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L1 · File Scope"
-          [ "${{ needs.l2-contract.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L2 · Contract"
-          [ "${{ needs.l3-secrets.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L3 · Secrets"
+          [ "${{ needs.l0-format.result }}" != "success" ] && FAILED="$FAILED\n  FAIL: L0 · Format"
+          [ "${{ needs.l0-clippy.result }}" != "success" ] && FAILED="$FAILED\n  FAIL: L0 · Clippy"
+          [ "${{ needs.l0-tests.result }}" != "success" ] && FAILED="$FAILED\n  FAIL: L0 · Tests"
+          [ "${{ needs.l0-harness-build.result }}" != "success" ] && FAILED="$FAILED\n  FAIL: L0 · Harness"
+          [ "${{ needs.l1-file-scope.result }}" != "success" ] && FAILED="$FAILED\n  FAIL: L1 · File Scope"
+          [ "${{ needs.l2-contract.result }}" != "success" ] && FAILED="$FAILED\n  FAIL: L2 · Contract"
+          [ "${{ needs.l3-secrets.result }}" != "success" ] && FAILED="$FAILED\n  FAIL: L3 · Secrets"
 
           if [ -n "$FAILED" ]; then
             echo -e "Gate FAILED. Fix these before merge:$FAILED"
             exit 1
           else
-            echo "✅ All gates passed — PR ready for review"
+            echo "All gates passed — PR ready for review"
           fi

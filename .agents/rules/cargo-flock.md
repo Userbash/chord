@@ -1,39 +1,39 @@
-# Cargo Flock — Защита от параллельных сборок
+# Cargo Flock — Protection Against Parallel Builds
 
-> FIX-22: Обязательное правило для всех воркеров выполняющих `cargo` команды.
-> Нарушение = OOM kill (25 GB RAM лимит при 5 параллельных воркерах).
+> FIX-22: Mandatory rule for all workers running `cargo` commands.
+> Violation = OOM kill (25 GB RAM limit across 5 parallel workers).
 
-## Правило
+## Rule
 
-**ВСЕГДА** оборачивай `cargo` команды в `flock`:
+**ALWAYS** wrap `cargo` commands with `flock`:
 
 ```bash
-# Шаблон (ОБЯЗАТЕЛЬНЫЙ):
+# Template (MANDATORY):
 flock /tmp/discord-lab-cargo.lock cargo <command> ...
 
-# Примеры:
+# Examples:
 flock /tmp/discord-lab-cargo.lock cargo build --manifest-path rust/Cargo.toml -p chord-core
 flock /tmp/discord-lab-cargo.lock cargo test --manifest-path rust/Cargo.toml -p chord-voice --test voice_contract
 flock /tmp/discord-lab-cargo.lock cargo check --manifest-path rust/chord-gpui/Cargo.toml
 ```
 
-## Почему
+## Why
 
-- `CARGO_TARGET_DIR = /home/user/orca/project/rust/target` — общий для всех воркеров
-- Параллельный `cargo build` на одном `target-dir` → corrupted incremental cache → OOM
-- AMD Ryzen 7 7800X3D: 1 cargo build × 8 потоков уже использует ~4-6 GB RAM
-- При 5 воркерах без flock → 20-30 GB → OOM kill
+- `CARGO_TARGET_DIR = /home/user/orca/project/rust/target` — shared across all workers
+- Parallel `cargo build` on the same `target-dir` → corrupted incremental cache → OOM
+- AMD Ryzen 7 7800X3D: 1 cargo build × 8 threads already uses ~4–6 GB RAM
+- With 5 workers and no flock → 20–30 GB → OOM kill
 
-## Исключения
+## Exceptions
 
-- `cargo check` без кодогенерации — можно без flock (только для быстрой проверки типов)
-- `cargo fmt` — всегда без flock (только форматирование)
-- `cargo clippy --no-deps` — без flock (статический анализ без линковки)
+- `cargo check` without codegen — may skip flock (quick type check only)
+- `cargo fmt` — always skip flock (formatting only)
+- `cargo clippy --no-deps` — skip flock (static analysis without linking)
 
-## RAM мониторинг перед запуском cargo
+## RAM Monitor Before Starting `cargo`
 
 ```bash
 CURRENT_RSS=$(ps -eo rss | awk '{s+=$1} END {printf "%.1f", s/1024/1024}')
-echo "Текущее RSS: ${CURRENT_RSS} GiB"
-# Если > 20 GiB — подожди освобождения слота перед запуском cargo
+echo "Current RSS: ${CURRENT_RSS} GiB"
+# If > 20 GiB — wait for a free slot before launching cargo
 ```

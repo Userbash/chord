@@ -1,185 +1,185 @@
 # 🤝 Contributing to Chord
 
-> **Это руководство для людей и ИИ-агентов.**
-> Раздел [для ИИ-агентов](#-для-ии-агентов-ai-agents) содержит машиночитаемые правила.
+> **This guide is for both humans and AI agents.**
+> See the [AI Agents section](#-for-ai-agents) for machine-readable rules.
 
 <p align="center">
-  <a href="#-быстрый-старт">Быстрый старт</a> ·
-  <a href="#-уровни-доверия">Уровни доверия</a> ·
-  <a href="#-для-ии-агентов-ai-agents">Для ИИ-агентов</a> ·
-  <a href="#-git-протокол">Git-протокол</a> ·
-  <a href="#-проверки-ci">Проверки CI</a> ·
-  <a href="#-ревью-и-merge">Ревью и Merge</a>
+  <a href="#-quick-start">Quick Start</a> ·
+  <a href="#-trust-levels">Trust Levels</a> ·
+  <a href="#-for-ai-agents">For AI Agents</a> ·
+  <a href="#-git-protocol">Git Protocol</a> ·
+  <a href="#-ci-checks">CI Checks</a> ·
+  <a href="#-review--merge">Review & Merge</a>
 </p>
 
 ---
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
-### Шаг 1 — Fork и клон
+### Step 1 — Fork and Clone
 
 ```bash
-# 1. Fork на GitHub (кнопка Fork в правом верхнем углу)
-# 2. Клонировать свой fork
+# 1. Click Fork on GitHub (top right corner)
+# 2. Clone your fork
 git clone https://github.com/YOUR_USERNAME/chord.git
 cd chord
 
-# 3. Добавить upstream
+# 3. Add upstream remote
 git remote add upstream https://github.com/Userbash/chord.git
 ```
 
-### Шаг 2 — Настройка окружения
+### Step 2 — Set Up Environment
 
 ```bash
-# Rust 1.85+ обязателен
+# Rust 1.85+ required
 rustup default stable
 rustup component add rustfmt clippy
 
-# Node.js 24+ обязателен
+# Node.js 24+ required
 node --version  # >= 24.0.0
 
-# Системные библиотеки (Linux)
+# System libraries (Linux)
 sudo apt install libasound2-dev libpipewire-0.3-dev libsecret-1-dev libenchant-2-dev
 
-# Установка npm зависимостей
+# Install npm dependencies
 npm ci
 ```
 
-### Шаг 3 — Убедиться что всё работает
+### Step 3 — Verify Everything Works
 
 ```bash
-# Rust workspace компилируется
+# Rust workspace compiles
 cd rust && cargo check --workspace && cd ..
 
-# Тесты зелёные
+# Tests are green
 cargo test --workspace --manifest-path rust/Cargo.toml
 
-# Node.js тесты
+# Node.js tests
 npm run test:meta
 ```
 
-### Шаг 4 — Найти задачу
+### Step 4 — Find a Task
 
-1. Открыть [Issues](https://github.com/Userbash/chord/issues) → фильтр `backlog`
-2. Выбрать задачу с меткой по своему уровню (см. [Уровни доверия](#-уровни-доверия))
-3. Написать комментарий: **«Беру эту задачу»**
-4. Дождаться assign от мейнтейнера
+1. Open [Issues](https://github.com/Userbash/chord/issues) → filter by `backlog`
+2. Pick a task matching your trust level (see [Trust Levels](#-trust-levels))
+3. Comment: **"I'm taking this task"**
+4. Wait for assignment from a maintainer
 
-### Шаг 5 — Работа и PR
+### Step 5 — Work and Submit PR
 
 ```bash
-# Синхронизировать с upstream
+# Sync with upstream
 git fetch upstream
 git checkout -b feature/task-<ID>-<short-slug> upstream/unstable
 
-# ... работаем, пишем тесты, пишем код ...
+# ... write tests first, then code ...
 
-# Локальные проверки ПЕРЕД push
+# Local checks BEFORE push
 cargo fmt --check --manifest-path rust/Cargo.toml
 cargo clippy --workspace --manifest-path rust/Cargo.toml -- -D warnings
 cargo test --workspace --manifest-path rust/Cargo.toml
 
-# Push и PR
+# Push and open PR
 git push origin feature/task-<ID>-<short-slug>
-# Открыть PR в GitHub → target: unstable
+# Open PR on GitHub → target branch: unstable
 ```
 
 ---
 
-## 🏅 Уровни доверия
+## 🏅 Trust Levels
 
-> Уровень определяет какие задачи доступны и сколько ревьюеров нужно
+> Your level determines which tasks are available and how many reviewers are required.
 
-| Уровень | Кто | Доступные задачи | Нужно ревьюеров |
-|---------|-----|-----------------|-----------------|
-| **L0 — Новичок** | Первый PR в проект | `docs-only`, `good-first-issue` | 1 |
-| **L1 — Контрибьютор** | 1+ принятый PR | `P2`, `P3`, тесты, QA | 1 |
-| **L2 — Доверенный** | 5+ принятых PR, хорошие ревью | `P1`, рефакторинг | 1 |
-| **L3 — Мейнтейнер** | Invite от владельца | `P0`, shared-файлы, архитектура | 2 |
-| **🤖 ИИ-агент (External)** | Fork + PR | `P2`, `P3`, `docs-only` | 1 (обязательно человек) |
-| **🤖 ИИ-агент (Trusted)** | Прошёл 3+ ревью | `P1`, `P2` | 1 |
+| Level | Who | Available Tasks | Reviewers Required |
+|-------|-----|----------------|--------------------|
+| **L0 — Newcomer** | First PR in the project | `docs-only`, `good-first-issue` | 1 |
+| **L1 — Contributor** | 1+ merged PR | `P2`, `P3`, tests, QA | 1 |
+| **L2 — Trusted** | 5+ merged PRs, quality reviews | `P1`, refactoring | 1 |
+| **L3 — Maintainer** | Invited by owner | `P0`, shared files, architecture | 2 |
+| **🤖 AI Agent (External)** | Fork + PR | `P2`, `P3`, `docs-only` | 1 (must be human) |
+| **🤖 AI Agent (Trusted)** | 3+ merged PRs | `P1`, `P2` | 1 |
 
-### Как повысить уровень
+### How to Level Up
 
 ```
-L0 → L1:  Один принятый PR с зелёными тестами
-L1 → L2:  5 принятых PR + 3 качественных ревью чужого кода
-L2 → L3:  Invite от @Userbash (не запрашивать вручную)
+L0 → L1:  One merged PR with green tests
+L1 → L2:  5 merged PRs + 3 quality reviews of others' code
+L2 → L3:  Direct invite from @Userbash (do not request manually)
 ```
 
 ---
 
-## 🤖 Для ИИ-агентов (AI Agents)
+## 🤖 For AI Agents
 
-> Это секция написана специально для ИИ-моделей.
-> Читай её как инструкцию к исполнению.
+> This section is written specifically for AI models.
+> Read it as an executable instruction.
 
-### Идентификация ИИ-агента в PR
+### AI Agent Identification in PR
 
-В описании PR обязательно укажи:
+Include in every PR description:
 
 ```markdown
 **AI-Agent:** true
 **Model:** <Gemini-2.5-Pro / Claude-3.7-Sonnet / GPT-4o / DeepSeek-V3 / ...>
-**Operator:** <@github-username человека который тебя запустил>
-**Task-ID:** <номер Issue или P0-X.X>
+**Operator:** <@github-username of the human who runs you>
+**Task-ID:** <Issue number or P0-X.X>
 ```
 
-### Правила для ИИ-агента — ОБЯЗАТЕЛЬНЫЕ
+### Mandatory Rules for AI Agents
 
 ```
-✅ ДЕЛАЙ:
-  1. Читай этот файл целиком перед началом работы
-  2. Создавай ветку от upstream/unstable (не от main!)
-  3. Пиши тест ПЕРВЫМ — до кода (TDD: Red → Green)
-  4. Трогай ТОЛЬКО файлы из своего scope (см. Файловые границы)
-  5. Запускай cargo fmt + clippy + test локально перед push
-  6. Указывай модель и оператора в описании PR
-  7. Используй flock перед cargo: flock /tmp/chord-cargo.lock cargo <cmd>
-  8. Читай ошибки CI и исправляй — не игнорируй
+DO:
+  1. Read this entire file before starting
+  2. Create branch from upstream/unstable (not from main!)
+  3. Write test FIRST — before code (TDD: Red → Green)
+  4. Touch ONLY files in your scope (see File Boundaries)
+  5. Run cargo fmt + clippy + test locally before push
+  6. Include model name and operator in PR description
+  7. Use flock before cargo: flock /tmp/chord-cargo.lock cargo <cmd>
+  8. Read CI errors and fix them — do not ignore
 
-❌ НИКОГДА:
-  1. Не трогай Cargo.lock (только через отдельный PR координатора)
-  2. Не коммить target/, node_modules/, .env, *.key, *.pem
-  3. Не делай git push --force (только --force-with-lease)
-  4. Не делай cargo fmt на весь workspace (только --package <pkg>)
-  5. Не пиши unsafe{} без Security review
-  6. Не угадывай публичные API — читай .contracts/ или спрашивай
-  7. Не изменяй тесты чтобы они прошли под баг
-  8. Не делай PR в main/beta/testing напрямую
+NEVER:
+  1. Do not touch Cargo.lock (only via separate coordinator PR)
+  2. Do not commit target/, node_modules/, .env, *.key, *.pem
+  3. Do not git push --force (only --force-with-lease)
+  4. Do not cargo fmt --all (only --package <pkg>)
+  5. Do not write unsafe{} without Security review
+  6. Do not guess public APIs — read .contracts/ or ask
+  7. Do not modify tests to make them pass under a bug
+  8. Do not open PRs directly to main/beta/testing
 ```
 
-### Файловые границы (scope)
+### File Boundaries (scope)
 
-ИИ-агент работает ТОЛЬКО в своём scope. Перед началом — проверь issue на метку:
+An AI agent works ONLY within its scope. Before starting — check the issue label:
 
-| Метка Issue | Твой scope | Запрещено трогать |
-|-------------|-----------|------------------|
-| `scope:backend` | `rust/crates/chord-core/`, `rust/crates/chord-codec/`, `rust/chord-gpui/src/*.rs` | Всё остальное |
+| Issue Label | Your Scope | Forbidden |
+|-------------|-----------|-----------|
+| `scope:backend` | `rust/crates/chord-core/`, `rust/crates/chord-codec/`, `rust/chord-gpui/src/*.rs` | Everything else |
 | `scope:frontend` | `rust/chord-gpui/src/views/` | Backend, Voice |
 | `scope:voice` | `rust/crates/chord-voice/`, `rust/crates/chord-platform/` | Backend, Frontend |
-| `scope:tests` | `tests/unit/`, `tests/smoke/`, `tests/meta/` | Production код |
-| `scope:harness` | `tests/e2e/harness/` | Production код |
-| `scope:re` | `docs/re/`, `docs/specs/` | Production код |
-| `docs-only` | `**/*.md` | Любой код |
+| `scope:tests` | `tests/unit/`, `tests/smoke/`, `tests/meta/` | Production code |
+| `scope:harness` | `tests/e2e/harness/` | Production code |
+| `scope:re` | `docs/re/`, `docs/specs/` | Production code |
+| `docs-only` | `**/*.md` | Any code |
 
-### Контракт — читай перед кодированием
+### Read the Contract Before Coding
 
 ```bash
-# Перед написанием кода прочитай контракт модуля:
-cat .contracts/<module>_contract.md 2>/dev/null || echo "Нет контракта — уточни у мейнтейнера"
+# Read the module contract before writing any code:
+cat .contracts/<module>_contract.md 2>/dev/null || echo "No contract — clarify with maintainer"
 
-# Если контракта нет — напиши его в PR-описании:
-# "Предлагаемый контракт: вход X → выход Y → HTTP Z"
+# If no contract exists — propose one in your PR description:
+# "Proposed contract: input X → output Y → HTTP Z"
 ```
 
-### Шаблон commit message для ИИ
+### AI Commit Message Template
 
 ```
 feat(auth): implement LoginService — Task #42
 
 - POST /api/v9/auth/login via ApiClient
-- TokenStore saves to SecretService D-Bus keyring  
+- TokenStore saves to SecretService D-Bus keyring
 - Tests: tests/unit/auth_contract.rs (5 green, 0 red)
 - Gate: fmt ✅ clippy ✅ tests ✅
 
@@ -188,7 +188,7 @@ AI-Model: Gemini-2.5-Pro
 Operator: @vasya
 ```
 
-### Алгоритм работы ИИ-агента (пошагово)
+### AI Agent Workflow (step by step)
 
 ```
 START
@@ -197,13 +197,13 @@ START
 1. git fetch upstream && git checkout -b feature/task-<N>-<slug> upstream/unstable
   │
   ▼
-2. Прочитать Issue #N — понять задачу, scope, контракт
+2. Read Issue #N — understand task, scope, contract
   │
   ▼
-3. Написать ТЕСТ (Red) → cargo test → убедиться что ПАДАЕТ
+3. Write TEST (Red) → cargo test → confirm it FAILS
   │
   ▼
-4. Написать минимальный КОД → cargo test → убедиться что ПРОХОДИТ
+4. Write minimal CODE → cargo test → confirm it PASSES
   │
   ▼
 5. cargo fmt --package <pkg>
@@ -211,7 +211,7 @@ START
    flock /tmp/chord-cargo.lock cargo test --package <pkg>
   │
   ▼
-6. git diff --name-only → убедиться что только мои файлы
+6. git diff --name-only → confirm only my files changed
   │
   ▼
 7. git commit -m "feat(...): ... — Task #N\n\nAI-Model: ...\nOperator: ..."
@@ -220,13 +220,13 @@ START
 8. git push origin feature/task-<N>-<slug>
   │
   ▼
-9. Открыть PR в GitHub → target: unstable
-   Заполнить шаблон PR (все поля обязательны!)
+9. Open PR on GitHub → target: unstable
+   Fill in the PR template completely (all fields required)
   │
   ▼
-10. Дождаться CI → если ❌: прочитать лог, исправить, push
-    Дождаться Review → если REQUEST CHANGES: исправить
-    После APPROVE → merge (автоматически или мейнтейнером)
+10. Wait for CI → if ❌: read log, fix, push
+    Wait for Review → if REQUEST CHANGES: fix
+    After APPROVE → merge (automatic or by maintainer)
   │
   ▼
 END
@@ -234,252 +234,252 @@ END
 
 ---
 
-## 📋 Git-протокол
+## 📋 Git Protocol
 
-### Иерархия веток
+### Branch Hierarchy
 
 ```
-main          ← только стабильные релизы (теги v*.*.*)
-  └─ beta     ← pre-release валидация
-       └─ testing  ← интеграция QA
-            └─ unstable  ← принятые PR (сюда делаешь PR!)
-                 └─ feature/task-<ID>-<slug>  ← твоя ветка
+main          ← stable releases only (tags v*.*.*)
+  └─ beta     ← pre-release validation
+       └─ testing  ← QA integration
+            └─ unstable  ← merged PRs (open your PR here!)
+                 └─ feature/task-<ID>-<slug>  ← your branch
                  └─ bugfix/task-<ID>-<slug>
                  └─ docs/task-<ID>-<slug>
 ```
 
-> **Важно:** Всегда создавай ветку от `upstream/unstable`, не от `main`!
+> **Important:** Always create your branch from `upstream/unstable`, not from `main`!
 
-### Naming convention
+### Branch Naming Convention
 
 ```bash
-feature/task-42-login-service      # новая функция
-bugfix/task-43-token-store-crash   # исправление бага
-docs/task-44-update-readme         # только документация
-test/task-45-auth-contract         # только тесты
-refactor/task-46-split-state       # рефакторинг
-chore/task-47-update-deps          # зависимости
+feature/task-42-login-service      # new feature
+bugfix/task-43-token-store-crash   # bug fix
+docs/task-44-update-readme         # documentation only
+test/task-45-auth-contract         # tests only
+refactor/task-46-split-state       # refactoring
+chore/task-47-update-deps          # dependency updates
 ```
 
-### Синхронизация с upstream (делать регулярно)
+### Syncing with Upstream
 
 ```bash
 git fetch upstream
 git rebase upstream/unstable
-# Если конфликты — разрешить вручную, затем:
+# If conflicts — resolve manually, then:
 git add <resolved-files>
 git rebase --continue
 git push --force-with-lease origin feature/my-branch
 ```
 
-> ⚠️ Используй **rebase**, не merge. Это сохраняет чистую историю.
+> ⚠️ Use **rebase**, not merge. This keeps a clean linear history.
 
 ---
 
-## 🔍 Проверки CI (Gate)
+## 🔍 CI Checks (Gate)
 
-При создании PR автоматически запускаются **8 параллельных проверок**:
+When a PR is opened, **8 parallel checks** run automatically:
 
 ```
-┌─ L0 · Format ────── cargo fmt --check
-│                     Ноль изменений = OK
-│
-├─ L0 · Clippy ────── cargo clippy -- -D warnings  
-│                     Ноль предупреждений = OK
-│
-├─ L0 · Tests ─────── cargo test --workspace
-│                     Все тесты зелёные = OK
-│
-├─ L0 · Harness ───── cargo build (tests/e2e/harness)
-│                     Компилируется = OK
-│
-├─ L1 · FileBounds ── target/ не закоммичен
-│                     Shared-файлы помечены для ревью
-│
-├─ L2 · Contract ──── Production код изменён?
-│                     Предупреждение если .contracts/ не обновлён
-│
-├─ L3 · Secrets ───── gitleaks scan
-│                     Ноль секретов = OK
-│
-└─ ✅ Gate Summary ── Все выше OK = PR готов к ревью
-                      Любой FAIL = merge заблокирован
+L0 · Format ────── cargo fmt --check
+                   Zero diff = OK
+
+L0 · Clippy ────── cargo clippy -- -D warnings
+                   Zero warnings = OK
+
+L0 · Tests ─────── cargo test --workspace
+                   All tests green = OK
+
+L0 · Harness ───── cargo build (tests/e2e/harness)
+                   Compiles = OK
+
+L1 · FileBounds ── target/ not committed
+                   Shared files flagged for review
+
+L2 · Contract ──── Production code changed?
+                   Warning if .contracts/ not updated
+
+L3 · Secrets ───── gitleaks scan
+                   Zero secrets = OK
+
+✅ Gate Summary ── All above OK = PR ready for review
+                   Any FAIL = merge blocked
 ```
 
-### Если CI упал — что делать
+### If CI Fails — What to Do
 
 ```bash
-# 1. Кликни Details рядом с упавшей проверкой
-# 2. Прочитай лог ошибки
+# 1. Click Details next to the failing check
+# 2. Read the error log
 
-# L0 Format упал:
+# L0 Format failed:
 cargo fmt --manifest-path rust/Cargo.toml
 git add -u && git commit --amend --no-edit && git push --force-with-lease
 
-# L0 Clippy упал:
+# L0 Clippy failed:
 cargo clippy --workspace --manifest-path rust/Cargo.toml -- -D warnings
-# Исправить каждое предупреждение, затем commit + push
+# Fix each warning, then commit + push
 
-# L0 Tests упал:
+# L0 Tests failed:
 cargo test --workspace --manifest-path rust/Cargo.toml 2>&1 | grep "FAILED"
-# Найти упавший тест, исправить код (не тест!), commit + push
+# Find the failing test, fix the CODE (not the test!), commit + push
 
-# L3 Secrets упал:
-# НЕМЕДЛЕННО: убрать секрет из истории git
-git rebase -i HEAD~N  # найти коммит с секретом
-# Или: git filter-repo / BFG Repo Cleaner
+# L3 Secrets failed:
+# IMMEDIATELY: remove the secret from git history
+git rebase -i HEAD~N  # find the commit with the secret
+# Or use: git filter-repo / BFG Repo Cleaner
 ```
 
 ---
 
-## 👀 Ревью и Merge
+## 👀 Review & Merge
 
-### Кто делает ревью
+### Who Reviews
 
 ```
-Файлы G1 (backend)   → @Userbash (автоматически через CODEOWNERS)
-Файлы G2 (frontend)  → @Userbash
-Файлы G5 (voice)     → @Userbash
-Shared-файлы         → @Userbash (только он)
-Docs-only            → Любой L2+, или автоматически при зелёном CI
+G1 backend files  → @Userbash (automatically via CODEOWNERS)
+G2 frontend files → @Userbash
+G5 voice files    → @Userbash
+Shared files      → @Userbash (only him)
+Docs-only         → Any L2+, or auto-merge when CI is green
 ```
 
-> **Правило:** Автор PR не может ревьюить свой же PR.  
-> **Для ИИ-агентов:** Оператор ИИ не может ревьюить PR своего ИИ.
+> **Rule:** A PR author cannot review their own PR.  
+> **For AI agents:** An AI operator cannot review their own AI's PR.
 
-### Статусы ревью
+### Review Statuses
 
-| Статус | Значение | Действие |
-|--------|----------|----------|
-| ✅ **APPROVE** | Всё хорошо | Merge разрешён |
-| 💬 **REQUEST CHANGES** | Нужны исправления | Исправить и push |
-| ❌ **BLOCK** | Критическая проблема | Обсудить в комментах |
+| Status | Meaning | Action |
+|--------|---------|--------|
+| ✅ **APPROVE** | Looks good | Merge allowed |
+| 💬 **REQUEST CHANGES** | Fixes needed | Fix and push |
+| ❌ **BLOCK** | Critical problem | Discuss in comments |
 
-### После APPROVE
+### After APPROVE
 
 ```bash
-# Мейнтейнер нажимает "Squash and merge"
-# GitHub автоматически:
-#   1. Делает squash всех коммитов в один
-#   2. Merge в unstable
-#   3. Удаляет твою ветку
-#   4. Закрывает связанный Issue
+# Maintainer clicks "Squash and merge"
+# GitHub automatically:
+#   1. Squashes all commits into one
+#   2. Merges into unstable
+#   3. Deletes your branch
+#   4. Closes the linked Issue
 ```
 
 ---
 
-## 📐 Стандарты кода
+## 📐 Code Standards
 
 ### Rust
 
 ```rust
-// ✅ Хорошо
+// Good
 pub async fn submit_login(email: &str, password: &str) -> Result<AuthToken, LoginError> {
     validate_email(email)?;
     let response = api_client.post("/auth/login", &payload).await?;
     AuthToken::from_response(response)
 }
 
-// ❌ Плохо  
+// Bad — forbidden patterns
 pub fn login(e: &str, p: &str) -> AuthToken {
-    let r = client.post(e, p).unwrap();  // unwrap запрещён!
-    r.token                               // нет обработки ошибок
+    let r = client.post(e, p).unwrap();  // .unwrap() is forbidden!
+    r.token                               // no error handling
 }
 ```
 
-**Требования:**
-- `#![forbid(unsafe_code)]` во всех крейтах (кроме C FFI)
-- Нет `.unwrap()` / `.expect()` в production коде
-- Функции < 50 строк
-- Файлы < 800 строк (soft limit)
-- `cargo fmt` перед каждым коммитом
-- Нуль clippy предупреждений
+**Requirements:**
+- `#![forbid(unsafe_code)]` in all crates (except C FFI)
+- No `.unwrap()` / `.expect()` in production code
+- Functions < 50 lines
+- Files < 800 lines (soft limit)
+- `cargo fmt` before every commit
+- Zero clippy warnings
 
-### Тесты — TDD обязателен
+### Tests — TDD Required
 
 ```rust
-// 1. СНАЧАЛА тест (Red phase)
+// 1. Write test FIRST (Red phase)
 #[tokio::test]
 async fn test_login_returns_token_on_success() {
     // Arrange
     let mock_server = MockGateway::start().await;
     mock_server.expect_post("/auth/login").respond_with(200, TOKEN_FIXTURE);
-    
+
     // Act
     let result = LoginService::submit("user@test.com", "pass").await;
-    
-    // Assert — проверяем КОНТРАКТ, не реализацию
+
+    // Assert — verify CONTRACT, not implementation
     assert!(matches!(result, Ok(AuthToken { .. })));
 }
 
-// 2. ПОТОМ минимальный код (Green phase)
+// 2. THEN write minimal code (Green phase)
 ```
 
-**Минимальные пороги (CI блокирует если ниже):**
+**Minimum thresholds (CI blocks if below):**
 ```
-Покрытие строк:    ≥ 90%
-Покрытие веток:    ≥ 90%  
-Покрытие функций:  ≥ 80%
+Line coverage:     >= 90%
+Branch coverage:   >= 90%
+Function coverage: >= 80%
 Mutation score:    5/5 (100%)
 Flaky tests:       0%
 ```
 
 ---
 
-## 🔐 Безопасность
+## 🔐 Security
 
-### Clean-Room методология (ОБЯЗАТЕЛЬНА)
+### Clean-Room Methodology (Mandatory)
 
 ```
-✅ МОЖНО:
-  - Анализировать публичные RFC и спецификации
-  - Использовать сетевые трейсы (Wireshark, mitmproxy)
-  - Изучать открытую документацию API
-  - Смотреть на open-source реализации других клиентов
+ALLOWED:
+  - Analyze public RFCs and specifications
+  - Use network traces (Wireshark, mitmproxy)
+  - Study open API documentation
+  - Reference open-source implementations of other clients
 
-❌ НЕЛЬЗЯ НИКОГДА:
-  - Копировать код из проприетарных клиентов
-  - Включать Discord токены пользователей
-  - Использовать приватные данные пользователей
-  - Включать результаты декомпиляции проприетарного ПО
+NEVER:
+  - Copy code from proprietary clients
+  - Include user Discord tokens
+  - Use private user data
+  - Include decompiled proprietary software output
 ```
 
-### Если нашёл уязвимость
+### If You Find a Vulnerability
 
-**Не создавай публичный Issue!**
+**Do NOT create a public Issue!**
 
-Напиши напрямую: создай приватный [Security Advisory](https://github.com/Userbash/chord/security/advisories/new)
+Report privately via [Security Advisory](https://github.com/Userbash/chord/security/advisories/new)
 
 ---
 
 ## ❓ FAQ
 
-**Q: Можно ли использовать несколько ИИ-агентов одновременно на одной задаче?**  
-A: Нет. Одна задача = один воркер = один PR. Параллельно можно работать только над разными задачами с непересекающимися файлами.
+**Q: Can multiple AI agents work on the same task simultaneously?**  
+A: No. One task = one worker = one PR. Parallel work is only allowed on different tasks with non-overlapping file scopes.
 
-**Q: Мой ИИ изменил Cargo.lock — это проблема?**  
-A: Да. Cargo.lock — shared-файл. Убери изменение: `git checkout upstream/unstable -- Cargo.lock`
+**Q: My AI changed Cargo.lock — is that a problem?**  
+A: Yes. Cargo.lock is a shared file. Revert: `git checkout upstream/unstable -- Cargo.lock`
 
-**Q: CI упал на secrets — но я не добавлял секретов**  
-A: gitleaks мог найти тестовый fixture или placeholder. Проверь: `gitleaks detect --source . --verbose`
+**Q: CI failed on secrets but I didn't add any**  
+A: gitleaks may have found a test fixture or placeholder. Check: `gitleaks detect --source . --verbose`
 
-**Q: Можно ли делать PR напрямую в main?**  
-A: Нет. Прямой push в main/beta/testing/unstable технически заблокирован. Только через PR в unstable.
+**Q: Can I open a PR directly to main?**  
+A: No. Direct push to main/beta/testing/unstable is blocked. Only via PR to unstable.
 
-**Q: Нужен ли человек-оператор для ИИ-агента?**  
-A: Да. Каждый ИИ-PR должен иметь поле `Operator: @username`. Оператор несёт ответственность за PR.
+**Q: Does an AI agent need a human operator?**  
+A: Yes. Every AI PR must have `Operator: @username`. The operator is responsible for the PR.
 
-**Q: Как долго ждать ревью?**  
-A: Обычно 24-72 часа. Если дольше — добавь комментарий `@Userbash ping review`.
+**Q: How long does review take?**  
+A: Usually 24–72 hours. If longer — add a comment: `@Userbash ping review`.
 
 ---
 
-## 📞 Контакты
+## 📞 Contact
 
 - **GitHub Issues:** https://github.com/Userbash/chord/issues
 - **Discussions:** https://github.com/Userbash/chord/discussions
-- **Security:** GitHub Security Advisories (приватно)
+- **Security:** GitHub Security Advisories (private)
 
 ---
 
-*Chord CONTRIBUTING.md · AMCP v1.0 · Обновлено 2026-11-13*
+*Chord CONTRIBUTING.md · AMCP v1.0 · Updated 2026-11-13*

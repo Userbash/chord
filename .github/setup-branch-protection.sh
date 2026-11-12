@@ -1,23 +1,24 @@
-# Скрипт настройки Branch Protection Rules через GitHub API
-# Запускать ОДИН РАЗ: bash .github/setup-branch-protection.sh
+#!/usr/bin/env bash
+# Branch Protection Setup Script — configure GitHub branch protection via API
+# Run ONCE: bash .github/setup-branch-protection.sh
 #
-# Требования: gh CLI авторизован, права admin на репозиторий
+# Requirements: gh CLI authenticated, admin rights on the repository
 
 set -euo pipefail
 
 REPO="Userbash/chord"
-echo "🔧 Настройка Branch Protection Rules для $REPO"
+echo "Configuring Branch Protection Rules for $REPO"
 echo ""
 
 # ─────────────────────────────────────────────────────────────
-# Функция применения правил к ветке
+# Function: apply protection rules to a branch
 # ─────────────────────────────────────────────────────────────
 protect_branch() {
   local branch="$1"
   local required_reviews="$2"
   local strict="$3"
 
-  echo "→ Защита ветки: $branch (reviews: $required_reviews, strict: $strict)"
+  echo "  -> Protecting branch: $branch (reviews: $required_reviews, strict: $strict)"
 
   gh api \
     --method PUT \
@@ -54,43 +55,42 @@ protect_branch() {
 }
 EOF
 
-  echo "  ✅ $branch защищена"
+  echo "  OK: $branch protected"
 }
 
 # ─────────────────────────────────────────────────────────────
-# Создать ветки если не существуют
+# Create branches if they don't exist
 # ─────────────────────────────────────────────────────────────
 for branch in unstable testing beta main; do
   if ! gh api "/repos/$REPO/branches/$branch" &>/dev/null; then
-    echo "→ Создание ветки $branch..."
-    # Создать от HEAD текущей ветки
+    echo "Creating branch $branch..."
     SHA=$(gh api /repos/$REPO/git/ref/heads/release/developer-alpha-preview --jq '.object.sha')
     gh api --method POST "/repos/$REPO/git/refs" \
       -f ref="refs/heads/$branch" \
-      -f sha="$SHA" || echo "  (ветка уже существует)"
+      -f sha="$SHA" || echo "  (branch already exists)"
   fi
 done
 
 # ─────────────────────────────────────────────────────────────
-# Применить Branch Protection
+# Apply Branch Protection Rules
 # ─────────────────────────────────────────────────────────────
-# unstable: 1 ревьюер, обновление ветки перед merge
+# unstable: 1 reviewer, update branch before merge
 protect_branch "unstable" 1 true
 
-# testing: 2 ревьюера (PM + Tech Reviewer)
+# testing: 2 reviewers (PM + Tech Reviewer)
 protect_branch "testing" 2 true
 
-# beta: 2 ревьюера, строгий
+# beta: 2 reviewers, strict
 protect_branch "beta" 2 true
 
-# main: 2 ревьюера, максимальная защита
+# main: 2 reviewers, maximum protection
 protect_branch "main" 2 true
 
 # ─────────────────────────────────────────────────────────────
-# Создать Labels
+# Create Labels
 # ─────────────────────────────────────────────────────────────
 echo ""
-echo "→ Создание меток..."
+echo "Creating labels..."
 
 create_label() {
   local name="$1" color="$2" desc="$3"
@@ -116,7 +116,7 @@ create_label "in-progress"    "fbca04" "Currently being worked on"
 create_label "in-review"      "0075ca" "Waiting for review"
 create_label "docs-only"      "cfd3d7" "Documentation changes only"
 create_label "dependabot"     "0366d6" "Automated dependency update"
-create_label "⚠️ shared-file" "e4e669" "Requires coordinator approval"
+create_label "shared-file"    "e4e669" "Requires coordinator approval"
 
 # Priority labels
 create_label "P0-critical"    "b60205" "P0 — blocking"
@@ -124,27 +124,27 @@ create_label "P1-high"        "d93f0b" "P1 — high priority"
 create_label "P2-medium"      "fbca04" "P2 — medium priority"
 create_label "P3-low"         "0e8a16" "P3 — low priority"
 
-echo "  ✅ Метки созданы"
+echo "  OK: Labels created"
 
 # ─────────────────────────────────────────────────────────────
-# Включить Auto-merge для репозитория
+# Enable Auto-merge for the repository
 # ─────────────────────────────────────────────────────────────
 echo ""
-echo "→ Включение auto-merge..."
+echo "Enabling auto-merge..."
 gh api --method PATCH "/repos/$REPO" \
   -f allow_auto_merge=true \
   -f delete_branch_on_merge=true \
   -f allow_squash_merge=true \
   -f allow_merge_commit=false \
   -f allow_rebase_merge=false \
-  --jq '.full_name' | xargs -I{} echo "  ✅ auto-merge включён для {}"
+  --jq '.full_name' | xargs -I{} echo "  OK: auto-merge enabled for {}"
 
 echo ""
-echo "✅ Настройка завершена!"
+echo "Setup complete!"
 echo ""
-echo "Итого:"
-echo "  • Branch Protection: unstable, testing, beta, main"
-echo "  • Required checks: 8 gate jobs"
-echo "  • Auto-merge: включён (squash)"
-echo "  • Delete branch on merge: включён"
-echo "  • Labels: созданы"
+echo "Summary:"
+echo "  Branch Protection: unstable, testing, beta, main"
+echo "  Required checks: 8 gate jobs"
+echo "  Auto-merge: enabled (squash)"
+echo "  Delete branch on merge: enabled"
+echo "  Labels: created"

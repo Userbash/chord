@@ -1,29 +1,29 @@
 name: "✨ AI Task Card"
-description: Новая задача для AI-воркера (аналог карточки в TASKS.md)
+description: New task for an AI worker (equivalent to a card in TASKS.md)
 title: "task: "
 labels: ["ai-task", "backlog"]
 body:
   - type: markdown
     attributes:
       value: |
-        Карточка задачи для AI-воркера. После создания — координатор назначит воркера.
+        Task card for an AI worker. After creation, the coordinator will assign a worker.
 
   - type: dropdown
     id: priority
     attributes:
-      label: Приоритет
+      label: Priority
       options:
-        - "🔴 P0 — критический"
-        - "🟠 P1 — высокий"
-        - "🟡 P2 — средний"
-        - "🟢 P3 — низкий"
+        - "P0 — critical"
+        - "P1 — high"
+        - "P2 — medium"
+        - "P3 — low"
     validations:
       required: true
 
   - type: dropdown
     id: department
     attributes:
-      label: Отдел (кто выполняет)
+      label: Department (who performs the task)
       options:
         - G1 Backend
         - G2 Frontend
@@ -37,8 +37,8 @@ body:
   - type: input
     id: file-scope
     attributes:
-      label: Файлы (scope воркера)
-      description: Какие файлы будет трогать воркер
+      label: Files (worker scope)
+      description: Which files the worker will modify
       placeholder: "rust/crates/chord-core/src/auth/*.rs"
     validations:
       required: true
@@ -46,11 +46,11 @@ body:
   - type: textarea
     id: contract
     attributes:
-      label: Контракт (что должно работать)
-      description: Observable behaviour — что проверит тест
+      label: Contract (what must work)
+      description: Observable behaviour that the test will verify
       placeholder: |
-        Вход: email, password
-        Выход: Ok(AuthToken) | Err(LoginError)
+        Input: email, password
+        Output: Ok(AuthToken) | Err(LoginError)
         HTTP: POST /api/v9/auth/login → 200 / 400 / 401
     validations:
       required: true
@@ -58,18 +58,18 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: Описание задачи
+      label: Task description
     validations:
       required: true
 
   - type: input
     id: estimate
     attributes:
-      label: Оценка времени
-      placeholder: "2 ч"
+      label: Time estimate
+      placeholder: "2h"
 
   - type: input
     id: depends
     attributes:
-      label: Зависит от
+      label: Depends on
       placeholder: "P0-1.2, P0-1.3"
