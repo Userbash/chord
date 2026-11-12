@@ -413,6 +413,7 @@ describe("TASK-1006: Нативная проверка орфографии в �
     assert.equal(flushed.misspelledSpans.length, 2);
 
     const firstSpan = flushed.misspelledSpans[0];
+    assert.ok(firstSpan);
     assert.equal(firstSpan.word, "wrold");
     assert.equal(firstSpan.underlineColor, SPELLCHECK_DESIGN_TOKENS.accent); // #f23f43
     assert.equal(firstSpan.interactiveState, "red-wavy-underline");
@@ -442,11 +443,13 @@ describe("TASK-1006: Нативная проверка орфографии в �
     assert.equal(replaced.replaced, true);
     assert.equal(replaced.text, "Привет world и helo!");
     assert.equal(replaced.ipcChannel, "DISCORD_SPELLCHECK_REPLACE_MISSPELLING");
-    assert.equal(session.getMisspelledSpans().length, 1);
-    assert.equal(session.getMisspelledSpans()[0].word, "helo");
+    const remainingSpans = session.getMisspelledSpans();
+    assert.equal(remainingSpans.length, 1);
+    assert.ok(remainingSpans[0]);
+    assert.equal(remainingSpans[0].word, "helo");
 
     // 7. Добавление оставшегося слова "helo" в пользовательский словарь через ПКМ
-    const secondSpan = session.getMisspelledSpans()[0];
+    const secondSpan = remainingSpans[0];
     session.openContextMenuOnRightClick(secondSpan.startByte, { x: 300, y: 520 });
     const learned = session.addTargetWordToDictionary();
     assert.equal(learned.added, true);

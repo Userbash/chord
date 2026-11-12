@@ -526,6 +526,9 @@ export class SpellcheckerInputSession {
       return Object.freeze({ opened: false });
     }
     const span = this.misspelledSpans[spanIndex];
+    if (!span) {
+      return Object.freeze({ opened: false });
+    }
     span.interactiveState = resolveMisspelledWordState("active");
     span.wavyState = resolveWavyUnderlineState("active");
     const menu = {
@@ -560,6 +563,9 @@ export class SpellcheckerInputSession {
       throw new RangeError(`Некорректный индекс подсказки: ${suggestionIndex}`);
     }
     const span = this.misspelledSpans[this.activeMenu.spanIndex];
+    if (!span) {
+      throw new Error("Не найден диапазон слова с ошибкой");
+    }
     const rawBuf = Buffer.from(this.text, "utf8");
     const prefix = rawBuf.subarray(0, span.startByte).toString("utf8");
     const suffix = rawBuf.subarray(span.endByte).toString("utf8");

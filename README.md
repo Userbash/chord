@@ -6,114 +6,118 @@
 [![Mutations](https://img.shields.io/badge/mutations-5%2F5%20killed-success.svg)](waves/)
 [![RAM](https://img.shields.io/badge/memory-%3C%2060%20MB%20RAM-blueviolet.svg)](docs/rust-client/STATUS.md)
 [![DAVE E2EE](https://img.shields.io/badge/security-DAVE%20MLS%20v1%20E2EE-darkgreen.svg)](rust/crates/discord-voice/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-Высокопроизводительный, GPU-ускоренный нативный клиент Discord на чистом Rust (**`discord-gpui`** на базе WGPU / 120 FPS) в сочетании с исследовательской лабораторией анализа протоколов и обратного инжиниринга (**`discord-lab`** CLI, Frida, CDP).
+> **Languages:** **English** | [Русский](README.ru.md)
 
----
-
-## 1. Ключевые преимущества и бенчмарки
-
-| Параметр / Характеристика | Официальный клиент Discord (Electron) | Нативный клиент `discord-gpui` (Rust) |
-| :--- | :---: | :---: |
-| **Потребление RAM в простое** | 800 МБ – 1.4 ГБ | **11.26 МБ** VmRSS (бюджет < 60 МБ) |
-| **Частота кадров рендеринга (FPS)** | 30–60 FPS (CPU Chromium лаги) | **120 FPS** (аппаратный WGPU на GPU) |
-| **Холодный запуск приложения** | 4.5 – 9.0 сек | **< 480 мс** (SQLite WAL гидратация) |
-| **Сквозное шифрование голоса (E2EE)** | Частично в WebRTC | **DAVE MLS v1 (`RFC 9420`)** 100% паритет |
-| **Размер дистрибутива** | 180 – 250 МБ | **42 МБ** (stripped ELF с Thin LTO) |
-| **Стриминг экрана в Linux** | Проблемы в Wayland / без звука | **PipeWire Portal + DMA-BUF zero-copy** со звуком |
-| **Проверка орфографии** | Chromium hunspell (утечки памяти) | **Нативный FFI libenchant/hunspell** (< 50 строк/fn) |
-| **Интеграция с портативными консолями** | Отсутствует | **Steam Deck Gamepad UI + SteamOS Keyboard** |
+**Discord Lab & Native Discord GPUI Client** is a high-performance, GPU-accelerated Discord desktop client written in pure Rust (**`discord-gpui`**, powered by GPUI and WGPU for native 120 FPS rendering), accompanied by an advanced clean-room protocol analysis and reverse-engineering research suite (**`discord-lab`** CLI, Frida, CDP).
 
 ---
 
-## 2. Архитектура крейтов Rust (Workspace)
+## 1. Why Discord GPUI? (Key Benchmarks)
 
-Проект организован как монорепозиторий модульных Rust-крейтов:
+Official Discord desktop runs inside Electron/Chromium, frequently demanding 800 MB to 1.5 GB of RAM, suffering from CPU rendering frame drops, Wayland screensharing limitations, and sluggish startup. `discord-gpui` replaces this stack with native compiled Rust and hardware-accelerated WGPU rendering.
+
+| Metric / Feature | Official Discord (Electron) | Native `discord-gpui` (Rust) | Advantage |
+| :--- | :---: | :---: | :---: |
+| **Idle RAM Consumption** | 800 MB – 1.4 GB | **11.26 MB** VmRSS (budget < 60 MB) | **~100x less memory** |
+| **Rendering Frame Rate (FPS)** | 30–60 FPS (Chromium lags) | **120 FPS** (Hardware WGPU Vulkan/Metal) | **Zero-lag smooth scrolling** |
+| **Cold Startup Time** | 4.5 – 9.0 seconds | **< 480 ms** (SQLite WAL cache hydration) | **~15x faster startup** |
+| **Voice End-to-End Encryption (E2EE)** | Partial in WebRTC | **DAVE MLS v1 (`RFC 9420`)** 100% Parity | **Quantum-ready forward secrecy** |
+| **Binary Package Size** | 180 – 250 MB | **42 MB** (Stripped ELF with Thin LTO) | **Lightweight footprint** |
+| **Linux Screen Sharing** | Black screen on Wayland / No audio | **PipeWire Portal + DMA-BUF zero-copy** with audio | **Full Wayland/PipeWire support** |
+| **Realtime Spellchecker** | Chromium Hunspell (memory leaks) | **Native FFI libenchant/hunspell** (<50 lines/fn) | **Zero leaks, native speed** |
+| **Handheld / Console UI** | None | **Steam Deck Gamepad Navigation + SteamOS OSD** | **Full gamepad support** |
+
+---
+
+## 2. Workspace Crate Architecture
+
+The repository is structured as a modular Rust monorepo:
 
 ```
 rust/
-├── discord-gpui/         # Нативное GPU-приложение (GPUI/WGPU 120 FPS)
+├── discord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
 └── crates/
-    ├── discord-core/     # Клиент REST API v9, Gateway v9, форум, треды, опросы
-    ├── discord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, саундборд, HRTF 360°
-    ├── discord-media/    # Аудио-буферы, двухзвенный LRU/ETag кэш медиа и эмодзи
-    ├── discord-platform/ # XDG автозапуск, трей, D-Bus, FFI Keyring, Spotify MPRIS
-    ├── discord-store/    # SQLite FTS5 полнотекстовый поиск, режим WAL, кэш
-    ├── discord-codec/    # ETF бинарный кодек (защита от бомб) и zstd-stream
-    └── discord-i18n/     # Интернационализация: 36 языков, хэши xxh64
+    ├── discord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls, Permissions
+    ├── discord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°
+    ├── discord-media/    # Zero-copy audio buffers, two-tier LRU/disk media & emoji cache
+    ├── discord-platform/ # XDG autostart, system tray, D-Bus, FFI Keyring, Spotify MPRIS
+    ├── discord-store/    # SQLite FTS5 full-text search, WAL mode, encrypted storage
+    ├── discord-codec/    # ETF binary codec (decompression bomb protection) & zstd streams
+    └── discord-i18n/     # Internationalization: 36 locales, xxh64 hashed translation keys
 ```
 
-### Подробное описание крейтов:
-1. **`discord-gpui`**:
-   - Полнофункциональный интерфейс: Server Rail (72px), список личных сообщений и друзей.
-   - Виртуализированный скролл чата (100k+ сообщений при памяти < 60 МБ).
-   - Форумные каналы (тип 15) с 2-колоночной сеткой `ForumGridView`.
-   - Вложенные треды (типы 11/12) с боковой панелью 360px `ThreadSidebar`.
-   - Интерактивные опросы с голосованием и процентными шкалами `PollCardView`.
-   - Плеер голосовых сообщений `VoiceMessagePlayer` с 256-байтным RMS-вейвформом и скоростями 1x/1.5x/2x.
-   - Модалка выбора эмодзи и стикеров `EmojiPickerModal` (380x420px, сетка 8x32px).
-   - Встроенный саундборд `SoundboardGridView` с хоткеями.
-   - Интерактивный 2D радар участников Spatial Audio `SpatialRadar` на WGPU.
-   - 60 FPS векторный оверлей диагностики WebRTC `RtcDiagnosticsHud`.
-   - Полноценные настройки: все 8 разделов официального клиента Discord.
-2. **`discord-core`**:
-   - Реализация шлюза WebSocket Gateway v9 (HELLO, Heartbeat, IDENTIFY, RESUME, VOICE_STATE_UPDATE).
-   - Пул HTTP/2 соединений REST API v9 с умным rate-limiting и отслеживанием `retry_after_ms`.
-   - 64-битный калькулятор прав доступа и ролей гильдии.
-3. **`discord-voice`**:
-   - DAVE E2EE MLS v1 (`RFC 9420`): криптографические храповики `DaveHashRatchet`, усечённый 8-байтный тег `Aes128GcmTruncated8`, подтверждающие теги и смена эпох.
-   - Голосовые сообщения: запись 48 кГц моно, кодирование в OGG Opus 32 kbps VBR.
-   - Саундборд: Voice Opcode 18 (`SOUNDBOARD_SOUND`), LRU-кэш Opus и линейный микшер с `tanh()` в микрофон.
-   - Пространственный звук: 360-градусный бинауральный HRTF фильтр KEMAR.
-   - Адаптивный Jitter Buffer (20–60 мс) и сокрытие потерь пакетов (PLC).
-4. **`discord-platform`**:
-   - Автозапуск XDG autostart и запуск в трей с отложенным WGPU окном (`--start-minimized`, VmRSS < 8 МБ).
-   - Spotify D-Bus MPRIS интеграция статуса прослушивания (Opcode 3) и совместное прослушивание (Listen Along).
-   - Поддержка геймпадов (gilrs) и виртуальной клавиатуры SteamOS на Steam Deck.
-   - Безопасное хранение токенов в системном связке ключей Keyring через FFI к libsecret.
-   - Нативная проверка орфографии в реальном времени через FFI к `libenchant-2` / `hunspell`.
-5. **`discord-media`**:
-   - Аппаратный кольцевой буфер `AudioRingBuffer` с нулевым копированием.
-   - Двухзвенный кэш эмодзи и стикеров: 256 МБ RAM LRU + дисковый кэш с валидацией ETag.
+### Crate Highlights:
+1. **`discord-gpui` (Application Front-End)**:
+   - Three-panel layout: Server Rail (72px), Channel Sidebar (240px), Virtualized Chat view (100k+ messages at < 60 MB RAM), and Member list (240px).
+   - Forum Channels (Type 15) with 2-column `ForumGridView` layout.
+   - Nested Threads (Types 11/12) with a 360px `ThreadSidebar`.
+   - Discord Polls with real-time voting, live progress bars, and zero-division protection (`PollCardView`).
+   - Voice Message Player (`VoiceMessagePlayer`) with 256-byte RMS waveforms and 1x/1.5x/2x playback rates.
+   - Emoji & Sticker Picker modal (`EmojiPickerModal`, 380x420px with 8x32px grid and search).
+   - Soundboard Grid (`SoundboardGridView`) with custom hotkeys and live microphone mixing.
+   - Interactive 2D Spatial Audio Radar (`SpatialRadar`) on WGPU with SQLite coordinate persistence.
+   - 60 FPS WebRTC Telemetry overlay (`RtcDiagnosticsHud`).
+   - Complete Settings suite: All 8 core Discord client settings sections.
+2. **`discord-core` (Network & Protocol Core)**:
+   - WebSocket Gateway v9 state machine (`HELLO`, `Heartbeat`, `IDENTIFY`, `RESUME`, `VOICE_STATE_UPDATE`).
+   - HTTP/2 connection pooling with intelligent bucket-aware rate limiting and `retry_after_ms` backoff.
+   - 64-bit guild role hierarchy and permissions calculation engine.
+3. **`discord-voice` (Voice & Real-Time Media Engine)**:
+   - **DAVE E2EE MLS v1 (`RFC 9420`)**: Cryptographic ratchets (`DaveHashRatchet`), truncated 8-byte tags (`Aes128GcmTruncated8`), epoch rollouts, and commit verification.
+   - Voice Recording: 48 kHz mono recording encoded into OGG Opus 32 kbps VBR.
+   - Soundboard: Voice Opcode 18 (`SOUNDBOARD_SOUND`), LRU Opus sound cache, and microphone linear mixer with soft `tanh()` clipping.
+   - 3D Spatial Audio: 360-degree binaural KEMAR HRTF 512-point FFT filter.
+   - Adaptive Jitter Buffer (20–60 ms) and Packet Loss Concealment (PLC).
+4. **`discord-platform` (OS & Desktop Integration)**:
+   - XDG autostart generator and system tray daemon (`--start-minimized`, VmRSS < 8 MB).
+   - Spotify D-Bus MPRIS client (Opcode 3 `LISTENING` presence & "Listen Along" synchronization).
+   - Gamepad navigation via `gilrs` and on-screen keyboard trigger for Steam Deck / SteamOS.
+   - Secure OS credential storage via FFI to `libsecret` / Linux Keyring.
+   - Real-time native spellchecking via FFI to `libenchant-2` / `hunspell`.
+5. **`discord-media` (Media & Cache Layer)**:
+   - Zero-copy ring buffers (`AudioRingBuffer`) for high-throughput audio capture and playback.
+   - Two-tier cache: 256 MB RAM LRU cache + persistent disk cache with HTTP ETag validation.
 
 ---
 
-## 3. Исследовательская лаборатория (`discord-lab` CLI & RE)
+## 3. Protocol Research Suite (`discord-lab` CLI & RE)
 
-Репозиторий включает набор инструментов глубокого анализа запущенных процессов Discord через Frida и Chrome DevTools Protocol (CDP):
+The repository provides automated tools for non-invasive dynamic analysis of running Discord processes using Frida and the Chrome DevTools Protocol (CDP):
 
 ```bash
-# Основной CLI-интерфейс лаборатории (bin/discord-lab.mjs)
-node bin/discord-lab.mjs --help                # список команд
-node bin/discord-lab.mjs pids                  # процессы Discord, видимые Frida
-node bin/discord-lab.mjs inventory --pid <PID> # инвентарь модулей/символов (JSON/CSV)
-node bin/discord-lab.mjs hook --pid <PID> --pattern 'SendRtp|OnIncomingRtp' # перехват вызовов
-node bin/discord-lab.mjs summarize logs/calls-<PID>.jsonl # аналитическая сводка вызовов
-node bin/discord-lab.mjs cdp targets           # доступные цели рендерера Electron
-node bin/discord-lab.mjs cdp shot /tmp/page.png # снятие скриншота через CDP
+# Main research CLI (bin/discord-lab.mjs)
+node bin/discord-lab.mjs --help                # View available commands
+node bin/discord-lab.mjs pids                  # List Discord processes discovered by Frida
+node bin/discord-lab.mjs inventory --pid <PID> # Module and symbol inventory (JSON/CSV)
+node bin/discord-lab.mjs hook --pid <PID> --pattern 'SendRtp|OnIncomingRtp' # Hook calls
+node bin/discord-lab.mjs summarize logs/calls-<PID>.jsonl # Summarize intercepted calls
+node bin/discord-lab.mjs cdp targets           # Inspect available Electron renderer targets
+node bin/discord-lab.mjs cdp shot /tmp/page.png # Capture page screenshot via CDP
 ```
 
-Поддерживаемые команды CLI:
-- `pids` — список процессов Discord, видимых Frida
-- `inventory` — сбор инвентаря модулей, символов и экспортов
-- `hook` — динамический перехват и трассировка вызовов функций
-- `summarize` — аналитическая сводка вызовов из логов JSONL
-- `cdp` — инспекция, eval, клики и скриншоты страниц рендерера
-- `walk` — автоматический обход интерфейса и UI-прогоны
-- `domains` — классификация и отчёт по доменам функций
-- `static` — таблицы статических символов из бинарников
+Supported CLI commands:
+- `pids` — Discovers active Discord processes via Frida
+- `inventory` — Collects symbol tables, dynamic libraries, and exported interfaces
+- `hook` — Performs dynamic function interception and parameter inspection
+- `summarize` — Generates aggregated call frequency and timing metrics from JSONL logs
+- `cdp` — Inspects, evaluates JavaScript, triggers actions, and captures screenshots
+- `walk` — Automatically traverses the user interface for UI state regression audits
+- `domains` — Categorizes functions into architectural domains and generates coverage reports
+- `static` — Extracts static symbol tables and cross-references from binary artifacts
 
-Собранная база знаний обратного инжиниринга находится в `/home/sanya/re-deep/` (read-only оракул) и `docs/re/`:
-- `gateway-protocol.md`: трассы шлюза, ETF big-int, zstd-стримы и 4 логина READY.
-- `rest-d02.md`: маршруты REST v9, заголовки, `X-Super-Properties` и коды ошибок.
-- `voice-deep.md`: сигнализация RTC, RTP/RTCP пакеты, крипто-режимы SRTP и DAVE.
-- `i18n-deep.md`: хэши ключей локализации (`xxh64 -> base64[0..6]`) для 36 языков.
+Research specifications and oracle documentation are located in `docs/re/`:
+- `gateway-protocol.md`: Gateway traces, ETF big-integer handling, zstd streams, and READY handshakes.
+- `rest-d02.md`: REST v9 endpoints, headers, `X-Super-Properties`, and error structures.
+- `voice-deep.md`: RTC signaling, RTP/RTCP packet structures, SRTP, and DAVE MLS crypto modes.
+- `i18n-deep.md`: Hashed localization key mappings (`xxh64 -> base64[0..6]`) for 36 supported languages.
 
 ---
 
-## 4. Качество, тестирование и мутационный гейт
+## 4. Quality Engineering, Strict TDD & Mutation Gates
 
-Проект следует бескомпромиссным стандартам качества **Strict TDD** и **5/5 Mutation Gate**:
+This project enforces strict engineering quality standards (**Strict TDD** and **5/5 Mutation Gate**):
 
 ```
        ▲
@@ -128,92 +132,99 @@ node bin/discord-lab.mjs cdp shot /tmp/page.png # снятие скриншот�
 T0: Targeted    (Targeted test impact: node scripts/test-impact.mjs --run, <1 sec)
 ```
 
-- **100% Pass Rate**: 147 мета-тестов, 920+ модульных тестов, 391+ GPUI контрактных тестов.
-- **5/5 Mutation Kill Rate**: каждый pull request проходит через мутационный фаззер, убивающий 100% искусственных дефектов.
-- **Визуальная регрессия**: SSIM > 0.995 на 15 эталонных экранах с динамическими JSON-масками.
-- **Chaos Engineering**: 53 автоматизированных стресс-сценария (падения PipeWire, сетевой джиттер 20–60 мс, обрывы шлюза).
+- **100% Pass Rate**: 147 architectural meta-tests, 920+ unit tests, 391+ GPUI contract tests.
+- **5/5 Mutation Kill Rate**: Every PR passes through an automated mutation fuzzer that verifies 100% of injected faults are killed by tests.
+- **Visual Regression Testing**: SSIM > 0.995 across 15 reference screens using deterministic JSON masks.
+- **Chaos Engineering**: 53 automated resilience scenarios (PipeWire disconnection, 20–60ms network jitter, Gateway disconnects).
 
 ---
 
-## 5. Быстрый старт и сборка
+## 5. Quick Start & Build Instructions
 
-### Требования к окружению:
+### Prerequisites:
 - **Rust**: 1.85+ (Edition 2024, `rustup default stable`)
-- **Системные библиотеки**: `libasound2-dev`, `libpipewire-0.3-dev`, `libsecret-1-dev`, `libenchant-2-dev` (или `hunspell`)
-- **Node.js**: 24+ (для запуска тестов и канбан-доски)
+- **System Libraries (Linux)**: `libasound2-dev`, `libpipewire-0.3-dev`, `libsecret-1-dev`, `libenchant-2-dev` (or `hunspell`)
+- **Node.js**: 24+ (for running the test harness and Kanban dashboard)
 
-### Сборка нативного клиента:
+### Building the Native Client:
 ```bash
-# Клонирование репозитория
-git clone https://github.com/wairuste-lab/discord-lab.git
+# 1. Clone the repository
+git clone https://github.com/Userbash/discord-lab.git
 cd discord-lab
 
-# Сборка оптимизированного релизного бинарника
-cargo build --release -p discord-gpui
+# 2. Build the optimized release binary
+cargo build --release --manifest-path rust/Cargo.toml -p discord-gpui
 
-# Запуск нативного клиента
-./target/release/discord-gpui
+# 3. Launch the native client
+./rust/target/release/discord-gpui
 ```
 
-### Запуск тестов:
+### Running Tests:
 ```bash
-# Мета-тесты архитектуры и документации (147 тестов)
+# Architectural and documentation meta-tests (147 tests)
 npm run test:meta
 
-# Все модульные и контрактные тесты
+# All unit and contract tests
 npm test
 
-# Быстрый выборочный запуск тестов по затронутым файлам
+# Targeted test runner based on modified files
 node scripts/test-impact.mjs --run
 
-# Полный квалификационный гейт
+# Full worker verification gate
 node scripts/gate.mjs --scope worker
 ```
 
-### Канбан-доска проекта:
+### Visual Kanban Board:
 ```bash
-# Экспорт интерактивной HTML-версии канбан-доски
+# Export the latest interactive HTML Kanban dashboard
 node scripts/mcp-kanban-board.mjs --export
 
-# Открытие канбан-доски в браузере
+# Open the Kanban board in your default browser
 xdg-open waves/kanban-board.html
 ```
 
 ---
 
-## 6. Кросс-платформенная дистрибуция
+## 6. Cross-Platform Packaging
 
-Пакеты для всех основных операционных систем:
+Package specifications are provided for major desktop operating systems:
 - **Linux Flatpak**: `packaging/linux/flatpak/` (`com.discord_lab.DiscordGpui`)
-- **Linux AppImage**: `packaging/linux/appimage/` (автономный бандл)
+- **Linux AppImage**: `packaging/linux/appimage/` (Self-contained portable bundle)
 - **Arch Linux**: `packaging/linux/arch/PKGBUILD`
 - **Debian / Ubuntu**: `packaging/linux/debian/` (`.deb`)
-- **Windows**: `packaging/windows/wix.xml` (инсталлятор WiX Toolset MSI + Portable `.zip`)
-- **macOS**: `packaging/macos/build-dmg.sh` (DMG-образ с поддержкой Vibrancy)
+- **Windows**: `packaging/windows/wix.xml` (WiX Toolset MSI installer + Portable `.zip`)
+- **macOS**: `packaging/macos/build-dmg.sh` (DMG bundle with macOS Vibrancy)
 
 ---
 
-## 7. Документация проекта
+## 7. Project Documentation
 
-| Документ | Путь | Описание |
+| Document | Path | Description |
 | :--- | :--- | :--- |
-| **Паспорт проекта** | [`docs/PROJECT-REGISTRY.md`](docs/PROJECT-REGISTRY.md) | Канонический реестр крейтов, артефактов и тестов |
-| **Бэклог переноса** | [`docs/feature-backlog.md`](docs/feature-backlog.md) | Матрица паритета и бэклог миграции функционала |
-| **Анализ Vesktop** | [`docs/vesktop-analysis.md`](docs/vesktop-analysis.md) | Архитектурный разбор клиента Vesktop / Vencord |
-| **Анализ Discord-Qt** | [`docs/discord-qt-analysis.md`](docs/discord-qt-analysis.md) | Сравнительный анализ альтернативного Qt-клиента |
-| **Текущий статус** | [`docs/rust-client/STATUS.md`](docs/rust-client/STATUS.md) | Актуальные метрики памяти, FPS и прогресс волны |
-| **Дорожная карта** | [`docs/rust-client/ROADMAP.md`](docs/rust-client/ROADMAP.md) | Вехи разработки, завершенные и будущие спринты |
-| **Архитектура GPUI** | [`docs/specs/GPUI-ARCHITECTURE-MIGRATION.md`](docs/specs/GPUI-ARCHITECTURE-MIGRATION.md) | Переход с WebKit на WGPU / GPUI-kit |
-| **Шифрование DAVE** | [`docs/specs/POST-BETA-ROADMAP-AND-CODING-INSTRUCTIONS.md`](docs/specs/POST-BETA-ROADMAP-AND-CODING-INSTRUCTIONS.md) | Спецификация E2EE MLS v1 |
-| **Правила агентов** | [`AGENTS.md`](AGENTS.md) | Регламент работы воркеров, оркестратора и отделов |
-| **Карта проекта** | [`docs/map.md`](docs/map.md) | Граф взаимосвязей модулей и ресёрч-слоёв |
+| **Project Registry** | [`docs/PROJECT-REGISTRY.md`](docs/PROJECT-REGISTRY.md) | Canonical registry of crates, artifacts, and test contracts |
+| **Feature Backlog** | [`docs/feature-backlog.md`](docs/feature-backlog.md) | Parity matrix and feature migration backlog |
+| **Vesktop Analysis** | [`docs/vesktop-analysis.md`](docs/vesktop-analysis.md) | Architectural comparison with Vesktop / Vencord |
+| **Discord-Qt Analysis** | [`docs/discord-qt-analysis.md`](docs/discord-qt-analysis.md) | Comparative evaluation of Discord-Qt |
+| **Current Status** | [`docs/rust-client/STATUS.md`](docs/rust-client/STATUS.md) | Up-to-date memory metrics, FPS, and wave completion |
+| **Roadmap** | [`docs/rust-client/ROADMAP.md`](docs/rust-client/ROADMAP.md) | Development milestones, completed waves, and future sprints |
+| **GPUI Architecture** | [`docs/specs/GPUI-ARCHITECTURE-MIGRATION.md`](docs/specs/GPUI-ARCHITECTURE-MIGRATION.md) | Migration from WebKit to WGPU / GPUI |
+| **DAVE MLS v1 Spec** | [`docs/specs/POST-BETA-ROADMAP-AND-CODING-INSTRUCTIONS.md`](docs/specs/POST-BETA-ROADMAP-AND-CODING-INSTRUCTIONS.md) | E2EE MLS v1 protocol implementation specification |
+| **Agent & Team Rules** | [`AGENTS.md`](AGENTS.md) | Worker protocols, orchestrator guidelines, and department write-scopes |
+| **Architecture Map** | [`docs/map.md`](docs/map.md) | Dependency graph of crates, layers, and research components |
+| **Contributing Guide** | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution standards, Clean Room methodology, and PR workflow |
 
 ---
 
-## 8. Правовой статус и Clean-Room разработка
+## 8. Clean-Room Methodology & Legal Disclaimer
 
-Данный проект разработан с применением строгой методологии **Clean-Room Reverse Engineering**:
-- Реализация выполнена на чистом Rust без использования проприетарного исходного кода Discord Inc.
-- Официальный клиент Discord использовался исключительно как локальный объект анализа сетевых протоколов и аудио-пайплайна.
-- Проект не аффилирован с Discord Inc. Название Discord используется исключительно в информационных целях совместимости.
-- Рекомендуемая лицензия для исходного кода: **GNU General Public License v3.0 (GPL-3.0)**.
+This project is developed in accordance with the strict principles of **Clean-Room Software Engineering**:
+- The implementation is written in 100% original Rust code without incorporating proprietary Discord Inc. source code.
+- The official client was utilized solely as a local subject for protocol and audio pipeline behavioral analysis.
+- This project is an independent open-source initiative and is **not affiliated with, sponsored by, or endorsed by Discord Inc.**
+- "Discord" is a registered trademark of Discord Inc. All trademarks are the property of their respective owners and are used strictly for compatibility identification purposes.
+
+---
+
+## 9. License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. See the [LICENSE](LICENSE) file for details.

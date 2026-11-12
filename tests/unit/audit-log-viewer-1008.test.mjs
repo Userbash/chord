@@ -334,7 +334,7 @@ describe("TASK-1008: Журнал аудита сервера (Server Audit Log 
     // 1. Паритет базовых кодов действий и русских меток с rust/gui-spike/ui/features/audit-log.js
     for (const [key, code] of Object.entries(spikeActionTypes)) {
       assert.equal(
-        AUDIT_ACTION_TYPES[key],
+        AUDIT_ACTION_TYPES[/** @type {keyof typeof AUDIT_ACTION_TYPES} */ (key)],
         code,
         `Код действия ${key} должен совпадать с audit-log.js`,
       );
