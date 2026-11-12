@@ -1,7 +1,7 @@
-# Манифест Flatpak для нативного клиента Discord GPUI (TASK-962)
-# Оракул RE: /home/user/clean-room-oracle/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, ScreenCast)
-# Оракул RE: /home/user/clean-room-oracle/main-arch.md (@143136, FLATPAK_ID runtime environment)
-# Оракул Keyring: rust/crates/discord-platform/src/keyring.rs (org.freedesktop.secrets / Secret portal)
+# Flatpak manifest for the native Discord GPUI client (TASK-962)
+# RE Oracle: /home/user/clean-room-oracle/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, ScreenCast)
+# RE Oracle: /home/user/clean-room-oracle/main-arch.md (@143136, FLATPAK_ID runtime environment)
+# Keyring Oracle: rust/crates/chord-platform/src/keyring.rs (org.freedesktop.secrets / Secret portal)
 app-id: com.discord_lab.DiscordGpui
 runtime: org.freedesktop.Platform
 runtime-version: "23.08"
@@ -10,30 +10,30 @@ command: discord-gpui
 separate-locales: false
 
 finish-args:
-  # Графический стек: нативный Wayland (основной) + безопасный резервный X11 (только при отсутствии Wayland)
+  # Display stack: native Wayland (primary) + safe X11 fallback (only when Wayland is absent)
   - --socket=wayland
   - --socket=fallback-x11
-  # Разделяемая память IPC для X11 MIT-SHM fallback (XShmGetImage)
+  # Shared memory IPC for X11 MIT-SHM fallback (XShmGetImage)
   - --share=ipc
-  # Аппаратное ускорение GPU (WGPU Vulkan / OpenGL 120 FPS + VA-API) без полного доступа ко всем устройствам
+  # GPU hardware acceleration (WGPU Vulkan / OpenGL 120 FPS + VA-API) without full device access
   - --device=dri
-  # Сетевой стек: Discord Gateway (WSS), REST API v9 (HTTPS) и WebRTC медиа-транспорт (UDP/SRTP/DAVE MLS)
+  # Network stack: Discord Gateway (WSS), REST API v9 (HTTPS), and WebRTC media transport (UDP/SRTP/DAVE MLS)
   - --share=network
-  # Низколатентный захват экрана (DMA-BUF NV12) и аудиомаршрутизация через сокет PipeWire
+  # Low-latency screen capture (DMA-BUF NV12) and audio routing via PipeWire socket
   - --filesystem=xdg-run/pipewire-0
-  # Совместимость аудиовывода через PipeWire-Pulse / PulseAudio мост
+  # Audio output compatibility via PipeWire-Pulse / PulseAudio bridge
   - --socket=pulseaudio
-  # Хранение сессионного токена в системном брелоке через Secret Service API и XDG Secret Portal
+  # Session token storage in system keyring via Secret Service API and XDG Secret Portal
   - --talk-name=org.freedesktop.secrets
-  # Интеграция с XDG Desktop Portal (ScreenCast, Secret, FileChooser, Settings)
+  # Integration with XDG Desktop Portal (ScreenCast, Secret, FileChooser, Settings)
   - --talk-name=org.freedesktop.portal.Desktop
-  # Системные уведомления рабочего стола
+  # Desktop system notifications
   - --talk-name=org.freedesktop.Notifications
-  # Иконка системного трея по протоколу StatusNotifierItem (SNI / AppIndicator)
+  # System tray icon via StatusNotifierItem (SNI / AppIndicator) protocol
   - --talk-name=org.kde.StatusNotifierWatcher
-  # Экспорт дерева доступности AT-SPI (WCAG 2.2 AA / Screen Reader)
+  # AT-SPI accessibility tree export (WCAG 2.2 AA / Screen Reader)
   - --talk-name=org.a11y.Bus
-  # Структурированное логирование по умолчанию (с автоматическим маскированием токенов mfa.[REDACTED])
+  # Structured logging by default (with automatic masking of mfa.[REDACTED] tokens)
   - --env=RUST_LOG=info
 
 modules:

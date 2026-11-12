@@ -1,17 +1,17 @@
-# Спецификация пакета Snapcraft для нативного клиента Discord GPUI (TASK-967)
-# Оракул RE: /home/user/clean-room-oracle/main-arch.md (#62457 @143136, SNAP / SNAP_NAME -> runtimeEnvironment = "snap")
-# Оракул RE: /home/user/clean-room-oracle/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, XDG ScreenCast Portal)
-# Оракул Keyring: rust/crates/discord-platform/src/keyring.rs (org.freedesktop.secrets через password-manager-service)
+# Snapcraft package specification for the native Discord GPUI client (TASK-967)
+# RE Oracle: /home/user/clean-room-oracle/main-arch.md (#62457 @143136, SNAP / SNAP_NAME -> runtimeEnvironment = "snap")
+# RE Oracle: /home/user/clean-room-oracle/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, XDG ScreenCast Portal)
+# Keyring Oracle: rust/crates/chord-platform/src/keyring.rs (org.freedesktop.secrets via password-manager-service)
 name: discord-gpui
 base: core22
 version: "1.0.0-beta.1"
-summary: "Нативный Linux-клиент Discord на Rust GPUI (WGPU 120 FPS, Wayland, DAVE v1)"
+summary: "Native Linux Discord client in Rust GPUI (WGPU 120 FPS, Wayland, DAVE v1)"
 description: |
-  Высокопроизводительный нативный клиент Discord для Linux на базе Rust GPUI и WGPU
-  (120 FPS аппаратный рендеринг, бюджет памяти VmRSS < 60 МБ, холодный старт < 500 мс).
-  Поддерживает протокол сквозного шифрования голоса и видео DAVE MLS v1 (RFC 9420),
-  захват экрана через XDG Desktop Portal / PipeWire DMA-BUF и безопасное хранение
-  сессионных токенов в системном брелоке Secret Service в строгой песочнице AppArmor.
+  High-performance native Discord client for Linux built with Rust GPUI and WGPU
+  (120 FPS hardware rendering, memory budget VmRSS < 60 MB, cold start < 500 ms).
+  Supports DAVE MLS v1 (RFC 9420) end-to-end voice and video encryption,
+  screen capture via XDG Desktop Portal / PipeWire DMA-BUF, and secure storage of
+  session tokens in the Secret Service keyring under a strict AppArmor sandbox.
 grade: stable
 confinement: strict
 compression: lzo
@@ -29,29 +29,29 @@ apps:
       RUST_LOG: info
       DISABLE_WAYLAND: "0"
     plugs:
-      # Нативный композитор Wayland (основной протокол отображения)
+      # Native Wayland compositor (primary display protocol)
       - wayland
-      # Интеграция с рабочим столом, XDG Desktop Portal (ScreenCast, FileChooser, Notifications) и AT-SPI
+      # Desktop integration, XDG Desktop Portal (ScreenCast, FileChooser, Notifications) and AT-SPI
       - desktop
-      # Поддержка системного трея StatusNotifierItem (SNI) и классических меню
+      # StatusNotifierItem (SNI) system tray and legacy menus support
       - desktop-legacy
-      # Безопасный резервный сокет X11 при запуске в Xorg-сессии
+      # Safe X11 fallback socket when running in an Xorg session
       - x11
-      # Аппаратное ускорение GPU (WGPU Vulkan / OpenGL 120 FPS и аппаратный кодек VA-API)
+      # GPU hardware acceleration (WGPU Vulkan / OpenGL 120 FPS and VA-API hardware codec)
       - opengl
-      # Воспроизведение звука через PipeWire / PulseAudio
+      # Audio playback via PipeWire / PulseAudio
       - audio-playback
-      # Захват микрофона для голосовых каналов и Stage-трибун
+      # Microphone capture for voice channels and Stage rooms
       - audio-record
-      # Доступ к системному хранилищу ключей org.freedesktop.secrets (GNOME Keyring / KWallet)
+      # Access to system keyring org.freedesktop.secrets (GNOME Keyring / KWallet)
       - password-manager-service
-      # Клиентский сетевой стек: Discord Gateway (WSS), REST API v9 (HTTPS)
+      # Client network stack: Discord Gateway (WSS), REST API v9 (HTTPS)
       - network
-      # Локальная привязка UDP-сокетов для WebRTC ICE / SRTP медиа-транспорта
+      # Local UDP socket binding for WebRTC ICE / SRTP media transport
       - network-bind
-      # Блокировка гашения экрана во время просмотра или трансляции видеопотока
+      # Screen blanking inhibition while watching or broadcasting video streams
       - screen-inhibit-control
-      # Чтение статуса питания для адаптивного энергосбережения рендерера
+      # Power status reading for adaptive renderer power saving
       - upower-observe
 
 parts:

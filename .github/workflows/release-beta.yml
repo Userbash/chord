@@ -1,5 +1,5 @@
-# TASK-968: Релизный CI/CD конвейер матричной сборки Linux-пакетов (.tar.gz, AppImage, .deb, .rpm, Arch)
-# автоматической генерации SHA256SUMS и публикации GitHub Release с RELEASE-NOTES-v1.0.0-beta.1.md.
+# TASK-968: Release CI/CD pipeline for matrix building Linux packages (.tar.gz, AppImage, .deb, .rpm, Arch)
+# with automatic SHA256SUMS generation and GitHub Release publication with RELEASE-NOTES-v1.0.0-beta.1.md.
 
 name: Release Beta Linux Packages
 
@@ -80,8 +80,8 @@ jobs:
       - name: Verify Release Notes, Beta Testing Guide & Base SHA256SUMS
         run: |
           set -euo pipefail
-          test -s "$RELEASE_NOTES_FILE" || { echo "::error::Отсутствует или пуст $RELEASE_NOTES_FILE"; exit 1; }
-          test -s "docs/BETA-TESTING-GUIDE.md" || { echo "::error::Отсутствует docs/BETA-TESTING-GUIDE.md"; exit 1; }
+          test -s "$RELEASE_NOTES_FILE" || { echo "::error::Missing or empty $RELEASE_NOTES_FILE"; exit 1; }
+          test -s "docs/BETA-TESTING-GUIDE.md" || { echo "::error::Missing docs/BETA-TESTING-GUIDE.md"; exit 1; }
           node --test --test-concurrency=1 tests/unit/beta-release-package-958.test.mjs
 
       - name: Upload preflight gate evidence
@@ -222,11 +222,11 @@ jobs:
               )
               ;;
             *)
-              echo "::error::Неизвестный формат матрицы: $MATRIX_FORMAT"
+              echo "::error::Unknown matrix format: $MATRIX_FORMAT"
               exit 1
               ;;
           esac
-          test -s "$MATRIX_ARTIFACT" || { echo "::error::Артефакт $MATRIX_ARTIFACT не создан"; exit 1; }
+          test -s "$MATRIX_ARTIFACT" || { echo "::error::Artifact $MATRIX_ARTIFACT was not created"; exit 1; }
           sha256sum "$MATRIX_ARTIFACT" | tee "$MATRIX_ARTIFACT.sha256"
 
       - name: Run format contract test (${{ matrix.contract_test }})
@@ -292,7 +292,7 @@ jobs:
             "discord-gpui-1.0.0_beta.1-1-x86_64.pkg.tar.zst" \
             "sbom.spdx.json" \
             "RELEASE-NOTES-v1.0.0-beta.1.md"; do
-            test -s "$required" || { echo "::error::Отсутствует обязательный релизный артефакт: $required"; exit 1; }
+            test -s "$required" || { echo "::error::Missing required release artifact: $required"; exit 1; }
           done
 
           sha256sum \
