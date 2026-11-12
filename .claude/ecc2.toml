@@ -182,6 +182,20 @@ path = "/home/user/orca/project/waves/RW-41-ECC-INTEGRATION/TASK-POOL.md"
 default_entity_type = "task_pool"
 default_observation_type = "sprint_tracking"
 
+# FIX-21: Правило экономии токенов — доступно всем профилям через core_only
+[memory_connectors.token_efficiency_rules]
+kind = "markdown_file"
+path = "/home/user/orca/project/.agents/rules/token-efficiency.md"
+default_entity_type = "agent_rule"
+default_observation_type = "efficiency_constraint"
+
+# FIX-22: Правило flock для cargo
+[memory_connectors.cargo_flock_rules]
+kind = "markdown_file"
+path = "/home/user/orca/project/.agents/rules/cargo-flock.md"
+default_entity_type = "agent_rule"
+default_observation_type = "build_constraint"
+
 [memory_connectors.waves_journal]
 kind = "jsonl_file"
 path = "/home/user/orca/project/waves/db.jsonl"
@@ -196,8 +210,9 @@ default_observation_type = "checkpoint"
 # OPT-2: Наборы memory_connectors по ролям (не грузим все 13 всем профилям)
 # Экономия 15-25K токенов на старт воркера
 [profile_connector_sets.core_only]
-# Минимум для всех воркеров
-connectors = ["project_rules", "agents_governance", "process_rules", "waves_state"]
+# FIX-21: Добавлены token_efficiency_rules и cargo_flock_rules — базовые правила для ВСЕХ воркеров
+connectors = ["project_rules", "agents_governance", "process_rules", "waves_state",
+              "token_efficiency_rules", "cargo_flock_rules"]
 
 [profile_connector_sets.backend_set]
 # G1 Backend: core + RE-оракул + rust-client docs

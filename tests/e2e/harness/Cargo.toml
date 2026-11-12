@@ -1,5 +1,5 @@
 [package]
-name = "discord-gpui-e2e-harness"
+name = "chord-gpui-e2e-harness"
 version = "0.1.0"
 edition = "2024"
 publish = false
@@ -7,14 +7,15 @@ publish = false
 [workspace]
 
 [lib]
-name = "discord_gpui_e2e_harness"
+name = "chord_gpui_e2e_harness"
 path = "runner.rs"
 
 [dependencies]
-discord-core = { path = "../../../rust/crates/discord-core" }
-discord-codec = { path = "../../../rust/crates/discord-codec" }
-discord-json = { path = "../../../rust/crates/discord-json" }
-tokio = { version = "1.53", features = ["rt", "rt-multi-thread", "macros", "net", "time", "sync", "io-util"] }
+# FIX-15: Крейты переименованы discord-* → chord-*
+chord-core  = { path = "../../../rust/crates/chord-core" }
+chord-codec = { path = "../../../rust/crates/chord-codec" }
+chord-json  = { path = "../../../rust/crates/chord-json" }
+tokio = { version = "1.53", features = ["rt", "rt-multi-thread", "macros", "net", "time", "sync", "io-util", "process"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 zstd = "0.14"

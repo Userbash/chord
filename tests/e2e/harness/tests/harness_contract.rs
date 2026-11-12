@@ -7,7 +7,7 @@ use std::os::unix::fs::FileTypeExt;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
-use discord_gpui_e2e_harness::{
+use chord_gpui_e2e_harness::{
     CaptureReadyTrace, CompositorConfig, CompositorSession, E2eRunner, E2eRunnerConfig,
     MockGatewayConfig, MockGatewayDaemon,
 };
@@ -355,11 +355,12 @@ async fn sub_901_3_e2e_lifecycle_runner_executes_headless_gpui_under_300ms_and_c
     let smoke_res = runner
         .run_binary(
             &gpui_bin,
-            &["--headless-smoke"],
+            // FIX-12: Используем --smoke=summary (однострочный вывод) вместо JSON --headless-smoke
+            &["--smoke=summary"],
             &[("AUTHORIZATION", "Bearer secret-live-token-999")],
         )
         .await
-        .expect("Выполнение discord-gpui --headless-smoke через E2eRunner");
+        .expect("Выполнение chord-gpui --smoke=summary через E2eRunner");
 
     let total_e2e_elapsed = start_total.elapsed();
     assert!(
@@ -373,9 +374,14 @@ async fn sub_901_3_e2e_lifecycle_runner_executes_headless_gpui_under_300ms_and_c
         smoke_res.panic_report.is_none(),
         "При штатном запуске паник быть не должно"
     );
-    assert!(smoke_res.stdout.contains("GPUI_SMOKE_OK "));
+    // FIX-12: --smoke=summary возвращает однострочный формат, не JSON
     assert!(
-        smoke_res.stdout.contains("\"display_backend\":\"wayland\""),
+        smoke_res.stdout.contains("SMOKE ok ") || smoke_res.stdout.contains("GPUI_SMOKE_OK "),
+        "Бинарник должен вернуть SMOKE ok ... или GPUI_SMOKE_OK ...: {}",
+        smoke_res.stdout
+    );
+    assert!(
+        smoke_res.stdout.contains("backend=wayland") || smoke_res.stdout.contains("\"display_backend\":\"wayland\""),
         "Бинарник должен видеть чистый изолированный бэкенд wayland (без X11 DISPLAY): {}",
         smoke_res.stdout
     );

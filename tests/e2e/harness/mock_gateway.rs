@@ -7,7 +7,7 @@ use std::os::unix::io::AsRawFd;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::base64;
+use chord_core::rest::base64;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::watch;

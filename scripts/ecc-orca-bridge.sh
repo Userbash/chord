@@ -55,7 +55,13 @@ while [[ $# -gt 0 ]]; do
       TASK="${2:-}"
       shift 2
       ;;
-    --add-dir|--include-directories|--allowed-tools|--disallowed-tools|--permission-mode|--max-budget-usd|--append-system-prompt)
+    --add-dir|--include-directories|--allowed-tools|--disallowed-tools|--permission-mode|--max-budget-usd)
+      shift 2
+      ;;
+    --append-system-prompt)
+      # FIX-16: Сохраняем prompt вместо выброса — передаём воркеру через env
+      ECC_APPEND_SYSTEM_PROMPT="${2:-}"
+      export ECC_APPEND_SYSTEM_PROMPT
       shift 2
       ;;
     --)

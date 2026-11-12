@@ -9,10 +9,10 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::sync::OnceLock;
-use discord_codec::etf::{self, EtfValue};
-use discord_codec::zstd::ZstdStream;
-use discord_core::ready::Ready;
-use discord_core::rest::base64;
+use chord_codec::etf::{self, EtfValue};
+use chord_codec::zstd::ZstdStream;
+use chord_core::ready::Ready;
+use chord_core::rest::base64;
 
 use crate::HarnessError;
 
