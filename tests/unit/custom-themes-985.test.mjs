@@ -526,7 +526,7 @@ describe("TASK-985: Пользовательские темы оформлени
     assert.equal(dimReport.emergencyRecoveryChecked, true);
 
     const rawLog =
-      'ThemeSync Authorization: Bearer mfa.secret_token_1234567890abcd token="MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef"';
+      'ThemeSync Authorization: Bearer mfa.secret_token_1234567890abcd token="dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef"';
     const redacted = redactThemeTelemetryLogs(rawLog);
     assert.doesNotMatch(redacted, /mfa\.secret_token/);
     assert.doesNotMatch(redacted, /MTIzNDU2Nzg5MDEyMzQ1Njc4/);

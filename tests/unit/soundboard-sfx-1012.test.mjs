@@ -530,7 +530,7 @@ describe("TASK-1012: Серверная звуковая панель (Soundboar
 
     // 3. Маскирование токенов в логах диагностики саундборда
     const rawLog =
-      'POST /api/v9/channels/1294815650186788916/send-soundboard-sound Authorization="Bearer mfa.secret_soundboard_token_1012" token=MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
+      'POST /api/v9/channels/1294815650186788916/send-soundboard-sound Authorization="Bearer mfa.secret_soundboard_token_1012" token=dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
     const redacted = redactSoundboardTelemetry(rawLog);
     assert.doesNotMatch(redacted, /mfa\.secret_soundboard_token_1012/);
     assert.doesNotMatch(redacted, /GhIjKl\.MnOpQrStUvWxYz0123456789abcdef/);

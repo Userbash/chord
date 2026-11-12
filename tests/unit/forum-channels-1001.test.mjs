@@ -573,7 +573,7 @@ describe("TASK-1001: Форумные каналы GUILD_FORUM (type 15), фил
 
     // 3. Маскирование секретов и токенов в логах диагностики
     const rawDiag =
-      'ForumFetch GET /channels/110/threads/active Authorization: Bearer mfa.secret_forum_token_123456 token="MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef"';
+      'ForumFetch GET /channels/110/threads/active Authorization: Bearer mfa.secret_forum_token_123456 token="dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef"';
     const safeDiag = redactForumDiagnostics(rawDiag);
     assert.doesNotMatch(safeDiag, /mfa\.secret_forum_token/);
     assert.doesNotMatch(safeDiag, /MTIzNDU2Nzg5MDEyMzQ1Njc4/);

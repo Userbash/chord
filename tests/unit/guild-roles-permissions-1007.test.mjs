@@ -577,7 +577,7 @@ describe("TASK-1007: Иерархия ролей сервера, drag-and-drop P
 
     // 2. Маскирование секретов и токенов в логах диагностики ролей
     const rawDiag =
-      'RolePatch PATCH /guilds/100/roles Authorization: Bearer mfa.secret_role_token_987654 token="MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef"';
+      'RolePatch PATCH /guilds/100/roles Authorization: Bearer mfa.secret_role_token_987654 token="dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef"';
     const safeDiag = redactRolesDiagnostics(rawDiag);
     assert.doesNotMatch(safeDiag, /mfa\.secret_role_token/);
     assert.doesNotMatch(safeDiag, /MTIzNDU2Nzg5MDEyMzQ1Njc4/);

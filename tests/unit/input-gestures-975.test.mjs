@@ -402,7 +402,7 @@ describe("TASK-975: Верификация сенсорных жестов и к
 
     // 2. Маскирование секретных токенов в логах наблюдаемости
     const rawLog =
-      'Gesture telemetry user token="mfa.abCDef1234567890_secretToken" auth="Bot MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz123456"';
+      'Gesture telemetry user token="mfa.abCDef1234567890_secretToken" auth="Bot dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz123456"';
     const sanitized = redactGestureLogs(rawLog);
     assert.ok(!sanitized.includes("abCDef1234567890_secretToken"));
     assert.ok(!sanitized.includes("MnOpQrStUvWxYz123456"));

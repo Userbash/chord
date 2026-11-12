@@ -477,7 +477,7 @@ describe("TASK-977: Верификация дробного масштабиро
 
     // 2. Маскирование чувствительных токенов в логах наблюдаемости
     const rawLog =
-      'Wayland fractional_scale telemetry token="mfa.abCDef1234567890_secretToken" auth="Bot MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz123456" bearer="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"';
+      'Wayland fractional_scale telemetry token="mfa.abCDef1234567890_secretToken" auth="Bot dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz123456" bearer="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"';
     const sanitized = redactFractionalScaleLogs(rawLog);
     assert.ok(!sanitized.includes("abCDef1234567890_secretToken"));
     assert.ok(!sanitized.includes("MnOpQrStUvWxYz123456"));

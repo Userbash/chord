@@ -480,7 +480,7 @@ describe("TASK-1006: Нативная проверка орфографии в �
 
     // 2. Маскирование секретов в телеметрии проверки орфографии
     const sampleLog =
-      'Spellcheck telemetry auth="Bearer mfa.abCDef1234567890_secretTokenValue" token=MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
+      'Spellcheck telemetry auth="Bearer mfa.abCDef1234567890_secretTokenValue" token=dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
     const redacted = redactSpellcheckTelemetry(sampleLog);
     assert.doesNotMatch(redacted, /mfa\.abCDef1234567890_secretTokenValue/);
     assert.doesNotMatch(redacted, /GhIjKl\.MnOpQrStUvWxYz0123456789abcdef/);

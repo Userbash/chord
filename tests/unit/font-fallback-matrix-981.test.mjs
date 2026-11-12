@@ -402,7 +402,7 @@ describe("TASK-981: Комплексный чекер системных шри�
 
     // 3. Маскирование секретных токенов в логах наблюдаемости
     const rawLog =
-      'Font audit telemetry token="mfa.abCDef1234567890_secretToken" auth="Bot MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz123456"';
+      'Font audit telemetry token="mfa.abCDef1234567890_secretToken" auth="Bot dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz123456"';
     const sanitized = redactFontAuditLogs(rawLog);
     assert.ok(!sanitized.includes("abCDef1234567890_secretToken"));
     assert.ok(!sanitized.includes("MnOpQrStUvWxYz123456"));

@@ -541,7 +541,7 @@ describe("TASK-1005: Серверные эмодзи <:name:id>, анимиро�
 
     // 6. Маскирование секретов в логах
     const sampleLog =
-      'Emoji CDN fetch auth="Bearer mfa.abCDef1234567890_secretTokenValue" token=MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
+      'Emoji CDN fetch auth="Bearer mfa.abCDef1234567890_secretTokenValue" token=dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
     const redacted = redactEmojiTelemetry(sampleLog);
     assert.doesNotMatch(redacted, /mfa\.abCDef1234567890_secretTokenValue/);
     assert.doesNotMatch(redacted, /GhIjKl\.MnOpQrStUvWxYz0123456789abcdef/);

@@ -362,7 +362,7 @@ describe("TASK-980: Аудит безопасности Unix сокетов disc
 
     // 2. Маскирование чувствительных токенов в логах IPC-аудита
     const rawLog =
-      '[RPCServer:IPC] token="mfa.abCDef1234567890_secretToken" auth="Bot MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz123456" bearer="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"';
+      '[RPCServer:IPC] token="mfa.abCDef1234567890_secretToken" auth="Bot dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz123456" bearer="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"';
     const redacted = redactIpcAuditLog(rawLog);
     assert.ok(!redacted.includes("abCDef1234567890_secretToken"));
     assert.ok(!redacted.includes("MnOpQrStUvWxYz123456"));

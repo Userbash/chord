@@ -640,7 +640,7 @@ describe("TASK-1008: Журнал аудита сервера (Server Audit Log 
 
     // 5. Маскирование секретов и проверка CLI scripts/verify-audit-log.mjs (коды 0 / 1 / 2)
     const rawLog =
-      'GET /api/v9/guilds/942355007271997450/audit-logs Authorization="Bearer mfa.secret_audit_token_1008" token=MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
+      'GET /api/v9/guilds/942355007271997450/audit-logs Authorization="Bearer mfa.secret_audit_token_1008" token=dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
     const redacted = redactAuditLogTelemetry(rawLog);
     assert.doesNotMatch(redacted, /mfa\.secret_audit_token_1008/);
     assert.doesNotMatch(redacted, /GhIjKl\.MnOpQrStUvWxYz0123456789abcdef/);

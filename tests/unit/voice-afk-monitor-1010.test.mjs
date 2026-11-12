@@ -551,7 +551,7 @@ describe("TASK-1010: Автоматический перевод в AFK-кана
 
     // 2. Маскирование секретов и сессионных токенов в логах диагностики
     const rawLog =
-      'Gateway Op 4 VOICE_STATE_UPDATE guild=274093052673392641 Authorization="Bearer mfa.secret_afk_token_1010" session_id="273df5662dc828eb460b491b0f520aba" token=MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
+      'Gateway Op 4 VOICE_STATE_UPDATE guild=274093052673392641 Authorization="Bearer mfa.secret_afk_token_1010" session_id="273df5662dc828eb460b491b0f520aba" token=dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
     const redacted = redactAfkTelemetry(rawLog);
     assert.doesNotMatch(redacted, /mfa\.secret_afk_token_1010/);
     assert.doesNotMatch(redacted, /273df5662dc828eb460b491b0f520aba/);

@@ -528,7 +528,7 @@ describe("TASK-1004: Интерактивные опросы в сообщени
 
     // 2. Маскирование токенов в логах диагностики
     const rawLog =
-      'PUT /api/v9/channels/1294815650186788916/polls/1558237752917758108/answers/8 Authorization="Bearer mfa.secret_poll_token_1004" token=MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
+      'PUT /api/v9/channels/1294815650186788916/polls/1558237752917758108/answers/8 Authorization="Bearer mfa.secret_poll_token_1004" token=dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
     const redacted = redactPollTelemetry(rawLog);
     assert.doesNotMatch(redacted, /mfa\.secret_poll_token_1004/);
     assert.doesNotMatch(redacted, /GhIjKl\.MnOpQrStUvWxYz0123456789abcdef/);

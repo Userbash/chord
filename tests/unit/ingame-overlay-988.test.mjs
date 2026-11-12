@@ -566,7 +566,7 @@ describe("TASK-988: Глобальные хоткеи и Wayland In-Game Overlay
     assert.equal(report.dimensions.observability, true);
 
     const sampleLog =
-      'Overlay session auth="Bearer mfa.abCDef1234567890_secretTokenValue" token=MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef restore_token=fd91bc02-77a1-4b90-8812-cc9911223344';
+      'Overlay session auth="Bearer mfa.abCDef1234567890_secretTokenValue" token=dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef restore_token=fd91bc02-77a1-4b90-8812-cc9911223344';
     const redacted = redactOverlayTelemetry(sampleLog);
     assert.doesNotMatch(redacted, /mfa\.abCDef1234567890_secretTokenValue/);
     assert.doesNotMatch(redacted, /GhIjKl\.MnOpQrStUvWxYz0123456789abcdef/);

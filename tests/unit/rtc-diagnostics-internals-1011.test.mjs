@@ -601,7 +601,7 @@ describe("TASK-1011: Продвинутая WebRTC диагностика и RTC
 
     // 2. Маскирование токенов и ключей шифрования в логах RTC диагностики
     const rawLog =
-      'RTCDiag endpoint=c-fra19.discord.media auth="Bearer mfa.secret_rtc_token_1011" secret_key=0102030405060708090a token=MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
+      'RTCDiag endpoint=c-fra19.discord.media auth="Bearer mfa.secret_rtc_token_1011" secret_key=0102030405060708090a token=dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef';
     const redacted = redactRtcDiagnosticsTelemetry(rawLog);
     assert.doesNotMatch(redacted, /mfa\.secret_rtc_token_1011/);
     assert.doesNotMatch(redacted, /0102030405060708090a/);
