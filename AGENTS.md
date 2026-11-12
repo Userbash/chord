@@ -1,5 +1,8 @@
 # AGENTS.md — Agent and Coordinator Rules for discord-lab
 
+> **Authority Hierarchy for Internal Workers:**
+> Internal workers follow **only** [`AGENTS.md`](AGENTS.md) + [`TEST-POLICY.md`](TEST-POLICY.md) (plus their assigned task spec). External contributors follow `README.md` + `CONTRIBUTING.md` + `AI-AGENTS.md`.
+
 For quick onboarding, first read `PROJECT-CONTEXT.md`; open full documents only as needed for a specific task card. Do not load entire sprint histories or massive wave plans without direct need.
 
 You are working in the `discord-lab` repository (local CLI: Discord protocol analysis via Frida/CDP + native Rust GPUI client `discord-gpui`).

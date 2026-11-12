@@ -2,6 +2,8 @@
 
 > **This guide is for both humans and AI agents.**
 > See the [AI Agents section](#-for-ai-agents) for machine-readable rules.
+>
+> **Documentation Scope for External Contributors:** Follow **only** [`README.md`](README.md) + [`CONTRIBUTING.md`](CONTRIBUTING.md) + [`AI-AGENTS.md`](AI-AGENTS.md). Internal orchestration documents (`AGENTS.md`, `TEST-POLICY.md`, `PROCESS.md`, `docs/archive/`) apply to internal workers only.
 
 <p align="center">
   <a href="#-quick-start">Quick Start</a> ·

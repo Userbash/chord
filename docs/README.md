@@ -2,6 +2,11 @@
 
 Welcome to the comprehensive documentation for **Chord**.
 
+> **Document Authority & Entry Hierarchy:**
+> - **External Contributors:** [`README.md`](../README.md) + [`CONTRIBUTING.md`](../CONTRIBUTING.md) + [`AI-AGENTS.md`](../AI-AGENTS.md)
+> - **Internal Workers:** [`AGENTS.md`](../AGENTS.md) + [`TEST-POLICY.md`](../TEST-POLICY.md)
+> - **Historical Plans:** Archived wave plans (`CODEX-WORKERS.md`, `WAVE-PLAN.md`, `DEVELOPMENT-PROMPT.md`) live in [`docs/archive/rust-client/`](archive/rust-client/).
+
 ## 1. Quick Navigation
 
 | Document | Link | Purpose |
