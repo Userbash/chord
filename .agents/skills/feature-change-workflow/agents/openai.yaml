@@ -1,4 +1,0 @@
-interface:
-  display_name: "Feature Change Workflow"
-  short_description: "Планирование крупных изменений по этапам"
-  default_prompt: "Используй $feature-change-workflow для планирования крупного изменения перед реализацией."

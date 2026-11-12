@@ -1,26 +1,33 @@
-# Node
+# Dependencies
 node_modules/
 
-# Гейт-артефакты (локальные результаты прогонов, tarball пакета, golden-манифест)
+# Quality gate artifacts (local test runs, package tarballs, golden manifests)
 .gate/
 
-# Покрытие
+# Coverage
 coverage/
 
-# Реальные артефакты (golden): корневые каталоги, локальные и приватные — в git не
-# попадают. Паттерны якорные: рекурсивные `logs/` и т.п. скрывали переносимые
-# фикстуры `tests/fixtures/logs` (инцидент CI 2026-10-18).
+# Golden artifacts: root folders, local and private — not tracked in git.
+# Anchored patterns prevent hiding portable fixtures under tests/fixtures/
 /logs/
 /functions/
 /evidence/
 
-# Упаковка
+# Packaging
 *.tgz
 
-# Прочее
+# OS / Editor metadata
 .DS_Store
+.directory
 
-# Журнал волн (waves/): страховка — сборки и бинарники в артефактах не индексируются
+# Local Agent Harnesses, ECC, and IDE Contexts
+/.agents/
+/.claude/
+/.opencode/
+/.ua/
+/.tmp/
+
+# Wave journal: intermediate build outputs and binaries are never indexed
 waves/**/target/
 waves/**/mut-target/
 waves/**/node_modules/
@@ -29,23 +36,27 @@ waves/**/*.rmeta
 waves/**/*.o
 waves/**/*.bin
 waves/**/*.zst
+waves/**/reviews/*harness*
 
-# Локальные векторные индексы Socraticode (генерируются, не исходники)
+# Local vector indices (generated, not source)
 /discord-lab-vector-db.json
 /discord-lab-knowledge-vdb.json
 
-# B8a: локальные настройки спайка (не коммитить)
+# Local GUI spike settings
 .local/
 
 # Python caches
 __pycache__/
 *.pyc
+
+# Distribution binaries
 rust/dist/discord-gui-spike
 rust/dist/discord-gpui
 rust/dist/*.tar.gz
 rust/dist/*.AppImage*
-rust/dist/discord-gui-spike
 rust/dist/discord-rs
+
+# Reference projects and build targets
 docs/reference-projects/sources/
 target/
 rust/target/

@@ -1,0 +1,8 @@
+# Git Attributes for Chord
+# Exclude internal sprint journals, heavy dev-only logs, and intermediate artifacts from release archives
+waves/ export-ignore
+evidence/ export-ignore
+functions/ export-ignore
+logs/ export-ignore
+.gate/ export-ignore
+.local/ export-ignore
