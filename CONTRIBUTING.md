@@ -452,6 +452,26 @@ Report privately via [Security Advisory](https://github.com/Userbash/chord/secur
 
 ---
 
+## 🌐 Internationalization (i18n) Contributions
+
+Localization is powered by `rust/crates/chord-i18n/` (36 locales, CLDR pluralization, `xxh64` key hashing per [`docs/re/i18n-deep.md`](docs/re/i18n-deep.md)) and `gpui-kit/crates/component/locales/ui.yml` for shared UI widgets.
+
+When adding or updating translations:
+1. Keep key names and interpolation placeholders (`{count}`, `{user}`, etc.) identical across locales.
+2. Verify plural rules in `rust/crates/chord-i18n/src/plural.rs` and run `cargo test -p chord-i18n --manifest-path rust/Cargo.toml`.
+3. Never commit machine-translated strings with broken formatting tokens or truncated placeholders.
+
+---
+
+## 📦 Legacy Artifact Naming Policy
+
+While the repository and Rust workspace crates are named **Chord** (`chord-gpui`, `chord-core`, etc.), the Beta 1 release pipeline (`.github/workflows/release-beta.yml`, `packaging/snap/snapcraft.yaml`, `rust/dist/SHA256SUMS`, and `tests/unit/beta-release-package-958.test.mjs`) still references the legacy `discord-gpui` package/binary names for backwards compatibility.
+
+- **Do not** rename `discord-gpui-*` artifact globs or `packaging/rpm/discord-gpui.spec` inside unrelated feature/docs PRs.
+- Unifying binary and package names under `chord` requires a dedicated migration PR updating `release-beta.yml`, `packaging/`, `rust/dist/SHA256SUMS`, and packaging contract tests together.
+
+---
+
 ## ❓ FAQ
 
 **Q: Can multiple AI agents work on the same task simultaneously?**  

@@ -1,3 +1,5 @@
+//! User presence status picker popover (Online, Idle, Do Not Disturb, Invisible).
+
 use crate::state::AppState;
 use crate::state::models::PresenceStatus;
 use crate::theme::DISCORD_THEME;

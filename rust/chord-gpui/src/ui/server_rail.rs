@@ -1,3 +1,5 @@
+//! Leftmost 72px guild navigation rail with DM shortcut, guild icons, and discovery trigger.
+
 use crate::state::AppState;
 use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;

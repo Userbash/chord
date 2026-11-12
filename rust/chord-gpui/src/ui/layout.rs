@@ -1,3 +1,5 @@
+//! Root application layout orchestrating the server rail, channel sidebar, main view, and overlays.
+
 use crate::state::AppState;
 use crate::ui::account_switcher::AccountSwitcher;
 use crate::ui::captcha_modal::CaptchaModal;

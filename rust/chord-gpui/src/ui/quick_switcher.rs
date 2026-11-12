@@ -1,3 +1,5 @@
+//! Quick Switcher (`Ctrl+K`) modal for rapid navigation across guilds, channels, and DMs.
+
 use crate::state::AppState;
 use crate::state::models::QuickSwitcherItemKind;
 use crate::theme::DISCORD_THEME;

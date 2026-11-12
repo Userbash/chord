@@ -1,3 +1,5 @@
+//! Message search drawer (`Ctrl+F`) backed by local SQLite FTS5 full-text indexing.
+
 use crate::state::AppState;
 use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;
