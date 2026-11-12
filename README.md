@@ -15,6 +15,9 @@
 [![RAM](https://img.shields.io/badge/memory-%3C%2060%20MB%20RAM-blueviolet.svg)](docs/rust-client/STATUS.md)
 [![DAVE E2EE](https://img.shields.io/badge/security-DAVE%20MLS%20v1%20E2EE-darkgreen.svg)](rust/crates/discord-voice/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![AI Collaboration](https://img.shields.io/badge/AI%20collaboration-AMCP%20v1.0-blueviolet.svg)](AI-AGENTS.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome%20(human%20%26%20AI)-brightgreen.svg)](CONTRIBUTING.md)
+[![CI Gate](https://img.shields.io/badge/CI-8%20gate%20checks-blue.svg)](.github/workflows/ai-collab-gate.yml)
 
 > [!IMPORTANT]
 > **Open-Source Non-Affiliation and Trademark Notice:**
@@ -218,21 +221,44 @@ Package specifications are provided for major desktop operating systems:
 
 ---
 
-## 7. Project Documentation
+## 7. Contributing & Collaboration
+
+Chord welcomes contributions from **humans and AI agents** using any AI model (Gemini, Claude, GPT-4, DeepSeek, etc.).
+
+### 🤖 AI-Assisted Development
+
+This project uses an **AI Multi-Model Collaboration Protocol (AMCP v1.0)** that makes it safe for multiple AI agents from different teams to contribute simultaneously without breaking each other's code.
+
+**How it works:**
+- Every PR triggers **8 automatic checks** (format, clippy, tests, secrets scan, file boundaries, contract compatibility)
+- **Branch protection** blocks merge until all checks pass — automatically
+- **CODEOWNERS** routes PR to the right reviewer automatically
+- **Labels** are applied automatically based on which files changed
+- **Dependabot** keeps dependencies updated with auto-merge for safe updates
+
+**To contribute with an AI agent:**
+1. Read [`AI-AGENTS.md`](AI-AGENTS.md) — machine-readable protocol for AI models
+2. Fork the repo, create branch from `upstream/unstable`
+3. AI writes test first (TDD), then code
+4. Push → PR → CI runs automatically → review → merge
+
+**Key rule:** One task = one AI worker = one PR. File scopes never overlap.
+
+### 📋 Documentation
 
 | Document | Path | Description |
 | :--- | :--- | :--- |
+| **Contributing Guide** | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Full contribution guide for humans and AI operators |
+| **AI Agents Protocol** | [`AI-AGENTS.md`](AI-AGENTS.md) | Machine-readable protocol for AI models — start here if you are an AI |
 | **Project Registry** | [`docs/PROJECT-REGISTRY.md`](docs/PROJECT-REGISTRY.md) | Canonical registry of crates, artifacts, and test contracts |
 | **Feature Backlog** | [`docs/feature-backlog.md`](docs/feature-backlog.md) | Parity matrix and feature migration backlog |
-| **Vesktop Analysis** | [`docs/vesktop-analysis.md`](docs/vesktop-analysis.md) | Architectural comparison with Vesktop / Vencord |
-| **Discord-Qt Analysis** | [`docs/discord-qt-analysis.md`](docs/discord-qt-analysis.md) | Comparative evaluation of Discord-Qt |
 | **Current Status** | [`docs/rust-client/STATUS.md`](docs/rust-client/STATUS.md) | Up-to-date memory metrics, FPS, and wave completion |
 | **Roadmap** | [`docs/rust-client/ROADMAP.md`](docs/rust-client/ROADMAP.md) | Development milestones, completed waves, and future sprints |
 | **GPUI Architecture** | [`docs/specs/GPUI-ARCHITECTURE-MIGRATION.md`](docs/specs/GPUI-ARCHITECTURE-MIGRATION.md) | Migration from WebKit to WGPU / GPUI |
 | **DAVE MLS v1 Spec** | [`docs/specs/POST-BETA-ROADMAP-AND-CODING-INSTRUCTIONS.md`](docs/specs/POST-BETA-ROADMAP-AND-CODING-INSTRUCTIONS.md) | E2EE MLS v1 protocol implementation specification |
 | **Agent & Team Rules** | [`AGENTS.md`](AGENTS.md) | Worker protocols, orchestrator guidelines, and department write-scopes |
 | **Architecture Map** | [`docs/map.md`](docs/map.md) | Dependency graph of crates, layers, and research components |
-| **Contributing Guide** | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution standards, Clean Room methodology, and PR workflow |
+| **Vesktop Analysis** | [`docs/vesktop-analysis.md`](docs/vesktop-analysis.md) | Architectural comparison with Vesktop / Vencord |
 
 ---
 
