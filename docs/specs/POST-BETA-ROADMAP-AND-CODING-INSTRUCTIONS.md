@@ -29,7 +29,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1001: Forum Channels `GUILD_FORUM` and Post Cards
 - **Department:** `G2 Frontend` + `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/channels/forum_view.rs`
+  - `rust/chord-gpui/src/channels/forum_view.rs`
   - `scripts/verify-forum-channels.mjs`
   - `tests/unit/forum-channels-1001.test.mjs`
 - **Implementation Guidelines:**
@@ -41,7 +41,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1002: Nested Discussion Threads `PUBLIC_THREAD` and Auto-Archive
 - **Department:** `G1 Backend` + `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/channels/threads.rs`
+  - `rust/chord-gpui/src/channels/threads.rs`
   - `tests/unit/threads-lifecycle-1002.test.mjs`
 - **Implementation Guidelines:**
   1. Handle thread creation opcode from message: `POST /channels/{id}/messages/{msg_id}/threads`.
@@ -52,8 +52,8 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1003: In-Chat Voice Messages with Waveform (OGG Opus)
 - **Department:** `G5 Voice` + `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-voice/src/voice_message.rs`
-  - `rust/discord-gpui/src/chat/voice_message_player.rs`
+  - `rust/crates/chord-voice/src/voice_message.rs`
+  - `rust/chord-gpui/src/chat/voice_message_player.rs`
   - `tests/unit/voice-messages-waveform-1003.test.mjs`
 - **Implementation Guidelines:**
   1. Capture microphone audio via `cpal` into 48 kHz mono buffer, encode to Opus 32 kbps within an OGG container.
@@ -64,7 +64,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1004: Interactive In-Message Polls (Polls & Voting)
 - **Department:** `G1 Backend` + `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/chat/polls.rs`
+  - `rust/chord-gpui/src/chat/polls.rs`
   - `tests/unit/polls-voting-1004.test.mjs`
 - **Implementation Guidelines:**
   1. Data model `Poll`: question (`question.text`), answer options (`answers[].poll_media`), `allow_multiselect`, `expiry`.
@@ -74,7 +74,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1005: Guild Custom Emoji and Animated Lottie Stickers
 - **Department:** `G2 Frontend` + `G1 Backend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/chat/custom_emojis.rs`
+  - `rust/chord-gpui/src/chat/custom_emojis.rs`
   - `tests/unit/custom-emojis-stickers-1005.test.mjs`
 - **Implementation Guidelines:**
   1. Parse custom emoji `<:name:id>` and animated `<a:name:id>` in `MessageParser`.
@@ -84,7 +84,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1006: Native Composer Spellchecker (hunspell / libenchant)
 - **Department:** `G1 Backend` + `G2 Frontend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/chat/spellchecker.rs`
+  - `rust/chord-gpui/src/chat/spellchecker.rs`
   - `tests/unit/spellchecker-native-1006.test.mjs`
 - **Implementation Guidelines:**
   1. FFI bindings to system `libenchant-2.so` or `libhunspell.so` with fallback word frequency trie.
@@ -98,7 +98,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1007: Guild Role Hierarchy and Permission Bitmask Editor
 - **Department:** `G1 Backend` + `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/guild/roles.rs`
+  - `rust/chord-gpui/src/guild/roles.rs`
   - `tests/unit/guild-roles-permissions-1007.test.mjs`
 - **Implementation Guidelines:**
   1. Role model: `id`, `name`, `color` (RGB u32), `hoist`, `position`, `permissions` (64-bit integer `u64`).
@@ -108,7 +108,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1008: Server Audit Log (Server Audit Log & REST API v9)
 - **Department:** `G1 Backend` + `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/guild/audit_log.rs`
+  - `rust/chord-gpui/src/guild/audit_log.rs`
   - `tests/unit/audit-log-viewer-1008.test.mjs`
 - **Implementation Guidelines:**
   1. Query `GET /guilds/{id}/audit-logs` filtering by action type (Action Types 1..145) and actor ID.
@@ -118,7 +118,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1009: Two-Factor Authentication TOTP 2FA and Session Manager
 - **Department:** `G1 Backend` + `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/auth/totp_dialog.rs`
+  - `rust/chord-gpui/src/auth/totp_dialog.rs`
   - `tests/unit/totp-sessions-1009.test.mjs`
 - **Implementation Guidelines:**
   1. Modal `TotpDialog` featuring 6 isolated digit input cells with automatic focus stepping.
@@ -128,7 +128,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1010: Idle AFK Channel Auto-Move
 - **Department:** `G1 Backend` + `G5 Voice` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/voice/afk_monitor.rs`
+  - `rust/chord-gpui/src/voice/afk_monitor.rs`
   - `tests/unit/voice-afk-monitor-1010.test.mjs`
 - **Implementation Guidelines:**
   1. Poll system user idle duration via D-Bus `org.freedesktop.ScreenSaver` / `ext-idle-notifier-v1`.
@@ -138,7 +138,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1011: Advanced WebRTC Diagnostics and RTC Internals (`RE-GAP-22`)
 - **Department:** `G5 Voice` + `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/voice/rtc_diagnostics.rs`
+  - `rust/chord-gpui/src/voice/rtc_diagnostics.rs`
   - `tests/unit/rtc-diagnostics-internals-1011.test.mjs`
 - **Implementation Guidelines:**
   1. Collect RTCP receiver/sender reports (packets, loss, jitter, RTT, bitrate, packetsLost).
@@ -162,7 +162,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1013: Spotify D-Bus MPRIS Integration (Listen Along)
 - **Department:** `G1 Backend` + `G2 Frontend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/integrations/spotify_mpris.rs`
+  - `rust/chord-gpui/src/integrations/spotify_mpris.rs`
   - `tests/unit/spotify-mpris-presence-1013.test.mjs`
 - **Implementation Guidelines:**
   1. Subscribe to D-Bus `org.mpris.MediaPlayer2.spotify` signals (`PropertiesChanged`).
@@ -173,7 +173,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1014: Steam Deck & Gamepad UI Mode
 - **Department:** `G2 Frontend` + `G3 Design` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/input/gamepad.rs`
+  - `rust/chord-gpui/src/input/gamepad.rs`
   - `tests/unit/steam-deck-gamepad-1014.test.mjs`
 - **Implementation Guidelines:**
   1. Poll gamepad events via `gilrs` (D-pad, analog sticks, L1/R1 bumpers, A/B/X/Y buttons).
@@ -183,7 +183,7 @@ All upcoming wave tasks strictly adhere to `AGENTS.md`, `PROCESS.md`, `TEST-POLI
 ### TASK-1015: System Autostart (XDG Autostart & Start Minimized)
 - **Department:** `DevOps` + `G1 Backend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/platform/autostart.rs`
+  - `rust/chord-gpui/src/platform/autostart.rs`
   - `tests/unit/autostart-xdg-1015.test.mjs`
 - **Implementation Guidelines:**
   1. Write and remove `~/.config/autostart/discord-gpui.desktop`.

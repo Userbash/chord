@@ -42,16 +42,16 @@ sha256sum -c rust/dist/SHA256SUMS
 
 ### 2.2. Launch in One Command
 ```bash
-# Extract and launch the native binary
-tar -xzf rust/dist/chord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz
-cd chord-gpui-v1.0.0-beta.1/
-./chord-gpui
+# Extract and launch the native binary (Beta 1 archive uses the legacy discord-gpui artifact name)
+tar -xzf rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz
+cd discord-gpui-v1.0.0-beta.1/
+./discord-gpui
 ```
 
 ### 2.3. Run Quick Headless Self-Diagnostics
 ```bash
 # Verify UI initialization, WGPU pipeline, and SQLite store
-./chord-gpui --headless-smoke
+./discord-gpui --headless-smoke
 ```
 
 ---
@@ -62,10 +62,10 @@ Enable detailed logs for troubleshooting:
 
 ```bash
 # Run with informational logs
-RUST_LOG=info ./chord-gpui
+RUST_LOG=info ./discord-gpui
 
 # Run with full debug tracing for WebRTC and Gateway
-RUST_LOG=debug,discord_voice=trace,discord_core=trace ./chord-gpui
+RUST_LOG=debug,chord_voice=trace,chord_core=trace ./discord-gpui
 ```
 
 *Note: All authentication tokens and passwords are automatically redacted (`mfa.[REDACTED]`) in all log files.*

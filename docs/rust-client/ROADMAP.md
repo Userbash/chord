@@ -25,7 +25,7 @@
 
 ### Milestone 3: Migration to Native Rust GPUI Client (RW-42..RW-43) — 100% DONE
 * [x] Complete decommission of legacy WebKit/Tauri prototype.
-* [x] Pure native application `rust/discord-gpui` built on `gpui-kit` (WGPU, 120 FPS).
+* [x] Pure native application `rust/chord-gpui` built on `gpui-kit` (WGPU, 120 FPS).
 * [x] Full graphical user interface implementation:
   * Server Rail (72px) with hover states and activity indicators.
   * Virtualized chat (100k messages at RAM < 60 MB).

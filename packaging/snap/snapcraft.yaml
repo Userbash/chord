@@ -72,6 +72,6 @@ parts:
     plugin: dump
     source: ../../rust/dist/sbom.spdx.json
     source-type: file
-    source-checksum: sha256/acb867f70bd6b4891a274388677363fbb9a521213234bbf384c14f9806de2921
+    source-checksum: sha256/050b3c4dd1be81065cd9a5db3fe2e7ed5827c4a9f9533e69fe4ca4e3393817f3
     organize:
       sbom.spdx.json: usr/share/doc/discord-gpui/sbom.spdx.json

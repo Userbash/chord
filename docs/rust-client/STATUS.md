@@ -26,7 +26,7 @@ The legacy web prototype (Tauri 2 / WebKit) has been decommissioned and replaced
 
 ## 2. Architecture and Subsystems
 
-### 2.1. Native User Interface (`rust/discord-gpui/`)
+### 2.1. Native User Interface (`rust/chord-gpui/`)
 1. **Server Rail & Navigation**:
    * Server rail (72px) with icons, hover animations `#23a55a`, unread badges, and add server `+` button.
    * Direct Messages (DMs), friend list with tabs "Online", "All", "Pending", "Blocked".
@@ -88,14 +88,14 @@ The legacy web prototype (Tauri 2 / WebKit) has been decommissioned and replaced
 
 | Test Suite | File | Test Count | Result |
 | :--- | :--- | :---: | :---: |
-| **GPUI E2E Journeys** | `rust/discord-gpui/tests/gpui_e2e_contract.rs` | 50 | 🟢 50 / 50 passed (0.08s) |
-| **GPUI Core Contracts** | `rust/discord-gpui/tests/gpui_contract_test.rs` | 127 | 🟢 127 / 127 passed (1.8s) |
-| **Visual SSIM Regression** | `rust/discord-gpui/tests/visual_regression_contract.rs` | 10 | 🟢 10 / 10 passed (SSIM >0.995) |
-| **Chaos Engineering Lab** | `rust/discord-gpui/tests/chaos_engineering_contract.rs` | 53 | 🟢 53 / 53 passed (0.08s) |
-| **AT-SPI Semantic Driver** | `rust/discord-gpui/tests/a11y_atspi_contract.rs` | 34 | 🟢 34 / 34 passed (0.08s) |
-| **120 FPS Benchmark & Heap** | `rust/discord-gpui/tests/perf_benchmark_contract.rs` | 53 | 🟢 53 / 53 passed (0.08s) |
-| **Manual QA Matrix Suite** | `rust/discord-gpui/tests/manual_qa_suite_contract.rs` | 56 | 🟢 56 / 56 passed (0.08s) |
-| **Release Headless Smoke** | `rust/discord-gpui/tests/release_smoke_contract.rs` | 3 | 🟢 3 / 3 passed |
+| **GPUI E2E Journeys** | `rust/chord-gpui/tests/gpui_e2e_contract.rs` | 50 | 🟢 50 / 50 passed (0.08s) |
+| **GPUI Core Contracts** | `rust/chord-gpui/tests/gpui_contract_test.rs` | 127 | 🟢 127 / 127 passed (1.8s) |
+| **Visual SSIM Regression** | `rust/chord-gpui/tests/visual_regression_contract.rs` | 10 | 🟢 10 / 10 passed (SSIM >0.995) |
+| **Chaos Engineering Lab** | `rust/chord-gpui/tests/chaos_engineering_contract.rs` | 53 | 🟢 53 / 53 passed (0.08s) |
+| **AT-SPI Semantic Driver** | `rust/chord-gpui/tests/a11y_atspi_contract.rs` | 34 | 🟢 34 / 34 passed (0.08s) |
+| **120 FPS Benchmark & Heap** | `rust/chord-gpui/tests/perf_benchmark_contract.rs` | 53 | 🟢 53 / 53 passed (0.08s) |
+| **Manual QA Matrix Suite** | `rust/chord-gpui/tests/manual_qa_suite_contract.rs` | 56 | 🟢 56 / 56 passed (0.08s) |
+| **Release Headless Smoke** | `rust/chord-gpui/tests/release_smoke_contract.rs` | 3 | 🟢 3 / 3 passed |
 | **Fuzz Network Protocols** | `rust/fuzz/` (5 targets) | 5 | 🟢 5 / 5 active targets |
 | **TOTAL** | | **391** | **🟢 100% Passed** |
 
