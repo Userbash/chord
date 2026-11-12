@@ -2010,11 +2010,20 @@ gi.require_version("AppIndicator3", "0.1")
 from gi.repository import Gtk, GLib, AppIndicator3
 
 ppid = os.getppid()
-icon_path = "/usr/share/icons/hicolor/256x256/apps/discord.png"
-icon_name = icon_path if os.path.exists(icon_path) else "discord"
+chord_icon_local = os.path.expanduser("~/.local/share/icons/hicolor/256x256/apps/chord.png")
+chord_icon_assets = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "../assets/icons/chord-256x256.png")
+chord_icon_sys = "/usr/share/icons/hicolor/256x256/apps/chord.png"
+if os.path.exists(chord_icon_local):
+    icon_name = chord_icon_local
+elif os.path.exists(chord_icon_assets):
+    icon_name = chord_icon_assets
+elif os.path.exists(chord_icon_sys):
+    icon_name = chord_icon_sys
+else:
+    icon_name = "chord"
 
 ind = AppIndicator3.Indicator.new(
-    "discord-client-tray",
+    "chord-client-tray",
     icon_name,
     AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
 )
@@ -2025,7 +2034,7 @@ menu = Gtk.Menu()
 
 item_open = Gtk.ImageMenuItem.new_with_label("Открыть Chord")
 try:
-    img = Gtk.Image.new_from_icon_name("discord", Gtk.IconSize.MENU)
+    img = Gtk.Image.new_from_icon_name("chord", Gtk.IconSize.MENU)
     item_open.set_image(img)
     item_open.set_always_show_image(True)
 except Exception:
@@ -2047,7 +2056,7 @@ menu.append(item_cred)
 
 menu.append(Gtk.SeparatorMenuItem())
 
-item_quit = Gtk.MenuItem.new_with_label("Выйти из Discord          Ctrl+Q")
+item_quit = Gtk.MenuItem.new_with_label("Выйти из Chord          Ctrl+Q")
 item_quit.connect("activate", lambda _: (sys.stdout.write("quit\n"), sys.stdout.flush(), Gtk.main_quit()))
 menu.append(item_quit)
 
