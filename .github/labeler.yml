@@ -1,0 +1,82 @@
+# Автоматическая расстановка меток по изменённым файлам
+# Используется actions/labeler@v5 в ai-collab-gate.yml
+
+# Backend (G1)
+"scope:backend":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "rust/crates/chord-core/**"
+      - "rust/crates/chord-codec/**"
+      - "rust/crates/chord-json/**"
+      - "rust/crates/chord-store/**"
+      - "rust/crates/chord-i18n/**"
+      - "rust/chord-gpui/src/*.rs"
+
+# Frontend (G2)
+"scope:frontend":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "rust/chord-gpui/src/views/**"
+
+# Voice/Platform (G5)
+"scope:voice":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "rust/crates/chord-voice/**"
+      - "rust/crates/chord-platform/**"
+
+# QA / Tests (G4)
+"scope:tests":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "tests/**"
+      - "scripts/test-impact.mjs"
+
+# Harness
+"scope:harness":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "tests/e2e/harness/**"
+
+# DevOps / CI
+"scope:devops":
+  - changed-files:
+    - any-glob-to-any-file:
+      - ".github/**"
+      - "scripts/**"
+      - "*.toml"
+      - "*.lock"
+
+# ECC / Config
+"scope:ecc":
+  - changed-files:
+    - any-glob-to-any-file:
+      - ".claude/**"
+      - ".agents/**"
+
+# Documentation only
+"docs-only":
+  - changed-files:
+    - all-globs-to-all-files:
+      - "**/*.md"
+      - "**/*.txt"
+      - "**/*.rst"
+
+# Reverse Engineering (G7)
+"scope:re":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "docs/re/**"
+      - "docs/specs/**"
+      - "waves/**/RE-AUDIT/**"
+
+# SHARED FILES — требует координатора
+"⚠️ shared-file":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "Cargo.lock"
+      - "TASKS.md"
+      - "AGENTS.md"
+      - "PROCESS.md"
+      - ".claude/ecc2.toml"
+      - "waves/**"

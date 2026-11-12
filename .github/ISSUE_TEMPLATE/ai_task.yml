@@ -1,0 +1,75 @@
+name: "✨ AI Task Card"
+description: Новая задача для AI-воркера (аналог карточки в TASKS.md)
+title: "task: "
+labels: ["ai-task", "backlog"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Карточка задачи для AI-воркера. После создания — координатор назначит воркера.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Приоритет
+      options:
+        - "🔴 P0 — критический"
+        - "🟠 P1 — высокий"
+        - "🟡 P2 — средний"
+        - "🟢 P3 — низкий"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: department
+    attributes:
+      label: Отдел (кто выполняет)
+      options:
+        - G1 Backend
+        - G2 Frontend
+        - G4 QA
+        - G5 Voice/Platform
+        - G7 RE/Docs
+        - DevOps
+    validations:
+      required: true
+
+  - type: input
+    id: file-scope
+    attributes:
+      label: Файлы (scope воркера)
+      description: Какие файлы будет трогать воркер
+      placeholder: "rust/crates/chord-core/src/auth/*.rs"
+    validations:
+      required: true
+
+  - type: textarea
+    id: contract
+    attributes:
+      label: Контракт (что должно работать)
+      description: Observable behaviour — что проверит тест
+      placeholder: |
+        Вход: email, password
+        Выход: Ok(AuthToken) | Err(LoginError)
+        HTTP: POST /api/v9/auth/login → 200 / 400 / 401
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Описание задачи
+    validations:
+      required: true
+
+  - type: input
+    id: estimate
+    attributes:
+      label: Оценка времени
+      placeholder: "2 ч"
+
+  - type: input
+    id: depends
+    attributes:
+      label: Зависит от
+      placeholder: "P0-1.2, P0-1.3"

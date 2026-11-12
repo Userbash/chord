@@ -1,0 +1,243 @@
+# AI Collaboration Gate — автоматическая проверка PR от любого ИИ-контрибьютора
+# Запускается на каждый PR в ветки: unstable, testing, beta, main
+# Блокирует merge при нарушении любого уровня L0–L3
+
+name: AI Collab Gate
+
+on:
+  pull_request:
+    branches: [unstable, testing, beta, main, release/developer-alpha-preview]
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  group: ai-gate-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # L0-A: Формат кода (Rust)
+  # ─────────────────────────────────────────────────────────────
+  l0-format:
+    name: "L0 · Format (rustfmt)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Check Rust formatting
+        working-directory: rust
+        run: cargo fmt --all --check
+
+  # ─────────────────────────────────────────────────────────────
+  # L0-B: Clippy — ноль предупреждений
+  # ─────────────────────────────────────────────────────────────
+  l0-clippy:
+    name: "L0 · Clippy (zero warnings)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - name: Clippy — deny warnings
+        working-directory: rust
+        run: cargo clippy --workspace -- -D warnings
+
+  # ─────────────────────────────────────────────────────────────
+  # L0-C: Тесты workspace
+  # ─────────────────────────────────────────────────────────────
+  l0-tests:
+    name: "L0 · Tests (workspace)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - name: Run workspace tests
+        working-directory: rust
+        run: cargo test --workspace
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_id }}
+          path: rust/.gate/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────
+  # L0-D: Harness компилируется
+  # ─────────────────────────────────────────────────────────────
+  l0-harness-build:
+    name: "L0 · Harness build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tests/e2e/harness
+      - name: Build harness
+        run: cargo build --manifest-path tests/e2e/harness/Cargo.toml
+
+  # ─────────────────────────────────────────────────────────────
+  # L1: Файловые границы — один воркер = один scope
+  # ─────────────────────────────────────────────────────────────
+  l1-file-scope:
+    name: "L1 · File Boundaries"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Detect changed files
+        id: changed
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          git diff --name-only "$BASE" "$HEAD" > /tmp/changed_files.txt
+          echo "Changed files:"
+          cat /tmp/changed_files.txt
+          echo "count=$(wc -l < /tmp/changed_files.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Check shared-file violations
+        run: |
+          VIOLATIONS=""
+          SHARED_PATTERNS=(
+            "^Cargo\.lock$"
+            "^TASKS\.md$"
+            "^AGENTS\.md$"
+            "^PROCESS\.md$"
+            "^waves/"
+            "^\.claude/ecc2\.toml$"
+          )
+          while IFS= read -r file; do
+            for pattern in "${SHARED_PATTERNS[@]}"; do
+              if echo "$file" | grep -qE "$pattern"; then
+                VIOLATIONS="$VIOLATIONS\n  ⚠️  SHARED FILE: $file (requires coordinator approval)"
+              fi
+            done
+          done < /tmp/changed_files.txt
+
+          if [ -n "$VIOLATIONS" ]; then
+            echo "::warning::Shared files changed without coordinator tag"
+            echo -e "Files requiring extra review:$VIOLATIONS"
+          fi
+
+      - name: Check target/ not committed
+        run: |
+          if grep -qE "^(rust/target/|tests/e2e/harness/target/|target/)" /tmp/changed_files.txt; then
+            echo "::error::Build artifacts (target/) must not be committed!"
+            echo "Add to .gitignore and use: git rm -r --cached <target-dir>"
+            grep -E "^(rust/target/|tests/e2e/harness/target/|target/)" /tmp/changed_files.txt
+            exit 1
+          fi
+
+      - name: Check secrets not committed
+        run: |
+          PATTERNS=(".env$" "\.pem$" "\.key$" "id_rsa$" "\.p12$" "credentials\.json$")
+          for f in "${PATTERNS[@]}"; do
+            if grep -qE "$f" /tmp/changed_files.txt; then
+              echo "::error::Potential secrets file: $f"
+              exit 1
+            fi
+          done
+
+  # ─────────────────────────────────────────────────────────────
+  # L2: Контракт — нет breaking change без обновления .contracts/
+  # ─────────────────────────────────────────────────────────────
+  l2-contract:
+    name: "L2 · Contract Compatibility"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check contract update
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD")
+
+          PROD_CHANGED=$(echo "$CHANGED" | grep -E "^rust/crates/.+/src/|^rust/chord-gpui/src/" || true)
+          CONTRACT_CHANGED=$(echo "$CHANGED" | grep -E "^\.contracts/" || true)
+
+          if [ -n "$PROD_CHANGED" ] && [ -z "$CONTRACT_CHANGED" ]; then
+            echo "::notice::Production code changed — please verify no public API was broken"
+            echo "Changed production files:"
+            echo "$PROD_CHANGED"
+            echo ""
+            echo "If public API changed, update .contracts/ files."
+            echo "If no public API changed, this is informational only."
+          else
+            echo "✅ Contract check passed"
+          fi
+
+  # ─────────────────────────────────────────────────────────────
+  # L3: Secrets scan — утечки токенов, ключей
+  # ─────────────────────────────────────────────────────────────
+  l3-secrets:
+    name: "L3 · Secret Scan (gitleaks)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  # ─────────────────────────────────────────────────────────────
+  # AUTO-LABEL: навешивает метки на PR по изменённым файлам
+  # ─────────────────────────────────────────────────────────────
+  auto-label:
+    name: "Auto Label PR"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+
+  # ─────────────────────────────────────────────────────────────
+  # SUMMARY: итоговый статус всех проверок
+  # ─────────────────────────────────────────────────────────────
+  gate-summary:
+    name: "✅ Gate Summary"
+    runs-on: ubuntu-latest
+    needs: [l0-format, l0-clippy, l0-tests, l0-harness-build, l1-file-scope, l2-contract, l3-secrets]
+    if: always()
+    steps:
+      - name: Check all gates passed
+        run: |
+          FAILED=""
+          [ "${{ needs.l0-format.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L0 · Format"
+          [ "${{ needs.l0-clippy.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L0 · Clippy"
+          [ "${{ needs.l0-tests.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L0 · Tests"
+          [ "${{ needs.l0-harness-build.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L0 · Harness"
+          [ "${{ needs.l1-file-scope.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L1 · File Scope"
+          [ "${{ needs.l2-contract.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L2 · Contract"
+          [ "${{ needs.l3-secrets.result }}" != "success" ] && FAILED="$FAILED\n  ❌ L3 · Secrets"
+
+          if [ -n "$FAILED" ]; then
+            echo -e "Gate FAILED. Fix these before merge:$FAILED"
+            exit 1
+          else
+            echo "✅ All gates passed — PR ready for review"
+          fi

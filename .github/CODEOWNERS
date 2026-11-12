@@ -1,0 +1,46 @@
+# CODEOWNERS — автоматическое назначение ревьюеров по затронутым файлам
+# GitHub автоматически добавляет указанных ревьюеров к PR
+# Формат: <glob-паттерн> <@github-username или @team>
+#
+# Правило: автор PR НЕ должен быть в списке ревьюеров своего же кода
+# Для AI-воркеров: ревьюер = другая модель/аккаунт
+
+# ─── SHARED / COORDINATOR ONLY ───────────────────────────────
+# Эти файлы требуют approve от координатора проекта
+Cargo.lock                              @Userbash
+package-lock.json                       @Userbash
+TASKS.md                                @Userbash
+AGENTS.md                               @Userbash
+PROCESS.md                              @Userbash
+TEAM.md                                 @Userbash
+TEST-POLICY.md                          @Userbash
+waves/                                  @Userbash
+.claude/ecc2.toml                       @Userbash
+
+# ─── CI / DEVOPS ─────────────────────────────────────────────
+.github/                                @Userbash
+scripts/                                @Userbash
+*.toml                                  @Userbash
+
+# ─── G1: BACKEND (Rust Core, State, Gateway, REST) ───────────
+/rust/crates/chord-core/                @Userbash
+/rust/crates/chord-codec/               @Userbash
+/rust/crates/chord-json/                @Userbash
+/rust/crates/chord-store/               @Userbash
+/rust/crates/chord-i18n/                @Userbash
+/rust/chord-gpui/src/*.rs               @Userbash
+
+# ─── G2: FRONTEND (UI, Views) ────────────────────────────────
+/rust/chord-gpui/src/views/             @Userbash
+
+# ─── G5: VOICE / PLATFORM ────────────────────────────────────
+/rust/crates/chord-voice/               @Userbash
+/rust/crates/chord-platform/            @Userbash
+
+# ─── G4: QA / TESTS ─────────────────────────────────────────
+/tests/                                 @Userbash
+/tests/e2e/harness/                     @Userbash
+
+# ─── G7: RE / DOCS ──────────────────────────────────────────
+/docs/re/                               @Userbash
+/docs/specs/                            @Userbash

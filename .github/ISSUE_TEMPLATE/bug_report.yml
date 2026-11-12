@@ -1,0 +1,53 @@
+name: "🐛 Bug Report"
+description: Баг в коде (для AI-воркеров и людей)
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Заполни все поля. AI-воркер получит задачу автоматически.
+
+  - type: input
+    id: task-id
+    attributes:
+      label: Task ID
+      description: Номер задачи из TASKS.md (если есть)
+      placeholder: "P0-X.X или H-FIX-X"
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope (затронутый модуль)
+      options:
+        - G1 Backend (Rust Core/State/Gateway)
+        - G2 Frontend (UI/Views)
+        - G4 QA (Tests/Harness)
+        - G5 Voice/Platform
+        - G7 RE/Docs
+        - DevOps/CI
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Описание бага
+      description: Что происходит, что ожидалось
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Как воспроизвести
+      description: Команды, входные данные, шаги
+      placeholder: |
+        1. cargo run -- ...
+        2. Видим ошибку: ...
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Логи / stack trace
+      render: shell

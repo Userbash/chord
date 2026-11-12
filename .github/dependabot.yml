@@ -1,0 +1,67 @@
+# Dependabot — автоматическое обновление зависимостей
+# PR создаётся автоматически, CI проверяет, auto-merge при зелёном gate
+
+version: 2
+updates:
+  # ─── Rust/Cargo ───────────────────────────────────────────
+  - package-ecosystem: "cargo"
+    directory: "/rust"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependabot"
+      - "scope:backend"
+    commit-message:
+      prefix: "chore(deps)"
+    # Группировать patch-обновления в один PR
+    groups:
+      rust-patch:
+        patterns: ["*"]
+        update-types: ["patch"]
+      rust-minor:
+        patterns: ["*"]
+        update-types: ["minor"]
+
+  # ─── Harness Cargo ────────────────────────────────────────
+  - package-ecosystem: "cargo"
+    directory: "/tests/e2e/harness"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependabot"
+      - "scope:harness"
+    commit-message:
+      prefix: "chore(harness-deps)"
+
+  # ─── npm / Node.js ────────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependabot"
+      - "scope:devops"
+    commit-message:
+      prefix: "chore(npm-deps)"
+    groups:
+      npm-patch:
+        patterns: ["*"]
+        update-types: ["patch"]
+
+  # ─── GitHub Actions ───────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependabot"
+      - "scope:devops"
+    commit-message:
+      prefix: "chore(actions)"
