@@ -96,25 +96,39 @@ fn run_headless_smoke() -> i32 {
     let theme_ok = theme::DISCORD_THEME.bg_primary != theme::DISCORD_THEME.bg_secondary;
     let vmrss_kb = read_vmrss_kb();
     let vmrss_mb = (vmrss_kb as f64) / 1024.0;
+    let all_ok = sqlite_wal_ok && fps_budget_ok && theme_ok && vmrss_mb < 60.0;
+    let status = if all_ok { "ok" } else { "degraded" };
 
-    let report = serde_json::json!({
-        "status": if sqlite_wal_ok && fps_budget_ok && theme_ok && vmrss_mb < 60.0 { "ok" } else { "degraded" },
-        "display_backend": backend,
-        "window_width": 1280,
-        "window_height": 720,
-        "min_width": 900,
-        "min_height": 550,
-        "guilds": guild_count,
-        "channels": channel_count,
-        "sqlite_wal_ok": sqlite_wal_ok,
-        "fps_budget_ok": fps_budget_ok,
-        "frame_tick_us": tick_us,
-        "vmrss_kb": vmrss_kb,
-        "vmrss_mb": (vmrss_mb * 100.0).round() / 100.0,
-    });
+    // OPT-4: --smoke=summary → одна строка вместо JSON blob.
+    // AI-воркер читает "SMOKE ok guilds=5 vmrss=42MB" — не нужен JSON-парсинг (экономия ~480 токен/вызов).
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    let summary_mode = args.iter().any(|a| a == "--smoke=summary");
 
-    println!("GPUI_SMOKE_OK {report}");
-    if report["status"] == "ok" { 0 } else { 1 }
+    if summary_mode {
+        println!(
+            "SMOKE {status} backend={backend} guilds={guild_count} ch={channel_count} \
+             sqlite={sqlite_wal_ok} fps={fps_budget_ok} tick={tick_us}us vmrss={vmrss_mb:.1}MB"
+        );
+    } else {
+        // Режим по умолчанию — полный JSON (для CI/machines)
+        let report = serde_json::json!({
+            "status": status,
+            "display_backend": backend,
+            "window_width": 1280,
+            "window_height": 720,
+            "min_width": 900,
+            "min_height": 550,
+            "guilds": guild_count,
+            "channels": channel_count,
+            "sqlite_wal_ok": sqlite_wal_ok,
+            "fps_budget_ok": fps_budget_ok,
+            "frame_tick_us": tick_us,
+            "vmrss_kb": vmrss_kb,
+            "vmrss_mb": (vmrss_mb * 100.0).round() / 100.0,
+        });
+        println!("GPUI_SMOKE_OK {report}");
+    }
+    if all_ok { 0 } else { 1 }
 }
 
 fn main() {

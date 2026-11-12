@@ -1,11 +1,14 @@
 //! SUB-901-2.3: Загрузчик эталонных трасс `/home/sanya/re-deep/capture-ready.jsonl`
 //! для 100% реалистичной гидратации состояния Mock Gateway Daemon.
+//!
+//! OPT-3: Потоковое построчное чтение вместо fs::read_to_string(2.4 MB).
+//! Останавливаемся сразу после получения 8 wsrecv-кадров — остаток файла не читается.
 
 use std::collections::HashMap;
-use std::fs;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::sync::OnceLock;
-
 use discord_codec::etf::{self, EtfValue};
 use discord_codec::zstd::ZstdStream;
 use discord_core::ready::Ready;
@@ -145,6 +148,53 @@ fn scan_capture_lines(content: &str) -> Result<RawCaptureScan, HarnessError> {
         let val: serde_json::Value = serde_json::from_str(line)
             .map_err(|e| HarnessError::Protocol(format!("JSONL parse error: {e}")))?;
         process_capture_event(&val, &mut scan)?;
+    }
+
+    if scan.gateway_request_id.is_empty() || scan.raw_wsrecv_frames.len() < 2 {
+        return Err(HarnessError::Protocol(
+            "В трассе не найдена сессия Gateway (wsc + минимум 2 кадра wsrecv)".into(),
+        ));
+    }
+    Ok(scan)
+}
+
+/// OPT-3: Потоковое построчное сканирование (BufReader, 64 KB буфер).
+/// Читаем только строки с нужными событиями, останавливаемся после 8 wsrecv-кадров.
+/// Экономия: вместо загрузки 2.4 MB в RAM — читаем ≤ первые ~50-100 KB файла.
+fn scan_capture_stream(path: &Path) -> Result<RawCaptureScan, HarnessError> {
+    let file = File::open(path)
+        .map_err(|e| HarnessError::Io(format!("open {}: {e}", path.display())))?;
+    let reader = BufReader::with_capacity(64 * 1024, file);
+
+    let mut scan = RawCaptureScan {
+        gateway_request_id: String::new(),
+        gateway_url: String::new(),
+        attached_guild_id: String::new(),
+        attached_channel_id: String::new(),
+        raw_wsrecv_frames: Vec::new(),
+    };
+
+    for line_result in reader.lines() {
+        let line = line_result
+            .map_err(|e| HarnessError::Io(format!("readline {}: {e}", path.display())))?;
+        // Быстрый строковый фильтр без аллокации JSON
+        if !(line.contains("\"ev\":\"attached\"")
+            || line.contains("\"ev\":\"wsc\"")
+            || line.contains("\"ev\":\"wsrecv\""))
+        {
+            continue;
+        }
+        let val: serde_json::Value = serde_json::from_str(&line)
+            .map_err(|e| HarnessError::Protocol(format!("JSONL parse: {e}")))?;
+        process_capture_event(&val, &mut scan)?;
+
+        // Ранний выход: достаточно 8 кадров для HELLO + READY
+        if scan.raw_wsrecv_frames.len() >= 8
+            && !scan.gateway_request_id.is_empty()
+            && !scan.attached_guild_id.is_empty()
+        {
+            break;
+        }
     }
 
     if scan.gateway_request_id.is_empty() || scan.raw_wsrecv_frames.len() < 2 {
@@ -310,10 +360,10 @@ impl CaptureReadyTrace {
     }
 
     /// Загружает трассу из указанного JSONL-файла захвата.
+    /// OPT-3: Использует потоковое чтение scan_capture_stream (BufReader),
+    /// не загружает весь файл в память. scan_capture_lines оставлен для unit-тестов.
     pub fn load_from_path(path: &Path) -> Result<Self, HarnessError> {
-        let content = fs::read_to_string(path)
-            .map_err(|e| HarnessError::Io(format!("read {}: {e}", path.display())))?;
-        let scan = scan_capture_lines(&content)?;
+        let scan = scan_capture_stream(path)?;
         let (hello_val, hello_etf_frame, ready_val, ready_etf_frame) =
             decode_hello_and_ready_terms(&scan.raw_wsrecv_frames)?;
         let heartbeat_interval_ms = hello_val
