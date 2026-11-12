@@ -7,12 +7,12 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::identity::SystemSources;
-use discord_core::rest::routes::{self, HttpMethod};
-use discord_core::rest::search::compute_429_exponential_backoff_ms;
-use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
-use discord_core::API_V9_BASE;
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::identity::SystemSources;
+use chord_core::rest::routes::{self, HttpMethod};
+use chord_core::rest::search::compute_429_exponential_backoff_ms;
+use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
+use chord_core::API_V9_BASE;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
@@ -45,14 +45,14 @@ pub const DEFAULT_SEARCH_202_RETRY_AFTER_MS: u64 = 5000;
 /// Генерирует новый UUID v4 (RFC 4122).
 #[must_use]
 pub fn generate_uuid_v4() -> String {
-    discord_core::rest::identity::uuid_v4(&SystemSources)
+    chord_core::rest::identity::uuid_v4(&SystemSources)
 }
 
 /// Детерминированный генератор UUID v4 для воспроизводимых тестов.
 #[must_use]
 pub fn deterministic_uuid_v4(seed: u64) -> String {
     struct SeedSources(u64);
-    impl discord_core::rest::identity::IdentitySources for SeedSources {
+    impl chord_core::rest::identity::IdentitySources for SeedSources {
         fn env_var(&self, _: &str) -> Option<String> {
             None
         }
@@ -75,7 +75,7 @@ pub fn deterministic_uuid_v4(seed: u64) -> String {
             "x86_64"
         }
     }
-    discord_core::rest::identity::uuid_v4(&SeedSources(seed))
+    chord_core::rest::identity::uuid_v4(&SeedSources(seed))
 }
 
 /// Сессия поиска сообщений: держит `session_id`, обновляет `query_id` на новый запрос

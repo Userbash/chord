@@ -1,0 +1,25 @@
+[package]
+name = "chord-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Точка входа клиента: сборка процессов, конфиг, запуск"
+
+[dependencies]
+chord-codec = { workspace = true }
+chord-json = { workspace = true }
+chord-core = { workspace = true }
+chord-voice = { workspace = true }
+chord-store = { workspace = true }
+chord-i18n = { workspace = true }
+chord-platform = { workspace = true }
+chord-media = { workspace = true }
+chord-ui = { workspace = true }
+chord-updater = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[[bin]]
+name = "chord-rs"
+path = "src/main.rs"

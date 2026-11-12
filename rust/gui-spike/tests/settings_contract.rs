@@ -18,7 +18,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use discord_gui_spike::settings_store::{
+use chord_client::settings_store::{
     self, Density, Locale, SettingsError, SettingsStore, Theme, UiSettings, UiSettingsPatch,
     HOME_GUILD_ID, MAX_SETTINGS_BYTES, MAX_TOGGLES, MAX_TOGGLE_ID_LEN, SETTINGS_VERSION,
 };

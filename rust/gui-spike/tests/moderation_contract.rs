@@ -24,7 +24,7 @@
 //!    - формирование маршрута `"/guilds/{guild_id}/audit-logs?limit={limit}"`
 //!      (и добавление `"&action_type={at}"`, если `action_type` задан).
 
-use discord_gui_spike::moderation::{
+use chord_client::moderation::{
     build_audit_log_query_route, build_ban_member_route_and_body, validate_audit_reason,
     BanMemberRequest, MAX_AUDIT_LOG_LIMIT, MAX_AUDIT_REASON_CHARS, MAX_BAN_DELETE_MESSAGE_SECONDS,
     MAX_TIMEOUT_SECONDS,

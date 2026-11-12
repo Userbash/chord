@@ -23,7 +23,7 @@
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
-use discord_gui_spike::data::{
+use chord_client::data::{
     self, DataError, MessagesPage, MessagesPageRequest, MessagesPosition, MAX_PAGE_LIMIT,
     UI_WINDOW_ROWS,
 };

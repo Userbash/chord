@@ -4,7 +4,7 @@
 //! только из JSON фикстур. Здесь нет сети, Tauri-рантайма и нового формата
 //! ответа: строки канала читает тот же загрузчик, что `data::messages_page`
 //! (`data::channel_rows`), затем они конвертируются в
-//! [`discord_core::state::Message`] и складываются в ограниченную
+//! [`chord_core::state::Message`] и складываются в ограниченную
 //! [`History`]. Страница выбирается из истории ядра; курсор проверяется общей с
 //! BFF функцией `data::cursor_start`, поэтому семантика курсора одна.
 //!
@@ -24,9 +24,9 @@
 
 use std::path::Path;
 
-use discord_core::history::{Cursor, History, HistoryConfig, MessagePage, PageRequest};
-use discord_core::ready::User;
-use discord_core::state::Message;
+use chord_core::history::{Cursor, History, HistoryConfig, MessagePage, PageRequest};
+use chord_core::ready::User;
+use chord_core::state::Message;
 
 use crate::data::{self, DataError, MessageRow};
 
@@ -244,21 +244,21 @@ pub struct UnifiedEngineSnapshot {
 /// `discord-codec`, `discord-store`, `discord-i18n`, `discord-voice`, `discord-media`,
 /// `discord-ui`, `discord-updater`, `discord-platform`).
 pub fn unified_engine_snapshot() -> Result<UnifiedEngineSnapshot, TypedBridgeError> {
-    let store_ok = discord_store::Store::open_in_memory().is_ok();
-    let resolved_ru = discord_i18n::resolve_locale("ru-RU", &discord_i18n::SUPPORTED_LOCALES);
+    let store_ok = chord_store::Store::open_in_memory().is_ok();
+    let resolved_ru = chord_i18n::resolve_locale("ru-RU", &chord_i18n::SUPPORTED_LOCALES);
     Ok(UnifiedEngineSnapshot {
-        gateway_heartbeat_ms: discord_core::HEARTBEAT_INTERVAL_MS,
-        api_v9_base: discord_core::API_V9_BASE,
-        etf_tag_count: discord_codec::ETF_TAG_CODES.len(),
-        zstd_magic: discord_codec::ZSTD_FRAME_MAGIC,
-        store_schema_version: discord_store::SCHEMA_VERSION,
+        gateway_heartbeat_ms: chord_core::HEARTBEAT_INTERVAL_MS,
+        api_v9_base: chord_core::API_V9_BASE,
+        etf_tag_count: chord_codec::ETF_TAG_CODES.len(),
+        zstd_magic: chord_codec::ZSTD_FRAME_MAGIC,
+        store_schema_version: chord_store::SCHEMA_VERSION,
         store_in_memory_ok: store_ok,
-        i18n_total_locales: discord_i18n::TOTAL_LOCALES,
+        i18n_total_locales: chord_i18n::TOTAL_LOCALES,
         i18n_resolved_ru: resolved_ru,
-        voice_opus_payload_type: discord_voice::RTP_OPUS_PAYLOAD_TYPE,
-        media_video_payload_type: discord_media::RTP_VIDEO_PAYLOAD_TYPE,
-        media_rtx_payload_type: discord_media::RTP_RTX_PAYLOAD_TYPE,
-        ui_component_contracts: discord_ui::COMPONENT_CONTRACTS,
-        updater_endpoint: discord_updater::DEFAULT_UPDATE_ENDPOINT,
+        voice_opus_payload_type: chord_voice::RTP_OPUS_PAYLOAD_TYPE,
+        media_video_payload_type: chord_media::RTP_VIDEO_PAYLOAD_TYPE,
+        media_rtx_payload_type: chord_media::RTP_RTX_PAYLOAD_TYPE,
+        ui_component_contracts: chord_ui::COMPONENT_CONTRACTS,
+        updater_endpoint: chord_updater::DEFAULT_UPDATE_ENDPOINT,
     })
 }

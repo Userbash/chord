@@ -41,7 +41,7 @@ use discord_core::rest::routes::HttpMethod;
 use discord_core::rest::super_properties::SuperProperties;
 use discord_core::rest::transport::{HttpRequest, HttpResponse};
 
-use discord_gui_spike::guilds::{
+use chord_client::guilds::{
     clear_local_created_guilds, create_guild_full, local_created_guild_snapshot,
     CreateGuildChannelInput, CreateGuildError, CreateGuildFullOutcome, CreateGuildPayload,
     CreateGuildRequest, DiscordGuilds, GuildTransport,
@@ -93,7 +93,7 @@ impl GuildTransport for MockGuildTransport {
         _body: &'a [u8],
     ) -> Pin<
         Box<
-            dyn Future<Output = Result<HttpResponse, discord_gui_spike::guilds::EnterGuildError>>
+            dyn Future<Output = Result<HttpResponse, chord_client::guilds::EnterGuildError>>
                 + Send
                 + 'a,
         >,
@@ -113,7 +113,7 @@ impl GuildTransport for MockGuildTransport {
         _body: &'a [u8],
     ) -> Pin<
         Box<
-            dyn Future<Output = Result<HttpResponse, discord_gui_spike::guilds::LeaveGuildError>>
+            dyn Future<Output = Result<HttpResponse, chord_client::guilds::LeaveGuildError>>
                 + Send
                 + 'a,
         >,
@@ -624,7 +624,7 @@ fn guild_create_201_created_parses_guild_channels_roles_and_integrates_into_loca
     assert_eq!(snapshot.roles.len(), 2);
     assert_eq!(snapshot.roles[1].name, "Основатель");
     assert!(
-        discord_gui_spike::data::has_live_guild_or_channels("1300000000000000001"),
+        chord_client::data::has_live_guild_or_channels("1300000000000000001"),
         "гильдия и её каналы интегрированы в data::LIVE_IMPORT"
     );
 }

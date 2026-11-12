@@ -5,10 +5,10 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::routes;
-use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
-use discord_core::API_V9_BASE;
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::routes;
+use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
+use chord_core::API_V9_BASE;
 use serde::Deserialize;
 
 use crate::rest_failure::RestFailure;
@@ -229,17 +229,17 @@ impl MessageSender for DiscordMessageSender {
 impl DiscordMessageSender {
     async fn action(
         &self,
-        method: discord_core::rest::routes::HttpMethod,
+        method: chord_core::rest::routes::HttpMethod,
         target: &str,
         body: Option<Vec<u8>>,
     ) -> Result<(), MessageError> {
         let response = match method {
-            discord_core::rest::routes::HttpMethod::Patch => {
+            chord_core::rest::routes::HttpMethod::Patch => {
                 self.client
                     .patch(target, body.as_deref().unwrap_or_default())
                     .await
             }
-            discord_core::rest::routes::HttpMethod::Delete => self.client.delete(target).await,
+            chord_core::rest::routes::HttpMethod::Delete => self.client.delete(target).await,
             _ => return Err(MessageError::Network),
         }
         .map_err(|error| MessageError::from(RestFailure::from_api_error(&error)))?;
@@ -262,7 +262,7 @@ impl MessageActions for DiscordMessageSender {
                 .map_err(|_| MessageError::InvalidArg)?;
             let res = self
                 .action(
-                    discord_core::rest::routes::HttpMethod::Patch,
+                    chord_core::rest::routes::HttpMethod::Patch,
                     &path,
                     Some(body),
                 )
@@ -284,7 +284,7 @@ impl MessageActions for DiscordMessageSender {
             let path = format!("/channels/{channel_id}/messages/{message_id}");
             eprintln!("[IPC-DELETE] Sending DELETE to Discord: {path}");
             let res = self
-                .action(discord_core::rest::routes::HttpMethod::Delete, &path, None)
+                .action(chord_core::rest::routes::HttpMethod::Delete, &path, None)
                 .await;
             eprintln!("[IPC-DELETE] Response for {path}: {res:?}");
             if res.is_ok() {
@@ -808,7 +808,7 @@ impl OptimisticMessagesCache {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use discord_core::rest::client::ApiError;
+    use chord_core::rest::client::ApiError;
 
     fn response(status: u16) -> HttpResponse {
         HttpResponse {

@@ -21,7 +21,7 @@ use std::time::{Duration, Instant};
 use discord_core::rest::client::ApiError;
 use discord_core::rest::transport::{HttpError, HttpResponse};
 use discord_core::Me;
-use discord_gui_spike::auth::{
+use chord_client::auth::{
     self, AuthBackend, AuthError, AuthState, AuthStateEmitter, AuthStatus, IdentityContext,
     LoginOutcome, LoginTransport, LoginView, SmsChallenge, ThreadedStore, TokenStore,
     TokenValidator, ValidationRequest, CAPTCHA_KEY_HEADER, CAPTCHA_RQDATA_HEADER,

@@ -6,7 +6,7 @@
 //! - `read_status_field`/`parse_process_metrics` — маппинг `/proc/self/status` без вранья
 //!   (RSS именно VmRSS, отсутствие поля — ошибка).
 
-use discord_gui_spike::{
+use chord_client::{
     parse_process_metrics, read_status_field, validate_bench_payload, validate_ui_snapshot,
     ProcessMetrics, SNAPSHOT_FLOORS,
 };

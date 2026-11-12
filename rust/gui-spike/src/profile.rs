@@ -19,9 +19,9 @@ use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
-use discord_core::API_V9_BASE;
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
+use chord_core::API_V9_BASE;
 
 use crate::rest_failure::RestFailure;
 

@@ -1,8 +1,8 @@
 [package]
-name = "discord-gui-spike"
+name = "chord-client"
 version = "0.1.0"
 edition = "2021"
-description = "P0-01: спайк UI-оболочки Tauri (чат 100k, эмодзи-пикер, настройки, участники 24k)"
+description = "Chord: open-source chat and voice client (Tauri UI spike — chat 100k, emoji picker, settings, members 24k)"
 publish = false
 
 # Спайк живёт отдельно от основного workspace: тяжёлые GUI-крейты не попадают
@@ -12,7 +12,7 @@ publish = false
 # Чистая логика (parse/validate без Tauri-рантайма) — отдельным lib-таргетом,
 # чтобы интеграционные тесты проверяли IPC-контракт без запуска окна.
 [lib]
-name = "discord_gui_spike"
+name = "chord_client"
 path = "src/lib.rs"
 
 [build-dependencies]
@@ -25,18 +25,18 @@ serde_json = "1"
 # W39j: пилот «BFF через ядро». Только path-зависимость из этого же репозитория:
 # внешних крейтов не добавляем, но `discord-core` тянет свой штатный набор
 # (tokio/rustls/… ) — он уже в Cargo.lock и кэше registry, сеть не нужна.
-discord-core = { path = "../crates/discord-core" }
-discord-codec = { path = "../crates/discord-codec" }
-discord-json = { path = "../crates/discord-json" }
-discord-voice = { path = "../crates/discord-voice" }
-discord-store = { path = "../crates/discord-store" }
-discord-i18n = { path = "../crates/discord-i18n" }
-discord-media = { path = "../crates/discord-media" }
-discord-ui = { path = "../crates/discord-ui" }
-discord-updater = { path = "../crates/discord-updater" }
+chord-core = { path = "../crates/chord-core" }
+chord-codec = { path = "../crates/chord-codec" }
+chord-json = { path = "../crates/chord-json" }
+chord-voice = { path = "../crates/chord-voice" }
+chord-store = { path = "../crates/chord-store" }
+chord-i18n = { path = "../crates/chord-i18n" }
+chord-media = { path = "../crates/chord-media" }
+chord-ui = { path = "../crates/chord-ui" }
+chord-updater = { path = "../crates/chord-updater" }
 # RW-39/NET-C2: keyring (`org.freedesktop.secrets` через libsecret) — только path-dep.
 # `Keyring` там `!Send`, поэтому backend держит его в потоке-владельце.
-discord-platform = { path = "../crates/discord-platform" }
+chord-platform = { path = "../crates/chord-platform" }
 thiserror = "2"
 # Проверка токена — `ApiClient::get` из ядра; tokio уже в графе (tauri/discord-core),
 # поэтому офлайн-сборке новая версия не нужна.

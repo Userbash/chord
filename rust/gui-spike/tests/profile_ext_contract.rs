@@ -16,7 +16,7 @@
 //!    - проверяет `note.chars().count() <= 256` (Unicode scalar values);
 //!    - возвращает `Ok("/users/@me/notes/{target_user_id}")`.
 
-use discord_gui_spike::profile_ext::{
+use chord_client::profile_ext::{
     build_user_profile_route, validate_profile_patch, validate_user_note, UpdateProfilePatch,
     UserProfileQuery, MAX_BIO_CHARS, MAX_NOTE_CHARS, MAX_PRONOUNS_CHARS,
 };

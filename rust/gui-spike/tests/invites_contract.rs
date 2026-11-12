@@ -22,7 +22,7 @@
 
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::invites::{
+use chord_client::invites::{
     accept_invite, can_user_create_channel_invite, create_channel_invite,
     create_channel_invite_guarded, resolve_invite, AcceptRequest, AcceptedInvite,
     CreateInviteParams, CreatedInvite, DiscordInvites, InviteError, InvitePreview, InviteTransport,
@@ -1024,7 +1024,7 @@ fn create_invite_accepts_every_table_entry_for_max_age_and_max_uses() {
 
 #[test]
 fn create_invite_rejects_unsafe_channel_id_before_network() {
-    use discord_gui_spike::messages::{send_message, MessageError, MessageReceipt, MessageSender};
+    use chord_client::messages::{send_message, MessageError, MessageReceipt, MessageSender};
 
     #[derive(Default)]
     struct DummyMessageSender;
@@ -1258,7 +1258,7 @@ fn create_invite_maps_429_retry_after_and_403_401_errors() {
 // RW-40 / task-228 (BE-P1-21): Rust Guild Invites & Vanity Code BFF Contract
 // ---------------------------------------------------------------------------
 
-use discord_gui_spike::invites::{
+use chord_client::invites::{
     build_create_channel_invite_route_and_body, build_invite_resolve_route, validate_invite_code,
     CreateChannelInviteRequest, ALLOWED_INVITE_MAX_AGES, ALLOWED_INVITE_MAX_USES,
 };
@@ -1471,9 +1471,9 @@ fn be_p1_21_build_create_channel_invite_route_and_body_validates_snowflake_and_t
 }
 
 fn build_create_channel_invite_invite_check_bad_uses(
-    req: &discord_gui_spike::invites::CreateChannelInviteRequest,
+    req: &chord_client::invites::CreateChannelInviteRequest,
 ) -> bool {
-    discord_gui_spike::invites::build_create_channel_invite_route_and_body(req).is_err()
+    chord_client::invites::build_create_channel_invite_route_and_body(req).is_err()
 }
 
 #[test]
@@ -1548,7 +1548,7 @@ fn accept_maps_http_400_hcaptcha_challenge_to_captcha_required_error() {
 
 #[test]
 fn accept_invite_with_captcha_sends_captcha_key_and_decodes_accepted_guild() {
-    use discord_gui_spike::invites::{accept_invite_with_captcha, CaptchaSolution};
+    use chord_client::invites::{accept_invite_with_captcha, CaptchaSolution};
 
     let transport = FakeTransport::with_body(200, ACCEPT_BODY);
     let client = api(&transport);

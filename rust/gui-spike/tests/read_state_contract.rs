@@ -23,7 +23,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use discord_gui_spike::data::{self, DataError, ReadStateEntry};
+use chord_client::data::{self, DataError, ReadStateEntry};
 use serde_json::{json, Value};
 
 /// Временный корень фикстур: уникален для теста (pid + имя), чистится заранее.

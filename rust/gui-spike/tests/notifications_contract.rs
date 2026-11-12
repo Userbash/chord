@@ -15,7 +15,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::notifications::{
+use chord_client::notifications::{
     build_guild_settings_endpoint, clear_channel_unread_flags, clear_guild_unread_flags,
     format_iso8601_utc, is_entry_muted, is_temporarily_muted, parse_iso8601_unix,
     resolve_effective_notifications, set_channel_unread_flag, set_guild_unread_flag,
@@ -540,7 +540,7 @@ fn cascade_resolver_resolves_hierarchy_mute_expiry_and_mention_policy() {
     };
 
     // Канал = 3 (NULL), категория = 0 (ALL_MESSAGES) -> эффективный уровень = 0:
-    let policy_from_cat = discord_gui_spike::resolve_effective_notifications(
+    let policy_from_cat = chord_client::resolve_effective_notifications(
         &base_guild,
         Some(&cat_all),
         Some(&ch_inherit),
@@ -697,7 +697,7 @@ fn transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch
     let guard_transport = FakeNotificationTransport::with_body(200, b"{}");
 
     assert_eq!(
-        run(discord_gui_spike::update_guild_notification_settings(
+        run(chord_client::update_guild_notification_settings(
             &guard_transport,
             "   ",
             GUILD_ID,
@@ -706,7 +706,7 @@ fn transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch
         Err(NotificationError::MissingToken)
     );
     assert_eq!(
-        run(discord_gui_spike::update_channel_notification_override(
+        run(chord_client::update_channel_notification_override(
             &guard_transport,
             "",
             GUILD_ID,
@@ -889,7 +889,7 @@ fn transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch
 
 #[test]
 fn desktop_notification_dbus_integration_builds_and_dispatches_without_panic() {
-    let res = discord_gui_spike::notifications::send_desktop_notification(
+    let res = chord_client::notifications::send_desktop_notification(
         "Discord",
         "Тестовое уведомление чата",
         Some("im.received"),

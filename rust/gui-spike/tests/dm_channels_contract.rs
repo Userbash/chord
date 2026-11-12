@@ -18,7 +18,7 @@
 //!    - построение маршрута `"/channels/{channel_id}/recipients/{user_id}"`
 //!      (сверка с RE-оракулом `rest-static.json:2594` `CHANNEL_RECIPIENT`).
 
-use discord_gui_spike::dm_channels::{
+use chord_client::dm_channels::{
     build_create_dm_body, build_group_dm_recipient_route, validate_create_dm_request,
     CreateDmRequest, MAX_GROUP_DM_NAME_CHARS, MAX_GROUP_DM_RECIPIENTS,
 };

@@ -345,6 +345,104 @@ dependencies = [
 ]
 
 [[package]]
+name = "chord-client"
+version = "0.1.0"
+dependencies = [
+ "chord-codec",
+ "chord-core",
+ "chord-i18n",
+ "chord-json",
+ "chord-media",
+ "chord-platform",
+ "chord-store",
+ "chord-ui",
+ "chord-updater",
+ "chord-voice",
+ "nix",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "thiserror 2.0.21",
+ "tokio",
+]
+
+[[package]]
+name = "chord-codec"
+version = "0.1.0"
+dependencies = [
+ "zstd",
+]
+
+[[package]]
+name = "chord-core"
+version = "0.1.0"
+dependencies = [
+ "chord-codec",
+ "chord-json",
+ "chord-voice",
+ "futures-util",
+ "httparse",
+ "rustls",
+ "tokio",
+ "tokio-rustls",
+ "tokio-tungstenite",
+ "webpki-roots 1.0.10",
+]
+
+[[package]]
+name = "chord-i18n"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+]
+
+[[package]]
+name = "chord-json"
+version = "0.1.0"
+
+[[package]]
+name = "chord-media"
+version = "0.1.0"
+
+[[package]]
+name = "chord-platform"
+version = "0.1.0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
+name = "chord-store"
+version = "0.1.0"
+
+[[package]]
+name = "chord-ui"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "chord-updater"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+ "ring",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
+name = "chord-voice"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+ "serde",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -664,104 +762,6 @@ dependencies = [
  "option-ext",
  "redox_users",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "discord-codec"
-version = "0.1.0"
-dependencies = [
- "zstd",
-]
-
-[[package]]
-name = "discord-core"
-version = "0.1.0"
-dependencies = [
- "discord-codec",
- "discord-json",
- "discord-voice",
- "futures-util",
- "httparse",
- "rustls",
- "tokio",
- "tokio-rustls",
- "tokio-tungstenite",
- "webpki-roots 1.0.10",
-]
-
-[[package]]
-name = "discord-gui-spike"
-version = "0.1.0"
-dependencies = [
- "discord-codec",
- "discord-core",
- "discord-i18n",
- "discord-json",
- "discord-media",
- "discord-platform",
- "discord-store",
- "discord-ui",
- "discord-updater",
- "discord-voice",
- "nix",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "thiserror 2.0.21",
- "tokio",
-]
-
-[[package]]
-name = "discord-i18n"
-version = "0.1.0"
-dependencies = [
- "discord-json",
-]
-
-[[package]]
-name = "discord-json"
-version = "0.1.0"
-
-[[package]]
-name = "discord-media"
-version = "0.1.0"
-
-[[package]]
-name = "discord-platform"
-version = "0.1.0"
-dependencies = [
- "libc",
-]
-
-[[package]]
-name = "discord-store"
-version = "0.1.0"
-
-[[package]]
-name = "discord-ui"
-version = "0.1.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "discord-updater"
-version = "0.1.0"
-dependencies = [
- "discord-json",
- "ring",
- "serde",
- "serde_json",
- "sha2",
-]
-
-[[package]]
-name = "discord-voice"
-version = "0.1.0"
-dependencies = [
- "discord-json",
- "serde",
 ]
 
 [[package]]

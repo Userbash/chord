@@ -18,7 +18,7 @@
 //!    - округление `percentage = ((votes as f64 / total_votes as f64) * 100.0).round() as u8` (и `0` при `total_votes == 0`);
 //!    - вычисление `is_winner = is_expired && max_votes > 0 && votes == max_votes` (включая ничью при `is_expired == true`).
 
-use discord_gui_spike::polls::{
+use chord_client::polls::{
     build_poll_answer_put_route, compute_poll_results, validate_poll_vote_request,
     PollAnswerOption, PollResultEntry, PollVoteRequest, MAX_POLL_ANSWERS, MAX_POLL_ANSWER_CHARS,
     MAX_POLL_QUESTION_CHARS,

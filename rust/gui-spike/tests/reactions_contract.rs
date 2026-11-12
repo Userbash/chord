@@ -1,5 +1,5 @@
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::reactions::{
+use chord_client::reactions::{
     add_reaction, build_reaction_path, encode_reaction_emoji, flip_reaction, parse_retry_after_ms,
     percent_encode_emoji, remove_reaction, toggle_reaction, toggle_reaction_from_active,
     DiscordReactionApi, ReactionApi, ReactionError, ReactionTransport, REACTION_PUT_EMPTY_BODY,

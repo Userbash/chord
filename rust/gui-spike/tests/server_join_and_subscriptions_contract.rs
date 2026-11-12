@@ -3,10 +3,10 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use discord_gui_spike::auth::AuthUser;
-use discord_gui_spike::data;
-use discord_gui_spike::guilds::{self, GuildJoinTransport, GuildTransportResponse};
-use discord_gui_spike::permissions::{
+use chord_client::auth::AuthUser;
+use chord_client::data;
+use chord_client::guilds::{self, GuildJoinTransport, GuildTransportResponse};
+use chord_client::permissions::{
     AllowedChannelAccess, ChannelOverwrite, PermissionCalculator, RolePermission, PERM_CONNECT,
     PERM_SEND_MESSAGES, PERM_SPEAK, PERM_VIEW_CHANNEL,
 };
@@ -946,7 +946,7 @@ fn v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phan
 
 #[test]
 fn u1_unified_workspace_crates_bridge_and_hallucinated_channel_purge() {
-    let snap = discord_gui_spike::core_bridge::unified_engine_snapshot()
+    let snap = chord_client::core_bridge::unified_engine_snapshot()
         .expect("unified_engine_snapshot must succeed across all linked workspace crates");
     assert_eq!(snap.etf_tag_count, 11);
     assert_eq!(snap.store_schema_version, 1);

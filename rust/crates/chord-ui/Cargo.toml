@@ -1,0 +1,12 @@
+[package]
+name = "chord-ui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "UI: дизайн-токены и контракты компонент (переиспользование из D-03)"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[lints.rust]
+unsafe_code = "forbid"

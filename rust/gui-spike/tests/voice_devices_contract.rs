@@ -14,7 +14,7 @@
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-use discord_gui_spike::voice_devices::{
+use chord_client::voice_devices::{
     is_modifier_key, sensitivity_percent_to_threshold_db, threshold_db_to_sensitivity_percent,
     AudioDevice, AudioDeviceKind, DeviceCatalog, DeviceEvent, DeviceSelectError, MicTestState,
     NoticeLevel, PttStatus, VoiceDevicesService, VoiceDevicesState, VoiceInputMode,

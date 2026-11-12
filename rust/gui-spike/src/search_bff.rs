@@ -8,11 +8,11 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::routes::HttpMethod;
-use discord_core::rest::super_properties::SuperProperties;
-use discord_core::rest::transport::{HttpClientConfig, HttpRequest, HttpResponse};
-use discord_core::API_V9_BASE;
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::routes::HttpMethod;
+use chord_core::rest::super_properties::SuperProperties;
+use chord_core::rest::transport::{HttpClientConfig, HttpRequest, HttpResponse};
+use chord_core::API_V9_BASE;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 

@@ -1,0 +1,26 @@
+[package]
+name = "chord-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Шлюз Discord, REST v9, сессии и реконнект"
+
+[dependencies]
+chord-codec = { workspace = true }
+# Production-разбор JSON-ответов REST (`GET /users/@me`): строгий парсер без serde.
+chord-json = { workspace = true }
+chord-voice = { path = "../chord-voice" }
+tokio = { workspace = true, features = ["sync"] }
+tokio-tungstenite = { workspace = true }
+rustls = { workspace = true }
+tokio-rustls = { workspace = true }
+httparse = { workspace = true }
+webpki-roots = { workspace = true }
+futures-util = { workspace = true }
+
+[dev-dependencies]
+# Энкодер zstd: стаб-сервер в тестах строит непрерывный поток (продукт пишет несжатый ETF).
+zstd = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"

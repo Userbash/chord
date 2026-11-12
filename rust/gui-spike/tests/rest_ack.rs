@@ -8,7 +8,7 @@
 
 use discord_core::rest::routes::{find, HttpMethod};
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::messages::{
+use chord_client::messages::{
     ack_message, AckTransport, DiscordReadState, MessageError, ReadStateAck,
 };
 use serde_json::{json, Value};

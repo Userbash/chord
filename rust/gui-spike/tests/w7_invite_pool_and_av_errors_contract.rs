@@ -13,13 +13,13 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::guilds::{
+use chord_client::guilds::{
     resolve_invite_info, resolve_invite_info_with_pool, InviteConnectionPool, InvitePoolConfig,
     INVITE_ATTEMPT_TIMEOUT_MS, INVITE_INITIAL_BACKOFF_MS, INVITE_MAX_RETRY_ATTEMPTS,
     INVITE_POOL_KEEP_ALIVE_SECS, LEGACY_FREEZE_THRESHOLD_MS,
 };
-use discord_gui_spike::invites::{InviteError, InviteTransport};
-use discord_gui_spike::voice_diagnostics::{
+use chord_client::invites::{InviteError, InviteTransport};
+use chord_client::voice_diagnostics::{
     build_rtc_quality_status_bar_dto, defeat_av_error_code, discord_min_encode_fps_threshold,
     evaluate_and_defeat_av_errors, AvStreamTelemetryInput, ConnectionQuality, DiscordAvErrorCode,
     DISCORD_DEFEATED_AV_ERROR_CODES,

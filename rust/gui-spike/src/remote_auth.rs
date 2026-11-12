@@ -30,11 +30,11 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{LazyLock, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
-use discord_core::API_V9_BASE;
-use discord_gui_spike::auth::IdentityContext;
-use discord_gui_spike::rest_failure::RestFailure;
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
+use chord_core::API_V9_BASE;
+use chord_client::auth::IdentityContext;
+use chord_client::rest_failure::RestFailure;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -231,14 +231,14 @@ impl From<RestFailure> for RemoteAuthError {
 /// Кодирует байты в стандартный Base64 с `=`-паддингом (`btoa` в `QR_CHUNK` 52423).
 #[must_use]
 pub fn encode_base64_standard(bytes: &[u8]) -> String {
-    discord_core::rest::base64::encode(bytes)
+    chord_core::rest::base64::encode(bytes)
 }
 
 /// Кодирует байты в URL-safe Base64 без `=`-паддинга (`O(e)` в `QR_CHUNK` 52423):
 /// `btoa(...).replace(/\//g, "_").replace(/\+/g, "-").replace(/={1,2}$/, "")`.
 #[must_use]
 pub fn encode_base64url_nopad(bytes: &[u8]) -> String {
-    discord_core::rest::base64::encode(bytes)
+    chord_core::rest::base64::encode(bytes)
         .trim_end_matches('=')
         .bytes()
         .map(|b| match b {
@@ -2084,7 +2084,7 @@ pub trait RemoteAuthRestTransport: Send + Sync {
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, RemoteAuthError>> + Send + 'a>>;
 }
 
-/// Штатный REST-клиент Remote Auth поверх `discord_core::rest::client::ApiClient`.
+/// Штатный REST-клиент Remote Auth поверх `chord_core::rest::client::ApiClient`.
 pub struct DiscordRemoteAuthRest {
     client: ApiClient,
 }

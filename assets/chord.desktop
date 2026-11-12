@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Chord
+GenericName=Chat & Voice Client
+Comment=Open-source chat & voice client
+Exec=/home/sanya/orca/project/rust/dist/chord %U
+Icon=chord
+Terminal=false
+StartupNotify=true
+StartupWMClass=chord
+Categories=Network;InstantMessaging;Chat;
+Keywords=chat;voice;discord;messaging;
+MimeType=x-scheme-handler/chord;

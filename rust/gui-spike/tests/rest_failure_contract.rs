@@ -8,11 +8,11 @@ use std::time::Duration;
 
 use discord_core::rest::client::ApiError;
 use discord_core::rest::transport::HttpError;
-use discord_gui_spike::guilds::EnterGuildError;
-use discord_gui_spike::messages::MessageError;
-use discord_gui_spike::reactions::ReactionError;
-use discord_gui_spike::rest_failure::RestFailure;
-use discord_gui_spike::search::SearchError;
+use chord_client::guilds::EnterGuildError;
+use chord_client::messages::MessageError;
+use chord_client::reactions::ReactionError;
+use chord_client::rest_failure::RestFailure;
+use chord_client::search::SearchError;
 
 #[test]
 fn http_statuses_are_classified_exactly() {

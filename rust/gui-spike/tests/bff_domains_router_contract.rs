@@ -10,25 +10,25 @@
 //! 6. `resolve_bff_domain_action`: HTTP-метод (`POST`/`PATCH`) вместе с маршрутом и телом в [`BffResolvedAction`].
 //! 7. Wire-формат `BffDomainRequest`: буквальный JSON с внешней serde-теггировкой по имени варианта.
 
-use discord_gui_spike::automod::{
+use chord_client::automod::{
     AUTOMOD_ACTION_BLOCK_MESSAGE, AUTOMOD_ACTION_TIMEOUT, AUTOMOD_EVENT_MESSAGE_SEND,
     AUTOMOD_TRIGGER_KEYWORD, AUTOMOD_TRIGGER_SPAM, MAX_TIMEOUT_DURATION_SECS,
 };
-use discord_gui_spike::bff_domains_router::{
+use chord_client::bff_domains_router::{
     dispatch_bff_domain_action, is_supported_bff_domain, resolve_bff_domain_action,
     BffDomainAction, BffDomainRequest, BffResolvedAction, ClickMessageComponentRequest,
     CreateGuildEmojiRequest, CreateWebhookRequest, InteractionType, UpdateGuildOnboardingRequest,
     UpsertAutoModRuleRequest, SUPPORTED_BFF_DOMAINS,
 };
-use discord_gui_spike::expressions::MAX_EMOJI_BYTES;
-use discord_gui_spike::onboarding::WelcomeScreenChannelEntry;
-use discord_gui_spike::slash_commands::{
+use chord_client::expressions::MAX_EMOJI_BYTES;
+use chord_client::onboarding::WelcomeScreenChannelEntry;
+use chord_client::slash_commands::{
     InvokeSlashCommandRequest, COMMAND_TYPE_CHAT_INPUT, COMPONENT_TYPE_BUTTON,
     INTERACTION_TYPE_APPLICATION_COMMAND, INTERACTION_TYPE_MESSAGE_COMPONENT,
     MAX_COMMAND_NAME_CHARS, MAX_COMMAND_OPTIONS, MAX_COMPONENT_CUSTOM_ID_CHARS,
 };
-use discord_gui_spike::soundboard::SendSoundboardSoundRequest;
-use discord_gui_spike::stage_instances::{CreateStageInstanceRequest, STAGE_PRIVACY_GUILD_ONLY};
+use chord_client::soundboard::SendSoundboardSoundRequest;
+use chord_client::stage_instances::{CreateStageInstanceRequest, STAGE_PRIVACY_GUILD_ONLY};
 use serde_json::json;
 
 const VALID_APP_ID: &str = "1014537851418980372";

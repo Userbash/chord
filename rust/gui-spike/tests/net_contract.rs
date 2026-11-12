@@ -13,7 +13,7 @@ use std::time::{Duration, Instant};
 use discord_core::codec::etf::EtfValue;
 use discord_core::dispatch::{route_dispatch, DispatchEvent, DispatchKind};
 use discord_core::gateway::supervisor::{StopReason, SupervisorEvent};
-use discord_gui_spike::net::{
+use chord_client::net::{
     etf_to_json, map_dispatch, map_dispatch_event, map_supervisor_event, CoreGatewayDriver,
     DispatchChannel, DispatchEmitter, DispatchError, DispatchPayload, DispatchStats, FakeGateway,
     GatewayCommandError, GatewayDriver, GatewayEvent, GatewayStatus, GuildSubscriptionsBulkCommand,
@@ -132,7 +132,7 @@ fn production_driver_disconnect_is_idempotent_without_connecting() {
 
 /// Снятый кадр `by-type` как JSON; нет каталога/файла — skip с причиной.
 fn fixture(name: &str) -> Option<Value> {
-    let root = match discord_gui_spike::data::fixtures_root() {
+    let root = match chord_client::data::fixtures_root() {
         Ok(root) => root,
         Err(error) => {
             eprintln!("skip: фикстуры недоступны: {error}");
@@ -952,7 +952,7 @@ fn core_supervisor_config_wires_lifecycle_and_dispatch() {
     // `CORE_DISPATCH_AVAILABLE = true` — ложью.
     let received = Arc::new(Mutex::new(Vec::new()));
     let sink = Arc::clone(&received);
-    let config = discord_gui_spike::net::core_supervisor_config(
+    let config = chord_client::net::core_supervisor_config(
         "secret-token",
         Arc::new(move |event| sink.lock().expect("журнал событий").push(event)),
     );
@@ -1147,7 +1147,7 @@ fn client_gateway_command_helpers_build_validate_op37_guild_subscriptions() {
     let mut subscriptions = std::collections::BTreeMap::new();
     subscriptions.insert(
         "1014537851418980372".to_string(),
-        discord_gui_spike::net::SubscriptionEntry {
+        chord_client::net::SubscriptionEntry {
             typing: Some(true),
             threads: Some(false),
             activities: Some(true),
@@ -1170,7 +1170,7 @@ fn client_gateway_command_helpers_build_validate_op37_guild_subscriptions() {
     let mut bad_subs = std::collections::BTreeMap::new();
     bad_subs.insert(
         "bad-guild".to_string(),
-        discord_gui_spike::net::SubscriptionEntry::default(),
+        chord_client::net::SubscriptionEntry::default(),
     );
     let bad_cmd = GuildSubscriptionsBulkCommand {
         subscriptions: bad_subs,

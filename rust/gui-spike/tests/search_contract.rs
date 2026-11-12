@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::search::{
+use chord_client::search::{
     deterministic_uuid_v4, generate_uuid_v4, DiscordSearch, RemoteSearch, SearchError,
     SearchParams, SearchResponse, SearchSession, SearchTransport,
     DEFAULT_SEARCH_202_RETRY_AFTER_MS, MAX_INDEXING_RETRIES, MAX_SEARCH_202_RETRIES,
@@ -1697,7 +1697,7 @@ async fn task_617_bff_normalizes_inline_query_tokens_and_extracts_typed_hit_grou
 #[tokio::test]
 async fn task_617_bff_retries_http_429_with_exponential_backoff_and_succeeds_or_fails_after_budget()
 {
-    use discord_gui_spike::search::MAX_SEARCH_429_RETRIES;
+    use chord_client::search::MAX_SEARCH_429_RETRIES;
     assert_eq!(MAX_SEARCH_429_RETRIES, 3);
 
     // Сценарий A: два ответа 429 подряд (база 500 мс -> 500 мс, затем 1000 мс), затем 200 OK.

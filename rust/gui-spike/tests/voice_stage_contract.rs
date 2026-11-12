@@ -15,7 +15,7 @@
 //!    - `build_gateway_stream_delete_op19(stream_key: &str) -> Result<serde_json::Value, String>`
 //!      (`{"op": 19, "d": {"stream_key": "guild:..."|"call:..."}}`) со строгой валидацией сегментов `stream_key` (`A-KEY-PARSE`).
 
-use discord_gui_spike::voice_stage::{
+use chord_client::voice_stage::{
     build_gateway_stream_create_op18, build_gateway_stream_delete_op19,
     build_gateway_stream_ping_op21, build_gateway_stream_set_paused_op22,
     build_gateway_stream_watch_op20, ScreenShareSpec, StreamFps, StreamResolution,

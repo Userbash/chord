@@ -26,7 +26,7 @@
 //!    - возвращает `"/api/v9/guilds/{guild_id}/auto-moderation/rules"` или
 //!      `"/api/v9/guilds/{guild_id}/auto-moderation/rules/{rule_id}"`.
 
-use discord_gui_spike::automod::{
+use chord_client::automod::{
     build_guild_automod_route, validate_automod_rule_request, UpsertAutoModRuleRequest,
     AUTOMOD_ACTION_BLOCK_MESSAGE, AUTOMOD_ACTION_SEND_ALERT, AUTOMOD_ACTION_TIMEOUT,
     AUTOMOD_EVENT_MESSAGE_SEND, AUTOMOD_TRIGGER_KEYWORD, AUTOMOD_TRIGGER_KEYWORD_PRESET,

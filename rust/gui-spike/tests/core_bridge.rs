@@ -10,8 +10,8 @@
 
 use std::path::PathBuf;
 
-use discord_gui_spike::core_bridge;
-use discord_gui_spike::data::{self, MessageAuthor, MessageRow, MAX_PAGE_LIMIT};
+use chord_client::core_bridge;
+use chord_client::data::{self, MessageAuthor, MessageRow, MAX_PAGE_LIMIT};
 
 /// Канал READY с реальными (положительными) snowflake — единственный, который
 /// ядро представляет без потерь: 3 сообщения, CREATE/UPDATE дедуплицируются.

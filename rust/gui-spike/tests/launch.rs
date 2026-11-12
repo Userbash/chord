@@ -29,7 +29,7 @@ struct LaunchOutcome {
 fn spike_binary() -> PathBuf {
     std::env::var_os("SPIKE_BIN_OVERRIDE")
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from(env!("CARGO_BIN_EXE_discord-gui-spike")))
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_BIN_EXE_chord-client")))
 }
 
 /// Запуск с таймаутом и параллельным чтением обоих потоков (иначе пайп переполнится
@@ -41,7 +41,7 @@ fn launch_with_timeout(mut command: Command) -> LaunchOutcome {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .expect("не удалось запустить discord-gui-spike");
+        .expect("не удалось запустить chord-client");
 
     let stdout = child.stdout.take().expect("stdout подключён к пайпу");
     let stderr = child.stderr.take().expect("stderr подключён к пайпу");
@@ -51,7 +51,7 @@ fn launch_with_timeout(mut command: Command) -> LaunchOutcome {
     let deadline = Instant::now() + LAUNCH_TIMEOUT;
     let mut timed_out = false;
     let status = loop {
-        match child.try_wait().expect("try_wait для discord-gui-spike") {
+        match child.try_wait().expect("try_wait для chord-client") {
             Some(status) => break Some(status),
             None if Instant::now() >= deadline => {
                 timed_out = true;

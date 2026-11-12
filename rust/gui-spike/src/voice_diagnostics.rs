@@ -16,7 +16,7 @@
 //! Модуль намеренно самодостаточен: `discord-gui-spike` не зависит от крейта
 //! `discord-voice` (write-scope задачи — 4 файла, `Cargo.toml` не трогаем).
 //! Поэтому `ConnectionQuality`, `PingSample`/`PingHistory`, `short_hostname` и
-//! `RtcConnectionStatsSnapshot` повторяют контракт `discord_voice::stats`
+//! `RtcConnectionStatsSnapshot` повторяют контракт `chord_voice::stats`
 //! один-в-один (пороги `250`/`500` мс и `5`/`10`%, буфер `199`/`20`, таймаут
 //! `4000` мс) и дополнительно сериализуются, чего в крейте голоса нет.
 //!
@@ -44,7 +44,7 @@ pub const PRIVACY_CODE_GROUP_LEN: usize = 5;
 /// Полная длина `Voice Privacy Code`, цифр.
 pub const PRIVACY_CODE_TOTAL_DIGITS: usize = 30;
 
-// --- Зеркало `discord_voice::stats` (см. §2 карточки RE-22-02) --------------
+// --- Зеркало `chord_voice::stats` (см. §2 карточки RE-22-02) --------------
 
 /// Верхняя граница `fine` по пингу, мс.
 pub const PING_FINE_MAX_MS: u64 = 250;

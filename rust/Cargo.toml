@@ -13,18 +13,18 @@ license = "MIT OR Apache-2.0"
 rust-version = "1.87"
 
 [workspace.dependencies]
-discord-json = { path = "crates/discord-json" }
-discord-codec = { path = "crates/discord-codec" }
-discord-core = { path = "crates/discord-core" }
-discord-voice = { path = "crates/discord-voice" }
-discord-store = { path = "crates/discord-store" }
-discord-i18n = { path = "crates/discord-i18n" }
-discord-platform = { path = "crates/discord-platform" }
-discord-media = { path = "crates/discord-media" }
-discord-ui = { path = "crates/discord-ui" }
-discord-updater = { path = "crates/discord-updater" }
-discord-perf = { path = "crates/discord-perf" }
-discord-conformance = { path = "crates/discord-conformance" }
+chord-json = { path = "crates/chord-json" }
+chord-codec = { path = "crates/chord-codec" }
+chord-core = { path = "crates/chord-core" }
+chord-voice = { path = "crates/chord-voice" }
+chord-store = { path = "crates/chord-store" }
+chord-i18n = { path = "crates/chord-i18n" }
+chord-platform = { path = "crates/chord-platform" }
+chord-media = { path = "crates/chord-media" }
+chord-ui = { path = "crates/chord-ui" }
+chord-updater = { path = "crates/chord-updater" }
+chord-perf = { path = "crates/chord-perf" }
+chord-conformance = { path = "crates/chord-conformance" }
 # Gateway transport. Initial versions from specs, exact locked in Cargo.lock.
 tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "time", "sync"] }
 tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }

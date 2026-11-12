@@ -1,7 +1,7 @@
 //! TASK-825 / TASK-829.1: Регрессионный контракт для live fallback токена и анонимного resolve_invite.
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::invites::{resolve_invite, DiscordInvites, InviteError, InviteTransport};
+use chord_client::invites::{resolve_invite, DiscordInvites, InviteError, InviteTransport};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
@@ -85,12 +85,12 @@ async fn test_anonymous_resolve_invite_client_creation_and_execution() {
 #[tokio::test]
 async fn test_token_or_fallback_to_live_token_when_keyring_is_empty() {
     // 1. Устанавливаем живой токен в глобальное состояние сессии
-    discord_gui_spike::data::set_live_session(
+    chord_client::data::set_live_session(
         Some("live-captured-session-token-12345".to_string()),
         None,
     );
 
-    let live_tok = discord_gui_spike::data::resolve_live_token();
+    let live_tok = chord_client::data::resolve_live_token();
     assert_eq!(
         live_tok.as_deref(),
         Some("live-captured-session-token-12345"),
@@ -112,5 +112,5 @@ async fn test_token_or_fallback_to_live_token_when_keyring_is_empty() {
     assert_eq!(preview.guild_id, "999888777666555444");
 
     // Очищаем тестовую сессию
-    discord_gui_spike::data::set_live_session(None, None);
+    chord_client::data::set_live_session(None, None);
 }

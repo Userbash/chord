@@ -7,7 +7,7 @@
 //! отдельно; в тестах — `FakeGateway`, без сети.
 //!
 //! L-02 (backend-срез dispatch → UI): `GatewayEvent::Dispatch` несёт
-//! `discord_core::DispatchEvent`; [`map_dispatch`] пропускает канонические типы
+//! `chord_core::DispatchEvent`; [`map_dispatch`] пропускает канонические типы
 //! ядра, вырезает секреты READY и конвертирует `d` в JSON-конверт
 //! `{kind, data}`; [`DispatchChannel`] отдаёт его в UI-канал
 //! [`DISPATCH_EVENT`] на отдельном потоке (try_send: источник не блокируется).
@@ -24,18 +24,18 @@ use std::sync::mpsc::{sync_channel, SyncSender, TrySendError};
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
 
-use discord_core::codec::etf::EtfValue;
-use discord_core::dispatch::{DispatchEvent, DispatchKind};
-use discord_core::gateway::supervisor::{
+use chord_core::codec::etf::EtfValue;
+use chord_core::dispatch::{DispatchEvent, DispatchKind};
+use chord_core::gateway::supervisor::{
     StopReason, Supervisor, SupervisorConfig, SupervisorEvent,
 };
-use discord_core::gateway::{
+use chord_core::gateway::{
     encode_guild_subscriptions_bulk_chunked, encode_presence_update, encode_voice_state_update,
     GuildSubscriptionsBulk, OutboundGuildMembersRequest, OutboundGuildSubscription,
     OutboundPresenceUpdate, OutboundVoiceStateUpdate,
 };
-use discord_core::state::PresenceStatus;
-use discord_core::ws::{encode_request_guild_members_frames, GatewayUrl};
+use chord_core::state::PresenceStatus;
+use chord_core::ws::{encode_request_guild_members_frames, GatewayUrl};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

@@ -19,7 +19,7 @@
 //!    - валидирует `guild_id` (и `emoji_id`, если `Some`) как положительные числовые Snowflake (`1..=20` ASCII-цифр, без ведущего `'0'`);
 //!    - возвращает `"/api/v9/guilds/{guild_id}/emojis"` или `"/api/v9/guilds/{guild_id}/emojis/{emoji_id}"`.
 
-use discord_gui_spike::expressions::{
+use chord_client::expressions::{
     build_guild_emojis_route, validate_create_guild_emoji, validate_emoji_name,
     CreateGuildEmojiRequest, MAX_EMOJI_BYTES, MAX_EMOJI_NAME_CHARS, MAX_STICKER_DESC_CHARS,
     MAX_STICKER_NAME_CHARS, MIN_EMOJI_NAME_CHARS, MIN_STICKER_NAME_CHARS, STICKER_FORMAT_APNG,

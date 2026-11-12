@@ -31,9 +31,9 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
-use discord_core::API_V9_BASE;
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
+use chord_core::API_V9_BASE;
 use serde::{Deserialize, Serialize};
 
 use crate::rest_failure::RestFailure;
@@ -1338,7 +1338,7 @@ pub fn format_iso8601_utc(unix_secs: i64) -> String {
     format!("{year:04}-{month:02}-{day:02}T{hour:02}:{minute:02}:{second:02}.000Z")
 }
 
-/// Подключает нативный `discord_platform::notifications::Notifier` по D-Bus
+/// Подключает нативный `chord_platform::notifications::Notifier` по D-Bus
 /// и отправляет десктопное системное уведомление по спецификации freedesktop
 /// (STUB-28, N-01/N-02).
 pub fn send_desktop_notification(
@@ -1348,16 +1348,16 @@ pub fn send_desktop_notification(
 ) -> Result<u32, String> {
     let raw = std::env::var("DBUS_SESSION_BUS_ADDRESS")
         .map_err(|_| "Переменная окружения DBUS_SESSION_BUS_ADDRESS не задана".to_string())?;
-    let address = discord_platform::dbus::BusAddress::parse(&raw)
+    let address = chord_platform::dbus::BusAddress::parse(&raw)
         .ok_or_else(|| format!("Не удалось распарсить DBUS_SESSION_BUS_ADDRESS: {raw}"))?;
-    let mut notifier = discord_platform::notifications::Notifier::connect(&address)
+    let mut notifier = chord_platform::notifications::Notifier::connect(&address)
         .map_err(|e| format!("D-Bus Notifier connect error: {e:?}"))?;
-    let mut hints = discord_platform::notifications::Hints::default();
+    let mut hints = chord_platform::notifications::Hints::default();
     hints.desktop_entry = Some("discord".to_string());
     if let Some(cat) = category {
         hints.category = Some(cat.to_string());
     }
-    let notif = discord_platform::notifications::Notification {
+    let notif = chord_platform::notifications::Notification {
         app_name: "Discord".to_string(),
         summary: summary.to_string(),
         body: body.to_string(),

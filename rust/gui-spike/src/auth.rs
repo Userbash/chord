@@ -34,15 +34,15 @@ use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
-use discord_core::rest::client::{
+use chord_core::rest::client::{
     ApiAuth, ApiClient, ApiConfig, ApiError, ApiRetryPolicy, AuthScheme, DEBUG_OPTIONS_LIVE,
 };
-use discord_core::rest::identity::{self, IdentityConfig, SystemSources};
-use discord_core::rest::rate_limit::rate_limit_info;
-use discord_core::rest::super_properties::SuperProperties;
-use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
-use discord_core::{parse_me, Me, MeError, API_V9_BASE};
-use discord_platform::keyring::{Keyring, KeyringError};
+use chord_core::rest::identity::{self, IdentityConfig, SystemSources};
+use chord_core::rest::rate_limit::rate_limit_info;
+use chord_core::rest::super_properties::SuperProperties;
+use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
+use chord_core::{parse_me, Me, MeError, API_V9_BASE};
+use chord_platform::keyring::{Keyring, KeyringError};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 
@@ -2055,7 +2055,7 @@ pub struct RemoteAuthUser {
 /// `btoa(...).replace(/\//g, "_").replace(/\+/g, "-").replace(/={1,2}$/, "")`.
 #[must_use]
 pub fn encode_base64url_nopad(bytes: &[u8]) -> String {
-    discord_core::rest::base64::encode(bytes)
+    chord_core::rest::base64::encode(bytes)
         .trim_end_matches('=')
         .bytes()
         .map(|b| match b {

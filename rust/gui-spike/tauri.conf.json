@@ -1,15 +1,15 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "discord-gui-spike",
+  "productName": "chord",
   "version": "0.1.0",
-  "identifier": "lab.discord.gui-spike",
+  "identifier": "app.chord.client",
   "build": {
     "frontendDist": "ui"
   },
   "app": {
     "windows": [
       {
-        "title": "Discord Client",
+        "title": "Chord",
         "width": 1280,
         "height": 820,
         "minWidth": 960,

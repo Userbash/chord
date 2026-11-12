@@ -16,7 +16,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::attachments::{
+use chord_client::attachments::{
     build_message_attachments, refresh_attachment_urls, request_upload_slots,
     request_upload_slots_with_tier, upload_attachment_bytes, upload_put_command, upload_put_input,
     AttachmentError, AttachmentFileSpec, AttachmentTransport, AttachmentUploadSlot,
@@ -25,8 +25,8 @@ use discord_gui_spike::attachments::{
     MAX_REFRESH_URLS_PER_REQUEST, MAX_UPLOAD_FILE_BYTES, MAX_UPLOAD_FILE_BYTES_TIER2,
     MAX_UPLOAD_FILE_BYTES_TIER3, REFRESH_ATTACHMENT_URLS_PATH, UPLOAD_PUT_COMMAND_PARAM_KEYS,
 };
-use discord_gui_spike::messages::{send_message, MessageError, MessageReceipt, MessageSender};
-use discord_gui_spike::{attachments_upload_put, attachments_upload_put_command};
+use chord_client::messages::{send_message, MessageError, MessageReceipt, MessageSender};
+use chord_client::{attachments_upload_put, attachments_upload_put_command};
 
 const CHANNEL_ID: &str = "123456789012345678";
 
@@ -823,7 +823,7 @@ fn uploads_attachment_bytes_via_put_with_content_type_and_accepts_200_201_204() 
         );
     }
 
-    // Публичная обёртка крейта `discord_gui_spike::attachments_upload_put` и метод
+    // Публичная обёртка крейта `chord_client::attachments_upload_put` и метод
     // `DiscordAttachments::upload_attachment_bytes` делегируют в один и тот же контракт:
     let transport_204 = FakeTransport::answering(204);
     let client = api(&transport_204);
@@ -1132,7 +1132,7 @@ fn tauri_main_registers_and_wires_attachments_upload_put_command() {
         "attachments_upload_put создаёт DiscordAttachments из токена: {body}"
     );
     assert!(
-        body.contains("discord_gui_spike::attachments_upload_put("),
+        body.contains("chord_client::attachments_upload_put("),
         "attachments_upload_put делегирует в публичную обёртку крейта: {body}"
     );
     assert!(

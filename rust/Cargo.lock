@@ -56,6 +56,113 @@ dependencies = [
 ]
 
 [[package]]
+name = "chord-app"
+version = "0.1.0"
+dependencies = [
+ "chord-codec",
+ "chord-core",
+ "chord-i18n",
+ "chord-json",
+ "chord-media",
+ "chord-platform",
+ "chord-store",
+ "chord-ui",
+ "chord-updater",
+ "chord-voice",
+]
+
+[[package]]
+name = "chord-codec"
+version = "0.1.0"
+dependencies = [
+ "zstd",
+]
+
+[[package]]
+name = "chord-conformance"
+version = "0.1.0"
+
+[[package]]
+name = "chord-core"
+version = "0.1.0"
+dependencies = [
+ "chord-codec",
+ "chord-json",
+ "chord-voice",
+ "futures-util",
+ "httparse",
+ "rustls",
+ "tokio",
+ "tokio-rustls",
+ "tokio-tungstenite",
+ "webpki-roots 1.0.9",
+ "zstd",
+]
+
+[[package]]
+name = "chord-i18n"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+]
+
+[[package]]
+name = "chord-json"
+version = "0.1.0"
+
+[[package]]
+name = "chord-media"
+version = "0.1.0"
+
+[[package]]
+name = "chord-perf"
+version = "0.1.0"
+dependencies = [
+ "chord-core",
+ "chord-json",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "chord-platform"
+version = "0.1.0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
+name = "chord-store"
+version = "0.1.0"
+
+[[package]]
+name = "chord-ui"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "chord-updater"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+ "ring",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
+name = "chord-voice"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "const-oid"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -123,113 +230,6 @@ dependencies = [
  "block-buffer 0.12.1",
  "const-oid",
  "crypto-common 0.2.2",
-]
-
-[[package]]
-name = "discord-app"
-version = "0.1.0"
-dependencies = [
- "discord-codec",
- "discord-core",
- "discord-i18n",
- "discord-json",
- "discord-media",
- "discord-platform",
- "discord-store",
- "discord-ui",
- "discord-updater",
- "discord-voice",
-]
-
-[[package]]
-name = "discord-codec"
-version = "0.1.0"
-dependencies = [
- "zstd",
-]
-
-[[package]]
-name = "discord-conformance"
-version = "0.1.0"
-
-[[package]]
-name = "discord-core"
-version = "0.1.0"
-dependencies = [
- "discord-codec",
- "discord-json",
- "discord-voice",
- "futures-util",
- "httparse",
- "rustls",
- "tokio",
- "tokio-rustls",
- "tokio-tungstenite",
- "webpki-roots 1.0.9",
- "zstd",
-]
-
-[[package]]
-name = "discord-i18n"
-version = "0.1.0"
-dependencies = [
- "discord-json",
-]
-
-[[package]]
-name = "discord-json"
-version = "0.1.0"
-
-[[package]]
-name = "discord-media"
-version = "0.1.0"
-
-[[package]]
-name = "discord-perf"
-version = "0.1.0"
-dependencies = [
- "discord-core",
- "discord-json",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "discord-platform"
-version = "0.1.0"
-dependencies = [
- "libc",
-]
-
-[[package]]
-name = "discord-store"
-version = "0.1.0"
-
-[[package]]
-name = "discord-ui"
-version = "0.1.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "discord-updater"
-version = "0.1.0"
-dependencies = [
- "discord-json",
- "ring",
- "serde",
- "serde_json",
- "sha2",
-]
-
-[[package]]
-name = "discord-voice"
-version = "0.1.0"
-dependencies = [
- "discord-json",
- "serde",
- "serde_json",
 ]
 
 [[package]]

@@ -11,7 +11,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use discord_gui_spike::data::{self, DataError};
+use chord_client::data::{self, DataError};
 use serde_json::Value;
 
 /// Корень фикстур: `DL_FIXTURES` или `fixtures/` на два уровня выше crate.

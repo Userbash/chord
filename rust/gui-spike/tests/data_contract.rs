@@ -1,6 +1,6 @@
 //! Контракт BFF фазы 3 (W39e): данные строго из `fixtures/`, без сети.
 //!
-//! Тесты сверяют ответы публичного API `discord_gui_spike::data` с независимым
+//! Тесты сверяют ответы публичного API `chord_client::data` с независимым
 //! оракулом — самими файлами фикстур (`ready-stats.json`, READY, by-type), а не
 //! с текущей реализацией. Покрыты:
 //! - `ready` — счётчики READY против `gateway/ready-stats.json`;
@@ -24,7 +24,7 @@ use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::sync::{OnceLock, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use discord_gui_spike::data::{
+use chord_client::data::{
     self, ChannelAccessPolicy, DataError, SearchFilters, DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT,
     PERM_ADD_REACTIONS, PERM_ADMINISTRATOR, PERM_ATTACH_FILES, PERM_CONNECT,
     PERM_CREATE_INSTANT_INVITE, PERM_READ_MESSAGE_HISTORY, PERM_SEND_MESSAGES, PERM_SPEAK,
@@ -2121,7 +2121,7 @@ fn live_session_account_switch_to_zero_guilds_clears_previous_servers_and_fixtur
     assert_eq!(data::ready(&root).expect("acc1 ready").guild_count, 1);
 
     // 2. Переключение на Аккаунт 2 (RU Rusty / @rusty021573), у которого 0 серверов.
-    let acc2_user = discord_gui_spike::auth::AuthUser {
+    let acc2_user = chord_client::auth::AuthUser {
         id: "test-rusty-021573".to_string(),
         username: "rusty021573".to_string(),
         discriminator: "0".to_string(),
@@ -2366,7 +2366,7 @@ fn live_session_ingests_and_forwards_guild_member_update_and_role_crud_dispatche
                 ),
             ]),
         };
-        let mapped = discord_gui_spike::net::map_dispatch(&event)
+        let mapped = chord_client::net::map_dispatch(&event)
             .expect("map_dispatch without error")
             .unwrap_or_else(|| panic!("{kind} должен пробрасываться через net::map_dispatch"));
         assert_eq!(mapped.payload.kind, kind);

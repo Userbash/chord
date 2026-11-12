@@ -24,7 +24,7 @@
 
 use std::time::Duration;
 
-use discord_core::rest::client::ApiError;
+use chord_core::rest::client::ApiError;
 
 /// Классифицированный отказ REST — единый источник политики ошибок.
 #[derive(Debug, Clone, PartialEq, Eq)]

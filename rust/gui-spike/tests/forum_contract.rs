@@ -13,7 +13,7 @@
 //!    - `applied_tags`: `len() <= 5`, каждый тег — непустой числовой Snowflake > 0.
 //! 4. `build_forum_post_route_and_body(req)` -> `Ok(("/channels/{channel_id}/threads", json!({ ... })))`.
 
-use discord_gui_spike::forum::{
+use chord_client::forum::{
     build_forum_post_route_and_body, validate_forum_post_request, CreateForumPostRequest,
     ForumSortOrder, ALLOWED_AUTO_ARCHIVE_MINUTES, MAX_FORUM_APPLIED_TAGS, MAX_FORUM_TITLE_CHARS,
 };

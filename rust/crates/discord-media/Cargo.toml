@@ -1,9 +1,0 @@
-[package]
-name = "discord-media"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-description = "Медиа-конвейер: Opus/AV1, захват экрана, стрим"
-
-[lints.rust]
-unsafe_code = "forbid"

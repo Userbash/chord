@@ -1,0 +1,12 @@
+[package]
+name = "chord-i18n"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Локализация: ключи xxh64, плурализация CLDR, 31 локаль"
+
+[dependencies]
+chord-json = { workspace = true }
+
+[lints.rust]
+unsafe_code = "forbid"

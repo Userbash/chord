@@ -26,11 +26,11 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::transport::{HttpClientConfig, HttpResponse};
-use discord_core::API_V9_BASE;
-use discord_gui_spike::auth::IdentityContext;
-use discord_gui_spike::rest_failure::RestFailure;
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
+use chord_core::API_V9_BASE;
+use chord_client::auth::IdentityContext;
+use chord_client::rest_failure::RestFailure;
 use serde::{Deserialize, Serialize};
 
 /// Канонический `application_id` подписок Discord Nitro (модуль `202541`, `@6789126`).

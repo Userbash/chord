@@ -12,7 +12,7 @@
 //!    - валидацию `VotePoll` (`answer_ids`: `1..=10`, тело `{"answer_ids": [...]}`);
 //!    - валидацию `SearchGuildMessages` (`offset <= 9975`, `limit` в `1..=25`, `content` опциональный).
 
-use discord_gui_spike::ipc_ext::{
+use chord_client::ipc_ext::{
     validate_and_build_plan, BulkReadStateEntry, ExtendedIpcCommand, ExtendedIpcPlan,
 };
 use serde_json::json;

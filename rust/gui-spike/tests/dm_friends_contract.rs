@@ -14,7 +14,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::dm_friends::{
+use chord_client::dm_friends::{
     accept_friend_request, block_user, build_user_relationship_endpoint, create_group_dm_shell,
     create_private_channel, delete_relationship, filter_pending_spam_and_ignored,
     filter_relationships_by_tab, load_ready_dm_friends, open_private_channel_with_cache,

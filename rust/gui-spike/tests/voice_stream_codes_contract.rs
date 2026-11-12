@@ -19,12 +19,12 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
-use discord_gui_spike::voice_diagnostics::{
+use chord_client::voice_diagnostics::{
     build_popout_dto, build_rtc_quality_status_bar_dto, defeat_av_error_code,
     discord_min_encode_fps_threshold, evaluate_and_defeat_av_errors, AvStreamTelemetryInput,
     ConnectionQuality, DiscordAvErrorCode, PingHistory, DISCORD_DEFEATED_AV_ERROR_CODES,
 };
-use discord_gui_spike::voice_stage::{
+use chord_client::voice_stage::{
     build_gateway_stream_create_op18, build_gateway_stream_delete_op19,
     build_gateway_stream_ping_op21, build_gateway_stream_set_paused_op22,
     build_gateway_stream_watch_op20, ScreenShareSpec, StreamFps, StreamResolution,

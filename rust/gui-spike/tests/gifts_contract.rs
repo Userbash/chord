@@ -36,7 +36,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
 use discord_core::rest::transport::HttpResponse;
-pub use discord_gui_spike::rest_failure;
+pub use chord_client::rest_failure;
 
 #[path = "../src/gifts.rs"]
 pub mod gifts;

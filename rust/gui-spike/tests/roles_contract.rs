@@ -18,7 +18,7 @@
 //!    - валидация `guild_id`, `user_id` и `role_id` как канонических положительных `u64` Snowflake ID;
 //!    - построение маршрута `"/guilds/{guild_id}/members/{user_id}/roles/{role_id}"`.
 
-use discord_gui_spike::roles::{
+use chord_client::roles::{
     build_member_role_route, compute_effective_permissions, validate_upsert_role_request,
     UpsertRoleRequest, MAX_RGB_COLOR, MAX_ROLE_NAME_CHARS, PERM_ADMINISTRATOR,
 };

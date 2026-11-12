@@ -24,7 +24,7 @@
 //!    `build_message_component_interactions_route_and_body` для `POST /api/v9/interactions`
 //!    (`type = 3`, `component_type = 2`, `custom_id`, `message_id`, `channel_id`, `guild_id`, `session_id`, `nonce`).
 
-use discord_gui_spike::slash_commands::{
+use chord_client::slash_commands::{
     build_interactions_route_and_body, build_message_component_interactions_route_and_body,
     validate_click_message_component, validate_component_custom_id, validate_invoke_slash_command,
     validate_message_component_type, validate_slash_command_name, ClickMessageComponentRequest,

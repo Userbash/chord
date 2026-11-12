@@ -13,23 +13,23 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::attachments::{
+use chord_client::attachments::{
     AttachmentError, AttachmentFileSpec, AttachmentTransport, AttachmentUploadSlot,
     DiscordAttachments, MAX_UPLOAD_FILE_BYTES,
 };
-use discord_gui_spike::invites::{
+use chord_client::invites::{
     CreateInviteParams, CreatedInvite, DiscordInvites, InviteError, InviteTransport,
     INVITE_FLAG_IS_GUEST,
 };
-use discord_gui_spike::messages::{send_message, MessageError, MessageReceipt, MessageSender};
-use discord_gui_spike::notifications::{
+use chord_client::messages::{send_message, MessageError, MessageReceipt, MessageSender};
+use chord_client::notifications::{
     ChannelNotificationOverridePatch, DiscordNotifications, GuildNotificationSettingsPatch,
     NotificationError, NotificationTransport,
 };
-use discord_gui_spike::pins_threads::{
+use chord_client::pins_threads::{
     DiscordPinsThreads, PinnedMessage, PinsThreadsError, PinsThreadsTransport, ThreadSummary,
 };
-use discord_gui_spike::{
+use chord_client::{
     create_channel_invite, list_channel_pins, list_channel_threads, pin_channel_message,
     request_upload_slots, unpin_channel_message, update_channel_notification_override,
     update_guild_notification_settings, IPC_WIRING_COMMANDS,
@@ -689,7 +689,7 @@ fn tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or() {
         "request_upload_slots создаёт DiscordAttachments из токена: {upload_body}"
     );
     assert!(
-        upload_body.contains("discord_gui_spike::request_upload_slots(&api, &channel_id, &files)"),
+        upload_body.contains("chord_client::request_upload_slots(&api, &channel_id, &files)"),
         "request_upload_slots делегирует в публичную обёртку крейта: {upload_body}"
     );
 
@@ -705,26 +705,26 @@ fn tauri_main_registers_and_wires_all_six_ipc_commands_via_token_or() {
     );
     assert!(
         invite_body
-            .contains("discord_gui_spike::create_channel_invite(&api, &channel_id, &params)"),
+            .contains("chord_client::create_channel_invite(&api, &channel_id, &params)"),
         "create_channel_invite делегирует в публичную обёртку крейта: {invite_body}"
     );
 
     for (cmd, expected_call) in [
         (
             "list_channel_pins",
-            "discord_gui_spike::list_channel_pins(&api, &channel_id)",
+            "chord_client::list_channel_pins(&api, &channel_id)",
         ),
         (
             "pin_channel_message",
-            "discord_gui_spike::pin_channel_message(&api, &channel_id, &message_id)",
+            "chord_client::pin_channel_message(&api, &channel_id, &message_id)",
         ),
         (
             "unpin_channel_message",
-            "discord_gui_spike::unpin_channel_message(&api, &channel_id, &message_id)",
+            "chord_client::unpin_channel_message(&api, &channel_id, &message_id)",
         ),
         (
             "list_channel_threads",
-            "discord_gui_spike::list_channel_threads(&api, &channel_id, archived)",
+            "chord_client::list_channel_threads(&api, &channel_id, archived)",
         ),
     ] {
         let body = command_body(source, cmd);
@@ -1030,8 +1030,8 @@ fn tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or() {
         "attachments_upload_slots создаёт DiscordAttachments из токена: {slots_alias_body}"
     );
     assert!(
-        slots_alias_body.contains("discord_gui_spike::request_upload_slots(&api, &channel_id, &specs)"),
-        "attachments_upload_slots делегирует в discord_gui_spike::request_upload_slots: {slots_alias_body}"
+        slots_alias_body.contains("chord_client::request_upload_slots(&api, &channel_id, &specs)"),
+        "attachments_upload_slots делегирует в chord_client::request_upload_slots: {slots_alias_body}"
     );
     assert!(
         slots_alias_body.contains("UploadSlotsEnvelope { attachments }"),
@@ -1056,8 +1056,8 @@ fn tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or() {
     );
     assert!(
         create_invite_body
-            .contains("discord_gui_spike::create_channel_invite(&api, &channel_id, &resolved)"),
-        "create_invite делегирует в discord_gui_spike::create_channel_invite: {create_invite_body}"
+            .contains("chord_client::create_channel_invite(&api, &channel_id, &resolved)"),
+        "create_invite делегирует в chord_client::create_channel_invite: {create_invite_body}"
     );
 
     // 3) pins_list (app.js:1372 -> list_channel_pins):
@@ -1072,8 +1072,8 @@ fn tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or() {
         "pins_list создаёт DiscordPinsThreads из токена: {pins_alias_body}"
     );
     assert!(
-        pins_alias_body.contains("discord_gui_spike::list_channel_pins(&api, &channel_id)"),
-        "pins_list делегирует в discord_gui_spike::list_channel_pins: {pins_alias_body}"
+        pins_alias_body.contains("chord_client::list_channel_pins(&api, &channel_id)"),
+        "pins_list делегирует в chord_client::list_channel_pins: {pins_alias_body}"
     );
 
     // 4) threads_list (app.js:1378 -> list_channel_threads с archived.unwrap_or(false)):
@@ -1093,7 +1093,7 @@ fn tauri_main_registers_and_wires_f1_ui_ipc_aliases_via_token_or() {
     );
     assert!(
         threads_alias_body.contains(
-            "discord_gui_spike::list_channel_threads(&api, &channel_id, archived.unwrap_or(false))"
+            "chord_client::list_channel_threads(&api, &channel_id, archived.unwrap_or(false))"
         ),
         "threads_list делегирует в list_channel_threads с дефолтом archived=false: {threads_alias_body}"
     );
@@ -1293,7 +1293,7 @@ fn notifications_ipc_commands_are_registered_and_delegate_to_lib() {
         );
     }
 
-    // a) + b) Делегирование update_guild_notification_settings в discord_gui_spike::update_guild_notification_settings:
+    // a) + b) Делегирование update_guild_notification_settings в chord_client::update_guild_notification_settings:
     let guild_body = command_body(head, "update_guild_notification_settings");
     assert!(
         guild_body.contains("patch: Option<GuildNotificationSettingsPatch>")
@@ -1308,12 +1308,12 @@ fn notifications_ipc_commands_are_registered_and_delegate_to_lib() {
         .replace(",)", ")");
     assert!(
         guild_compact.contains(
-            "discord_gui_spike::update_guild_notification_settings(&api,&token,&guild_id,&resolved).await"
+            "chord_client::update_guild_notification_settings(&api,&token,&guild_id,&resolved).await"
         ),
-        "update_guild_notification_settings делегирует в discord_gui_spike::update_guild_notification_settings: {guild_body}"
+        "update_guild_notification_settings делегирует в chord_client::update_guild_notification_settings: {guild_body}"
     );
 
-    // a) + b) Делегирование update_channel_notification_override в discord_gui_spike::update_channel_notification_override:
+    // a) + b) Делегирование update_channel_notification_override в chord_client::update_channel_notification_override:
     let channel_body = command_body(head, "update_channel_notification_override");
     assert!(
         channel_body.contains("channel_id: String"),
@@ -1340,9 +1340,9 @@ fn notifications_ipc_commands_are_registered_and_delegate_to_lib() {
     );
     assert!(
         channel_compact.contains(
-            "discord_gui_spike::update_channel_notification_override(&api,&token,&guild_id,&channel_id,&resolved).await"
+            "chord_client::update_channel_notification_override(&api,&token,&guild_id,&channel_id,&resolved).await"
         ),
-        "update_channel_notification_override делегирует в discord_gui_spike::update_channel_notification_override: {channel_body}"
+        "update_channel_notification_override делегирует в chord_client::update_channel_notification_override: {channel_body}"
     );
 
     // Поведенческая проверка делегирования в публичные функции lib.rs через FakeNotificationTransport:

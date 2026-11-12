@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background gradient (subtle) -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#23272A"/>
+      <stop offset="100%" stop-color="#2C2F33"/>
+    </linearGradient>
+    <!-- Bar gradient: purple-blue -->
+    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7289DA"/>
+      <stop offset="100%" stop-color="#5865F2"/>
+    </linearGradient>
+    <!-- Glow filter for bars -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Dark rounded square background -->
+  <rect width="512" height="512" rx="96" ry="96" fill="url(#bgGrad)"/>
+
+  <!-- Chord harmonic bars: tall-short-taller-short-tallest
+       5 bars, centered, bar width=52px, gap=18px
+       total width = 5*52 + 4*18 = 260+72 = 332, starts at x=(512-332)/2=90
+       Bottom baseline: y=368 (leaving 144px margin at bottom)
+       Heights: 220, 120, 260, 100, 300
+  -->
+  <!-- Bar 1 (tall): x=90, h=220, top=148 -->
+  <rect x="90" y="148" width="52" height="220" rx="14" ry="14" fill="url(#barGrad)" filter="url(#glow)" opacity="0.95"/>
+  <!-- Bar 2 (short): x=160, h=120, top=248 -->
+  <rect x="160" y="248" width="52" height="120" rx="14" ry="14" fill="url(#barGrad)" filter="url(#glow)" opacity="0.95"/>
+  <!-- Bar 3 (taller): x=230, h=260, top=108 -->
+  <rect x="230" y="108" width="52" height="260" rx="14" ry="14" fill="url(#barGrad)" filter="url(#glow)" opacity="0.95"/>
+  <!-- Bar 4 (short): x=300, h=100, top=268 -->
+  <rect x="300" y="268" width="52" height="100" rx="14" ry="14" fill="url(#barGrad)" filter="url(#glow)" opacity="0.95"/>
+  <!-- Bar 5 (tallest): x=370, h=300, top=68 -->
+  <rect x="370" y="68" width="52" height="300" rx="14" ry="14" fill="url(#barGrad)" filter="url(#glow)" opacity="0.95"/>
+
+  <!-- Thin baseline connector line -->
+  <rect x="90" y="368" width="332" height="6" rx="3" ry="3" fill="#7289DA" opacity="0.6"/>
+
+  <!-- Small "C" note dot above bar 3 to suggest "Chord" musical note -->
+  <circle cx="256" cy="82" r="10" fill="#7289DA" opacity="0.8"/>
+</svg>

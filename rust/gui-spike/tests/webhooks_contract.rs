@@ -23,7 +23,7 @@
 //!    - отклонение совпадения `news_channel_id == target_channel_id`;
 //!    - возврат `("/api/v9/channels/{news_channel_id}/followers", json!({ "webhook_channel_id": target_channel_id }))`.
 
-use discord_gui_spike::webhooks::{
+use chord_client::webhooks::{
     build_create_webhook_route_and_body, build_follow_channel_route_and_body,
     validate_webhook_name, CreateWebhookRequest, MAX_WEBHOOK_NAME_CHARS, MIN_WEBHOOK_NAME_CHARS,
     WEBHOOK_TYPE_APPLICATION, WEBHOOK_TYPE_CHANNEL_FOLLOWER, WEBHOOK_TYPE_INCOMING,

@@ -24,13 +24,13 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::profile::{
+use chord_client::profile::{
     build_user_profile_path, parse_retry_after_ms, parse_user_profile, ConnectedAccount,
     DiscordProfileApi, GuildMemberProfile, MutualGuild, ProfileBadge, ProfileError, ProfileQuery,
     ProfileTransport, ProfileUser, UserProfileResponse, DEFAULT_POPOUT_QUERY,
     USER_PROFILE_PATH_TEMPLATE,
 };
-use discord_gui_spike::rest_failure::RestFailure;
+use chord_client::rest_failure::RestFailure;
 
 const USER_ID: &str = "1168176063113875531";
 const GUILD_ID: &str = "1014537851418980372";

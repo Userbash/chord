@@ -12,7 +12,7 @@
 
 use discord_core::rest::routes::{self, HttpMethod};
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::typing::{
+use chord_client::typing::{
     send_typing, DiscordTyping, TypingApi, TypingCooldowns, TypingError, TypingTransport,
 };
 use std::future::Future;

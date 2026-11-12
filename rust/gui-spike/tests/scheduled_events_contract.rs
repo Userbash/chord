@@ -21,7 +21,7 @@
 //!    - валидирует оба Snowflake (`guild_id`, `event_id`);
 //!    - возвращает `"/api/v9/guilds/{guild_id}/scheduled-events/{event_id}/users/@me"`.
 
-use discord_gui_spike::scheduled_events::{
+use chord_client::scheduled_events::{
     build_event_rsvp_route, build_guild_events_route, validate_scheduled_event_request,
     CreateScheduledEventRequest, EVENT_ENTITY_EXTERNAL, EVENT_ENTITY_STAGE, EVENT_ENTITY_VOICE,
     EVENT_STATUS_ACTIVE, EVENT_STATUS_CANCELED, EVENT_STATUS_COMPLETED, EVENT_STATUS_SCHEDULED,

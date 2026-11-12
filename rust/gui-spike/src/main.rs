@@ -3,50 +3,50 @@
 //! Минимальное окно + IPC-команды для честного замера памяти процесса и
 //! проверяемого UI-снимка. Сети нет; BFF фазы 3 читает только локальные
 //! `fixtures/` (`DL_FIXTURES`, по умолчанию — `fixtures/` репозитория).
-//! Чистая логика вынесена в `discord_gui_spike::lib`/`discord_gui_spike::data`
+//! Чистая логика вынесена в `chord_client::lib`/`chord_client::data`
 //! и покрыта `tests/ipc_contract.rs` + `tests/data_contract.rs`, живой запуск —
 //! `tests/launch.rs`.
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![forbid(unsafe_code)]
 
-use discord_gui_spike::attachments::{
+use chord_client::attachments::{
     AttachmentError, AttachmentFileSpec, AttachmentTransport, AttachmentUploadSlot,
     DiscordAttachments, UploadBytes, UploadPutCommandArgs, UploadPutInput,
 };
-use discord_gui_spike::auth::{self, AuthBackend, AuthError, AuthState, LoginView, SmsChallenge};
-use discord_gui_spike::data::{
+use chord_client::auth::{self, AuthBackend, AuthError, AuthState, LoginView, SmsChallenge};
+use chord_client::data::{
     self, ChannelRow, DataError, MembersPage, MessagesPage, MessagesPageRequest, MessagesPosition,
     ReadStateEntry, ReadyPayload, SearchFilters, SearchPage, SettingsPayload,
 };
-use discord_gui_spike::guilds::{
+use chord_client::guilds::{
     self, CreateGuildError, CreateGuildOutcome, CreateGuildPayload, DiscordGuilds, EnterGuildError,
     LeaveGuildError,
 };
-use discord_gui_spike::invites::{
+use chord_client::invites::{
     self, AcceptedInvite, CreateInviteParams, CreatedInvite, DiscordInvites, InviteError,
     InvitePreview,
 };
-use discord_gui_spike::messages::{self, DiscordMessageSender, DiscordReadState, MessageError};
-use discord_gui_spike::net::{
+use chord_client::messages::{self, DiscordMessageSender, DiscordReadState, MessageError};
+use chord_client::net::{
     DispatchEmitter, DispatchPayload, DispatchStats, NetService, DISPATCH_EVENT,
 };
-use discord_gui_spike::notifications::{
+use chord_client::notifications::{
     ChannelNotificationOverridePatch, DiscordNotifications, GuildNotificationSettingsPatch,
     NotificationError,
 };
-use discord_gui_spike::pins_threads::{
+use chord_client::pins_threads::{
     DiscordPinsThreads, PinnedMessage, PinsThreadsError, ThreadSummary,
 };
-use discord_gui_spike::reactions::{
+use chord_client::reactions::{
     toggle_reaction as send_reaction, DiscordReactionApi, ReactionError,
 };
-use discord_gui_spike::search::{
+use chord_client::search::{
     DiscordSearch, RemoteSearch, SearchError, SearchParams, SearchResponse,
 };
-use discord_gui_spike::settings_store::{SettingsError, SettingsStore, UiSettings};
-use discord_gui_spike::typing::{self, DiscordTyping, TypingCooldowns, TypingError};
-use discord_gui_spike::{
+use chord_client::settings_store::{SettingsError, SettingsStore, UiSettings};
+use chord_client::typing::{self, DiscordTyping, TypingCooldowns, TypingError};
+use chord_client::{
     parse_process_metrics, validate_bench_payload, validate_ui_snapshot, ProcessMetrics,
 };
 pub mod gifts;
@@ -309,8 +309,8 @@ async fn send_message(
     channel_id: String,
     content: String,
     nonce: String,
-    attachments: Option<Vec<discord_gui_spike::attachments::UploadedAttachment>>,
-) -> Result<discord_gui_spike::messages::MessageReceipt, MessageError> {
+    attachments: Option<Vec<chord_client::attachments::UploadedAttachment>>,
+) -> Result<chord_client::messages::MessageReceipt, MessageError> {
     let backend = Arc::clone(backend.inner());
     let token = token_or::<MessageError, _>(
         move || backend.token(),
@@ -324,7 +324,7 @@ async fn send_message(
             .send_with_attachments(&channel_id, &content, &nonce, &att)
             .await
     } else {
-        discord_gui_spike::messages::send_message(&sender, &channel_id, &content, &nonce).await
+        chord_client::messages::send_message(&sender, &channel_id, &content, &nonce).await
     }
 }
 
@@ -639,19 +639,19 @@ async fn accept_invite(
             if let Ok(preview) = invites::resolve_invite(&api, &code).await {
                 let gid = preview.guild_id.clone();
                 let identity = crate::auth::IdentityContext::detect();
-                if let Ok(auth) = discord_core::rest::client::ApiAuth::from_token_with_scheme(
+                if let Ok(auth) = chord_core::rest::client::ApiAuth::from_token_with_scheme(
                     &token,
-                    discord_core::rest::client::AuthScheme::User,
+                    chord_core::rest::client::AuthScheme::User,
                     &identity.super_properties,
                     &identity.locale,
                     &identity.timezone,
                 ) {
-                    if let Ok(client) = discord_core::rest::client::ApiClient::new(
-                        discord_core::rest::client::ApiConfig {
-                            base: discord_core::API_V9_BASE.to_string(),
+                    if let Ok(client) = chord_core::rest::client::ApiClient::new(
+                        chord_core::rest::client::ApiConfig {
+                            base: chord_core::API_V9_BASE.to_string(),
                             auth,
-                            http: discord_core::rest::transport::HttpClientConfig::default(),
-                            retry: discord_core::rest::client::ApiRetryPolicy::default(),
+                            http: chord_core::rest::transport::HttpClientConfig::default(),
+                            retry: chord_core::rest::client::ApiRetryPolicy::default(),
                         },
                     ) {
                         let ver_path = format!("/guilds/{gid}/member-verification");
@@ -716,7 +716,7 @@ async fn create_channel_invite(
     .await?;
     let api = DiscordInvites::new(&token)?;
     let params = params.unwrap_or_default();
-    discord_gui_spike::create_channel_invite(&api, &channel_id, &params).await
+    chord_client::create_channel_invite(&api, &channel_id, &params).await
 }
 
 // ---------------------------------------------------------------------------
@@ -739,7 +739,7 @@ async fn request_upload_slots(
     )
     .await?;
     let api = DiscordAttachments::new(&token)?;
-    discord_gui_spike::request_upload_slots(&api, &channel_id, &files).await
+    chord_client::request_upload_slots(&api, &channel_id, &files).await
 }
 
 /// Загрузить байты вложения методом `PUT` на pre-signed `upload_url` из слота.
@@ -790,7 +790,7 @@ async fn execute_attachments_upload_put<S: AttachmentTransport + ?Sized>(
         args.data,
         args.bytes,
     )?;
-    discord_gui_spike::attachments_upload_put(
+    chord_client::attachments_upload_put(
         api,
         &input.upload_url,
         &input.content_type,
@@ -818,7 +818,7 @@ async fn list_channel_pins(
     )
     .await?;
     let api = DiscordPinsThreads::new(&token)?;
-    discord_gui_spike::list_channel_pins(&api, &channel_id).await
+    chord_client::list_channel_pins(&api, &channel_id).await
 }
 
 /// Закрепить сообщение в канале: `PUT /channels/{channel_id}/pins/{message_id}`.
@@ -836,7 +836,7 @@ async fn pin_channel_message(
     )
     .await?;
     let api = DiscordPinsThreads::new(&token)?;
-    discord_gui_spike::pin_channel_message(&api, &channel_id, &message_id).await
+    chord_client::pin_channel_message(&api, &channel_id, &message_id).await
 }
 
 /// Открепить сообщение в канале: `DELETE /channels/{channel_id}/pins/{message_id}`.
@@ -854,7 +854,7 @@ async fn unpin_channel_message(
     )
     .await?;
     let api = DiscordPinsThreads::new(&token)?;
-    discord_gui_spike::unpin_channel_message(&api, &channel_id, &message_id).await
+    chord_client::unpin_channel_message(&api, &channel_id, &message_id).await
 }
 
 /// Список активных или публичных архивных тредов канала (`archived = false | true`).
@@ -872,7 +872,7 @@ async fn list_channel_threads(
     )
     .await?;
     let api = DiscordPinsThreads::new(&token)?;
-    discord_gui_spike::list_channel_threads(&api, &channel_id, archived).await
+    chord_client::list_channel_threads(&api, &channel_id, archived).await
 }
 
 // ---------------------------------------------------------------------------
@@ -937,7 +937,7 @@ async fn create_invite(
     .await?;
     let api = DiscordInvites::new(&token)?;
     let resolved = CreateInviteParamsInput::resolve(params, max_age, max_uses, temporary, flags);
-    discord_gui_spike::create_channel_invite(&api, &channel_id, &resolved).await
+    chord_client::create_channel_invite(&api, &channel_id, &resolved).await
 }
 
 /// Элемент `files[]` для IPC-алиаса `attachments_upload_slots` (`composer.js:725`):
@@ -986,7 +986,7 @@ async fn attachments_upload_slots(
     .await?;
     let api = DiscordAttachments::new(&token)?;
     let specs: Vec<AttachmentFileSpec> = files.into_iter().map(Into::into).collect();
-    let attachments = discord_gui_spike::request_upload_slots(&api, &channel_id, &specs).await?;
+    let attachments = chord_client::request_upload_slots(&api, &channel_id, &specs).await?;
     Ok(UploadSlotsEnvelope { attachments })
 }
 
@@ -1004,7 +1004,7 @@ async fn pins_list(
     )
     .await?;
     let api = DiscordPinsThreads::new(&token)?;
-    discord_gui_spike::list_channel_pins(&api, &channel_id).await
+    chord_client::list_channel_pins(&api, &channel_id).await
 }
 
 /// IPC-алиас `list_channel_threads` под имя вызова `app.js:1378` (`threads_list`).
@@ -1023,7 +1023,7 @@ async fn threads_list(
     )
     .await?;
     let api = DiscordPinsThreads::new(&token)?;
-    discord_gui_spike::list_channel_threads(&api, &channel_id, archived.unwrap_or(false)).await
+    chord_client::list_channel_threads(&api, &channel_id, archived.unwrap_or(false)).await
 }
 
 // ---------------------------------------------------------------------------
@@ -1115,7 +1115,7 @@ async fn update_guild_notification_settings(
     .await?;
     let api = DiscordNotifications::new(&token)?;
     let resolved = patch.or(settings).or(payload).unwrap_or_default();
-    discord_gui_spike::update_guild_notification_settings(&api, &token, &guild_id, &resolved).await
+    chord_client::update_guild_notification_settings(&api, &token, &guild_id, &resolved).await
 }
 
 /// Обновить переопределение уведомлений канала: `PATCH /users/@me/guilds/{guild_id}/settings`
@@ -1148,7 +1148,7 @@ async fn update_channel_notification_override(
         patch,
         payload,
     )?;
-    discord_gui_spike::update_channel_notification_override(
+    chord_client::update_channel_notification_override(
         &api,
         &token,
         &guild_id,
@@ -1159,7 +1159,7 @@ async fn update_channel_notification_override(
 }
 
 // ---------------------------------------------------------------------------
-// RW-39/NET-C2: авторизация. Вся логика — в `discord_gui_spike::auth`, здесь
+// RW-39/NET-C2: авторизация. Вся логика — в `chord_client::auth`, здесь
 // только Tauri-обёртки. `Keyring` — `!Send` и может ждать D-Bus, поэтому каждая
 // команда уходит в `spawn_blocking`: UI-поток и async-runtime не блокируются.
 // ---------------------------------------------------------------------------
@@ -1403,9 +1403,9 @@ async fn settings_save(settings: UiSettings) -> Result<(), SettingsError> {
 /// запроса; токен и сеть сюда не попадают — отправку делает сетевой слой.
 #[tauri::command]
 fn invoke_bff_domain(
-    action: discord_gui_spike::bff_domains_router::BffDomainAction,
-) -> Result<discord_gui_spike::bff_domains_router::BffResolvedAction, String> {
-    discord_gui_spike::bff_domains_router::resolve_bff_domain_action(action)
+    action: chord_client::bff_domains_router::BffDomainAction,
+) -> Result<chord_client::bff_domains_router::BffResolvedAction, String> {
+    chord_client::bff_domains_router::resolve_bff_domain_action(action)
 }
 
 #[tauri::command]
@@ -1478,12 +1478,12 @@ async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Value,
             _ => String::new(),
         };
         if !stop_key.is_empty() {
-            let _ = discord_core::ws::queue_live_stream_delete(&stop_key);
+            let _ = chord_core::ws::queue_live_stream_delete(&stop_key);
         }
-        discord_core::ws::clear_last_stream_key();
+        chord_core::ws::clear_last_stream_key();
         data::reset_live_stream_state();
         let res = data::connect_or_update_live_voice(guild_id, None, false, false);
-        let _ = discord_core::ws::queue_live_voice_state_ext(
+        let _ = chord_core::ws::queue_live_voice_state_ext(
             None, None, false, false, false, false, None,
         );
         res
@@ -1546,7 +1546,7 @@ async fn voice_set_audio_device(
 #[tauri::command]
 async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
     blocking(|| {
-        let capturer = discord_media::ScreenCapturer::new();
+        let capturer = chord_media::ScreenCapturer::new();
         let mut sources = capturer.enumerate_sources();
         let live_windows = data::query_kwin_active_windows();
         for w in live_windows {
@@ -1557,10 +1557,10 @@ async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
                 .unwrap_or(wid)
                 .trim();
             if !wid.is_empty() && !sources.iter().any(|s| s.id == wid) {
-                sources.push(discord_media::DesktopSource {
+                sources.push(chord_media::DesktopSource {
                     id: wid.to_string(),
                     name: label.to_string(),
-                    source_type: discord_media::DesktopSourceType::Window,
+                    source_type: chord_media::DesktopSourceType::Window,
                     is_primary: false,
                 });
             }
@@ -1569,8 +1569,8 @@ async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
             .into_iter()
             .map(|s| {
                 let st = match s.source_type {
-                    discord_media::DesktopSourceType::Screen => "screen",
-                    discord_media::DesktopSourceType::Window => "window",
+                    chord_media::DesktopSourceType::Screen => "screen",
+                    chord_media::DesktopSourceType::Window => "window",
                 };
                 serde_json::json!({
                     "id": s.id,
@@ -1592,7 +1592,7 @@ async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
 
 #[tauri::command]
 async fn voice_stream_start(
-    mut spec: discord_gui_spike::voice_stage::ScreenShareSpec,
+    mut spec: chord_client::voice_stage::ScreenShareSpec,
 ) -> Result<serde_json::Value, String> {
     if spec
         .guild_id
@@ -1602,7 +1602,7 @@ async fn voice_stream_start(
         spec.guild_id = None;
     }
     spec.validate()?;
-    let op18 = discord_gui_spike::voice_stage::build_gateway_stream_create_op18(&spec)?;
+    let op18 = chord_client::voice_stage::build_gateway_stream_create_op18(&spec)?;
     // queue_live_stream_create вызывается внутри connect_or_update_live_voice_ext
     let stream_key = blocking(move || {
         if let Some(ref gid_str) = spec.guild_id {
@@ -1619,7 +1619,7 @@ async fn voice_stream_start(
         let (cur_gid, cur_cid) = data::current_live_voice_target();
         let (vvideo, vstream_active) = data::current_live_voice_video_stream();
         if !vstream_active || cur_gid != gid || cur_cid != cid {
-            discord_core::ws::clear_last_stream_key();
+            chord_core::ws::clear_last_stream_key();
             data::reset_live_stream_state();
         }
         if !spec.source_id.is_empty() {
@@ -1628,7 +1628,7 @@ async fn voice_stream_start(
             let _ = std::fs::write("/dev/shm/discord_capture_target.txt", clean_src.as_bytes());
             let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
             let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{clean_src}\"}}");
-            discord_core::ws::send_native_stream_cmd(&ucmd);
+            chord_core::ws::send_native_stream_cmd(&ucmd);
         }
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, vvideo, true)?;
@@ -1663,19 +1663,19 @@ async fn voice_stream_stop(
             }
         });
     let op19 = if !key.is_empty() {
-        discord_gui_spike::voice_stage::build_gateway_stream_delete_op19(&key)?
+        chord_client::voice_stage::build_gateway_stream_delete_op19(&key)?
     } else {
         serde_json::json!({ "op": 19, "d": { "stream_key": "" } })
     };
     println!("[IPC-TRACE] voice_stream_stop: stream_key={key}");
     let k = key.clone();
     let _ = blocking(move || {
-        discord_core::ws::clear_last_stream_key();
+        chord_core::ws::clear_last_stream_key();
         let (gid, cid) = data::current_live_voice_target();
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         let _ = data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, false);
         if !k.is_empty() {
-            let _ = discord_core::ws::queue_live_stream_delete(&k);
+            let _ = chord_core::ws::queue_live_stream_delete(&k);
         }
         data::reset_live_stream_state();
         Ok::<(), String>(())
@@ -1696,11 +1696,11 @@ async fn voice_stream_watch(
     let key = stream_key
         .or(streamKey)
         .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
-    let op20 = discord_gui_spike::voice_stage::build_gateway_stream_watch_op20(&key)?;
+    let op20 = chord_client::voice_stage::build_gateway_stream_watch_op20(&key)?;
     println!("[IPC-TRACE] voice_stream_watch: stream_key={key}");
     let k = key.clone();
     let _ =
-        blocking(move || discord_core::ws::queue_live_stream_watch(&k).map_err(|e| e.to_string()))
+        blocking(move || chord_core::ws::queue_live_stream_watch(&k).map_err(|e| e.to_string()))
             .await?;
     Ok(serde_json::json!({
         "ok": true,
@@ -1718,11 +1718,11 @@ async fn voice_stream_set_paused(
     let key = stream_key
         .or(streamKey)
         .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
-    let op22 = discord_gui_spike::voice_stage::build_gateway_stream_set_paused_op22(&key, paused)?;
+    let op22 = chord_client::voice_stage::build_gateway_stream_set_paused_op22(&key, paused)?;
     println!("[IPC-TRACE] voice_stream_set_paused: stream_key={key} paused={paused}");
     let k = key.clone();
     let _ = blocking(move || {
-        discord_core::ws::queue_live_stream_set_paused(&k, paused).map_err(|e| e.to_string())
+        chord_core::ws::queue_live_stream_set_paused(&k, paused).map_err(|e| e.to_string())
     })
     .await?;
     Ok(serde_json::json!({
@@ -2019,11 +2019,11 @@ ind = AppIndicator3.Indicator.new(
     AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
 )
 ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-ind.set_title("Discord")
+ind.set_title("Chord")
 
 menu = Gtk.Menu()
 
-item_open = Gtk.ImageMenuItem.new_with_label("Открыть Discord")
+item_open = Gtk.ImageMenuItem.new_with_label("Открыть Chord")
 try:
     img = Gtk.Image.new_from_icon_name("discord", Gtk.IconSize.MENU)
     item_open.set_image(img)
@@ -2129,7 +2129,7 @@ fn main() {
                     eprintln!("[window_event] CloseRequested -> disconnecting live voice & shutting down workers");
                     let (active_gid, _) = data::active_voice_guild_and_channel();
                     let _ = data::connect_or_update_live_voice(active_gid.clone(), None, false, false);
-                    let _ = discord_core::ws::queue_live_voice_state(active_gid, None, false, false);
+                    let _ = chord_core::ws::queue_live_voice_state(active_gid, None, false, false);
                     data::shutdown_live_workers();
                     std::thread::sleep(std::time::Duration::from_millis(100));
                     std::process::exit(0);
@@ -2279,7 +2279,7 @@ fn main() {
 #[cfg(test)]
 mod wiring_tests {
     use super::*;
-    use discord_gui_spike::bff_domains_router::{
+    use chord_client::bff_domains_router::{
         BffDomainAction, BffResolvedAction, UpdateGuildOnboardingRequest,
     };
 
@@ -2756,7 +2756,7 @@ mod wiring_tests {
             Box<
                 dyn std::future::Future<
                         Output = Result<
-                            discord_core::rest::transport::HttpResponse,
+                            chord_core::rest::transport::HttpResponse,
                             AttachmentError,
                         >,
                     > + Send
@@ -2775,7 +2775,7 @@ mod wiring_tests {
             Box<
                 dyn std::future::Future<
                         Output = Result<
-                            discord_core::rest::transport::HttpResponse,
+                            chord_core::rest::transport::HttpResponse,
                             AttachmentError,
                         >,
                     > + Send
@@ -2789,7 +2789,7 @@ mod wiring_tests {
             ));
             let status = self.status;
             Box::pin(async move {
-                Ok(discord_core::rest::transport::HttpResponse {
+                Ok(chord_core::rest::transport::HttpResponse {
                     status,
                     headers: Vec::new(),
                     body: Vec::new(),
@@ -2841,7 +2841,7 @@ mod wiring_tests {
         }
 
         let expected: Vec<(String, String)> =
-            discord_gui_spike::attachments::UPLOAD_PUT_COMMAND_PARAM_KEYS
+            chord_client::attachments::UPLOAD_PUT_COMMAND_PARAM_KEYS
                 .iter()
                 .map(|(s, c)| ((*s).to_string(), (*c).to_string()))
                 .collect();
@@ -2936,21 +2936,21 @@ mod wiring_tests {
         let slots_body = command_body(head, "attachments_upload_slots");
         assert!(slots_body.contains("UploadSlotsEnvelope { attachments }"));
         assert!(slots_body
-            .contains("discord_gui_spike::request_upload_slots(&api, &channel_id, &specs)"));
+            .contains("chord_client::request_upload_slots(&api, &channel_id, &specs)"));
 
         let invite_body = command_body(head, "create_invite");
         assert!(invite_body.contains(
             "CreateInviteParamsInput::resolve(params, max_age, max_uses, temporary, flags)"
         ));
         assert!(invite_body
-            .contains("discord_gui_spike::create_channel_invite(&api, &channel_id, &resolved)"));
+            .contains("chord_client::create_channel_invite(&api, &channel_id, &resolved)"));
 
         let pins_body = command_body(head, "pins_list");
-        assert!(pins_body.contains("discord_gui_spike::list_channel_pins(&api, &channel_id)"));
+        assert!(pins_body.contains("chord_client::list_channel_pins(&api, &channel_id)"));
 
         let threads_body = command_body(head, "threads_list");
         assert!(threads_body.contains(
-            "discord_gui_spike::list_channel_threads(&api, &channel_id, archived.unwrap_or(false))"
+            "chord_client::list_channel_threads(&api, &channel_id, archived.unwrap_or(false))"
         ));
 
         // Поведенческая проверка десериализации/резолва плоского и вложенного payload (camelCase + snake_case):

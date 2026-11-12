@@ -25,7 +25,7 @@
 //! 6. `build_block_user_body() -> serde_json::Value`:
 //!    - возвращает `json!({"type": RELATIONSHIP_BLOCKED})` (`{"type": 2}`).
 
-use discord_gui_spike::relationships::{
+use chord_client::relationships::{
     build_block_user_body, build_relationship_user_route, build_send_friend_request_body,
     validate_friend_request_username, SendFriendRequest, MAX_USERNAME_CHARS, RELATIONSHIP_BLOCKED,
     RELATIONSHIP_FRIEND, RELATIONSHIP_PENDING_INCOMING, RELATIONSHIP_PENDING_OUTGOING,

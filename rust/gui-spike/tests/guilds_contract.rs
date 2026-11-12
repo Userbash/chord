@@ -14,7 +14,7 @@
 //! target и тело. Токен в тестах фиктивный и не должен попадать в `Debug`.
 
 use discord_core::rest::transport::HttpResponse;
-use discord_gui_spike::guilds::{
+use chord_client::guilds::{
     create_guild, enter_guild, join_guild, leave_guild, CreateGuildError, CreateGuildPayload,
     DiscordGuilds, EnterGuildError, GuildLeaving, GuildMembership, GuildTransport, LeaveGuildError,
 };
@@ -910,7 +910,7 @@ struct FakeCreation {
     result: Option<CreateGuildError>,
 }
 
-impl discord_gui_spike::guilds::GuildCreation for FakeCreation {
+impl chord_client::guilds::GuildCreation for FakeCreation {
     fn create_guild<'a>(
         &'a self,
         payload: CreateGuildPayload,
@@ -918,7 +918,7 @@ impl discord_gui_spike::guilds::GuildCreation for FakeCreation {
         Box<
             dyn Future<
                     Output = Result<
-                        discord_gui_spike::guilds::CreateGuildOutcome,
+                        chord_client::guilds::CreateGuildOutcome,
                         CreateGuildError,
                     >,
                 > + Send
@@ -928,7 +928,7 @@ impl discord_gui_spike::guilds::GuildCreation for FakeCreation {
         self.seen.lock().unwrap().push(payload.clone());
         let answer = match &self.result {
             Some(err) => Err(err.clone()),
-            None => Ok(discord_gui_spike::guilds::CreateGuildOutcome {
+            None => Ok(chord_client::guilds::CreateGuildOutcome {
                 id: "123".to_string(),
                 name: payload.name,
                 icon: payload.icon,

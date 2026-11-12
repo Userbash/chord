@@ -22,15 +22,15 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex, OnceLock};
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::guilds::{
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::guilds::{
     parse_guild_create_response, validate_guild_name, validate_icon_data_uri, CreatedGuild,
     GuildCreateChannelSpec, GuildCreateRequest as CoreGuildCreateRequest, GuildCreateRestError,
     DISCORD_LOCALE_RU, GUILDS_PATH,
 };
-use discord_core::rest::routes::{self, HttpMethod};
-use discord_core::rest::transport::{HttpClientConfig, HttpRequest, HttpResponse};
-use discord_core::API_V9_BASE;
+use chord_core::rest::routes::{self, HttpMethod};
+use chord_core::rest::transport::{HttpClientConfig, HttpRequest, HttpResponse};
+use chord_core::API_V9_BASE;
 use serde::{Deserialize, Serialize};
 
 use crate::rest_failure::RestFailure;

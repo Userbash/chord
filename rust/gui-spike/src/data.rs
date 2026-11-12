@@ -416,7 +416,7 @@ pub fn build_invite_context_properties_b64(target_or_code: &str) -> String {
 /// Принимает приглашение по коду через боевой REST с полной клиентской идентичностью Discord 1.0.162.
 pub fn accept_invite_via_live_rest(
     code: &str,
-) -> Result<discord_core::rest::transport::HttpResponse, String> {
+) -> Result<chord_core::rest::transport::HttpResponse, String> {
     let clean_code = extract_invite_code_from_target(code);
     if clean_code.is_empty() {
         return Err("пустой код приглашения".to_string());
@@ -440,29 +440,29 @@ pub fn accept_invite_via_live_rest(
     let clean_code_owned = clean_code.to_string();
     let handle = std::thread::spawn(move || {
         std::panic::catch_unwind(std::panic::AssertUnwindSafe(
-            move || -> Result<discord_core::rest::transport::HttpResponse, String> {
+            move || -> Result<chord_core::rest::transport::HttpResponse, String> {
                 let identity = crate::auth::IdentityContext::detect();
-                let auth = discord_core::rest::client::ApiAuth::from_token_with_scheme(
+                let auth = chord_core::rest::client::ApiAuth::from_token_with_scheme(
                     &token,
-                    discord_core::rest::client::AuthScheme::User,
+                    chord_core::rest::client::AuthScheme::User,
                     &identity.super_properties,
                     &identity.locale,
                     &identity.timezone,
                 )
                 .map_err(|e| e.to_string())?;
-                let client = discord_core::rest::client::ApiClient::new(
-                    discord_core::rest::client::ApiConfig {
-                        base: discord_core::API_V9_BASE.to_string(),
+                let client = chord_core::rest::client::ApiClient::new(
+                    chord_core::rest::client::ApiConfig {
+                        base: chord_core::API_V9_BASE.to_string(),
                         auth,
-                        http: discord_core::rest::transport::HttpClientConfig {
+                        http: chord_core::rest::transport::HttpClientConfig {
                             connect_timeout: std::time::Duration::from_millis(2500),
                             read_timeout: std::time::Duration::from_millis(3500),
                             write_timeout: std::time::Duration::from_millis(2500),
-                            ..discord_core::rest::transport::HttpClientConfig::default()
+                            ..chord_core::rest::transport::HttpClientConfig::default()
                         },
-                        retry: discord_core::rest::client::ApiRetryPolicy {
+                        retry: chord_core::rest::client::ApiRetryPolicy {
                             max_attempts: 1,
-                            ..discord_core::rest::client::ApiRetryPolicy::default()
+                            ..chord_core::rest::client::ApiRetryPolicy::default()
                         },
                     },
                 )
@@ -611,9 +611,9 @@ pub fn ensure_live_guild_lurker_session(guild_id: &str) {
     let handle = std::thread::spawn(move || {
         let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || {
             let identity = crate::auth::IdentityContext::detect();
-            let Ok(auth) = discord_core::rest::client::ApiAuth::from_token_with_scheme(
+            let Ok(auth) = chord_core::rest::client::ApiAuth::from_token_with_scheme(
                 &token,
-                discord_core::rest::client::AuthScheme::User,
+                chord_core::rest::client::AuthScheme::User,
                 &identity.super_properties,
                 &identity.locale,
                 &identity.timezone,
@@ -621,18 +621,18 @@ pub fn ensure_live_guild_lurker_session(guild_id: &str) {
                 return;
             };
             let Ok(client) =
-                discord_core::rest::client::ApiClient::new(discord_core::rest::client::ApiConfig {
-                    base: discord_core::API_V9_BASE.to_string(),
+                chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
+                    base: chord_core::API_V9_BASE.to_string(),
                     auth,
-                    http: discord_core::rest::transport::HttpClientConfig {
+                    http: chord_core::rest::transport::HttpClientConfig {
                         connect_timeout: std::time::Duration::from_millis(2000),
                         read_timeout: std::time::Duration::from_millis(2500),
                         write_timeout: std::time::Duration::from_millis(2000),
-                        ..discord_core::rest::transport::HttpClientConfig::default()
+                        ..chord_core::rest::transport::HttpClientConfig::default()
                     },
-                    retry: discord_core::rest::client::ApiRetryPolicy {
+                    retry: chord_core::rest::client::ApiRetryPolicy {
                         max_attempts: 1,
-                        ..discord_core::rest::client::ApiRetryPolicy::default()
+                        ..chord_core::rest::client::ApiRetryPolicy::default()
                     },
                 })
             else {
@@ -797,9 +797,9 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) -> Option<Value> {
     let handle = std::thread::spawn(move || -> Option<Value> {
         std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || -> Option<Value> {
             let identity = crate::auth::IdentityContext::detect();
-            let Ok(auth) = discord_core::rest::client::ApiAuth::from_token_with_scheme(
+            let Ok(auth) = chord_core::rest::client::ApiAuth::from_token_with_scheme(
                 &token,
-                discord_core::rest::client::AuthScheme::User,
+                chord_core::rest::client::AuthScheme::User,
                 &identity.super_properties,
                 &identity.locale,
                 &identity.timezone,
@@ -807,18 +807,18 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) -> Option<Value> {
                 return None;
             };
             let Ok(client) =
-                discord_core::rest::client::ApiClient::new(discord_core::rest::client::ApiConfig {
-                    base: discord_core::API_V9_BASE.to_string(),
+                chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
+                    base: chord_core::API_V9_BASE.to_string(),
                     auth,
-                    http: discord_core::rest::transport::HttpClientConfig {
+                    http: chord_core::rest::transport::HttpClientConfig {
                         connect_timeout: std::time::Duration::from_millis(800),
                         read_timeout: std::time::Duration::from_millis(1000),
                         write_timeout: std::time::Duration::from_millis(800),
-                        ..discord_core::rest::transport::HttpClientConfig::default()
+                        ..chord_core::rest::transport::HttpClientConfig::default()
                     },
-                    retry: discord_core::rest::client::ApiRetryPolicy {
+                    retry: chord_core::rest::client::ApiRetryPolicy {
                         max_attempts: 1,
-                        ..discord_core::rest::client::ApiRetryPolicy::default()
+                        ..chord_core::rest::client::ApiRetryPolicy::default()
                     },
                 })
             else {
@@ -878,7 +878,7 @@ pub fn hydrate_live_guild_blocking(guild_id: &str) -> Option<Value> {
                                     b"{}",
                                 ))
                             } else {
-                                Err(discord_core::rest::client::ApiError::Client { status: 403 })
+                                Err(chord_core::rest::client::ApiError::Client { status: 403 })
                             }
                         });
                     if let Ok(jr) = join_res {
@@ -1608,7 +1608,7 @@ fn live_components_sqlite_slot() -> &'static Mutex<Option<PathBuf>> {
     SLOT.get_or_init(|| Mutex::new(None))
 }
 
-/// Задаёт путь к SQLite-хранилищу (`discord_store::Store`) для сохранения компонентов сообщений.
+/// Задаёт путь к SQLite-хранилищу (`chord_store::Store`) для сохранения компонентов сообщений.
 pub fn set_live_components_sqlite_path(path: Option<PathBuf>) {
     let mut guard = live_components_sqlite_slot()
         .lock()
@@ -1636,12 +1636,12 @@ fn has_custom_live_components_sqlite_path() -> bool {
     guard.is_some()
 }
 
-/// Сохраняет сообщение и его интерактивные `components` (`ActionRow`/`Buttons`) в SQLite (`discord_store::Store`).
+/// Сохраняет сообщение и его интерактивные `components` (`ActionRow`/`Buttons`) в SQLite (`chord_store::Store`).
 pub fn save_message_components_to_sqlite(
-    store: &mut discord_store::Store,
+    store: &mut chord_store::Store,
     row: &MessageRow,
 ) -> Result<(), DataError> {
-    let db_path = Path::new("sqlite://discord_store");
+    let db_path = Path::new("sqlite://chord_store");
     store
         .migrate()
         .map_err(|e| DataError::io(db_path, e.to_string()))?;
@@ -1651,7 +1651,7 @@ pub fn save_message_components_to_sqlite(
         .is_none()
     {
         store
-            .put_channel(&discord_store::ChannelRow {
+            .put_channel(&chord_store::ChannelRow {
                 id: row.channel_id.clone(),
                 guild_id: row.guild_id.clone(),
                 name: Some(row.channel_id.clone()),
@@ -1661,7 +1661,7 @@ pub fn save_message_components_to_sqlite(
             .map_err(|e| DataError::io(db_path, e.to_string()))?;
     }
     store
-        .put_message(&discord_store::MessageRow {
+        .put_message(&chord_store::MessageRow {
             id: row.id.clone(),
             channel_id: row.channel_id.clone(),
             author_id: row.author.id.clone(),
@@ -1680,12 +1680,12 @@ pub fn save_message_components_to_sqlite(
     Ok(())
 }
 
-/// Загружает сохранённые `components` (`ActionRow`/`Buttons`) сообщения из SQLite (`discord_store::Store`).
+/// Загружает сохранённые `components` (`ActionRow`/`Buttons`) сообщения из SQLite (`chord_store::Store`).
 pub fn load_message_components_from_sqlite(
-    store: &discord_store::Store,
+    store: &chord_store::Store,
     message_id: &str,
 ) -> Result<Vec<MessageActionRow>, DataError> {
-    let db_path = Path::new("sqlite://discord_store");
+    let db_path = Path::new("sqlite://chord_store");
     let mid = message_id.trim();
     if mid.is_empty() {
         return Ok(Vec::new());
@@ -1713,7 +1713,7 @@ fn persist_message_value_components_to_live_sqlite(msg_val: &Value) {
         return;
     };
     let sqlite_path = live_components_sqlite_path();
-    let Ok(mut store) = discord_store::Store::open(&sqlite_path) else {
+    let Ok(mut store) = chord_store::Store::open(&sqlite_path) else {
         return;
     };
     if let Ok(row) = parse_message(msg_val, Path::new("live://sqlite")) {
@@ -2134,29 +2134,29 @@ pub fn fetch_live_ready_via_rest(token: &str) -> Option<Value> {
     let handle = std::thread::spawn(move || {
         std::panic::catch_unwind(move || {
             let identity = crate::auth::IdentityContext::detect();
-            let auth = discord_core::rest::client::ApiAuth::from_token_with_scheme(
+            let auth = chord_core::rest::client::ApiAuth::from_token_with_scheme(
                 &token,
-                discord_core::rest::client::AuthScheme::User,
+                chord_core::rest::client::AuthScheme::User,
                 &identity.super_properties,
                 &identity.locale,
                 &identity.timezone,
             )
             .ok()?;
-            let config = discord_core::rest::client::ApiConfig {
-                base: discord_core::API_V9_BASE.to_string(),
+            let config = chord_core::rest::client::ApiConfig {
+                base: chord_core::API_V9_BASE.to_string(),
                 auth,
-                http: discord_core::rest::transport::HttpClientConfig {
+                http: chord_core::rest::transport::HttpClientConfig {
                     connect_timeout: std::time::Duration::from_millis(3000),
                     read_timeout: std::time::Duration::from_millis(5000),
                     write_timeout: std::time::Duration::from_millis(3000),
-                    ..discord_core::rest::transport::HttpClientConfig::default()
+                    ..chord_core::rest::transport::HttpClientConfig::default()
                 },
-                retry: discord_core::rest::client::ApiRetryPolicy {
+                retry: chord_core::rest::client::ApiRetryPolicy {
                     max_attempts: 2,
-                    ..discord_core::rest::client::ApiRetryPolicy::default()
+                    ..chord_core::rest::client::ApiRetryPolicy::default()
                 },
             };
-            let client = discord_core::rest::client::ApiClient::new(config).ok()?;
+            let client = chord_core::rest::client::ApiClient::new(config).ok()?;
             let runtime = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
                 .build()
@@ -4222,7 +4222,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                 }
                 preview_gids_to_sync = guard.local_preview_guilds.keys().cloned().collect();
                 if LOCAL_VOICE_ACTIVE.load(Ordering::SeqCst)
-                    && !discord_core::ws::is_live_rtc_connected()
+                    && !chord_core::ws::is_live_rtc_connected()
                 {
                     if let Some(ref cid) = guard.voice_channel_id {
                         let gid = guard.voice_guild_id.clone();
@@ -4233,7 +4233,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         let s_stream = LOCAL_SELF_STREAM.load(Ordering::SeqCst);
                         let self_uid = resolve_live_self_uid(&guard);
                         guard.voice_launched_token = None;
-                        let _ = discord_core::ws::queue_live_voice_state_ext(
+                        let _ = chord_core::ws::queue_live_voice_state_ext(
                             gid,
                             cid_clone,
                             s_mute,
@@ -4281,7 +4281,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         should_stop = true;
                         if let Some(ref og) = old_gid {
                             if Some(og.as_str()) != gid.as_deref() {
-                                let _ = discord_core::ws::queue_live_voice_state_ext(
+                                let _ = chord_core::ws::queue_live_voice_state_ext(
                                     Some(og.clone()),
                                     None,
                                     false,
@@ -4303,7 +4303,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         if let Some(ref s) = sid {
                             guard.voice_session_id = Some(s.clone());
                         }
-                        discord_core::ws::note_live_rtc_target(
+                        chord_core::ws::note_live_rtc_target(
                             gid.clone(),
                             cid.clone(),
                             sid.clone(),
@@ -4324,7 +4324,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                             if guard.voice_got_state_update
                                 && guard.voice_got_server_update
                                 && (guard.voice_got_rtc_op4
-                                    || discord_core::ws::is_live_rtc_connected())
+                                    || chord_core::ws::is_live_rtc_connected())
                             {
                                 guard.voice_phase = "connected".to_string();
                             } else if guard.voice_got_state_update && guard.voice_got_server_update
@@ -4375,7 +4375,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         if guard.voice_got_state_update
                             && guard.voice_got_server_update
                             && (guard.voice_got_rtc_op4
-                                || discord_core::ws::is_live_rtc_connected())
+                                || chord_core::ws::is_live_rtc_connected())
                         {
                             guard.voice_phase = "connected".to_string();
                         } else if guard.voice_got_state_update && guard.voice_got_server_update {
@@ -4391,7 +4391,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         .or_else(|| guard.voice_session_id.clone());
                     if let (Some(ep_val), Some(tok_val), Some(sid_val)) = (ep, tok, sid) {
                         if guard.voice_launched_token.as_deref() != Some(tok_val.as_str())
-                            || !discord_core::ws::is_live_rtc_connected()
+                            || !chord_core::ws::is_live_rtc_connected()
                         {
                             let server_id = event_gid
                                 .or_else(|| guard.voice_guild_id.clone())
@@ -4572,12 +4572,12 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
         }
     }
     if should_stop {
-        discord_core::ws::stop_live_rtc_session();
+        chord_core::ws::stop_live_rtc_session();
     } else if let Some((ep, server_id, user_id, session_id, token, cid)) = launch_params {
-        discord_core::ws::start_live_rtc_session(ep, server_id, user_id, session_id, token, cid);
+        chord_core::ws::start_live_rtc_session(ep, server_id, user_id, session_id, token, cid);
     }
     if should_stop_stream {
-        discord_core::ws::stop_live_stream_rtc_session();
+        chord_core::ws::stop_live_stream_rtc_session();
     } else if let Some((ep, server_id, user_id, session_id, token, cid, streamer_uid)) =
         stream_launch_params
     {
@@ -4587,7 +4587,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                 guard.voice_channel_id.clone()
             })
             .unwrap_or_else(|| server_id.clone());
-        discord_core::ws::start_live_stream_rtc_session(
+        chord_core::ws::start_live_stream_rtc_session(
             ep,
             server_id,
             rtc_ch,
@@ -4633,7 +4633,7 @@ pub fn check_voice_handshake_timeout_with_elapsed(elapsed: std::time::Duration) 
         let is_connected = guard.voice_phase == "connected"
             || (guard.voice_got_state_update
                 && guard.voice_got_server_update
-                && (guard.voice_got_rtc_op4 || discord_core::ws::is_live_rtc_connected()));
+                && (guard.voice_got_rtc_op4 || chord_core::ws::is_live_rtc_connected()));
         if is_connected || guard.voice_phase == "disconnected" {
             return false;
         }
@@ -4669,8 +4669,8 @@ pub fn check_voice_handshake_timeout_with_elapsed(elapsed: std::time::Duration) 
     };
     if should_cleanup {
         stop_local_mic_monitor();
-        discord_core::ws::stop_live_rtc_session();
-        let _ = discord_core::ws::queue_live_voice_state_ext(
+        chord_core::ws::stop_live_rtc_session();
+        let _ = chord_core::ws::queue_live_voice_state_ext(
             prev_gid,
             None,
             false,
@@ -4902,7 +4902,7 @@ pub fn connect_or_update_live_voice_ext(
     let was_active = LOCAL_VOICE_ACTIVE.swap(clean_cid.is_some(), Ordering::SeqCst);
     let mute_or_deaf_changed = m_prev != self_mute || d_prev != self_deaf;
     let stream_or_video_changed = s_prev != self_stream || v_prev != self_video;
-    discord_core::ws::set_live_voice_mute_deaf_state(self_mute, self_deaf);
+    chord_core::ws::set_live_voice_mute_deaf_state(self_mute, self_deaf);
     let (self_uid, prev_gids, channel_changed, coalesce_seq) = {
         let mut guard = live_session()
             .lock()
@@ -4965,7 +4965,7 @@ pub fn connect_or_update_live_voice_ext(
         guard.mute_deaf_coalesce_seq = guard.mute_deaf_coalesce_seq.wrapping_add(1);
         let coalesce_seq = guard.mute_deaf_coalesce_seq;
         let rtc_disconnected = {
-            let st = discord_core::ws::live_rtc_snapshot().state;
+            let st = chord_core::ws::live_rtc_snapshot().state;
             st == "disconnected" || st.starts_with("error")
         };
         if clean_cid.is_none() {
@@ -5084,7 +5084,7 @@ pub fn connect_or_update_live_voice_ext(
     };
     if clean_cid.is_none() {
         stop_local_mic_monitor();
-        discord_core::ws::stop_live_rtc_session();
+        chord_core::ws::stop_live_rtc_session();
         let mut target_gids = prev_gids;
         if let Some(ref g) = clean_gid {
             if !target_gids.contains(g) {
@@ -5106,7 +5106,7 @@ pub fn connect_or_update_live_voice_ext(
                     "self_stream": false,
                 }));
             }
-            discord_core::ws::queue_live_voice_state_ext(
+            chord_core::ws::queue_live_voice_state_ext(
                 None,
                 None,
                 false,
@@ -5132,7 +5132,7 @@ pub fn connect_or_update_live_voice_ext(
                         "self_stream": false,
                     }));
                 }
-                discord_core::ws::queue_live_voice_state_ext(
+                chord_core::ws::queue_live_voice_state_ext(
                     Some(g),
                     None,
                     false,
@@ -5148,7 +5148,7 @@ pub fn connect_or_update_live_voice_ext(
     } else {
         for old_gid in prev_gids {
             if clean_gid.as_deref() != Some(old_gid.as_str()) {
-                let _ = discord_core::ws::queue_live_voice_state_ext(
+                let _ = chord_core::ws::queue_live_voice_state_ext(
                     Some(old_gid),
                     None,
                     false,
@@ -5159,14 +5159,14 @@ pub fn connect_or_update_live_voice_ext(
                 );
             }
         }
-        discord_core::ws::note_live_rtc_target(clean_gid.clone(), clean_cid.clone(), None);
+        chord_core::ws::note_live_rtc_target(clean_gid.clone(), clean_cid.clone(), None);
         let in_vol = LOCAL_INPUT_VOLUME_PCT.load(Ordering::Relaxed).min(100);
         let out_vol = LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200);
-        discord_core::ws::send_native_voice_cmd(&format!(
+        chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"selfMute\":{self_mute},\"selfDeafen\":{self_deaf},\"inputVolume\":{in_vol},\"outputVolume\":{out_vol}}}"
         ));
         if stream_or_video_changed || channel_changed {
-            discord_core::ws::send_native_stream_cmd(&format!(
+            chord_core::ws::send_native_stream_cmd(&format!(
                 "{{\"cmd\":\"set_stream\",\"broadcasting\":{self_stream}}}"
             ));
         }
@@ -5207,7 +5207,7 @@ pub fn connect_or_update_live_voice_ext(
                 }
             };
             if let Some((m, d, v, s)) = should_send {
-                let _ = discord_core::ws::queue_live_voice_state_ext(
+                let _ = chord_core::ws::queue_live_voice_state_ext(
                     gid_for_timer,
                     cid_for_timer,
                     m,
@@ -5235,7 +5235,7 @@ pub fn connect_or_update_live_voice_ext(
             "self_stream": self_stream,
         }));
     }
-    discord_core::ws::queue_live_voice_state_ext(
+    chord_core::ws::queue_live_voice_state_ext(
         clean_gid.clone(),
         clean_cid.clone(),
         self_mute,
@@ -5308,8 +5308,8 @@ pub fn shutdown_live_workers() {
     MEDIA_PLAY_EPOCH.fetch_add(1, Ordering::SeqCst);
     VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
     stop_local_mic_monitor();
-    let _ = discord_core::ws::queue_live_voice_state(None, None, false, false);
-    discord_core::ws::stop_live_rtc_session();
+    let _ = chord_core::ws::queue_live_voice_state(None, None, false, false);
+    chord_core::ws::stop_live_rtc_session();
 }
 
 fn start_linux_media_audio_playback(raw_spec: &str, vol_pct: Option<u32>, is_muted: Option<bool>) {
@@ -5794,29 +5794,29 @@ fn stop_and_send_voice_message(channel_id: &str) -> Value {
     let file_len = file_bytes.len();
     let res = std::thread::spawn(move || -> Option<Value> {
         let identity = crate::auth::IdentityContext::detect();
-        let auth = discord_core::rest::client::ApiAuth::from_token_with_scheme(
+        let auth = chord_core::rest::client::ApiAuth::from_token_with_scheme(
             &token,
-            discord_core::rest::client::AuthScheme::User,
+            chord_core::rest::client::AuthScheme::User,
             &identity.super_properties,
             &identity.locale,
             &identity.timezone,
         )
         .ok()?;
-        let config = discord_core::rest::client::ApiConfig {
-            base: discord_core::API_V9_BASE.to_string(),
+        let config = chord_core::rest::client::ApiConfig {
+            base: chord_core::API_V9_BASE.to_string(),
             auth,
-            http: discord_core::rest::transport::HttpClientConfig {
+            http: chord_core::rest::transport::HttpClientConfig {
                 connect_timeout: std::time::Duration::from_millis(4000),
                 read_timeout: std::time::Duration::from_millis(8000),
                 write_timeout: std::time::Duration::from_millis(8000),
-                ..discord_core::rest::transport::HttpClientConfig::default()
+                ..chord_core::rest::transport::HttpClientConfig::default()
             },
-            retry: discord_core::rest::client::ApiRetryPolicy {
+            retry: chord_core::rest::client::ApiRetryPolicy {
                 max_attempts: 1,
-                ..discord_core::rest::client::ApiRetryPolicy::default()
+                ..chord_core::rest::client::ApiRetryPolicy::default()
             },
         };
-        let client = discord_core::rest::client::ApiClient::new(config).ok()?;
+        let client = chord_core::rest::client::ApiClient::new(config).ok()?;
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -6297,7 +6297,7 @@ fn ensure_local_mic_monitor() {
                                 let _ = stdin.flush();
                             }
                             tick = tick.wrapping_add(1);
-                            let rx_frames = discord_core::ws::drain_live_rtc_rx_opus();
+                            let rx_frames = chord_core::ws::drain_live_rtc_rx_opus();
                             if !rx_frames.is_empty() && !LOCAL_SELF_DEAF.load(Ordering::Relaxed) {
                                 for (ssrc, opus) in rx_frames {
                                     let Ok(plen) = u16::try_from(opus.len()) else {
@@ -6356,7 +6356,7 @@ fn ensure_local_mic_monitor() {
                         && !LOCAL_SELF_MUTE.load(Ordering::Relaxed)
                         && !LOCAL_SELF_DEAF.load(Ordering::Relaxed)
                     {
-                        discord_core::ws::push_live_rtc_tx_opus(opus_buf[..opus_len].to_vec());
+                        chord_core::ws::push_live_rtc_tx_opus(opus_buf[..opus_len].to_vec());
                     }
                 }
                 rx_stop.store(true, Ordering::SeqCst);
@@ -6421,7 +6421,7 @@ pub fn live_voice_rtc_status_json() -> Value {
             }
         }
     }
-    let snap = discord_core::ws::live_rtc_snapshot();
+    let snap = chord_core::ws::live_rtc_snapshot();
     let local_speaking = LOCAL_MIC_SPEAKING.load(Ordering::Relaxed);
     let local_db = LOCAL_MIC_LEVEL_DB.load(Ordering::Relaxed);
     let mut speaking_users = snap.speaking_users;
@@ -6495,7 +6495,7 @@ pub fn live_voice_rtc_status_json() -> Value {
         }
     }
     speaking_users.retain(|u| !u.starts_with("ssrc:"));
-    let (stream_muted, stream_vol) = discord_core::ws::get_live_stream_audio_state();
+    let (stream_muted, stream_vol) = chord_core::ws::get_live_stream_audio_state();
     let is_connected = effective_state == "connected" || is_afk;
     let ui_phase = if voice_timed_out && !is_afk {
         "timeout"
@@ -6696,9 +6696,9 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
     };
 
     let identity = crate::auth::IdentityContext::detect();
-    let auth = match discord_core::rest::client::ApiAuth::from_token_with_scheme(
+    let auth = match chord_core::rest::client::ApiAuth::from_token_with_scheme(
         &token,
-        discord_core::rest::client::AuthScheme::User,
+        chord_core::rest::client::AuthScheme::User,
         &identity.super_properties,
         &identity.locale,
         &identity.timezone,
@@ -6708,18 +6708,18 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
     };
 
     let client =
-        match discord_core::rest::client::ApiClient::new(discord_core::rest::client::ApiConfig {
-            base: discord_core::API_V9_BASE.to_string(),
+        match chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
+            base: chord_core::API_V9_BASE.to_string(),
             auth,
-            http: discord_core::rest::transport::HttpClientConfig {
+            http: chord_core::rest::transport::HttpClientConfig {
                 connect_timeout: std::time::Duration::from_millis(1500),
                 read_timeout: std::time::Duration::from_millis(2500),
                 write_timeout: std::time::Duration::from_millis(1500),
-                ..discord_core::rest::transport::HttpClientConfig::default()
+                ..chord_core::rest::transport::HttpClientConfig::default()
             },
-            retry: discord_core::rest::client::ApiRetryPolicy {
+            retry: chord_core::rest::client::ApiRetryPolicy {
                 max_attempts: 1,
-                ..discord_core::rest::client::ApiRetryPolicy::default()
+                ..chord_core::rest::client::ApiRetryPolicy::default()
             },
         }) {
             Ok(c) => c,
@@ -6765,7 +6765,7 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
 /// завершает активную RTC-сессию и фоновые процессы декодирования/трансляции кадров.
 pub fn reset_live_stream_state() {
     LOCAL_SELF_STREAM.store(false, std::sync::atomic::Ordering::SeqCst);
-    discord_core::ws::clear_last_stream_key();
+    chord_core::ws::clear_last_stream_key();
     if let Ok(mut guard) = live_session().lock() {
         guard.stream_key = None;
         guard.stream_rtc_server_id = None;
@@ -6775,7 +6775,7 @@ pub fn reset_live_stream_state() {
         guard.stream_launched_token = None;
         guard.stream_launched_server_id = None;
     }
-    discord_core::ws::stop_live_stream_rtc_session();
+    chord_core::ws::stop_live_stream_rtc_session();
     let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_frame.jpg");
     let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_meta.bin");
     let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
@@ -6930,7 +6930,7 @@ fn fallback_capture_windows() -> Vec<Value> {
     ]
 }
 
-/// Управляет аудиопараметрами ТОЛЬКО внутри приложения (`discord_voice.node` + `OPUS_AUDIO_BRIDGE_PY`),
+/// Управляет аудиопараметрами ТОЛЬКО внутри приложения (`chord_voice.node` + `OPUS_AUDIO_BRIDGE_PY`),
 /// никогда не изменяя системную громкость или системный mute ОС (`pactl`).
 pub fn set_system_audio_device(
     kind: &str,
@@ -6980,7 +6980,7 @@ pub fn set_system_audio_device(
         let ucmd = format!(
             "{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{target_handle}\",\"label\":\"{target_label}\"}}"
         );
-        discord_core::ws::send_native_stream_cmd(&ucmd);
+        chord_core::ws::send_native_stream_cmd(&ucmd);
         return json!({
             "ok": true,
             "targetKind": target_kind,
@@ -7301,7 +7301,7 @@ pub fn set_system_audio_device(
     if kind == "krisp" {
         let enabled = muted.unwrap_or(true);
         LOCAL_KRISP_ENABLED.store(enabled, Ordering::SeqCst);
-        discord_core::ws::send_native_voice_cmd(&format!(
+        chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"krisp\":{enabled}}}"
         ));
         return json!({ "ok": true, "krisp": enabled });
@@ -7309,7 +7309,7 @@ pub fn set_system_audio_device(
     if kind == "agc" {
         let enabled = muted.unwrap_or(true);
         LOCAL_AUTO_GAIN_ENABLED.store(enabled, Ordering::SeqCst);
-        discord_core::ws::send_native_voice_cmd(&format!(
+        chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"automaticGainControl\":{enabled}}}"
         ));
         return json!({ "ok": true, "automaticGainControl": enabled });
@@ -7317,7 +7317,7 @@ pub fn set_system_audio_device(
     if kind == "auto_sensitivity" {
         let enabled = muted.unwrap_or(true);
         LOCAL_AUTO_SENSITIVITY_ENABLED.store(enabled, Ordering::SeqCst);
-        discord_core::ws::send_native_voice_cmd(&format!(
+        chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"autoSensitivity\":{enabled}}}"
         ));
         return json!({ "ok": true, "autoSensitivity": enabled });
@@ -7333,7 +7333,7 @@ pub fn set_system_audio_device(
             LOCAL_AUTO_SENSITIVITY_ENABLED.store(auto_on, Ordering::SeqCst);
         }
         let auto_now = LOCAL_AUTO_SENSITIVITY_ENABLED.load(Ordering::Relaxed);
-        discord_core::ws::send_native_voice_cmd(&format!(
+        chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"vadThreshold\":{db},\"autoSensitivity\":{auto_now}}}"
         ));
         return json!({ "ok": true, "vadThresholdDb": db, "autoSensitivity": auto_now });
@@ -7341,14 +7341,14 @@ pub fn set_system_audio_device(
     if kind == "mic_test_start" {
         LOCAL_MIC_LOOPBACK_ACTIVE.store(true, Ordering::SeqCst);
         AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
-        discord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":true}"#);
+        chord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":true}"#);
         ensure_local_mic_monitor();
         return live_voice_rtc_status_json();
     }
     if kind == "mic_test_stop" {
         LOCAL_MIC_LOOPBACK_ACTIVE.store(false, Ordering::SeqCst);
         AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
-        discord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":false}"#);
+        chord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":false}"#);
         return live_voice_rtc_status_json();
     }
     if kind == "media_play" {
@@ -7376,7 +7376,7 @@ pub fn set_system_audio_device(
         return json!({ "ok": true });
     }
     if kind == "stream_audio_volume" {
-        let (prev_muted, prev_vol) = discord_core::ws::get_live_stream_audio_state();
+        let (prev_muted, prev_vol) = chord_core::ws::get_live_stream_audio_state();
         let mut parsed_muted: Option<bool> = None;
         let mut parsed_vol: Option<u32> = None;
         let mut parsed_uid: Option<String> = None;
@@ -7403,14 +7403,14 @@ pub fn set_system_audio_device(
         }
         let next_muted = muted.or(parsed_muted).unwrap_or(prev_muted);
         let next_vol = volume_pct.or(parsed_vol).unwrap_or(prev_vol).min(200);
-        discord_core::ws::set_live_stream_audio_state(next_muted, next_vol);
+        chord_core::ws::set_live_stream_audio_state(next_muted, next_vol);
         if let Some(uid) = parsed_uid {
             let eff_vol = if next_muted { 0 } else { next_vol };
             let ucmd = format!(
                 "{{\"cmd\":\"set_user_audio\",\"userId\":\"{uid}\",\"muted\":{next_muted},\"volume\":{eff_vol}}}"
             );
-            discord_core::ws::send_native_stream_cmd(&ucmd);
-            discord_core::ws::send_native_voice_cmd(&ucmd);
+            chord_core::ws::send_native_stream_cmd(&ucmd);
+            chord_core::ws::send_native_voice_cmd(&ucmd);
         }
         return json!({
             "ok": true,
@@ -7426,8 +7426,8 @@ pub fn set_system_audio_device(
             let cmd = format!(
                 "{{\"cmd\":\"set_user_audio\",\"userId\":\"{uid}\",\"muted\":{next_muted},\"volume\":{next_vol}}}"
             );
-            discord_core::ws::send_native_voice_cmd(&cmd);
-            discord_core::ws::send_native_stream_cmd(&cmd);
+            chord_core::ws::send_native_voice_cmd(&cmd);
+            chord_core::ws::send_native_stream_cmd(&cmd);
         }
         return json!({
             "ok": true,
@@ -7460,7 +7460,7 @@ pub fn set_system_audio_device(
         let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_frame.jpg");
         let _ = std::fs::remove_file("/dev/shm/discord_remote_stream_meta.bin");
         let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
-        let _ = discord_core::ws::queue_live_stream_watch(&skey);
+        let _ = chord_core::ws::queue_live_stream_watch(&skey);
         let skey_bg = skey.clone();
         std::thread::spawn(move || {
             fetch_remote_stream_preview_blocking(&skey_bg);
@@ -7470,7 +7470,7 @@ pub fn set_system_audio_device(
     if kind == "stream_stop_watch" {
         let skey = device_id.unwrap_or_default();
         if !skey.trim().is_empty() {
-            let _ = discord_core::ws::queue_live_stream_delete(skey);
+            let _ = chord_core::ws::queue_live_stream_delete(skey);
         }
         reset_live_stream_state();
         return json!({ "ok": true });
@@ -7713,12 +7713,12 @@ pub fn set_system_audio_device(
         let clamped = vol.min(200);
         if is_input {
             LOCAL_INPUT_VOLUME_PCT.store(clamped, Ordering::SeqCst);
-            discord_core::ws::send_native_voice_cmd(&format!(
+            chord_core::ws::send_native_voice_cmd(&format!(
                 "{{\"cmd\":\"set_state\",\"inputVolume\":{clamped}}}"
             ));
         } else {
             LOCAL_OUTPUT_VOLUME_PCT.store(clamped, Ordering::SeqCst);
-            discord_core::ws::send_native_voice_cmd(&format!(
+            chord_core::ws::send_native_voice_cmd(&format!(
                 "{{\"cmd\":\"set_state\",\"outputVolume\":{clamped}}}"
             ));
         }
@@ -7726,16 +7726,16 @@ pub fn set_system_audio_device(
     if let Some(m) = muted {
         if is_input {
             LOCAL_SELF_MUTE.store(m, Ordering::SeqCst);
-            discord_core::ws::send_native_voice_cmd(&format!(
+            chord_core::ws::send_native_voice_cmd(&format!(
                 "{{\"cmd\":\"set_state\",\"selfMute\":{m}}}"
             ));
         } else {
             LOCAL_SELF_DEAF.store(m, Ordering::SeqCst);
-            discord_core::ws::send_native_voice_cmd(&format!(
+            chord_core::ws::send_native_voice_cmd(&format!(
                 "{{\"cmd\":\"set_state\",\"selfDeafen\":{m}}}"
             ));
         }
-        discord_core::ws::set_live_voice_mute_deaf_state(
+        chord_core::ws::set_live_voice_mute_deaf_state(
             LOCAL_SELF_MUTE.load(Ordering::SeqCst),
             LOCAL_SELF_DEAF.load(Ordering::SeqCst),
         );
@@ -7987,29 +7987,29 @@ fn fetch_rest_channel_messages(token: &str, channel_id: &str) -> Option<Vec<Valu
     std::thread::spawn(move || {
         std::panic::catch_unwind(move || {
             let identity = crate::auth::IdentityContext::detect();
-            let auth = discord_core::rest::client::ApiAuth::from_token_with_scheme(
+            let auth = chord_core::rest::client::ApiAuth::from_token_with_scheme(
                 &token,
-                discord_core::rest::client::AuthScheme::User,
+                chord_core::rest::client::AuthScheme::User,
                 &identity.super_properties,
                 &identity.locale,
                 &identity.timezone,
             )
             .ok()?;
-            let config = discord_core::rest::client::ApiConfig {
-                base: discord_core::API_V9_BASE.to_string(),
+            let config = chord_core::rest::client::ApiConfig {
+                base: chord_core::API_V9_BASE.to_string(),
                 auth,
-                http: discord_core::rest::transport::HttpClientConfig {
+                http: chord_core::rest::transport::HttpClientConfig {
                     connect_timeout: std::time::Duration::from_millis(1200),
                     read_timeout: std::time::Duration::from_millis(1500),
                     write_timeout: std::time::Duration::from_millis(1200),
-                    ..discord_core::rest::transport::HttpClientConfig::default()
+                    ..chord_core::rest::transport::HttpClientConfig::default()
                 },
-                retry: discord_core::rest::client::ApiRetryPolicy {
+                retry: chord_core::rest::client::ApiRetryPolicy {
                     max_attempts: 1,
-                    ..discord_core::rest::client::ApiRetryPolicy::default()
+                    ..chord_core::rest::client::ApiRetryPolicy::default()
                 },
             };
-            let client = discord_core::rest::client::ApiClient::new(config).ok()?;
+            let client = chord_core::rest::client::ApiClient::new(config).ok()?;
             let runtime = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
                 .build()
@@ -8026,7 +8026,7 @@ fn fetch_rest_channel_messages(token: &str, channel_id: &str) -> Option<Vec<Valu
                     return None;
                 }
                 Ok(response) if response.status == 400 && is_forum_channel => {}
-                Err(discord_core::rest::client::ApiError::Client { status: 400 })
+                Err(chord_core::rest::client::ApiError::Client { status: 400 })
                     if is_forum_channel => {}
                 _ => return None,
             }
@@ -9999,15 +9999,15 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
             }
         }
         if let Some(ref gid) = chan_gid {
-            discord_core::ws::queue_live_guild_subscription(gid, channel_id);
+            chord_core::ws::queue_live_guild_subscription(gid, channel_id);
             let mut author_ids: Vec<String> = rows.iter().map(|r| r.author.id.clone()).collect();
             author_ids.sort();
             author_ids.dedup();
             if !author_ids.is_empty() {
-                discord_core::ws::queue_live_request_guild_members(gid, &author_ids);
+                chord_core::ws::queue_live_request_guild_members(gid, &author_ids);
             }
         } else {
-            discord_core::ws::queue_live_dm_call_sync(channel_id);
+            chord_core::ws::queue_live_dm_call_sync(channel_id);
         }
     }
     Ok(rows)

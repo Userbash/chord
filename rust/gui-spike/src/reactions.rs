@@ -5,9 +5,9 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use discord_core::rest::transport::HttpResponse;
-use discord_core::API_V9_BASE;
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
+use chord_core::rest::transport::HttpResponse;
+use chord_core::API_V9_BASE;
 
 use crate::rest_failure::RestFailure;
 
@@ -175,7 +175,7 @@ impl DiscordReactionApi {
         let config = ApiConfig {
             base: API_V9_BASE.to_string(),
             auth,
-            http: discord_core::rest::transport::HttpClientConfig::default(),
+            http: chord_core::rest::transport::HttpClientConfig::default(),
             retry: ApiRetryPolicy::default(),
         };
         let client = ApiClient::new(config).map_err(|_| ReactionError::Network)?;
@@ -510,7 +510,7 @@ fn decode_response(response: HttpResponse) -> Result<(), ReactionError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use discord_core::rest::client::ApiError;
+    use chord_core::rest::client::ApiError;
 
     fn response(status: u16) -> HttpResponse {
         HttpResponse {
