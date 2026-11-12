@@ -3,7 +3,7 @@
 - **Task:** `TASK-953` (`DevOps / Integration`, Wave RW-45 Beta Promotion)
 - **Subtasks:** `SUB-953-1`, `SUB-953-2`, `SUB-953-3`
 - **Verification Status:** `VERIFIED (PASS)`
-- **Target Artifact:** [`rust/dist/discord-gpui`](rust/dist/discord-gpui) (`43,593,624` bytes, stripped 64-bit LSB PIE ELF, thin LTO, SHA-256: `d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e`)
+- **Target Artifact:** [`rust/dist/chord-gpui`](rust/dist/chord-gpui) (`43,593,624` bytes, stripped 64-bit LSB PIE ELF, thin LTO, SHA-256: `d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e`)
 - **Automated Verification Tool:** [`scripts/verify-system-requirements.mjs`](scripts/verify-system-requirements.mjs)
 - **Contract Test:** [`tests/unit/system-requirements-953.test.mjs`](tests/unit/system-requirements-953.test.mjs)
 - **Related Specifications:** [`docs/specs/BETA-PROMOTION-PLAN-AND-TASKS.md`](specs/BETA-PROMOTION-PLAN-AND-TASKS.md), [`docs/specs/STREAM-WAYLAND-GUIDE.md`](specs/STREAM-WAYLAND-GUIDE.md), `docs/re/native-re.md` (§2.1–2.2)
@@ -12,12 +12,12 @@
 
 ## 1. Dynamic Dependency Inspection via `ldd` and `objdump` (`SUB-953-1`)
 
-### 1.1. Step 1.1: Shared Library List (`ldd rust/dist/discord-gpui`)
+### 1.1. Step 1.1: Shared Library List (`ldd rust/dist/chord-gpui`)
 
-The release binary `rust/dist/discord-gpui` is compiled with `lto = "thin"`, `strip = true`, and statically embeds the `SQLite 3` storage engine (`rusqlite` with the `bundled` feature). The dynamic table (`DT_NEEDED`) contains only **8 standard system libraries** from the default Linux graphics and audio stack:
+The release binary `rust/dist/chord-gpui` is compiled with `lto = "thin"`, `strip = true`, and statically embeds the `SQLite 3` storage engine (`rusqlite` with the `bundled` feature). The dynamic table (`DT_NEEDED`) contains only **8 standard system libraries** from the default Linux graphics and audio stack:
 
 ```text
-$ ldd rust/dist/discord-gpui
+$ ldd rust/dist/chord-gpui
 	linux-vdso.so.1 (0x00007f783be92000)
 	libxcb.so.1 => /usr/lib/libxcb.so.1 (0x00007f783be31000)
 	libxkbcommon.so.0 => /usr/lib/libxkbcommon.so.0 (0x00007f783bdc3000)
@@ -32,7 +32,7 @@ $ ldd rust/dist/discord-gpui
 	libxcb-xkb.so.1 => /usr/lib/libxcb-xkb.so.1 (0x00007f7839177000)
 ```
 
-| Shared Library | Dependency Type | Minimum Symbol Version (`Version References`) | Purpose in `discord-gpui` |
+| Shared Library | Dependency Type | Minimum Symbol Version (`Version References`) | Purpose in `chord-gpui` |
 |---|---|---|---|
 | `libc.so.6` | `DT_NEEDED` (Direct) | `GLIBC_2.34` (Mandatory) $\le \text{GLIBC\_2.35}$ | POSIX system calls, `pthread` threads, sockets, memory allocator |
 | `libm.so.6` | `DT_NEEDED` (Direct) | `GLIBC_2.35` (Base mathematical ABI) | GPUI layout geometry, audio DSP filtering, animation easing curves |
@@ -54,7 +54,7 @@ To guarantee compatibility across standard LTS Linux distributions (Ubuntu 22.04
 
 ```bash
 # Verify max GLIBC version reference
-objdump -p rust/dist/discord-gpui | grep GLIBC_ | sort -V | tail -n 1
+objdump -p rust/dist/chord-gpui | grep GLIBC_ | sort -V | tail -n 1
 # Expected output: GLIBC_2.35
 ```
 
@@ -65,7 +65,7 @@ objdump -p rust/dist/discord-gpui | grep GLIBC_ | sort -V | tail -n 1
 The client provides automatic fallback to software rasterization using Mesa's `llvmpipe` driver when hardware GPU acceleration is unavailable or running in automated headless CI:
 
 ```bash
-LIBGL_ALWAYS_SOFTWARE=1 MESA_LOADER_DRIVER_OVERRIDE=llvmpipe GALLIUM_DRIVER=llvmpipe ./rust/dist/discord-gpui --headless-smoke
+LIBGL_ALWAYS_SOFTWARE=1 MESA_LOADER_DRIVER_OVERRIDE=llvmpipe GALLIUM_DRIVER=llvmpipe ./rust/dist/chord-gpui --headless-smoke
 ```
 
 ### 3.1. Minimum and Recommended System Requirements

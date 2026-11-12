@@ -1,6 +1,6 @@
-# Discord Lab & Discord GPUI — Documentation Index
+# Chord — Documentation Index
 
-Welcome to the comprehensive documentation for **Discord Lab & Discord GPUI Client**.
+Welcome to the comprehensive documentation for **Chord**.
 
 ## 1. Quick Navigation
 
@@ -23,7 +23,7 @@ Welcome to the comprehensive documentation for **Discord Lab & Discord GPUI Clie
 
 ```
 rust/
-├── discord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
+├── chord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
 └── crates/
     ├── discord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls
     ├── discord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°

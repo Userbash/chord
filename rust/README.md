@@ -16,7 +16,7 @@ All network protocols, encodings, and voice transport layers are developed indep
 | `discord-platform` | System integration (tray, XDG autostart, Keyring, D-Bus) | `docs/re/backend-ipc.md` |
 | `discord-i18n` | Localization keys, pluralization, 36 locales | `docs/re/i18n-deep.md` |
 | `discord-ui` | Design tokens, components, contracts | `docs/re/ui-rest-d03.md` |
-| `discord-gpui` / `chord-gpui` | Native GPUI/WGPU 120 FPS desktop application | `docs/specs/GPUI-ARCHITECTURE-MIGRATION.md` |
+| `chord-gpui` / `chord-gpui` | Native GPUI/WGPU 120 FPS desktop application | `docs/specs/GPUI-ARCHITECTURE-MIGRATION.md` |
 | `discord-conformance` | Protocol test harnesses and fixtures | `docs/rust-client/TEST-PLAN.md` §3 |
 
 ## Running Tests

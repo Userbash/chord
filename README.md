@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Chord</strong> (formerly <em>discord-lab / discord-gpui</em>) is a high-performance, GPU-accelerated desktop client written in pure Rust (GPUI/WGPU 120 FPS), featuring an independent clean-room protocol analysis suite and media engine.
+  <strong>Chord</strong> is a high-performance, GPU-accelerated desktop client written in pure Rust (GPUI/WGPU 120 FPS), featuring an independent clean-room protocol analysis suite and media engine.
 </p>
 
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org/)
@@ -34,11 +34,11 @@
 
 ---
 
-## 1. Why Discord GPUI? (Key Benchmarks)
+## 1. Why Chord? (Key Benchmarks)
 
-Official Discord desktop runs inside Electron/Chromium, frequently demanding 800 MB to 1.5 GB of RAM, suffering from CPU rendering frame drops, Wayland screensharing limitations, and sluggish startup. `discord-gpui` replaces this stack with native compiled Rust and hardware-accelerated WGPU rendering.
+Official Discord desktop runs inside Electron/Chromium, frequently demanding 800 MB to 1.5 GB of RAM, suffering from CPU rendering frame drops, Wayland screensharing limitations, and sluggish startup. `chord-gpui` replaces this stack with native compiled Rust and hardware-accelerated WGPU rendering.
 
-| Metric / Feature | Official Discord (Electron) | Native `discord-gpui` (Rust) | Advantage |
+| Metric / Feature | Official Discord (Electron) | Native `chord-gpui` (Rust) | Advantage |
 | :--- | :---: | :---: | :---: |
 | **Idle RAM Consumption** | 800 MB – 1.4 GB | **11.26 MB** VmRSS (budget < 60 MB) | **~100x less memory** |
 | **Rendering Frame Rate (FPS)** | 30–60 FPS (Chromium lags) | **120 FPS** (Hardware WGPU Vulkan/Metal) | **Zero-lag smooth scrolling** |
@@ -57,7 +57,7 @@ The repository is structured as a modular Rust monorepo:
 
 ```
 rust/
-├── discord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
+├── chord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
 │   └── (chord-gpui)      # Canonical alias symlink for Chord
 └── crates/
     ├── discord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls, Permissions
@@ -70,7 +70,7 @@ rust/
 ```
 
 ### Crate Highlights:
-1. **`discord-gpui` (Application Front-End)**:
+1. **`chord-gpui` (Application Front-End)**:
    - Three-panel layout: Server Rail (72px), Channel Sidebar (240px), Virtualized Chat view (100k+ messages at < 60 MB RAM), and Member list (240px).
    - Forum Channels (Type 15) with 2-column `ForumGridView` layout.
    - Nested Threads (Types 11/12) with a 360px `ThreadSidebar`.
@@ -103,12 +103,12 @@ rust/
 
 ---
 
-## 3. Protocol Research Suite (`chord` / `discord-lab` CLI & RE)
+## 3. Protocol Research Suite (Chord CLI & RE)
 
 The repository provides automated tools for non-invasive dynamic analysis of running Discord processes using Frida and the Chrome DevTools Protocol (CDP):
 
 ```bash
-# Main research CLI (bin/chord.mjs or bin/discord-lab.mjs)
+# Main research CLI
 node bin/chord.mjs --help                # View available commands
 node bin/chord.mjs pids                  # List Discord processes discovered by Frida
 node bin/chord.mjs inventory --pid <PID> # Module and symbol inventory (JSON/CSV)
@@ -170,14 +170,14 @@ T0: Targeted    (Targeted test impact: node scripts/test-impact.mjs --run, <1 se
 ### Building the Native Client:
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Userbash/discord-lab.git
-cd discord-lab
+git clone https://github.com/Userbash/chord.git
+cd chord
 
 # 2. Build the optimized release binary
-cargo build --release --manifest-path rust/Cargo.toml -p discord-gpui
+cargo build --release --manifest-path rust/Cargo.toml -p chord-gpui
 
 # 3. Launch the native client
-./rust/target/release/discord-gpui
+./rust/target/release/chord-gpui
 
 # 4. Explore protocol analysis CLI
 node bin/chord.mjs --help
@@ -212,7 +212,7 @@ xdg-open waves/kanban-board.html
 ## 6. Cross-Platform Packaging
 
 Package specifications are provided for major desktop operating systems:
-- **Linux Flatpak**: `packaging/linux/flatpak/` (`com.discord_lab.DiscordGpui`)
+- **Linux Flatpak**: `packaging/linux/flatpak/` (`com.chord_app.ChordGpui`)
 - **Linux AppImage**: `packaging/linux/appimage/` (Self-contained portable bundle)
 - **Arch Linux**: `packaging/linux/arch/PKGBUILD`
 - **Debian / Ubuntu**: `packaging/linux/debian/` (`.deb`)
