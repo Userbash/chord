@@ -24,7 +24,7 @@ jobs:
   auto-merge-dependabot:
     name: "Auto-merge Dependabot"
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
     steps:
       - name: Approve Dependabot PR
         run: gh pr review --approve "$PR_URL"
@@ -44,7 +44,7 @@ jobs:
   auto-merge-docs:
     name: "Auto-merge Docs-only"
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'docs-only') && github.event.pull_request.draft == false
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'docs-only') && github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
         with:
