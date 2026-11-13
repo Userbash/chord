@@ -1673,8 +1673,8 @@ impl SeqAckTracker {
     /// Извлекает верхнеуровневое поле `"seq"` из текстового JSON-кадра RTC WebSocket v8
     /// и обновляет `seq_ack`.
     pub fn update_from_json(&mut self, raw: &str) -> Result<Option<u16>, VoiceError> {
-        let root = chord_json::parse(raw)
-            .map_err(|_| VoiceError::invalid("invalid voice JSON frame"))?;
+        let root =
+            chord_json::parse(raw).map_err(|_| VoiceError::invalid("invalid voice JSON frame"))?;
         let Some(seq_field) = root.get("seq") else {
             return Ok(None);
         };

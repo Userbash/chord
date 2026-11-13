@@ -50,6 +50,9 @@ updates:
       - "scope:devops"
     commit-message:
       prefix: "chore(npm-deps)"
+    ignore:
+      - dependency-name: "@types/node"
+        versions: [">=25.0.0"]
     groups:
       npm-patch:
         patterns: ["*"]

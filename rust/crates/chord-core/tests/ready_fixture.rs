@@ -109,8 +109,8 @@ fn ready_parse_rejects_top_level_user_with_bad_id() {
         support::ready_fixture::parse_json(r#"{"user":{"id":"abc"},"guilds":[],"session_id":"s"}"#)
             .expect("синтетика парсится");
 
-    let error = chord_core::ready::Ready::parse(&payload)
-        .expect_err("битый user.id обязан быть фатальным");
+    let error =
+        chord_core::ready::Ready::parse(&payload).expect_err("битый user.id обязан быть фатальным");
     assert!(
         matches!(
             &error,

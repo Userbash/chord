@@ -1299,7 +1299,10 @@ pub fn queue_live_voice_state_ext(
                 // session time to complete handshake and start sending video. Without this
                 // delay, the gateway sends STREAM_DELETE ~200ms later because no video
                 // packets have arrived from the voice RTC server yet.
-                println!("[GATEWAY-TX] OP 18 STREAM_CREATE scheduled (1500ms delay) stream_key={}", skey);
+                println!(
+                    "[GATEWAY-TX] OP 18 STREAM_CREATE scheduled (1500ms delay) stream_key={}",
+                    skey
+                );
                 let stype_owned = stype.to_string();
                 let c_owned = c.clone();
                 let gid_owned = clean_gid.clone();
@@ -1328,7 +1331,10 @@ pub fn queue_live_voice_state_ext(
                         (EtfValue::Str("op".to_string()), EtfValue::Int(18)),
                         (EtfValue::Str("d".to_string()), stream_d),
                     ]);
-                    println!("[GATEWAY-TX] OP 18 STREAM_CREATE fired after 1500ms delay type={} channel={}", stype_owned, c_owned);
+                    println!(
+                        "[GATEWAY-TX] OP 18 STREAM_CREATE fired after 1500ms delay type={} channel={}",
+                        stype_owned, c_owned
+                    );
                     send_live_gateway_frame(encode(&stream_env));
                 });
             }
@@ -1406,7 +1412,10 @@ pub fn queue_live_stream_create(
         (EtfValue::Str("op".to_string()), EtfValue::Int(18)),
         (EtfValue::Str("d".to_string()), stream_d),
     ]);
-    println!("[GATEWAY-TX] OP 18 STREAM_CREATE type={} guild_id={:?} channel_id={}", stype, clean_gid, cid);
+    println!(
+        "[GATEWAY-TX] OP 18 STREAM_CREATE type={} guild_id={:?} channel_id={}",
+        stype, clean_gid, cid
+    );
     send_live_gateway_frame(encode(&stream_env));
     Ok(())
 }
@@ -2094,11 +2103,9 @@ static STREAM_AUDIO_VOLUME_PCT: std::sync::atomic::AtomicU32 =
 static NATIVE_VOICE_ACTIVE: std::sync::atomic::AtomicBool =
     std::sync::atomic::AtomicBool::new(false);
 /// Cached PipeWire node ID for stream capture re-send on RTC reconnect.
-static CACHED_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 =
-    std::sync::atomic::AtomicU32::new(0);
+static CACHED_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
 /// Cached PipeWire fd for stream capture re-send on RTC reconnect.
-static CACHED_PIPEWIRE_FD: std::sync::atomic::AtomicI32 =
-    std::sync::atomic::AtomicI32::new(-1);
+static CACHED_PIPEWIRE_FD: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-1);
 static NATIVE_VOICE_CMD_QUEUE: std::sync::OnceLock<std::sync::Mutex<VecDeque<String>>> =
     std::sync::OnceLock::new();
 static NATIVE_STREAM_CMD_QUEUE: std::sync::OnceLock<std::sync::Mutex<VecDeque<String>>> =
@@ -4798,9 +4805,7 @@ fn update_voice_v8_seq_ack_from_json(
     seq_ack: &mut Option<u16>,
     parsed: &chord_json::JsonValue,
 ) -> Option<u16> {
-    let seq_i64 = parsed
-        .get("seq")
-        .and_then(chord_json::JsonValue::as_i64)?;
+    let seq_i64 = parsed.get("seq").and_then(chord_json::JsonValue::as_i64)?;
     let seq_u16 = u16::try_from(seq_i64).ok()?;
     *seq_ack = Some(seq_u16);
     Some(seq_u16)
@@ -5413,9 +5418,7 @@ impl PureRustVoiceV8State {
                     }) => {
                         out.push(VoiceV8OutboundFrame::Text(op23_json));
                     }
-                    Ok(chord_voice::srtp::DaveTransitionOutcome::ExecutedImmediate {
-                        ..
-                    }) => {}
+                    Ok(chord_voice::srtp::DaveTransitionOutcome::ExecutedImmediate { .. }) => {}
                     Ok(chord_voice::srtp::DaveTransitionOutcome::InvalidCommitWelcome {
                         op31_json,
                         fresh_key_package_op26,
@@ -5706,19 +5709,32 @@ async fn run_rtc_task(
             if is_stream_conn && is_self_broadcaster {
                 if let Some(nid) = cached_pipewire_node_id() {
                     let fd = cached_pipewire_fd();
-                    let fd_field = if fd >= 0 { format!(",\"fd\":{fd}") } else { String::new() };
+                    let fd_field = if fd >= 0 {
+                        format!(",\"fd\":{fd}")
+                    } else {
+                        String::new()
+                    };
                     let ucmd = format!(
                         r#"{{"cmd":"set_stream_source","sourceType":"pipewire","nodeId":{nid}{fd_field}}}"#
                     );
                     send_native_stream_cmd(&ucmd);
-                    let _ = std::fs::write("/dev/shm/discord_capture_target.txt", format!("pipewire:{nid}").as_bytes());
+                    let _ = std::fs::write(
+                        "/dev/shm/discord_capture_target.txt",
+                        format!("pipewire:{nid}").as_bytes(),
+                    );
                     println!(
                         "[VOICE-RTC] Re-sent PipeWire nodeId={nid} fd={fd} to reconnected native stream worker"
                     );
-                } else if let Ok(target) = std::fs::read_to_string("/dev/shm/discord_capture_target.txt") {
+                } else if let Ok(target) =
+                    std::fs::read_to_string("/dev/shm/discord_capture_target.txt")
+                {
                     let target = target.trim().to_string();
                     if !target.is_empty() && !target.starts_with("pipewire:") {
-                        let target_kind = if target.starts_with('{') || target.starts_with("win") { "window" } else { "screen" };
+                        let target_kind = if target.starts_with('{') || target.starts_with("win") {
+                            "window"
+                        } else {
+                            "screen"
+                        };
                         let ucmd = format!(
                             r#"{{"cmd":"set_stream_source","sourceType":"{target_kind}","sourceId":"{target}"}}"#
                         );
@@ -7626,9 +7642,7 @@ mod tests {
         };
         let hb_parsed = chord_json::parse(&hb_text).expect("valid op3 json");
         assert_eq!(
-            hb_parsed
-                .get("op")
-                .and_then(chord_json::JsonValue::as_i64),
+            hb_parsed.get("op").and_then(chord_json::JsonValue::as_i64),
             Some(3)
         );
         let nonce = hb_parsed
@@ -7736,9 +7750,7 @@ mod tests {
         };
         let hb_parsed = chord_json::parse(&hb_reply_text).expect("valid op3 json");
         assert_eq!(
-            hb_parsed
-                .get("op")
-                .and_then(chord_json::JsonValue::as_i64),
+            hb_parsed.get("op").and_then(chord_json::JsonValue::as_i64),
             Some(3)
         );
         assert_eq!(
@@ -7796,8 +7808,7 @@ mod tests {
             Some(9209)
         );
         assert_eq!(
-            d12.get("rtx_ssrc")
-                .and_then(chord_json::JsonValue::as_i64),
+            d12.get("rtx_ssrc").and_then(chord_json::JsonValue::as_i64),
             Some(9210)
         );
         let streams = d12

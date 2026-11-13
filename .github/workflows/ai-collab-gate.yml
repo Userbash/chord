@@ -49,6 +49,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: rust
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libhunspell-dev libglib2.0-dev libsecret-1-dev pkg-config
       - name: Clippy — deny warnings
         working-directory: rust
         run: cargo clippy --workspace -- -D warnings
@@ -65,6 +69,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: rust
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libhunspell-dev libglib2.0-dev libsecret-1-dev pkg-config
       - name: Run workspace tests
         working-directory: rust
         run: cargo test --workspace
