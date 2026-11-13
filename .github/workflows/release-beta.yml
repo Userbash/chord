@@ -308,7 +308,7 @@ jobs:
           cat SHA256SUMS
 
       - name: Publish GitHub Release with RELEASE-NOTES-v1.0.0-beta.1.md
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ inputs.version || env.RELEASE_TAG }}
           name: "Discord GPUI ${{ inputs.version || env.RELEASE_TAG }} (Native Linux 120 FPS)"
