@@ -49,7 +49,7 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
@@ -144,7 +144,7 @@ jobs:
             contract_test: "tests/unit/arch-pkgbuild-964.test.mjs"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
@@ -255,7 +255,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js 24
         uses: actions/setup-node@v4
