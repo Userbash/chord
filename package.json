@@ -32,7 +32,7 @@
     "node": ">=24"
   },
   "dependencies": {
-    "frida": "17.23.2"
+    "frida": "17.26.2"
   },
   "allowScripts": {
     "frida@17.23.2": true
