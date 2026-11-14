@@ -3431,6 +3431,13 @@ function applyStreamAudioSettings() {
     try {
       conn.setSelfDeafen(Boolean(currentStreamMuted || effVol === 0));
     } catch (_) {}
+    if (isSelfBroadcaster) {
+      try {
+        const hasSoundshareMonitor = process.env.DV_HAS_SOUNDSHARE_MONITOR === "1";
+        const selfMuted = Boolean(currentStreamMuted || !hasSoundshareMonitor);
+        conn.setSelfMute(selfMuted);
+      } catch (_) {}
+    }
     for (const [uid, u] of remoteUsers.entries()) {
       u.mute = Boolean(currentStreamMuted || effVol === 0);
       u.volume = normVol;
@@ -4223,6 +4230,9 @@ rl.on("line", (line) => {
       }
       if (isSelfBroadcaster) {
         applyScreenBroadcast(true);
+        try {
+          sendEv({ ev: "send_json", payload: { op: 5, d: { speaking: 2, delay: 0, ssrc: currentLocalSsrc } } });
+        } catch (_) {}
       }
       if (isStreamWorker) {
         applyStreamAudioSettings();
@@ -4275,6 +4285,9 @@ rl.on("line", (line) => {
       }
       if (isSelfBroadcaster) {
         applyScreenBroadcast(true);
+        try {
+          sendEv({ ev: "send_json", payload: { op: 5, d: { speaking: 2, delay: 0, ssrc: currentLocalSsrc } } });
+        } catch (_) {}
       }
       if (isStreamWorker) {
         applyStreamAudioSettings();
@@ -5930,164 +5943,10 @@ where
     Ok(())
 }
 
-fn resolve_sink_name_by_id(sink_id: &str) -> Option<String> {
-    if let Ok(out) = std::process::Command::new("pactl")
-        .args(["list", "short", "sinks"])
-        .stdin(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .output()
-    {
-        if out.status.success() {
-            let text = String::from_utf8_lossy(&out.stdout);
-            for line in text.lines() {
-                let cols: Vec<&str> = line.split_whitespace().collect();
-                if cols.first().copied() == Some(sink_id) {
-                    if let Some(&name) = cols.get(1) {
-                        return Some(name.to_string());
-                    }
-                }
-            }
-        }
-    }
-    None
-}
-
-pub fn resolve_optimal_stream_soundshare_source() -> String {
-    // 1. Приоритет: easyeffects_sink (если запущен EasyEffects, абсолютно все звуки окон и игр сходятся в нём)
-    if let Ok(out) = std::process::Command::new("pactl")
-        .args(["list", "short", "sinks"])
-        .stdin(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .output()
-    {
-        if out.status.success() {
-            let text = String::from_utf8_lossy(&out.stdout);
-            for line in text.lines() {
-                let cols: Vec<&str> = line.split_whitespace().collect();
-                if let Some(&name) = cols.get(1) {
-                    if name == "easyeffects_sink" {
-                        return "easyeffects_sink.monitor".to_string();
-                    }
-                }
-            }
-        }
-    }
-    // 2. Приоритет: проверяем pactl list sink-inputs, куда играют звук активные приложения (игры, плееры, браузер)
-    if let Ok(out) = std::process::Command::new("pactl")
-        .args(["list", "sink-inputs"])
-        .stdin(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .output()
-    {
-        if out.status.success() {
-            let text = String::from_utf8_lossy(&out.stdout);
-            let mut active_sink_num: Option<String> = None;
-            for line in text.lines() {
-                let trim = line.trim();
-                if let Some(rest) = trim.strip_prefix("Sink: ") {
-                    let sink_id = rest.trim();
-                    if !sink_id.is_empty() {
-                        active_sink_num = Some(sink_id.to_string());
-                    }
-                } else if trim.starts_with("Corked: no") && active_sink_num.is_some() {
-                    if let Some(ref snum) = active_sink_num {
-                        if let Some(sname) = resolve_sink_name_by_id(snum) {
-                            if !sname.contains("auto_null") {
-                                return format!("{sname}.monitor");
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    // 3. Приоритет: монитор выбранного пользователем устройства вывода
-    let (_, out_d) = get_selected_voice_devices();
-    if let Some(dev) = out_d.filter(|d| !d.is_empty() && d != "default") {
-        return format!("{dev}.monitor");
-    }
-    // 4. Приоритет: системный default sink
-    if let Ok(out) = std::process::Command::new("pactl")
-        .arg("get-default-sink")
-        .stdin(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .output()
-    {
-        if out.status.success() {
-            let sink = String::from_utf8_lossy(&out.stdout).trim().to_string();
-            if !sink.is_empty() && !sink.contains("auto_null") {
-                return format!("{sink}.monitor");
-            }
-        }
-    }
-    "default".to_string()
-}
-
-fn enforce_pactl_source_output(id: &str, target_monitor: &str) {
-    let _ = std::process::Command::new("pactl")
-        .args(["set-source-output-mute", id, "0"])
-        .stdin(std::process::Stdio::null())
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status();
-    let _ = std::process::Command::new("pactl")
-        .args(["set-source-output-volume", id, "65536"])
-        .stdin(std::process::Stdio::null())
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status();
-    let _ = std::process::Command::new("pactl")
-        .args(["move-source-output", id, target_monitor])
-        .stdin(std::process::Stdio::null())
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status();
-}
-
-pub fn spawn_stream_soundshare_enforcer(child_pid: u32, target_monitor: String) {
-    std::thread::spawn(move || {
-        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(180);
-        let mut attached = false;
-        while std::time::Instant::now() < deadline {
-            std::thread::sleep(std::time::Duration::from_millis(if attached {
-                2000
-            } else {
-                300
-            }));
-            if let Ok(out) = std::process::Command::new("pactl")
-                .args(["list", "source-outputs"])
-                .stdin(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
-                .output()
-            {
-                if out.status.success() {
-                    let text = String::from_utf8_lossy(&out.stdout);
-                    let mut cur_id: Option<String> = None;
-                    let mut is_our_stream = false;
-                    for line in text.lines() {
-                        let trim = line.trim();
-                        if let Some(rest) = trim.strip_prefix("Source Output #") {
-                            if let (Some(id), true) = (cur_id.take(), is_our_stream) {
-                                enforce_pactl_source_output(&id, &target_monitor);
-                                attached = true;
-                            }
-                            cur_id = Some(rest.trim().to_string());
-                            is_our_stream = false;
-                        } else if trim.contains("lab.discord.stream.audio")
-                            || trim.contains(&format!("application.process.id = \"{child_pid}\""))
-                        {
-                            is_our_stream = true;
-                        }
-                    }
-                    if let (Some(id), true) = (cur_id, is_our_stream) {
-                        enforce_pactl_source_output(&id, &target_monitor);
-                        attached = true;
-                    }
-                }
-            }
-        }
-    });
-}
+pub use crate::soundshare::{
+    build_soundshare_speaking_op5, enforce_pactl_source_output,
+    resolve_optimal_stream_soundshare_source, spawn_stream_soundshare_enforcer,
+};
 
 async fn run_rtc_task(
     generation: u64,
@@ -6883,6 +6742,13 @@ async fn run_rtc_task(
                         } else {
                             let _ = v8_state.on_text_frame(&text);
                         }
+                        if is_stream_conn && is_self_broadcaster {
+                            let spk = build_soundshare_speaking_op5(local_ssrc);
+                            let _ = ws.send(Message::Text(spk.into())).await;
+                            println!(
+                                "[VOICE-RTC] Re-asserted soundshare speaking=2 after DAVE execute_transition tid={tid}"
+                            );
+                        }
                     }
                     24 => {
                         let epoch = d
@@ -6963,6 +6829,10 @@ async fn run_rtc_task(
                                     let _ = stdin.flush();
                                 } else {
                                     let _ = v8_state.on_text_frame(&text);
+                                }
+                                if is_stream_conn && is_self_broadcaster {
+                                    let spk = build_soundshare_speaking_op5(local_ssrc);
+                                    let _ = ws.send(Message::Text(spk.into())).await;
                                 }
                             }
                         }
@@ -7086,6 +6956,10 @@ async fn run_rtc_task(
                                 let _ = stdin.flush();
                             } else {
                                 let _ = v8_state.on_text_frame(&text);
+                            }
+                            if is_stream_conn && is_self_broadcaster {
+                                let spk = build_soundshare_speaking_op5(local_ssrc);
+                                let _ = ws.send(Message::Text(spk.into())).await;
                             }
                             rtp_speaking_until.remove(&uid);
                             let mut g = live_rtc_mutex().lock().unwrap_or_else(|p| p.into_inner());

@@ -22,6 +22,7 @@ pub mod ready;
 pub mod rest;
 pub mod resume;
 pub mod settings;
+pub mod soundshare;
 pub mod state;
 pub mod stream;
 pub mod ws;
