@@ -187,6 +187,143 @@ pub enum NotificationDispatchDecision {
     SuppressedDuplicate,
 }
 
+/// Уровень уведомлений канала/сервера для входящих `MESSAGE_CREATE`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum NotificationLevel {
+    AllMessages,
+    #[default]
+    OnlyMentions,
+    Nothing,
+}
+
+/// Входящее событие `MESSAGE_CREATE` для адаптации в D-Bus уведомление.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MessageNotificationEvent {
+    pub message_id: String,
+    pub channel_id: String,
+    pub channel_name: String,
+    pub guild_name: Option<String>,
+    pub author_id: String,
+    pub author_name: String,
+    pub content: String,
+    pub is_dm: bool,
+    pub mentions_current_user: bool,
+    pub mentions_everyone: bool,
+    pub has_attachments: bool,
+}
+
+/// Контекст фильтрации и оформления уведомления.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MessageNotificationContext {
+    pub current_user_id: String,
+    pub user_dnd: bool,
+    pub app_focused: bool,
+    pub active_channel_id: Option<String>,
+    pub channel_muted: bool,
+    pub channel_level: NotificationLevel,
+    pub suppress_everyone: bool,
+    pub desktop_entry: Option<String>,
+}
+
+/// Подготовленное D-Bus уведомление с freedesktop-хинтами.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PreparedMessageNotification {
+    pub notification: Notification,
+    pub hints: Hints,
+}
+
+const MAX_MESSAGE_BODY_CHARS: usize = 256;
+
+fn truncate_unicode_body(text: &str) -> String {
+    if text.chars().count() <= MAX_MESSAGE_BODY_CHARS {
+        return text.to_owned();
+    }
+    let mut out: String = text.chars().take(MAX_MESSAGE_BODY_CHARS - 1).collect();
+    out.push('…');
+    out
+}
+
+/// Адаптирует `MESSAGE_CREATE` в D-Bus уведомление с учётом политики фильтрации.
+pub fn prepare_message_notification(
+    event: &MessageNotificationEvent,
+    ctx: &MessageNotificationContext,
+) -> Option<PreparedMessageNotification> {
+    if event.author_id == ctx.current_user_id {
+        return None;
+    }
+    if ctx.user_dnd {
+        return None;
+    }
+    if ctx.app_focused && ctx.active_channel_id.as_deref() == Some(event.channel_id.as_str()) {
+        return None;
+    }
+
+    let effective_everyone = event.mentions_everyone && !ctx.suppress_everyone;
+    let is_mention = event.mentions_current_user || effective_everyone;
+
+    if event.is_dm {
+        if ctx.channel_muted && !event.mentions_current_user {
+            return None;
+        }
+    } else {
+        if ctx.channel_level == NotificationLevel::Nothing {
+            return None;
+        }
+        if ctx.channel_muted {
+            if !is_mention {
+                return None;
+            }
+        } else if ctx.channel_level == NotificationLevel::OnlyMentions && !is_mention {
+            return None;
+        }
+    }
+
+    let body = if event.content.trim().is_empty() {
+        if !event.has_attachments {
+            return None;
+        }
+        "[Вложение]".to_owned()
+    } else {
+        let redacted = redact_secrets(&event.content);
+        truncate_unicode_body(&redacted)
+    };
+
+    let summary = if event.is_dm {
+        event.author_name.clone()
+    } else {
+        format!("{} (#{})", event.author_name, event.channel_name)
+    };
+
+    let urgency = if event.is_dm {
+        Urgency::Critical
+    } else if is_mention {
+        Urgency::Normal
+    } else {
+        Urgency::Low
+    };
+
+    let notification = Notification {
+        app_name: "Discord".to_owned(),
+        summary,
+        body,
+        replaces_id: 0,
+        actions: vec![("default".to_owned(), "Open".to_owned())],
+        timeout_ms: -1,
+    };
+
+    let hints = Hints {
+        urgency: Some(urgency),
+        category: Some("im.received".to_owned()),
+        desktop_entry: ctx.desktop_entry.clone(),
+        ..Hints::default()
+    };
+
+    Some(PreparedMessageNotification {
+        notification,
+        hints,
+    })
+}
+
 /// Емкость очереди дедупликации сообщений по умолчанию (FIFO).
 pub const DEFAULT_DEDUP_CAPACITY: usize = 256;
 
@@ -259,8 +396,9 @@ pub fn redact_secrets(input: &str) -> String {
             .find(|c: char| c.is_alphanumeric() || c == '_' || c == '-')
             .unwrap_or(0);
         let trimmed_end = word
-            .rfind(|c: char| c.is_alphanumeric() || c == '_' || c == '-')
-            .map(|idx| idx + 1)
+            .char_indices()
+            .rfind(|(_, c)| c.is_alphanumeric() || *c == '_' || *c == '-')
+            .map(|(idx, c)| idx + c.len_utf8())
             .unwrap_or(word.len());
 
         let prefix = &word[..trimmed_start];
@@ -517,6 +655,19 @@ impl Notifier {
     /// Эквивалент `notify_with_hints(notification, &Hints::default())`.
     pub fn notify(&mut self, notification: &Notification) -> Result<u32, DbusError> {
         self.notify_with_hints(notification, &Hints::default())
+    }
+
+    /// Адаптирует `MESSAGE_CREATE` через [`prepare_message_notification`] и отправляет через `Notify`.
+    pub fn notify_message(
+        &mut self,
+        event: &MessageNotificationEvent,
+        ctx: &MessageNotificationContext,
+    ) -> Result<Option<u32>, DbusError> {
+        let Some(prepared) = prepare_message_notification(event, ctx) else {
+            return Ok(None);
+        };
+        let id = self.notify_with_hints(&prepared.notification, &prepared.hints)?;
+        Ok(Some(id))
     }
 
     /// `Notify(...) -> u` с hints (`a{sv}`): `urgency`, `category`, `desktop-entry`,
