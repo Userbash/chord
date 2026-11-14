@@ -9,9 +9,9 @@ use std::time::Duration;
 
 use super::headers::AuthHeaderValues;
 pub use super::headers::{
-    ClientHeadersConfig, DEFAULT_LOCALE, HEADER_FINGERPRINT, HEADER_INSTALLATION_ID,
-    HEADER_ROUTING_KEY, HeaderConfig, OptionalHeaderConfig, RestHeadersConfig,
-    format_accept_language,
+    BrowserImpersonationProfile, ClientHeadersConfig, DEFAULT_LOCALE, HEADER_FINGERPRINT,
+    HEADER_INSTALLATION_ID, HEADER_ROUTING_KEY, HeaderConfig, OptionalHeaderConfig,
+    RestHeadersConfig, format_accept_language,
 };
 use super::http1::Http1Error;
 use super::rate_limit::{classify_failure, retry_delay, should_retry};
@@ -395,6 +395,7 @@ pub struct ApiClient {
     http: HttpClientConfig,
     retry: ApiRetryPolicy,
     headers: HeaderConfig,
+    browser_impersonation: Option<BrowserImpersonationProfile>,
 }
 
 impl ApiClient {
@@ -409,6 +410,7 @@ impl ApiClient {
             http: config.http,
             retry: config.retry,
             headers: HeaderConfig::default(),
+            browser_impersonation: Some(BrowserImpersonationProfile::desktop_default()),
         })
     }
 
@@ -456,6 +458,26 @@ impl ApiClient {
     /// Мутабельная ссылка на текущую конфигурацию опциональных заголовков.
     pub fn headers_mut(&mut self) -> &mut HeaderConfig {
         &mut self.headers
+    }
+
+    /// Установить профиль браузерной имитации заголовков (builder-стиль).
+    #[must_use]
+    pub fn with_browser_impersonation(mut self, profile: BrowserImpersonationProfile) -> Self {
+        self.browser_impersonation = Some(profile);
+        self
+    }
+
+    /// Отключить добавление браузерных заголовков (builder-стиль).
+    #[must_use]
+    pub fn without_browser_impersonation(mut self) -> Self {
+        self.browser_impersonation = None;
+        self
+    }
+
+    /// Текущий профиль браузерной имитации заголовков, если включён.
+    #[must_use]
+    pub fn browser_impersonation(&self) -> Option<&BrowserImpersonationProfile> {
+        self.browser_impersonation.as_ref()
     }
 
     /// Выполнить запрос с auth-заголовками, защитой телеметрии и повторами.
@@ -612,6 +634,13 @@ impl ApiClient {
         for (name, value) in self.headers.extra_headers() {
             if !has_header(&prepared.headers, name) {
                 prepared.headers.push((name.to_string(), value.to_string()));
+            }
+        }
+        if let Some(ref profile) = self.browser_impersonation {
+            for (name, value) in profile.header_pairs() {
+                if !value.trim().is_empty() && !has_header(&prepared.headers, name) {
+                    prepared.headers.push((name.to_string(), value.to_string()));
+                }
             }
         }
         if !prepared.body.is_empty() && !has_header(&prepared.headers, "content-type") {

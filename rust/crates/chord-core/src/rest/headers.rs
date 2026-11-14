@@ -13,6 +13,96 @@ use std::fmt::Write;
 /// Дефолтный язык (оракул: discord-i18n и веб-клиент Discord).
 pub const DEFAULT_LOCALE: &str = "en-US";
 
+/// Дефолтный `User-Agent` для браузерной/Electron-идентичности Discord Desktop на Linux.
+pub const DEFAULT_BROWSER_USER_AGENT: &str = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/1.0.162 Chrome/148.0.7778.280 Electron/42.11.12 Safari/537.36";
+/// Дефолтный заголовок `Sec-CH-UA`.
+pub const DEFAULT_SEC_CH_UA: &str =
+    r#""Chromium";v="148", "Not/A)Brand";v="24", "Google Chrome";v="148""#;
+/// Дефолтный заголовок `Sec-CH-UA-Mobile`.
+pub const DEFAULT_SEC_CH_UA_MOBILE: &str = "?0";
+/// Дефолтный заголовок `Sec-CH-UA-Platform`.
+pub const DEFAULT_SEC_CH_UA_PLATFORM: &str = r#""Linux""#;
+/// Дефолтный заголовок `Sec-Fetch-Dest`.
+pub const DEFAULT_SEC_FETCH_DEST: &str = "empty";
+/// Дефолтный заголовок `Sec-Fetch-Mode`.
+pub const DEFAULT_SEC_FETCH_MODE: &str = "cors";
+/// Дефолтный заголовок `Sec-Fetch-Site`.
+pub const DEFAULT_SEC_FETCH_SITE: &str = "same-origin";
+/// Дефолтный заголовок `Origin`.
+pub const DEFAULT_ORIGIN: &str = "https://discord.com";
+/// Дефолтный заголовок `Referer`.
+pub const DEFAULT_REFERER: &str = "https://discord.com/channels/@me";
+
+/// Профиль браузерных заголовков (Client Hints, Fetch Metadata, Origin/Referer, User-Agent)
+/// для имитации официального веб/Electron-клиента Discord (P2-1.1).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BrowserImpersonationProfile {
+    /// Значение `User-Agent`.
+    pub user_agent: String,
+    /// Значение `Sec-CH-UA`.
+    pub sec_ch_ua: String,
+    /// Значение `Sec-CH-UA-Mobile`.
+    pub sec_ch_ua_mobile: String,
+    /// Значение `Sec-CH-UA-Platform`.
+    pub sec_ch_ua_platform: String,
+    /// Значение `Sec-Fetch-Dest`.
+    pub sec_fetch_dest: String,
+    /// Значение `Sec-Fetch-Mode`.
+    pub sec_fetch_mode: String,
+    /// Значение `Sec-Fetch-Site`.
+    pub sec_fetch_site: String,
+    /// Значение `Origin`.
+    pub origin: String,
+    /// Значение `Referer`.
+    pub referer: String,
+}
+
+impl Default for BrowserImpersonationProfile {
+    fn default() -> Self {
+        Self::desktop_default()
+    }
+}
+
+impl BrowserImpersonationProfile {
+    /// Профиль современного Chrome/Electron Desktop на Linux.
+    #[must_use]
+    pub fn chrome_linux_desktop() -> Self {
+        Self {
+            user_agent: DEFAULT_BROWSER_USER_AGENT.to_string(),
+            sec_ch_ua: DEFAULT_SEC_CH_UA.to_string(),
+            sec_ch_ua_mobile: DEFAULT_SEC_CH_UA_MOBILE.to_string(),
+            sec_ch_ua_platform: DEFAULT_SEC_CH_UA_PLATFORM.to_string(),
+            sec_fetch_dest: DEFAULT_SEC_FETCH_DEST.to_string(),
+            sec_fetch_mode: DEFAULT_SEC_FETCH_MODE.to_string(),
+            sec_fetch_site: DEFAULT_SEC_FETCH_SITE.to_string(),
+            origin: DEFAULT_ORIGIN.to_string(),
+            referer: DEFAULT_REFERER.to_string(),
+        }
+    }
+
+    /// Дефолтный профиль для desktop-клиента.
+    #[must_use]
+    pub fn desktop_default() -> Self {
+        Self::chrome_linux_desktop()
+    }
+
+    /// Пары `(имя, значение)` всех 9 заголовков профиля.
+    #[must_use]
+    pub fn header_pairs(&self) -> [(&'static str, &str); 9] {
+        [
+            ("User-Agent", &self.user_agent),
+            ("Sec-CH-UA", &self.sec_ch_ua),
+            ("Sec-CH-UA-Mobile", &self.sec_ch_ua_mobile),
+            ("Sec-CH-UA-Platform", &self.sec_ch_ua_platform),
+            ("Sec-Fetch-Dest", &self.sec_fetch_dest),
+            ("Sec-Fetch-Mode", &self.sec_fetch_mode),
+            ("Sec-Fetch-Site", &self.sec_fetch_site),
+            ("Origin", &self.origin),
+            ("Referer", &self.referer),
+        ]
+    }
+}
+
 /// Имя опционального заголовка `X-Fingerprint` (BE-P2-02, task-165).
 pub const HEADER_FINGERPRINT: &str = "X-Fingerprint";
 /// Имя опционального заголовка `X-Installation-ID` (BE-P2-02, task-165).
