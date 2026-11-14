@@ -118,7 +118,10 @@ fn exact_mtu_multiple_and_boundary_sizes_fragment_accurately() {
     let exact_one = vec![0x42; DEFAULT_MTU_PAYLOAD_BYTES];
     let pkts1 = sender.packetize_frame(&exact_one, 3000).unwrap();
     assert_eq!(pkts1.len(), 1);
-    assert_eq!(pkts1[0].len(), RTP_FIXED_HEADER_LEN + DEFAULT_MTU_PAYLOAD_BYTES);
+    assert_eq!(
+        pkts1[0].len(),
+        RTP_FIXED_HEADER_LEN + DEFAULT_MTU_PAYLOAD_BYTES
+    );
     assert!(RtpHeader::decode(&pkts1[0]).unwrap().marker);
 
     // Exact 2x MTU (2400 bytes) -> 2 packets (1200, 1200), M=0 then M=1
@@ -152,7 +155,10 @@ fn sequence_number_and_timestamp_wrap_around_cleanly() {
     // NACK retransmit across u16 wraparound (65535 and 0)
     let retrans = sender.retransmit_nack(&[65535, 0]);
     assert_eq!(retrans.len(), 2);
-    assert_eq!(RtpHeader::decode(&retrans[0]).unwrap().sequence_number, 65535);
+    assert_eq!(
+        RtpHeader::decode(&retrans[0]).unwrap().sequence_number,
+        65535
+    );
     assert_eq!(RtpHeader::decode(&retrans[1]).unwrap().sequence_number, 0);
 
     // Advance timestamp at 30 fps (+3000 ticks) across u32::MAX
@@ -191,9 +197,19 @@ fn nack_retransmit_returns_cached_packets_and_records_misses_on_overwrite() {
     // Retransmit seq 1 and seq 3 -> both should hit
     let retransmitted = sender.retransmit_nack(&[1, 3]);
     assert_eq!(retransmitted.len(), 2);
-    assert_eq!(RtpHeader::decode(&retransmitted[0]).unwrap().sequence_number, 1);
+    assert_eq!(
+        RtpHeader::decode(&retransmitted[0])
+            .unwrap()
+            .sequence_number,
+        1
+    );
     assert_eq!(&retransmitted[0][RTP_FIXED_HEADER_LEN..], &[2u8; 50]);
-    assert_eq!(RtpHeader::decode(&retransmitted[1]).unwrap().sequence_number, 3);
+    assert_eq!(
+        RtpHeader::decode(&retransmitted[1])
+            .unwrap()
+            .sequence_number,
+        3
+    );
     assert_eq!(&retransmitted[1][RTP_FIXED_HEADER_LEN..], &[4u8; 50]);
     assert_eq!(sender.stats().nack_retransmits, 2);
     assert_eq!(sender.stats().nack_misses, 0);
@@ -205,8 +221,14 @@ fn nack_retransmit_returns_cached_packets_and_records_misses_on_overwrite() {
     // Request NACK for [0 (overwritten), 1 (overwritten), 2 (still in ring), 5 (in ring), 99 (never sent)]
     let after_wrap = sender.retransmit_nack(&[0, 1, 2, 5, 99]);
     assert_eq!(after_wrap.len(), 2);
-    assert_eq!(RtpHeader::decode(&after_wrap[0]).unwrap().sequence_number, 2);
-    assert_eq!(RtpHeader::decode(&after_wrap[1]).unwrap().sequence_number, 5);
+    assert_eq!(
+        RtpHeader::decode(&after_wrap[0]).unwrap().sequence_number,
+        2
+    );
+    assert_eq!(
+        RtpHeader::decode(&after_wrap[1]).unwrap().sequence_number,
+        5
+    );
 
     assert_eq!(sender.stats().nack_retransmits, 4);
     assert_eq!(sender.stats().nack_misses, 3);

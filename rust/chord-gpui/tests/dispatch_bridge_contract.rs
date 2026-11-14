@@ -226,10 +226,7 @@ fn maps_channel_lifecycle_create_update_delete() {
         let data = etf_map(vec![
             ("id", EtfValue::Int(1_176_785_373_989_445_703)),
             ("guild_id", str_val("1014537851418980372")),
-            (
-                "type",
-                ch_type.map_or(EtfValue::Nil, EtfValue::Int),
-            ),
+            ("type", ch_type.map_or(EtfValue::Nil, EtfValue::Int)),
             (
                 "name",
                 ch_name.map_or(EtfValue::Atom("nil".into()), str_val),
@@ -404,7 +401,11 @@ fn malformed_payloads_and_unknown_dispatches_return_none_without_panic() {
     // Malformed / incomplete payloads for every mapped event type
     let malformed_cases = vec![
         make_dispatch("READY", Some(1), EtfValue::Nil),
-        make_dispatch("READY", Some(1), etf_map(vec![("session_id", str_val("s"))])),
+        make_dispatch(
+            "READY",
+            Some(1),
+            etf_map(vec![("session_id", str_val("s"))]),
+        ),
         make_dispatch("RESUMED", Some(2), EtfValue::Int(42)),
         make_dispatch(
             "MESSAGE_CREATE",
@@ -487,8 +488,14 @@ fn bounded_channel_backpressure_increments_drop_metrics_without_blocking() {
     let ev3 = make_dispatch("RESUMED", Some(12), etf_map(vec![]));
     let unknown = make_dispatch("SOME_FUTURE_EVENT", Some(13), etf_map(vec![]));
 
-    assert_eq!(dispatcher.forward_dispatch_event(&ev1), ForwardOutcome::Sent);
-    assert_eq!(dispatcher.forward_dispatch_event(&ev2), ForwardOutcome::Sent);
+    assert_eq!(
+        dispatcher.forward_dispatch_event(&ev1),
+        ForwardOutcome::Sent
+    );
+    assert_eq!(
+        dispatcher.forward_dispatch_event(&ev2),
+        ForwardOutcome::Sent
+    );
     assert_eq!(
         dispatcher.forward_dispatch_event(&ev3),
         ForwardOutcome::ChannelFull
@@ -543,7 +550,10 @@ fn bounded_channel_backpressure_increments_drop_metrics_without_blocking() {
     assert!(ForwardOutcome::ChannelClosed.is_dropped());
 
     dispatcher.reset_bridge_metrics();
-    assert_eq!(dispatcher.bridge_metrics(), DispatchBridgeMetrics::default());
+    assert_eq!(
+        dispatcher.bridge_metrics(),
+        DispatchBridgeMetrics::default()
+    );
 }
 
 #[test]
@@ -551,7 +561,8 @@ fn dispatch_handler_callback_and_disconnect_classification_and_json_wire_payload
     let dispatcher = AsyncTaskDispatcher::new(4);
     let handler = dispatcher.dispatch_handler();
 
-    let json_payload = r#"{"id":18446744073709551615,"channel_id":0,"guild_id":"1014537851418980372"}"#;
+    let json_payload =
+        r#"{"id":18446744073709551615,"channel_id":0,"guild_id":"1014537851418980372"}"#;
     let json_del_ev = DispatchEvent {
         kind: None,
         name: "MESSAGE_DELETE".into(),
@@ -612,5 +623,3 @@ fn existing_dispatch_utilities_and_workers_remain_intact() {
     let parsed = LocalRpcIpcServer::parse_ipc_frame(&frame).unwrap();
     assert!(parsed.payload.contains("123456"));
 }
-
-

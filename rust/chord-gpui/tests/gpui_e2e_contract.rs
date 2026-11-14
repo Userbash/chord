@@ -27,7 +27,7 @@ use audio::{
     AdaptiveJitterBuffer, DaveMlsGroupContext, DaveMlsKeySchedule, DaveTransportCipherMode,
     DaveVoiceSession,
 };
-use discord_platform::screencast::RTP_VIDEO_CLOCK_HZ;
+use chord_platform::screencast::RTP_VIDEO_CLOCK_HZ;
 use state::{
     AppState, CallStatus, Channel, ChannelType, Guild, LoginStep, Message, MessageKind,
     QuickSwitcherItemKind, UserSummary,

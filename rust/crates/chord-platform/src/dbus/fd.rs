@@ -12,7 +12,10 @@
 //!   допускает `dbus-daemon`); лишние → `MSG_CTRUNC` → [`super::DbusError::Protocol`],
 //!   уже доставленные fd закрываются;
 //! - отправка — не больше `SCM_MAX_FD` (253) fd одним сообщением;
-//! - fd не наследуются через `fork`/`exec`: владение остаётся у процесса-получателя.
+//! - received fd have `FD_CLOEXEC`: Linux/Android sets the flag atomically with
+//!   `MSG_CMSG_CLOEXEC`, so the descriptors are closed on `exec`;
+//! - other Unix targets use `fcntl` before returning fd. That fallback is not atomic:
+//!   callers must coordinate receipt with concurrent `fork`/`exec`.
 
 #![allow(unsafe_code)]
 
@@ -29,18 +32,35 @@ use super::DbusError;
 /// большим числом fd приходит с `MSG_CTRUNC` и отвергается как `Protocol`.
 pub const MAX_FDS_PER_MESSAGE: usize = 16;
 
+/// Native socket constants, also re-exported by the legacy GPUI portal facade.
+pub const SOL_SOCKET: i32 = libc::SOL_SOCKET;
+pub const SCM_RIGHTS: i32 = libc::SCM_RIGHTS;
+pub const MSG_CTRUNC: i32 = libc::MSG_CTRUNC;
+pub const MSG_NOSIGNAL: i32 = libc::MSG_NOSIGNAL;
+pub const F_DUPFD_CLOEXEC: i32 = libc::F_DUPFD_CLOEXEC;
+
 /// Предел ядра Linux на число fd в одном `sendmsg` (`SCM_MAX_FD`).
 const SCM_MAX_FD: usize = 253;
 
 const INT_BYTES: usize = size_of::<libc::c_int>();
 
+#[cfg(any(target_os = "linux", target_os = "android"))]
+const RECEIVE_FLAGS: libc::c_int = libc::MSG_CMSG_CLOEXEC;
+#[cfg(not(any(target_os = "linux", target_os = "android")))]
+const RECEIVE_FLAGS: libc::c_int = 0;
+
 /// Буфер ancillary для приёма: `cmsghdr` + ровно [`MAX_FDS_PER_MESSAGE`] fd.
 ///
 /// Ровно по лимиту (а не с запасом), чтобы сообщение с бо́льшим числом fd гарантированно
 /// приходило с `MSG_CTRUNC` и отвергалось, а не «влезало наполовину».
-const CONTROL_BYTES: usize = 16 + MAX_FDS_PER_MESSAGE * INT_BYTES;
+// SAFETY: the bounded payload is at most 16 c_int values; CMSG_SPACE only
+// computes the native header size and alignment and cannot overflow here.
+const CONTROL_BYTES: usize =
+    unsafe { libc::CMSG_SPACE((MAX_FDS_PER_MESSAGE * INT_BYTES) as u32) } as usize;
 /// Буфер ancillary для отправки: до [`SCM_MAX_FD`] fd.
-const SEND_CONTROL_BYTES: usize = 16 + SCM_MAX_FD * INT_BYTES + 8;
+// SAFETY: the bounded payload is at most 253 c_int values, below c_uint::MAX.
+const SEND_CONTROL_BYTES: usize =
+    unsafe { libc::CMSG_SPACE((SCM_MAX_FD * INT_BYTES) as u32) } as usize;
 
 /// Выровненный под `cmsghdr` буфер: `cmsghdr` требует выравнивания `size_t`.
 #[repr(align(8))]
@@ -68,6 +88,23 @@ pub fn close_fd(fd: RawFd) {
 pub fn close_all(fds: &[RawFd]) {
     for fd in fds {
         close_fd(*fd);
+    }
+}
+
+/// Duplicate a descriptor atomically with FD_CLOEXEC; the caller owns the result.
+/// An invalid descriptor or native failure returns the original OS error.
+pub fn duplicate_cloexec(raw: RawFd) -> Result<RawFd, std::io::Error> {
+    loop {
+        // SAFETY: fcntl only queries the integer descriptor and allocates a new one;
+        // invalid descriptors return EBADF and no pointers are dereferenced.
+        let duplicate = unsafe { libc::fcntl(raw, libc::F_DUPFD_CLOEXEC, 0) };
+        if duplicate >= 0 {
+            return Ok(duplicate);
+        }
+        let error = std::io::Error::last_os_error();
+        if error.kind() != ErrorKind::Interrupted {
+            return Err(error);
+        }
     }
 }
 
@@ -111,7 +148,7 @@ pub fn send_with_fds(stream: &UnixStream, bytes: &[u8], fds: &[RawFd]) -> Result
             let header = control.0.as_mut_ptr() as *mut libc::cmsghdr;
             (*header).cmsg_level = libc::SOL_SOCKET;
             (*header).cmsg_type = libc::SCM_RIGHTS;
-            (*header).cmsg_len = libc::CMSG_LEN(payload_u32) as usize;
+            (*header).cmsg_len = checked_control_length(libc::CMSG_LEN(payload_u32))?;
             std::ptr::copy_nonoverlapping(
                 fds.as_ptr() as *const u8,
                 libc::CMSG_DATA(header),
@@ -121,7 +158,7 @@ pub fn send_with_fds(stream: &UnixStream, bytes: &[u8], fds: &[RawFd]) -> Result
             libc::CMSG_SPACE(payload_u32) as usize
         };
         message.msg_control = control.0.as_mut_ptr() as *mut libc::c_void;
-        message.msg_controllen = control_len;
+        message.msg_controllen = checked_control_length(control_len)?;
     }
 
     let mut sent_total = 0usize;
@@ -163,99 +200,179 @@ pub fn recv_exact_with_fds(
     buffer: &mut [u8],
     fds: &mut Vec<RawFd>,
 ) -> Result<(), DbusError> {
-    let mut filled = 0usize;
+    let mut filled = 0;
     while filled < buffer.len() {
-        let mut control = ControlBuffer([0u8; CONTROL_BYTES]);
-        let mut iov = libc::iovec {
-            iov_base: buffer[filled..].as_mut_ptr() as *mut libc::c_void,
-            iov_len: buffer.len() - filled,
-        };
-        let mut message: libc::msghdr = {
-            // SAFETY: `msghdr` — POD; нулевая инициализация корректна, поля заполняются ниже.
-            unsafe { std::mem::zeroed() }
-        };
-        message.msg_iov = &mut iov;
-        message.msg_iovlen = 1;
-        message.msg_control = control.0.as_mut_ptr() as *mut libc::c_void;
-        message.msg_controllen = CONTROL_BYTES as _;
-
-        // SAFETY: `message` описывает живой буфер `buffer[filled..]` и control-буфер
-        // ровно заявленной длины; сокет валиден.
-        let received = unsafe { libc::recvmsg(stream.as_raw_fd(), &mut message, 0) };
-        if received < 0 {
-            let error = std::io::Error::last_os_error();
-            match error.kind() {
-                ErrorKind::Interrupted => continue,
-                ErrorKind::WouldBlock | ErrorKind::TimedOut => {
-                    return Err(discard(fds, DbusError::Timeout));
-                }
-                _ => return Err(discard(fds, DbusError::Io(error))),
+        match recv_with_fds(stream, &mut buffer[filled..], fds) {
+            Ok(0) => return Err(discard(fds, DbusError::Protocol("truncated message"))),
+            Ok(received) => filled += received,
+            Err(DbusError::Io(error))
+                if matches!(error.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) =>
+            {
+                return Err(discard(fds, DbusError::Timeout));
             }
+            Err(error) => return Err(error),
         }
-        if received == 0 {
-            return Err(discard(fds, DbusError::Protocol("truncated message")));
+    }
+    Ok(())
+}
+
+/// Receive one available chunk without waiting to fill the buffer; EOF returns 0.
+/// Received descriptors have FD_CLOEXEC. Every descriptor in fds is closed and
+/// removed on failure. OS errors retain their original kind; EINTR is retried.
+/// An empty buffer returns 0 without consuming bytes or changing existing fds.
+pub fn recv_with_fds(
+    stream: &UnixStream,
+    buffer: &mut [u8],
+    fds: &mut Vec<RawFd>,
+) -> Result<usize, DbusError> {
+    if buffer.is_empty() {
+        return Ok(0);
+    }
+    let mut control = ControlBuffer([0u8; CONTROL_BYTES]);
+    let mut iov = libc::iovec {
+        iov_base: buffer.as_mut_ptr().cast(),
+        iov_len: buffer.len(),
+    };
+    // SAFETY: msghdr is a C value with nullable pointers; its fields are filled
+    // with live buffers below before it is passed to recvmsg.
+    let mut message: libc::msghdr = unsafe { std::mem::zeroed() };
+    message.msg_iov = &mut iov;
+    message.msg_iovlen = 1;
+    message.msg_control = control.0.as_mut_ptr().cast();
+    message.msg_controllen =
+        checked_control_length(CONTROL_BYTES).map_err(|error| discard(fds, error))?;
+    let received = receive_message(stream, &mut message)
+        .map_err(|error| discard(fds, DbusError::Io(error)))?;
+    collect_received_fds(&message, fds).map_err(|error| discard(fds, error))?;
+    if message.msg_flags & libc::MSG_CTRUNC != 0 {
+        return Err(discard(fds, DbusError::Protocol("control data truncated")));
+    }
+    if fds.len() > MAX_FDS_PER_MESSAGE {
+        return Err(discard(
+            fds,
+            DbusError::Protocol("too many unix fds in message"),
+        ));
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "android")))]
+    ensure_close_on_exec(fds).map_err(|error| discard(fds, DbusError::Io(error)))?;
+    Ok(received)
+}
+
+fn receive_message(
+    stream: &UnixStream,
+    message: &mut libc::msghdr,
+) -> Result<usize, std::io::Error> {
+    let capacity = message.msg_controllen;
+    loop {
+        message.msg_controllen = capacity;
+        message.msg_flags = 0;
+        // SAFETY: recv_with_fds supplies live data/control buffers and native libc
+        // layouts. Linux/Android sets close-on-exec atomically for delivered fds.
+        let received = unsafe { libc::recvmsg(stream.as_raw_fd(), message, RECEIVE_FLAGS) };
+        if received >= 0 {
+            return Ok(received as usize);
         }
-        // Ancillary мог быть обрезан (`MSG_CTRUNC`), но доставленные cmsg всё равно
-        // разбираем: их fd обязаны быть закрыты, иначе утечка.
-        // SAFETY: `msg_control`/`msg_controllen` заполнены ядром; обход cmsg ограничен
-        // этими полями (CMSG_FIRSTHDR/CMSG_NXTHDR).
-        unsafe {
-            let mut header = libc::CMSG_FIRSTHDR(&message);
-            while !header.is_null() {
-                if (*header).cmsg_level != libc::SOL_SOCKET
-                    || (*header).cmsg_type != libc::SCM_RIGHTS
-                {
-                    return Err(discard(
-                        fds,
-                        DbusError::Protocol("unexpected ancillary data"),
-                    ));
-                }
-                let length = (*header).cmsg_len as usize;
-                let header_len = libc::CMSG_LEN(0) as usize;
-                if length < header_len || !(length - header_len).is_multiple_of(INT_BYTES) {
-                    return Err(discard(
-                        fds,
-                        DbusError::Protocol("malformed ancillary data"),
-                    ));
-                }
-                let count = (length - header_len) / INT_BYTES;
-                let control_start = message.msg_control as usize;
-                let control_end = control_start.saturating_add(message.msg_controllen);
-                let header_end = (header as usize).saturating_add(length);
-                let data = libc::CMSG_DATA(header);
-                let data_end = (data as usize).saturating_add(count * INT_BYTES);
-                if header_end > control_end || data_end > control_end {
-                    return Err(discard(
-                        fds,
-                        DbusError::Protocol("ancillary data exceeds control buffer"),
-                    ));
-                }
-                for index in 0..count {
-                    let mut raw: libc::c_int = 0;
-                    std::ptr::copy_nonoverlapping(
-                        data.add(index * INT_BYTES),
-                        &mut raw as *mut libc::c_int as *mut u8,
-                        INT_BYTES,
-                    );
-                    if raw < 0 {
-                        return Err(discard(fds, DbusError::Protocol("invalid unix fd")));
+        let error = std::io::Error::last_os_error();
+        if error.kind() != ErrorKind::Interrupted {
+            return Err(error);
+        }
+    }
+}
+
+fn collect_received_fds(message: &libc::msghdr, fds: &mut Vec<RawFd>) -> Result<(), DbusError> {
+    let mut first_error = None;
+    // SAFETY: recvmsg populated this control buffer. Native CMSG helpers bound
+    // traversal; each payload is range-checked before its descriptor bytes are read.
+    unsafe {
+        let mut header = libc::CMSG_FIRSTHDR(message);
+        while !header.is_null() {
+            match ancillary_fd_count(message, header) {
+                Ok(count) => {
+                    let data = libc::CMSG_DATA(header);
+                    for index in 0..count {
+                        let raw = std::ptr::read_unaligned(
+                            data.add(index * INT_BYTES).cast::<libc::c_int>(),
+                        );
+                        if raw < 0 {
+                            first_error.get_or_insert(DbusError::Protocol("invalid unix fd"));
+                        } else {
+                            fds.push(raw);
+                        }
                     }
-                    fds.push(raw);
                 }
-                header = libc::CMSG_NXTHDR(&message, header);
+                Err(error) => {
+                    first_error.get_or_insert(error);
+                }
             }
+            // An unexpected header can precede installed SCM_RIGHTS descriptors.
+            // Drain later rights before reporting the error so the caller closes them.
+            header = libc::CMSG_NXTHDR(message, header);
         }
-        if message.msg_flags & libc::MSG_CTRUNC != 0 {
-            return Err(discard(fds, DbusError::Protocol("control data truncated")));
-        }
-        if fds.len() > MAX_FDS_PER_MESSAGE {
-            return Err(discard(
-                fds,
-                DbusError::Protocol("too many unix fds in message"),
-            ));
-        }
+    }
+    first_error.map_or(Ok(()), Err)
+}
 
-        filled += received as usize;
+fn ancillary_fd_count(
+    message: &libc::msghdr,
+    header: *mut libc::cmsghdr,
+) -> Result<usize, DbusError> {
+    // SAFETY: collect_received_fds obtains header from the native CMSG iterator;
+    // it points into the live kernel-populated control buffer owned by the caller.
+    let (level, kind, length, header_len, data) = unsafe {
+        (
+            (*header).cmsg_level,
+            (*header).cmsg_type,
+            (*header).cmsg_len,
+            libc::CMSG_LEN(0) as usize,
+            libc::CMSG_DATA(header),
+        )
+    };
+    let length: usize = checked_control_length(length)?;
+    if level != libc::SOL_SOCKET || kind != libc::SCM_RIGHTS {
+        return Err(DbusError::Protocol("unexpected ancillary data"));
+    }
+    if length < header_len || !(length - header_len).is_multiple_of(INT_BYTES) {
+        return Err(DbusError::Protocol("malformed ancillary data"));
+    }
+    let count = (length - header_len) / INT_BYTES;
+    let control_length: usize = checked_control_length(message.msg_controllen)?;
+    let control_end = (message.msg_control as usize).saturating_add(control_length);
+    let header_end = (header as usize).saturating_add(length);
+    let data_end = (data as usize).saturating_add(count * INT_BYTES);
+    if header_end > control_end || data_end > control_end {
+        return Err(DbusError::Protocol("ancillary data exceeds control buffer"));
+    }
+    Ok(count)
+}
+
+/// libc uses size_t for these fields on Linux and socklen_t on Darwin.
+/// Check conversions in both directions rather than truncating a native field.
+fn checked_control_length<T, U>(length: T) -> Result<U, DbusError>
+where
+    U: TryFrom<T>,
+{
+    U::try_from(length).map_err(|_| DbusError::Protocol("unix fd control length out of range"))
+}
+
+/// POSIX fallback: set close-on-exec before handing descriptors to the caller.
+/// The caller closes the complete received set if any fcntl call fails.
+#[cfg(any(test, not(any(target_os = "linux", target_os = "android"))))]
+fn ensure_close_on_exec(fds: &[RawFd]) -> Result<(), std::io::Error> {
+    for &raw in fds {
+        // SAFETY: the receive path owns each descriptor until it is returned;
+        // F_GETFD reads descriptor flags without taking ownership or accessing memory.
+        let flags = unsafe { libc::fcntl(raw, libc::F_GETFD) };
+        if flags < 0 {
+            return Err(std::io::Error::last_os_error());
+        }
+        if flags & libc::FD_CLOEXEC != 0 {
+            continue;
+        }
+        // SAFETY: raw is still owned by the receive path. F_SETFD only changes its
+        // descriptor flags, preserving existing flags and leaving ownership unchanged.
+        if unsafe { libc::fcntl(raw, libc::F_SETFD, flags | libc::FD_CLOEXEC) } < 0 {
+            return Err(std::io::Error::last_os_error());
+        }
     }
     Ok(())
 }
@@ -265,4 +382,54 @@ fn discard(fds: &mut Vec<RawFd>, error: DbusError) -> DbusError {
     close_all(fds);
     fds.clear();
     error
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn descriptor_flags(raw: RawFd) -> libc::c_int {
+        // SAFETY: tests keep the descriptor's owning UnixStream alive; F_GETFD
+        // reads flags without changing ownership or accessing memory.
+        let flags = unsafe { libc::fcntl(raw, libc::F_GETFD) };
+        assert!(flags >= 0, "F_GETFD: {}", std::io::Error::last_os_error());
+        flags
+    }
+
+    #[test]
+    fn close_on_exec_fallback_marks_every_descriptor_and_preserves_ownership() {
+        let (first, second) = UnixStream::pair().expect("socketpair");
+        let descriptors = [first.as_raw_fd(), second.as_raw_fd()];
+        for raw in descriptors {
+            let flags = descriptor_flags(raw);
+            // SAFETY: every fd is owned by a live UnixStream. Clearing its descriptor
+            // flag creates the state produced by recvmsg without MSG_CMSG_CLOEXEC.
+            let result = unsafe { libc::fcntl(raw, libc::F_SETFD, flags & !libc::FD_CLOEXEC) };
+            assert_eq!(result, 0, "clear FD_CLOEXEC");
+        }
+
+        ensure_close_on_exec(&descriptors).expect("set FD_CLOEXEC");
+
+        for raw in descriptors {
+            assert_ne!(descriptor_flags(raw) & libc::FD_CLOEXEC, 0);
+        }
+        ensure_close_on_exec(&descriptors).expect("already set is idempotent");
+    }
+
+    #[test]
+    fn close_on_exec_fallback_returns_the_os_error() {
+        let error = ensure_close_on_exec(&[-1]).expect_err("invalid descriptor");
+        assert_eq!(error.raw_os_error(), Some(libc::EBADF));
+    }
+
+    #[test]
+    fn ancillary_lengths_preserve_native_width_and_reject_overflow() {
+        let native: u32 = checked_control_length(80usize).expect("Darwin control field");
+        let address_length: usize = checked_control_length(native).expect("buffer offset");
+        assert_eq!(native, 80);
+        assert_eq!(address_length, 80);
+        let overflow = u64::from(u32::MAX) + 1;
+        let result: Result<u32, DbusError> = checked_control_length(overflow);
+        assert!(matches!(result, Err(DbusError::Protocol(_))));
+    }
 }

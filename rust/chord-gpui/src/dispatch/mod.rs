@@ -9,9 +9,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use chord_codec::etf::EtfValue;
-use chord_core::dispatch::{
-    DispatchEvent, DispatchKind, TypedDispatch, parse_typed_dispatch_etf,
-};
+use chord_core::dispatch::{DispatchEvent, DispatchKind, TypedDispatch, parse_typed_dispatch_etf};
 use chord_json::JsonValue;
 
 /// Обёртка для голосового токена `VOICE_SERVER_UPDATE`, скрывающая секрет в `Debug`/`Display`.
@@ -1197,7 +1195,10 @@ mod tests {
                 ("guilds", EtfValue::List(vec![])),
             ]),
         };
-        assert_eq!(dispatcher.forward_dispatch_event(&ready), ForwardOutcome::Sent);
+        assert_eq!(
+            dispatcher.forward_dispatch_event(&ready),
+            ForwardOutcome::Sent
+        );
         assert_eq!(dispatcher.bridge_metrics().sent, 1);
         assert_eq!(dispatcher.dropped_count(), 0);
         let events = dispatcher.drain_events();

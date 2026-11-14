@@ -3,14 +3,26 @@
 
 #![allow(dead_code, unsafe_code)]
 
-use std::fmt;
 use std::io::ErrorKind;
-use std::mem::size_of;
-use std::os::fd::{AsRawFd, RawFd};
+#[cfg(test)]
+use std::os::fd::AsRawFd;
+use std::os::fd::RawFd;
 use std::os::unix::net::UnixStream;
 use std::sync::atomic::{AtomicU64, Ordering};
 
+#[allow(unused_imports)] // Preserve the existing public portal constants for callers.
+pub use chord_platform::dbus::fd::{
+    F_DUPFD_CLOEXEC, MAX_FDS_PER_MESSAGE, MSG_CTRUNC, MSG_NOSIGNAL, SCM_RIGHTS, SOL_SOCKET,
+};
+use chord_platform::dbus::{DbusError, fd};
 use chord_platform::screencast::CapturedFrame;
+
+#[path = "pipewire_portal/types.rs"]
+mod types;
+pub use types::{
+    DaemonRestartReport, DmaBufNegotiationRequest, NegotiatedDmaBufConfig, PortalBackend,
+    PortalError, PortalSessionConfig, PortalSessionState, PortalTelemetrySnapshot,
+};
 
 #[allow(unused_imports)]
 pub use crate::video::encoder::{RawVideoFrame, VideoFramePixelFormat};
@@ -30,13 +42,6 @@ pub const SOURCE_TYPE_WINDOW: u32 = 2;
 pub const SOURCE_TYPE_VIRTUAL: u32 = 4;
 pub const SOURCE_TYPE_ALL_MASK: u32 = 7;
 
-pub const SOL_SOCKET: i32 = 1;
-pub const SCM_RIGHTS: i32 = 1;
-pub const MSG_CTRUNC: i32 = 0x08;
-pub const MSG_NOSIGNAL: i32 = 0x4000;
-pub const F_DUPFD_CLOEXEC: i32 = 1030;
-pub const MAX_FDS_PER_MESSAGE: usize = 16;
-
 pub const DRM_FORMAT_MOD_LINEAR: u64 = 0;
 pub const DRM_FORMAT_MOD_INVALID: u64 = 0x00ff_ffff_ffff_ffff;
 pub const DRM_FOURCC_BGRA8888: u32 = 0x3432_5241;
@@ -49,127 +54,8 @@ pub const MAX_CAPTURE_WIDTH: u32 = 7680;
 pub const MAX_CAPTURE_HEIGHT: u32 = 4320;
 pub const MAX_CAPTURE_FPS: u32 = 120;
 
-const INT_BYTES: usize = size_of::<i32>();
-const CMSG_HEADER_BYTES: usize = size_of::<Cmsghdr>();
-const CONTROL_BUFFER_BYTES: usize = CMSG_HEADER_BYTES + MAX_FDS_PER_MESSAGE * INT_BYTES;
-
 static TOTAL_FDS_OPENED: AtomicU64 = AtomicU64::new(0);
 static TOTAL_FDS_CLOSED: AtomicU64 = AtomicU64::new(0);
-
-#[repr(C)]
-struct Iovec {
-    iov_base: *mut u8,
-    iov_len: usize,
-}
-
-#[repr(C)]
-struct Msghdr {
-    msg_name: *mut u8,
-    msg_namelen: u32,
-    msg_iov: *mut Iovec,
-    msg_iovlen: usize,
-    msg_control: *mut u8,
-    msg_controllen: usize,
-    msg_flags: i32,
-}
-
-impl Msghdr {
-    fn new(iov: &mut Iovec, msg_control: *mut u8, msg_controllen: usize) -> Self {
-        Self {
-            msg_name: std::ptr::null_mut(),
-            msg_namelen: 0,
-            msg_iov: iov,
-            msg_iovlen: 1,
-            msg_control,
-            msg_controllen,
-            msg_flags: 0,
-        }
-    }
-}
-
-#[repr(C)]
-struct Cmsghdr {
-    cmsg_len: usize,
-    cmsg_level: i32,
-    cmsg_type: i32,
-}
-
-#[repr(align(8))]
-struct AlignedControlBuf([u8; CONTROL_BUFFER_BYTES]);
-
-unsafe extern "C" {
-    fn close(fd: i32) -> i32;
-    fn fcntl(fd: i32, cmd: i32, ...) -> i32;
-    fn sendmsg(fd: i32, msg: *const Msghdr, flags: i32) -> isize;
-    fn recvmsg(fd: i32, msg: *mut Msghdr, flags: i32) -> isize;
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum PortalError {
-    InvalidToken(String),
-    InvalidObjectPath(String),
-    InvalidSourceTypes(u32),
-    InvalidSessionState(&'static str, PortalSessionState),
-    NoStreamsReturned,
-    InvalidFd(RawFd),
-    TooManyFds(usize),
-    EmptyPayloadWithFds,
-    ControlDataTruncated,
-    MalformedAncillaryData,
-    InvalidDimensions(u32, u32),
-    InvalidStride(u32, u32),
-    NoCompatibleDmaBufModifier,
-    PipeWireDaemonDisconnected(String),
-    FrameBridge(String),
-    IoError(String),
-}
-
-impl fmt::Display for PortalError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{self:?}")
-    }
-}
-
-impl std::error::Error for PortalError {}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum PortalSessionState {
-    Unconnected,
-    SessionCreated,
-    SourcesSelected,
-    Streaming,
-    ReconnectingDaemon,
-    Closed,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PortalSessionConfig {
-    pub handle_token: String,
-    pub session_handle_token: String,
-    pub source_types: u32,
-    pub restore_token: Option<String>,
-}
-
-impl PortalSessionConfig {
-    #[must_use]
-    pub fn default_monitor_and_window() -> Self {
-        Self {
-            handle_token: "discord_gpui_req_971".to_string(),
-            session_handle_token: "discord_gpui_sess_971".to_string(),
-            source_types: SOURCE_TYPE_MONITOR | SOURCE_TYPE_WINDOW,
-            restore_token: None,
-        }
-    }
-
-    pub fn validate(&self) -> Result<(), PortalError> {
-        validate_portal_token(&self.handle_token)?;
-        validate_portal_token(&self.session_handle_token)?;
-        if self.source_types == 0 || (self.source_types & !SOURCE_TYPE_ALL_MASK) != 0 {
-            return Err(PortalError::InvalidSourceTypes(self.source_types));
-        }
-        Ok(())
-    }
-}
 
 pub fn validate_portal_token(token: &str) -> Result<(), PortalError> {
     let ok = !token.is_empty()
@@ -208,9 +94,7 @@ pub fn redact_restore_token(token: &str) -> String {
 
 pub fn close_raw_fd(raw: RawFd) {
     if raw >= 0 {
-        unsafe {
-            let _ = close(raw);
-        }
+        fd::close_fd(raw);
         TOTAL_FDS_CLOSED.fetch_add(1, Ordering::SeqCst);
     }
 }
@@ -235,13 +119,9 @@ impl OwnedPortalFd {
     }
 
     pub fn try_clone(&self) -> Result<Self, PortalError> {
-        let dup = unsafe { fcntl(self.raw, F_DUPFD_CLOEXEC, 0) };
-        if dup < 0 {
-            return Err(PortalError::IoError(
-                std::io::Error::last_os_error().to_string(),
-            ));
-        }
-        Self::from_raw_fd_checked(dup)
+        let duplicate = fd::duplicate_cloexec(self.raw)
+            .map_err(|error| PortalError::IoError(error.to_string()))?;
+        Self::from_raw_fd_checked(duplicate)
     }
 }
 
@@ -254,12 +134,8 @@ impl Drop for OwnedPortalFd {
     }
 }
 
-const fn cmsg_align(len: usize) -> usize {
-    (len + size_of::<usize>() - 1) & !(size_of::<usize>() - 1)
-}
-
 pub fn send_fds_scm_rights(
-    s: &UnixStream,
+    stream: &UnixStream,
     payload: &[u8],
     fds: &[RawFd],
 ) -> Result<(), PortalError> {
@@ -273,125 +149,47 @@ pub fn send_fds_scm_rights(
             Err(PortalError::EmptyPayloadWithFds)
         };
     }
-    if let Some(&bad) = fds.iter().find(|&&fd| fd < 0) {
-        return Err(PortalError::InvalidFd(bad));
+    if let Some(&raw) = fds.iter().find(|&&raw| raw < 0) {
+        return Err(PortalError::InvalidFd(raw));
     }
-    let mut ctrl = AlignedControlBuf([0u8; CONTROL_BUFFER_BYTES]);
-    let mut iov = Iovec {
-        iov_base: payload.as_ptr() as *mut u8,
-        iov_len: payload.len(),
-    };
-    let (c_ptr, c_len) = encode_cmsg(&mut ctrl, fds);
-    let hdr = Msghdr::new(&mut iov, c_ptr, c_len);
-    if unsafe { sendmsg(s.as_raw_fd(), &hdr, MSG_NOSIGNAL) } < 0 {
-        return Err(PortalError::IoError(
-            std::io::Error::last_os_error().to_string(),
-        ));
-    }
-    Ok(())
-}
-
-fn encode_cmsg(ctrl: &mut AlignedControlBuf, fds: &[RawFd]) -> (*mut u8, usize) {
-    if fds.is_empty() {
-        return (std::ptr::null_mut(), 0);
-    }
-    let data_bytes = fds.len() * INT_BYTES;
-    let cmsg_len = CMSG_HEADER_BYTES + data_bytes;
-    unsafe {
-        let hdr = ctrl.0.as_mut_ptr() as *mut Cmsghdr;
-        (*hdr).cmsg_len = cmsg_len;
-        (*hdr).cmsg_level = SOL_SOCKET;
-        (*hdr).cmsg_type = SCM_RIGHTS;
-        let dst = ctrl.0.as_mut_ptr().add(CMSG_HEADER_BYTES);
-        std::ptr::copy_nonoverlapping(fds.as_ptr() as *const u8, dst, data_bytes);
-    }
-    (ctrl.0.as_mut_ptr(), cmsg_align(cmsg_len))
+    fd::send_with_fds(stream, payload, fds).map_err(|error| match error {
+        DbusError::Io(error) => PortalError::IoError(error.to_string()),
+        other => PortalError::IoError(format!("{other:?}")),
+    })
 }
 
 pub fn recv_fds_scm_rights(
-    s: &UnixStream,
-    buf: &mut [u8],
+    stream: &UnixStream,
+    buffer: &mut [u8],
 ) -> Result<(usize, Vec<OwnedPortalFd>), PortalError> {
-    let mut ctrl = AlignedControlBuf([0u8; CONTROL_BUFFER_BYTES]);
-    let mut iov = Iovec {
-        iov_base: buf.as_mut_ptr(),
-        iov_len: buf.len(),
-    };
-    let mut message = Msghdr::new(&mut iov, ctrl.0.as_mut_ptr(), CONTROL_BUFFER_BYTES);
-    let n = unsafe { recvmsg(s.as_raw_fd(), &mut message, 0) };
-    if n < 0 {
-        let err = std::io::Error::last_os_error();
-        if matches!(
-            err.kind(),
-            ErrorKind::ConnectionReset | ErrorKind::BrokenPipe
-        ) {
-            return Err(PortalError::PipeWireDaemonDisconnected(err.to_string()));
-        }
-        return Err(PortalError::IoError(err.to_string()));
-    }
-    finalize_scm_recv(n as usize, &message, &ctrl.0[..message.msg_controllen])
+    let mut received = Vec::new();
+    let bytes = fd::recv_with_fds(stream, buffer, &mut received).map_err(portal_receive_error)?;
+    // The shared transport validates every raw descriptor before transferring it.
+    let owned = received
+        .into_iter()
+        .map(|raw| {
+            TOTAL_FDS_OPENED.fetch_add(1, Ordering::SeqCst);
+            OwnedPortalFd { raw }
+        })
+        .collect();
+    Ok((bytes, owned))
 }
 
-fn finalize_scm_recv(
-    bytes: usize,
-    message: &Msghdr,
-    ctrl_slice: &[u8],
-) -> Result<(usize, Vec<OwnedPortalFd>), PortalError> {
-    let received_fds = parse_scm_rights_control(ctrl_slice)?;
-    if (message.msg_flags & MSG_CTRUNC) != 0 {
-        drop(received_fds);
-        return Err(PortalError::ControlDataTruncated);
-    }
-    Ok((bytes, received_fds))
-}
-
-fn parse_scm_rights_control(ctrl: &[u8]) -> Result<Vec<OwnedPortalFd>, PortalError> {
-    if ctrl.is_empty() {
-        return Ok(Vec::new());
-    }
-    if ctrl.len() < CMSG_HEADER_BYTES {
-        return Err(PortalError::MalformedAncillaryData);
-    }
-    let mut fds = Vec::new();
-    let mut off = 0usize;
-    while off + CMSG_HEADER_BYTES <= ctrl.len() {
-        let hdr = unsafe { std::ptr::read_unaligned(ctrl[off..].as_ptr() as *const Cmsghdr) };
-        let plen = hdr.cmsg_len.checked_sub(CMSG_HEADER_BYTES).unwrap_or(1);
-        if hdr.cmsg_len < CMSG_HEADER_BYTES
-            || off + hdr.cmsg_len > ctrl.len()
-            || !plen.is_multiple_of(INT_BYTES)
-            || hdr.cmsg_level != SOL_SOCKET
-            || hdr.cmsg_type != SCM_RIGHTS
+fn portal_receive_error(error: DbusError) -> PortalError {
+    match error {
+        DbusError::Io(error)
+            if matches!(
+                error.kind(),
+                ErrorKind::ConnectionReset | ErrorKind::BrokenPipe
+            ) =>
         {
-            return Err(PortalError::MalformedAncillaryData);
+            PortalError::PipeWireDaemonDisconnected(error.to_string())
         }
-        for c in ctrl[off + CMSG_HEADER_BYTES..off + hdr.cmsg_len].chunks_exact(INT_BYTES) {
-            fds.push(OwnedPortalFd::from_raw_fd_checked(i32::from_ne_bytes([
-                c[0], c[1], c[2], c[3],
-            ]))?);
-        }
-        off += cmsg_align(hdr.cmsg_len);
+        DbusError::Io(error) => PortalError::IoError(error.to_string()),
+        DbusError::Protocol("control data truncated") => PortalError::ControlDataTruncated,
+        DbusError::Protocol(_) => PortalError::MalformedAncillaryData,
+        other => PortalError::IoError(format!("{other:?}")),
     }
-    Ok(fds)
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DmaBufNegotiationRequest {
-    pub width: u32,
-    pub height: u32,
-    pub fps: u32,
-    pub drm_fourcc: u32,
-    pub candidate_stride: u32,
-    pub advertised_modifiers: Vec<u64>,
-    pub allow_shm_fallback: bool,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct NegotiatedDmaBufConfig {
-    pub drm_fourcc: u32,
-    pub drm_modifier: u64,
-    pub stride_bytes: u32,
-    pub is_zero_copy: bool,
 }
 
 pub fn negotiate_dma_buf_stream(
@@ -430,41 +228,6 @@ pub fn negotiate_dma_buf_stream(
         stride_bytes: candidate_stride,
         is_zero_copy,
     })
-}
-
-pub trait PortalBackend {
-    fn create_session(&mut self, req: &str, sess: &str) -> Result<String, PortalError>;
-    fn select_sources(&mut self, path: &str, cfg: &PortalSessionConfig) -> Result<(), PortalError>;
-    fn start(&mut self, path: &str, req: &str) -> Result<(u32, Option<String>), PortalError>;
-    fn open_pipewire_remote(&mut self, path: &str) -> Result<Vec<OwnedPortalFd>, PortalError>;
-    fn close_session(&mut self, path: &str) -> Result<(), PortalError>;
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DaemonRestartReport {
-    pub closed_old_fd: Option<RawFd>,
-    pub new_fd: RawFd,
-    pub node_id: u32,
-    pub session_recreated: bool,
-    pub used_restore_token: bool,
-    pub negotiated: NegotiatedDmaBufConfig,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PortalTelemetrySnapshot {
-    pub state: PortalSessionState,
-    pub active_node_id: Option<u32>,
-    pub active_fd: Option<RawFd>,
-    pub redacted_restore_token: String,
-    pub total_fds_opened: u64,
-    pub total_fds_closed: u64,
-}
-
-impl PortalTelemetrySnapshot {
-    #[must_use]
-    pub const fn active_fd_balance(&self) -> u64 {
-        self.total_fds_opened.saturating_sub(self.total_fds_closed)
-    }
 }
 
 pub fn negotiated_dma_buf_to_raw_frame(
@@ -644,6 +407,14 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
                 negotiated,
             });
         }
+        self.recreate_session_after_restart(dma_req, closed_old_fd)
+    }
+
+    fn recreate_session_after_restart(
+        &mut self,
+        dma_req: &DmaBufNegotiationRequest,
+        closed_old_fd: Option<RawFd>,
+    ) -> Result<DaemonRestartReport, PortalError> {
         if let Some(old_h) = self.session_handle.take() {
             let _ = self.backend.close_session(&old_h);
         }
@@ -830,15 +601,14 @@ mod tests {
         drop(cloned);
         drop(fds);
 
-        let mut iov = Iovec {
-            iov_base: std::ptr::null_mut(),
-            iov_len: 0,
-        };
-        let mut msg = Msghdr::new(&mut iov, std::ptr::null_mut(), 0);
-        msg.msg_flags = MSG_CTRUNC;
-        let trunc = finalize_scm_recv(1, &msg, &[]);
+        let source = std::fs::File::open("/dev/null").expect("source descriptor");
+        let excess = vec![source.as_raw_fd(); MAX_FDS_PER_MESSAGE + 4];
+        fd::send_with_fds(&tx, b"x", &excess).expect("send truncated control data");
+        let trunc = recv_fds_scm_rights(&rx, &mut [0u8; 8]);
         assert_eq!(trunc, Err(PortalError::ControlDataTruncated));
-        let bad_cmsg = parse_scm_rights_control(&[1, 2]);
+        let bad_cmsg: Result<Vec<OwnedPortalFd>, _> = Err(portal_receive_error(
+            DbusError::Protocol("malformed ancillary data"),
+        ));
         assert_eq!(bad_cmsg, Err(PortalError::MalformedAncillaryData));
     }
 

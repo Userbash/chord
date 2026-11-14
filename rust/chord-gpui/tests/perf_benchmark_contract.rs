@@ -14,10 +14,10 @@ mod dispatch;
 mod media;
 #[path = "../src/net/mod.rs"]
 mod net;
-#[path = "../src/platform/mod.rs"]
-mod platform;
 #[path = "../src/perf_benchmark/mod.rs"]
 mod perf_benchmark;
+#[path = "../src/platform/mod.rs"]
+mod platform;
 #[path = "../src/state/mod.rs"]
 mod state;
 #[path = "../src/storage/mod.rs"]
@@ -420,7 +420,7 @@ fn test_sub_906_3_cold_start_fmp_warm_cache_150ms_and_clean_boot_300ms() {
         .expect("Бюджет < 300 мс должен выполняться");
 
     // 3. Проверка реального бинарника discord-gpui --headless-smoke (VmRSS < 60 МБ и старт < 300 мс)
-    let bin = env!("CARGO_BIN_EXE_discord-gpui");
+    let bin = env!("CARGO_BIN_EXE_chord-gpui");
     let proc_start = std::time::Instant::now();
     let out = Command::new(bin)
         .arg("--headless-smoke")
@@ -495,7 +495,7 @@ fn test_sub_906_3_publish_ci_perf_charts_and_reports() {
 fn test_sub_906_comprehensive_edge_cases_vram_lru_and_allocation_tags() {
     // 1. Все 6 тегов аллокаций имеют уникальные символьные имена для jemalloc
     for tag in AllocationTag::ALL {
-        assert!(tag.symbol_name().starts_with("discord_gpui::"));
+        assert!(tag.symbol_name().starts_with("chord_gpui::"));
     }
 
     // 2. Проверка touch() и защиты от выгрузки недавно использованной текстуры

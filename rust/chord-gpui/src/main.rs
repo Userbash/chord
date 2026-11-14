@@ -22,6 +22,7 @@ mod net;
 pub mod perf_benchmark;
 pub mod pipewire_portal;
 pub mod platform;
+mod process_rss;
 pub mod quality_gate;
 pub mod session;
 mod state;
@@ -49,19 +50,6 @@ fn detect_display_backend() -> &'static str {
         (false, true) => "x11",
         (false, false) => "headless",
     }
-}
-
-fn read_vmrss_kb() -> u64 {
-    std::fs::read_to_string("/proc/self/status")
-        .ok()
-        .and_then(|status| {
-            status
-                .lines()
-                .find(|line| line.starts_with("VmRSS:"))
-                .and_then(|line| line.split_whitespace().nth(1))
-                .and_then(|val| val.parse::<u64>().ok())
-        })
-        .unwrap_or(1024)
 }
 
 fn run_headless_smoke() -> i32 {
@@ -95,7 +83,13 @@ fn run_headless_smoke() -> i32 {
     let fps_budget_ok = frame_ok && tick_us < 8_300;
 
     let theme_ok = theme::DISCORD_THEME.bg_primary != theme::DISCORD_THEME.bg_secondary;
-    let vmrss_kb = read_vmrss_kb();
+    let vmrss_kb = match process_rss::current_process_rss_kb() {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("smoke: EnvFail: RSS measurement unavailable: {error}");
+            return 2;
+        }
+    };
     let vmrss_mb = (vmrss_kb as f64) / 1024.0;
     let all_ok = sqlite_wal_ok && fps_budget_ok && theme_ok && vmrss_mb < 60.0;
     let status = if all_ok { "ok" } else { "degraded" };

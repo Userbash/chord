@@ -19,7 +19,16 @@ fn repo_root() -> PathBuf {
 }
 
 fn release_bin_path() -> PathBuf {
-    crate_root().join("target/release/discord-gpui")
+    let built = Path::new(env!("CARGO_BIN_EXE_chord-gpui"));
+    built
+        .parent()
+        .expect("Cargo binary must have a profile directory")
+        .with_file_name("release")
+        .join(
+            built
+                .file_name()
+                .expect("Cargo binary must have a filename"),
+        )
 }
 
 fn dist_dir() -> PathBuf {
@@ -54,7 +63,7 @@ fn test_cargo_toml_release_profile_has_lto_and_strip_contract() {
 
 #[test]
 fn test_headless_smoke_wayland_and_x11_execution_contract() {
-    let bin = env!("CARGO_BIN_EXE_discord-gpui");
+    let bin = env!("CARGO_BIN_EXE_chord-gpui");
 
     // 1. Позитивный сценарий: Wayland + X11 комбинированный профиль
     let out_wayland = Command::new(bin)

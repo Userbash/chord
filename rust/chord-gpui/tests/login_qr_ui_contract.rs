@@ -39,8 +39,8 @@ mod video;
 
 use state::AppState;
 use ui::login_modal::{
-    build_remote_auth_qr_url, LoginModal, QrCodeMatrix, QrLoginUiState, QrMatrixError,
-    REMOTE_AUTH_QR_URL_PREFIX,
+    LoginModal, QrCodeMatrix, QrLoginUiState, QrMatrixError, REMOTE_AUTH_QR_URL_PREFIX,
+    build_remote_auth_qr_url,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -54,12 +54,18 @@ fn test_build_remote_auth_qr_url_valid_fingerprints() {
     // Base64url unpadded fingerprint (as produced by Remote Auth gateway v2)
     let fp1 = "ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0";
     let url1 = build_remote_auth_qr_url(fp1).expect("valid base64url unpadded");
-    assert_eq!(url1, "https://discord.com/ra/ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0");
+    assert_eq!(
+        url1,
+        "https://discord.com/ra/ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0"
+    );
 
     // Standard client default fingerprint format
     let fp2 = "discord-remote-auth-7f9a2b8c4d1e";
     let url2 = build_remote_auth_qr_url(fp2).expect("valid alphanumeric-hyphen fingerprint");
-    assert_eq!(url2, "https://discord.com/ra/discord-remote-auth-7f9a2b8c4d1e");
+    assert_eq!(
+        url2,
+        "https://discord.com/ra/discord-remote-auth-7f9a2b8c4d1e"
+    );
 
     // Mixed alphanumeric, underscore, hyphen
     let fp3 = "RA_Key-2026_xyz123";
@@ -79,7 +85,10 @@ fn test_build_remote_auth_qr_url_rejects_empty_and_whitespace() {
 
     // Whitespace within fingerprint
     let res_inner_ws = build_remote_auth_qr_url("discord remote auth");
-    assert!(matches!(res_inner_ws, Err(QrMatrixError::InvalidCharacters)));
+    assert!(matches!(
+        res_inner_ws,
+        Err(QrMatrixError::InvalidCharacters)
+    ));
 
     // Newlines within fingerprint
     let res_nl = build_remote_auth_qr_url("discord\nauth");
@@ -90,13 +99,22 @@ fn test_build_remote_auth_qr_url_rejects_empty_and_whitespace() {
 fn test_build_remote_auth_qr_url_rejects_path_traversal_and_malicious_characters() {
     // Traversal attempts
     let res_dotdot = build_remote_auth_qr_url("../admin/token");
-    assert!(matches!(res_dotdot, Err(QrMatrixError::PathTraversalAttempt)));
+    assert!(matches!(
+        res_dotdot,
+        Err(QrMatrixError::PathTraversalAttempt)
+    ));
 
     let res_slash = build_remote_auth_qr_url("users/me/remote-auth");
-    assert!(matches!(res_slash, Err(QrMatrixError::PathTraversalAttempt)));
+    assert!(matches!(
+        res_slash,
+        Err(QrMatrixError::PathTraversalAttempt)
+    ));
 
     let res_backslash = build_remote_auth_qr_url("..\\windows\\system32");
-    assert!(matches!(res_backslash, Err(QrMatrixError::PathTraversalAttempt)));
+    assert!(matches!(
+        res_backslash,
+        Err(QrMatrixError::PathTraversalAttempt)
+    ));
 
     // Special characters outside base64url alphabet
     let res_spec = build_remote_auth_qr_url("discord$auth!");
@@ -115,7 +133,10 @@ fn test_qr_code_matrix_dimensions_25x25() {
     let fp = "discord-remote-auth-7f9a2b8c4d1e";
     let matrix = QrCodeMatrix::from_remote_auth_fingerprint(fp).expect("matrix generation");
 
-    assert_eq!(matrix.size, 25, "QR matrix size must be 25x25 (Version 2 standard)");
+    assert_eq!(
+        matrix.size, 25,
+        "QR matrix size must be 25x25 (Version 2 standard)"
+    );
     assert_eq!(matrix.modules.len(), 25);
     for (r, row) in matrix.modules.iter().enumerate() {
         assert_eq!(row.len(), 25, "Row {r} must have exactly 25 columns");
@@ -318,7 +339,10 @@ fn test_qr_login_ui_state_transitions() {
     } = &ui_state
     {
         assert_eq!(fingerprint, fp);
-        assert_eq!(url, "https://discord.com/ra/discord-remote-auth-7f9a2b8c4d1e");
+        assert_eq!(
+            url,
+            "https://discord.com/ra/discord-remote-auth-7f9a2b8c4d1e"
+        );
         assert_eq!(matrix.size, 25);
     } else {
         panic!("expected QrLoginUiState::Ready");
@@ -423,4 +447,3 @@ fn test_login_modal_render_qr_elements_instantiation() {
     let error_state = QrLoginUiState::Error("Simulated error".into());
     let _error_el = LoginModal::render_qr_container(&error_state);
 }
-

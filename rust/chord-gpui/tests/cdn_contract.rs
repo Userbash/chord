@@ -52,7 +52,10 @@ fn t02_validate_asset_hash_and_snowflake_security() {
         Ok("a_1269e74af4df7417b13759eae50c83dc")
     );
     let max_len_hash = "a".repeat(128);
-    assert_eq!(validate_asset_hash(&max_len_hash), Ok(max_len_hash.as_str()));
+    assert_eq!(
+        validate_asset_hash(&max_len_hash),
+        Ok(max_len_hash.as_str())
+    );
 
     // Invalid hashes: empty, path traversal, URL injection, whitespace, > 128 chars
     for bad in [
@@ -248,7 +251,11 @@ fn t05_cdn_memory_cache_lru_recency_byte_budget_and_telemetry() {
     };
 
     // Miss increments misses counter
-    assert!(cache.get("https://cdn.discordapp.com/avatars/1/a.webp?size=64").is_none());
+    assert!(
+        cache
+            .get("https://cdn.discordapp.com/avatars/1/a.webp?size=64")
+            .is_none()
+    );
     assert_eq!(cache.misses(), 1);
     assert_eq!(cache.hits(), 0);
 

@@ -66,9 +66,7 @@ pub fn validate_asset_hash(hash: &str) -> Result<&str, CdnError> {
         return Err(CdnError::InvalidHash);
     }
     if hash.chars().any(|c| {
-        c.is_whitespace()
-            || c.is_control()
-            || matches!(c, '/' | '\\' | '?' | '#' | '%' | ':' | '@')
+        c.is_whitespace() || c.is_control() || matches!(c, '/' | '\\' | '?' | '#' | '%' | ':' | '@')
     }) {
         return Err(CdnError::InvalidHash);
     }
@@ -243,11 +241,7 @@ pub fn user_avatar_url(
 }
 
 /// Builds a static `.png` user avatar URL using [`CDN_BASE_URL`].
-pub fn user_avatar_png_url(
-    user_id: u64,
-    avatar_hash: &str,
-    size: u32,
-) -> Result<String, CdnError> {
+pub fn user_avatar_png_url(user_id: u64, avatar_hash: &str, size: u32) -> Result<String, CdnError> {
     CdnClient::new().user_avatar_png_url(user_id, avatar_hash, size)
 }
 
