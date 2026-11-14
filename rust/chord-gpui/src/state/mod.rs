@@ -8,8 +8,145 @@ pub use auth_flow::{
     AuthFlowController, AuthFlowError, AuthMode, LiveAuthStepOutcome, StartupAuthResult,
     should_populate_mock_data, should_populate_mock_data_with, should_use_offline_demo,
 };
+use chord_platform::notifications::{
+    MessageNotificationContext, MessageNotificationEvent, NotificationLevel,
+    PreparedMessageNotification, Urgency, prepare_message_notification,
+};
+use chord_platform::rpc_ipc::{RpcActivity, RpcIpcError, SetActivityPayload};
 pub use models::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, VecDeque};
+
+/// Причина подавления системного уведомления о входящем сообщении (`P1-4.3`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NotificationSuppressionReason {
+    SelfAuthor,
+    UserDnd,
+    FocusedActiveChannel,
+    ChannelMuted,
+    ChannelNothing,
+    NotMentionInOnlyMentionsChannel,
+    DuplicateMessage,
+    EmptyContentWithoutAttachments,
+}
+
+/// Приоритизированное намерение отправки D-Bus уведомления (`P1-4.3`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum NotificationPriorityIntent {
+    /// Высокоприоритетное уведомление: личное сообщение (DM) или упоминание текущего пользователя
+    /// (`<@id>`, `<@!id>`, `<@&role_id>`, `@everyone`, `@here`).
+    HighPriorityMentionOrDm(PreparedMessageNotification),
+    /// Обычное уведомление: сообщение без упоминания в незаглушенном канале с режимом `AllMessages`.
+    Normal(PreparedMessageNotification),
+    /// Уведомление подавлено политикой фильтрации или анти-спама.
+    Suppressed(NotificationSuppressionReason),
+}
+
+pub type NotificationIntent = NotificationPriorityIntent;
+
+impl NotificationPriorityIntent {
+    #[must_use]
+    pub fn is_high_priority(&self) -> bool {
+        matches!(self, Self::HighPriorityMentionOrDm(_))
+    }
+
+    #[must_use]
+    pub fn is_normal(&self) -> bool {
+        matches!(self, Self::Normal(_))
+    }
+
+    #[must_use]
+    pub fn is_suppressed(&self) -> bool {
+        matches!(self, Self::Suppressed(_))
+    }
+
+    #[must_use]
+    pub fn prepared(&self) -> Option<&PreparedMessageNotification> {
+        match self {
+            Self::HighPriorityMentionOrDm(prepared) | Self::Normal(prepared) => Some(prepared),
+            Self::Suppressed(_) => None,
+        }
+    }
+
+    #[must_use]
+    pub fn suppression_reason(&self) -> Option<NotificationSuppressionReason> {
+        match self {
+            Self::Suppressed(reason) => Some(*reason),
+            Self::HighPriorityMentionOrDm(_) | Self::Normal(_) => None,
+        }
+    }
+}
+
+/// Ограниченная телеметрия маршрутизации уведомлений (`P1-4.3`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct NotificationTelemetry {
+    pub total_evaluated: u64,
+    pub high_priority_emitted: u64,
+    pub normal_emitted: u64,
+    pub suppressed_total: u64,
+    pub suppressed_self_author: u64,
+    pub suppressed_dnd: u64,
+    pub suppressed_focused_active_channel: u64,
+    pub suppressed_muted_channel: u64,
+    pub suppressed_policy: u64,
+    pub suppressed_duplicate: u64,
+    pub recent_intents: VecDeque<NotificationPriorityIntent>,
+}
+
+impl NotificationTelemetry {
+    pub fn record(&mut self, intent: NotificationPriorityIntent, max_recent: usize) {
+        self.total_evaluated = self.total_evaluated.saturating_add(1);
+        match &intent {
+            NotificationPriorityIntent::HighPriorityMentionOrDm(_) => {
+                self.high_priority_emitted = self.high_priority_emitted.saturating_add(1);
+            }
+            NotificationPriorityIntent::Normal(_) => {
+                self.normal_emitted = self.normal_emitted.saturating_add(1);
+            }
+            NotificationPriorityIntent::Suppressed(reason) => {
+                self.suppressed_total = self.suppressed_total.saturating_add(1);
+                match reason {
+                    NotificationSuppressionReason::SelfAuthor => {
+                        self.suppressed_self_author = self.suppressed_self_author.saturating_add(1);
+                    }
+                    NotificationSuppressionReason::UserDnd => {
+                        self.suppressed_dnd = self.suppressed_dnd.saturating_add(1);
+                    }
+                    NotificationSuppressionReason::FocusedActiveChannel => {
+                        self.suppressed_focused_active_channel =
+                            self.suppressed_focused_active_channel.saturating_add(1);
+                    }
+                    NotificationSuppressionReason::ChannelMuted => {
+                        self.suppressed_muted_channel =
+                            self.suppressed_muted_channel.saturating_add(1);
+                    }
+                    NotificationSuppressionReason::ChannelNothing
+                    | NotificationSuppressionReason::NotMentionInOnlyMentionsChannel
+                    | NotificationSuppressionReason::EmptyContentWithoutAttachments => {
+                        self.suppressed_policy = self.suppressed_policy.saturating_add(1);
+                    }
+                    NotificationSuppressionReason::DuplicateMessage => {
+                        self.suppressed_duplicate = self.suppressed_duplicate.saturating_add(1);
+                    }
+                }
+            }
+        }
+        if max_recent > 0 {
+            self.recent_intents.push_back(intent);
+            while self.recent_intents.len() > max_recent {
+                self.recent_intents.pop_front();
+            }
+        }
+    }
+}
+
+/// Ограниченная телеметрия обновлений Rich Presence `SET_ACTIVITY` (`P2-2.3`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct RpcActivityTelemetry {
+    pub updates_applied: u64,
+    pub clears_applied: u64,
+    pub rejected_errors: u64,
+    pub frames_emitted: u64,
+}
 
 /// Шаги модального окна добавления/создания сервера (Discord Modal Step)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -104,6 +241,19 @@ pub struct AppState {
     pub last_gateway_disconnect: Option<(Option<u16>, bool, String)>,
     pub outbound_gateway_frames: Vec<String>,
     voice_guild_id: Option<String>,
+    pub app_focused: bool,
+    pub muted_channels: HashSet<String>,
+    pub channel_notification_levels: HashMap<String, NotificationLevel>,
+    pub default_notification_level: NotificationLevel,
+    pub suppress_everyone_mentions: bool,
+    pub current_user_role_ids: Vec<String>,
+    pub pending_notifications: VecDeque<NotificationPriorityIntent>,
+    pub last_notification_intent: Option<NotificationPriorityIntent>,
+    pub notification_telemetry: NotificationTelemetry,
+    pub active_rpc_activity: Option<RpcActivity>,
+    pub active_rpc_pid: Option<u32>,
+    pub last_rpc_nonce: Option<String>,
+    pub rpc_activity_telemetry: RpcActivityTelemetry,
 }
 
 /// Обёртка над ScrollHandle GPUI с отслеживанием целевого индекса скролла
@@ -271,6 +421,19 @@ impl AppState {
             last_gateway_disconnect: None,
             outbound_gateway_frames: Vec::new(),
             voice_guild_id: None,
+            app_focused: true,
+            muted_channels: HashSet::new(),
+            channel_notification_levels: HashMap::new(),
+            default_notification_level: NotificationLevel::OnlyMentions,
+            suppress_everyone_mentions: false,
+            current_user_role_ids: Vec::new(),
+            pending_notifications: VecDeque::new(),
+            last_notification_intent: None,
+            notification_telemetry: NotificationTelemetry::default(),
+            active_rpc_activity: None,
+            active_rpc_pid: None,
+            last_rpc_nonce: None,
+            rpc_activity_telemetry: RpcActivityTelemetry::default(),
         }
     }
 
@@ -385,6 +548,11 @@ impl AppState {
         self.resume_gateway_url = None;
         self.last_gateway_seq = None;
         self.pending_voice_server_update = None;
+        self.active_rpc_activity = None;
+        self.active_rpc_pid = None;
+        self.last_rpc_nonce = None;
+        self.pending_notifications.clear();
+        self.last_notification_intent = None;
         self.selected_guild_id = None;
         self.selected_channel_id = Some("dm-friends".into());
         self.is_account_switcher_open = false;
@@ -1358,6 +1526,18 @@ impl AppState {
     pub fn open_member_profile(&mut self, member_id: &str) {
         if let Some(m) = self.members.iter().find(|m| m.id == member_id) {
             self.selected_member_profile = Some(m.clone());
+        } else if !member_id.is_empty()
+            && (member_id == self.current_user.id || member_id == self.current_user.username)
+        {
+            self.selected_member_profile = Some(GuildMember {
+                id: self.current_user.id.clone(),
+                username: self.current_user.username.clone(),
+                global_name: self.current_user.global_name.clone(),
+                avatar: self.current_user.avatar.clone(),
+                status: self.current_user.status,
+                activity: self.active_rpc_activity_summary(),
+                roles: self.current_user_role_ids.clone(),
+            });
         }
     }
 
@@ -1623,6 +1803,11 @@ impl AppState {
             self.voice_session = None;
             self.active_context_menu = None;
             self.selected_member_profile = None;
+            self.active_rpc_activity = None;
+            self.active_rpc_pid = None;
+            self.last_rpc_nonce = None;
+            self.pending_notifications.clear();
+            self.last_notification_intent = None;
         }
         self.is_account_switcher_open = false;
     }
@@ -2364,31 +2549,32 @@ impl AppState {
                     typing.retain(|u| u != &author_id && u != &author_name);
                 }
 
+                let resolved_username = if author_name.is_empty() {
+                    if author_id.is_empty() {
+                        "Unknown".to_string()
+                    } else {
+                        author_id.clone()
+                    }
+                } else {
+                    author_name.clone()
+                };
+
                 let is_new_message = {
                     let entries = self.messages.entry(channel_id.clone()).or_default();
                     if entries.iter().any(|existing| existing.id == id) {
                         false
                     } else {
-                        let resolved_username = if author_name.is_empty() {
-                            if author_id.is_empty() {
-                                "Unknown".to_string()
-                            } else {
-                                author_id.clone()
-                            }
-                        } else {
-                            author_name
-                        };
                         entries.push(Message {
-                            id,
+                            id: id.clone(),
                             channel_id: channel_id.clone(),
                             author: UserSummary {
-                                id: author_id,
-                                username: resolved_username,
+                                id: author_id.clone(),
+                                username: resolved_username.clone(),
                                 global_name: None,
                                 avatar: None,
                                 is_bot: false,
                             },
-                            content,
+                            content: content.clone(),
                             timestamp: timestamp.unwrap_or_default(),
                             edited_timestamp: None,
                             attachments: Vec::new(),
@@ -2401,6 +2587,14 @@ impl AppState {
                 };
 
                 if is_new_message {
+                    let (mentions_user, mentions_everyone) = self.detect_message_mentions(&content);
+                    let channel_muted = self.is_channel_muted(&channel_id);
+                    let is_mention = mentions_user
+                        || (mentions_everyone
+                            && !self.suppress_everyone_mentions
+                            && !channel_muted);
+                    let is_self_author =
+                        !self.current_user.id.is_empty() && author_id == self.current_user.id;
                     let is_selected =
                         self.selected_channel_id.as_deref() == Some(channel_id.as_str());
                     for guild in &mut self.guilds {
@@ -2409,14 +2603,35 @@ impl AppState {
                                 if ch.id == channel_id {
                                     if is_selected {
                                         ch.unread = false;
-                                    } else if !ch.unread {
-                                        ch.unread = true;
-                                        guild.unread_count = guild.unread_count.saturating_add(1);
+                                    } else {
+                                        if !ch.unread {
+                                            ch.unread = true;
+                                            guild.unread_count =
+                                                guild.unread_count.saturating_add(1);
+                                        }
+                                        if is_mention && !is_self_author {
+                                            guild.mention_count =
+                                                guild.mention_count.saturating_add(1);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
+                    let _ = self.evaluate_message_notification(
+                        &id,
+                        &channel_id,
+                        guild_id.as_deref(),
+                        &author_id,
+                        &resolved_username,
+                        &content,
+                        false,
+                    );
+                } else {
+                    self.record_notification_intent(NotificationPriorityIntent::Suppressed(
+                        NotificationSuppressionReason::DuplicateMessage,
+                    ));
                 }
             }
             BackgroundEvent::GatewayMessageUpdate {
@@ -2810,5 +3025,437 @@ impl AppState {
                 self_mute, self_deaf, self_video
             ),
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // P1-4.3: Mention & DM Priority D-Bus Notification Routing
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Maximum number of queued notification intents buffered in `pending_notifications`.
+    #[allow(dead_code)]
+    pub const MAX_NOTIFICATION_QUEUE_LEN: usize = 256;
+
+    /// Maximum number of recent notification intents kept in `notification_telemetry.recent_intents`.
+    #[allow(dead_code)]
+    pub const MAX_NOTIFICATION_TELEMETRY_LOG: usize = 64;
+
+    #[allow(dead_code)]
+    pub fn set_app_focused(&mut self, focused: bool) {
+        self.app_focused = focused;
+    }
+
+    #[allow(dead_code)]
+    pub fn set_channel_muted(&mut self, channel_id: impl Into<String>, muted: bool) {
+        let cid = channel_id.into();
+        if muted {
+            self.muted_channels.insert(cid);
+        } else {
+            self.muted_channels.remove(&cid);
+        }
+    }
+
+    #[allow(dead_code)]
+    #[must_use]
+    pub fn is_channel_muted(&self, channel_id: &str) -> bool {
+        self.muted_channels.contains(channel_id)
+    }
+
+    #[allow(dead_code)]
+    pub fn set_channel_notification_level(
+        &mut self,
+        channel_id: impl Into<String>,
+        level: NotificationLevel,
+    ) {
+        self.channel_notification_levels
+            .insert(channel_id.into(), level);
+    }
+
+    #[allow(dead_code)]
+    #[must_use]
+    pub fn channel_notification_level(&self, channel_id: &str) -> NotificationLevel {
+        self.channel_notification_levels
+            .get(channel_id)
+            .copied()
+            .unwrap_or(self.default_notification_level)
+    }
+
+    #[allow(dead_code)]
+    pub fn set_default_notification_level(&mut self, level: NotificationLevel) {
+        self.default_notification_level = level;
+    }
+
+    #[allow(dead_code)]
+    pub fn set_suppress_everyone_mentions(&mut self, suppress: bool) {
+        self.suppress_everyone_mentions = suppress;
+    }
+
+    #[allow(dead_code)]
+    pub fn set_current_user_roles(&mut self, roles: Vec<String>) {
+        self.current_user_role_ids = roles;
+    }
+
+    #[allow(dead_code)]
+    #[must_use]
+    pub fn is_dm_channel(&self, channel_id: &str, guild_id: Option<&str>) -> bool {
+        if let Some(gid) = guild_id
+            && !gid.is_empty()
+        {
+            if let Some(guild) = self.guilds.iter().find(|g| g.id == gid)
+                && let Some(ch) = guild.channels.iter().find(|c| c.id == channel_id)
+            {
+                return matches!(ch.channel_type, ChannelType::Dm | ChannelType::GroupDm);
+            }
+            return false;
+        }
+
+        for guild in &self.guilds {
+            if let Some(ch) = guild.channels.iter().find(|c| c.id == channel_id) {
+                return matches!(ch.channel_type, ChannelType::Dm | ChannelType::GroupDm);
+            }
+        }
+
+        true
+    }
+
+    #[must_use]
+    pub fn detect_message_mentions(&self, content: &str) -> (bool, bool) {
+        let user_id = self.current_user.id.trim();
+        let direct_mention = !user_id.is_empty()
+            && (content.contains(&format!("<@{user_id}>"))
+                || content.contains(&format!("<@!{user_id}>")));
+
+        let role_mention = self
+            .current_user_role_ids
+            .iter()
+            .filter(|r| !r.trim().is_empty())
+            .any(|role_id| content.contains(&format!("<@&{}>", role_id.trim())))
+            || self
+                .members
+                .iter()
+                .filter(|m| !user_id.is_empty() && m.id == user_id)
+                .flat_map(|m| m.roles.iter())
+                .filter(|r| !r.trim().is_empty())
+                .any(|role_id| content.contains(&format!("<@&{}>", role_id.trim())));
+
+        let mentions_everyone = Self::contains_broadcast_mention(content, "@everyone")
+            || Self::contains_broadcast_mention(content, "@here");
+
+        (direct_mention || role_mention, mentions_everyone)
+    }
+
+    fn contains_broadcast_mention(content: &str, token: &str) -> bool {
+        for (idx, _) in content.match_indices(token) {
+            if idx > 0 {
+                let prev = content[..idx].chars().next_back();
+                if prev.is_some_and(|c| c.is_alphanumeric() || matches!(c, '_' | '.' | '-' | '@')) {
+                    continue;
+                }
+            }
+            let after_idx = idx + token.len();
+            if after_idx < content.len() {
+                let next = content[after_idx..].chars().next();
+                if next.is_some_and(|c| c.is_alphanumeric() || c == '_') {
+                    continue;
+                }
+            }
+            return true;
+        }
+        false
+    }
+
+    fn resolve_notification_channel_names(
+        &self,
+        guild_id: Option<&str>,
+        channel_id: &str,
+        is_dm: bool,
+    ) -> (String, Option<String>) {
+        if is_dm {
+            return (String::new(), None);
+        }
+        if let Some(gid) = guild_id
+            && let Some(guild) = self.guilds.iter().find(|g| g.id == gid)
+        {
+            let ch_name = guild
+                .channels
+                .iter()
+                .find(|c| c.id == channel_id)
+                .map(|c| c.name.clone())
+                .unwrap_or_else(|| channel_id.to_string());
+            return (ch_name, Some(guild.name.clone()));
+        }
+        for guild in &self.guilds {
+            if let Some(ch) = guild.channels.iter().find(|c| c.id == channel_id) {
+                return (ch.name.clone(), Some(guild.name.clone()));
+            }
+        }
+        (channel_id.to_string(), guild_id.map(ToString::to_string))
+    }
+
+    fn record_notification_intent(&mut self, intent: NotificationPriorityIntent) {
+        if !intent.is_suppressed() {
+            self.pending_notifications.push_back(intent.clone());
+            while self.pending_notifications.len() > Self::MAX_NOTIFICATION_QUEUE_LEN {
+                self.pending_notifications.pop_front();
+            }
+        }
+        self.last_notification_intent = Some(intent.clone());
+        self.notification_telemetry
+            .record(intent, Self::MAX_NOTIFICATION_TELEMETRY_LOG);
+    }
+
+    /// Evaluates an incoming `MESSAGE_CREATE` against user focus, DND, channel mute/level,
+    /// DM status, and mention rules (`<@id>`, `<@!id>`, `<@&role_id>`, `@everyone`, `@here`),
+    /// invokes `chord_platform::notifications::prepare_message_notification`, and records the
+    /// prioritized notification intent (`HighPriorityMentionOrDm`, `Normal`, or `Suppressed`).
+    pub fn evaluate_message_notification(
+        &mut self,
+        message_id: &str,
+        channel_id: &str,
+        guild_id: Option<&str>,
+        author_id: &str,
+        author_name: &str,
+        content: &str,
+        has_attachments: bool,
+    ) -> NotificationPriorityIntent {
+        let is_dm = self.is_dm_channel(channel_id, guild_id);
+        let (channel_name, guild_name) =
+            self.resolve_notification_channel_names(guild_id, channel_id, is_dm);
+        let (mentions_current_user, mentions_everyone) = self.detect_message_mentions(content);
+        let channel_muted = self.is_channel_muted(channel_id);
+        let channel_level = self.channel_notification_level(channel_id);
+
+        let resolved_author_name = if author_name.is_empty() {
+            if author_id.is_empty() {
+                "Unknown".to_string()
+            } else {
+                author_id.to_string()
+            }
+        } else {
+            author_name.to_string()
+        };
+
+        let event = MessageNotificationEvent {
+            message_id: message_id.to_string(),
+            channel_id: channel_id.to_string(),
+            channel_name,
+            guild_name,
+            author_id: author_id.to_string(),
+            author_name: resolved_author_name,
+            content: content.to_string(),
+            is_dm,
+            mentions_current_user,
+            mentions_everyone,
+            has_attachments,
+        };
+
+        let ctx = MessageNotificationContext {
+            current_user_id: self.current_user.id.clone(),
+            user_dnd: self.current_user.status == PresenceStatus::Dnd,
+            app_focused: self.app_focused,
+            active_channel_id: self.selected_channel_id.clone(),
+            channel_muted,
+            channel_level,
+            suppress_everyone: self.suppress_everyone_mentions || channel_muted,
+            desktop_entry: Some("discord-gpui".to_string()),
+        };
+
+        let intent = match prepare_message_notification(&event, &ctx) {
+            Some(prepared) => {
+                let effective_everyone = event.mentions_everyone && !ctx.suppress_everyone;
+                let is_mention = event.mentions_current_user || effective_everyone;
+                if is_dm
+                    || is_mention
+                    || matches!(
+                        prepared.hints.urgency,
+                        Some(Urgency::Critical | Urgency::Normal)
+                    )
+                {
+                    NotificationPriorityIntent::HighPriorityMentionOrDm(prepared)
+                } else {
+                    NotificationPriorityIntent::Normal(prepared)
+                }
+            }
+            None => {
+                let reason = if !ctx.current_user_id.is_empty()
+                    && event.author_id == ctx.current_user_id
+                {
+                    NotificationSuppressionReason::SelfAuthor
+                } else if ctx.user_dnd {
+                    NotificationSuppressionReason::UserDnd
+                } else if ctx.app_focused && ctx.active_channel_id.as_deref() == Some(channel_id) {
+                    NotificationSuppressionReason::FocusedActiveChannel
+                } else if !is_dm && ctx.channel_level == NotificationLevel::Nothing {
+                    NotificationSuppressionReason::ChannelNothing
+                } else if ctx.channel_muted {
+                    NotificationSuppressionReason::ChannelMuted
+                } else if event.content.trim().is_empty() && !event.has_attachments {
+                    NotificationSuppressionReason::EmptyContentWithoutAttachments
+                } else {
+                    NotificationSuppressionReason::NotMentionInOnlyMentionsChannel
+                };
+                NotificationPriorityIntent::Suppressed(reason)
+            }
+        };
+
+        self.record_notification_intent(intent.clone());
+        intent
+    }
+
+    #[allow(dead_code)]
+    pub fn drain_pending_notifications(&mut self) -> Vec<NotificationPriorityIntent> {
+        self.pending_notifications.drain(..).collect()
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // P2-2.3: SET_ACTIVITY RPC -> AppState & Gateway Op 3 PRESENCE_UPDATE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// Decodes a raw `SET_ACTIVITY` RPC command JSON string, validates the payload,
+    /// updates `active_rpc_activity` in `AppState`, and enqueues the corresponding
+    /// Gateway Op 3 (`PRESENCE_UPDATE`) JSON frame into `outbound_gateway_frames`.
+    #[allow(dead_code)]
+    pub fn apply_set_activity_json(
+        &mut self,
+        raw_json: &str,
+    ) -> Result<SetActivityPayload, RpcIpcError> {
+        match SetActivityPayload::from_json(raw_json) {
+            Ok(payload) => {
+                self.apply_set_activity_payload(payload.clone())?;
+                Ok(payload)
+            }
+            Err(err) => {
+                self.rpc_activity_telemetry.rejected_errors = self
+                    .rpc_activity_telemetry
+                    .rejected_errors
+                    .saturating_add(1);
+                Err(err)
+            }
+        }
+    }
+
+    /// Applies a validated `SetActivityPayload` to `AppState`, normalizing legacy second
+    /// timestamps to milliseconds, syncing `selected_member_profile` / `members` for
+    /// `current_user`, and enqueueing Gateway Op 3 (`PRESENCE_UPDATE`) JSON.
+    #[allow(dead_code)]
+    pub fn apply_set_activity_payload(
+        &mut self,
+        payload: SetActivityPayload,
+    ) -> Result<(), RpcIpcError> {
+        if payload.pid == 0 {
+            self.rpc_activity_telemetry.rejected_errors = self
+                .rpc_activity_telemetry
+                .rejected_errors
+                .saturating_add(1);
+            return Err(RpcIpcError::InvalidField("pid"));
+        }
+        if payload.nonce.is_empty()
+            || payload.nonce.len() > chord_platform::rpc_ipc::MAX_RPC_TEXT_LEN
+            || payload.nonce.chars().any(char::is_control)
+        {
+            self.rpc_activity_telemetry.rejected_errors = self
+                .rpc_activity_telemetry
+                .rejected_errors
+                .saturating_add(1);
+            return Err(RpcIpcError::InvalidField("nonce"));
+        }
+        if let Some(ref act) = payload.activity
+            && let Err(err) = act.validate()
+        {
+            self.rpc_activity_telemetry.rejected_errors = self
+                .rpc_activity_telemetry
+                .rejected_errors
+                .saturating_add(1);
+            return Err(err);
+        }
+
+        self.last_rpc_nonce = Some(payload.nonce);
+        match payload.activity {
+            Some(mut act) => {
+                if let Some(ts) = act.timestamps {
+                    act.timestamps = Some(ts.normalized_millis());
+                }
+                let op3_json = act.to_gateway_presence_update_json();
+                self.active_rpc_pid = Some(payload.pid);
+                self.active_rpc_activity = Some(act);
+                self.sync_current_user_member_activity();
+                self.outbound_gateway_frames.push(op3_json);
+                self.rpc_activity_telemetry.updates_applied = self
+                    .rpc_activity_telemetry
+                    .updates_applied
+                    .saturating_add(1);
+                self.rpc_activity_telemetry.frames_emitted =
+                    self.rpc_activity_telemetry.frames_emitted.saturating_add(1);
+            }
+            None => {
+                self.active_rpc_pid = None;
+                self.active_rpc_activity = None;
+                self.sync_current_user_member_activity();
+                let clear_json = Self::encode_cleared_presence_update_op3();
+                self.outbound_gateway_frames.push(clear_json);
+                self.rpc_activity_telemetry.clears_applied =
+                    self.rpc_activity_telemetry.clears_applied.saturating_add(1);
+                self.rpc_activity_telemetry.frames_emitted =
+                    self.rpc_activity_telemetry.frames_emitted.saturating_add(1);
+            }
+        }
+        Ok(())
+    }
+
+    /// Convenience helper to set or clear `Option<RpcActivity>` directly on `AppState`.
+    #[allow(dead_code)]
+    pub fn set_rpc_activity(&mut self, activity: Option<RpcActivity>) -> Result<(), RpcIpcError> {
+        let pid = self.active_rpc_pid.unwrap_or(1).max(1);
+        let nonce = self
+            .last_rpc_nonce
+            .clone()
+            .filter(|n| !n.is_empty())
+            .unwrap_or_else(|| "local-rpc".to_string());
+        self.apply_set_activity_payload(SetActivityPayload::new(pid, activity, nonce))
+    }
+
+    #[allow(dead_code)]
+    #[must_use]
+    pub fn active_rpc_activity_summary(&self) -> Option<String> {
+        let act = self.active_rpc_activity.as_ref()?;
+        let name = act
+            .name
+            .as_deref()
+            .filter(|s| !s.trim().is_empty())
+            .unwrap_or("Rich Presence");
+        match (
+            act.details.as_deref().filter(|s| !s.trim().is_empty()),
+            act.state.as_deref().filter(|s| !s.trim().is_empty()),
+        ) {
+            (Some(details), Some(st)) => Some(format!("{name} — {details} ({st})")),
+            (Some(details), None) => Some(format!("{name} — {details}")),
+            (None, Some(st)) => Some(format!("{name} — {st}")),
+            (None, None) => Some(name.to_string()),
+        }
+    }
+
+    #[allow(dead_code)]
+    fn sync_current_user_member_activity(&mut self) {
+        let summary = self.active_rpc_activity_summary();
+        let uid = self.current_user.id.clone();
+        let uname = self.current_user.username.clone();
+        for member in &mut self.members {
+            if (!uid.is_empty() && member.id == uid)
+                || (!uname.is_empty() && member.username == uname)
+            {
+                member.activity = summary.clone();
+            }
+        }
+        if let Some(ref mut profile) = self.selected_member_profile
+            && ((!uid.is_empty() && profile.id == uid)
+                || (!uname.is_empty() && profile.username == uname))
+        {
+            profile.activity = summary;
+        }
+    }
+
+    #[allow(dead_code)]
+    #[must_use]
+    pub fn encode_cleared_presence_update_op3() -> String {
+        r#"{"d":{"activities":[],"afk":false,"since":null,"status":"online"},"op":3}"#.to_string()
     }
 }
