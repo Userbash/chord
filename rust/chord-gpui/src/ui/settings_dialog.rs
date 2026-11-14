@@ -3,10 +3,104 @@ use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;
 use gpui::*;
 use gpui_kit::component::StyledExt;
+use std::path::PathBuf;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AutostartToggleKind {
+    OpenOnStartup,
+    StartMinimized,
+    MinimizeToTray,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AutostartRowViewModel {
+    pub kind: AutostartToggleKind,
+    pub title: &'static str,
+    pub description: &'static str,
+    pub is_on: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AutostartRowsSnapshot {
+    pub rows: Vec<AutostartRowViewModel>,
+    pub last_error: Option<String>,
+    pub is_open_on_startup: bool,
+    pub is_start_minimized: bool,
+    pub is_minimize_to_tray: bool,
+    pub desktop_path: PathBuf,
+    pub is_installed: bool,
+}
 
 pub struct SettingsDialog;
 
 impl SettingsDialog {
+    pub const AUTOSTART_SECTION_TITLE: &'static str = "НАСТРОЙКИ ЗАПУСКА (LINUX XDG AUTOSTART)";
+    pub const TITLE_OPEN_ON_STARTUP: &'static str =
+        "Запускать Discord при старте системы (XDG Autostart)";
+    pub const TITLE_START_MINIMIZED: &'static str =
+        "Запускать свёрнутым в системный трей (--start-minimized)";
+    pub const TITLE_MINIMIZE_TO_TRAY: &'static str = "Сворачивать в трей при закрытии окна";
+
+    pub fn autostart_rows_snapshot(
+        controller: &crate::platform::autostart::AutostartSettingsController,
+    ) -> AutostartRowsSnapshot {
+        let snap = controller.snapshot();
+        let rows = vec![
+            AutostartRowViewModel {
+                kind: AutostartToggleKind::OpenOnStartup,
+                title: Self::TITLE_OPEN_ON_STARTUP,
+                description: "Создаёт .desktop ярлык в ~/.config/autostart для автоматического запуска при входе в сессию.",
+                is_on: snap.open_on_startup,
+            },
+            AutostartRowViewModel {
+                kind: AutostartToggleKind::StartMinimized,
+                title: Self::TITLE_START_MINIMIZED,
+                description: "Запускает приложение без отображения главного окна с иконкой в системном трее.",
+                is_on: snap.start_minimized,
+            },
+            AutostartRowViewModel {
+                kind: AutostartToggleKind::MinimizeToTray,
+                title: Self::TITLE_MINIMIZE_TO_TRAY,
+                description: "При нажатии на крестик окно скрывается в трей вместо полного завершения процесса.",
+                is_on: snap.minimize_to_tray,
+            },
+        ];
+        AutostartRowsSnapshot {
+            rows,
+            last_error: snap.last_error,
+            is_open_on_startup: snap.open_on_startup,
+            is_start_minimized: snap.start_minimized,
+            is_minimize_to_tray: snap.minimize_to_tray,
+            desktop_path: snap.desktop_path,
+            is_installed: snap.desktop_installed,
+        }
+    }
+
+    pub fn apply_autostart_toggle(
+        controller: &mut crate::platform::autostart::AutostartSettingsController,
+        kind: AutostartToggleKind,
+        explicit_value: Option<bool>,
+    ) -> Result<
+        crate::platform::autostart::AutostartSettingsSnapshot,
+        crate::platform::autostart::AutostartError,
+    > {
+        match kind {
+            AutostartToggleKind::OpenOnStartup => {
+                let target = explicit_value.unwrap_or(!controller.open_on_startup());
+                controller.set_open_on_startup(target)?;
+            }
+            AutostartToggleKind::StartMinimized => {
+                let target = explicit_value.unwrap_or(!controller.start_minimized());
+                controller.set_start_minimized(target)?;
+            }
+            AutostartToggleKind::MinimizeToTray => {
+                let target = explicit_value.unwrap_or(!controller.minimize_to_tray());
+                controller.set_minimize_to_tray(target)?;
+            }
+        }
+        Ok(controller.snapshot())
+    }
+
     pub fn render(
         state: &AppState,
         _window: &mut Window,
@@ -1031,6 +1125,97 @@ impl SettingsDialog {
                         cx,
                     )),
             )
+            // 6. Настройки запуска (Linux XDG Autostart & System Tray)
+            .child(Self::render_autostart_section(cx))
+    }
+
+    /// Секция настроек автозапуска и системного трея Linux XDG
+    fn render_autostart_section(cx: &mut Context<AppLayout>) -> impl IntoElement {
+        let (open_on_startup, start_minimized, minimize_to_tray, last_error) = {
+            let ctrl_arc = crate::platform::autostart::global_autostart_controller();
+            let ctrl = ctrl_arc.lock().expect("autostart controller lock");
+            (
+                ctrl.open_on_startup(),
+                ctrl.start_minimized(),
+                ctrl.minimize_to_tray(),
+                ctrl.last_error().map(str::to_string),
+            )
+        };
+
+        div()
+            .v_flex()
+            .gap(px(12.))
+            .child(
+                div()
+                    .v_flex()
+                    .gap(px(2.))
+                    .child(
+                        div()
+                            .text_size(px(12.))
+                            .font_weight(FontWeight::BOLD)
+                            .text_color(DISCORD_THEME.text_muted)
+                            .child(Self::AUTOSTART_SECTION_TITLE),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(12.))
+                            .text_color(DISCORD_THEME.text_muted)
+                            .child("Интеграция с рабочим столом Linux: автозапуск через XDG Desktop Entry и поведение трея"),
+                    ),
+            )
+            .children(last_error.map(|err| {
+                div()
+                    .p(px(10.))
+                    .rounded(px(6.))
+                    .bg(DISCORD_THEME.bg_secondary)
+                    .border_1()
+                    .border_color(DISCORD_THEME.text_danger)
+                    .text_size(px(12.))
+                    .text_color(DISCORD_THEME.text_danger)
+                    .child(format!("Ошибка автозапуска: {err}"))
+            }))
+            // 1. Запускать Discord при старте системы (XDG Autostart)
+            .child(Self::render_toggle_row(
+                Self::TITLE_OPEN_ON_STARTUP,
+                "Создаёт .desktop ярлык в ~/.config/autostart для автоматического запуска при входе в сессию.",
+                open_on_startup,
+                |_this, cx| {
+                    let arc = crate::platform::autostart::global_autostart_controller();
+                    if let Ok(mut ctrl) = arc.lock() {
+                        let _ = ctrl.toggle_open_on_startup();
+                    }
+                    cx.notify();
+                },
+                cx,
+            ))
+            // 2. Запускать свёрнутым в системный трей (--start-minimized)
+            .child(Self::render_toggle_row(
+                Self::TITLE_START_MINIMIZED,
+                "Запускает приложение без отображения главного окна с иконкой в системном трее.",
+                start_minimized,
+                |_this, cx| {
+                    let arc = crate::platform::autostart::global_autostart_controller();
+                    if let Ok(mut ctrl) = arc.lock() {
+                        let _ = ctrl.toggle_start_minimized();
+                    }
+                    cx.notify();
+                },
+                cx,
+            ))
+            // 3. Сворачивать в трей при закрытии окна
+            .child(Self::render_toggle_row(
+                Self::TITLE_MINIMIZE_TO_TRAY,
+                "При нажатии на крестик окно скрывается в трей вместо полного завершения процесса.",
+                minimize_to_tray,
+                |_this, cx| {
+                    let arc = crate::platform::autostart::global_autostart_controller();
+                    if let Ok(mut ctrl) = arc.lock() {
+                        let _ = ctrl.toggle_minimize_to_tray();
+                    }
+                    cx.notify();
+                },
+                cx,
+            ))
     }
 
     /// Карточка выбора темы оформления

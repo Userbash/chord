@@ -10,6 +10,7 @@
 use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex, OnceLock};
 
 pub const AUTOSTART_SERVICE_CONTAINER: &str = "Autostart Service";
 pub const AUTOSTART_SERVICE_DIMENSIONS: &str = "CLI & Config";
@@ -319,9 +320,21 @@ impl XdgAutostartManager {
         self.file_state = AutostartFileUiState::Writing;
         let content = self.spec.render_desktop_file()?;
         let dir = self.config_home.join("autostart");
-        fs::create_dir_all(&dir).map_err(|_| AutostartError::IoError("create_dir_all"))?;
+        fs::create_dir_all(&dir).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::PermissionDenied {
+                AutostartError::PermissionDenied("create_dir_all")
+            } else {
+                AutostartError::IoError("create_dir_all")
+            }
+        })?;
         let path = dir.join(DESKTOP_FILE_NAME);
-        fs::write(&path, content.as_bytes()).map_err(|_| AutostartError::IoError("write"))?;
+        fs::write(&path, content.as_bytes()).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::PermissionDenied {
+                AutostartError::PermissionDenied("write")
+            } else {
+                AutostartError::IoError("write")
+            }
+        })?;
         apply_desktop_permissions(&path, DESKTOP_FILE_MODE)?;
         self.file_state = AutostartFileUiState::Registered;
         Ok(path)
@@ -330,7 +343,13 @@ impl XdgAutostartManager {
     pub fn uninstall(&mut self) -> Result<bool, AutostartError> {
         let path = self.desktop_file_path();
         if path.exists() {
-            fs::remove_file(&path).map_err(|_| AutostartError::IoError("remove_file"))?;
+            fs::remove_file(&path).map_err(|e| {
+                if e.kind() == std::io::ErrorKind::PermissionDenied {
+                    AutostartError::PermissionDenied("remove_file")
+                } else {
+                    AutostartError::IoError("remove_file")
+                }
+            })?;
             self.file_state = AutostartFileUiState::Absent;
             Ok(true)
         } else {
@@ -554,15 +573,294 @@ pub fn build_portal_background_dbus_request(autostart: bool, start_minimized: bo
 pub fn mask_autostart_secrets(log_line: &str) -> String {
     let mut out = Vec::new();
     for token in log_line.split_whitespace() {
-        if token.starts_with("--token=") || token.starts_with("token=") {
+        let clean = token.trim_matches(|c: char| {
+            matches!(c, '"' | '\'' | ',' | '[' | ']' | '(' | ')' | '{' | '}')
+        });
+        if clean.starts_with("--token=") || clean.starts_with("token=") {
             out.push("token=[REDACTED]".to_string());
-        } else if token.starts_with("mfa.") || token.starts_with("Bearer_") {
+        } else if clean.starts_with("mfa.") || clean.starts_with("Bearer_") {
             out.push("[REDACTED]".to_string());
         } else {
             out.push(token.to_string());
         }
     }
     out.join(" ")
+}
+
+pub fn default_config_home() -> PathBuf {
+    if let Ok(val) = std::env::var("XDG_CONFIG_HOME") {
+        if !val.trim().is_empty() {
+            return PathBuf::from(val);
+        }
+    }
+    if let Ok(home) = std::env::var("HOME") {
+        if !home.trim().is_empty() {
+            return PathBuf::from(home).join(".config");
+        }
+    }
+    PathBuf::from("/tmp/.config")
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AutostartSettingsSnapshot {
+    pub open_on_startup: bool,
+    pub start_minimized: bool,
+    pub minimize_to_tray: bool,
+    pub desktop_installed: bool,
+    pub desktop_path: PathBuf,
+    pub file_state: AutostartFileUiState,
+    pub last_error: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct AutostartSettingsController {
+    config_home: PathBuf,
+    manager: XdgAutostartManager,
+    open_on_startup: bool,
+    start_minimized: bool,
+    minimize_to_tray: bool,
+    last_error: Option<String>,
+}
+
+impl Default for AutostartSettingsController {
+    fn default() -> Self {
+        let config_home = default_config_home();
+        Self::for_config_home(config_home)
+    }
+}
+
+impl AutostartSettingsController {
+    pub fn new(config_home: PathBuf, spec: XdgDesktopEntrySpec) -> Self {
+        let start_minimized = spec.start_minimized;
+        let manager = XdgAutostartManager::new(config_home.clone(), spec);
+        let open_on_startup = manager.is_installed();
+        let minimize_to_tray = manager.minimize_to_tray();
+        Self {
+            config_home,
+            manager,
+            open_on_startup,
+            start_minimized,
+            minimize_to_tray,
+            last_error: None,
+        }
+    }
+
+    pub fn for_config_home(config_home: PathBuf) -> Self {
+        let spec = XdgDesktopEntrySpec::default();
+        Self::new(config_home, spec)
+    }
+
+    pub fn config_home(&self) -> &Path {
+        &self.config_home
+    }
+
+    pub fn desktop_file_path(&self) -> PathBuf {
+        self.manager.desktop_file_path()
+    }
+
+    pub fn open_on_startup(&self) -> bool {
+        self.open_on_startup
+    }
+
+    pub fn start_minimized(&self) -> bool {
+        self.start_minimized
+    }
+
+    pub fn minimize_to_tray(&self) -> bool {
+        self.minimize_to_tray
+    }
+
+    pub fn last_error(&self) -> Option<&str> {
+        self.last_error.as_deref()
+    }
+
+    pub fn clear_error(&mut self) {
+        self.last_error = None;
+    }
+
+    pub fn snapshot(&self) -> AutostartSettingsSnapshot {
+        AutostartSettingsSnapshot {
+            open_on_startup: self.open_on_startup,
+            start_minimized: self.start_minimized,
+            minimize_to_tray: self.minimize_to_tray,
+            desktop_installed: self.manager.is_installed(),
+            desktop_path: self.desktop_file_path(),
+            file_state: self.manager.file_state(),
+            last_error: self.last_error.clone(),
+        }
+    }
+
+    fn record_error(&mut self, err: &AutostartError) {
+        let extra = if !self.manager.spec.extra_args.is_empty() {
+            format!(" args: {}", self.manager.spec.extra_args.join(" "))
+        } else {
+            String::new()
+        };
+        let raw = format!("{err:?}{extra}");
+        self.last_error = Some(mask_autostart_secrets(&raw));
+    }
+
+    pub fn set_open_on_startup(&mut self, enabled: bool) -> Result<bool, AutostartError> {
+        if enabled {
+            self.manager.spec.enabled = true;
+            self.manager.spec.start_minimized = self.start_minimized;
+            match self.manager.install() {
+                Ok(_) => {
+                    self.open_on_startup = true;
+                    self.last_error = None;
+                    Ok(true)
+                }
+                Err(err) => {
+                    self.record_error(&err);
+                    Err(err)
+                }
+            }
+        } else {
+            match self.manager.uninstall() {
+                Ok(_) => {
+                    self.open_on_startup = false;
+                    self.last_error = None;
+                    Ok(false)
+                }
+                Err(err) => {
+                    self.record_error(&err);
+                    Err(err)
+                }
+            }
+        }
+    }
+
+    pub fn toggle_open_on_startup(&mut self) -> Result<bool, AutostartError> {
+        self.set_open_on_startup(!self.open_on_startup)
+    }
+
+    pub fn set_start_minimized(&mut self, enabled: bool) -> Result<bool, AutostartError> {
+        self.start_minimized = enabled;
+        self.manager.spec.start_minimized = enabled;
+        if self.open_on_startup && self.manager.is_installed() {
+            match self.manager.install() {
+                Ok(_) => {
+                    self.last_error = None;
+                    Ok(enabled)
+                }
+                Err(err) => {
+                    self.record_error(&err);
+                    Err(err)
+                }
+            }
+        } else {
+            self.last_error = None;
+            Ok(enabled)
+        }
+    }
+
+    pub fn toggle_start_minimized(&mut self) -> Result<bool, AutostartError> {
+        self.set_start_minimized(!self.start_minimized)
+    }
+
+    pub fn set_minimize_to_tray(&mut self, enabled: bool) -> Result<bool, AutostartError> {
+        self.minimize_to_tray = enabled;
+        self.manager.set_minimize_to_tray(enabled);
+        self.last_error = None;
+        Ok(enabled)
+    }
+
+    pub fn toggle_minimize_to_tray(&mut self) -> Result<bool, AutostartError> {
+        self.set_minimize_to_tray(!self.minimize_to_tray)
+    }
+
+    pub fn reload_from_disk(&mut self) -> Result<AutostartSettingsSnapshot, AutostartError> {
+        let path = self.desktop_file_path();
+        if !path.is_file() {
+            self.open_on_startup = false;
+            self.manager.file_state = AutostartFileUiState::Absent;
+            self.last_error = None;
+            return Ok(self.snapshot());
+        }
+
+        let content = match fs::read_to_string(&path) {
+            Ok(c) => c,
+            Err(e) => {
+                let err = if e.kind() == std::io::ErrorKind::PermissionDenied {
+                    AutostartError::PermissionDenied("read_desktop_file")
+                } else {
+                    AutostartError::IoError("read_desktop_file")
+                };
+                self.record_error(&err);
+                return Err(err);
+            }
+        };
+
+        let mut start_minimized = false;
+        let mut enabled = true;
+        for line in content.lines() {
+            let trimmed = line.trim();
+            if let Some(exec) = trimmed.strip_prefix("Exec=") {
+                if exec.contains(CLI_FLAG_START_MINIMIZED)
+                    || exec.contains(CLI_FLAG_START_MINIMIZED_SHORT)
+                {
+                    start_minimized = true;
+                }
+            } else if let Some(val) = trimmed.strip_prefix("X-GNOME-Autostart-enabled=") {
+                if val.trim().eq_ignore_ascii_case("false") {
+                    enabled = false;
+                }
+            }
+        }
+
+        self.open_on_startup = enabled;
+        self.start_minimized = start_minimized;
+        self.manager.spec.enabled = enabled;
+        self.manager.spec.start_minimized = start_minimized;
+        self.manager.file_state = AutostartFileUiState::Registered;
+        self.last_error = None;
+        Ok(self.snapshot())
+    }
+
+    pub fn handle_ipc(
+        &mut self,
+        channel: &str,
+        value: Option<bool>,
+    ) -> Result<bool, AutostartError> {
+        match channel {
+            IPC_APP_GET_OPEN_ON_START => Ok(self.open_on_startup()),
+            IPC_TOGGLE_OPEN_ON_STARTUP => {
+                let target = value.unwrap_or(!self.open_on_startup());
+                self.set_open_on_startup(target)
+            }
+            IPC_TOGGLE_START_MINIMIZED => {
+                let target = value.unwrap_or(!self.start_minimized());
+                self.set_start_minimized(target)
+            }
+            IPC_TOGGLE_MINIMIZE_TO_TRAY => {
+                let target = value.unwrap_or(!self.minimize_to_tray());
+                self.set_minimize_to_tray(target)
+            }
+            IPC_UPDATE_OPEN_ON_STARTUP => {
+                self.reload_from_disk()?;
+                Ok(self.open_on_startup())
+            }
+            _ => Err(AutostartError::BoundaryViolation("unknown_ipc_channel")),
+        }
+    }
+}
+
+static GLOBAL_AUTOSTART: OnceLock<Arc<Mutex<AutostartSettingsController>>> = OnceLock::new();
+
+pub fn global_autostart_controller() -> Arc<Mutex<AutostartSettingsController>> {
+    GLOBAL_AUTOSTART
+        .get_or_init(|| Arc::new(Mutex::new(AutostartSettingsController::default())))
+        .clone()
+}
+
+pub fn init_global_autostart_controller(controller: AutostartSettingsController) {
+    if let Some(arc) = GLOBAL_AUTOSTART.get() {
+        if let Ok(mut lock) = arc.lock() {
+            *lock = controller;
+        }
+    } else {
+        let _ = GLOBAL_AUTOSTART.set(Arc::new(Mutex::new(controller)));
+    }
 }
 
 #[cfg(test)]
