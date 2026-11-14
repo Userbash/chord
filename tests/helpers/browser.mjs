@@ -64,7 +64,8 @@ export function findBrowser(env = process.env) {
  * Запускает headless-браузер с remote-debugging и открытым `url`.
  * Порт выбирает сам браузер (`--remote-debugging-port=0`): фактический порт
  * берётся из файла `DevToolsActivePort` в каталоге профиля.
- * @param {{ bin: string, url: string, userDataDir: string }} options
+ * @param {{ bin: string, url: string, userDataDir: string, timeoutMs?: number,
+ *   spawnProcess?: (bin: string, args: string[], options: import("node:child_process").SpawnOptions) => import("node:child_process").ChildProcess }} options
  * @returns {Promise<Browser>}
  */
 export async function launchBrowser(options) {
@@ -81,7 +82,7 @@ export async function launchBrowser(options) {
     "--remote-debugging-port=0",
     options.url,
   ];
-  const child = spawn(options.bin, args, { stdio: "ignore" });
+  const child = (options.spawnProcess ?? spawn)(options.bin, args, { stdio: "ignore" });
   const portFile = join(options.userDataDir, "DevToolsActivePort");
   /** @type {string} */
   let endpoint = "";
@@ -98,13 +99,32 @@ export async function launchBrowser(options) {
           return false;
         }
       },
-      { timeoutMs: 15000 },
+      { timeoutMs: options.timeoutMs ?? 15000 },
     );
   } catch (error) {
-    child.kill("SIGKILL");
-    throw new Error(`Браузер не отдал DevToolsActivePort: ${options.bin}`, { cause: error });
+    const message = `Браузер не отдал DevToolsActivePort: ${options.bin}`;
+    try {
+      await stopFailedBrowser(child);
+    } catch (cleanupError) {
+      throw new AggregateError([error, cleanupError], `${message}; browser cleanup failed`, { cause: error });
+    }
+    throw new Error(message, { cause: error });
   }
   return { child, endpoint };
+}
+
+/** @param {import("node:child_process").ChildProcess} child */
+async function stopFailedBrowser(child) {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  await new Promise((done, fail) => {
+    const exited = () => { child.removeListener("error", failed); done(undefined); };
+    const failed = (/** @type {Error} */ error) => { child.removeListener("exit", exited); fail(error); };
+    child.once("exit", exited);
+    child.once("error", failed);
+    try { child.kill("SIGKILL"); } catch (error) {
+      failed(error instanceof Error ? error : new Error(String(error)));
+    }
+  });
 }
 
 /**

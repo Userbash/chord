@@ -20,12 +20,12 @@
  */
 import { createServer } from "node:http";
 import { accessSync, constants, existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { delimiter, extname, join, normalize, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { evaluate, listTargets, openPage } from "../../src/core/cdp/client.mjs";
-import { launchBrowser, stopBrowser } from "./browser.mjs";
-import { makeTmpDir } from "./tmp.mjs";
+import { launchBrowser } from "./browser.mjs";
 import { bootstrapSource } from "./fake-tauri.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
@@ -412,7 +412,7 @@ export function injectBootstrap(html, script) {
 
 /**
  * Статический сервер каталога `ui/` (только чтение, только внутри root).
- * @param {{ root?: string, bootstrap: string }} options
+ * @param {{ root?: string, bootstrap: string | null }} options null serves static HTML unchanged
  * @returns {Promise<{ url: string, port: number, close: () => Promise<void> }>}
  */
 export async function startUiServer(options) {
@@ -432,7 +432,7 @@ export async function startUiServer(options) {
         }
         const bytes = await readFile(target);
         const type = MIME[extname(target).toLowerCase()] ?? "application/octet-stream";
-        const body = target.endsWith(".html")
+        const body = target.endsWith(".html") && bootstrap !== null
           ? Buffer.from(injectBootstrap(bytes.toString("utf8"), bootstrap), "utf8")
           : bytes;
         response.writeHead(200, {
@@ -831,20 +831,51 @@ export class UiFixture {
     } catch {
       // соединение уже закрыто
     }
-    await new Promise((done) => {
-      const child = this.browser.child;
-      if (child.exitCode !== null || child.signalCode !== null) return done(undefined);
-      const timer = setTimeout(() => {
-        child.kill("SIGKILL");
-        done(undefined);
-      }, 3000);
-      child.once("exit", () => {
+    try {
+      await stopFixtureBrowser(this.browser);
+    } finally {
+      await this.server.close();
+    }
+  }
+}
+
+/** @param {{ child: import("node:child_process").ChildProcess }} browser */
+async function stopFixtureBrowser(browser) {
+  const child = browser.child;
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  await new Promise((done, fail) => {
+    const exited = () => { clearTimeout(timer); done(undefined); };
+    const stop = (/** @type {NodeJS.Signals} */ signal) => {
+      try { child.kill(signal); } catch (error) {
         clearTimeout(timer);
-        done(undefined);
-      });
-      child.kill("SIGTERM");
-    });
-    await this.server.close();
+        child.removeListener("exit", exited);
+        fail(error);
+      }
+    };
+    const timer = setTimeout(() => stop("SIGKILL"), 3000);
+    child.once("exit", exited);
+    stop("SIGTERM");
+  });
+}
+
+/**
+ * Keep temporary-profile removal last, including partial-startup/error paths.
+ * @param {{ opened: { close: () => Promise<void> } | null,
+ *   browser: { child: import("node:child_process").ChildProcess } | null,
+ *   server: { close: () => Promise<void> }, dir: string | null }} resources
+ */
+export async function cleanupUiFixture({ opened, browser, server, dir }) {
+  try {
+    if (opened) await opened.close();
+  } finally {
+    try {
+      if (browser) await stopFixtureBrowser(browser);
+    } finally {
+      try { await server.close(); } finally {
+        // Chromium can finish a queued profile write just after its main process exits.
+        if (dir) await rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+      }
+    }
   }
 }
 
@@ -859,18 +890,14 @@ export async function openUiFixture(t, options = {}) {
   const env = options.env ?? process.env;
   const bin = requireBrowser(env);
   const server = await startUiServer({ bootstrap: bootstrapSource(options.commands ?? {}) });
-  const dir = await makeTmpDir(t, "discord-lab-m2-");
+  /** @type {string | null} */
+  let dir = null;
   /** @type {{ child: import("node:child_process").ChildProcess, endpoint: string } | null} */
   let browser = null;
   /** @type {UiFixture | null} */
   let opened = null;
-  t.after(async () => {
-    if (opened) await opened.close();
-    else {
-      if (browser) stopBrowser(browser);
-      await server.close();
-    }
-  });
+  t.after(() => cleanupUiFixture({ opened, browser, server, dir }));
+  dir = await mkdtemp(join(tmpdir(), "discord-lab-m2-"));
 
   browser = await launchBrowser({
     bin,

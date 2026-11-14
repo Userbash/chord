@@ -76,7 +76,10 @@ describe("M2-05: settings density/theme → reload persistence (реальный
     );
 
     // 3. Сохранение: ровно payload UiSettings, без чужих ключей и секретов.
-    await ui.waitFor("window.__QA__.count('settings_save') >= 1", { label: "settings_save" });
+    // Boot also saves the selected guild. Wait for the debounced appearance save.
+    await ui.waitForCall("settings_save", {
+      where: (args) => args?.settings?.density === DENSITY && args?.settings?.theme === THEME,
+    });
     const saves = await ui.calls("settings_save");
     const saved = saves[saves.length - 1]?.args?.settings;
     assert.ok(saved && typeof saved === "object", "settings_save без settings");

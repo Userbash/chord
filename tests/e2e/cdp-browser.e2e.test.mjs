@@ -7,8 +7,8 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseJson, runCli } from "../helpers/cli.mjs";
-import { findBrowser, launchBrowser, stopBrowser } from "../helpers/browser.mjs";
-import { makeTmpDir } from "../helpers/tmp.mjs";
+import { findBrowser } from "../helpers/browser.mjs";
+import { openStaticFixture } from "../helpers/static-fixture.mjs";
 
 const fixture = fileURLToPath(new URL("../fixtures/app/index.html", import.meta.url));
 
@@ -17,13 +17,7 @@ describe("cdp против headless-браузера", () => {
     const bin = findBrowser();
     if (!bin) return t.skip("нет браузера: задайте CHROME_BIN (например, /usr/bin/chromium)");
 
-    const dir = await makeTmpDir(t);
-    const browser = await launchBrowser({
-      bin,
-      url: `file://${fixture}`,
-      userDataDir: join(dir, "profile"),
-    });
-    t.after(() => stopBrowser(browser));
+    const { browser, dir } = await openStaticFixture(t, { bin, file: fixture });
     const env = { CDP_ENDPOINT: browser.endpoint, CDP_TARGET: "index.html" };
 
     const targets = await runCli(["cdp", "targets"], { env });
