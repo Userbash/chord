@@ -23,6 +23,7 @@ pub mod perf_benchmark;
 pub mod pipewire_portal;
 pub mod platform;
 pub mod quality_gate;
+pub mod session;
 mod state;
 mod storage;
 mod theme;
@@ -150,6 +151,11 @@ fn main() {
         .or_else(|| std::env::var("SPIKE_EXIT_AFTER_MS").ok())
         .and_then(|v| v.parse::<u64>().ok());
 
+    let shutdown_coordinator = session::runtime::install_os_signal_shutdown_hook(
+        session::runtime::ShutdownCoordinator::new(),
+    );
+    let shutdown_for_run = shutdown_coordinator.clone();
+
     gpui_kit::application().run(move |cx| {
         gpui_kit::init(cx);
 
@@ -177,13 +183,17 @@ fn main() {
         .expect("Не удалось открыть главное окно Discord GPUI");
 
         if let Some(ms) = exit_after_ms {
+            let shutdown_for_timer = shutdown_for_run.clone();
             cx.spawn(async move |cx| {
                 cx.background_executor()
                     .timer(std::time::Duration::from_millis(ms))
                     .await;
+                shutdown_for_timer.request_shutdown(session::runtime::ShutdownReason::AppQuit);
                 let _ = cx.update(|cx| cx.quit());
             })
             .detach();
         }
     });
+
+    shutdown_coordinator.request_shutdown(session::runtime::ShutdownReason::AppQuit);
 }

@@ -4,6 +4,8 @@
 //! Clean-room references: `docs/re/gateway-protocol.md`, `docs/re/rest-d02.md`,
 //! `chord_core::gateway::supervisor` (`Supervisor`, `StopReason`, `classify_close`).
 
+pub mod runtime;
+
 use std::fmt;
 use std::future::Future;
 use std::pin::Pin;
