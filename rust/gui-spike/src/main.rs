@@ -24,6 +24,12 @@ static LAST_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 =
 static LAST_PIPEWIRE_FD: std::sync::atomic::AtomicI32 =
     std::sync::atomic::AtomicI32::new(-1);
 
+/// Сессия портала XDG ScreenCast должна жить всё время трансляции,
+/// иначе портал уничтожает PipeWire node через ~1.5 секунды!
+static ACTIVE_PORTAL_SESSION: std::sync::Mutex<
+    Option<ashpd::desktop::Session<ashpd::desktop::screencast::Screencast>>,
+> = std::sync::Mutex::new(None);
+
 use chord_client::attachments::{
     AttachmentError, AttachmentFileSpec, AttachmentTransport, AttachmentUploadSlot,
     DiscordAttachments, UploadBytes, UploadPutCommandArgs, UploadPutInput,
@@ -128,6 +134,13 @@ async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
             -1
         }
     };
+    if let Ok(mut guard) = ACTIVE_PORTAL_SESSION.lock() {
+        *guard = Some(session);
+    }
+    if fd >= 0 {
+        let pid = std::process::id();
+        let _ = std::fs::write("/dev/shm/discord_pipewire_fd.txt", format!("{pid}:{fd}\n").as_bytes());
+    }
     Ok((node_id, fd))
 }
 
@@ -1897,13 +1910,7 @@ async fn voice_stream_start(
         None
     };
 
-    // [BUG FIX #2] Save spec fields before the blocking closure moves `spec`.
-    // We need these to re-send OP 18 after RTC warmup delay.
-    let guild_id_saved: Option<String> = spec.guild_id.clone();
-    let channel_id_saved: String = spec.channel_id.clone();
-
     let op18 = chord_client::voice_stage::build_gateway_stream_create_op18(&spec)?;
-    // queue_live_stream_create вызывается внутри connect_or_update_live_voice_ext
     let stream_key = blocking(move || {
         if let Some(ref gid_str) = spec.guild_id {
             if !data::can_user_stream_in_channel(Some(gid_str), &spec.channel_id) {
@@ -1937,28 +1944,17 @@ async fn voice_stream_start(
             // work on Wayland. PipeWire nodeId provides actual screen capture.
             // Note: marker file already written before blocking() to win the race with JS set_capture_source.
             let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
-            let fd_field = if fd >= 0 { format!(",\"fd\":{fd}") } else { String::new() };
+            let pid = std::process::id();
+            let fd_field = if fd >= 0 { format!(",\"fd\":{fd},\"pid\":{pid}") } else { String::new() };
             let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"pipewire\",\"nodeId\":{nid}{fd_field}}}");
             chord_core::ws::send_native_stream_cmd(&ucmd);
-            println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} fd={fd} to native worker (overrides screen:{}))", spec.source_id);
+            println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} fd={fd} pid={pid} to native worker (overrides screen:{}))", spec.source_id);
         }
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, vvideo, true)?;
         Ok::<String, String>(stream_key)
     })
     .await??;
-    // [BUG FIX #2] Re-send OP 18 STREAM_CREATE after 1500ms to give the native worker
-    // time to confirm applyScreenBroadcast active=true. The initial OP 18 sent inside
-    // connect_or_update_live_voice_ext fires before video capture is ready, causing the
-    // server to send STREAM_DELETE ~200ms later.
-    tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
-    chord_core::ws::clear_last_stream_key(); // allow re-send on same stream key
-    let _ = chord_core::ws::queue_live_stream_create(
-        if guild_id_saved.is_some() { "guild" } else { "call" },
-        guild_id_saved.as_deref(),
-        &channel_id_saved,
-    );
-    println!("[IPC-TRACE] voice_stream_start: re-sent OP 18 STREAM_CREATE after 1500ms RTC warmup");
     Ok(serde_json::json!({ "ok": true, "streamKey": stream_key, "payload": op18 }))
 }
 
@@ -1995,6 +1991,10 @@ async fn voice_stream_stop(
     let k = key.clone();
     let _ = blocking(move || {
         chord_core::ws::clear_last_stream_key();
+        if let Ok(mut guard) = ACTIVE_PORTAL_SESSION.lock() {
+            *guard = None;
+        }
+        let _ = std::fs::remove_file("/dev/shm/discord_pipewire_fd.txt");
         let (gid, cid) = data::current_live_voice_target();
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         let _ = data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, false);
@@ -2326,101 +2326,37 @@ fn remote_auth_cancel_session() -> Result<RemoteAuthSessionSnapshot, RemoteAuthE
     remote_auth::ipc_cancel_session()
 }
 
-const SYSTEM_TRAY_PY: &str = r#"
-import os, sys, signal
-import gi
-gi.require_version("Gtk", "3.0")
-gi.require_version("AppIndicator3", "0.1")
-from gi.repository import Gtk, GLib, AppIndicator3
-
-ppid = os.getppid()
-chord_icon_local = os.path.expanduser("~/.local/share/icons/hicolor/256x256/apps/chord.png")
-chord_icon_assets = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "../assets/icons/chord-256x256.png")
-chord_icon_sys = "/usr/share/icons/hicolor/256x256/apps/chord.png"
-if os.path.exists(chord_icon_local):
-    icon_name = chord_icon_local
-elif os.path.exists(chord_icon_assets):
-    icon_name = chord_icon_assets
-elif os.path.exists(chord_icon_sys):
-    icon_name = chord_icon_sys
-else:
-    icon_name = "chord"
-
-ind = AppIndicator3.Indicator.new(
-    "chord-client-tray",
-    icon_name,
-    AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
-)
-ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-ind.set_title("Chord")
-
-menu = Gtk.Menu()
-
-item_open = Gtk.ImageMenuItem.new_with_label("Открыть Chord")
-try:
-    img = Gtk.Image.new_from_icon_name("chord", Gtk.IconSize.MENU)
-    item_open.set_image(img)
-    item_open.set_always_show_image(True)
-except Exception:
-    pass
-item_open.connect("activate", lambda _: (sys.stdout.write("show\n"), sys.stdout.flush()))
-menu.append(item_open)
-
-menu.append(Gtk.SeparatorMenuItem())
-
-item_upd = Gtk.MenuItem.new_with_label("Проверяется наличие обновлений...")
-item_upd.set_sensitive(False)
-menu.append(item_upd)
-
-menu.append(Gtk.SeparatorMenuItem())
-
-item_cred = Gtk.MenuItem.new_with_label("Благодарности")
-item_cred.connect("activate", lambda _: (sys.stdout.write("credits\n"), sys.stdout.flush()))
-menu.append(item_cred)
-
-menu.append(Gtk.SeparatorMenuItem())
-
-item_quit = Gtk.MenuItem.new_with_label("Выйти из Chord          Ctrl+Q")
-item_quit.connect("activate", lambda _: (sys.stdout.write("quit\n"), sys.stdout.flush(), Gtk.main_quit()))
-menu.append(item_quit)
-
-menu.show_all()
-ind.set_menu(menu)
-
-def check_parent():
-    if os.getppid() != ppid:
-        Gtk.main_quit()
-        return False
-    return True
-
-GLib.timeout_add(1000, check_parent)
-signal.signal(signal.SIGTERM, lambda *_: Gtk.main_quit())
-Gtk.main()
-"#;
-
 fn spawn_system_tray_indicator(app_handle: tauri::AppHandle) {
-    std::thread::spawn(move || {
-        use std::io::{BufRead, BufReader};
-        let child = std::process::Command::new("python3")
-            .args(["-u", "-c", SYSTEM_TRAY_PY])
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::null())
-            .spawn();
-        let Ok(mut proc) = child else {
-            return;
-        };
-        if let Some(stdout) = proc.stdout.take() {
-            let reader = BufReader::new(stdout);
-            for line in reader.lines().map_while(Result::ok) {
-                let cmd = line.trim();
-                if cmd == "show" {
+    use tauri::menu::{Menu, MenuItem};
+    use tauri::tray::TrayIconBuilder;
+
+    let Ok(show_i) = MenuItem::with_id(&app_handle, "show", "Открыть Chord", true, None::<&str>) else {
+        return;
+    };
+    let Ok(credits_i) = MenuItem::with_id(&app_handle, "credits", "Благодарности", true, None::<&str>) else {
+        return;
+    };
+    let Ok(quit_i) = MenuItem::with_id(&app_handle, "quit", "Выйти из Chord          Ctrl+Q", true, None::<&str>) else {
+        return;
+    };
+    let Ok(menu) = Menu::with_items(&app_handle, &[&show_i, &credits_i, &quit_i]) else {
+        return;
+    };
+
+    let icon = app_handle.default_window_icon().cloned();
+    let mut builder = TrayIconBuilder::new()
+        .menu(&menu)
+        .show_menu_on_left_click(true)
+        .on_menu_event(|app_handle, event| {
+            match event.id().as_ref() {
+                "show" => {
                     if let Some(window) = app_handle.get_webview_window("main") {
                         let _ = window.show();
                         let _ = window.unminimize();
                         let _ = window.set_focus();
                     }
-                } else if cmd == "credits" {
+                }
+                "credits" => {
                     if let Some(window) = app_handle.get_webview_window("main") {
                         let _ = window.show();
                         let _ = window.unminimize();
@@ -2429,17 +2365,18 @@ fn spawn_system_tray_indicator(app_handle: tauri::AppHandle) {
                             "if (window.__OPEN_DISCORD_CREDITS__) window.__OPEN_DISCORD_CREDITS__();",
                         );
                     }
-                } else if cmd == "quit" {
-                    let _ = proc.kill();
-                    let _ = proc.wait();
+                }
+                "quit" => {
                     data::shutdown_live_workers();
                     std::process::exit(0);
                 }
+                _ => {}
             }
-        }
-        let _ = proc.kill();
-        let _ = proc.wait();
-    });
+        });
+    if let Some(ic) = icon {
+        builder = builder.icon(ic);
+    }
+    let _ = builder.build(&app_handle);
 }
 
 fn main() {

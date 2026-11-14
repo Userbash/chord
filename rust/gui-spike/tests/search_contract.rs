@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::search::{
     deterministic_uuid_v4, generate_uuid_v4, DiscordSearch, RemoteSearch, SearchError,
     SearchParams, SearchResponse, SearchSession, SearchTransport,
@@ -1362,12 +1362,12 @@ fn deterministic_uuid_v4_oracle_shape() {
 
 #[test]
 fn task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with_6_auth_headers() {
-    use discord_core::rest::routes::HttpMethod;
-    use discord_core::rest::search::{
+    use chord_core::rest::routes::HttpMethod;
+    use chord_core::rest::search::{
         build_channel_search_http_request, build_guild_search_http_request, SearchQueryRequest,
         SearchRestError, SearchSortBy, SearchSortOrder, ALLOWED_AUTHOR_TYPES, ALLOWED_HAS_FACETS,
     };
-    use discord_core::rest::super_properties::SuperProperties;
+    use chord_core::rest::super_properties::SuperProperties;
 
     assert_eq!(
         ALLOWED_HAS_FACETS,
@@ -1499,7 +1499,7 @@ fn task_617_core_rest_search_normalizes_inline_facets_and_builds_v9_request_with
 
 #[test]
 fn task_617_core_rest_search_parses_200_nested_context_groups_202_indexing_and_errors() {
-    use discord_core::rest::search::{
+    use chord_core::rest::search::{
         compute_429_exponential_backoff_ms, parse_search_http_response, SearchRestError,
     };
 

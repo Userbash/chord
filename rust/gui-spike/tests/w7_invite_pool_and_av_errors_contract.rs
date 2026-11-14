@@ -12,7 +12,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::guilds::{
     resolve_invite_info, resolve_invite_info_with_pool, InviteConnectionPool, InvitePoolConfig,
     INVITE_ATTEMPT_TIMEOUT_MS, INVITE_INITIAL_BACKOFF_MS, INVITE_MAX_RETRY_ATTEMPTS,

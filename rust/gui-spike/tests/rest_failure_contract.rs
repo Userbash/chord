@@ -6,8 +6,8 @@
 
 use std::time::Duration;
 
-use discord_core::rest::client::ApiError;
-use discord_core::rest::transport::HttpError;
+use chord_core::rest::client::ApiError;
+use chord_core::rest::transport::HttpError;
 use chord_client::guilds::EnterGuildError;
 use chord_client::messages::MessageError;
 use chord_client::reactions::ReactionError;

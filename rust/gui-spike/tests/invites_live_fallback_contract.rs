@@ -1,6 +1,6 @@
 //! TASK-825 / TASK-829.1: Регрессионный контракт для live fallback токена и анонимного resolve_invite.
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::invites::{resolve_invite, DiscordInvites, InviteError, InviteTransport};
 use std::future::Future;
 use std::pin::Pin;

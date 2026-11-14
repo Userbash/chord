@@ -304,14 +304,26 @@ export function renderVoiceStagePreview(container, options) {
   chatToggleBtn.type = "button";
   chatToggleBtn.className = "voice-stage-chat-toggle-btn";
   chatToggleBtn.setAttribute("data-action", "toggle-voice-chat");
-  chatToggleBtn.setAttribute("aria-label", VOICE_STAGE_PREVIEW_TEXT.openChatButton);
-  chatToggleBtn.setAttribute("aria-expanded", chatExpanded ? "true" : "false");
-  chatToggleBtn.textContent = `💬 ${VOICE_STAGE_PREVIEW_TEXT.openChatButton}`;
+  const updateChatToggleBtn = () => {
+    chatToggleBtn.setAttribute("aria-expanded", chatExpanded ? "true" : "false");
+    chatToggleBtn.setAttribute(
+      "aria-label",
+      chatExpanded ? VOICE_STAGE_PREVIEW_TEXT.hideChatButton : VOICE_STAGE_PREVIEW_TEXT.openChatButton,
+    );
+    chatToggleBtn.textContent = `💬 ${chatExpanded ? VOICE_STAGE_PREVIEW_TEXT.hideChatButton : VOICE_STAGE_PREVIEW_TEXT.openChatButton}`;
+  };
+  updateChatToggleBtn();
   chatToggleBtn.addEventListener("click", () => {
     chatExpanded = !chatExpanded;
-    chatToggleBtn.setAttribute("aria-expanded", chatExpanded ? "true" : "false");
+    updateChatToggleBtn();
     if (chatListEl && chatListEl.style) {
       chatListEl.style.display = chatExpanded ? "" : "none";
+    }
+    const composerEl = /** @type {HTMLElement | null} */ (
+      container.querySelector?.("#composer") ?? null
+    );
+    if (composerEl && composerEl.style) {
+      composerEl.style.display = chatExpanded ? "" : "none";
     }
     if (typeof options?.onToggleChat === "function") {
       options.onToggleChat(chatExpanded, channel);
@@ -760,6 +772,7 @@ export function removeVoiceStagePreviewBanner(doc) {
  *   onWatchStream?: (participant: StagePreviewParticipant, channel: StagePreviewChannel) => unknown,
  *   onInviteVoice?: (channel: StagePreviewChannel) => unknown,
  *   onToggleChat?: (expanded: boolean, channel: StagePreviewChannel) => unknown,
+ *   chatExpanded?: boolean,
  * }} params
  * @returns {HTMLElement | null}
  */
@@ -785,5 +798,7 @@ export function renderVoiceStagePreviewBanner(params) {
     onJoinVoice: params.onJoinVoice,
     onDisconnectVoice: params.onLeaveVoice,
     onWatchStream: params.onWatchStream,
+    onToggleChat: params.onToggleChat,
+    chatExpanded: params.chatExpanded,
   });
 }

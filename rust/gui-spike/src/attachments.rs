@@ -61,54 +61,73 @@ fn percent_decode_path(raw: &str) -> String {
 }
 
 fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
-    if let Ok(out) = std::process::Command::new("python3")
-        .arg("-c")
-        .arg(
-            "import sys, os, urllib.parse\n\
-             import gi\n\
-             gi.require_version('Gtk', '3.0')\n\
-             from gi.repository import Gtk, Gdk\n\
-             cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)\n\
-             pb = cb.wait_for_image()\n\
-             if pb is not None:\n\
-                 ok, buf = pb.save_to_bufferv('png', [], [])\n\
-                 if ok and len(buf) > 0:\n\
-                     sys.stdout.buffer.write(b'FILE:clipboard.png\\n' + buf)\n\
-                     sys.exit(0)\n\
-             uris = cb.wait_for_uris()\n\
-             if not uris:\n\
-                 txt = cb.wait_for_text() or ''\n\
-                 if txt.strip().startswith('file://'):\n\
-                     uris = [line.strip() for line in txt.splitlines() if line.strip().startswith('file://')]\n\
-             if uris:\n\
-                 p = urllib.parse.unquote(urllib.parse.urlparse(uris[0]).path)\n\
-                 if os.path.isfile(p):\n\
-                     with open(p, 'rb') as f:\n\
-                         data = f.read()\n\
-                     if len(data) > 0:\n\
-                         name = os.path.basename(p) or 'file.bin'\n\
-                         sys.stdout.buffer.write(('FILE:' + name + '\\n').encode('utf-8') + data)\n\
-                         sys.exit(0)\n\
-             sys.exit(1)\n",
-        )
-        .output()
-    {
-        if out.status.success() && out.stdout.starts_with(b"FILE:") {
-            if let Some(nl) = out.stdout.iter().position(|&b| b == b'\n') {
-                let name = String::from_utf8_lossy(&out.stdout[5..nl]).trim().to_string();
-                let data = out.stdout[nl + 1..].to_vec();
-                if !data.is_empty() {
-                    return Some((if name.is_empty() { "clipboard.png".to_string() } else { name }, data));
+    // 1. Try Wayland clipboard via wl-paste
+    if std::env::var_os("WAYLAND_DISPLAY").is_some() {
+        if let Ok(out) = std::process::Command::new("wl-paste")
+            .args(["--type", "image/png", "--no-newline"])
+            .output()
+        {
+            if out.status.success() && !out.stdout.is_empty() {
+                return Some(("clipboard.png".to_string(), out.stdout));
+            }
+        }
+        if let Ok(out) = std::process::Command::new("wl-paste")
+            .args(["--type", "text/uri-list"])
+            .output()
+        {
+            if out.status.success() && !out.stdout.is_empty() {
+                let s = String::from_utf8_lossy(&out.stdout);
+                for line in s.lines() {
+                    let trim = line.trim();
+                    if let Some(path) = trim.strip_prefix("file://") {
+                        let decoded = percent_decode_path(path);
+                        if let Ok(data) = std::fs::read(&decoded) {
+                            if !data.is_empty() {
+                                let fname = std::path::Path::new(&decoded)
+                                    .file_name()
+                                    .and_then(|n| n.to_str())
+                                    .unwrap_or("file.bin")
+                                    .to_string();
+                                return Some((fname, data));
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-    if let Ok(out) = std::process::Command::new("wl-paste")
-        .args(["--type", "image/png"])
+    // 2. Try X11 clipboard via xclip
+    if let Ok(out) = std::process::Command::new("xclip")
+        .args(["-selection", "clipboard", "-t", "image/png", "-o"])
         .output()
     {
         if out.status.success() && !out.stdout.is_empty() {
             return Some(("clipboard.png".to_string(), out.stdout));
+        }
+    }
+    // 3. Try xclip target text/uri-list
+    if let Ok(out) = std::process::Command::new("xclip")
+        .args(["-selection", "clipboard", "-t", "text/uri-list", "-o"])
+        .output()
+    {
+        if out.status.success() && !out.stdout.is_empty() {
+            let s = String::from_utf8_lossy(&out.stdout);
+            for line in s.lines() {
+                let trim = line.trim();
+                if let Some(path) = trim.strip_prefix("file://") {
+                    let decoded = percent_decode_path(path);
+                    if let Ok(data) = std::fs::read(&decoded) {
+                        if !data.is_empty() {
+                            let fname = std::path::Path::new(&decoded)
+                                .file_name()
+                                .and_then(|n| n.to_str())
+                                .unwrap_or("file.bin")
+                                .to_string();
+                            return Some((fname, data));
+                        }
+                    }
+                }
+            }
         }
     }
     None

@@ -12,7 +12,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::attachments::{
     AttachmentError, AttachmentFileSpec, AttachmentTransport, AttachmentUploadSlot,
     DiscordAttachments, MAX_UPLOAD_FILE_BYTES,

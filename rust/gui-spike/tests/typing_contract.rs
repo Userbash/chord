@@ -10,8 +10,8 @@
 //! target и тело. `routes::ROUTES` остаётся frozen D-02 (47 live-строк) + POST сообщения:
 //! typing подключён как явное `[S]`-расширение каталога (D-108).
 
-use discord_core::rest::routes::{self, HttpMethod};
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::routes::{self, HttpMethod};
+use chord_core::rest::transport::HttpResponse;
 use chord_client::typing::{
     send_typing, DiscordTyping, TypingApi, TypingCooldowns, TypingError, TypingTransport,
 };
@@ -29,7 +29,7 @@ const ORACLE_RESPONSE_KEYS: [&str; 2] = ["message_send_cooldown_ms", "thread_cre
 
 /// Выдержка frozen D-02: 47 live-маршрутов. `/typing` в ней отсутствует — это
 /// доказывает, что контракт не подогнан под захват.
-const D02_TSV: &str = include_str!("../../crates/discord-core/tests/data/rest-routes-47.tsv");
+const D02_TSV: &str = include_str!("../../crates/chord-core/tests/data/rest-routes-47.tsv");
 
 /// Журнал фейкового транспорта: (target, body).
 type Calls = Arc<Mutex<Vec<(String, Vec<u8>)>>>;

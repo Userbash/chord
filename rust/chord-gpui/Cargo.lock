@@ -1006,6 +1006,90 @@ dependencies = [
 ]
 
 [[package]]
+name = "chord-codec"
+version = "0.1.0"
+dependencies = [
+ "zstd",
+]
+
+[[package]]
+name = "chord-core"
+version = "0.1.0"
+dependencies = [
+ "chord-codec",
+ "chord-json",
+ "chord-voice",
+ "futures-util",
+ "httparse",
+ "rustls",
+ "tokio",
+ "tokio-rustls",
+ "tokio-tungstenite",
+ "webpki-roots 1.0.11",
+]
+
+[[package]]
+name = "chord-gpui"
+version = "0.1.0"
+dependencies = [
+ "aes-gcm",
+ "async-channel",
+ "chacha20poly1305",
+ "chord-codec",
+ "chord-core",
+ "chord-i18n",
+ "chord-json",
+ "chord-media",
+ "chord-platform",
+ "chord-store",
+ "chord-voice",
+ "cpal",
+ "gpui-component",
+ "gpui-kit",
+ "gpui-pre",
+ "gpui-webview",
+ "image",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "chord-i18n"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+]
+
+[[package]]
+name = "chord-json"
+version = "0.1.0"
+
+[[package]]
+name = "chord-media"
+version = "0.1.0"
+
+[[package]]
+name = "chord-platform"
+version = "0.1.0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
+name = "chord-store"
+version = "0.1.0"
+
+[[package]]
+name = "chord-voice"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+ "serde",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1687,90 +1771,6 @@ dependencies = [
  "option-ext",
  "redox_users 0.5.2",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "discord-codec"
-version = "0.1.0"
-dependencies = [
- "zstd",
-]
-
-[[package]]
-name = "discord-core"
-version = "0.1.0"
-dependencies = [
- "discord-codec",
- "discord-json",
- "discord-voice",
- "futures-util",
- "httparse",
- "rustls",
- "tokio",
- "tokio-rustls",
- "tokio-tungstenite",
- "webpki-roots 1.0.11",
-]
-
-[[package]]
-name = "discord-gpui"
-version = "0.1.0"
-dependencies = [
- "aes-gcm",
- "async-channel",
- "chacha20poly1305",
- "cpal",
- "discord-codec",
- "discord-core",
- "discord-i18n",
- "discord-json",
- "discord-media",
- "discord-platform",
- "discord-store",
- "discord-voice",
- "gpui-component",
- "gpui-kit",
- "gpui-pre",
- "gpui-webview",
- "image",
- "rusqlite",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "discord-i18n"
-version = "0.1.0"
-dependencies = [
- "discord-json",
-]
-
-[[package]]
-name = "discord-json"
-version = "0.1.0"
-
-[[package]]
-name = "discord-media"
-version = "0.1.0"
-
-[[package]]
-name = "discord-platform"
-version = "0.1.0"
-dependencies = [
- "libc",
-]
-
-[[package]]
-name = "discord-store"
-version = "0.1.0"
-
-[[package]]
-name = "discord-voice"
-version = "0.1.0"
-dependencies = [
- "discord-json",
- "serde",
 ]
 
 [[package]]

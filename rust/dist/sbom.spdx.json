@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "discord-lab-rust-workspace",
-  "documentNamespace": "https://discord-lab.local/spdx/5ae483782d245cc4aa6d6e74259a28238963b86133d7f7a1232ef1153d5884a5",
+  "documentNamespace": "https://discord-lab.local/spdx/34cc56b45e1a638b4ff356b6934b9eeac6233d8b95f5edc04f3a111809426237",
   "creationInfo": {
     "created": "1970-01-01T00:00:00Z",
     "creators": [
@@ -12,23 +12,6 @@
     "licenseListVersion": "3.25"
   },
   "packages": [
-    {
-      "name": "block-buffer",
-      "SPDXID": "SPDXRef-Package-block-buffer-0.10.4",
-      "versionInfo": "0.10.4",
-      "downloadLocation": "https://crates.io/api/v1/crates/block-buffer/0.10.4/download",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/block-buffer@0.10.4"
-        }
-      ]
-    },
     {
       "name": "block-buffer",
       "SPDXID": "SPDXRef-Package-block-buffer-0.12.1",
@@ -354,23 +337,6 @@
     },
     {
       "name": "cpufeatures",
-      "SPDXID": "SPDXRef-Package-cpufeatures-0.2.17",
-      "versionInfo": "0.2.17",
-      "downloadLocation": "https://crates.io/api/v1/crates/cpufeatures/0.2.17/download",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/cpufeatures@0.2.17"
-        }
-      ]
-    },
-    {
-      "name": "cpufeatures",
       "SPDXID": "SPDXRef-Package-cpufeatures-0.3.1",
       "versionInfo": "0.3.1",
       "downloadLocation": "https://crates.io/api/v1/crates/cpufeatures/0.3.1/download",
@@ -383,23 +349,6 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:cargo/cpufeatures@0.3.1"
-        }
-      ]
-    },
-    {
-      "name": "crypto-common",
-      "SPDXID": "SPDXRef-Package-crypto-common-0.1.7",
-      "versionInfo": "0.1.7",
-      "downloadLocation": "https://crates.io/api/v1/crates/crypto-common/0.1.7/download",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/crypto-common@0.1.7"
         }
       ]
     },
@@ -434,23 +383,6 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:cargo/data-encoding@2.11.1"
-        }
-      ]
-    },
-    {
-      "name": "digest",
-      "SPDXID": "SPDXRef-Package-digest-0.10.7",
-      "versionInfo": "0.10.7",
-      "downloadLocation": "https://crates.io/api/v1/crates/digest/0.10.7/download",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/digest@0.10.7"
         }
       ]
     },
@@ -553,23 +485,6 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:cargo/futures-util@0.3.34"
-        }
-      ]
-    },
-    {
-      "name": "generic-array",
-      "SPDXID": "SPDXRef-Package-generic-array-0.14.7",
-      "versionInfo": "0.14.7",
-      "downloadLocation": "https://crates.io/api/v1/crates/generic-array/0.14.7/download",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/generic-array@0.14.7"
         }
       ]
     },
@@ -1051,9 +966,9 @@
     },
     {
       "name": "sha2",
-      "SPDXID": "SPDXRef-Package-sha2-0.10.9",
-      "versionInfo": "0.10.9",
-      "downloadLocation": "https://crates.io/api/v1/crates/sha2/0.10.9/download",
+      "SPDXID": "SPDXRef-Package-sha2-0.11.1",
+      "versionInfo": "0.11.1",
+      "downloadLocation": "https://crates.io/api/v1/crates/sha2/0.11.1/download",
       "filesAnalyzed": false,
       "licenseDeclared": "MIT OR Apache-2.0",
       "licenseConcluded": "NOASSERTION",
@@ -1062,7 +977,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/sha2@0.10.9"
+          "referenceLocator": "pkg:cargo/sha2@0.11.1"
         }
       ]
     },
@@ -1238,9 +1153,9 @@
     },
     {
       "name": "tokio",
-      "SPDXID": "SPDXRef-Package-tokio-1.53.3",
-      "versionInfo": "1.53.3",
-      "downloadLocation": "https://crates.io/api/v1/crates/tokio/1.53.3/download",
+      "SPDXID": "SPDXRef-Package-tokio-1.54.1",
+      "versionInfo": "1.54.1",
+      "downloadLocation": "https://crates.io/api/v1/crates/tokio/1.54.1/download",
       "filesAnalyzed": false,
       "licenseDeclared": "MIT",
       "licenseConcluded": "NOASSERTION",
@@ -1249,7 +1164,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/tokio@1.53.3"
+          "referenceLocator": "pkg:cargo/tokio@1.54.1"
         }
       ]
     },
@@ -1322,23 +1237,6 @@
       ]
     },
     {
-      "name": "version_check",
-      "SPDXID": "SPDXRef-Package-version-check-0.9.5",
-      "versionInfo": "0.9.5",
-      "downloadLocation": "https://crates.io/api/v1/crates/version_check/0.9.5/download",
-      "filesAnalyzed": false,
-      "licenseDeclared": "MIT OR Apache-2.0",
-      "licenseConcluded": "NOASSERTION",
-      "copyrightText": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/version_check@0.9.5"
-        }
-      ]
-    },
-    {
       "name": "wasi",
       "SPDXID": "SPDXRef-Package-wasi-0.11.1-wasi-snapshot-preview1",
       "versionInfo": "0.11.1+wasi-snapshot-preview1",
@@ -1374,9 +1272,9 @@
     },
     {
       "name": "webpki-roots",
-      "SPDXID": "SPDXRef-Package-webpki-roots-1.0.9",
-      "versionInfo": "1.0.9",
-      "downloadLocation": "https://crates.io/api/v1/crates/webpki-roots/1.0.9/download",
+      "SPDXID": "SPDXRef-Package-webpki-roots-1.0.12",
+      "versionInfo": "1.0.12",
+      "downloadLocation": "https://crates.io/api/v1/crates/webpki-roots/1.0.12/download",
       "filesAnalyzed": false,
       "licenseDeclared": "CDLA-Permissive-2.0",
       "licenseConcluded": "NOASSERTION",
@@ -1385,7 +1283,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:cargo/webpki-roots@1.0.9"
+          "referenceLocator": "pkg:cargo/webpki-roots@1.0.12"
         }
       ]
     },
@@ -1746,11 +1644,6 @@
       "relatedSpdxElement": "SPDXRef-Package-chord-perf-0.1.0"
     },
     {
-      "spdxElementId": "SPDXRef-Package-block-buffer-0.10.4",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-generic-array-0.14.7"
-    },
-    {
       "spdxElementId": "SPDXRef-Package-block-buffer-0.12.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-hybrid-array-0.4.15"
@@ -1878,7 +1771,7 @@
     {
       "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-tokio-1.53.3"
+      "relatedSpdxElement": "SPDXRef-Package-tokio-1.54.1"
     },
     {
       "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
@@ -1893,7 +1786,7 @@
     {
       "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-webpki-roots-1.0.9"
+      "relatedSpdxElement": "SPDXRef-Package-webpki-roots-1.0.12"
     },
     {
       "spdxElementId": "SPDXRef-Package-chord-core-0.1.0",
@@ -1958,7 +1851,7 @@
     {
       "spdxElementId": "SPDXRef-Package-chord-updater-0.1.0",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-sha2-0.10.9"
+      "relatedSpdxElement": "SPDXRef-Package-sha2-0.11.1"
     },
     {
       "spdxElementId": "SPDXRef-Package-chord-voice-0.1.0",
@@ -1976,39 +1869,14 @@
       "relatedSpdxElement": "SPDXRef-Package-serde-json-1.0.154"
     },
     {
-      "spdxElementId": "SPDXRef-Package-cpufeatures-0.2.17",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-libc-0.2.191"
-    },
-    {
       "spdxElementId": "SPDXRef-Package-cpufeatures-0.3.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-libc-0.2.191"
     },
     {
-      "spdxElementId": "SPDXRef-Package-crypto-common-0.1.7",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-generic-array-0.14.7"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-crypto-common-0.1.7",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-typenum-1.20.1"
-    },
-    {
       "spdxElementId": "SPDXRef-Package-crypto-common-0.2.2",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-hybrid-array-0.4.15"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-digest-0.10.7",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-block-buffer-0.10.4"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-digest-0.10.7",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-crypto-common-0.1.7"
     },
     {
       "spdxElementId": "SPDXRef-Package-digest-0.11.3",
@@ -2049,16 +1917,6 @@
       "spdxElementId": "SPDXRef-Package-futures-util-0.3.34",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-slab-0.4.12"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-generic-array-0.14.7",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-typenum-1.20.1"
-    },
-    {
-      "spdxElementId": "SPDXRef-Package-generic-array-0.14.7",
-      "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-version-check-0.9.5"
     },
     {
       "spdxElementId": "SPDXRef-Package-getrandom-0.2.17",
@@ -2311,19 +2169,19 @@
       "relatedSpdxElement": "SPDXRef-Package-digest-0.11.3"
     },
     {
-      "spdxElementId": "SPDXRef-Package-sha2-0.10.9",
+      "spdxElementId": "SPDXRef-Package-sha2-0.11.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-cfg-if-1.0.5"
     },
     {
-      "spdxElementId": "SPDXRef-Package-sha2-0.10.9",
+      "spdxElementId": "SPDXRef-Package-sha2-0.11.1",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-cpufeatures-0.2.17"
+      "relatedSpdxElement": "SPDXRef-Package-cpufeatures-0.3.1"
     },
     {
-      "spdxElementId": "SPDXRef-Package-sha2-0.10.9",
+      "spdxElementId": "SPDXRef-Package-sha2-0.11.1",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-digest-0.10.7"
+      "relatedSpdxElement": "SPDXRef-Package-digest-0.11.3"
     },
     {
       "spdxElementId": "SPDXRef-Package-socket2-0.6.5",
@@ -2371,37 +2229,37 @@
       "relatedSpdxElement": "SPDXRef-Package-syn-3.0.9"
     },
     {
-      "spdxElementId": "SPDXRef-Package-tokio-1.53.3",
+      "spdxElementId": "SPDXRef-Package-tokio-1.54.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-bytes-1.12.1"
     },
     {
-      "spdxElementId": "SPDXRef-Package-tokio-1.53.3",
+      "spdxElementId": "SPDXRef-Package-tokio-1.54.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-libc-0.2.191"
     },
     {
-      "spdxElementId": "SPDXRef-Package-tokio-1.53.3",
+      "spdxElementId": "SPDXRef-Package-tokio-1.54.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-mio-1.2.4"
     },
     {
-      "spdxElementId": "SPDXRef-Package-tokio-1.53.3",
+      "spdxElementId": "SPDXRef-Package-tokio-1.54.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-pin-project-lite-0.2.17"
     },
     {
-      "spdxElementId": "SPDXRef-Package-tokio-1.53.3",
+      "spdxElementId": "SPDXRef-Package-tokio-1.54.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-socket2-0.6.5"
     },
     {
-      "spdxElementId": "SPDXRef-Package-tokio-1.53.3",
+      "spdxElementId": "SPDXRef-Package-tokio-1.54.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-tokio-macros-2.7.2"
     },
     {
-      "spdxElementId": "SPDXRef-Package-tokio-1.53.3",
+      "spdxElementId": "SPDXRef-Package-tokio-1.54.1",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-windows-sys-0.61.2"
     },
@@ -2428,7 +2286,7 @@
     {
       "spdxElementId": "SPDXRef-Package-tokio-rustls-0.26.6",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-tokio-1.53.3"
+      "relatedSpdxElement": "SPDXRef-Package-tokio-1.54.1"
     },
     {
       "spdxElementId": "SPDXRef-Package-tokio-tungstenite-0.30.0",
@@ -2453,7 +2311,7 @@
     {
       "spdxElementId": "SPDXRef-Package-tokio-tungstenite-0.30.0",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-tokio-1.53.3"
+      "relatedSpdxElement": "SPDXRef-Package-tokio-1.54.1"
     },
     {
       "spdxElementId": "SPDXRef-Package-tokio-tungstenite-0.30.0",
@@ -2523,10 +2381,10 @@
     {
       "spdxElementId": "SPDXRef-Package-webpki-roots-0.26.11",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-webpki-roots-1.0.9"
+      "relatedSpdxElement": "SPDXRef-Package-webpki-roots-1.0.12"
     },
     {
-      "spdxElementId": "SPDXRef-Package-webpki-roots-1.0.9",
+      "spdxElementId": "SPDXRef-Package-webpki-roots-1.0.12",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-rustls-pki-types-1.15.1"
     },

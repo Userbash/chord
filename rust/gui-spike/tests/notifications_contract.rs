@@ -14,7 +14,7 @@ use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::notifications::{
     build_guild_settings_endpoint, clear_channel_unread_flags, clear_guild_unread_flags,
     format_iso8601_utc, is_entry_muted, is_temporarily_muted, parse_iso8601_unix,
@@ -908,6 +908,6 @@ fn desktop_notification_dbus_integration_builds_and_dispatches_without_panic() {
 #[test]
 fn desktop_notification_fails_cleanly_when_address_is_invalid() {
     // Проверка устойчивости: при пустом/битом адресе не должно быть паники
-    let bad_parse = discord_platform::dbus::BusAddress::parse("invalid-bus-address");
+    let bad_parse = chord_platform::dbus::BusAddress::parse("invalid-bus-address");
     assert!(bad_parse.is_none(), "невалидный адрес парсится в None");
 }

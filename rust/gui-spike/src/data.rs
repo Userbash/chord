@@ -4300,32 +4300,18 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         .filter(|s| !s.is_empty() && *s != "@me" && *s != "null" && *s != "nil")
                         .map(str::to_string);
                     if local_active
-                        && !is_our_gateway_session
-                        && cid.is_some()
-                        && (cid != guard.voice_channel_id || gid != guard.voice_guild_id)
+                        && is_our_gateway_session
+                        && cid.is_none()
                     {
-                        // Пользователь подключился к ДРУГОМУ голосовому каналу/серверу в другом клиенте —
-                        // немедленно выходим из нашего голосового канала, чтобы не сидеть в двух местах одновременно.
-                        let old_gid = guard.voice_guild_id.take();
+                        // Discord Gateway explicitly disconnected our active voice session
+                        let _old_gid = guard.voice_guild_id.take();
                         guard.voice_channel_id = None;
                         guard.voice_endpoint = None;
                         guard.voice_token = None;
                         guard.voice_launched_token = None;
+                        guard.voice_phase = "disconnected".to_string();
                         LOCAL_VOICE_ACTIVE.store(false, Ordering::SeqCst);
                         should_stop = true;
-                        if let Some(ref og) = old_gid {
-                            if Some(og.as_str()) != gid.as_deref() {
-                                let _ = chord_core::ws::queue_live_voice_state_ext(
-                                    Some(og.clone()),
-                                    None,
-                                    false,
-                                    false,
-                                    false,
-                                    false,
-                                    self_uid.as_deref(),
-                                );
-                            }
-                        }
                     } else if local_active && is_our_gateway_session {
                         let sid = guard
                             .gateway_session_id
@@ -5204,7 +5190,11 @@ pub fn connect_or_update_live_voice_ext(
                 "{{\"cmd\":\"set_stream\",\"broadcasting\":{self_stream}}}"
             ));
         }
-        ensure_local_mic_monitor();
+        if !chord_core::ws::is_native_voice_engine_active() {
+            ensure_local_mic_monitor();
+        } else {
+            stop_local_mic_monitor();
+        }
     }
 
     if !stream_or_video_changed && !channel_changed {
@@ -5332,6 +5322,7 @@ fn stop_local_mic_monitor() {
     use std::sync::atomic::Ordering;
     LOCAL_MIC_LOOPBACK_ACTIVE.store(false, Ordering::SeqCst);
     LOCAL_MIC_MONITOR_ACTIVE.store(false, Ordering::SeqCst);
+    AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
     LOCAL_MIC_SPEAKING.store(false, Ordering::Relaxed);
     LOCAL_MIC_LEVEL_DB.store(-100, Ordering::Relaxed);
 }
@@ -5931,322 +5922,14 @@ fn stop_and_send_voice_message(channel_id: &str) -> Value {
     }
 }
 
-const OPUS_AUDIO_BRIDGE_PY: &str = r#"
-import array, ctypes, math, os, struct, subprocess, sys, threading
-
-inp_dev = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] else ""
-out_dev = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else ""
-loopback = sys.argv[3] == "1" if len(sys.argv) > 3 else False
-
-state_lock = threading.Lock()
-cfg_krisp = True
-cfg_agc = True
-cfg_auto_vad = True
-cfg_muted = False
-cfg_vad_db = -45
-cfg_in_vol = 100
-cfg_out_vol = 100
-cfg_deafened = False
-
-opus = ctypes.CDLL("libopus.so.0")
-opus.opus_encoder_create.argtypes = [ctypes.c_int32, ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
-opus.opus_encoder_create.restype = ctypes.c_void_p
-opus.opus_encode.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int32]
-opus.opus_encode.restype = ctypes.c_int32
-opus.opus_decoder_create.argtypes = [ctypes.c_int32, ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
-opus.opus_decoder_create.restype = ctypes.c_void_p
-opus.opus_decode.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int32, ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
-opus.opus_decode.restype = ctypes.c_int
-
-err = ctypes.c_int(0)
-enc = opus.opus_encoder_create(48000, 2, 2048, ctypes.byref(err))
-decoders = {}
-
-parec_args = ["parec", "--channels=2", "--rate=48000", "--format=s16le", "--latency-msec=20", "--client-name=Discord-Mic-Meter", "--property=media.role=meter"]
-if inp_dev:
-    parec_args.append(f"--device={inp_dev}")
-pacat_args = ["pacat", "--channels=2", "--rate=48000", "--format=s16le", "--latency-msec=20", "--client-name=Discord-Mic-Loopback"]
-if out_dev:
-    pacat_args.append(f"--device={out_dev}")
-
-parec = subprocess.Popen(parec_args, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-pacat = subprocess.Popen(pacat_args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) if loopback else None
-pacat_lock = threading.Lock()
-
-def ensure_pacat():
-    global pacat
-    if pacat is None or pacat.poll() is not None:
-        pacat = subprocess.Popen(pacat_args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return pacat
-
-def scale_pcm_bytes(raw_bytes, mult):
-    if abs(mult - 1.0) < 0.02:
-        return raw_bytes
-    arr = array.array("h")
-    arr.frombytes(raw_bytes)
-    for i in range(len(arr)):
-        v = int(arr[i] * mult)
-        if v > 32000:
-            v = 32000
-        elif v < -32000:
-            v = -32000
-        arr[i] = v
-    return arr.tobytes()
-
-def rx_worker():
-    global cfg_krisp, cfg_agc, cfg_auto_vad, cfg_muted, cfg_vad_db, cfg_in_vol, cfg_out_vol, cfg_deafened
-    pcm_out = ctypes.create_string_buffer(5760 * 4)
-    stdin_buf = sys.stdin.buffer
-    try:
-        while True:
-            hdr = stdin_buf.read(6)
-            if not hdr or len(hdr) < 6:
-                break
-            ssrc, plen = struct.unpack("<IH", hdr)
-            if plen == 0:
-                continue
-            payload = stdin_buf.read(plen)
-            if not payload or len(payload) < plen:
-                break
-            if ssrc == 0xFFFFFFFF and plen == 8:
-                k, a, av, m, vdb, iv, ov, df = struct.unpack("<BBBBbBBB", payload)
-                with state_lock:
-                    cfg_krisp = bool(k)
-                    cfg_agc = bool(a)
-                    cfg_auto_vad = bool(av)
-                    cfg_muted = bool(m)
-                    cfg_vad_db = int(vdb)
-                    cfg_in_vol = int(iv)
-                    cfg_out_vol = int(ov)
-                    cfg_deafened = bool(df)
-                continue
-            with state_lock:
-                deaf = cfg_deafened
-                out_mult = cfg_out_vol / 100.0
-            if deaf or out_mult <= 0.001:
-                continue
-            dec = decoders.get(ssrc)
-            if dec is None:
-                d_err = ctypes.c_int(0)
-                dec = opus.opus_decoder_create(48000, 2, ctypes.byref(d_err))
-                decoders[ssrc] = dec
-            samples = opus.opus_decode(dec, payload, plen, pcm_out, 5760, 0)
-            if samples > 0:
-                with pacat_lock:
-                    p = ensure_pacat()
-                    if p and p.stdin:
-                        raw_slice = pcm_out.raw[:samples * 4]
-                        p.stdin.write(scale_pcm_bytes(raw_slice, out_mult))
-                        p.stdin.flush()
-    except Exception:
-        pass
-
-t = threading.Thread(target=rx_worker, daemon=True)
-t.start()
-
-out_pkt = ctypes.create_string_buffer(1276)
-stdout_buf = sys.stdout.buffer
-
-noise_floor = 90.0
-ns_gain = 1.0
-agc_gain = 0.85
-hp_x_l = 0.0
-hp_y_l = 0.0
-hp_x_r = 0.0
-hp_y_r = 0.0
-lp_y_l = 0.0
-lp_y_r = 0.0
-vad_hold_frames = 0
-
-try:
-    while parec.stdout:
-        pcm = parec.stdout.read(3840)
-        if not pcm or len(pcm) < 3840:
-            break
-        with state_lock:
-            krisp_on = cfg_krisp
-            agc_on = cfg_agc
-            auto_vad_on = cfg_auto_vad
-            is_muted = cfg_muted or cfg_deafened
-            man_vad_db = cfg_vad_db
-            in_vol_pct = cfg_in_vol
-            out_vol_pct = cfg_out_vol
-
-        arr = array.array("h")
-        arr.frombytes(pcm)
-        n_samp = len(arr)
-
-        # Stage 1: 90Hz High-Pass Filter (when Krisp is ON) + RMS & Peak measurement
-        sum_sq = 0.0
-        peak = 1.0
-        if krisp_on:
-            for i in range(0, n_samp, 2):
-                xl = float(arr[i])
-                xr = float(arr[i + 1])
-                yl = xl - hp_x_l + 0.988 * hp_y_l
-                yr = xr - hp_x_r + 0.988 * hp_y_r
-                hp_x_l = xl
-                hp_y_l = yl
-                hp_x_r = xr
-                hp_y_r = yr
-                sum_sq += yl * yl + yr * yr
-                al = abs(yl)
-                ar = abs(yr)
-                if al > peak:
-                    peak = al
-                if ar > peak:
-                    peak = ar
-                if yl > 32767.0:
-                    yl = 32767.0
-                elif yl < -32768.0:
-                    yl = -32768.0
-                if yr > 32767.0:
-                    yr = 32767.0
-                elif yr < -32768.0:
-                    yr = -32768.0
-                arr[i] = int(yl)
-                arr[i + 1] = int(yr)
-        else:
-            for i in range(n_samp):
-                v = float(arr[i])
-                sum_sq += v * v
-                av = abs(v)
-                if av > peak:
-                    peak = av
-
-        raw_rms = math.sqrt(sum_sq / float(n_samp))
-
-        # Stage 2: Adaptive Noise Floor Estimator & Krisp Wiener Suppression
-        if raw_rms < noise_floor * 1.65:
-            noise_floor = 0.92 * noise_floor + 0.08 * raw_rms
-        else:
-            noise_floor = min(1800.0, noise_floor * 1.0015 + 0.05)
-        if noise_floor < 18.0:
-            noise_floor = 18.0
-
-        snr = raw_rms / max(noise_floor, 15.0)
-        crest = peak / max(raw_rms, 1.0)
-        if krisp_on:
-            if snr < 2.1:
-                g_target = 0.01
-            elif snr < 3.8:
-                norm_t = (snr - 2.1) / 1.7
-                g_target = 0.01 + 0.99 * (norm_t * norm_t)
-            else:
-                g_target = 1.0
-            # Suppress sharp transient keyboard/mouse clicks (high crest factor, short impulsive energy)
-            if crest > 2.8 and snr < 9.5:
-                g_target = 0.005
-            if g_target > ns_gain:
-                ns_gain = 0.42 * ns_gain + 0.58 * g_target
-            else:
-                ns_gain = 0.88 * ns_gain + 0.12 * g_target
-        else:
-            ns_gain = 1.0
-
-        # Stage 3: Automatic Gain Control (AGC) + Fast Loud-Mic Attenuation + Peak Limiter
-        post_ns_rms = raw_rms * ns_gain
-        target_rms = 3800.0  # -18.7 dBFS comfortable target voice level
-        if agc_on:
-            if snr >= 1.9 and post_ns_rms > 70.0:
-                desired_agc = max(0.12, min(2.4, target_rms / post_ns_rms))
-                if desired_agc < agc_gain:
-                    # Fast attenuation when microphone is too loud
-                    agc_gain = 0.28 * agc_gain + 0.72 * desired_agc
-                else:
-                    # Gentle boost when microphone is quiet
-                    agc_gain = 0.95 * agc_gain + 0.05 * desired_agc
-            elif post_ns_rms * agc_gain > target_rms * 1.25:
-                agc_gain = target_rms / max(post_ns_rms, 1.0)
-        else:
-            agc_gain = 1.0
-
-        vol_mult = float(in_vol_pct) / 100.0
-        total_gain = ns_gain * agc_gain * vol_mult
-        # Hard ceiling limiter at -6.5 dBFS (15500) so loud mic never blasts or clips
-        if peak * total_gain > 15500.0:
-            total_gain = 15500.0 / max(peak, 1.0)
-
-        # Apply gain + de-hiss smoothing when Krisp is ON and SNR is low
-        dehiss = krisp_on and snr < 2.6
-        proc_sum_sq = 0.0
-        for i in range(0, n_samp, 2):
-            sl = float(arr[i]) * total_gain
-            sr = float(arr[i + 1]) * total_gain
-            if dehiss:
-                sl = 0.55 * sl + 0.45 * lp_y_l
-                sr = 0.55 * sr + 0.45 * lp_y_r
-            lp_y_l = sl
-            lp_y_r = sr
-            if sl > 32000.0:
-                sl = 32000.0
-            elif sl < -32000.0:
-                sl = -32000.0
-            if sr > 32000.0:
-                sr = 32000.0
-            elif sr < -32000.0:
-                sr = -32000.0
-            arr[i] = int(sl)
-            arr[i + 1] = int(sr)
-            proc_sum_sq += sl * sl + sr * sr
-
-        proc_rms = math.sqrt(proc_sum_sq / float(n_samp))
-        if proc_rms < 1.0 or (is_muted and not loopback):
-            db = -100
-        else:
-            db = int(max(-100.0, min(0.0, round(20.0 * math.log10(proc_rms / 32768.0)))))
-
-        # Stage 4: Automatic vs Manual Input Sensitivity (VAD)
-        if auto_vad_on:
-            nf_scaled = max(12.0, noise_floor * agc_gain * vol_mult * (0.35 if krisp_on else 1.0))
-            nf_db = 20.0 * math.log10(nf_scaled / 32768.0)
-            eff_vad_db = int(max(-65.0, min(-28.0, round(nf_db + 10.0))))
-        else:
-            eff_vad_db = int(max(-85, min(-5, man_vad_db)))
-
-        if db >= eff_vad_db:
-            vad_hold_frames = 14
-        elif vad_hold_frames > 0:
-            vad_hold_frames -= 1
-
-        gate_open = vad_hold_frames > 0
-        if not gate_open:
-            # Silence frame when below VAD sensitivity threshold
-            for i in range(n_samp):
-                arr[i] = int(arr[i] * 0.05)
-
-        proc_pcm = arr.tobytes()
-
-        if loopback and pacat and pacat.stdin:
-            out_mult = float(out_vol_pct) / 100.0
-            with pacat_lock:
-                pacat.stdin.write(scale_pcm_bytes(proc_pcm, out_mult))
-                pacat.stdin.flush()
-
-        n = opus.opus_encode(enc, proc_pcm, 960, out_pkt, 1276)
-        if n < 0:
-            n = 0
-        stdout_buf.write(struct.pack("<bbH", db, eff_vad_db, n))
-        if n > 0:
-            stdout_buf.write(out_pkt.raw[:n])
-        stdout_buf.flush()
-except Exception:
-    pass
-finally:
-    try:
-        parec.kill()
-    except Exception:
-        pass
-    try:
-        if pacat:
-            pacat.kill()
-    except Exception:
-        pass
-"#;
-
 fn ensure_local_mic_monitor() {
     use std::io::{Read, Write};
     use std::sync::atomic::Ordering;
+
+    if chord_core::ws::is_native_voice_engine_active() {
+        stop_local_mic_monitor();
+        return;
+    }
     LOCAL_MIC_MONITOR_ACTIVE.store(true, Ordering::SeqCst);
     if LOCAL_MIC_MONITOR_STARTED.swap(true, Ordering::SeqCst) {
         return;
@@ -6254,6 +5937,10 @@ fn ensure_local_mic_monitor() {
     std::thread::spawn(|| {
         let _ = std::panic::catch_unwind(|| {
             while LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed) {
+                if chord_core::ws::is_native_voice_engine_active() {
+                    LOCAL_MIC_MONITOR_ACTIVE.store(false, Ordering::SeqCst);
+                    break;
+                }
                 let start_epoch = AUDIO_DEVICE_EPOCH.load(Ordering::Relaxed);
                 let start_loopback = LOCAL_MIC_LOOPBACK_ACTIVE.load(Ordering::Relaxed);
                 let input_dev = selected_input_device()
@@ -6268,114 +5955,96 @@ fn ensure_local_mic_monitor() {
                     .and_then(|g| g.clone())
                     .filter(|s| !s.is_empty() && s != "default")
                     .unwrap_or_default();
-                let mut py_cmd = std::process::Command::new("python3");
-                py_cmd.args([
-                    "-u",
-                    "-c",
-                    OPUS_AUDIO_BRIDGE_PY,
-                    &input_dev,
-                    &output_dev,
-                    if start_loopback { "1" } else { "0" },
-                ]);
-                let child = py_cmd
-                    .stdin(std::process::Stdio::piped())
+
+                let mut parec_args = vec![
+                    "--channels=2".to_string(),
+                    "--rate=48000".to_string(),
+                    "--format=s16le".to_string(),
+                    "--latency-msec=20".to_string(),
+                    "--client-name=Discord-Mic-Meter".to_string(),
+                    "--property=media.role=meter".to_string(),
+                ];
+                if !input_dev.is_empty() {
+                    parec_args.push(format!("--device={input_dev}"));
+                }
+
+                let mut parec_cmd = std::process::Command::new("parec");
+                parec_cmd
+                    .args(&parec_args)
+                    .stdin(std::process::Stdio::null())
                     .stdout(std::process::Stdio::piped())
-                    .stderr(std::process::Stdio::null())
-                    .spawn();
-                let Ok(mut proc) = child else {
-                    for _ in 0..15 {
-                        if !LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed) {
+                    .stderr(std::process::Stdio::null());
+
+                let Ok(mut parec_proc) = parec_cmd.spawn() else {
+                    for _ in 0..10 {
+                        if !LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed)
+                            || chord_core::ws::is_native_voice_engine_active()
+                        {
                             break;
                         }
                         std::thread::sleep(std::time::Duration::from_millis(200));
                     }
                     continue;
                 };
-                let Some(mut stdout) = proc.stdout.take() else {
-                    let _ = proc.kill();
-                    let _ = proc.wait();
-                    std::thread::sleep(std::time::Duration::from_millis(500));
+
+                let mut pacat_proc: Option<std::process::Child> = if start_loopback {
+                    let mut pacat_args = vec![
+                        "--channels=2".to_string(),
+                        "--rate=48000".to_string(),
+                        "--format=s16le".to_string(),
+                        "--latency-msec=20".to_string(),
+                        "--client-name=Discord-Mic-Loopback".to_string(),
+                    ];
+                    if !output_dev.is_empty() {
+                        pacat_args.push(format!("--device={output_dev}"));
+                    }
+                    std::process::Command::new("pacat")
+                        .args(&pacat_args)
+                        .stdin(std::process::Stdio::piped())
+                        .stdout(std::process::Stdio::null())
+                        .stderr(std::process::Stdio::null())
+                        .spawn()
+                        .ok()
+                } else {
+                    None
+                };
+
+                let Some(mut stdout) = parec_proc.stdout.take() else {
+                    let _ = parec_proc.kill();
+                    let _ = parec_proc.wait();
                     continue;
                 };
-                let rx_stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
-                if let Some(mut stdin) = proc.stdin.take() {
-                    let rx_stop_clone = std::sync::Arc::clone(&rx_stop);
-                    std::thread::spawn(move || {
-                        let mut last_ctrl = [0u8; 8];
-                        let mut tick = 0u32;
-                        while !rx_stop_clone.load(Ordering::Relaxed)
-                            && LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed)
-                        {
-                            let ctrl = [
-                                u8::from(LOCAL_KRISP_ENABLED.load(Ordering::Relaxed)),
-                                u8::from(LOCAL_AUTO_GAIN_ENABLED.load(Ordering::Relaxed)),
-                                u8::from(LOCAL_AUTO_SENSITIVITY_ENABLED.load(Ordering::Relaxed)),
-                                u8::from(LOCAL_SELF_MUTE.load(Ordering::Relaxed)),
-                                (LOCAL_VAD_THRESHOLD_DB
-                                    .load(Ordering::Relaxed)
-                                    .clamp(-85, -5) as i8) as u8,
-                                LOCAL_INPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as u8,
-                                LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as u8,
-                                u8::from(LOCAL_SELF_DEAF.load(Ordering::Relaxed)),
-                            ];
-                            if ctrl != last_ctrl || tick % 10 == 0 {
-                                last_ctrl = ctrl;
-                                let mut c_hdr = [0u8; 6];
-                                c_hdr[0..4].copy_from_slice(&0xFFFF_FFFFu32.to_le_bytes());
-                                c_hdr[4..6].copy_from_slice(&8u16.to_le_bytes());
-                                if stdin.write_all(&c_hdr).is_err()
-                                    || stdin.write_all(&ctrl).is_err()
-                                {
-                                    return;
-                                }
-                                let _ = stdin.flush();
-                            }
-                            tick = tick.wrapping_add(1);
-                            let rx_frames = chord_core::ws::drain_live_rtc_rx_opus();
-                            if !rx_frames.is_empty() && !LOCAL_SELF_DEAF.load(Ordering::Relaxed) {
-                                for (ssrc, opus) in rx_frames {
-                                    let Ok(plen) = u16::try_from(opus.len()) else {
-                                        continue;
-                                    };
-                                    let mut hdr = [0u8; 6];
-                                    hdr[0..4].copy_from_slice(&ssrc.to_le_bytes());
-                                    hdr[4..6].copy_from_slice(&plen.to_le_bytes());
-                                    if stdin.write_all(&hdr).is_err()
-                                        || stdin.write_all(&opus).is_err()
-                                    {
-                                        return;
-                                    }
-                                }
-                                let _ = stdin.flush();
-                            } else {
-                                std::thread::sleep(std::time::Duration::from_millis(15));
-                            }
-                        }
-                    });
-                }
-                let mut hdr = [0u8; 4];
-                let mut opus_buf = vec![0u8; 1500];
+
+                let mut pcm_buf = [0u8; 3840];
                 let mut hold_frames = 0u32;
+
                 while LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed)
                     && AUDIO_DEVICE_EPOCH.load(Ordering::Relaxed) == start_epoch
                     && LOCAL_MIC_LOOPBACK_ACTIVE.load(Ordering::Relaxed) == start_loopback
-                    && stdout.read_exact(&mut hdr).is_ok()
+                    && !chord_core::ws::is_native_voice_engine_active()
+                    && stdout.read_exact(&mut pcm_buf).is_ok()
                 {
-                    let db = i32::from(hdr[0] as i8);
-                    let eff_vad_db = i32::from(hdr[1] as i8);
-                    let opus_len = usize::from(u16::from_le_bytes([hdr[2], hdr[3]]));
-                    if opus_len > 0 {
-                        if opus_len > opus_buf.len() {
-                            opus_buf.resize(opus_len, 0);
-                        }
-                        if stdout.read_exact(&mut opus_buf[..opus_len]).is_err() {
-                            break;
-                        }
+                    let is_muted = LOCAL_SELF_MUTE.load(Ordering::Relaxed)
+                        || LOCAL_SELF_DEAF.load(Ordering::Relaxed);
+                    let in_vol = LOCAL_INPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as f64 / 100.0;
+                    let out_vol = LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as f64 / 100.0;
+
+                    let mut sum_sq = 0.0f64;
+                    let num_samples = pcm_buf.len() / 2;
+                    for chunk in pcm_buf.chunks_exact(2) {
+                        let sample = i16::from_le_bytes([chunk[0], chunk[1]]) as f64 * in_vol;
+                        sum_sq += sample * sample;
                     }
-                    LOCAL_MIC_LEVEL_DB.store(db, Ordering::Relaxed);
-                    LOCAL_EFFECTIVE_VAD_DB.store(eff_vad_db, Ordering::Relaxed);
+                    let rms = (sum_sq / (num_samples as f64).max(1.0)).sqrt();
+                    let db = if rms < 1.0 || (is_muted && !start_loopback) {
+                        -100
+                    } else {
+                        ((rms / 32768.0).log10() * 20.0).round().clamp(-100.0, 0.0) as i32
+                    };
+
+                    let eff_vad_db = LOCAL_VAD_THRESHOLD_DB.load(Ordering::Relaxed).clamp(-85, -5);
                     let is_speaking = if db >= eff_vad_db {
-                        hold_frames = 14; // ~280 мс удержания зелёного кольца вокруг аватарки (при 20 мс кадрах)
+                        hold_frames = 14;
                         true
                     } else if hold_frames > 0 {
                         hold_frames -= 1;
@@ -6383,24 +6052,37 @@ fn ensure_local_mic_monitor() {
                     } else {
                         false
                     };
+
+                    LOCAL_MIC_LEVEL_DB.store(db, Ordering::Relaxed);
+                    LOCAL_EFFECTIVE_VAD_DB.store(eff_vad_db, Ordering::Relaxed);
                     LOCAL_MIC_SPEAKING.store(is_speaking, Ordering::Relaxed);
-                    if is_speaking
-                        && opus_len > 0
-                        && LOCAL_VOICE_ACTIVE.load(Ordering::Relaxed)
-                        && !LOCAL_SELF_MUTE.load(Ordering::Relaxed)
-                        && !LOCAL_SELF_DEAF.load(Ordering::Relaxed)
-                    {
-                        chord_core::ws::push_live_rtc_tx_opus(opus_buf[..opus_len].to_vec());
+
+                    if let Some(ref mut pacat) = pacat_proc {
+                        if let Some(ref mut stdin) = pacat.stdin {
+                            if out_vol > 0.01 && !LOCAL_SELF_DEAF.load(Ordering::Relaxed) {
+                                if (out_vol - 1.0).abs() < 0.02 {
+                                    let _ = stdin.write_all(&pcm_buf);
+                                } else {
+                                    let mut scaled = pcm_buf;
+                                    for chunk in scaled.chunks_exact_mut(2) {
+                                        let sample = (i16::from_le_bytes([chunk[0], chunk[1]]) as f64 * out_vol).clamp(-32000.0, 32000.0) as i16;
+                                        chunk.copy_from_slice(&sample.to_le_bytes());
+                                    }
+                                    let _ = stdin.write_all(&scaled);
+                                }
+                            }
+                        }
                     }
                 }
-                rx_stop.store(true, Ordering::SeqCst);
-                LOCAL_MIC_SPEAKING.store(false, Ordering::Relaxed);
-                LOCAL_MIC_LEVEL_DB.store(-100, Ordering::Relaxed);
-                drop(stdout);
-                let _ = proc.kill();
-                let _ = proc.wait();
+
+                let _ = parec_proc.kill();
+                let _ = parec_proc.wait();
+                if let Some(mut pacat) = pacat_proc {
+                    let _ = pacat.kill();
+                    let _ = pacat.wait();
+                }
                 if LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed) {
-                    std::thread::sleep(std::time::Duration::from_millis(120));
+                    std::thread::sleep(std::time::Duration::from_millis(100));
                 }
             }
         });
@@ -6456,8 +6138,18 @@ pub fn live_voice_rtc_status_json() -> Value {
         }
     }
     let snap = chord_core::ws::live_rtc_snapshot();
-    let local_speaking = LOCAL_MIC_SPEAKING.load(Ordering::Relaxed);
-    let local_db = LOCAL_MIC_LEVEL_DB.load(Ordering::Relaxed);
+    let (native_db, native_speaking) = chord_core::ws::get_native_mic_live_level();
+    let is_native = chord_core::ws::is_native_voice_engine_active();
+    let local_speaking = if is_native {
+        native_speaking
+    } else {
+        LOCAL_MIC_SPEAKING.load(Ordering::Relaxed)
+    };
+    let local_db = if is_native {
+        native_db as i32
+    } else {
+        LOCAL_MIC_LEVEL_DB.load(Ordering::Relaxed)
+    };
     let mut speaking_users = snap.speaking_users;
     let has_unmapped_ssrc = speaking_users.iter().any(|u| u.starts_with("ssrc:"));
     let mut effective_state = snap.state.clone();
@@ -6624,7 +6316,9 @@ fn run_pactl_bounded(args: &[&str], timeout: std::time::Duration) -> Option<Stri
 #[must_use]
 pub fn list_system_audio_devices_json() -> Value {
     use std::sync::atomic::Ordering;
-    ensure_local_mic_monitor();
+    if !chord_core::ws::is_native_voice_engine_active() {
+        ensure_local_mic_monitor();
+    }
     fn parse_pactl_list(kind: &str) -> Vec<Value> {
         let Some(text) = run_pactl_bounded(&["list", kind], std::time::Duration::from_millis(1200))
         else {
@@ -7388,7 +7082,11 @@ pub fn set_system_audio_device(
         LOCAL_MIC_LOOPBACK_ACTIVE.store(true, Ordering::SeqCst);
         AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
         chord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":true}"#);
-        ensure_local_mic_monitor();
+        if !chord_core::ws::is_native_voice_engine_active() {
+            ensure_local_mic_monitor();
+        } else {
+            stop_local_mic_monitor();
+        }
         return live_voice_rtc_status_json();
     }
     if kind == "mic_test_stop" {
@@ -7751,19 +7449,27 @@ pub fn set_system_audio_device(
         if is_input {
             if let Ok(mut g) = selected_input_device().lock() {
                 if *g != clean_opt {
-                    *g = clean_opt;
+                    *g = clean_opt.clone();
                     actually_changed = true;
                 }
             }
         } else if let Ok(mut g) = selected_output_device().lock() {
             if *g != clean_opt {
-                *g = clean_opt;
+                *g = clean_opt.clone();
                 actually_changed = true;
             }
         }
         if actually_changed {
             AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
             changed_device = true;
+            let dev = clean_opt.as_deref().unwrap_or("default");
+            let kind_str = if is_input { "input" } else { "output" };
+            let current_inp = selected_input_device().lock().ok().and_then(|g| g.clone());
+            let current_out = selected_output_device().lock().ok().and_then(|g| g.clone());
+            chord_core::ws::set_selected_voice_devices(current_inp, current_out);
+            chord_core::ws::send_native_voice_cmd(&format!(
+                "{{\"cmd\":\"set_device\",\"kind\":\"{kind_str}\",\"device\":\"{dev}\"}}"
+            ));
         }
     }
     if let Some(vol) = volume_pct {
@@ -8056,13 +7762,13 @@ fn fetch_rest_channel_messages(token: &str, channel_id: &str) -> Option<Vec<Valu
                 base: chord_core::API_V9_BASE.to_string(),
                 auth,
                 http: chord_core::rest::transport::HttpClientConfig {
-                    connect_timeout: std::time::Duration::from_millis(1200),
-                    read_timeout: std::time::Duration::from_millis(1500),
-                    write_timeout: std::time::Duration::from_millis(1200),
+                    connect_timeout: std::time::Duration::from_millis(3000),
+                    read_timeout: std::time::Duration::from_millis(4500),
+                    write_timeout: std::time::Duration::from_millis(3000),
                     ..chord_core::rest::transport::HttpClientConfig::default()
                 },
                 retry: chord_core::rest::client::ApiRetryPolicy {
-                    max_attempts: 1,
+                    max_attempts: 2,
                     ..chord_core::rest::client::ApiRetryPolicy::default()
                 },
             };
@@ -9971,7 +9677,7 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
         };
         if should_fetch_rest {
             if let Some(ref token) = live_token {
-                {
+                if let Some(mut fetched) = fetch_rest_channel_messages(token, channel_id) {
                     let mut guard = live_session()
                         .lock()
                         .unwrap_or_else(|poison| poison.into_inner());
@@ -9979,11 +9685,6 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
                     guard
                         .fetched_channels_at
                         .insert(channel_id.to_string(), std::time::Instant::now());
-                }
-                if let Some(mut fetched) = fetch_rest_channel_messages(token, channel_id) {
-                    let mut guard = live_session()
-                        .lock()
-                        .unwrap_or_else(|poison| poison.into_inner());
                     // Фильтруем удалённые сообщения: сообщения из blacklisted deleted_message_ids
                     // гарантированно не попадут в отображение канала.
                     fetched.retain(|m| {

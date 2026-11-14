@@ -4540,6 +4540,7 @@ export function createChatScreen(options) {
     }
     host.setAttribute("data-mode", "channel");
     host.setAttribute("data-channel-id", id);
+    host.style.display = "";
     const header = document.querySelector("#chat-header");
     if (header) header.setAttribute("data-channel-id", id);
     const title = document.querySelector(".chat-title-text");

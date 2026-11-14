@@ -2351,18 +2351,18 @@ fn live_session_ingests_and_forwards_guild_member_update_and_role_crud_dispatche
         "GUILD_ROLE_UPDATE",
         "GUILD_ROLE_DELETE",
     ] {
-        let event = discord_core::DispatchEvent {
+        let event = chord_core::DispatchEvent {
             name: kind.to_string(),
             kind: None,
             seq: Some(77),
-            data: discord_core::codec::etf::EtfValue::Map(vec![
+            data: chord_core::codec::etf::EtfValue::Map(vec![
                 (
-                    discord_core::codec::etf::EtfValue::Atom("guild_id".into()),
-                    discord_core::codec::etf::EtfValue::Str("888000".into()),
+                    chord_core::codec::etf::EtfValue::Atom("guild_id".into()),
+                    chord_core::codec::etf::EtfValue::Str("888000".into()),
                 ),
                 (
-                    discord_core::codec::etf::EtfValue::Atom("token".into()),
-                    discord_core::codec::etf::EtfValue::Str("secret-should-be-stripped".into()),
+                    chord_core::codec::etf::EtfValue::Atom("token".into()),
+                    chord_core::codec::etf::EtfValue::Str("secret-should-be-stripped".into()),
                 ),
             ]),
         };
@@ -3214,9 +3214,9 @@ fn bot_message_components_and_custom_ids_persisted_in_sqlite() {
         Some("role:grant:ts")
     );
 
-    // 2. Проверяем, что сообщение бота и его кнопки с custom_id сохранены в SQLite (discord_store::Store).
+    // 2. Проверяем, что сообщение бота и его кнопки с custom_id сохранены в SQLite (chord_store::Store).
     assert!(sqlite_path.exists(), "файл SQLite должен быть создан");
-    let store = discord_store::Store::open(&sqlite_path).expect("открытие SQLite Store");
+    let store = chord_store::Store::open(&sqlite_path).expect("открытие SQLite Store");
     let stored_msgs = store
         .messages("200", None, 10)
         .expect("чтение messages из SQLite");

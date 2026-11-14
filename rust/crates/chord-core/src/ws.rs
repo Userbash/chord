@@ -1186,6 +1186,39 @@ pub fn get_live_voice_mute_deaf_state() -> (bool, bool) {
     )
 }
 
+static SELECTED_VOICE_INPUT_DEVICE: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
+static SELECTED_VOICE_OUTPUT_DEVICE: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
+
+pub fn set_selected_voice_devices(input: Option<String>, output: Option<String>) {
+    if let Ok(mut g) = SELECTED_VOICE_INPUT_DEVICE.lock() {
+        *g = input;
+    }
+    if let Ok(mut g) = SELECTED_VOICE_OUTPUT_DEVICE.lock() {
+        *g = output;
+    }
+}
+
+pub fn get_selected_voice_devices() -> (Option<String>, Option<String>) {
+    let inp = SELECTED_VOICE_INPUT_DEVICE.lock().ok().and_then(|g| g.clone());
+    let out = SELECTED_VOICE_OUTPUT_DEVICE.lock().ok().and_then(|g| g.clone());
+    (inp, out)
+}
+
+static NATIVE_MIC_LEVEL_DB: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-100);
+static NATIVE_MIC_SPEAKING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+pub fn set_native_mic_live_level(db: i32, speaking: bool) {
+    NATIVE_MIC_LEVEL_DB.store(db, std::sync::atomic::Ordering::Relaxed);
+    NATIVE_MIC_SPEAKING.store(speaking, std::sync::atomic::Ordering::Relaxed);
+}
+
+pub fn get_native_mic_live_level() -> (i32, bool) {
+    (
+        NATIVE_MIC_LEVEL_DB.load(std::sync::atomic::Ordering::Relaxed),
+        NATIVE_MIC_SPEAKING.load(std::sync::atomic::Ordering::Relaxed),
+    )
+}
+
 /// Расширенная отправка `OP 4 VOICE_STATE_UPDATE` (включая `self_video`) и `OP 18 STREAM_CREATE` / `OP 19 STREAM_DELETE`
 /// при включении/выключении демонстрации экрана (`self_stream`), чтобы статус микрофона, наушников, камеры и «В ЭФИРЕ»
 /// мгновенно синхронизировался с серверами Discord и отображался у всех участников.
@@ -2195,7 +2228,10 @@ pub fn get_live_stream_audio_state() -> (bool, u32) {
 
 const DV_SCOPE_FIX_C: &str = r#"#define _GNU_SOURCE
 #include <dlfcn.h>
+#include <link.h>
 #include <fcntl.h>
+#include <errno.h>
+#include <sys/syscall.h>
 #include <gio/gio.h>
 #include <gio/gunixfdlist.h>
 #include <sys/mman.h>
@@ -2222,6 +2258,7 @@ typedef napi_status (*get_uv_loop_fn)(napi_env, void**);
 typedef napi_status (*get_cb_info_fn)(napi_env, napi_callback_info, size_t*, napi_value*, napi_value*, void**);
 typedef napi_status (*get_typedarray_info_fn)(napi_env, napi_value, int*, size_t*, void**, napi_value*, size_t*);
 typedef napi_status (*get_value_int32_fn)(napi_env, napi_value, int32_t*);
+typedef napi_status (*create_int32_fn)(napi_env, int32_t, napi_value*);
 typedef napi_status (*create_function_fn)(napi_env, const char*, size_t, napi_callback, void*, napi_value*);
 typedef napi_status (*set_named_property_fn)(napi_env, napi_value, const char*, napi_value);
 typedef void (*uv_async_cb_t)(void* handle);
@@ -2232,6 +2269,7 @@ static close_scope_fn orig_close_scope = NULL;
 static get_cb_info_fn fn_get_cb_info = NULL;
 static get_typedarray_info_fn fn_get_typedarray_info = NULL;
 static get_value_int32_fn fn_get_value_int32 = NULL;
+static create_int32_fn fn_create_int32 = NULL;
 static create_function_fn fn_create_function = NULL;
 static set_named_property_fn fn_set_named_property = NULL;
 static uv_async_init_fn tramp_uv_async_init = NULL;
@@ -2317,6 +2355,142 @@ static volatile int g_cap_active_slot = -1;
 static int g_cap_write_slot = 0;
 static volatile uint64_t g_last_capture_req_ms = 0;
 static int g_capture_thread_started = 0;
+
+static void* g_pw_mu_addr = NULL;
+static void* g_pw_cfg0_addr = NULL;
+static void* g_pw_cfg1_addr = NULL;
+
+static int phdr_find_pw_config_cb(struct dl_phdr_info *info, size_t size, void *data) {
+  (void)size; (void)data;
+  if (strstr(info->dlpi_name, "discord_voice.node")) {
+    for (int i = 0; i < info->dlpi_phnum; i++) {
+      const ElfW(Phdr) *phdr = &info->dlpi_phdr[i];
+      if (phdr->p_type == PT_LOAD && (phdr->p_flags & PF_X)) {
+        uint8_t *code_start = (uint8_t*)(info->dlpi_addr + phdr->p_vaddr);
+        size_t code_len = phdr->p_memsz;
+        for (size_t j = 0; j + 35 < code_len; j++) {
+          if (code_start[j] == 0x55 && code_start[j+1] == 0x41 && code_start[j+2] == 0x56 && code_start[j+3] == 0x53 &&
+              code_start[j+4] == 0x48 && code_start[j+5] == 0x8d && code_start[j+6] == 0x1d &&
+              code_start[j+11] == 0x48 && code_start[j+12] == 0x89 && code_start[j+13] == 0xdf && code_start[j+14] == 0xe8 &&
+              code_start[j+19] == 0x4c && code_start[j+20] == 0x8b && code_start[j+21] == 0x35 &&
+              code_start[j+26] == 0x0f && code_start[j+27] == 0xb6 && code_start[j+28] == 0x2d) {
+            int32_t disp_mu = *(int32_t*)(code_start + j + 7);
+            g_pw_mu_addr = (void*)(code_start + j + 11 + disp_mu);
+            int32_t disp_cfg0 = *(int32_t*)(code_start + j + 22);
+            g_pw_cfg0_addr = (void*)(code_start + j + 26 + disp_cfg0);
+            int32_t disp_cfg1 = *(int32_t*)(code_start + j + 29);
+            g_pw_cfg1_addr = (void*)(code_start + j + 33 + disp_cfg1);
+            return 1;
+          }
+        }
+      }
+    }
+    return 1;
+  }
+  return 0;
+}
+
+static void ensure_dv_pipewire_symbols(void) {
+  if (!g_pw_mu_addr || !g_pw_cfg0_addr || !g_pw_cfg1_addr) {
+    dl_iterate_phdr(phdr_find_pw_config_cb, NULL);
+  }
+}
+
+#ifndef SYS_pidfd_open
+#define SYS_pidfd_open 434
+#endif
+#ifndef SYS_pidfd_getfd
+#define SYS_pidfd_getfd 438
+#endif
+
+static int import_foreign_fd(int target_pid, int target_fd) {
+  if (target_pid <= 0 || target_pid == (int)getpid()) return target_fd;
+  int pidfd = (int)syscall(SYS_pidfd_open, target_pid, 0);
+  if (pidfd < 0) {
+    fprintf(stderr, "[PIPEWIRE_HOOK] SYS_pidfd_open(pid=%d) failed: errno=%d (%s)\n", target_pid, errno, strerror(errno));
+    fflush(stderr);
+    return -1;
+  }
+  int dup_fd = (int)syscall(SYS_pidfd_getfd, pidfd, target_fd, 0);
+  int saved_errno = errno;
+  close(pidfd);
+  if (dup_fd < 0) {
+    fprintf(stderr, "[PIPEWIRE_HOOK] SYS_pidfd_getfd(pid=%d, fd=%d) failed: errno=%d (%s)\n", target_pid, target_fd, saved_errno, strerror(saved_errno));
+    fflush(stderr);
+    return -1;
+  }
+  fprintf(stderr, "[PIPEWIRE_HOOK] Successfully duplicated socket fd from PID %d: remote_fd=%d -> local_fd=%d\n", target_pid, target_fd, dup_fd);
+  fflush(stderr);
+  return dup_fd;
+}
+
+static napi_value js_import_foreign_fd(napi_env env, napi_callback_info info) {
+  if (!fn_get_cb_info || !fn_get_value_int32) return NULL;
+  size_t argc = 2;
+  napi_value argv[2];
+  if (fn_get_cb_info(env, info, &argc, argv, NULL, NULL) != 0 || argc < 2) return NULL;
+  int32_t target_pid = -1;
+  int32_t target_fd = -1;
+  fn_get_value_int32(env, argv[0], &target_pid);
+  fn_get_value_int32(env, argv[1], &target_fd);
+
+  int local_fd = import_foreign_fd(target_pid, target_fd);
+  napi_value result = NULL;
+  if (fn_create_int32) {
+    fn_create_int32(env, local_fd, &result);
+  }
+  return result;
+}
+
+static napi_value js_set_pipewire_config(napi_env env, napi_callback_info info) {
+  if (!fn_get_cb_info || !fn_get_value_int32) return NULL;
+  size_t argc = 3;
+  napi_value argv[3];
+  if (fn_get_cb_info(env, info, &argc, argv, NULL, NULL) != 0 || argc < 2) return NULL;
+  int32_t target_pid = -1;
+  int32_t fd = -1;
+  int32_t node_id = 0;
+  if (argc >= 3) {
+    fn_get_value_int32(env, argv[0], &target_pid);
+    fn_get_value_int32(env, argv[1], &fd);
+    fn_get_value_int32(env, argv[2], &node_id);
+  } else {
+    fn_get_value_int32(env, argv[0], &fd);
+    fn_get_value_int32(env, argv[1], &node_id);
+  }
+
+  if (target_pid > 0 && target_pid != (int)getpid()) {
+    int dup_fd = import_foreign_fd(target_pid, fd);
+    if (dup_fd >= 0) {
+      fd = dup_fd;
+    }
+  }
+
+  ensure_dv_pipewire_symbols();
+  if (!g_pw_mu_addr || !g_pw_cfg0_addr || !g_pw_cfg1_addr) {
+    fprintf(stderr, "[PIPEWIRE_HOOK] Failed to resolve gPickedPipewireConfig in discord_voice.node\n");
+    return NULL;
+  }
+
+  pthread_mutex_t* p_mu = (pthread_mutex_t*)g_pw_mu_addr;
+  uint32_t* p_cfg0 = (uint32_t*)g_pw_cfg0_addr;
+  uint8_t* p_cfg1 = (uint8_t*)g_pw_cfg1_addr;
+
+  pthread_mutex_lock(p_mu);
+  p_cfg0[0] = (uint32_t)fd;
+  p_cfg0[1] = (uint32_t)node_id;
+  p_cfg1[0] = 1;
+  pthread_mutex_unlock(p_mu);
+
+  fprintf(stderr, "[PIPEWIRE_HOOK] Injected gPickedPipewireConfig: fd=%d node_id=%d has_value=1\n", fd, node_id);
+  fflush(stderr);
+
+  napi_value ret = NULL;
+  if (fn_create_int32) {
+    fn_create_int32(env, fd, &ret);
+  }
+  return ret;
+}
 
 static uint64_t monotonic_ms(void) {
   struct timespec ts;
@@ -2895,6 +3069,7 @@ napi_value napi_register_module_v1(napi_env env, napi_value exports) {
   fn_get_cb_info = (get_cb_info_fn)dlsym(RTLD_DEFAULT, "napi_get_cb_info");
   fn_get_typedarray_info = (get_typedarray_info_fn)dlsym(RTLD_DEFAULT, "napi_get_typedarray_info");
   fn_get_value_int32 = (get_value_int32_fn)dlsym(RTLD_DEFAULT, "napi_get_value_int32");
+  fn_create_int32 = (create_int32_fn)dlsym(RTLD_DEFAULT, "napi_create_int32");
   fn_create_function = (create_function_fn)dlsym(RTLD_DEFAULT, "napi_create_function");
   fn_set_named_property = (set_named_property_fn)dlsym(RTLD_DEFAULT, "napi_set_named_property");
   get_uv_loop_fn get_loop = (get_uv_loop_fn)dlsym(RTLD_DEFAULT, "napi_get_uv_event_loop");
@@ -2930,6 +3105,14 @@ napi_value napi_register_module_v1(napi_env env, napi_value exports) {
     napi_value fn_val = NULL;
     if (fn_create_function(env, "pushRemoteFrame", 15, js_push_remote_frame, NULL, &fn_val) == 0 && fn_val) {
       fn_set_named_property(env, exports, "pushRemoteFrame", fn_val);
+    }
+    napi_value fn_pw_val = NULL;
+    if (fn_create_function(env, "setPipewireConfig", 17, js_set_pipewire_config, NULL, &fn_pw_val) == 0 && fn_pw_val) {
+      fn_set_named_property(env, exports, "setPipewireConfig", fn_pw_val);
+    }
+    napi_value fn_imp_val = NULL;
+    if (fn_create_function(env, "importForeignFd", 15, js_import_foreign_fd, NULL, &fn_imp_val) == 0 && fn_imp_val) {
+      fn_set_named_property(env, exports, "importForeignFd", fn_imp_val);
     }
   }
   return exports;
@@ -3074,6 +3257,40 @@ dv.initialize({
   offloadAdmControls: true,
   asyncVideoInputDeviceInit: false
 });
+
+let currentLocalSpeakingState = 0;
+let lastVoiceLevelSend = 0;
+try {
+  if (typeof dv.setOnVoiceCallback === "function") {
+    dv.setOnVoiceCallback((level, speaking) => {
+      const spkInt = Number(speaking || 0);
+      if (spkInt !== currentLocalSpeakingState) {
+        currentLocalSpeakingState = spkInt;
+        sendEv({
+          ev: "speaking",
+          userId: String(currentUserId || ""),
+          speaking: spkInt,
+          isSelf: true,
+          level: Number(level || -100)
+        });
+      }
+      const now = Date.now();
+      if (now - lastVoiceLevelSend >= 100) {
+        lastVoiceLevelSend = now;
+        sendEv({
+          ev: "voice_level",
+          level: Number(level || -100),
+          speaking: spkInt !== 0
+        });
+      }
+    });
+  }
+  if (typeof dv.setEmitVADLevel === "function") {
+    dv.setEmitVADLevel(true, false, {});
+  }
+} catch (e) {
+  sendEv({ ev: "log", msg: "setOnVoiceCallback init err: " + (e && e.message) });
+}
 
 try {
   if (typeof dv.setKrispPath === "function") {
@@ -3242,15 +3459,44 @@ let currentRtxSsrc = 0;
 let isSelfBroadcaster = false;
 let pendingExternalSender = null;
 let sessionEpochPrepared = false;
+let desktopSourceConfigured = false;
+let configuredDesktopSourceKey = "";
 const remoteUsers = new Map();
 const perUserAudioPrefs = new Map();
 
-function buildVoiceDspTransportOptions(isStreamConn, krispEnabled, autoGain) {
-  const useKrispNc = !isStreamConn && Boolean(krispEnabled);
+function resolveDeviceIndex(devStr, list) {
+  if (!devStr || devStr === "default" || !Array.isArray(list) || list.length === 0) return 0;
+  const needle = String(devStr).toLowerCase().replace(/_/g, " ");
+  const n = parseInt(devStr, 10);
+  if (!isNaN(n) && list.some((d) => d && d.index === n)) {
+    return n;
+  }
+  for (const d of list) {
+    if (d && d.name && d.name.toLowerCase() === needle) return d.index;
+  }
+  for (const d of list) {
+    if (d && d.name) {
+      const nm = d.name.toLowerCase();
+      if (nm.includes(needle) || needle.includes(nm)) return d.index;
+    }
+  }
+  const tokens = needle.split(/[\s\.\-]+/).filter((t) => t.length > 2);
+  for (const d of list) {
+    if (d && d.name) {
+      const nm = d.name.toLowerCase();
+      for (const tok of tokens) {
+        if (nm.includes(tok)) return d.index;
+      }
+    }
+  }
+  return 0;
+}
+
+function buildVoiceDspTransportOptions(isStreamConn, _krispEnabled, autoGain) {
   return {
     echoCancellation: !isStreamConn,
-    noiseSuppression: !isStreamConn && !useKrispNc,
-    noiseCancellation: useKrispNc,
+    noiseSuppression: !isStreamConn,
+    noiseCancellation: false,
     automaticGainControl: !isStreamConn && Boolean(autoGain),
     ducking: 0
   };
@@ -3404,7 +3650,8 @@ function applyScreenBroadcast(active) {
         }
       } catch (_) {}
       // Linux Wayland: use PipeWire nodeId or screen sourceId from capture target
-      if (typeof conn.setDesktopSourceWithOptions === "function") {
+      const sourceKey = currentSourceType + ":" + currentSourceId + ":" + (isPipewire ? "pw" : "std");
+      if (typeof conn.setDesktopSourceWithOptions === "function" && (!desktopSourceConfigured || configuredDesktopSourceKey !== sourceKey)) {
         const srcOpts = {
           type: currentSourceType,
           sourceId: currentSourceId,
@@ -3419,11 +3666,43 @@ function applyScreenBroadcast(active) {
         };
         if (isPipewire) {
           srcOpts.allow_pipewire = true;
+          srcOpts.allowPipewire = true;
+          let pwFd = -1;
+          let remotePid = -1;
+          try {
+            if (fs.existsSync("/dev/shm/discord_pipewire_fd.txt")) {
+              const raw = fs.readFileSync("/dev/shm/discord_pipewire_fd.txt", "utf8").trim();
+              if (raw.includes(":")) {
+                const parts = raw.split(":");
+                remotePid = parseInt(parts[0], 10);
+                pwFd = parseInt(parts[1], 10);
+              } else {
+                pwFd = parseInt(raw, 10);
+              }
+            }
+          } catch (_) {}
+          if (typeof scopeFix !== "undefined" && typeof scopeFix.setPipewireConfig === "function" && pwFd >= 0) {
+            let localFd = -1;
+            if (remotePid > 0 && typeof scopeFix.importForeignFd === "function") {
+              localFd = scopeFix.importForeignFd(remotePid, pwFd);
+              sendEv({ ev: "log", msg: "scopeFix.importForeignFd(pid=" + remotePid + ", fd=" + pwFd + ") -> " + localFd });
+            }
+            if (localFd >= 0) {
+              pwFd = localFd;
+            }
+            scopeFix.setPipewireConfig(pwFd, Number(currentSourceId));
+          }
+          if (pwFd >= 0) {
+            srcOpts.pipewireConfig = { fd: pwFd, node_id: Number(currentSourceId) };
+            srcOpts.pipewire_config = { fd: pwFd, node_id: Number(currentSourceId) };
+          }
         }
         conn.setDesktopSourceWithOptions(srcOpts);
+        desktopSourceConfigured = true;
+        configuredDesktopSourceKey = sourceKey;
       }
       if (typeof conn.setVideoBroadcast === "function") conn.setVideoBroadcast(true);
-      sendEv({ ev: "log", msg: "applyScreenBroadcast active=true videoSsrc=" + vSsrc + " rtxSsrc=" + rSsrc });
+      sendEv({ ev: "log", msg: "applyScreenBroadcast active=true videoSsrc=" + vSsrc + " rtxSsrc=" + rSsrc + " stack=" + (new Error().stack || "").replace(/\n/g, " -> ") });
       if (!global.__bcastStatsTimer) {
         global.__bcastStatsTimer = setInterval(() => {
           if (!conn || !isSelfBroadcaster) return;
@@ -3444,6 +3723,8 @@ function applyScreenBroadcast(active) {
         }, 3000);
       }
     } else {
+      desktopSourceConfigured = false;
+      configuredDesktopSourceKey = "";
       if (typeof conn.setVideoBroadcast === "function") {
         conn.setVideoBroadcast(false);
       }
@@ -3643,13 +3924,7 @@ rl.on("line", (line) => {
             }
           });
           attachConnCallbacks(conn);
-          dv.setTransportOptions({
-            echoCancellation: !isStreamConn,
-            noiseSuppression: !isStreamConn && !currentKrispEnabled,
-            noiseCancellation: !isStreamConn && Boolean(currentKrispEnabled),
-            automaticGainControl: !isStreamConn && Boolean(currentAutoGain),
-            ducking: 0
-          });
+          dv.setTransportOptions(buildVoiceDspTransportOptions(isStreamConn, currentKrispEnabled, currentAutoGain));
           conn.setTransportOptions({
             inputMode: 1,
             inputModeOptions: {
@@ -3672,6 +3947,28 @@ rl.on("line", (line) => {
             applyStreamAudioSettings();
           } else {
             applyVoiceMuteAndVolumeState();
+          }
+          if (msg.inputDevice && typeof dv.setInputDevice === "function") {
+            if (typeof dv.getInputDevices === "function") {
+              dv.getInputDevices((list) => {
+                const idx = resolveDeviceIndex(msg.inputDevice, list);
+                dv.setInputDevice(idx);
+                sendEv({ ev: "log", msg: "[DV-NATIVE] ready setInputDevice requested=" + msg.inputDevice + " resolved=" + idx });
+              });
+            } else {
+              dv.setInputDevice(resolveDeviceIndex(msg.inputDevice, []));
+            }
+          }
+          if (msg.outputDevice && typeof dv.setOutputDevice === "function") {
+            if (typeof dv.getOutputDevices === "function") {
+              dv.getOutputDevices((list) => {
+                const idx = resolveDeviceIndex(msg.outputDevice, list);
+                dv.setOutputDevice(idx);
+                sendEv({ ev: "log", msg: "[DV-NATIVE] ready setOutputDevice requested=" + msg.outputDevice + " resolved=" + idx });
+              });
+            } else {
+              dv.setOutputDevice(resolveDeviceIndex(msg.outputDevice, []));
+            }
           }
         } catch (e) {
           sendEv({ ev: "log", msg: "init setup err: " + (e && e.message) });
@@ -4144,12 +4441,7 @@ rl.on("line", (line) => {
       currentKrispEnabled = msg.krisp;
       if (!isStreamWorker) {
         try {
-          dv.setTransportOptions({
-            echoCancellation: true,
-            noiseCancellation: Boolean(currentKrispEnabled),
-            noiseSuppression: !currentKrispEnabled,
-            automaticGainControl: Boolean(currentAutoGain)
-          });
+          dv.setTransportOptions(buildVoiceDspTransportOptions(false, currentKrispEnabled, currentAutoGain));
           if (conn) {
             conn.setTransportOptions({
               inputMode: 1,
@@ -4169,12 +4461,7 @@ rl.on("line", (line) => {
       currentAutoGain = msg.automaticGainControl;
       if (!isStreamWorker) {
         try {
-          dv.setTransportOptions({
-            echoCancellation: true,
-            noiseCancellation: Boolean(currentKrispEnabled),
-            noiseSuppression: !currentKrispEnabled,
-            automaticGainControl: Boolean(currentAutoGain)
-          });
+          dv.setTransportOptions(buildVoiceDspTransportOptions(false, currentKrispEnabled, currentAutoGain));
         } catch (_) {}
       }
     }
@@ -4201,14 +4488,41 @@ rl.on("line", (line) => {
       }
     }
     applyVoiceMuteAndVolumeState();
+  } else if (cmd === "set_device") {
+    try {
+      const dev = msg.device || "default";
+      if (msg.kind === "input" && typeof dv.setInputDevice === "function") {
+        if (typeof dv.getInputDevices === "function") {
+          dv.getInputDevices((list) => {
+            const idx = resolveDeviceIndex(dev, list);
+            dv.setInputDevice(idx);
+            sendEv({ ev: "log", msg: "[DV-NATIVE] setInputDevice requested=" + dev + " resolved=" + idx });
+          });
+        } else {
+          dv.setInputDevice(dev === "default" ? 0 : dev);
+        }
+      } else if (msg.kind === "output" && typeof dv.setOutputDevice === "function") {
+        if (typeof dv.getOutputDevices === "function") {
+          dv.getOutputDevices((list) => {
+            const idx = resolveDeviceIndex(dev, list);
+            dv.setOutputDevice(idx);
+            sendEv({ ev: "log", msg: "[DV-NATIVE] setOutputDevice requested=" + dev + " resolved=" + idx });
+          });
+        } else {
+          dv.setOutputDevice(dev === "default" ? 0 : dev);
+        }
+      }
+    } catch (e) {
+      sendEv({ ev: "log", msg: "set_device err: " + (e && e.message) });
+    }
   } else if (cmd === "loopback") {
     const active = Boolean(msg.active);
     try {
       if (typeof dv.setLoopback === "function") {
         dv.setLoopback(active, {
           echoCancellation: true,
-          noiseCancellation: Boolean(currentKrispEnabled),
-          noiseSuppression: !currentKrispEnabled,
+          noiseCancellation: false,
+          noiseSuppression: true,
           automaticGainControl: Boolean(currentAutoGain),
           vadUseKrisp: false
         });
@@ -4262,8 +4576,39 @@ rl.on("line", (line) => {
           resolvedSrcId = String(msg.nodeId);
           opts.sourceId = resolvedSrcId;
           opts.allow_pipewire = true;
-          if (msg.fd != null) {
-            opts.pipewireConfig = { fd: Number(msg.fd), node_id: Number(msg.nodeId) };
+          let pwFd = -1;
+          let remotePid = msg.pid != null ? Number(msg.pid) : -1;
+          if (msg.fd != null && Number(msg.fd) >= 0) {
+            pwFd = Number(msg.fd);
+          }
+          if (pwFd < 0) {
+            try {
+              if (fs.existsSync("/dev/shm/discord_pipewire_fd.txt")) {
+                const raw = fs.readFileSync("/dev/shm/discord_pipewire_fd.txt", "utf8").trim();
+                if (raw.includes(":")) {
+                  const parts = raw.split(":");
+                  remotePid = parseInt(parts[0], 10);
+                  pwFd = parseInt(parts[1], 10);
+                } else {
+                  pwFd = parseInt(raw, 10);
+                }
+              }
+            } catch (_) {}
+          }
+          if (typeof scopeFix !== "undefined" && typeof scopeFix.setPipewireConfig === "function" && pwFd >= 0) {
+            let localFd = -1;
+            if (remotePid > 0 && typeof scopeFix.importForeignFd === "function") {
+              localFd = scopeFix.importForeignFd(remotePid, pwFd);
+              sendEv({ ev: "log", msg: "scopeFix.importForeignFd(pid=" + remotePid + ", fd=" + pwFd + ") -> " + localFd });
+            }
+            if (localFd >= 0) {
+              pwFd = localFd;
+            }
+            scopeFix.setPipewireConfig(pwFd, Number(msg.nodeId));
+          }
+          if (pwFd >= 0) {
+            opts.pipewireConfig = { fd: pwFd, node_id: Number(msg.nodeId) };
+            opts.pipewire_config = { fd: pwFd, node_id: Number(msg.nodeId) };
           }
         } else if (msg.sourceId && msg.sourceId !== "-1") {
           resolvedSrcId = msg.sourceId;
@@ -4271,6 +4616,8 @@ rl.on("line", (line) => {
           if (msg.sourceType === "window") opts.type = "window";
         }
         conn.setDesktopSourceWithOptions(opts);
+        desktopSourceConfigured = true;
+        configuredDesktopSourceKey = opts.type + ":" + opts.sourceId + ":" + (opts.allow_pipewire ? "pw" : "std");
         if (typeof conn.setVideoBroadcast === "function") {
           conn.setVideoBroadcast(true);
         }
@@ -4302,20 +4649,106 @@ rl.on("line", (line) => {
 });
 "#;
 
+fn find_discord_app_dir() -> Option<std::path::PathBuf> {
+    let base = std::path::Path::new("/home/sanya/.config/discord");
+    if let Ok(entries) = std::fs::read_dir(base) {
+        let mut app_dirs: Vec<std::path::PathBuf> = entries
+            .filter_map(|e| e.ok())
+            .map(|e| e.path())
+            .filter(|p| {
+                p.is_dir()
+                    && p.file_name()
+                        .and_then(|n| n.to_str())
+                        .map_or(false, |name| name.starts_with("app-1."))
+            })
+            .collect();
+        app_dirs.sort_by(|a, b| b.cmp(a));
+        for dir in app_dirs {
+            let dv = dir.join("modules/discord_voice-1/discord_voice/discord_voice.node");
+            if dv.exists() {
+                return Some(dir);
+            }
+        }
+    }
+    let fallback = std::path::PathBuf::from("/home/sanya/.config/discord/app-1.0.169");
+    if fallback.exists() {
+        Some(fallback)
+    } else {
+        None
+    }
+}
+
+pub fn find_node_binary() -> std::path::PathBuf {
+    if let Ok(out) = std::process::Command::new("node").arg("--version").output() {
+        if out.status.success() {
+            return std::path::PathBuf::from("node");
+        }
+    }
+    let home = std::env::var("HOME").unwrap_or_else(|_| "/home/sanya".into());
+    let nvm_dir = std::path::PathBuf::from(&home).join(".nvm/versions/node");
+    if let Ok(entries) = std::fs::read_dir(&nvm_dir) {
+        let mut versions: Vec<std::path::PathBuf> = entries
+            .filter_map(|e| e.ok())
+            .map(|e| e.path())
+            .filter(|p| p.is_dir())
+            .collect();
+        versions.sort_by(|a, b| b.cmp(a));
+        for v in versions {
+            let bin = v.join("bin/node");
+            if bin.exists() {
+                return bin;
+            }
+        }
+    }
+    for p in &[
+        "/home/sanya/.local/bin/node",
+        "/usr/local/bin/node",
+        "/usr/bin/node",
+    ] {
+        let pb = std::path::PathBuf::from(p);
+        if pb.exists() {
+            return pb;
+        }
+    }
+    std::path::PathBuf::from("node")
+}
+
 fn ensure_dv_native_bridge_files() -> bool {
-    let dv_node = std::path::Path::new(
-        "/home/sanya/.config/discord/app-1.0.168/modules/discord_voice-1/discord_voice/discord_voice.node",
-    );
+    let app_dir = match find_discord_app_dir() {
+        Some(d) => d,
+        None => return false,
+    };
+    let dv_node = app_dir.join("modules/discord_voice-1/discord_voice/discord_voice.node");
     if !dv_node.exists() {
         return false;
     }
+    let ffmpeg_so = app_dir.join("libffmpeg.so");
+    let ffmpeg_str = ffmpeg_so.to_string_lossy();
+    let dv_node_str = dv_node.to_string_lossy();
+    let krisp_dir = app_dir.join("modules/discord_krisp-1/discord_krisp");
+    let krisp_str = krisp_dir.to_string_lossy();
+
+    let c_code = DV_SCOPE_FIX_C.replace(
+        "/home/sanya/.config/discord/app-1.0.168/libffmpeg.so",
+        &ffmpeg_str,
+    );
+    let js_code = DV_BRIDGE_JS
+        .replace(
+            "/home/sanya/.config/discord/app-1.0.168/modules/discord_voice-1/discord_voice/discord_voice.node",
+            &dv_node_str,
+        )
+        .replace(
+            "/home/sanya/.config/discord/app-1.0.168/modules/discord_krisp-1/discord_krisp",
+            &krisp_str,
+        );
+
     let scope_fix_node = std::path::Path::new("/tmp/dv_scope_fix.node");
     let c_changed = std::fs::read_to_string("/tmp/dv_scope_fix.c")
         .ok()
         .as_deref()
-        != Some(DV_SCOPE_FIX_C);
+        != Some(&c_code);
     if !scope_fix_node.exists() || c_changed {
-        let _ = std::fs::write("/tmp/dv_scope_fix.c", DV_SCOPE_FIX_C);
+        let _ = std::fs::write("/tmp/dv_scope_fix.c", &c_code);
         let _ = std::process::Command::new("gcc")
             .args([
                 "-shared",
@@ -4336,7 +4769,7 @@ fn ensure_dv_native_bridge_files() -> bool {
             ])
             .status();
     }
-    let _ = std::fs::write("/tmp/discord_voice_dave_bridge.js", DV_BRIDGE_JS);
+    let _ = std::fs::write("/tmp/discord_voice_dave_bridge.js", &js_code);
     scope_fix_node.exists()
 }
 
@@ -4523,6 +4956,12 @@ pub fn start_live_stream_rtc_session(
                                 continue;
                             }
                             if e.contains("4006") || e.contains("4022") {
+                                attempt = attempt.saturating_add(1);
+                                if attempt > 3 {
+                                    println!("[VOICE-RTC] Stream RTC {e} exceeded retry limit (attempt={attempt}), stopping retry loop");
+                                    break;
+                                }
+                                tokio::time::sleep(Duration::from_millis(2000)).await;
                                 if streamer_user_id == user_id {
                                     let cached = LAST_VOICE_STATE_CACHE
                                         .get_or_init(|| {
@@ -5578,12 +6017,38 @@ async fn run_rtc_task(
     let mut dv_stdin: Option<std::process::ChildStdin> = None;
     let (dv_line_tx, mut dv_line_rx) = tokio::sync::mpsc::unbounded_channel::<String>();
 
+    let node_bin = find_node_binary();
     if ensure_dv_native_bridge_files() {
         let gpu_caps = probe_gpu_and_codecs();
-        let mut cmd_builder = std::process::Command::new("node");
+        let mut cmd_builder = std::process::Command::new(&node_bin);
+        if let Some(parent) = node_bin.parent() {
+            let current_path = std::env::var("PATH").unwrap_or_default();
+            cmd_builder.env("PATH", format!("{}:{}", parent.display(), current_path));
+        }
+        let is_wayland = std::env::var("WAYLAND_DISPLAY").is_ok()
+            || std::env::var("XDG_SESSION_TYPE")
+                .map(|v| v.eq_ignore_ascii_case("wayland"))
+                .unwrap_or(false);
+        if is_wayland {
+            cmd_builder.env("XDG_SESSION_TYPE", "wayland");
+            if let Ok(wdisp) = std::env::var("WAYLAND_DISPLAY") {
+                cmd_builder.env("WAYLAND_DISPLAY", wdisp);
+            } else {
+                cmd_builder.env("WAYLAND_DISPLAY", "wayland-0");
+            }
+        } else if let Ok(st) = std::env::var("XDG_SESSION_TYPE") {
+            cmd_builder.env("XDG_SESSION_TYPE", st);
+        } else {
+            cmd_builder.env("XDG_SESSION_TYPE", "x11");
+        }
+        if let Ok(rdir) = std::env::var("XDG_RUNTIME_DIR") {
+            cmd_builder.env("XDG_RUNTIME_DIR", rdir);
+        }
+        if let Ok(dbus) = std::env::var("DBUS_SESSION_BUS_ADDRESS") {
+            cmd_builder.env("DBUS_SESSION_BUS_ADDRESS", dbus);
+        }
         cmd_builder
             .arg("/tmp/discord_voice_dave_bridge.js")
-            .env("XDG_SESSION_TYPE", "x11")
             .env("DV_GPU_VENDOR", &gpu_caps.vendor)
             .env("DV_PREFERRED_CODEC", &gpu_caps.preferred_video_codec)
             .env("PULSE_LATENCY_MSEC", "20");
@@ -5595,7 +6060,7 @@ async fn run_rtc_task(
         cmd_builder
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::null());
+            .stderr(std::process::Stdio::piped());
         if is_stream_conn {
             cmd_builder.env("DV_CONTEXT", "stream");
             cmd_builder.env(
@@ -5607,16 +6072,47 @@ async fn run_rtc_task(
             // иначе WebRTC ADM перехватывает/глушит захват микрофона основного голосового канала.
             let mut monitor_src: Option<String> = None;
             if is_self_broadcaster {
+                // Приоритет 1: если в системе есть easyeffects_sink (PipeWire DSP),
+                // все приложения выводят звук в easyeffects_sink.
                 if let Ok(out) = std::process::Command::new("pactl")
-                    .arg("get-default-sink")
+                    .args(["list", "short", "sinks"])
                     .stdin(std::process::Stdio::null())
                     .stderr(std::process::Stdio::null())
                     .output()
                 {
                     if out.status.success() {
-                        let sink = String::from_utf8_lossy(&out.stdout).trim().to_string();
-                        if !sink.is_empty() && !sink.contains("auto_null") {
-                            monitor_src = Some(format!("{sink}.monitor"));
+                        let text = String::from_utf8_lossy(&out.stdout);
+                        for line in text.lines() {
+                            let cols: Vec<&str> = line.split_whitespace().collect();
+                            if let Some(&name) = cols.get(1) {
+                                if name == "easyeffects_sink" {
+                                    monitor_src = Some("easyeffects_sink.monitor".to_string());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                // Приоритет 2: монитор выбранного пользователем устройства вывода
+                if monitor_src.is_none() {
+                    let (_, out_d) = get_selected_voice_devices();
+                    if let Some(dev) = out_d.filter(|d| !d.is_empty() && d != "default") {
+                        monitor_src = Some(format!("{dev}.monitor"));
+                    }
+                }
+                // Приоритет 3: системный default sink
+                if monitor_src.is_none() {
+                    if let Ok(out) = std::process::Command::new("pactl")
+                        .arg("get-default-sink")
+                        .stdin(std::process::Stdio::null())
+                        .stderr(std::process::Stdio::null())
+                        .output()
+                    {
+                        if out.status.success() {
+                            let sink = String::from_utf8_lossy(&out.stdout).trim().to_string();
+                            if !sink.is_empty() && !sink.contains("auto_null") {
+                                monitor_src = Some(format!("{sink}.monitor"));
+                            }
                         }
                     }
                 }
@@ -5633,119 +6129,110 @@ async fn run_rtc_task(
                 "PULSE_PROP",
                 "application.name=DiscordVoiceMic application.id=lab.discord.voice.mic media.role=phone",
             );
-            let mut phys_mic: Option<String> = None;
-            if let Ok(out) = std::process::Command::new("pactl")
-                .arg("get-default-source")
-                .stdin(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
-                .output()
-            {
-                if out.status.success() {
-                    let src = String::from_utf8_lossy(&out.stdout).trim().to_string();
-                    if !src.is_empty() && !src.ends_with(".monitor") && !src.contains("auto_null") {
-                        phys_mic = Some(src);
+            // DO NOT pin PULSE_SOURCE here!
+            // Pinned PULSE_SOURCE in the process environment overrides all WebRTC pa_stream_connect_record
+            // calls, permanently locking the process to that single device and breaking EasyEffects (easyeffects_source)
+            // as well as any runtime device switching (setInputDevice).
+            // WebRTC's AudioDeviceModule PulseLinux correctly handles default and selected devices dynamically.
+        }
+        match cmd_builder.spawn() {
+            Ok(mut child) => {
+                let pid = child.id();
+                if is_stream_conn {
+                    let prev = LIVE_STREAM_DV_PID.swap(pid, std::sync::atomic::Ordering::SeqCst);
+                    if prev > 1 && prev != pid {
+                        kill_pid_immediate(prev);
+                    }
+                } else {
+                    let prev = LIVE_VOICE_DV_PID.swap(pid, std::sync::atomic::Ordering::SeqCst);
+                    if prev > 1 && prev != pid {
+                        kill_pid_immediate(prev);
                     }
                 }
-            }
-            if phys_mic.is_none() {
-                if let Ok(out) = std::process::Command::new("pactl")
-                    .args(["list", "short", "sources"])
-                    .stdin(std::process::Stdio::null())
-                    .stderr(std::process::Stdio::null())
-                    .output()
-                {
-                    if out.status.success() {
-                        for line in String::from_utf8_lossy(&out.stdout).lines() {
-                            let cols: Vec<&str> = line.split_whitespace().collect();
-                            if let Some(&name) = cols.get(1) {
-                                if !name.ends_with(".monitor") && !name.contains("auto_null") {
-                                    phys_mic = Some(name.to_string());
-                                    break;
-                                }
+                dv_stdin = child.stdin.take();
+                if let Some(out) = child.stdout.take() {
+                    let tx = dv_line_tx.clone();
+                    std::thread::spawn(move || {
+                        use std::io::BufRead as _;
+                        let reader = std::io::BufReader::new(out);
+                        for line in reader.lines().map_while(Result::ok) {
+                            if tx.send(line).is_err() {
+                                break;
                             }
                         }
-                    }
+                    });
                 }
-            }
-            if let Some(ref mic_src) = phys_mic {
-                cmd_builder.env("PULSE_SOURCE", mic_src);
-            }
-        }
-        if let Ok(mut child) = cmd_builder.spawn() {
-            let pid = child.id();
-            if is_stream_conn {
-                let prev = LIVE_STREAM_DV_PID.swap(pid, std::sync::atomic::Ordering::SeqCst);
-                if prev > 1 && prev != pid {
-                    kill_pid_immediate(prev);
-                }
-            } else {
-                let prev = LIVE_VOICE_DV_PID.swap(pid, std::sync::atomic::Ordering::SeqCst);
-                if prev > 1 && prev != pid {
-                    kill_pid_immediate(prev);
-                }
-            }
-            dv_stdin = child.stdin.take();
-            if let Some(out) = child.stdout.take() {
-                std::thread::spawn(move || {
-                    use std::io::BufRead as _;
-                    let reader = std::io::BufReader::new(out);
-                    for line in reader.lines().map_while(Result::ok) {
-                        if dv_line_tx.send(line).is_err() {
-                            break;
+                if let Some(err) = child.stderr.take() {
+                    let is_stream = is_stream_conn;
+                    std::thread::spawn(move || {
+                        use std::io::BufRead as _;
+                        let reader = std::io::BufReader::new(err);
+                        for line in reader.lines().map_while(Result::ok) {
+                            eprintln!("[DV-STDERR stream={is_stream}] {line}");
                         }
-                    }
-                });
-            }
-            dv_guard.child = Some(child);
-            if !is_stream_conn {
-                NATIVE_VOICE_ACTIVE.store(true, std::sync::atomic::Ordering::SeqCst);
-            }
-            println!(
-                "[VOICE-RTC] Spawned native chord_voice.node + DAVE E2EE worker pid={pid} (stream={is_stream_conn})"
-            );
-            // [BUG FIX] Re-send PipeWire capture source to newly spawned native
-            // worker on RTC reconnect (4006/4021 recovery). Without this, the new
-            // worker has no capture source → pixelCounts=0 → STREAM_DELETE → 2007/2012.
-            if is_stream_conn && is_self_broadcaster {
-                if let Some(nid) = cached_pipewire_node_id() {
-                    let fd = cached_pipewire_fd();
-                    let fd_field = if fd >= 0 {
-                        format!(",\"fd\":{fd}")
-                    } else {
-                        String::new()
-                    };
-                    let ucmd = format!(
-                        r#"{{"cmd":"set_stream_source","sourceType":"pipewire","nodeId":{nid}{fd_field}}}"#
-                    );
-                    send_native_stream_cmd(&ucmd);
-                    let _ = std::fs::write(
-                        "/dev/shm/discord_capture_target.txt",
-                        format!("pipewire:{nid}").as_bytes(),
-                    );
-                    println!(
-                        "[VOICE-RTC] Re-sent PipeWire nodeId={nid} fd={fd} to reconnected native stream worker"
-                    );
-                } else if let Ok(target) =
-                    std::fs::read_to_string("/dev/shm/discord_capture_target.txt")
-                {
-                    let target = target.trim().to_string();
-                    if !target.is_empty() && !target.starts_with("pipewire:") {
-                        let target_kind = if target.starts_with('{') || target.starts_with("win") {
-                            "window"
+                    });
+                }
+                dv_guard.child = Some(child);
+                if !is_stream_conn {
+                    NATIVE_VOICE_ACTIVE.store(true, std::sync::atomic::Ordering::SeqCst);
+                }
+                println!(
+                    "[VOICE-RTC] Spawned native chord_voice.node + DAVE E2EE worker pid={pid} (stream={is_stream_conn}) via {node_bin:?}"
+                );
+                // [BUG FIX] Re-send PipeWire capture source to newly spawned native
+                // worker on RTC reconnect (4006/4021 recovery). Without this, the new
+                // worker has no capture source → pixelCounts=0 → STREAM_DELETE → 2007/2012.
+                if is_stream_conn && is_self_broadcaster {
+                    if let Some(nid) = cached_pipewire_node_id() {
+                        let fd = cached_pipewire_fd();
+                        let pid = std::process::id();
+                        let fd_field = if fd >= 0 {
+                            format!(r#","fd":{fd},"pid":{pid}"#)
                         } else {
-                            "screen"
+                            String::new()
                         };
                         let ucmd = format!(
-                            r#"{{"cmd":"set_stream_source","sourceType":"{target_kind}","sourceId":"{target}"}}"#
+                            r#"{{"cmd":"set_stream_source","sourceType":"pipewire","nodeId":{nid}{fd_field}}}"#
                         );
                         send_native_stream_cmd(&ucmd);
-                        println!(
-                            "[VOICE-RTC] Re-sent capture source '{target}' to reconnected native stream worker"
+                        let _ = std::fs::write(
+                            "/dev/shm/discord_capture_target.txt",
+                            format!("pipewire:{nid}").as_bytes(),
                         );
+                        println!(
+                            "[VOICE-RTC] Re-sent PipeWire nodeId={nid} fd={fd} to reconnected native stream worker"
+                        );
+                    } else if let Ok(target) =
+                        std::fs::read_to_string("/dev/shm/discord_capture_target.txt")
+                    {
+                        let target = target.trim().to_string();
+                        if !target.is_empty() && !target.starts_with("pipewire:") {
+                            let target_kind = if target.starts_with('{') || target.starts_with("win") {
+                                "window"
+                            } else {
+                                "screen"
+                            };
+                            let ucmd = format!(
+                                r#"{{"cmd":"set_stream_source","sourceType":"{target_kind}","sourceId":"{target}"}}"#
+                            );
+                            send_native_stream_cmd(&ucmd);
+                            println!(
+                                "[VOICE-RTC] Re-sent capture source '{target}' to reconnected native stream worker"
+                            );
+                        }
                     }
                 }
             }
+            Err(e) => {
+                eprintln!(
+                    "[VOICE-RTC] Failed to spawn native voice node worker via {node_bin:?}: {e}"
+                );
+            }
         }
+    } else {
+        eprintln!(
+            "[VOICE-RTC] ensure_dv_native_bridge_files returned false (node={node_bin:?})"
+        );
     }
     let has_native_voice = dv_stdin.is_some();
     let max_dave_ver = if has_native_voice { 1 } else { 0 };
@@ -5804,6 +6291,7 @@ async fn run_rtc_task(
     let mut last_local_tx_at = Instant::now();
     let mut rx_rtp_count: u64 = 0;
     let mut rx_decrypted_count: u64 = 0;
+    let mut last_sent_op12: Option<(u32, u32, Instant)> = None;
 
     loop {
         let cur_gen = if is_stream_conn {
@@ -5997,8 +6485,14 @@ async fn run_rtc_task(
                                     ",\"selfMute\":{vmute},\"selfDeafen\":{vdeaf}{sfu_ssrc_field}"
                                 ),
                             };
+                            let (inp_dev, out_dev) = get_selected_voice_devices();
+                            let dev_fields = format!(
+                                "{}{}",
+                                inp_dev.as_deref().map(|d| format!(",\"inputDevice\":\"{d}\"")).unwrap_or_default(),
+                                out_dev.as_deref().map(|d| format!(",\"outputDevice\":\"{d}\"")).unwrap_or_default()
+                            );
                             let cmd = format!(
-                                "{{\"cmd\":\"ready\",\"userId\":\"{user_id}\",\"channelId\":\"{cid}\",\"ssrc\":{ssrc},\"ip\":\"{ip}\",\"port\":{port}{stream_uid_field}}}\n"
+                                "{{\"cmd\":\"ready\",\"userId\":\"{user_id}\",\"channelId\":\"{cid}\",\"ssrc\":{ssrc},\"ip\":\"{ip}\",\"port\":{port}{stream_uid_field}{dev_fields}}}\n"
                             );
                             let _ = stdin.write_all(cmd.as_bytes());
                             let _ = stdin.flush();
@@ -6285,18 +6779,11 @@ async fn run_rtc_task(
                         }
                     }
                     15 => {
-                        if is_self_broadcaster {
-                            let v_ssrc = sfu_video_ssrc.unwrap_or_else(|| local_ssrc.wrapping_add(1));
-                            let r_ssrc = sfu_rtx_ssrc.unwrap_or_else(|| v_ssrc.wrapping_add(1));
-                            let op12_reapply =
-                                build_voice_v8_video_op12(local_ssrc, v_ssrc, r_ssrc, true);
-                            let _ = ws.send(Message::Text(op12_reapply.into())).await;
-                            if let Some(stdin) = dv_stdin.as_mut() {
-                                use std::io::Write as _;
-                                let _ = stdin.write_all(b"{\"cmd\":\"reapply_broadcast\"}\n");
-                                let _ = stdin.flush();
-                            }
-                        }
+                        // OP 15: MEDIA_SINK_WANTS telemetry from SFU.
+                        // Strictly passive incoming telemetry. DO NOT re-send OP 12 or
+                        // reapply_broadcast, as that floods the websocket (triggering code 4021 rate limit)
+                        // and destroys/resets the active desktop capturer, starving viewers of keyframes
+                        // and causing Error 2012 (video-stream-receiver-ready-timeout).
                     }
                     16 => {
                         let voice_ver = d
@@ -6342,9 +6829,6 @@ async fn run_rtc_task(
                                         uids_json.join(",")
                                     );
                                     let _ = stdin.write_all(cmd.as_bytes());
-                                    if is_self_broadcaster {
-                                        let _ = stdin.write_all(b"{\"cmd\":\"reapply_broadcast\"}\n");
-                                    }
                                     let _ = stdin.flush();
                                 } else {
                                     let _ = v8_state.on_text_frame(&text);
@@ -6578,6 +7062,7 @@ async fn run_rtc_task(
                                     .and_then(chord_json::JsonValue::as_bool)
                                     .unwrap_or(false);
                                 if is_self {
+                                    set_native_mic_live_level(-40, flags != 0);
                                     let spk = format!(
                                         "{{\"op\":5,\"d\":{{\"speaking\":{flags},\"delay\":0,\"ssrc\":{local_ssrc}}}}}"
                                     );
@@ -6596,6 +7081,17 @@ async fn run_rtc_task(
                                         rtp_speaking_until.remove(uid);
                                     }
                                 }
+                            }
+                            "voice_level" => {
+                                let lvl = ev_json
+                                    .get("level")
+                                    .and_then(chord_json::JsonValue::as_f64)
+                                    .unwrap_or(-100.0);
+                                let spk = ev_json
+                                    .get("speaking")
+                                    .and_then(chord_json::JsonValue::as_bool)
+                                    .unwrap_or(false);
+                                set_native_mic_live_level(lvl.round() as i32, spk);
                             }
                             "ping" => {
                                 if let Some(p) = ev_json
@@ -6636,16 +7132,26 @@ async fn run_rtc_task(
                                         sfu_rtx_ssrc.unwrap_or_else(|| v_ssrc.wrapping_add(1))
                                     };
                                     sfu_rtx_ssrc = Some(final_rtx);
-                                    let op12 = build_voice_v8_video_op12(
-                                        local_ssrc,
-                                        v_ssrc,
-                                        final_rtx,
-                                        true,
-                                    );
-                                    println!(
-                                        "[VOICE-RTC] WS TX OP 12 VIDEO (from native video_callback): {op12}"
-                                    );
-                                    let _ = ws.send(Message::Text(op12.into())).await;
+                                    let should_send = match last_sent_op12 {
+                                        Some((prev_v, prev_r, sent_at)) => {
+                                            (prev_v != v_ssrc || prev_r != final_rtx)
+                                                || sent_at.elapsed() >= Duration::from_secs(5)
+                                        }
+                                        None => true,
+                                    };
+                                    if should_send {
+                                        last_sent_op12 = Some((v_ssrc, final_rtx, Instant::now()));
+                                        let op12 = build_voice_v8_video_op12(
+                                            local_ssrc,
+                                            v_ssrc,
+                                            final_rtx,
+                                            true,
+                                        );
+                                        println!(
+                                            "[VOICE-RTC] WS TX OP 12 VIDEO (from native video_callback): {op12}"
+                                        );
+                                        let _ = ws.send(Message::Text(op12.into())).await;
+                                    }
                                 }
                             }
                             "error" => {
@@ -6732,9 +7238,6 @@ async fn run_rtc_task(
                         }
                     } else {
                         if let Ok(mut q) = native_voice_cmd_mutex().lock() {
-                            cmds.extend(q.drain(..));
-                        }
-                        if let Ok(mut q) = native_stream_cmd_mutex().lock() {
                             cmds.extend(q.drain(..));
                         }
                     }

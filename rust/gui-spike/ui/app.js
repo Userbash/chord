@@ -13666,15 +13666,18 @@ function boot() {
       typing?.clear();
       const targetType = /** @type {any} */ (target)?.type;
       const isDm = targetType === 1 || targetType === 3;
+      const isVoice = targetType === 2 || targetType === 13;
       const hashNode = document.querySelector(".chat-header .hash");
       if (hashNode) {
-        hashNode.textContent = isDm ? "@" : "#";
+        hashNode.textContent = isDm ? "@" : isVoice ? "🔊" : "#";
       }
       const screenTitleNode = document.querySelector(".screen-title");
       if (screenTitleNode && target?.name) {
         screenTitleNode.textContent = isDm
           ? `Личные сообщения · @${target.name}`
-          : `Канал · #${target.name}`;
+          : isVoice
+            ? `Голосовой канал · 🔊 ${target.name}`
+            : `Канал · #${target.name}`;
       }
       document.getElementById("dm-header-call-actions")?.remove();
       if (isDm) {

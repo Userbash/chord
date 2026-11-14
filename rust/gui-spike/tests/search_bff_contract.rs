@@ -32,8 +32,8 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use discord_core::rest::super_properties::SuperProperties;
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::super_properties::SuperProperties;
+use chord_core::rest::transport::HttpResponse;
 
 #[path = "../src/search_bff.rs"]
 pub mod search_bff;
