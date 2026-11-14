@@ -3926,15 +3926,15 @@ rl.on("line", (line) => {
           attachConnCallbacks(conn);
           dv.setTransportOptions(buildVoiceDspTransportOptions(isStreamConn, currentKrispEnabled, currentAutoGain));
           conn.setTransportOptions({
-            inputMode: 1,
+            inputMode: isStreamConn ? 0 : 1,
             inputModeOptions: {
-              vadThreshold: isStreamConn ? -60 : currentVadThreshold,
+              vadThreshold: isStreamConn ? -100 : currentVadThreshold,
               vadAutoThreshold: (!isStreamConn && currentAutoSensitivity) ? 3 : -1,
               vadUseKrisp: false, // STABILITY: WebRTC native VAD prevents SIGSEGV in krispCreateVadInt16 while Krisp noiseCancellation filters noise
-              vadLeading: 5,
-              vadTrailing: 25
+              vadLeading: isStreamConn ? 20 : 5,
+              vadTrailing: isStreamConn ? 50 : 25
             },
-            encodingVoiceBitRate: 64000,
+            encodingVoiceBitRate: isStreamConn ? 128000 : 64000,
             fec: true,
             packetLossRate: 0.15,
             remoteAudioHistoryMs: 0
@@ -3942,7 +3942,7 @@ rl.on("line", (line) => {
           flushMergedUsersToConn(true);
           if (isStreamConn) {
             try {
-              dv.setInputVolume((isSelfBroadcaster && hasSoundshareMonitor) ? 0.85 : 0.0);
+              dv.setInputVolume((isSelfBroadcaster && hasSoundshareMonitor) ? 1.0 : 0.0);
             } catch (_) {}
             applyStreamAudioSettings();
           } else {
@@ -5923,6 +5923,161 @@ where
     Ok(())
 }
 
+fn resolve_sink_name_by_id(sink_id: &str) -> Option<String> {
+    if let Ok(out) = std::process::Command::new("pactl")
+        .args(["list", "short", "sinks"])
+        .stdin(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .output()
+    {
+        if out.status.success() {
+            let text = String::from_utf8_lossy(&out.stdout);
+            for line in text.lines() {
+                let cols: Vec<&str> = line.split_whitespace().collect();
+                if cols.first().copied() == Some(sink_id) {
+                    if let Some(&name) = cols.get(1) {
+                        return Some(name.to_string());
+                    }
+                }
+            }
+        }
+    }
+    None
+}
+
+pub fn resolve_optimal_stream_soundshare_source() -> String {
+    // 1. Приоритет: easyeffects_sink (если запущен EasyEffects, абсолютно все звуки окон и игр сходятся в нём)
+    if let Ok(out) = std::process::Command::new("pactl")
+        .args(["list", "short", "sinks"])
+        .stdin(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .output()
+    {
+        if out.status.success() {
+            let text = String::from_utf8_lossy(&out.stdout);
+            for line in text.lines() {
+                let cols: Vec<&str> = line.split_whitespace().collect();
+                if let Some(&name) = cols.get(1) {
+                    if name == "easyeffects_sink" {
+                        return "easyeffects_sink.monitor".to_string();
+                    }
+                }
+            }
+        }
+    }
+    // 2. Приоритет: проверяем pactl list sink-inputs, куда играют звук активные приложения (игры, плееры, браузер)
+    if let Ok(out) = std::process::Command::new("pactl")
+        .args(["list", "sink-inputs"])
+        .stdin(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .output()
+    {
+        if out.status.success() {
+            let text = String::from_utf8_lossy(&out.stdout);
+            let mut active_sink_num: Option<String> = None;
+            for line in text.lines() {
+                let trim = line.trim();
+                if let Some(rest) = trim.strip_prefix("Sink: ") {
+                    let sink_id = rest.trim();
+                    if !sink_id.is_empty() {
+                        active_sink_num = Some(sink_id.to_string());
+                    }
+                } else if trim.starts_with("Corked: no") && active_sink_num.is_some() {
+                    if let Some(ref snum) = active_sink_num {
+                        if let Some(sname) = resolve_sink_name_by_id(snum) {
+                            if !sname.contains("auto_null") {
+                                return format!("{sname}.monitor");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // 3. Приоритет: монитор выбранного пользователем устройства вывода
+    let (_, out_d) = get_selected_voice_devices();
+    if let Some(dev) = out_d.filter(|d| !d.is_empty() && d != "default") {
+        return format!("{dev}.monitor");
+    }
+    // 4. Приоритет: системный default sink
+    if let Ok(out) = std::process::Command::new("pactl")
+        .arg("get-default-sink")
+        .stdin(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .output()
+    {
+        if out.status.success() {
+            let sink = String::from_utf8_lossy(&out.stdout).trim().to_string();
+            if !sink.is_empty() && !sink.contains("auto_null") {
+                return format!("{sink}.monitor");
+            }
+        }
+    }
+    "default".to_string()
+}
+
+fn enforce_pactl_source_output(id: &str, target_monitor: &str) {
+    let _ = std::process::Command::new("pactl")
+        .args(["set-source-output-mute", id, "0"])
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status();
+    let _ = std::process::Command::new("pactl")
+        .args(["set-source-output-volume", id, "65536"])
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status();
+    let _ = std::process::Command::new("pactl")
+        .args(["move-source-output", id, target_monitor])
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status();
+}
+
+pub fn spawn_stream_soundshare_enforcer(child_pid: u32, target_monitor: String) {
+    std::thread::spawn(move || {
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(180);
+        let mut attached = false;
+        while std::time::Instant::now() < deadline {
+            std::thread::sleep(std::time::Duration::from_millis(if attached { 2000 } else { 300 }));
+            if let Ok(out) = std::process::Command::new("pactl")
+                .args(["list", "source-outputs"])
+                .stdin(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .output()
+            {
+                if out.status.success() {
+                    let text = String::from_utf8_lossy(&out.stdout);
+                    let mut cur_id: Option<String> = None;
+                    let mut is_our_stream = false;
+                    for line in text.lines() {
+                        let trim = line.trim();
+                        if let Some(rest) = trim.strip_prefix("Source Output #") {
+                            if let (Some(id), true) = (cur_id.take(), is_our_stream) {
+                                enforce_pactl_source_output(&id, &target_monitor);
+                                attached = true;
+                            }
+                            cur_id = Some(rest.trim().to_string());
+                            is_our_stream = false;
+                        } else if trim.contains("lab.discord.stream.audio")
+                            || trim.contains(&format!("application.process.id = \"{child_pid}\""))
+                        {
+                            is_our_stream = true;
+                        }
+                    }
+                    if let (Some(id), true) = (cur_id, is_our_stream) {
+                        enforce_pactl_source_output(&id, &target_monitor);
+                        attached = true;
+                    }
+                }
+            }
+        }
+    });
+}
+
 async fn run_rtc_task(
     generation: u64,
     clean_ep: String,
@@ -6061,69 +6216,30 @@ async fn run_rtc_task(
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped());
+        let mut stream_target_monitor: Option<String> = None;
         if is_stream_conn {
             cmd_builder.env("DV_CONTEXT", "stream");
-            cmd_builder.env(
-                "PULSE_PROP",
-                "application.name=DiscordStreamAudio application.id=lab.discord.stream.audio media.role=video",
-            );
-            // Строгая изоляция микрофона от потока трансляции (Stream Worker):
-            // Стрим-воркер НИКОГДА не должен открывать физический микрофон пользователя,
-            // иначе WebRTC ADM перехватывает/глушит захват микрофона основного голосового канала.
-            let mut monitor_src: Option<String> = None;
-            if is_self_broadcaster {
-                // Приоритет 1: если в системе есть easyeffects_sink (PipeWire DSP),
-                // все приложения выводят звук в easyeffects_sink.
-                if let Ok(out) = std::process::Command::new("pactl")
-                    .args(["list", "short", "sinks"])
-                    .stdin(std::process::Stdio::null())
-                    .stderr(std::process::Stdio::null())
-                    .output()
-                {
-                    if out.status.success() {
-                        let text = String::from_utf8_lossy(&out.stdout);
-                        for line in text.lines() {
-                            let cols: Vec<&str> = line.split_whitespace().collect();
-                            if let Some(&name) = cols.get(1) {
-                                if name == "easyeffects_sink" {
-                                    monitor_src = Some("easyeffects_sink.monitor".to_string());
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                // Приоритет 2: монитор выбранного пользователем устройства вывода
-                if monitor_src.is_none() {
-                    let (_, out_d) = get_selected_voice_devices();
-                    if let Some(dev) = out_d.filter(|d| !d.is_empty() && d != "default") {
-                        monitor_src = Some(format!("{dev}.monitor"));
-                    }
-                }
-                // Приоритет 3: системный default sink
-                if monitor_src.is_none() {
-                    if let Ok(out) = std::process::Command::new("pactl")
-                        .arg("get-default-sink")
-                        .stdin(std::process::Stdio::null())
-                        .stderr(std::process::Stdio::null())
-                        .output()
-                    {
-                        if out.status.success() {
-                            let sink = String::from_utf8_lossy(&out.stdout).trim().to_string();
-                            if !sink.is_empty() && !sink.contains("auto_null") {
-                                monitor_src = Some(format!("{sink}.monitor"));
-                            }
-                        }
-                    }
-                }
-            }
-            if let Some(ref mon) = monitor_src {
-                cmd_builder.env("PULSE_SOURCE", mon);
+            let monitor_src = if is_self_broadcaster {
+                let mon = resolve_optimal_stream_soundshare_source();
+                cmd_builder.env("PULSE_SOURCE", &mon);
                 cmd_builder.env("DV_HAS_SOUNDSHARE_MONITOR", "1");
+                cmd_builder.env(
+                    "PULSE_PROP",
+                    format!(
+                        "application.name=DiscordStreamAudio application.id=lab.discord.stream.audio media.role=video pulse.dont-restore-stream=true target.object={mon}"
+                    ),
+                );
+                Some(mon)
             } else {
                 cmd_builder.env("PULSE_SOURCE", "__discord_stream_no_mic__");
                 cmd_builder.env("DV_HAS_SOUNDSHARE_MONITOR", "0");
-            }
+                cmd_builder.env(
+                    "PULSE_PROP",
+                    "application.name=DiscordStreamAudio application.id=lab.discord.stream.audio media.role=video",
+                );
+                None
+            };
+            stream_target_monitor = monitor_src;
         } else {
             cmd_builder.env(
                 "PULSE_PROP",
@@ -6142,6 +6258,11 @@ async fn run_rtc_task(
                     let prev = LIVE_STREAM_DV_PID.swap(pid, std::sync::atomic::Ordering::SeqCst);
                     if prev > 1 && prev != pid {
                         kill_pid_immediate(prev);
+                    }
+                    if is_self_broadcaster {
+                        if let Some(ref mon) = stream_target_monitor {
+                            spawn_stream_soundshare_enforcer(pid, mon.clone());
+                        }
                     }
                 } else {
                     let prev = LIVE_VOICE_DV_PID.swap(pid, std::sync::atomic::Ordering::SeqCst);
@@ -7053,7 +7174,7 @@ async fn run_rtc_task(
                                     .get("userId")
                                     .and_then(chord_json::JsonValue::as_str)
                                     .unwrap_or("");
-                                let flags = ev_json
+                                let mut flags = ev_json
                                     .get("speaking")
                                     .and_then(chord_json::JsonValue::as_i64)
                                     .unwrap_or(0);
@@ -7062,7 +7183,11 @@ async fn run_rtc_task(
                                     .and_then(chord_json::JsonValue::as_bool)
                                     .unwrap_or(false);
                                 if is_self {
-                                    set_native_mic_live_level(-40, flags != 0);
+                                    if is_stream_conn && is_self_broadcaster {
+                                        flags = 2;
+                                    } else {
+                                        set_native_mic_live_level(-40, flags != 0);
+                                    }
                                     let spk = format!(
                                         "{{\"op\":5,\"d\":{{\"speaking\":{flags},\"delay\":0,\"ssrc\":{local_ssrc}}}}}"
                                     );

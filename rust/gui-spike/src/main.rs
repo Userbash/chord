@@ -1951,6 +1951,12 @@ async fn voice_stream_start(
             println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} fd={fd} pid={pid} to native worker (overrides screen:{}))", spec.source_id);
         }
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
+        let share_audio = spec.share_audio;
+        if share_audio {
+            chord_core::ws::set_live_stream_audio_state(false, 100);
+        } else {
+            chord_core::ws::set_live_stream_audio_state(true, 0);
+        }
         data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, vvideo, true)?;
         Ok::<String, String>(stream_key)
     })
