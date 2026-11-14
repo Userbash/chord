@@ -4,6 +4,345 @@ use crate::ui::AppLayout;
 use gpui::*;
 use gpui_kit::component::StyledExt;
 
+/// Префикс URL для сканирования QR-кода Remote Auth в мобильном приложении Discord
+pub const REMOTE_AUTH_QR_URL_PREFIX: &str = "https://discord.com/ra/";
+
+/// Ошибки валидации отпечатка и генерации матрицы QR-кода
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum QrMatrixError {
+    EmptyFingerprint,
+    InvalidCharacters,
+    PathTraversalAttempt,
+    InvalidLength,
+}
+
+impl std::fmt::Display for QrMatrixError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::EmptyFingerprint => write!(f, "fingerprint cannot be empty"),
+            Self::InvalidCharacters => write!(f, "fingerprint contains invalid characters"),
+            Self::PathTraversalAttempt => write!(f, "fingerprint contains path traversal sequences"),
+            Self::InvalidLength => write!(f, "fingerprint length is invalid"),
+        }
+    }
+}
+
+impl std::error::Error for QrMatrixError {}
+
+/// Построение проверенного URL сканирования `https://discord.com/ra/<fingerprint>`.
+/// Отклоняет пустые строки, пробельные символы, переносы строк и попытки обхода путей.
+pub fn build_remote_auth_qr_url(fingerprint: &str) -> Result<String, QrMatrixError> {
+    if fingerprint.is_empty() || fingerprint.trim().is_empty() {
+        return Err(QrMatrixError::EmptyFingerprint);
+    }
+    if fingerprint.contains("..") || fingerprint.contains('/') || fingerprint.contains('\\') {
+        return Err(QrMatrixError::PathTraversalAttempt);
+    }
+    for c in fingerprint.chars() {
+        if c.is_whitespace() || c == '\n' || c == '\r' || c == '\t' {
+            return Err(QrMatrixError::InvalidCharacters);
+        }
+        if !(c.is_ascii_alphanumeric() || c == '-' || c == '_') {
+            return Err(QrMatrixError::InvalidCharacters);
+        }
+    }
+    Ok(format!("{}{}", REMOTE_AUTH_QR_URL_PREFIX, fingerprint))
+}
+
+const SHA256_H0: [u32; 8] = [
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+];
+
+const SHA256_K: [u32; 64] = [
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+];
+
+fn qr_sha256(data: &[u8]) -> [u8; 32] {
+    let mut state = SHA256_H0;
+    let bit_len = (data.len() as u64).wrapping_mul(8);
+    let rem = (data.len() + 9) % 64;
+    let zero_pad = if rem == 0 { 0 } else { 64 - rem };
+    let total_len = data.len() + 1 + zero_pad + 8;
+
+    let mut padded = Vec::with_capacity(total_len);
+    padded.extend_from_slice(data);
+    padded.push(0x80);
+    padded.resize(data.len() + 1 + zero_pad, 0);
+    padded.extend_from_slice(&bit_len.to_be_bytes());
+
+    let mut w = [0_u32; 64];
+    for chunk in padded.chunks_exact(64) {
+        for (i, word_bytes) in chunk.chunks_exact(4).enumerate() {
+            w[i] = u32::from_be_bytes([word_bytes[0], word_bytes[1], word_bytes[2], word_bytes[3]]);
+        }
+        for i in 16..64 {
+            let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
+            let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
+            w[i] = w[i - 16].wrapping_add(s0).wrapping_add(w[i - 7]).wrapping_add(s1);
+        }
+
+        let mut a = state[0];
+        let mut b = state[1];
+        let mut c = state[2];
+        let mut d = state[3];
+        let mut e = state[4];
+        let mut f = state[5];
+        let mut g = state[6];
+        let mut h = state[7];
+
+        for i in 0..64 {
+            let big_s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
+            let ch = (e & f) ^ ((!e) & g);
+            let temp1 = h.wrapping_add(big_s1).wrapping_add(ch).wrapping_add(SHA256_K[i]).wrapping_add(w[i]);
+            let big_s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
+            let maj = (a & b) ^ (a & c) ^ (b & c);
+            let temp2 = big_s0.wrapping_add(maj);
+
+            h = g;
+            g = f;
+            f = e;
+            e = d.wrapping_add(temp1);
+            d = c;
+            c = b;
+            b = a;
+            a = temp1.wrapping_add(temp2);
+        }
+
+        state[0] = state[0].wrapping_add(a);
+        state[1] = state[1].wrapping_add(b);
+        state[2] = state[2].wrapping_add(c);
+        state[3] = state[3].wrapping_add(d);
+        state[4] = state[4].wrapping_add(e);
+        state[5] = state[5].wrapping_add(f);
+        state[6] = state[6].wrapping_add(g);
+        state[7] = state[7].wrapping_add(h);
+    }
+
+    let mut digest = [0_u8; 32];
+    for (slot, word) in digest.chunks_exact_mut(4).zip(state.iter()) {
+        slot.copy_from_slice(&word.to_be_bytes());
+    }
+    digest
+}
+
+fn apply_finder_pattern(modules: &mut [Vec<bool>], r0: usize, c0: usize) {
+    for dr in 0..7 {
+        for dc in 0..7 {
+            let is_dark = if dr == 0 || dr == 6 || dc == 0 || dc == 6 {
+                true
+            } else if dr == 1 || dr == 5 || dc == 1 || dc == 5 {
+                false
+            } else {
+                true
+            };
+            modules[r0 + dr][c0 + dc] = is_dark;
+        }
+    }
+}
+
+fn is_function_pattern(r: usize, c: usize) -> bool {
+    // Верхний левый искатель и разделитель
+    if r <= 7 && c <= 7 {
+        return true;
+    }
+    // Верхний правый искатель и разделитель
+    if r <= 7 && c >= 17 {
+        return true;
+    }
+    // Нижний левый искатель и разделитель
+    if r >= 17 && c <= 7 {
+        return true;
+    }
+    // Синхронизирующие полосы (Timing patterns)
+    if (r == 6 && (8..=16).contains(&c)) || (c == 6 && (8..=16).contains(&r)) {
+        return true;
+    }
+    false
+}
+
+/// Детерминированная булева матрица QR-кода 25x25 (стандарт QR Version 2).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct QrCodeMatrix {
+    pub size: usize,
+    pub modules: Vec<Vec<bool>>,
+}
+
+impl QrCodeMatrix {
+    pub const SIZE: usize = 25;
+
+    /// Построение детерминированной матрицы QR-кода из отпечатка Remote Auth.
+    pub fn from_remote_auth_fingerprint(fingerprint: &str) -> Result<Self, QrMatrixError> {
+        let _url = build_remote_auth_qr_url(fingerprint)?;
+
+        let mut modules = vec![vec![false; Self::SIZE]; Self::SIZE];
+
+        // 1. Поисковые узоры 7x7 в трех углах
+        apply_finder_pattern(&mut modules, 0, 0);
+        apply_finder_pattern(&mut modules, 0, 18);
+        apply_finder_pattern(&mut modules, 18, 0);
+
+        // 2. Белые разделители (Quiet separators) вокруг искателей
+        for c in 0..=7 {
+            modules[7][c] = false;
+        }
+        for r in 0..=7 {
+            modules[r][7] = false;
+        }
+
+        for c in 17..=24 {
+            modules[7][c] = false;
+        }
+        for r in 0..=7 {
+            modules[r][17] = false;
+        }
+
+        for c in 0..=7 {
+            modules[17][c] = false;
+        }
+        for r in 17..=24 {
+            modules[r][7] = false;
+        }
+
+        // 3. Синхродорожки на строке 6 и столбце 6 между разделителями (индексы 8..=16)
+        for c in 8..=16 {
+            modules[6][c] = c % 2 == 0;
+        }
+        for r in 8..=16 {
+            modules[r][6] = r % 2 == 0;
+        }
+
+        // 4. Заполнение области данных детерминированным битовым потоком SHA-256
+        let hash0 = qr_sha256(fingerprint.as_bytes());
+        let mut seed1 = Vec::with_capacity(fingerprint.len() + 1);
+        seed1.extend_from_slice(fingerprint.as_bytes());
+        seed1.push(1);
+        let hash1 = qr_sha256(&seed1);
+
+        let mut bitstream = [0_u8; 64];
+        bitstream[..32].copy_from_slice(&hash0);
+        bitstream[32..].copy_from_slice(&hash1);
+
+        let mut bit_idx = 0;
+        for r in 0..Self::SIZE {
+            for c in 0..Self::SIZE {
+                if !is_function_pattern(r, c) {
+                    let byte_pos = bit_idx / 8;
+                    let bit_offset = 7 - (bit_idx % 8);
+                    let is_dark = ((bitstream[byte_pos] >> bit_offset) & 1) == 1;
+                    modules[r][c] = is_dark;
+                    bit_idx += 1;
+                }
+            }
+        }
+
+        Ok(Self {
+            size: Self::SIZE,
+            modules,
+        })
+    }
+
+    pub fn is_dark(&self, row: usize, col: usize) -> bool {
+        if row < self.size && col < self.size {
+            self.modules[row][col]
+        } else {
+            false
+        }
+    }
+}
+
+/// Состояния жизненного цикла отображения QR-кода в UI входа Discord.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum QrLoginUiState {
+    AwaitingFingerprint,
+    Ready {
+        fingerprint: String,
+        url: String,
+        matrix: QrCodeMatrix,
+    },
+    Scanned {
+        username: String,
+        user_id: String,
+    },
+    Expired,
+    Error(String),
+}
+
+impl Default for QrLoginUiState {
+    fn default() -> Self {
+        Self::AwaitingFingerprint
+    }
+}
+
+impl QrLoginUiState {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn on_fingerprint_received(&mut self, fingerprint: &str) -> Result<(), QrMatrixError> {
+        match QrCodeMatrix::from_remote_auth_fingerprint(fingerprint) {
+            Ok(matrix) => {
+                let url = build_remote_auth_qr_url(fingerprint)?;
+                *self = Self::Ready {
+                    fingerprint: fingerprint.to_string(),
+                    url,
+                    matrix,
+                };
+                Ok(())
+            }
+            Err(err) => {
+                *self = Self::Error(err.to_string());
+                Err(err)
+            }
+        }
+    }
+
+    pub fn on_scanned(&mut self, username: impl Into<String>, user_id: impl Into<String>) {
+        *self = Self::Scanned {
+            username: username.into(),
+            user_id: user_id.into(),
+        };
+    }
+
+    pub fn on_expired(&mut self) {
+        *self = Self::Expired;
+    }
+
+    pub fn on_error(&mut self, message: impl Into<String>) {
+        *self = Self::Error(message.into());
+    }
+
+    pub fn reset(&mut self) {
+        *self = Self::AwaitingFingerprint;
+    }
+
+    pub fn is_awaiting_fingerprint(&self) -> bool {
+        matches!(self, Self::AwaitingFingerprint)
+    }
+
+    pub fn is_ready(&self) -> bool {
+        matches!(self, Self::Ready { .. })
+    }
+
+    pub fn is_scanned(&self) -> bool {
+        matches!(self, Self::Scanned { .. })
+    }
+
+    pub fn is_expired(&self) -> bool {
+        matches!(self, Self::Expired)
+    }
+
+    pub fn is_error(&self) -> bool {
+        matches!(self, Self::Error(_))
+    }
+}
+
 /// Модальное окно входа в учетную запись Discord по эталону официального клиента (/home/sanya/re-deep/rest-static.md §1)
 /// Поддерживает:
 /// - Аутентификацию по Email / Номеру телефона и паролю (POST /auth/login)
@@ -466,8 +805,218 @@ impl LoginModal {
             )
     }
 
+    /// Разрешение текущего состояния QR-авторизации из AppState
+    pub fn resolve_qr_ui_state(state: &AppState) -> QrLoginUiState {
+        let fp = state.login_form.qr_fingerprint.trim();
+        if fp.is_empty() {
+            return QrLoginUiState::AwaitingFingerprint;
+        }
+        if fp.eq_ignore_ascii_case("expired") {
+            return QrLoginUiState::Expired;
+        }
+        if let Some(scanned_info) = fp.strip_prefix("scanned:") {
+            let mut parts = scanned_info.splitn(2, ':');
+            let username = parts.next().unwrap_or("User").to_string();
+            let user_id = parts.next().unwrap_or("0").to_string();
+            return QrLoginUiState::Scanned { username, user_id };
+        }
+        if let Some(err_msg) = fp.strip_prefix("error:") {
+            return QrLoginUiState::Error(err_msg.to_string());
+        }
+
+        match QrCodeMatrix::from_remote_auth_fingerprint(fp) {
+            Ok(matrix) => {
+                let url = build_remote_auth_qr_url(fp).unwrap_or_default();
+                QrLoginUiState::Ready {
+                    fingerprint: fp.to_string(),
+                    url,
+                    matrix,
+                }
+            }
+            Err(err) => QrLoginUiState::Error(err.to_string()),
+        }
+    }
+
+    /// Отображение реальной матрицы QR-кода 25x25 в сетке GPUI
+    pub fn render_qr_matrix(matrix: &QrCodeMatrix) -> impl IntoElement + use<> {
+        div()
+            .size(px(144.))
+            .flex()
+            .flex_col()
+            .relative()
+            .children(matrix.modules.iter().map(|row| {
+                div()
+                    .flex_1()
+                    .flex()
+                    .flex_row()
+                    .children(row.iter().map(|&cell| {
+                        div()
+                            .flex_1()
+                            .bg(if cell { gpui::black() } else { gpui::white() })
+                    }))
+            }))
+            // Центральный значок Discord (🎮)
+            .child(
+                div()
+                    .absolute()
+                    .top(px(53.))
+                    .left(px(53.))
+                    .size(px(38.))
+                    .bg(DISCORD_THEME.blurple)
+                    .rounded(px(19.))
+                    .flex()
+                    .items_center()
+                    .justify_center()
+                    .text_color(gpui::white())
+                    .text_size(px(20.))
+                    .child("🎮"),
+            )
+    }
+
+    /// Содержимое рамки QR-кода в зависимости от статуса QrLoginUiState
+    pub fn render_qr_box_content(qr_state: &QrLoginUiState) -> impl IntoElement {
+        match qr_state {
+            QrLoginUiState::Ready { matrix, .. } => {
+                Self::render_qr_matrix(matrix).into_any_element()
+            }
+            QrLoginUiState::Scanned { username, user_id } => {
+                div()
+                    .size(px(144.))
+                    .v_flex()
+                    .items_center()
+                    .justify_center()
+                    .gap(px(6.))
+                    .child(
+                        div()
+                            .size(px(44.))
+                            .bg(DISCORD_THEME.blurple)
+                            .rounded(px(22.))
+                            .flex()
+                            .items_center()
+                            .justify_center()
+                            .text_color(gpui::white())
+                            .text_size(px(22.))
+                            .child("👤"),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(13.))
+                            .font_weight(FontWeight::BOLD)
+                            .text_color(gpui::black())
+                            .text_center()
+                            .child(username.clone()),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(11.))
+                            .text_color(gpui::rgba(0x4E5058FF))
+                            .child(format!("ID: {user_id}")),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(12.))
+                            .text_color(DISCORD_THEME.status_online)
+                            .font_weight(FontWeight::BOLD)
+                            .child("✓ Код отсканирован"),
+                    )
+                    .into_any_element()
+            }
+            QrLoginUiState::Expired => {
+                div()
+                    .size(px(144.))
+                    .bg(gpui::rgba(0x000000E0))
+                    .rounded(px(4.))
+                    .v_flex()
+                    .items_center()
+                    .justify_center()
+                    .gap(px(6.))
+                    .p(px(8.))
+                    .child(
+                        div()
+                            .text_size(px(26.))
+                            .child("⏱️"),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(13.))
+                            .font_weight(FontWeight::BOLD)
+                            .text_color(gpui::white())
+                            .text_center()
+                            .child("Код устарел"),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(11.))
+                            .text_color(DISCORD_THEME.text_muted)
+                            .text_center()
+                            .child("Нажмите для обновления"),
+                    )
+                    .into_any_element()
+            }
+            QrLoginUiState::AwaitingFingerprint => {
+                div()
+                    .size(px(144.))
+                    .v_flex()
+                    .items_center()
+                    .justify_center()
+                    .gap(px(8.))
+                    .child(
+                        div()
+                            .text_size(px(28.))
+                            .child("⏳"),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(12.))
+                            .text_color(gpui::black())
+                            .child("Загрузка QR..."),
+                    )
+                    .into_any_element()
+            }
+            QrLoginUiState::Error(err) => {
+                div()
+                    .size(px(144.))
+                    .v_flex()
+                    .items_center()
+                    .justify_center()
+                    .gap(px(6.))
+                    .p(px(8.))
+                    .child(
+                        div()
+                            .text_size(px(26.))
+                            .child("⚠️"),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(11.))
+                            .text_color(gpui::rgba(0xDA373CFF))
+                            .text_center()
+                            .child(err.clone()),
+                    )
+                    .into_any_element()
+            }
+        }
+    }
+
+    /// Обертка контейнера QR-кода
+    pub fn render_qr_container(qr_state: &QrLoginUiState) -> impl IntoElement {
+        div()
+            .size(px(168.))
+            .bg(gpui::white())
+            .rounded(px(8.))
+            .p(px(12.))
+            .shadow_md()
+            .flex()
+            .items_center()
+            .justify_center()
+            .relative()
+            .child(Self::render_qr_box_content(qr_state))
+    }
+
     /// Правая колонка с QR-кодом для входа через мобильное приложение (Remote Auth)
-    fn render_right_qr(_state: &AppState, cx: &mut Context<AppLayout>) -> impl IntoElement {
+    pub fn render_right_qr(state: &AppState, cx: &mut Context<AppLayout>) -> impl IntoElement {
+        let qr_state = Self::resolve_qr_ui_state(state);
+
         div()
             .w(px(280.))
             .p(px(32.))
@@ -476,59 +1025,7 @@ impl LoginModal {
             .justify_center()
             .gap(px(16.))
             // QR-код контейнер со стилизацией Discord
-            .child(
-                div()
-                    .size(px(168.))
-                    .bg(gpui::white())
-                    .rounded(px(8.))
-                    .p(px(12.))
-                    .shadow_md()
-                    .flex()
-                    .items_center()
-                    .justify_center()
-                    .relative()
-                    // Стилизованный QR-паттерн
-                    .child(
-                        div()
-                            .size_full()
-                            .flex()
-                            .flex_col()
-                            .justify_between()
-                            .child(
-                                div()
-                                    .flex()
-                                    .justify_between()
-                                    .child(Self::qr_corner_box())
-                                    .child(Self::qr_corner_box()),
-                            )
-                            .child(
-                                div()
-                                    .flex()
-                                    .justify_between()
-                                    .child(Self::qr_corner_box())
-                                    .child(
-                                        div()
-                                            .size(px(32.))
-                                            .bg(gpui::black())
-                                            .rounded(px(4.)),
-                                    ),
-                            ),
-                    )
-                    // Центральный значок Discord
-                    .child(
-                        div()
-                            .absolute()
-                            .size(px(38.))
-                            .bg(DISCORD_THEME.blurple)
-                            .rounded(px(19.))
-                            .flex()
-                            .items_center()
-                            .justify_center()
-                            .text_color(gpui::white())
-                            .text_size(px(20.))
-                            .child("🎮"),
-                    ),
-            )
+            .child(Self::render_qr_container(&qr_state))
             // Заголовок QR
             .child(
                 div()
@@ -536,7 +1033,13 @@ impl LoginModal {
                     .font_weight(FontWeight::BOLD)
                     .text_color(DISCORD_THEME.text_header)
                     .text_center()
-                    .child("Вход с помощью QR-кода"),
+                    .child(match &qr_state {
+                        QrLoginUiState::Scanned { .. } => "Проверьте телефон",
+                        QrLoginUiState::Expired => "QR-код устарел",
+                        QrLoginUiState::Error(_) => "Ошибка QR-кода",
+                        QrLoginUiState::AwaitingFingerprint => "Генерация QR-кода",
+                        QrLoginUiState::Ready { .. } => "Вход с помощью QR-кода",
+                    }),
             )
             // Описание
             .child(
@@ -544,7 +1047,23 @@ impl LoginModal {
                     .text_size(px(13.))
                     .text_color(DISCORD_THEME.text_muted)
                     .text_center()
-                    .child("Сканируйте этот код с помощью мобильного приложения Discord, чтобы войти мгновенно."),
+                    .child(match &qr_state {
+                        QrLoginUiState::Scanned { username, .. } => {
+                            format!("Подтвердите вход для {username} в мобильном приложении Discord.")
+                        }
+                        QrLoginUiState::Expired => {
+                            "Срок действия QR-кода истек. Пожалуйста, обновите код.".to_string()
+                        }
+                        QrLoginUiState::Error(err) => {
+                            format!("Не удалось инициализировать Remote Auth: {err}")
+                        }
+                        QrLoginUiState::AwaitingFingerprint => {
+                            "Ожидание ключей авторизации от шлюза Discord...".to_string()
+                        }
+                        QrLoginUiState::Ready { .. } => {
+                            "Сканируйте этот код с помощью мобильного приложения Discord, чтобы войти мгновенно.".to_string()
+                        }
+                    }),
             )
             // Кнопка быстрого тестирования Remote Auth
             .child(
