@@ -1,4 +1,5 @@
 //! Root application layout orchestrating the server rail, channel sidebar, main view, and overlays.
+#![forbid(unsafe_code)]
 
 use crate::state::AppState;
 use crate::ui::account_switcher::AccountSwitcher;
@@ -29,10 +30,46 @@ pub struct AppLayout {
 
 impl AppLayout {
     pub fn new(cx: &mut Context<Self>) -> Self {
+        Self::start_background_event_loop(cx);
         Self {
             state: AppState::new_live(),
             focus_handle: cx.focus_handle(),
         }
+    }
+
+    #[allow(dead_code)]
+    pub fn with_live_receiver(
+        rx: std::sync::mpsc::Receiver<crate::dispatch::BackgroundEvent>,
+        cx: &mut Context<Self>,
+    ) -> Self {
+        Self::start_background_event_loop(cx);
+        let mut state = AppState::new_live();
+        state.attach_background_receiver(rx);
+        Self {
+            state,
+            focus_handle: cx.focus_handle(),
+        }
+    }
+
+    pub fn start_background_event_loop(cx: &mut Context<Self>) {
+        cx.spawn(async move |this, cx| {
+            loop {
+                let timer = cx
+                    .background_executor()
+                    .timer(std::time::Duration::from_millis(16));
+                timer.await;
+                let updated = this.update(cx, |layout, cx| {
+                    let count = layout.state.poll_background_events();
+                    if count > 0 {
+                        cx.notify();
+                    }
+                });
+                if updated.is_err() {
+                    break;
+                }
+            }
+        })
+        .detach();
     }
 }
 

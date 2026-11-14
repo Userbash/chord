@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 pub mod models;
 
 pub use models::*;
@@ -88,6 +90,14 @@ pub struct AppState {
     pub chat_scroll_handle: ChatScrollHandle,
     pub is_paginating: bool,
     pub reached_history_end: HashMap<String, bool>,
+    pub background_rx: Option<std::sync::mpsc::Receiver<crate::dispatch::BackgroundEvent>>,
+    pub gateway_session_id: Option<String>,
+    pub resume_gateway_url: Option<String>,
+    pub last_gateway_seq: Option<u64>,
+    pub pending_voice_server_update: Option<(Option<String>, Option<String>, bool)>,
+    pub last_gateway_disconnect: Option<(Option<u16>, bool, String)>,
+    pub outbound_gateway_frames: Vec<String>,
+    voice_guild_id: Option<String>,
 }
 
 /// Обёртка над ScrollHandle GPUI с отслеживанием целевого индекса скролла
@@ -228,6 +238,14 @@ impl AppState {
             chat_scroll_handle: ChatScrollHandle::new(),
             is_paginating: false,
             reached_history_end: HashMap::new(),
+            background_rx: None,
+            gateway_session_id: None,
+            resume_gateway_url: None,
+            last_gateway_seq: None,
+            pending_voice_server_update: None,
+            last_gateway_disconnect: None,
+            outbound_gateway_frames: Vec::new(),
+            voice_guild_id: None,
         }
     }
 
@@ -324,6 +342,11 @@ impl AppState {
         self.active_token = None;
         self.current_user = CurrentUser::default();
         self.voice_session = None;
+        self.voice_guild_id = None;
+        self.gateway_session_id = None;
+        self.resume_gateway_url = None;
+        self.last_gateway_seq = None;
+        self.pending_voice_server_update = None;
         self.selected_guild_id = None;
         self.selected_channel_id = Some("dm-friends".into());
         self.is_account_switcher_open = false;
@@ -514,6 +537,11 @@ impl AppState {
     }
 
     pub fn connect_voice(&mut self, channel_id: String, channel_name: String, guild_name: String) {
+        self.voice_guild_id = self
+            .guilds
+            .iter()
+            .find(|g| g.channels.iter().any(|c| c.id == channel_id))
+            .map(|g| g.id.clone());
         self.voice_session = Some(VoiceSessionState {
             channel_id,
             channel_name,
@@ -526,6 +554,7 @@ impl AppState {
 
     pub fn disconnect_voice(&mut self) {
         self.voice_session = None;
+        self.voice_guild_id = None;
     }
 
     /// Запуск личного вызова (Direct Call)
@@ -2138,6 +2167,552 @@ impl AppState {
         let outputs = crate::audio::AudioEngine::list_output_devices();
         if !outputs.is_empty() {
             self.available_audio_outputs = outputs;
+        }
+    }
+
+    /// Maximum number of queued `BackgroundEvent` items drained in a single UI tick.
+    pub const MAX_BACKGROUND_EVENTS_PER_POLL: usize = 256;
+
+    /// Attaches the non-blocking MPSC receiver bridged from the Tokio background dispatcher.
+    #[allow(dead_code)]
+    pub fn attach_background_receiver(
+        &mut self,
+        rx: std::sync::mpsc::Receiver<crate::dispatch::BackgroundEvent>,
+    ) {
+        self.background_rx = Some(rx);
+    }
+
+    /// Drains up to `MAX_BACKGROUND_EVENTS_PER_POLL` (256) queued `BackgroundEvent`s
+    /// and applies each event to `AppState`. Returns `0` when no receiver is attached,
+    /// the channel is empty, or the sender has disconnected with no buffered items.
+    #[allow(dead_code)]
+    pub fn poll_background_events(&mut self) -> usize {
+        let mut drained = Vec::new();
+        if let Some(rx) = &self.background_rx {
+            for _ in 0..Self::MAX_BACKGROUND_EVENTS_PER_POLL {
+                match rx.try_recv() {
+                    Ok(event) => drained.push(event),
+                    Err(std::sync::mpsc::TryRecvError::Empty)
+                    | Err(std::sync::mpsc::TryRecvError::Disconnected) => break,
+                }
+            }
+        } else {
+            return 0;
+        }
+
+        let count = drained.len();
+        for event in drained {
+            self.apply_background_event(event);
+        }
+        count
+    }
+
+    /// Applies a single `BackgroundEvent` from the live Gateway / voice bridge into `AppState`.
+    #[allow(dead_code)]
+    pub fn apply_background_event(&mut self, event: crate::dispatch::BackgroundEvent) {
+        use crate::dispatch::BackgroundEvent;
+
+        match event {
+            BackgroundEvent::GatewayReady {
+                session_id,
+                resume_gateway_url,
+                user_id,
+                username,
+                guild_count,
+            } => {
+                self.gateway_session_id = Some(session_id);
+                self.resume_gateway_url = resume_gateway_url;
+                if !user_id.is_empty() {
+                    let user_changed = self.current_user.id != user_id;
+                    self.current_user.id = user_id;
+                    if !username.is_empty() {
+                        if user_changed || self.current_user.global_name.is_none() {
+                            self.current_user.global_name = Some(username.clone());
+                        }
+                        self.current_user.username = username;
+                    }
+                } else if !username.is_empty() {
+                    self.current_user.username = username;
+                }
+                self.current_user.status = PresenceStatus::Online;
+                self.is_login_modal_open = false;
+
+                let target_guilds = guild_count.min(10_000);
+                while self.guilds.len() < target_guilds {
+                    let idx = self.guilds.len() + 1;
+                    self.guilds.push(Guild {
+                        id: format!("gateway-guild-{idx}"),
+                        name: format!("Server {idx}"),
+                        icon: None,
+                        owner_id: None,
+                        categories: Vec::new(),
+                        channels: Vec::new(),
+                        unread_count: 0,
+                        mention_count: 0,
+                    });
+                }
+            }
+            BackgroundEvent::GatewayResumed { seq } => {
+                self.last_gateway_seq = Some(seq);
+            }
+            BackgroundEvent::GatewayMessageCreate {
+                id,
+                channel_id,
+                guild_id,
+                author_id,
+                author_name,
+                content,
+                timestamp,
+            } => {
+                if let Some(typing) = self.typing_users.get_mut(&channel_id) {
+                    typing.retain(|u| u != &author_id && u != &author_name);
+                }
+
+                let is_new_message = {
+                    let entries = self.messages.entry(channel_id.clone()).or_default();
+                    if entries.iter().any(|existing| existing.id == id) {
+                        false
+                    } else {
+                        let resolved_username = if author_name.is_empty() {
+                            if author_id.is_empty() {
+                                "Unknown".to_string()
+                            } else {
+                                author_id.clone()
+                            }
+                        } else {
+                            author_name
+                        };
+                        entries.push(Message {
+                            id,
+                            channel_id: channel_id.clone(),
+                            author: UserSummary {
+                                id: author_id,
+                                username: resolved_username,
+                                global_name: None,
+                                avatar: None,
+                                is_bot: false,
+                            },
+                            content,
+                            timestamp: timestamp.unwrap_or_default(),
+                            edited_timestamp: None,
+                            attachments: Vec::new(),
+                            reactions: Vec::new(),
+                            is_pinned: false,
+                            message_kind: MessageKind::Default,
+                        });
+                        true
+                    }
+                };
+
+                if is_new_message {
+                    let is_selected =
+                        self.selected_channel_id.as_deref() == Some(channel_id.as_str());
+                    for guild in &mut self.guilds {
+                        if guild_id.as_deref().is_none_or(|gid| guild.id == gid) {
+                            for ch in &mut guild.channels {
+                                if ch.id == channel_id {
+                                    if is_selected {
+                                        ch.unread = false;
+                                    } else if !ch.unread {
+                                        ch.unread = true;
+                                        guild.unread_count = guild.unread_count.saturating_add(1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            BackgroundEvent::GatewayMessageUpdate {
+                id,
+                channel_id,
+                guild_id: _,
+                content,
+                edited_timestamp,
+            } => {
+                if let Some(entries) = self.messages.get_mut(&channel_id)
+                    && let Some(existing) = entries.iter_mut().find(|m| m.id == id)
+                {
+                    if let Some(new_content) = content {
+                        existing.content = new_content;
+                    }
+                    if let Some(edited_ts) = edited_timestamp {
+                        existing.edited_timestamp = Some(edited_ts);
+                    }
+                }
+            }
+            BackgroundEvent::GatewayMessageDelete {
+                ids,
+                channel_id,
+                guild_id: _,
+            } => {
+                if let Some(entries) = self.messages.get_mut(&channel_id) {
+                    entries.retain(|m| !ids.iter().any(|deleted_id| deleted_id == &m.id));
+                }
+                if let Some(active_menu_id) = &self.active_context_menu
+                    && ids.iter().any(|deleted_id| deleted_id == active_menu_id)
+                {
+                    self.active_context_menu = None;
+                }
+            }
+            BackgroundEvent::GatewayChannelLifecycle {
+                event_name,
+                id,
+                guild_id,
+                kind,
+                name,
+            } => match event_name.as_str() {
+                "CHANNEL_CREATE" | "CHANNEL_UPDATE" => {
+                    let mapped_type = kind.map(Self::map_gateway_channel_type);
+                    if let Some(gid) = guild_id {
+                        if let Some(guild) = self.guilds.iter_mut().find(|g| g.id == gid) {
+                            if let Some(existing) = guild.channels.iter_mut().find(|c| c.id == id) {
+                                if let Some(ch_type) = mapped_type {
+                                    existing.channel_type = ch_type;
+                                }
+                                if let Some(ch_name) = name {
+                                    existing.name = ch_name;
+                                }
+                            } else {
+                                let position = guild.channels.len() as i32;
+                                guild.channels.push(Channel {
+                                    id: id.clone(),
+                                    guild_id: Some(gid),
+                                    category_id: None,
+                                    name: name.unwrap_or(id),
+                                    channel_type: mapped_type.unwrap_or(ChannelType::GuildText),
+                                    topic: None,
+                                    position,
+                                    unread: false,
+                                    is_locked: false,
+                                    permissions_bitmask: chord_core::permissions::ALL_PERMISSIONS,
+                                });
+                            }
+                        }
+                    } else {
+                        for guild in &mut self.guilds {
+                            if let Some(existing) = guild.channels.iter_mut().find(|c| c.id == id) {
+                                if let Some(ch_type) = mapped_type {
+                                    existing.channel_type = ch_type;
+                                }
+                                if let Some(ref ch_name) = name {
+                                    existing.name = ch_name.clone();
+                                }
+                            }
+                        }
+                    }
+                }
+                "CHANNEL_DELETE" => {
+                    for guild in &mut self.guilds {
+                        if guild_id.as_deref().is_none_or(|gid| guild.id == gid) {
+                            guild.channels.retain(|c| c.id != id);
+                        }
+                    }
+                    if self.selected_channel_id.as_deref() == Some(id.as_str()) {
+                        self.selected_channel_id = None;
+                    }
+                    if self
+                        .voice_session
+                        .as_ref()
+                        .is_some_and(|session| session.channel_id == id)
+                    {
+                        self.voice_session = None;
+                        self.voice_guild_id = None;
+                    }
+                    self.typing_users.remove(&id);
+                }
+                _ => {}
+            },
+            BackgroundEvent::GatewayTypingStart {
+                channel_id,
+                guild_id: _,
+                user_id,
+                timestamp: _,
+            } => {
+                if !user_id.is_empty() {
+                    let typing = self.typing_users.entry(channel_id).or_default();
+                    if !typing.iter().any(|existing| existing == &user_id) {
+                        typing.push(user_id);
+                    }
+                }
+            }
+            BackgroundEvent::GatewayVoiceStateUpdate {
+                guild_id,
+                channel_id,
+                user_id,
+                session_id: _,
+                self_mute,
+                self_deaf,
+                self_video,
+            } => {
+                if user_id == self.current_user.id {
+                    self.is_muted = self_mute;
+                    self.is_deafened = self_deaf;
+                    self.is_camera_enabled = self_video;
+
+                    match channel_id {
+                        Some(cid) => {
+                            if guild_id.is_some() {
+                                self.voice_guild_id = guild_id.clone();
+                            }
+                            let (resolved_ch_name, resolved_guild_name) =
+                                self.resolve_voice_names(guild_id.as_deref(), &cid);
+                            let pending_endpoint = self
+                                .pending_voice_server_update
+                                .as_ref()
+                                .and_then(|(p_gid, p_ep, _)| {
+                                    if p_gid == &guild_id {
+                                        p_ep.clone()
+                                    } else {
+                                        None
+                                    }
+                                });
+
+                            if let Some(session) = &mut self.voice_session {
+                                if session.channel_id != cid {
+                                    session.channel_id = cid;
+                                    session.channel_name = resolved_ch_name;
+                                    session.guild_name = resolved_guild_name;
+                                }
+                                if let Some(ep) = pending_endpoint {
+                                    session.endpoint = ep;
+                                }
+                            } else {
+                                self.voice_session = Some(VoiceSessionState {
+                                    channel_id: cid,
+                                    channel_name: resolved_ch_name,
+                                    guild_name: resolved_guild_name,
+                                    endpoint: pending_endpoint.unwrap_or_default(),
+                                    ping_ms: 0,
+                                    is_speaking: false,
+                                });
+                            }
+                        }
+                        None => {
+                            self.voice_session = None;
+                            self.voice_guild_id = None;
+                        }
+                    }
+                }
+            }
+            BackgroundEvent::GatewayVoiceServerUpdate {
+                guild_id,
+                endpoint,
+                token_present,
+            } => {
+                self.pending_voice_server_update =
+                    Some((guild_id, endpoint.clone(), token_present));
+                if let Some(session) = &mut self.voice_session {
+                    if let Some(ep) = endpoint {
+                        session.endpoint = ep;
+                    } else {
+                        session.endpoint.clear();
+                    }
+                }
+            }
+            BackgroundEvent::VoicePing(ping_ms) => {
+                if let Some(session) = &mut self.voice_session {
+                    session.ping_ms = ping_ms;
+                }
+            }
+            BackgroundEvent::GatewayDisconnected {
+                close_code,
+                resumable,
+                reason,
+            } => {
+                self.last_gateway_disconnect = Some((close_code, resumable, reason));
+                if close_code == Some(4004) {
+                    self.logout();
+                } else if !resumable {
+                    self.gateway_session_id = None;
+                    self.resume_gateway_url = None;
+                    self.last_gateway_seq = None;
+                }
+            }
+            BackgroundEvent::PresenceUpdate(user_id, raw_status) => {
+                let status = match raw_status.to_ascii_lowercase().as_str() {
+                    "online" => PresenceStatus::Online,
+                    "idle" => PresenceStatus::Idle,
+                    "dnd" => PresenceStatus::Dnd,
+                    "offline" | "invisible" => PresenceStatus::Offline,
+                    _ => PresenceStatus::Online,
+                };
+                if self.current_user.id == user_id {
+                    self.current_user.status = status;
+                }
+                for member in &mut self.members {
+                    if member.id == user_id {
+                        member.status = status;
+                    }
+                }
+                for rel in &mut self.relationships {
+                    if rel.user_id == user_id {
+                        rel.status = status;
+                    }
+                }
+            }
+            BackgroundEvent::GatewayMessage(channel_id, content) => {
+                if !channel_id.is_empty() && !content.is_empty() {
+                    let entries = self.messages.entry(channel_id.clone()).or_default();
+                    let synthetic_id = format!("gw-msg-{}", entries.len() + 1);
+                    entries.push(Message {
+                        id: synthetic_id,
+                        channel_id,
+                        author: UserSummary {
+                            id: "gateway".into(),
+                            username: "Gateway".into(),
+                            global_name: None,
+                            avatar: None,
+                            is_bot: false,
+                        },
+                        content,
+                        timestamp: String::new(),
+                        edited_timestamp: None,
+                        attachments: Vec::new(),
+                        reactions: Vec::new(),
+                        is_pinned: false,
+                        message_kind: MessageKind::Default,
+                    });
+                }
+            }
+            BackgroundEvent::ImageDecoded(_, _, _) | BackgroundEvent::TaskCompleted(_) => {}
+        }
+    }
+
+    /// Joins a voice channel by syncing `voice_session` and enqueueing a Discord Gateway
+    /// Opcode 4 (`VOICE_STATE_UPDATE`) JSON frame into `outbound_gateway_frames`.
+    #[allow(dead_code)]
+    pub fn join_voice_channel(&mut self, guild_id: Option<String>, channel_id: String) {
+        let (channel_name, guild_name) = self.resolve_voice_names(guild_id.as_deref(), &channel_id);
+        let endpoint = self
+            .pending_voice_server_update
+            .as_ref()
+            .and_then(|(p_gid, p_ep, _)| {
+                if p_gid == &guild_id {
+                    p_ep.clone()
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_default();
+
+        self.voice_guild_id = guild_id.clone();
+        self.voice_session = Some(VoiceSessionState {
+            channel_id: channel_id.clone(),
+            channel_name,
+            guild_name,
+            endpoint,
+            ping_ms: 0,
+            is_speaking: false,
+        });
+
+        let frame = Self::encode_voice_state_op4(
+            guild_id.as_deref(),
+            Some(channel_id.as_str()),
+            self.is_muted,
+            self.is_deafened,
+            self.is_camera_enabled,
+        );
+        self.outbound_gateway_frames.push(frame);
+    }
+
+    /// Leaves the active voice channel by clearing `voice_session` and enqueueing a Discord
+    /// Gateway Opcode 4 (`VOICE_STATE_UPDATE` with `"channel_id":null`) JSON frame.
+    #[allow(dead_code)]
+    pub fn leave_voice_channel(&mut self) {
+        let active_guild_id = self.voice_guild_id.take().or_else(|| {
+            let active_cid = self.voice_session.as_ref()?.channel_id.as_str();
+            self.guilds
+                .iter()
+                .find(|g| g.channels.iter().any(|c| c.id == active_cid))
+                .map(|g| g.id.clone())
+        });
+        self.voice_session = None;
+
+        let frame = Self::encode_voice_state_op4(
+            active_guild_id.as_deref(),
+            None,
+            self.is_muted,
+            self.is_deafened,
+            self.is_camera_enabled,
+        );
+        self.outbound_gateway_frames.push(frame);
+    }
+
+    fn map_gateway_channel_type(kind: i64) -> ChannelType {
+        match kind {
+            1 => ChannelType::Dm,
+            2 | 13 => ChannelType::GuildVoice,
+            3 => ChannelType::GroupDm,
+            5 => ChannelType::GuildAnnouncement,
+            _ => ChannelType::GuildText,
+        }
+    }
+
+    fn resolve_voice_names(&self, guild_id: Option<&str>, channel_id: &str) -> (String, String) {
+        if let Some(gid) = guild_id
+            && let Some(guild) = self.guilds.iter().find(|g| g.id == gid)
+        {
+            let ch_name = guild
+                .channels
+                .iter()
+                .find(|c| c.id == channel_id)
+                .map(|c| c.name.clone())
+                .unwrap_or_else(|| channel_id.to_string());
+            return (ch_name, guild.name.clone());
+        }
+
+        for guild in &self.guilds {
+            if let Some(ch) = guild.channels.iter().find(|c| c.id == channel_id) {
+                return (ch.name.clone(), guild.name.clone());
+            }
+        }
+
+        let fallback_guild = guild_id
+            .map(ToString::to_string)
+            .unwrap_or_else(|| "Direct Voice".to_string());
+        (channel_id.to_string(), fallback_guild)
+    }
+
+    fn encode_voice_state_op4(
+        guild_id: Option<&str>,
+        channel_id: Option<&str>,
+        self_mute: bool,
+        self_deaf: bool,
+        self_video: bool,
+    ) -> String {
+        #[derive(serde::Serialize)]
+        struct VoiceStateOp4Payload<'a> {
+            guild_id: Option<&'a str>,
+            channel_id: Option<&'a str>,
+            self_mute: bool,
+            self_deaf: bool,
+            self_video: bool,
+        }
+
+        #[derive(serde::Serialize)]
+        struct VoiceStateOp4Frame<'a> {
+            op: u8,
+            d: VoiceStateOp4Payload<'a>,
+        }
+
+        let frame = VoiceStateOp4Frame {
+            op: 4,
+            d: VoiceStateOp4Payload {
+                guild_id,
+                channel_id,
+                self_mute,
+                self_deaf,
+                self_video,
+            },
+        };
+
+        match serde_json::to_string(&frame) {
+            Ok(json) => json,
+            Err(_) => format!(
+                "{{\"op\":4,\"d\":{{\"guild_id\":null,\"channel_id\":null,\"self_mute\":{},\"self_deaf\":{},\"self_video\":{}}}}}",
+                self_mute, self_deaf, self_video
+            ),
         }
     }
 }
