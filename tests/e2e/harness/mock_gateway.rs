@@ -10,13 +10,15 @@ use std::sync::{Arc, Mutex};
 use chord_core::rest::base64;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
-use tokio::sync::watch;
+use tokio::sync::{RwLock, watch};
 use tokio::task::JoinHandle;
 
 use crate::HarnessError;
 use crate::trace_loader::{CaptureReadyTrace, HydratedMessage};
 
 const H2_PREFACE: &[u8; 24] = b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
+const MAX_HTTP1_HEADER_BYTES: usize = 64 * 1024;
+const MAX_HTTP1_BODY_BYTES: usize = 16 * 1024 * 1024;
 const F_DATA: u8 = 0x0;
 const F_HEADERS: u8 = 0x1;
 const F_SETTINGS: u8 = 0x4;
@@ -77,7 +79,7 @@ pub struct DaemonMetrics {
 struct DaemonState {
     trace: CaptureReadyTrace,
     config: MockGatewayConfig,
-    messages: Mutex<HashMap<String, Vec<HydratedMessage>>>,
+    messages: RwLock<HashMap<String, Vec<HydratedMessage>>>,
     injected_status: Mutex<HashMap<String, (u16, Option<u64>)>>,
     metrics: Mutex<DaemonMetrics>,
     next_msg_id: AtomicU64,
@@ -89,7 +91,7 @@ impl DaemonState {
         Arc::new(Self {
             trace,
             config,
-            messages: Mutex::new(initial_msgs),
+            messages: RwLock::new(initial_msgs),
             injected_status: Mutex::new(HashMap::new()),
             metrics: Mutex::new(DaemonMetrics::default()),
             next_msg_id: AtomicU64::new(1_300_000_000_000_000_000),
@@ -175,7 +177,11 @@ fn check_auth_header(config: &MockGatewayConfig, headers: &[(String, String)]) -
     })
 }
 
-fn handle_post_channel_message(state: &DaemonState, channel_id: &str, body: &[u8]) -> RestResponse {
+async fn handle_post_channel_message(
+    state: &DaemonState,
+    channel_id: &str,
+    body: &[u8],
+) -> RestResponse {
     let Ok(val) = serde_json::from_slice::<serde_json::Value>(body) else {
         return json_resp(400, br#"{"code":50109,"message":"Invalid JSON"}"#.to_vec());
     };
@@ -198,10 +204,61 @@ fn handle_post_channel_message(state: &DaemonState, channel_id: &str, body: &[u8
         author: state.trace.current_user.clone(),
     };
     let resp = json_ok(&msg);
-    if let Ok(mut guard) = state.messages.lock() {
-        guard.entry(channel_id.to_string()).or_default().push(msg);
-    }
+    state
+        .messages
+        .write()
+        .await
+        .entry(channel_id.to_string())
+        .or_default()
+        .push(msg);
     resp
+}
+
+async fn handle_patch_channel_message(
+    state: &DaemonState,
+    channel_id: &str,
+    msg_id: &str,
+    body: &[u8],
+) -> RestResponse {
+    let Ok(val) = serde_json::from_slice::<serde_json::Value>(body) else {
+        return json_resp(400, br#"{"code":50109,"message":"Invalid JSON"}"#.to_vec());
+    };
+    let content = val["content"].as_str().unwrap_or("");
+    if !(1..=2000).contains(&content.chars().count()) {
+        return json_resp(
+            400,
+            br#"{"code":50035,"message":"Invalid Form Body"}"#.to_vec(),
+        );
+    }
+    let mut guard = state.messages.write().await;
+    if let Some(list) = guard.get_mut(channel_id)
+        && let Some(msg) = list.iter_mut().find(|m| m.id == msg_id)
+    {
+        msg.content = content.to_string();
+        return json_ok(msg);
+    }
+    json_resp(
+        404,
+        br#"{"code":10008,"message":"Unknown Message"}"#.to_vec(),
+    )
+}
+
+async fn handle_delete_channel_message(
+    state: &DaemonState,
+    channel_id: &str,
+    msg_id: &str,
+) -> RestResponse {
+    let mut guard = state.messages.write().await;
+    if let Some(list) = guard.get_mut(channel_id)
+        && let Some(pos) = list.iter().position(|m| m.id == msg_id)
+    {
+        list.remove(pos);
+        return (204, Vec::new(), Vec::new());
+    }
+    json_resp(
+        404,
+        br#"{"code":10008,"message":"Unknown Message"}"#.to_vec(),
+    )
 }
 
 fn check_injected_status(state: &DaemonState, path_only: &str) -> Option<RestResponse> {
@@ -217,19 +274,37 @@ fn strip_wrap<'a>(s: &'a str, prefix: &str, suffix: &str) -> Option<&'a str> {
     s.strip_prefix(prefix)?.strip_suffix(suffix)
 }
 
-fn route_rest_method(state: &DaemonState, method: &str, route: &str, body: &[u8]) -> RestResponse {
+async fn route_rest_method(
+    state: &DaemonState,
+    method: &str,
+    route: &str,
+    body: &[u8],
+) -> RestResponse {
     if let Some(gid) = strip_wrap(route, "/guilds/", "/channels") {
         return match state.trace.guilds.iter().find(|g| g.id == gid) {
             Some(g) if method == "GET" => json_ok(&g.channels),
             _ => json_resp(404, br#"{"code":10004,"message":"Unknown Guild"}"#.to_vec()),
         };
     }
+    if let Some((cid, mid)) = route
+        .strip_prefix("/channels/")
+        .and_then(|r| r.split_once("/messages/"))
+        && !cid.is_empty()
+        && !mid.is_empty()
+    {
+        if method == "PATCH" {
+            return handle_patch_channel_message(state, cid, mid, body).await;
+        } else if method == "DELETE" {
+            return handle_delete_channel_message(state, cid, mid).await;
+        }
+    }
     if let Some(cid) = strip_wrap(route, "/channels/", "/messages") {
         if method == "POST" {
-            return handle_post_channel_message(state, cid, body);
+            return handle_post_channel_message(state, cid, body).await;
         } else if method == "GET" {
-            let msgs = state.messages.lock().ok().and_then(|g| g.get(cid).cloned());
-            return json_ok(&msgs.unwrap_or_default());
+            let guard = state.messages.read().await;
+            let msgs = guard.get(cid).cloned().unwrap_or_default();
+            return json_ok(&msgs);
         }
     }
     match (method, route) {
@@ -239,7 +314,7 @@ fn route_rest_method(state: &DaemonState, method: &str, route: &str, body: &[u8]
     }
 }
 
-fn dispatch_rest_request(
+async fn dispatch_rest_request(
     state: &DaemonState,
     method: &str,
     raw_target: &str,
@@ -254,7 +329,7 @@ fn dispatch_rest_request(
         return json_resp(401, br#"{"message":"401: Unauthorized","code":0}"#.to_vec());
     }
     let route = path_only.strip_prefix("/api/v9").unwrap_or(path_only);
-    route_rest_method(state, method, route, body)
+    route_rest_method(state, method, route, body).await
 }
 
 fn encode_h2_frame(ftype: u8, flags: u8, stream_id: u32, payload: &[u8]) -> Vec<u8> {
@@ -331,7 +406,7 @@ async fn serve_h2_connection(
                 let (m, p, h) = parse_h2_headers_block(&payload);
                 if (flags & FL_END_S) != 0 {
                     state.bump(|x| x.http2_requests += 1);
-                    let res = dispatch_rest_request(&state, &m, &p, &h, &[]);
+                    let res = dispatch_rest_request(&state, &m, &p, &h, &[]).await;
                     write_h2_response(&mut s, sid, res).await?;
                 } else {
                     pending.insert(sid, (m, p, h));
@@ -340,7 +415,7 @@ async fn serve_h2_connection(
             F_DATA => {
                 if let Some((m, p, h)) = pending.remove(&sid) {
                     state.bump(|x| x.http2_requests += 1);
-                    let res = dispatch_rest_request(&state, &m, &p, &h, &payload);
+                    let res = dispatch_rest_request(&state, &m, &p, &h, &payload).await;
                     write_h2_response(&mut s, sid, res).await?;
                 }
             }
@@ -567,6 +642,83 @@ async fn write_http1_response(
     write_all_io(s, &b, "http1 body").await
 }
 
+fn parse_content_length(headers: &[(String, String)]) -> Result<usize, HarnessError> {
+    for (k, v) in headers {
+        if k.eq_ignore_ascii_case("content-length") {
+            let len = v
+                .trim()
+                .parse::<usize>()
+                .map_err(|e| HarnessError::Protocol(format!("invalid content-length: {e}")))?;
+            if len > MAX_HTTP1_BODY_BYTES {
+                return Err(HarnessError::Protocol(format!(
+                    "content-length {len} exceeds max body limit {MAX_HTTP1_BODY_BYTES}"
+                )));
+            }
+            return Ok(len);
+        }
+    }
+    Ok(0)
+}
+
+async fn read_http1_request(
+    s: &mut TcpStream,
+) -> Result<Option<(String, String, HeaderList, Option<String>, Vec<u8>)>, HarnessError> {
+    let mut buf = Vec::with_capacity(4096);
+    let mut chunk = [0u8; 4096];
+    let sep = loop {
+        let n = s
+            .read(&mut chunk)
+            .await
+            .map_err(|e| io_err("tcp read", e))?;
+        if n == 0 {
+            if buf.is_empty() {
+                return Ok(None);
+            }
+            return Err(io_err("http1 header eof", "unexpected EOF in headers"));
+        }
+        let search_start = buf.len().saturating_sub(3);
+        buf.extend_from_slice(&chunk[..n]);
+        if let Some(rel) = buf[search_start..]
+            .windows(4)
+            .position(|w| w == b"\r\n\r\n")
+        {
+            break search_start + rel;
+        }
+        if buf.len() > MAX_HTTP1_HEADER_BYTES {
+            return Err(HarnessError::Protocol(
+                "HTTP/1.1 headers exceed 64 KiB limit".into(),
+            ));
+        }
+    };
+
+    let (method, target, headers, ws_key) = parse_http1_head(&String::from_utf8_lossy(&buf[..sep]));
+    if ws_key.is_some() {
+        return Ok(Some((method, target, headers, ws_key, Vec::new())));
+    }
+
+    let content_length = parse_content_length(&headers)?;
+    let body_start = sep + 4;
+    let buffered_body = &buf[body_start..];
+    let copy_len = buffered_body.len().min(content_length);
+    let mut body = Vec::with_capacity(content_length.min(64 * 1024));
+    body.extend_from_slice(&buffered_body[..copy_len]);
+    while body.len() < content_length {
+        let want = (content_length - body.len()).min(chunk.len());
+        let n = s
+            .read(&mut chunk[..want])
+            .await
+            .map_err(|e| io_err("http1 body read", e))?;
+        if n == 0 {
+            return Err(io_err(
+                "http1 body eof",
+                "unexpected EOF before content-length",
+            ));
+        }
+        body.extend_from_slice(&chunk[..n]);
+    }
+    Ok(Some((method, target, headers, None, body)))
+}
+
 async fn handle_tcp_connection(
     mut s: TcpStream,
     state: Arc<DaemonState>,
@@ -582,24 +734,16 @@ async fn handle_tcp_connection(
         return serve_h2_connection(s, state).await;
     }
 
-    let mut buf = vec![0u8; 4096];
-    let n = s.read(&mut buf).await.map_err(|e| io_err("tcp read", e))?;
-    if n == 0 {
+    let Some((method, target, headers, ws_key, body)) = read_http1_request(&mut s).await? else {
         return Ok(());
-    }
-    let (method, target, headers, ws_key) = parse_http1_head(&String::from_utf8_lossy(&buf[..n]));
+    };
     if let Some(key) = ws_key {
         return serve_ws_connection(s, state, &key, local_addr).await;
     }
     state.bump(|x| x.http1_requests += 1);
-    let sep = buf[..n].windows(4).position(|w| w == b"\r\n\r\n");
-    let resp = dispatch_rest_request(
-        &state,
-        &method,
-        &target,
-        &headers,
-        &buf[sep.map_or(n, |p| p + 4)..n],
-    );
+    let content_length = body.len();
+    let resp =
+        dispatch_rest_request(&state, &method, &target, &headers, &body[..content_length]).await;
     write_http1_response(&mut s, resp).await
 }
 
