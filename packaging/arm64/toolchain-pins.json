@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-11-14",
+  "note": "Supply these local files explicitly. The builder never downloads release assets. Hashes are official GitHub release asset digests; continuous tag names are informational only.",
+  "runtime": {
+    "repository": "AppImage/type2-runtime",
+    "commit": "fedfad51acc2860b2916a1eef32ba4a500ff31ef",
+    "release_id": 417724209,
+    "asset_id": 657373827,
+    "asset_name": "runtime-aarch64",
+    "asset_api_url": "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/657373827",
+    "size": 936456,
+    "sha256": "9a72a744d221576c9347ec074243acc5c3c7568896b12714e0e82e9f0bf47900"
+  },
+  "appimagetool": {
+    "repository": "AppImage/appimagetool",
+    "commit": "11d54c9acc7f246df1398050a4b880314ac76862",
+    "release_id": 435944148,
+    "assets": {
+      "aarch64": {
+        "asset_id": 715388203,
+        "asset_name": "appimagetool-aarch64.AppImage",
+        "asset_api_url": "https://api.github.com/repos/AppImage/appimagetool/releases/assets/715388203",
+        "size": 14694920,
+        "sha256": "d6a061996de690434996c2a523eafedd0a23780aaf02d69ce364537e71607e94"
+      },
+      "x86_64": {
+        "asset_id": 715388534,
+        "asset_name": "appimagetool-x86_64.AppImage",
+        "asset_api_url": "https://api.github.com/repos/AppImage/appimagetool/releases/assets/715388534",
+        "size": 15133176,
+        "sha256": "e8c1169c4af66c3184d7ee110713d4be04befe671fa358e2c1591ee840553b03"
+      }
+    }
+  }
+}
