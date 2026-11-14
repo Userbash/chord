@@ -38,3 +38,10 @@ webpki-roots = "1"
 futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
 # zstd encoder — only for test stubs (production reader uses pure Rust ruzstd).
 zstd = "0.14"
+
+[profile.dev]
+debug = 1
+
+[profile.test]
+debug = 1
+

@@ -37,3 +37,10 @@ chacha20poly1305 = "0.11.0"
 lto = "thin"
 strip = true
 
+[profile.dev]
+debug = 1
+
+[profile.test]
+debug = 1
+
+
