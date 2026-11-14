@@ -420,6 +420,8 @@ pub enum VoiceSessionError {
         expected_nonce: u64,
         actual_nonce: u64,
     },
+    /// Некорректная конфигурация UDP-транспорта (`VoiceUdpTransportConfig`).
+    InvalidTransportConfig { reason: &'static str },
 }
 
 impl fmt::Display for VoiceSessionError {
@@ -471,6 +473,9 @@ impl fmt::Display for VoiceSessionError {
                 f,
                 "несовпадение нонса HEARTBEAT_ACK: ожидался {expected_nonce}, получен {actual_nonce}"
             ),
+            Self::InvalidTransportConfig { reason } => {
+                write!(f, "некорректная конфигурация UDP-транспорта: {reason}")
+            }
         }
     }
 }
@@ -2561,6 +2566,376 @@ impl VoiceSessionDriver {
     pub fn dave_external_sender(&self) -> Option<&[u8]> {
         self.dave_external_sender.as_deref()
     }
+
+    /// Выполняет живой обмен 74-байтным UDP IP Discovery через реальный `std::net::UdpSocket`:
+    /// - валидирует `cfg`,
+    /// - привязывает `UdpSocket` к `cfg.bind_addr` и подключает к `server_udp_ip:server_udp_port` из `OP 2 READY`,
+    /// - отправляет 74-байтный IP Discovery запрос и ожидает 74-байтный ответ (до `cfg.max_discovery_attempts` попыток),
+    /// - передаёт ответ в `handle_discovery_response`, формируя `OP 1 SELECT_PROTOCOL` и переводя фазу в `SelectingProtocol`.
+    pub fn perform_udp_discovery(
+        &mut self,
+        cfg: &VoiceUdpTransportConfig,
+    ) -> Result<(LiveUdpVoiceSocket, SelectProtocol), VoiceSessionError> {
+        let outcome = self.perform_udp_discovery_detailed(cfg)?;
+        Ok((outcome.socket, outcome.select_protocol))
+    }
+
+    /// Выполняет живой обмен 74-байтным UDP IP Discovery с возвратом полной структуры `LiveUdpDiscoveryOutcome`.
+    pub fn perform_udp_discovery_detailed(
+        &mut self,
+        cfg: &VoiceUdpTransportConfig,
+    ) -> Result<LiveUdpDiscoveryOutcome, VoiceSessionError> {
+        cfg.validate()?;
+        if self.phase != VoiceSessionPhase::DiscoveringUdp {
+            return Err(VoiceSessionError::InvalidPhase {
+                expected: "DiscoveringUdp",
+                actual: self.phase,
+            });
+        }
+        let server_ip = self
+            .server_udp_ip
+            .as_deref()
+            .ok_or(VoiceSessionError::InvalidPhase {
+                expected: "DiscoveringUdp",
+                actual: self.phase,
+            })?;
+        let server_port = self
+            .server_udp_port
+            .ok_or(VoiceSessionError::InvalidPhase {
+                expected: "DiscoveringUdp",
+                actual: self.phase,
+            })?;
+        let ssrc = self.ssrc.ok_or(VoiceSessionError::InvalidPhase {
+            expected: "DiscoveringUdp",
+            actual: self.phase,
+        })?;
+
+        let ip_addr: std::net::IpAddr = server_ip
+            .parse()
+            .map_err(|_| VoiceSessionError::Udp(UdpError::InvalidAddress))?;
+        let peer_addr = std::net::SocketAddr::new(ip_addr, server_port);
+
+        let mut socket = LiveUdpVoiceSocket::bind_and_connect(
+            &cfg.bind_addr,
+            peer_addr,
+            cfg.read_timeout,
+            cfg.write_timeout,
+        )?;
+        let local_port = socket.local_addr()?.port();
+        let request = encode_discovery_request_with_port(ssrc, local_port);
+
+        // Очищаем буферизованный при handle_ready пакет discovery, чтобы он не ушёл повторно при flush_outgoing_udp
+        self.outgoing_udp
+            .retain(|pkt| pkt.len() != DISCOVERY_LEN || pkt.get(0..2) != Some(&[0x00, 0x01]));
+
+        let mut recv_buf = [0u8; 128];
+        for attempt in 1..=cfg.max_discovery_attempts {
+            socket.send_raw(&request)?;
+            match socket.recv_timeout_into(&mut recv_buf, cfg.read_timeout) {
+                Ok(n) => {
+                    if n != DISCOVERY_LEN {
+                        return Err(VoiceSessionError::Udp(UdpError::InvalidLength));
+                    }
+                    let select_protocol = self.handle_discovery_response(&recv_buf[..n])?;
+                    let discovered_ip = select_protocol.address.clone();
+                    let discovered_port = select_protocol.port;
+                    return Ok(LiveUdpDiscoveryOutcome {
+                        socket,
+                        select_protocol,
+                        discovered_ip,
+                        discovered_port,
+                        attempts_used: attempt,
+                    });
+                }
+                Err(VoiceSessionError::Udp(UdpError::Timeout)) => {
+                    if attempt == cfg.max_discovery_attempts {
+                        return Err(VoiceSessionError::Udp(UdpError::Timeout));
+                    }
+                }
+                Err(err) => return Err(err),
+            }
+        }
+
+        Err(VoiceSessionError::Udp(UdpError::Timeout))
+    }
+
+    /// Отправляет все накопленные исходящие UDP-пакеты (SRTP, SRTCP) через живой UDP-сокет
+    /// и возвращает количество отправленных датаграмм.
+    pub fn flush_outgoing_udp(
+        &mut self,
+        socket: &mut LiveUdpVoiceSocket,
+    ) -> Result<usize, VoiceSessionError> {
+        socket.flush_outgoing_udp(self)
+    }
+
+    /// Отправляет 8-байтный UDP keepalive пинг (`0x1337_cafe` + `seq` LE) через живой сокет.
+    pub fn send_udp_keepalive(
+        &mut self,
+        socket: &mut LiveUdpVoiceSocket,
+    ) -> Result<[u8; crate::udp::KEEPALIVE_LEN], VoiceSessionError> {
+        socket.send_udp_keepalive()
+    }
+}
+
+/// Алиас живого UDP-транспорта голосовой сессии (`LiveVoiceSessionTransport`).
+pub type LiveVoiceSessionTransport = LiveUdpVoiceSocket;
+
+/// Конфигурация живого UDP-транспорта (`std::net::UdpSocket`) для `VoiceSessionDriver`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VoiceUdpTransportConfig {
+    /// Локальный адрес привязки UDP-сокета (`"0.0.0.0:0"` или `"127.0.0.1:0"`).
+    pub bind_addr: String,
+    /// Таймаут ожидания чтения UDP-пакета (`> 0`).
+    pub read_timeout: std::time::Duration,
+    /// Таймаут отправки UDP-пакета (`> 0`).
+    pub write_timeout: std::time::Duration,
+    /// Максимальное число попыток обмена 74-байтным IP Discovery (`1..=5`).
+    pub max_discovery_attempts: u8,
+    /// Интервал отправки UDP keepalive-пакетов (`> 0`, по умолчанию 5 с).
+    pub keepalive_interval: std::time::Duration,
+}
+
+impl Default for VoiceUdpTransportConfig {
+    fn default() -> Self {
+        Self {
+            bind_addr: "0.0.0.0:0".to_owned(),
+            read_timeout: std::time::Duration::from_millis(1_000),
+            write_timeout: std::time::Duration::from_millis(1_000),
+            max_discovery_attempts: 3,
+            keepalive_interval: std::time::Duration::from_millis(crate::udp::KEEPALIVE_INTERVAL_MS),
+        }
+    }
+}
+
+impl VoiceUdpTransportConfig {
+    /// Конфигурация для локального loopback-интерфейса (`"127.0.0.1:0"`).
+    #[must_use]
+    pub fn loopback() -> Self {
+        Self {
+            bind_addr: "127.0.0.1:0".to_owned(),
+            ..Self::default()
+        }
+    }
+
+    /// Проверяет корректность всех параметров конфигурации UDP-транспорта.
+    pub fn validate(&self) -> Result<(), VoiceSessionError> {
+        let trimmed = self.bind_addr.trim();
+        if trimmed.is_empty() {
+            return Err(VoiceSessionError::InvalidTransportConfig {
+                reason: "bind_addr must not be empty",
+            });
+        }
+        if trimmed.parse::<std::net::SocketAddr>().is_err() {
+            return Err(VoiceSessionError::InvalidTransportConfig {
+                reason: "bind_addr must be a valid SocketAddr (e.g. 127.0.0.1:0 or 0.0.0.0:0)",
+            });
+        }
+        if self.read_timeout.is_zero() {
+            return Err(VoiceSessionError::InvalidTransportConfig {
+                reason: "read_timeout must be > 0",
+            });
+        }
+        if self.write_timeout.is_zero() {
+            return Err(VoiceSessionError::InvalidTransportConfig {
+                reason: "write_timeout must be > 0",
+            });
+        }
+        if !(1..=5).contains(&self.max_discovery_attempts) {
+            return Err(VoiceSessionError::InvalidTransportConfig {
+                reason: "max_discovery_attempts must be in 1..=5",
+            });
+        }
+        if self.keepalive_interval.is_zero() {
+            return Err(VoiceSessionError::InvalidTransportConfig {
+                reason: "keepalive_interval must be > 0",
+            });
+        }
+        Ok(())
+    }
+}
+
+/// Результат успешного живого обмена 74-байтным UDP IP Discovery.
+#[derive(Debug)]
+pub struct LiveUdpDiscoveryOutcome {
+    /// Привязанный и подключённый к медиа-серверу UDP-сокет.
+    pub socket: LiveUdpVoiceSocket,
+    /// Сформированный кадр `OP 1 SELECT_PROTOCOL` (также помещён в `driver.take_outgoing_ws()`).
+    pub select_protocol: SelectProtocol,
+    /// Обнаруженный внешний IP-адрес клиента.
+    pub discovered_ip: String,
+    /// Обнаруженный внешний UDP-порт клиента.
+    pub discovered_port: u16,
+    /// Фактическое число затраченных попыток отправки 74B Discovery (`1..=max_discovery_attempts`).
+    pub attempts_used: u8,
+}
+
+/// Безопасная обёртка над подключённым `std::net::UdpSocket` для голосовой сессии (`#![forbid(unsafe_code)]`).
+pub struct LiveUdpVoiceSocket {
+    socket: std::net::UdpSocket,
+    peer_addr: std::net::SocketAddr,
+    keepalive_sequence: u32,
+    packets_sent: u64,
+    bytes_sent: u64,
+}
+
+impl fmt::Debug for LiveUdpVoiceSocket {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("LiveUdpVoiceSocket")
+            .field("local_addr", &self.socket.local_addr().ok())
+            .field("peer_addr", &self.peer_addr)
+            .field("keepalive_sequence", &self.keepalive_sequence)
+            .field("packets_sent", &self.packets_sent)
+            .field("bytes_sent", &self.bytes_sent)
+            .finish()
+    }
+}
+
+impl LiveUdpVoiceSocket {
+    /// Привязывает `std::net::UdpSocket` к `bind_addr`, подключает его к `peer_addr`
+    /// и выставляет таймауты чтения и записи.
+    pub fn bind_and_connect(
+        bind_addr: &str,
+        peer_addr: std::net::SocketAddr,
+        read_timeout: std::time::Duration,
+        write_timeout: std::time::Duration,
+    ) -> Result<Self, VoiceSessionError> {
+        if read_timeout.is_zero() || write_timeout.is_zero() {
+            return Err(VoiceSessionError::InvalidTransportConfig {
+                reason: "socket read/write timeouts must be > 0",
+            });
+        }
+        let socket = std::net::UdpSocket::bind(bind_addr).map_err(UdpError::from)?;
+        socket
+            .set_read_timeout(Some(read_timeout))
+            .map_err(UdpError::from)?;
+        socket
+            .set_write_timeout(Some(write_timeout))
+            .map_err(UdpError::from)?;
+        socket.connect(peer_addr).map_err(UdpError::from)?;
+        Ok(Self {
+            socket,
+            peer_addr,
+            keepalive_sequence: 0,
+            packets_sent: 0,
+            bytes_sent: 0,
+        })
+    }
+
+    /// Возвращает локальный `SocketAddr` привязанного UDP-сокета.
+    pub fn local_addr(&self) -> Result<std::net::SocketAddr, VoiceSessionError> {
+        self.socket
+            .local_addr()
+            .map_err(|e| VoiceSessionError::Udp(UdpError::from(e)))
+    }
+
+    /// Возвращает адрес подключённого UDP медиа-сервера.
+    #[must_use]
+    pub const fn peer_addr(&self) -> std::net::SocketAddr {
+        self.peer_addr
+    }
+
+    /// Текущий номер последовательности отправленных UDP keepalive пакетов.
+    #[must_use]
+    pub const fn keepalive_sequence(&self) -> u32 {
+        self.keepalive_sequence
+    }
+
+    /// Общее число отправленных через сокет UDP-пакетов.
+    #[must_use]
+    pub const fn packets_sent(&self) -> u64 {
+        self.packets_sent
+    }
+
+    /// Общее число отправленных через сокет байт.
+    #[must_use]
+    pub const fn bytes_sent(&self) -> u64 {
+        self.bytes_sent
+    }
+
+    /// Отправляет сырую датаграмму в подключённый UDP-сокет.
+    pub fn send_raw(&mut self, bytes: &[u8]) -> Result<usize, VoiceSessionError> {
+        let sent = self
+            .socket
+            .send(bytes)
+            .map_err(|e| VoiceSessionError::Udp(UdpError::from(e)))?;
+        self.packets_sent = self.packets_sent.saturating_add(1);
+        self.bytes_sent = self.bytes_sent.saturating_add(sent as u64);
+        Ok(sent)
+    }
+
+    /// Принимает датаграмму из подключённого UDP-сокета с указанным таймаутом `timeout`.
+    pub fn recv_timeout_into(
+        &self,
+        buf: &mut [u8],
+        timeout: std::time::Duration,
+    ) -> Result<usize, VoiceSessionError> {
+        if timeout.is_zero() {
+            return Err(VoiceSessionError::InvalidTransportConfig {
+                reason: "recv timeout must be > 0",
+            });
+        }
+        self.socket
+            .set_read_timeout(Some(timeout))
+            .map_err(|e| VoiceSessionError::Udp(UdpError::from(e)))?;
+        self.socket
+            .recv(buf)
+            .map_err(|e| VoiceSessionError::Udp(UdpError::from(e)))
+    }
+
+    /// Забирает накопленные исходящие UDP-пакеты из `driver` (`take_outgoing_udp`)
+    /// и отправляет каждый из них в подключённый UDP-сокет.
+    pub fn flush_outgoing_udp(
+        &mut self,
+        driver: &mut VoiceSessionDriver,
+    ) -> Result<usize, VoiceSessionError> {
+        let packets = driver.take_outgoing_udp();
+        let mut count = 0usize;
+        for pkt in &packets {
+            let _ = self.send_raw(pkt)?;
+            count += 1;
+        }
+        Ok(count)
+    }
+
+    /// Отправляет 8-байтный UDP keepalive-запрос (`[0x13, 0x37, 0xca, 0xfe, seq_le: u32]`).
+    pub fn send_udp_keepalive(
+        &mut self,
+    ) -> Result<[u8; crate::udp::KEEPALIVE_LEN], VoiceSessionError> {
+        self.keepalive_sequence = self.keepalive_sequence.wrapping_add(1);
+        let pkt = crate::udp::keepalive_request(self.keepalive_sequence);
+        let _ = self.send_raw(&pkt)?;
+        Ok(pkt)
+    }
+
+    /// Отправляет расширенный 12-байтный UDP keepalive-запрос (`[0x13, 0x37, 0xca, 0xfe, seq_le: u32, timestamp_ms_le: u32]`).
+    pub fn send_udp_keepalive_12b(
+        &mut self,
+        timestamp_ms: u32,
+    ) -> Result<[u8; 12], VoiceSessionError> {
+        self.keepalive_sequence = self.keepalive_sequence.wrapping_add(1);
+        let mut pkt = [0u8; 12];
+        pkt[..8].copy_from_slice(&crate::udp::keepalive_request(self.keepalive_sequence));
+        pkt[8..12].copy_from_slice(&timestamp_ms.to_le_bytes());
+        let _ = self.send_raw(&pkt)?;
+        Ok(pkt)
+    }
+}
+
+/// Свободная функция-обёртка для выполнения живого UDP IP Discovery на `VoiceSessionDriver`.
+pub fn perform_udp_discovery(
+    driver: &mut VoiceSessionDriver,
+    cfg: &VoiceUdpTransportConfig,
+) -> Result<(LiveUdpVoiceSocket, SelectProtocol), VoiceSessionError> {
+    driver.perform_udp_discovery(cfg)
+}
+
+/// Инициализирует живую UDP-сессию (`std::net::UdpSocket` + 74B IP Discovery + `OP 1 SELECT_PROTOCOL`)
+/// и возвращает детализированный `LiveUdpDiscoveryOutcome`.
+pub fn init_udp_voice_session(
+    driver: &mut VoiceSessionDriver,
+    cfg: &VoiceUdpTransportConfig,
+) -> Result<LiveUdpDiscoveryOutcome, VoiceSessionError> {
+    driver.perform_udp_discovery_detailed(cfg)
 }
 
 #[cfg(test)]
