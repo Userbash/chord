@@ -4,6 +4,9 @@
 
 #![allow(dead_code)]
 
+pub mod encoder;
+pub mod sender;
+
 use std::fmt;
 use std::sync::{Arc, Mutex};
 
