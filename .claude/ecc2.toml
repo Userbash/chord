@@ -315,6 +315,30 @@ add_dirs = ["/home/sanya/orca/project/docs/reference-projects"]
 append_system_prompt = "Tech Reviewer (REVIEW.md). Архитектура, безопасность, мутации 5/5."
 connector_set = "pm_set"
 
+[agent_profiles.g0_hydrogen_routine]
+inherits = "base_discord_lab"
+model = "gemini-4-hydrogen-low"
+append_system_prompt = "Tier S Routine (Hydrogen Low). Простые одношаговые правки, CI/packaging манифесты, очистка моков, форматирование и мелкие фиксы. Effort=low."
+connector_set = "core_only"
+
+[agent_profiles.g0_hydrogen_adapter]
+inherits = "base_discord_lab"
+model = "gemini-4-hydrogen-medium"
+append_system_prompt = "Tier M Routine Adapter (Hydrogen Medium). Шаблонные обёртки, локальные утилиты, модульное разделение и рутинные рефакторинги без криптографии. Effort=medium."
+connector_set = "core_only"
+
+[agent_profiles.orchestrator_argon]
+inherits = "base_discord_lab"
+model = "gemini-pro-orchestrator-argon"
+append_system_prompt = "Orchestrator (Argon) — Wave Coordinator / Team Lead. Распределение бэклога по P0-P3, контроль write-scope и RAM (<25GB), 1-к-1 ротация слотов, интеграция PR. Effort=medium."
+connector_set = "pm_set"
+
+[agent_profiles.orchestrator_carbon]
+inherits = "base_discord_lab"
+model = "gemini-pro-orchestrator"
+append_system_prompt = "Orchestrator (Carbon) — Chief Architect & Escalation Lead. Кросс-крейтовая архитектура, разрешение сложных конфликтов, приёмка Tier XL модулей и сложных эскалаций. Effort=high (xhigh только при тупике)."
+connector_set = "pm_set"
+
 # === Шаблоны оркестрации по приоритетам P0, P1, P2 ===
 
 [orchestration_templates.p0_go_live_pipeline]

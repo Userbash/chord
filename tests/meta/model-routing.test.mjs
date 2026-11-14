@@ -105,6 +105,12 @@ describe("model-routing: ecc-orca-bridge preserves granular models and effort", 
       ["gemini-4-carbon-low", "gemini-4-carbon-low", "low"],
       ["gemini-4-carbon-medium", "gemini-4-carbon-medium", "medium"],
       ["gemini-4-carbon-high", "gemini-4-carbon-high", "high"],
+      ["gemini-4-hydrogen-low", "gemini-4-hydrogen-low", "low"],
+      ["gemini-4-hydrogen-medium", "gemini-4-hydrogen-medium", "medium"],
+      ["gemini-4-hydrogen-high", "gemini-4-hydrogen-high", "high"],
+      ["gemini-4-hydrogen-xhigh", "gemini-4-hydrogen-xhigh", "xhigh"],
+      ["gemini-pro-orchestrator-argon", "gemini-pro-orchestrator-argon", "medium"],
+      ["gemini-pro-orchestrator", "gemini-pro-orchestrator", "high"],
     ];
 
     for (const [inputModel, expectedModel, expectedEffort] of cases) {
@@ -149,6 +155,8 @@ describe("model-routing: ecc2.toml right-sizes profiles and matches workspace", 
     const profiles = parseProfileModels(toml);
     const steps = parseTemplateStepProfiles(toml);
 
+    assert.equal(profiles.g0_hydrogen_routine, "gemini-4-hydrogen-low");
+    assert.equal(profiles.g0_hydrogen_adapter, "gemini-4-hydrogen-medium");
     assert.equal(profiles.g6_tech_writer, "gemini-3.8-flash-low");
     assert.equal(profiles.g3_design, "gemini-3.8-flash-low");
     assert.equal(profiles.g2_frontend, "gemini-3.8-flash-medium");
@@ -160,6 +168,8 @@ describe("model-routing: ecc2.toml right-sizes profiles and matches workspace", 
     assert.equal(profiles.g7_re_rea, "gemini-4-argon-high");
     assert.equal(profiles.tech_reviewer, "gemini-4-argon-high");
     assert.equal(profiles.core_carbon, "gemini-4-carbon-high");
+    assert.equal(profiles.orchestrator_argon, "gemini-pro-orchestrator-argon");
+    assert.equal(profiles.orchestrator_carbon, "gemini-pro-orchestrator");
 
     // Simple P2 / standard BFF tasks must NOT consume Carbon-High
     for (const routineStep of [
@@ -201,12 +211,44 @@ describe("model-routing: harmony-router separates priority from complexity tier"
     assert.equal(uiP0.effort, "medium");
 
     const trivialP0 = resolveModelHarmony("P0-1.1", "P0", "G1 Backend");
-    assert.equal(trivialP0.model, "gemini-3.8-flash-low");
+    assert.equal(trivialP0.tier, "S");
+    assert.equal(trivialP0.model, "gemini-4-hydrogen-low");
     assert.equal(trivialP0.effort, "low");
+
+    for (const routineLowId of ["H-FIX-17", "P2-1.2", "P2-3.2", "TASK-1015A", "TASK-1016A", "TASK-1016B"]) {
+      const r = resolveModelHarmony(routineLowId, "P0", "DevOps");
+      assert.equal(r.tier, "S");
+      assert.equal(r.model, "gemini-4-hydrogen-low", `${routineLowId} should route to gemini-4-hydrogen-low`);
+      assert.equal(r.effort, "low");
+    }
+
+    for (const routineMedId of ["TASK-1011A", "TASK-1012A", "TASK-1013A", "P2-1.1", "P2-3.1"]) {
+      const r = resolveModelHarmony(routineMedId, "P2", "G0 Routine");
+      assert.equal(r.tier, "M");
+      assert.equal(r.model, "gemini-4-hydrogen-medium", `${routineMedId} should route to gemini-4-hydrogen-medium`);
+      assert.equal(r.effort, "medium");
+    }
 
     const docsTask = resolveModelHarmony("TASK-999", "P1", "G6 Tech Writer");
     assert.equal(docsTask.model, "gemini-3.8-flash-low");
     assert.equal(docsTask.effort, "low");
+  });
+
+  it("routes orchestrator roles cleanly between Orchestrator (Argon) and Orchestrator (Carbon)", () => {
+    const waveLead = resolveModelHarmony("ORCH-WAVE", "P1", "Coordinator", { orchestrator: "argon" });
+    assert.equal(waveLead.model, "gemini-pro-orchestrator-argon");
+    assert.equal(waveLead.effort, "medium");
+
+    const chiefArch = resolveModelHarmony("ORCH-ARCH", "P0", "Chief Architect", { orchestrator: "carbon" });
+    assert.equal(chiefArch.model, "gemini-pro-orchestrator");
+    assert.equal(chiefArch.effort, "high");
+
+    const escalatedArch = resolveModelHarmony("ORCH-ARCH", "P0", "Chief Architect", {
+      orchestrator: "carbon",
+      escalate: true,
+    });
+    assert.equal(escalatedArch.model, "gemini-pro-orchestrator");
+    assert.equal(escalatedArch.effort, "xhigh");
   });
 
   it("routes P1/P2 Rust G1/G5 tasks to Argon-Low/Medium instead of dropping them into Flash docs fallback", () => {

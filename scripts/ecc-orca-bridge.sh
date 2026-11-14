@@ -87,12 +87,36 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# 1. Гранулярная маршрутизация моделей Antigravity (Gemini Flash / Argon / Carbon)
+# 1. Гранулярная маршрутизация моделей Antigravity (Hydrogen / Flash / Argon / Carbon / Orchestrator)
 # Полный запрет codex и deepseek; младшие уровни (low/medium) не завышаются до high
 HARNESS="${ECC_HARNESS:-antigravity}"
 ORCA_AGENT="antigravity"
 
 case "$MODEL" in
+  *orchestrator-argon*)
+    ORCA_MODEL="gemini-pro-orchestrator-argon"
+    EFFORT_LEVEL="medium"
+    ;;
+  *orchestrator-carbon*|*gemini-pro-orchestrator*|*orchestrator*)
+    ORCA_MODEL="gemini-pro-orchestrator"
+    EFFORT_LEVEL="high"
+    ;;
+  *hydrogen-xhigh*)
+    ORCA_MODEL="gemini-4-hydrogen-xhigh"
+    EFFORT_LEVEL="xhigh"
+    ;;
+  *hydrogen-high*)
+    ORCA_MODEL="gemini-4-hydrogen-high"
+    EFFORT_LEVEL="high"
+    ;;
+  *hydrogen-medium*)
+    ORCA_MODEL="gemini-4-hydrogen-medium"
+    EFFORT_LEVEL="medium"
+    ;;
+  *hydrogen-low*|*hydrogen*)
+    ORCA_MODEL="gemini-4-hydrogen-low"
+    EFFORT_LEVEL="low"
+    ;;
   *flash-low*)
     ORCA_MODEL="gemini-3.8-flash-low"
     EFFORT_LEVEL="low"

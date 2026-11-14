@@ -65,10 +65,10 @@ const XL_HARDCORE_TASKS = new Set([
 ]);
 
 /**
- * Тривиальные и механические задачи (Tier S):
- * однострочные переключения, CI-конфиги, генерация desktop/MSI/DMG манифестов, доки.
+ * Рутинные и тривиальные одношаговые задачи (Tier S · Gemini 4 Hydrogen Low):
+ * однострочные переключения, CI/config правки, desktop/MSI/DMG манифесты, очистка моков.
  */
-const S_TRIVIAL_TASKS = new Set([
+const HYDROGEN_LOW_TASKS = new Set([
   'P0-1.1',
   'P2-1.2',
   'P2-3.2',
@@ -76,6 +76,17 @@ const S_TRIVIAL_TASKS = new Set([
   'TASK-1015A',
   'TASK-1016A',
   'TASK-1016B',
+]);
+
+/**
+ * Простые рутинные утилиты, шаблонные адаптеры, i18n и системные хелперы (Tier M · Gemini 4 Hydrogen Medium).
+ */
+const HYDROGEN_MEDIUM_TASKS = new Set([
+  'P2-1.1',
+  'P2-3.1',
+  'TASK-1011A',
+  'TASK-1012A',
+  'TASK-1013A',
 ]);
 
 /**
@@ -99,27 +110,64 @@ const L_HIGH_TASKS = new Set([
 ]);
 
 /**
- * Модельные гармоники и уровни рассуждения по сложности задачи и отделу.
+ * Модельные гармоники и уровни рассуждения по сложности задачи, роли и отделу.
  * Приоритет (P0–P3) определяет очередь выполнения, но НЕ завышает модель для простых задач.
  * @param {string} taskId
  * @param {string} priority
  * @param {string} department
- * @param {{ escalate?: boolean }} [options]
+ * @param {{ escalate?: boolean, orchestrator?: 'argon' | 'carbon' }} [options]
  * @returns {{ tier: 'S' | 'M' | 'L' | 'XL', agent: string, model: string, effort: 'low' | 'medium' | 'high' | 'xhigh', rationale: string }}
  */
 export function resolveModelHarmony(taskId, priority, department, options = {}) {
-  // 1. Tier S — Тривиальные правки, конфиги, документация и дизайн-токены (независимо от P0..P3)
+  // 0. Роли оркестраторов (Coordinator / Chief Architect) — строго отделены от линейных воркеров
   if (
-    S_TRIVIAL_TASKS.has(taskId) ||
-    department.includes('G6') ||
-    department.includes('G3')
+    options.orchestrator === 'carbon' ||
+    department.includes('Chief Architect') ||
+    department.includes('Orchestrator (Carbon)')
   ) {
+    return {
+      tier: 'XL',
+      agent: 'antigravity',
+      model: 'gemini-pro-orchestrator',
+      effort: options.escalate ? 'xhigh' : 'high',
+      rationale: 'Orchestrator (Carbon): архитектор системы, кросс-модульные контракты, разбор блок-конфликтов и эскалаций Tier XL'
+    };
+  }
+
+  if (
+    options.orchestrator === 'argon' ||
+    department.includes('Coordinator') ||
+    department.includes('Team Lead') ||
+    department.includes('Orchestrator (Argon)')
+  ) {
+    return {
+      tier: 'L',
+      agent: 'antigravity',
+      model: 'gemini-pro-orchestrator-argon',
+      effort: options.escalate ? 'high' : 'medium',
+      rationale: 'Orchestrator (Argon): координатор волн Orca/ECC, декомпозиция бэклога, 1-к-1 ротация слотов и интеграция веток'
+    };
+  }
+
+  // 1a. Tier S (Routine Code/CI/Packaging) — Gemini 4 Hydrogen Low
+  if (HYDROGEN_LOW_TASKS.has(taskId) || department.includes('Routine Low')) {
+    return {
+      tier: 'S',
+      agent: 'antigravity',
+      model: 'gemini-4-hydrogen-low',
+      effort: 'low',
+      rationale: 'Tier S (Hydrogen Routine Low): простые конфиги, CI/packaging манифесты, точечные фиксы и зачистка моков'
+    };
+  }
+
+  // 1b. Tier S (Specs & Docs) — Gemini 3.8 Flash Low для G3 Design и G6 Tech Writer
+  if (department.includes('G6') || department.includes('G3')) {
     return {
       tier: 'S',
       agent: 'antigravity',
       model: 'gemini-3.8-flash-low',
       effort: 'low',
-      rationale: 'Tier S (Trivial/Specs/Docs): дизайн-токены, спеки, документация или однострочные/конфигурационные правки'
+      rationale: 'Tier S (Specs/Docs): дизайн-токены, спеки и документация без избыточных рассуждений'
     };
   }
 
@@ -134,7 +182,22 @@ export function resolveModelHarmony(taskId, priority, department, options = {}) 
     };
   }
 
-  // 3. Tier M — Фронтенд и UI-компоненты (G2): никогда не тратят Argon/Carbon даже при P0
+  // 3a. Tier M (Routine Boilerplate / Adapters) — Gemini 4 Hydrogen Medium
+  if (
+    HYDROGEN_MEDIUM_TASKS.has(taskId) ||
+    department.includes('G0') ||
+    department.includes('Routine')
+  ) {
+    return {
+      tier: 'M',
+      agent: 'antigravity',
+      model: 'gemini-4-hydrogen-medium',
+      effort: 'medium',
+      rationale: 'Tier M (Hydrogen Routine Medium): шаблонные адаптеры, локальные утилиты, рефакторинг сплитов и простые обёртки'
+    };
+  }
+
+  // 3b. Tier M — Фронтенд и UI-компоненты (G2): никогда не тратят Argon/Carbon даже при P0
   if (department.includes('G2')) {
     const complexUi = taskId === 'TASK-1011B' || taskId === 'TASK-616';
     return {
@@ -183,13 +246,13 @@ export function resolveModelHarmony(taskId, priority, department, options = {}) 
     };
   }
 
-  // 6. Прочие вспомогательные задачи — экономный Flash Low
+  // 6. Прочие вспомогательные рутинные задачи — экономный Hydrogen Low
   return {
     tier: 'S',
     agent: 'antigravity',
-    model: 'gemini-3.8-flash-low',
+    model: 'gemini-4-hydrogen-low',
     effort: 'low',
-    rationale: 'Tier S: вспомогательные задачи и документация'
+    rationale: 'Tier S (Hydrogen Default): прочие простые рутинные задачи'
   };
 }
 
