@@ -1154,6 +1154,57 @@ fn parse_single_message_value(
         .unwrap_or("");
     let iso_ts = val.get("timestamp").and_then(|v| v.as_str()).unwrap_or("");
 
+    let attachments = val
+        .get("attachments")
+        .and_then(|v| v.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|att| {
+                    let filename = att.get("filename").and_then(|v| v.as_str())?.to_string();
+                    let id = att
+                        .get("id")
+                        .and_then(|v| {
+                            v.as_str()
+                                .map(ToOwned::to_owned)
+                                .or_else(|| v.as_u64().map(|n| n.to_string()))
+                        })
+                        .unwrap_or_else(|| "0".to_string());
+                    let url = att
+                        .get("url")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string();
+                    let size_bytes = att.get("size").and_then(|v| v.as_u64()).unwrap_or(0);
+                    Some(crate::state::MessageAttachment {
+                        id,
+                        filename,
+                        url,
+                        size_bytes,
+                    })
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+
+    let reactions = val
+        .get("reactions")
+        .and_then(|v| v.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|rx| {
+                    let emoji = rx
+                        .get("emoji")
+                        .and_then(|e| e.get("name"))
+                        .and_then(|v| v.as_str())?
+                        .to_string();
+                    let count = rx.get("count").and_then(|v| v.as_u64()).unwrap_or(1) as u32;
+                    let me = rx.get("me").and_then(|v| v.as_bool()).unwrap_or(false);
+                    Some(crate::state::MessageReaction { emoji, count, me })
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+
     Some(crate::state::Message {
         id: mid.to_string(),
         channel_id: channel_id.to_string(),
@@ -1176,14 +1227,15 @@ fn parse_single_message_value(
             .get("edited_timestamp")
             .and_then(|v| v.as_str())
             .map(format_discord_timestamp),
-        attachments: Vec::new(),
-        reactions: Vec::new(),
+        attachments,
+        reactions,
         is_pinned: val.get("pinned").and_then(|v| v.as_bool()).unwrap_or(false),
         message_kind: crate::state::MessageKind::Default,
     })
 }
 
 /// Разбор массива сообщений `GET /channels/{id}/messages` в хронологическом порядке (от старых к новым)
+/// с дедупликацией по `id`.
 pub fn parse_channel_messages_json(
     channel_id: &str,
     body: &[u8],
@@ -1192,12 +1244,377 @@ pub fn parse_channel_messages_json(
         serde_json::from_slice(body).map_err(|e| format!("Ошибка разбора сообщений: {:?}", e))?;
 
     let mut result = Vec::with_capacity(msgs_arr.len());
+    let mut seen_ids = std::collections::HashSet::with_capacity(msgs_arr.len());
     for m in msgs_arr.into_iter().rev() {
         if let Some(msg) = parse_single_message_value(channel_id, &m, None) {
-            result.push(msg);
+            if seen_ids.insert(msg.id.clone()) {
+                result.push(msg);
+            }
         }
     }
     Ok(result)
+}
+
+/// Параметры живой отправки сообщения (`POST /channels/{id}/messages`) с поддержкой
+/// `nonce`, `tts`, ответа (`message_reference`) и прикреплённых файлов (`attachments`).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct LiveMessageSendOptions {
+    pub content: String,
+    pub nonce: Option<String>,
+    pub tts: bool,
+    pub reply_to_message_id: Option<String>,
+    pub attachments: Vec<chord_core::rest::client::MultipartUploadFile>,
+}
+
+/// Детерминированное сопоставление HTTP-ответа Discord REST API v9 с `ChatRestError`.
+#[must_use]
+pub fn classify_rest_http_error(
+    status: u16,
+    headers: &[(String, String)],
+    body: &[u8],
+) -> chord_core::rest::client::ChatRestError {
+    chord_core::rest::client::map_chat_rest_error_response(&HttpResponse {
+        status,
+        headers: headers.to_vec(),
+        body: body.to_vec(),
+    })
+}
+
+/// Выполняет запрос через пул HTTP/2 соединений с экспоненциальным бэкоффом,
+/// возвращая типизированный `ChatRestError` при ошибках `400`/`401`/`403`/`404`/`413`/`429`/`5xx`.
+pub async fn execute_with_pool_and_chat_error<T: RestTransport + ?Sized>(
+    transport: &T,
+    pool: &Http2ConnectionPool,
+    pool_config: &Http2PoolConfig,
+    method: &str,
+    target: &str,
+    body: Option<&[u8]>,
+) -> Result<(HttpResponse, PooledRequestMetrics), chord_core::rest::client::ChatRestError> {
+    let max_attempts = pool_config.max_attempts.max(1);
+    let ttl_secs = pool_config.pool_idle_timeout.as_secs();
+    let reused_first = pool.acquire_or_connect("discord.com", 1_000, ttl_secs);
+    let headers = pool_config.pooling_headers();
+    let mut total_backoff_ms = 0u64;
+
+    for attempt in 1..=max_attempts {
+        match transport.send_request(method, target, &headers, body).await {
+            Ok(resp) if (200..=299).contains(&resp.status) => {
+                pool.prewarm("discord.com", 1_000 + total_backoff_ms);
+                return Ok((
+                    resp,
+                    PooledRequestMetrics {
+                        attempts: attempt,
+                        reused_connection: reused_first || attempt > 1,
+                        http_version: if pool_config.http2_multiplexing {
+                            "HTTP/2"
+                        } else {
+                            "HTTP/1.1"
+                        },
+                        keep_alive_header: HTTP2_KEEP_ALIVE_HEADER,
+                        total_backoff_ms,
+                    },
+                ));
+            }
+            Ok(resp) => {
+                if attempt < max_attempts
+                    && let Some(delay) = pool_config.retry_delay_for_response(
+                        resp.status,
+                        &resp.headers,
+                        &resp.body,
+                        attempt,
+                    )
+                {
+                    pool.record_retry();
+                    let delay_ms = delay.as_millis() as u64;
+                    total_backoff_ms = total_backoff_ms.saturating_add(delay_ms.max(1));
+                    if delay <= Duration::from_millis(50) {
+                        tokio::time::sleep(delay).await;
+                    } else {
+                        tokio::task::yield_now().await;
+                    }
+                    pool.prewarm("discord.com", 1_000 + total_backoff_ms);
+                    continue;
+                }
+                return Err(classify_rest_http_error(
+                    resp.status,
+                    &resp.headers,
+                    &resp.body,
+                ));
+            }
+            Err(err) => {
+                if attempt < max_attempts {
+                    pool.evict_stale("discord.com");
+                    pool.record_retry();
+                    let delay = pool_config.exponential_backoff_delay(attempt);
+                    let delay_ms = delay.as_millis() as u64;
+                    total_backoff_ms = total_backoff_ms.saturating_add(delay_ms.max(1));
+                    if delay <= Duration::from_millis(50) {
+                        tokio::time::sleep(delay).await;
+                    } else {
+                        tokio::task::yield_now().await;
+                    }
+                    pool.prewarm("discord.com", 1_000 + total_backoff_ms);
+                    continue;
+                }
+                return Err(chord_core::rest::client::ChatRestError::Api(
+                    chord_core::rest::client::ApiError::Transport(
+                        chord_core::rest::transport::HttpError::Protocol(
+                            chord_core::rest::http1::Http1Error::MalformedHead(err),
+                        ),
+                    ),
+                ));
+            }
+        }
+    }
+
+    Err(chord_core::rest::client::ChatRestError::Api(
+        chord_core::rest::client::ApiError::Transport(
+            chord_core::rest::transport::HttpError::Protocol(
+                chord_core::rest::http1::Http1Error::MalformedHead(format!(
+                    "exhausted retries for {method} {target}"
+                )),
+            ),
+        ),
+    ))
+}
+
+/// Отправка сообщения (`POST /channels/{id}/messages`) с поддержкой `LiveMessageSendOptions`
+/// (`content`, `nonce`, `tts`, `reply_to_message_id`, `attachments`) через пул HTTP/2 соединений.
+pub async fn send_message_options_with_transport<T: RestTransport + ?Sized>(
+    transport: &T,
+    pool: &Http2ConnectionPool,
+    pool_config: &Http2PoolConfig,
+    _token: &str,
+    channel_id: &str,
+    options: &LiveMessageSendOptions,
+) -> Result<
+    (crate::state::Message, Option<String>, PooledRequestMetrics),
+    chord_core::rest::client::ChatRestError,
+> {
+    use chord_core::rest::client::{
+        AttachmentUploadError, ChatRestError, MAX_ATTACHMENT_SIZE_BYTES,
+        MAX_ATTACHMENTS_PER_MESSAGE, MAX_MESSAGE_CONTENT_CHARS, MAX_MESSAGE_NONCE_CHARS,
+        MULTIPART_BOUNDARY, sanitize_attachment_filename,
+    };
+    use chord_core::rest::routes::build_channel_messages_send_path;
+
+    let clean_channel = channel_id.trim();
+    let target = build_channel_messages_send_path(clean_channel)
+        .map_err(|_| ChatRestError::InvalidChannelId(channel_id.to_string()))?;
+
+    let content_chars = options.content.chars().count();
+    if content_chars > MAX_MESSAGE_CONTENT_CHARS {
+        return Err(ChatRestError::ContentTooLong {
+            len: content_chars,
+            max: MAX_MESSAGE_CONTENT_CHARS,
+        });
+    }
+    if options.content.trim().is_empty() && options.attachments.is_empty() {
+        return Err(ChatRestError::EmptyMessage);
+    }
+    if options.attachments.len() > MAX_ATTACHMENTS_PER_MESSAGE {
+        return Err(ChatRestError::Attachment(
+            AttachmentUploadError::AttachmentLimitExceeded,
+        ));
+    }
+
+    if let Some(ref nonce) = options.nonce {
+        let trimmed = nonce.trim();
+        if trimmed.is_empty()
+            || trimmed.chars().count() > MAX_MESSAGE_NONCE_CHARS
+            || trimmed.chars().any(char::is_control)
+        {
+            return Err(ChatRestError::InvalidNonce(nonce.clone()));
+        }
+    }
+
+    if let Some(ref reply_id) = options.reply_to_message_id {
+        if build_channel_messages_send_path(reply_id.trim()).is_err() {
+            return Err(ChatRestError::InvalidMessageReference(format!(
+                "invalid message_id {:?}",
+                reply_id
+            )));
+        }
+    }
+
+    let body = if options.attachments.is_empty() {
+        let mut payload = serde_json::Map::new();
+        payload.insert(
+            "content".to_string(),
+            serde_json::Value::String(options.content.clone()),
+        );
+        payload.insert("tts".to_string(), serde_json::Value::Bool(options.tts));
+        payload.insert("flags".to_string(), serde_json::Value::Number(0.into()));
+        if let Some(ref nonce) = options.nonce {
+            payload.insert(
+                "nonce".to_string(),
+                serde_json::Value::String(nonce.trim().to_string()),
+            );
+        }
+        if let Some(ref reply_id) = options.reply_to_message_id {
+            payload.insert(
+                "message_reference".to_string(),
+                serde_json::json!({
+                    "message_id": reply_id.trim(),
+                    "channel_id": clean_channel,
+                    "fail_if_not_exists": false,
+                }),
+            );
+        }
+        serde_json::to_vec(&serde_json::Value::Object(payload))
+            .map_err(|e| ChatRestError::MalformedResponse(e.to_string()))?
+    } else {
+        let mut attachments_meta = Vec::with_capacity(options.attachments.len());
+        let mut sanitized_files = Vec::with_capacity(options.attachments.len());
+        for file in &options.attachments {
+            let clean_name = sanitize_attachment_filename(&file.filename)?;
+            if file.bytes.is_empty() || file.bytes.len() > MAX_ATTACHMENT_SIZE_BYTES {
+                return Err(ChatRestError::Attachment(
+                    AttachmentUploadError::AttachmentTooLarge {
+                        size: file.bytes.len() as u64,
+                        limit: MAX_ATTACHMENT_SIZE_BYTES as u64,
+                    },
+                ));
+            }
+            attachments_meta.push(serde_json::json!({
+                "id": file.field_index,
+                "filename": clean_name,
+            }));
+            sanitized_files.push((file, clean_name));
+        }
+
+        let mut payload = serde_json::Map::new();
+        payload.insert(
+            "content".to_string(),
+            serde_json::Value::String(options.content.clone()),
+        );
+        payload.insert("tts".to_string(), serde_json::Value::Bool(options.tts));
+        if let Some(ref nonce) = options.nonce {
+            payload.insert(
+                "nonce".to_string(),
+                serde_json::Value::String(nonce.trim().to_string()),
+            );
+        }
+        if let Some(ref reply_id) = options.reply_to_message_id {
+            payload.insert(
+                "message_reference".to_string(),
+                serde_json::json!({
+                    "message_id": reply_id.trim(),
+                    "channel_id": clean_channel,
+                    "fail_if_not_exists": false,
+                }),
+            );
+        }
+        payload.insert(
+            "attachments".to_string(),
+            serde_json::Value::Array(attachments_meta),
+        );
+        let payload_bytes = serde_json::to_vec(&serde_json::Value::Object(payload))
+            .map_err(|e| ChatRestError::MalformedResponse(e.to_string()))?;
+
+        let mut buf = Vec::with_capacity(payload_bytes.len() + 512);
+        buf.extend_from_slice(format!("--{MULTIPART_BOUNDARY}\r\n").as_bytes());
+        buf.extend_from_slice(
+            b"Content-Disposition: form-data; name=\"payload_json\"\r\nContent-Type: application/json\r\n\r\n",
+        );
+        buf.extend_from_slice(&payload_bytes);
+        buf.extend_from_slice(b"\r\n");
+
+        for (file, clean_name) in sanitized_files {
+            let ct = if file.content_type.trim().is_empty() {
+                "application/octet-stream"
+            } else {
+                file.content_type.trim()
+            };
+            buf.extend_from_slice(format!("--{MULTIPART_BOUNDARY}\r\n").as_bytes());
+            buf.extend_from_slice(
+                format!(
+                    "Content-Disposition: form-data; name=\"files[{}]\"; filename=\"{}\"\r\nContent-Type: {}\r\n\r\n",
+                    file.field_index, clean_name, ct
+                )
+                .as_bytes(),
+            );
+            buf.extend_from_slice(&file.bytes);
+            buf.extend_from_slice(b"\r\n");
+        }
+        buf.extend_from_slice(format!("--{MULTIPART_BOUNDARY}--\r\n").as_bytes());
+        buf
+    };
+
+    let (resp, metrics) = execute_with_pool_and_chat_error(
+        transport,
+        pool,
+        pool_config,
+        "POST",
+        &target,
+        Some(&body),
+    )
+    .await?;
+
+    let val: serde_json::Value = serde_json::from_slice(&resp.body)
+        .map_err(|e| ChatRestError::MalformedResponse(e.to_string()))?;
+    let echoed_nonce = val
+        .get("nonce")
+        .and_then(|n| {
+            n.as_str()
+                .map(ToOwned::to_owned)
+                .or_else(|| n.as_i64().map(|i| i.to_string()))
+                .or_else(|| n.as_u64().map(|u| u.to_string()))
+        })
+        .or_else(|| options.nonce.clone());
+
+    let msg = parse_single_message_value(clean_channel, &val, Some(&options.content)).ok_or_else(
+        || ChatRestError::MalformedResponse("missing message id or author".to_string()),
+    )?;
+
+    Ok((msg, echoed_nonce, metrics))
+}
+
+/// Загрузка истории сообщений канала (`GET /channels/{id}/messages?limit={limit}`)
+/// с возвратом типизированного `ChatRestError`.
+pub async fn fetch_channel_messages_typed_with_transport<T: RestTransport + ?Sized>(
+    transport: &T,
+    pool: &Http2ConnectionPool,
+    pool_config: &Http2PoolConfig,
+    _token: &str,
+    channel_id: &str,
+    before: Option<&str>,
+    limit: u32,
+) -> Result<
+    (Vec<crate::state::Message>, PooledRequestMetrics),
+    chord_core::rest::client::ChatRestError,
+> {
+    use chord_core::rest::client::ChatRestError;
+    use chord_core::rest::routes::{MAX_MESSAGES_HISTORY_LIMIT, build_channel_history_path};
+
+    let clean_channel = channel_id.trim();
+    if let Err(err) = build_channel_history_path(clean_channel, before, Some(limit)) {
+        return Err(match err {
+            chord_core::rest::routes::QueryError::InvalidParamValue { param: "limit", .. } => {
+                ChatRestError::InvalidLimit {
+                    limit,
+                    max: MAX_MESSAGES_HISTORY_LIMIT,
+                }
+            }
+            chord_core::rest::routes::QueryError::InvalidParamValue {
+                param: "before", ..
+            } => ChatRestError::InvalidCursor(before.unwrap_or_default().to_string()),
+            _ => ChatRestError::InvalidChannelId(channel_id.to_string()),
+        });
+    }
+
+    let clamped_limit = limit.clamp(1, 100);
+    let target = match before {
+        Some(cursor) => format_messages_pagination_url(clean_channel, cursor, clamped_limit),
+        None => format!("/channels/{clean_channel}/messages?limit={clamped_limit}"),
+    };
+
+    let (resp, metrics) =
+        execute_with_pool_and_chat_error(transport, pool, pool_config, "GET", &target, None)
+            .await?;
+    let msgs = parse_channel_messages_json(clean_channel, &resp.body)
+        .map_err(ChatRestError::MalformedResponse)?;
+    Ok((msgs, metrics))
 }
 
 /// Отправка сообщения (`POST /channels/{id}/messages`) через пул HTTP/2 соединений с экспоненциальным бэкоффом

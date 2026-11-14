@@ -825,7 +825,10 @@ pub struct ChannelMessagesParams<'a> {
 }
 
 fn validate_snowflake_cursor(param: &'static str, value: &str) -> Result<(), QueryError> {
-    if value.is_empty() || !value.bytes().all(|b| b.is_ascii_digit()) || value == "0" {
+    if value.is_empty()
+        || !value.bytes().all(|b| b.is_ascii_digit())
+        || value.parse::<u64>().map_or(true, |v| v == 0)
+    {
         return Err(QueryError::InvalidParamValue {
             param,
             reason: format!("cursor must be a valid positive numeric snowflake, got '{value}'"),
@@ -996,4 +999,70 @@ pub fn build_channel_attachments_path(channel_id: &str) -> Result<String, QueryE
         });
     }
     Ok(base)
+}
+
+/// Шаблон маршрута сообщений канала (`GET`/`POST /channels/{id}/messages`).
+pub const CHANNEL_MESSAGES_PATH: &str = "/channels/{id}/messages";
+
+/// Дефолтный лимит выборки истории сообщений канала (`?limit=50`).
+pub const DEFAULT_MESSAGES_HISTORY_LIMIT: u32 = 50;
+
+/// Максимальный лимит выборки истории сообщений канала (`?limit=100`).
+pub const MAX_MESSAGES_HISTORY_LIMIT: u32 = 100;
+
+/// Возвращает статическую спецификацию маршрута отправки сообщения (`POST /channels/{id}/messages`).
+#[must_use]
+pub fn channel_messages_post_route_spec() -> &'static RouteSpec {
+    &ROUTES[0]
+}
+
+/// Возвращает статическую спецификацию маршрута истории сообщений (`GET /channels/{id}/messages`).
+#[must_use]
+pub fn channel_messages_get_route_spec() -> &'static RouteSpec {
+    &ROUTES[1]
+}
+
+fn validate_channel_snowflake(channel_id: &str) -> Result<(), QueryError> {
+    if channel_id.is_empty()
+        || !channel_id.bytes().all(|b| b.is_ascii_digit())
+        || channel_id.parse::<u64>().map_or(true, |v| v == 0)
+    {
+        return Err(QueryError::InvalidParamValue {
+            param: "channel_id",
+            reason: format!(
+                "channel_id must be a valid positive numeric snowflake, got '{channel_id}'"
+            ),
+        });
+    }
+    Ok(())
+}
+
+/// Собрать URL пути для отправки сообщения в канал (`POST /channels/{id}/messages`).
+///
+/// Валидирует `channel_id` как непустой положительный Snowflake (`1..=u64::MAX`, только ASCII-цифры).
+pub fn build_channel_messages_send_path(channel_id: &str) -> Result<String, QueryError> {
+    let spec = channel_messages_post_route_spec();
+    let base = render_path(spec, &[channel_id])?;
+    validate_channel_snowflake(channel_id)?;
+    Ok(base)
+}
+
+/// Собрать URL пути для выборки истории сообщений канала (`GET /channels/{id}/messages?limit={limit}&before={before}`).
+///
+/// По умолчанию использует `limit = 50` ([`DEFAULT_MESSAGES_HISTORY_LIMIT`]); проверяет `channel_id`
+/// и опциональный курсор `before` как положительные Snowflake (`1..=u64::MAX`), а `limit` — в диапазоне `1..=100`.
+pub fn build_channel_history_path(
+    channel_id: &str,
+    before: Option<&str>,
+    limit: Option<u32>,
+) -> Result<String, QueryError> {
+    validate_channel_snowflake(channel_id)?;
+    let effective_limit = limit.unwrap_or(DEFAULT_MESSAGES_HISTORY_LIMIT);
+    let params = ChannelMessagesParams {
+        limit: Some(effective_limit),
+        before,
+        after: None,
+        around: None,
+    };
+    build_channel_messages_path(channel_id, &params)
 }

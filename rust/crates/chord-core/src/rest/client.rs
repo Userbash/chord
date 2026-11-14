@@ -16,8 +16,12 @@ pub use super::headers::{
 use super::http1::Http1Error;
 use super::rate_limit::{classify_failure, rate_limit_info, retry_delay, should_retry};
 pub use super::routes::{
-    CHANNEL_ATTACHMENTS_PATH, HttpMethod, MAX_ATTACHMENT_SIZE_BYTES, MAX_ATTACHMENTS_PER_MESSAGE,
-    attachment_upload_route_spec, build_channel_attachments_path,
+    CHANNEL_ATTACHMENTS_PATH, CHANNEL_MESSAGES_PATH, ChannelMessagesParams,
+    DEFAULT_MESSAGES_HISTORY_LIMIT, HttpMethod, MAX_ATTACHMENT_SIZE_BYTES,
+    MAX_ATTACHMENTS_PER_MESSAGE, MAX_MESSAGES_HISTORY_LIMIT, attachment_upload_route_spec,
+    build_channel_attachments_path, build_channel_history_path, build_channel_messages_path,
+    build_channel_messages_send_path, channel_messages_get_route_spec,
+    channel_messages_post_route_spec,
 };
 use super::super_properties::SuperProperties;
 use super::telemetry::{TelemetryError, guard_target};
@@ -1318,5 +1322,743 @@ impl ApiClient {
             content: resp_content,
             attachments: uploaded_attachments,
         })
+    }
+}
+
+// ============================================================================
+// REST v9 Live Message Send (`POST /channels/{id}/messages`) &
+// Channel History Fetch (`GET /channels/{id}/messages?limit=50&before=...`) (W4-2 / P0-3.4)
+// ============================================================================
+
+/// Максимальная длина `nonce` сообщения Discord (`64` символа).
+pub const MAX_MESSAGE_NONCE_CHARS: usize = 64;
+
+/// Ссылка на цитируемое/исходное сообщение (`message_reference` в `POST /channels/{id}/messages`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MessageReferenceSpec {
+    /// Snowflake ID исходного сообщения (`1..=u64::MAX`).
+    pub message_id: String,
+    /// Опциональный Snowflake ID канала исходного сообщения.
+    pub channel_id: Option<String>,
+    /// Опциональный Snowflake ID сервера.
+    pub guild_id: Option<String>,
+    /// Возвращать ли ошибку при отсутствии исходного сообщения (`false` по умолчанию в клиенте).
+    pub fail_if_not_exists: Option<bool>,
+}
+
+impl MessageReferenceSpec {
+    /// Создать ссылку ответа на сообщение `message_id`.
+    #[must_use]
+    pub fn reply(message_id: impl Into<String>) -> Self {
+        Self {
+            message_id: message_id.into(),
+            channel_id: None,
+            guild_id: None,
+            fail_if_not_exists: Some(false),
+        }
+    }
+}
+
+/// Метаданные прикреплённого файла в JSON-запросе `POST /channels/{id}/messages`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SendMessageAttachmentRef {
+    /// Индекс слота вложения (`0..10`).
+    pub id: u64,
+    /// Отображаемое имя файла (санитизируется).
+    pub filename: String,
+    /// Серверное имя из pre-signed слота (`uploaded_filename`), если файл уже загружен в GCS.
+    pub uploaded_filename: Option<String>,
+    /// Alt-текст / описание вложения.
+    pub description: Option<String>,
+}
+
+/// Параметры отправки живого сообщения (`POST /channels/{id}/messages`).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct SendMessageParams {
+    /// Текст сообщения (`<= 2000` символов).
+    pub content: String,
+    /// Клиентский `nonce` для оптимистичной отправки и дедупликации.
+    pub nonce: Option<String>,
+    /// Флаг озвучки текста (`tts`).
+    pub tts: bool,
+    /// Опциональная ссылка ответа на другое сообщение (`message_reference`).
+    pub message_reference: Option<MessageReferenceSpec>,
+    /// Опциональный список метаданных прикреплённых вложений (`<= 10`).
+    pub attachments: Vec<SendMessageAttachmentRef>,
+}
+
+impl SendMessageParams {
+    /// Создать текстовое сообщение с `tts = false`.
+    #[must_use]
+    pub fn text(content: impl Into<String>) -> Self {
+        Self {
+            content: content.into(),
+            nonce: None,
+            tts: false,
+            message_reference: None,
+            attachments: Vec::new(),
+        }
+    }
+
+    /// Задать клиентский `nonce` для оптимистичной дедупликации.
+    #[must_use]
+    pub fn with_nonce(mut self, nonce: impl Into<String>) -> Self {
+        self.nonce = Some(nonce.into());
+        self
+    }
+
+    /// Задать ответ на сообщение `message_id`.
+    #[must_use]
+    pub fn with_reply(mut self, message_id: impl Into<String>) -> Self {
+        self.message_reference = Some(MessageReferenceSpec::reply(message_id));
+        self
+    }
+
+    /// Задать метаданные вложений.
+    #[must_use]
+    pub fn with_attachments(mut self, attachments: Vec<SendMessageAttachmentRef>) -> Self {
+        self.attachments = attachments;
+        self
+    }
+}
+
+/// Краткая сводка автора сообщения из ответа REST API v9.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ChatMessageAuthor {
+    /// Snowflake ID пользователя.
+    pub id: String,
+    /// Имя пользователя (`username`).
+    pub username: String,
+    /// Отображаемое имя (`global_name`).
+    pub global_name: Option<String>,
+    /// Хеш аватара (`avatar`).
+    pub avatar: Option<String>,
+    /// Признак бота (`bot`).
+    pub bot: bool,
+}
+
+/// Запись сообщения из ответов `POST /channels/{id}/messages` и `GET /channels/{id}/messages`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ChatMessageRecord {
+    /// Snowflake ID сообщения.
+    pub id: String,
+    /// Snowflake ID канала.
+    pub channel_id: String,
+    /// Автор сообщения.
+    pub author: ChatMessageAuthor,
+    /// Текст сообщения.
+    pub content: String,
+    /// Временная метка ISO 8601 (`timestamp`).
+    pub timestamp: String,
+    /// Временная метка редактирования (`edited_timestamp`), если есть.
+    pub edited_timestamp: Option<String>,
+    /// Флаг `tts`.
+    pub tts: bool,
+    /// Признак закреплённого сообщения (`pinned`).
+    pub pinned: bool,
+    /// Возвращённый сервером `nonce` (строка или число в JSON).
+    pub nonce: Option<String>,
+    /// Числовой тип сообщения (`0` — обычное, `19` — ответ, `3` — звонок и т.д.).
+    pub message_type: u64,
+    /// ID сообщения, на которое дан ответ (`referenced_message.id` или `message_reference.message_id`).
+    pub referenced_message_id: Option<String>,
+    /// Прикреплённые вложения.
+    pub attachments: Vec<UploadedMessageAttachment>,
+}
+
+/// Типизированная ошибка отправки сообщений и загрузки истории чата по REST v9 (`W4-2`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ChatRestError {
+    /// Некорректный Snowflake ID канала.
+    InvalidChannelId(String),
+    /// Некорректный курсор пагинации `before`.
+    InvalidCursor(String),
+    /// Некорректный лимит сообщений (`limit` вне `1..=100`).
+    InvalidLimit {
+        /// Переданный лимит.
+        limit: u32,
+        /// Максимально допустимый лимит (`100`).
+        max: u32,
+    },
+    /// Пустой или содержащий управляющие символы / слишком длинный `nonce`.
+    InvalidNonce(String),
+    /// Некорректный `message_reference` (невалидный Snowflake `message_id`/`channel_id`/`guild_id`).
+    InvalidMessageReference(String),
+    /// Пустое сообщение без текста и без вложений.
+    EmptyMessage,
+    /// Длина текста сообщения превышает `2000` символов.
+    ContentTooLong {
+        /// Фактическая длина в символах.
+        len: usize,
+        /// Лимит символов (`2000`).
+        max: usize,
+    },
+    /// HTTP `400 Bad Request`.
+    BadRequest {
+        /// Код ошибки Discord API, если есть.
+        code: Option<i64>,
+        /// Сообщение об ошибке от сервера, если есть.
+        message: Option<String>,
+    },
+    /// HTTP `401 Unauthorized`.
+    Unauthorized,
+    /// HTTP `403 Forbidden`.
+    Forbidden {
+        /// Сообщение об ошибке от сервера, если есть.
+        message: Option<String>,
+    },
+    /// HTTP `404 Not Found` (неизвестный канал или сообщение).
+    NotFound {
+        /// Сообщение об ошибке от сервера, если есть.
+        message: Option<String>,
+    },
+    /// HTTP `413 Payload Too Large`.
+    PayloadTooLarge,
+    /// HTTP `429 Too Many Requests` с интервалом `Retry-After`.
+    RateLimited {
+        /// Задержка до повторной попытки.
+        retry_after: Duration,
+    },
+    /// HTTP `500..=599` ошибка сервера.
+    Server {
+        /// HTTP-статус ответа.
+        status: u16,
+    },
+    /// Прочие HTTP `4xx` ошибки клиента.
+    Client {
+        /// HTTP-статус ответа.
+        status: u16,
+    },
+    /// Нарушение JSON-схемы ответа сервера.
+    MalformedResponse(String),
+    /// Ошибка валидации или загрузки вложений.
+    Attachment(AttachmentUploadError),
+    /// Ошибка нижнего уровня `ApiError`.
+    Api(ApiError),
+}
+
+impl ChatRestError {
+    /// Возвращает HTTP-статус ошибки, если она получена из HTTP-ответа.
+    #[must_use]
+    pub fn status_code(&self) -> Option<u16> {
+        match self {
+            Self::BadRequest { .. } => Some(400),
+            Self::Unauthorized => Some(401),
+            Self::Forbidden { .. } => Some(403),
+            Self::NotFound { .. } => Some(404),
+            Self::PayloadTooLarge => Some(413),
+            Self::RateLimited { .. } => Some(429),
+            Self::Server { status } | Self::Client { status } => Some(*status),
+            _ => None,
+        }
+    }
+
+    /// Возвращает задержку `Retry-After` в миллисекундах для `429 Too Many Requests`.
+    #[must_use]
+    pub fn retry_after_ms(&self) -> Option<u64> {
+        match self {
+            Self::RateLimited { retry_after } => Some(retry_after.as_millis() as u64),
+            _ => None,
+        }
+    }
+}
+
+impl fmt::Display for ChatRestError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidChannelId(id) => write!(f, "некорректный ID канала: {id}"),
+            Self::InvalidCursor(cursor) => write!(f, "некорректный курсор before: {cursor}"),
+            Self::InvalidLimit { limit, max } => {
+                write!(f, "некорректный limit={limit} (допустимо 1..={max})")
+            }
+            Self::InvalidNonce(nonce) => write!(f, "некорректный nonce: {nonce}"),
+            Self::InvalidMessageReference(id) => {
+                write!(f, "некорректный message_reference: {id}")
+            }
+            Self::EmptyMessage => write!(f, "сообщение не может быть пустым без вложений"),
+            Self::ContentTooLong { len, max } => {
+                write!(f, "длина сообщения {len} превышает лимит {max} символов")
+            }
+            Self::BadRequest { code, message } => match (code, message) {
+                (Some(c), Some(msg)) => write!(f, "400 Bad Request (code {c}): {msg}"),
+                (None, Some(msg)) => write!(f, "400 Bad Request: {msg}"),
+                _ => write!(f, "400 Bad Request"),
+            },
+            Self::Unauthorized => write!(f, "401 Unauthorized: сессия недействительна"),
+            Self::Forbidden { message } => match message {
+                Some(msg) => write!(f, "403 Forbidden: {msg}"),
+                None => write!(f, "403 Forbidden: нет доступа к каналу"),
+            },
+            Self::NotFound { message } => match message {
+                Some(msg) => write!(f, "404 Not Found: {msg}"),
+                None => write!(f, "404 Not Found: канал или сообщение не найдено"),
+            },
+            Self::PayloadTooLarge => write!(f, "413 Payload Too Large: превышен размер запроса"),
+            Self::RateLimited { retry_after } => {
+                write!(f, "429 Too Many Requests (retry after {retry_after:?})")
+            }
+            Self::Server { status } => write!(f, "ошибка сервера HTTP {status}"),
+            Self::Client { status } => write!(f, "ошибка клиента HTTP {status}"),
+            Self::MalformedResponse(reason) => write!(f, "некорректный ответ сервера: {reason}"),
+            Self::Attachment(err) => write!(f, "{err}"),
+            Self::Api(err) => write!(f, "{err}"),
+        }
+    }
+}
+
+impl std::error::Error for ChatRestError {}
+
+impl From<ApiError> for ChatRestError {
+    fn from(err: ApiError) -> Self {
+        match err {
+            ApiError::Unauthorized => Self::Unauthorized,
+            ApiError::RateLimited { retry_after, .. } => Self::RateLimited { retry_after },
+            ApiError::Server { status, .. } => Self::Server { status },
+            ApiError::Client { status: 403 } => Self::Forbidden { message: None },
+            ApiError::Client { status: 404 } => Self::NotFound { message: None },
+            ApiError::Client { status: 413 } => Self::PayloadTooLarge,
+            ApiError::Client { status: 400 } => Self::BadRequest {
+                code: None,
+                message: None,
+            },
+            ApiError::Client { status } => Self::Client { status },
+            other => Self::Api(other),
+        }
+    }
+}
+
+impl From<HttpError> for ChatRestError {
+    fn from(err: HttpError) -> Self {
+        Self::Api(ApiError::from(err))
+    }
+}
+
+impl From<AttachmentUploadError> for ChatRestError {
+    fn from(err: AttachmentUploadError) -> Self {
+        match err {
+            AttachmentUploadError::InvalidChannelId(id) => Self::InvalidChannelId(id),
+            AttachmentUploadError::EmptyContentAndAttachments => Self::EmptyMessage,
+            AttachmentUploadError::Unauthorized => Self::Unauthorized,
+            AttachmentUploadError::Forbidden { message } => Self::Forbidden { message },
+            AttachmentUploadError::PayloadTooLarge => Self::PayloadTooLarge,
+            AttachmentUploadError::BadRequest { code, message } => {
+                Self::BadRequest { code, message }
+            }
+            AttachmentUploadError::RateLimited { retry_after } => Self::RateLimited { retry_after },
+            AttachmentUploadError::Server { status } => Self::Server { status },
+            AttachmentUploadError::Client { status: 404 } => Self::NotFound { message: None },
+            AttachmentUploadError::Client { status } => Self::Client { status },
+            AttachmentUploadError::MalformedResponse(reason) => Self::MalformedResponse(reason),
+            other => Self::Attachment(other),
+        }
+    }
+}
+
+fn is_valid_positive_snowflake(raw: &str) -> bool {
+    !raw.is_empty()
+        && raw.bytes().all(|b| b.is_ascii_digit())
+        && raw.parse::<u64>().is_ok_and(|v| v > 0)
+}
+
+/// Классифицирует HTTP-ответ с ошибкой (`400`, `401`, `403`, `404`, `413`, `429 Retry-After`, `5xx`)
+/// в типизированный [`ChatRestError`].
+#[must_use]
+pub fn map_chat_rest_error_response(response: &HttpResponse) -> ChatRestError {
+    let status = response.status;
+    if status == 401 {
+        return ChatRestError::Unauthorized;
+    }
+    if status == 413 {
+        return ChatRestError::PayloadTooLarge;
+    }
+    if status == 429 {
+        let retry_after = rate_limit_info(status, &response.headers, &response.body)
+            .map(|info| info.retry_after)
+            .unwrap_or(Duration::from_secs(1));
+        return ChatRestError::RateLimited { retry_after };
+    }
+    if (500..=599).contains(&status) {
+        return ChatRestError::Server { status };
+    }
+
+    let parsed = std::str::from_utf8(&response.body)
+        .ok()
+        .and_then(|text| parse_json(text).ok());
+    let code = parsed
+        .as_ref()
+        .and_then(|v| v.get("code"))
+        .and_then(JsonValue::as_i64);
+    let message = parsed
+        .as_ref()
+        .and_then(|v| v.get("message"))
+        .and_then(JsonValue::as_str)
+        .map(str::to_string);
+
+    match status {
+        400 => ChatRestError::BadRequest { code, message },
+        403 => ChatRestError::Forbidden { message },
+        404 => ChatRestError::NotFound { message },
+        _ => ChatRestError::Client { status },
+    }
+}
+
+fn parse_chat_message_record_value(
+    default_channel_id: &str,
+    val: &JsonValue,
+    fallback_content: Option<&str>,
+) -> Result<ChatMessageRecord, ChatRestError> {
+    let id = val
+        .get("id")
+        .and_then(JsonValue::as_str)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ChatRestError::MalformedResponse("отсутствует поле id сообщения".into()))?
+        .to_string();
+
+    let channel_id = val
+        .get("channel_id")
+        .and_then(JsonValue::as_str)
+        .filter(|s| !s.is_empty())
+        .unwrap_or(default_channel_id)
+        .to_string();
+
+    let author_val = val.get("author").ok_or_else(|| {
+        ChatRestError::MalformedResponse("отсутствует объект author сообщения".into())
+    })?;
+    let author_id = author_val
+        .get("id")
+        .and_then(JsonValue::as_str)
+        .unwrap_or("0")
+        .to_string();
+    let username = author_val
+        .get("username")
+        .and_then(JsonValue::as_str)
+        .unwrap_or("User")
+        .to_string();
+    let global_name = author_val
+        .get("global_name")
+        .and_then(JsonValue::as_str)
+        .map(str::to_string);
+    let avatar = author_val
+        .get("avatar")
+        .and_then(JsonValue::as_str)
+        .map(str::to_string);
+    let bot = author_val
+        .get("bot")
+        .and_then(JsonValue::as_bool)
+        .unwrap_or(false);
+
+    let content = val
+        .get("content")
+        .and_then(JsonValue::as_str)
+        .or(fallback_content)
+        .unwrap_or("")
+        .to_string();
+    let timestamp = val
+        .get("timestamp")
+        .and_then(JsonValue::as_str)
+        .unwrap_or("")
+        .to_string();
+    let edited_timestamp = val
+        .get("edited_timestamp")
+        .and_then(JsonValue::as_str)
+        .map(str::to_string);
+    let tts = val.get("tts").and_then(JsonValue::as_bool).unwrap_or(false);
+    let pinned = val
+        .get("pinned")
+        .and_then(JsonValue::as_bool)
+        .unwrap_or(false);
+    let nonce = val.get("nonce").and_then(|n| {
+        n.as_str()
+            .map(str::to_string)
+            .or_else(|| n.as_u64().map(|u| u.to_string()))
+            .or_else(|| n.as_i64().map(|i| i.to_string()))
+    });
+    let message_type = val.get("type").and_then(JsonValue::as_u64).unwrap_or(0);
+    let referenced_message_id = val
+        .get("referenced_message")
+        .and_then(|rm| rm.get("id"))
+        .and_then(JsonValue::as_str)
+        .or_else(|| {
+            val.get("message_reference")
+                .and_then(|mr| mr.get("message_id"))
+                .and_then(JsonValue::as_str)
+        })
+        .map(str::to_string);
+
+    let mut attachments = Vec::new();
+    if let Some(arr) = val.get("attachments").and_then(JsonValue::as_array) {
+        for item in arr {
+            let att_id = item
+                .get("id")
+                .and_then(JsonValue::as_str)
+                .unwrap_or("0")
+                .to_string();
+            let filename = item
+                .get("filename")
+                .and_then(JsonValue::as_str)
+                .unwrap_or("")
+                .to_string();
+            let size = item.get("size").and_then(JsonValue::as_u64).unwrap_or(0);
+            let url = item
+                .get("url")
+                .and_then(JsonValue::as_str)
+                .unwrap_or("")
+                .to_string();
+            let content_type = item
+                .get("content_type")
+                .and_then(JsonValue::as_str)
+                .map(str::to_string);
+            attachments.push(UploadedMessageAttachment {
+                id: att_id,
+                filename,
+                size,
+                url,
+                content_type,
+            });
+        }
+    }
+
+    Ok(ChatMessageRecord {
+        id,
+        channel_id,
+        author: ChatMessageAuthor {
+            id: author_id,
+            username,
+            global_name,
+            avatar,
+            bot,
+        },
+        content,
+        timestamp,
+        edited_timestamp,
+        tts,
+        pinned,
+        nonce,
+        message_type,
+        referenced_message_id,
+        attachments,
+    })
+}
+
+impl ApiClient {
+    /// Собрать подготовленный [`HttpRequest`] для отправки сообщения (`POST /channels/{channel_id}/messages`).
+    ///
+    /// Поддерживает:
+    /// - `content` (`<= 2000` символов),
+    /// - `nonce` (оптимистичная отправка / дедупликация),
+    /// - `tts`,
+    /// - `message_reference` (ответ на сообщение),
+    /// - `attachments` (метаданные прикреплённых файлов, `<= 10`).
+    pub fn build_send_message_request(
+        &self,
+        channel_id: &str,
+        params: &SendMessageParams,
+    ) -> Result<HttpRequest, ChatRestError> {
+        let target = build_channel_messages_send_path(channel_id)
+            .map_err(|_| ChatRestError::InvalidChannelId(channel_id.to_string()))?;
+
+        let char_count = params.content.chars().count();
+        if char_count > MAX_MESSAGE_CONTENT_CHARS {
+            return Err(ChatRestError::ContentTooLong {
+                len: char_count,
+                max: MAX_MESSAGE_CONTENT_CHARS,
+            });
+        }
+        if params.content.trim().is_empty() && params.attachments.is_empty() {
+            return Err(ChatRestError::EmptyMessage);
+        }
+        if params.attachments.len() > MAX_ATTACHMENTS_PER_MESSAGE {
+            return Err(ChatRestError::Attachment(
+                AttachmentUploadError::AttachmentLimitExceeded,
+            ));
+        }
+
+        if let Some(ref nonce) = params.nonce {
+            let trimmed = nonce.trim();
+            if trimmed.is_empty()
+                || nonce.chars().count() > MAX_MESSAGE_NONCE_CHARS
+                || nonce.chars().any(char::is_control)
+            {
+                return Err(ChatRestError::InvalidNonce(nonce.clone()));
+            }
+        }
+
+        if let Some(ref mr) = params.message_reference {
+            if !is_valid_positive_snowflake(&mr.message_id) {
+                return Err(ChatRestError::InvalidMessageReference(
+                    mr.message_id.clone(),
+                ));
+            }
+            if let Some(ref cid) = mr.channel_id
+                && !is_valid_positive_snowflake(cid)
+            {
+                return Err(ChatRestError::InvalidMessageReference(cid.clone()));
+            }
+            if let Some(ref gid) = mr.guild_id
+                && !is_valid_positive_snowflake(gid)
+            {
+                return Err(ChatRestError::InvalidMessageReference(gid.clone()));
+            }
+        }
+
+        let mut sanitized_attachments = Vec::with_capacity(params.attachments.len());
+        for att in &params.attachments {
+            let clean_name =
+                sanitize_attachment_filename(&att.filename).map_err(ChatRestError::Attachment)?;
+            sanitized_attachments.push((
+                att.id,
+                clean_name,
+                att.uploaded_filename.as_deref(),
+                att.description.as_deref(),
+            ));
+        }
+
+        let mut body = String::from("{\"content\":");
+        push_json_str(&mut body, &params.content);
+        if let Some(ref nonce) = params.nonce {
+            body.push_str(",\"nonce\":");
+            push_json_str(&mut body, nonce.trim());
+        }
+        body.push_str(",\"tts\":");
+        body.push_str(if params.tts { "true" } else { "false" });
+
+        if let Some(ref mr) = params.message_reference {
+            body.push_str(",\"message_reference\":{\"message_id\":");
+            push_json_str(&mut body, &mr.message_id);
+            if let Some(ref cid) = mr.channel_id {
+                body.push_str(",\"channel_id\":");
+                push_json_str(&mut body, cid);
+            }
+            if let Some(ref gid) = mr.guild_id {
+                body.push_str(",\"guild_id\":");
+                push_json_str(&mut body, gid);
+            }
+            if let Some(fail_flag) = mr.fail_if_not_exists {
+                body.push_str(",\"fail_if_not_exists\":");
+                body.push_str(if fail_flag { "true" } else { "false" });
+            }
+            body.push('}');
+        }
+
+        if !sanitized_attachments.is_empty() {
+            body.push_str(",\"attachments\":[");
+            for (idx, (id, clean_name, uploaded_filename, description)) in
+                sanitized_attachments.iter().enumerate()
+            {
+                if idx > 0 {
+                    body.push(',');
+                }
+                body.push_str("{\"id\":");
+                body.push_str(&id.to_string());
+                body.push_str(",\"filename\":");
+                push_json_str(&mut body, clean_name);
+                if let Some(uf) = uploaded_filename {
+                    body.push_str(",\"uploaded_filename\":");
+                    push_json_str(&mut body, uf);
+                }
+                if let Some(desc) = description {
+                    body.push_str(",\"description\":");
+                    push_json_str(&mut body, desc);
+                }
+                body.push('}');
+            }
+            body.push(']');
+        }
+        body.push('}');
+
+        let raw_req = HttpRequest::new(HttpMethod::Post, target).body(body.into_bytes());
+        self.prepare(&raw_req).map_err(ChatRestError::Api)
+    }
+
+    /// Собрать подготовленный [`HttpRequest`] для выборки истории сообщений канала
+    /// (`GET /channels/{channel_id}/messages?limit={limit}&before={before}`).
+    pub fn build_fetch_channel_messages_request(
+        &self,
+        channel_id: &str,
+        before: Option<&str>,
+        limit: Option<u32>,
+    ) -> Result<HttpRequest, ChatRestError> {
+        let target =
+            build_channel_history_path(channel_id, before, limit).map_err(|err| match err {
+                super::routes::QueryError::InvalidParamValue {
+                    param: "channel_id",
+                    ..
+                }
+                | super::routes::QueryError::Path(_) => {
+                    ChatRestError::InvalidChannelId(channel_id.to_string())
+                }
+                super::routes::QueryError::InvalidParamValue {
+                    param: "before", ..
+                } => ChatRestError::InvalidCursor(before.unwrap_or_default().to_string()),
+                super::routes::QueryError::InvalidParamValue { param: "limit", .. } => {
+                    ChatRestError::InvalidLimit {
+                        limit: limit.unwrap_or(0),
+                        max: MAX_MESSAGES_HISTORY_LIMIT,
+                    }
+                }
+                other => ChatRestError::InvalidChannelId(other.to_string()),
+            })?;
+
+        let raw_req = HttpRequest::new(HttpMethod::Get, target);
+        self.prepare(&raw_req).map_err(ChatRestError::Api)
+    }
+
+    /// Отправить живое сообщение в канал (`POST /channels/{channel_id}/messages`) через инжектируемый [`HttpTransport`].
+    pub async fn send_channel_message<T: HttpTransport>(
+        &self,
+        transport: &T,
+        channel_id: &str,
+        params: &SendMessageParams,
+    ) -> Result<ChatMessageRecord, ChatRestError> {
+        let req = self.build_send_message_request(channel_id, params)?;
+        let response = transport.send(&req).await?;
+
+        if !(200..300).contains(&response.status) {
+            return Err(map_chat_rest_error_response(&response));
+        }
+
+        let text = std::str::from_utf8(&response.body)
+            .map_err(|_| ChatRestError::MalformedResponse("ответ не UTF-8".to_string()))?;
+        let root = parse_json(text)
+            .map_err(|e| ChatRestError::MalformedResponse(format!("невалидный JSON: {e}")))?;
+
+        parse_chat_message_record_value(channel_id, &root, Some(&params.content))
+    }
+
+    /// Загрузить страницу истории сообщений канала (`GET /channels/{channel_id}/messages?limit=50&before=...`)
+    /// через инжектируемый [`HttpTransport`].
+    ///
+    /// Возвращает сообщения в хронологическом порядке (от старых к новым) с дедупликацией по `id`.
+    pub async fn fetch_channel_messages_page<T: HttpTransport>(
+        &self,
+        transport: &T,
+        channel_id: &str,
+        before: Option<&str>,
+        limit: Option<u32>,
+    ) -> Result<Vec<ChatMessageRecord>, ChatRestError> {
+        let req = self.build_fetch_channel_messages_request(channel_id, before, limit)?;
+        let response = transport.send(&req).await?;
+
+        if !(200..300).contains(&response.status) {
+            return Err(map_chat_rest_error_response(&response));
+        }
+
+        let text = std::str::from_utf8(&response.body)
+            .map_err(|_| ChatRestError::MalformedResponse("ответ не UTF-8".to_string()))?;
+        let root = parse_json(text)
+            .map_err(|e| ChatRestError::MalformedResponse(format!("невалидный JSON: {e}")))?;
+        let items = root.as_array().ok_or_else(|| {
+            ChatRestError::MalformedResponse("ожидался JSON-массив сообщений".to_string())
+        })?;
+
+        let mut records = Vec::with_capacity(items.len());
+        let mut seen_ids = std::collections::HashSet::with_capacity(items.len());
+        for item in items.iter().rev() {
+            let record = parse_chat_message_record_value(channel_id, item, None)?;
+            if seen_ids.insert(record.id.clone()) {
+                records.push(record);
+            }
+        }
+        Ok(records)
     }
 }
