@@ -8,6 +8,8 @@ mod dispatch;
 mod media;
 #[path = "../src/net/mod.rs"]
 mod net;
+#[path = "../src/platform/mod.rs"]
+mod platform;
 #[path = "../src/state/mod.rs"]
 mod state;
 #[path = "../src/storage/mod.rs"]

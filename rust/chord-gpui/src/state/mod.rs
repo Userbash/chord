@@ -1,7 +1,13 @@
 #![forbid(unsafe_code)]
 
+pub mod auth_flow;
 pub mod models;
 
+#[allow(unused_imports)]
+pub use auth_flow::{
+    AuthFlowController, AuthFlowError, AuthMode, LiveAuthStepOutcome, StartupAuthResult,
+    should_populate_mock_data, should_populate_mock_data_with, should_use_offline_demo,
+};
 pub use models::*;
 use std::collections::HashMap;
 
@@ -157,9 +163,28 @@ impl AppState {
     }
 
     pub fn new_live() -> Self {
+        Self::new_live_with_offline_demo(should_populate_mock_data())
+    }
+
+    #[must_use]
+    pub fn new_live_with_offline_demo(offline_demo: bool) -> Self {
         let mut state = Self::empty();
-        state.init_live_or_default();
+        if offline_demo {
+            state.populate_mock_data();
+        } else {
+            state.init_clean_state();
+        }
         state
+    }
+
+    #[must_use]
+    pub fn from_env_mode() -> Self {
+        Self::new_live()
+    }
+
+    #[must_use]
+    pub fn auth_mode() -> AuthMode {
+        AuthMode::from_env()
     }
 
     pub fn empty() -> Self {
@@ -303,16 +328,29 @@ impl AppState {
 
     /// Чистое начальное состояние без фиктивных мок-данных
     pub fn init_clean_state(&mut self) {
+        self.current_user = CurrentUser {
+            id: String::new(),
+            username: String::new(),
+            discriminator: "0".into(),
+            global_name: None,
+            avatar: None,
+            status: PresenceStatus::Offline,
+            custom_status: None,
+        };
         self.guilds = Vec::new();
+        self.members = Vec::new();
         self.relationships = Vec::new();
         self.messages = HashMap::new();
+        self.dm_channels = HashMap::new();
         self.selected_guild_id = None;
         self.selected_channel_id = Some("dm-friends".into());
         self.voice_session = None;
         self.active_call = CallStatus::Idle;
         self.accounts = Vec::new();
         self.active_token = None;
+        self.active_captcha = None;
         self.is_login_modal_open = true;
+        self.login_form = LoginFormState::default();
     }
 
     pub fn select_guild(&mut self, guild_id: Option<String>) {
@@ -1470,7 +1508,7 @@ impl AppState {
     /// Отправка 6-значного кода MFA (TOTP / резервный)
     pub fn submit_mfa(&mut self) -> Result<(), String> {
         let code = self.login_form.mfa_code.trim();
-        if code.len() < 6 {
+        if code.len() < 6 || code.len() > 8 || !code.bytes().all(|b| b.is_ascii_digit()) {
             self.login_form.error_message =
                 Some("Неверный код аутентификации. Код должен содержать не менее 6 цифр.".into());
             return Err("Неверный код".into());
@@ -1490,6 +1528,64 @@ impl AppState {
         self.add_account(new_user, synthetic_token);
         self.login_form = LoginFormState::default();
         Ok(())
+    }
+
+    /// Интерактивная отправка формы входа из `LoginModal` (`P0-3.1`)
+    pub fn submit_login_flow(&mut self) -> Result<(), String> {
+        self.active_captcha = None;
+        self.login_form.error_message = None;
+        self.submit_login()
+    }
+
+    /// Интерактивное подтверждение кода 2FA TOTP из `LoginModal` (`P0-3.2`)
+    pub fn submit_mfa_flow(&mut self) -> Result<(), String> {
+        self.login_form.error_message = None;
+        self.submit_mfa()
+    }
+
+    /// Автоматический вход при запуске приложения через `TokenStore` и `LoginService` (`P0-2.3`)
+    pub async fn attempt_startup_auto_login<
+        B: auth_flow::SecretBackend,
+        T: auth_flow::AuthHttpTransport,
+    >(
+        &mut self,
+        store: &auth_flow::TokenStore<B>,
+        service: &auth_flow::LoginService<T>,
+    ) -> StartupAuthResult {
+        AuthFlowController::try_auto_login(self, store, service).await
+    }
+
+    /// Живая отправка учётных данных через `LoginService` и `TokenStore` (`P0-3.1`)
+    pub async fn submit_login_with_service<
+        B: auth_flow::SecretBackend,
+        T: auth_flow::AuthHttpTransport,
+    >(
+        &mut self,
+        store: &mut auth_flow::TokenStore<B>,
+        service: &auth_flow::LoginService<T>,
+    ) -> Result<LiveAuthStepOutcome, AuthFlowError> {
+        AuthFlowController::submit_credentials_live(self, store, service).await
+    }
+
+    /// Живое подтверждение 2FA TOTP через `LoginService` и `TokenStore` (`P0-3.2`)
+    pub async fn submit_mfa_with_service<
+        B: auth_flow::SecretBackend,
+        T: auth_flow::AuthHttpTransport,
+    >(
+        &mut self,
+        store: &mut auth_flow::TokenStore<B>,
+        service: &auth_flow::LoginService<T>,
+    ) -> Result<CurrentUser, AuthFlowError> {
+        AuthFlowController::submit_totp_live(self, store, service).await
+    }
+
+    /// Применение проверенного профиля `@me` к состоянию приложения (`P0-2.3`, `P0-3.1`, `P0-3.2`)
+    pub fn apply_authenticated_profile(
+        &mut self,
+        me: &chord_core::rest::user::Me,
+        token: Option<&auth_flow::SecretToken>,
+    ) {
+        AuthFlowController::apply_authenticated_profile(self, me, token);
     }
 
     /// Сканирование QR-кода через мобильный Discord (Remote Auth)

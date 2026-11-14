@@ -21,7 +21,9 @@ impl std::fmt::Display for QrMatrixError {
         match self {
             Self::EmptyFingerprint => write!(f, "fingerprint cannot be empty"),
             Self::InvalidCharacters => write!(f, "fingerprint contains invalid characters"),
-            Self::PathTraversalAttempt => write!(f, "fingerprint contains path traversal sequences"),
+            Self::PathTraversalAttempt => {
+                write!(f, "fingerprint contains path traversal sequences")
+            }
             Self::InvalidLength => write!(f, "fingerprint length is invalid"),
         }
     }
@@ -85,7 +87,10 @@ fn qr_sha256(data: &[u8]) -> [u8; 32] {
         for i in 16..64 {
             let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
             let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
-            w[i] = w[i - 16].wrapping_add(s0).wrapping_add(w[i - 7]).wrapping_add(s1);
+            w[i] = w[i - 16]
+                .wrapping_add(s0)
+                .wrapping_add(w[i - 7])
+                .wrapping_add(s1);
         }
 
         let mut a = state[0];
@@ -100,7 +105,11 @@ fn qr_sha256(data: &[u8]) -> [u8; 32] {
         for i in 0..64 {
             let big_s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
             let ch = (e & f) ^ ((!e) & g);
-            let temp1 = h.wrapping_add(big_s1).wrapping_add(ch).wrapping_add(SHA256_K[i]).wrapping_add(w[i]);
+            let temp1 = h
+                .wrapping_add(big_s1)
+                .wrapping_add(ch)
+                .wrapping_add(SHA256_K[i])
+                .wrapping_add(w[i]);
             let big_s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
             let maj = (a & b) ^ (a & c) ^ (b & c);
             let temp2 = big_s0.wrapping_add(maj);
@@ -353,6 +362,39 @@ impl QrLoginUiState {
 pub struct LoginModal;
 
 impl LoginModal {
+    #[must_use]
+    pub fn is_submitting(state: &AppState) -> bool {
+        matches!(state.login_form.step, LoginStep::Loading)
+    }
+
+    #[must_use]
+    pub fn login_submit_button_label(state: &AppState) -> &'static str {
+        if Self::is_submitting(state) {
+            "Вход..."
+        } else {
+            "Войти"
+        }
+    }
+
+    #[must_use]
+    pub fn mfa_submit_button_label(state: &AppState) -> &'static str {
+        if Self::is_submitting(state) {
+            "Проверка..."
+        } else {
+            "Подтвердить"
+        }
+    }
+
+    #[must_use]
+    pub fn active_captcha_banner_text(state: &AppState) -> Option<String> {
+        state.active_captcha.as_ref().map(|captcha| {
+            format!(
+                "Требуется проверка {} (sitekey: {}). Автоматический обход запрещён.",
+                captcha.service, captcha.sitekey
+            )
+        })
+    }
+
     pub fn render(
         state: &AppState,
         _window: &mut Window,
@@ -437,7 +479,7 @@ impl LoginModal {
                             .child("Мы так рады видеть вас снова!"),
                     ),
             )
-            // 2. Блок ошибки (если есть)
+            // 2. Блок ошибки и уведомления о капче (если есть)
             .child(if let Some(err) = &state.login_form.error_message {
                 div()
                     .p(px(10.))
@@ -459,6 +501,26 @@ impl LoginModal {
             } else {
                 div().into_any_element()
             })
+            .child(
+                if let Some(captcha_banner) = Self::active_captcha_banner_text(state) {
+                    div()
+                        .p(px(10.))
+                        .bg(DISCORD_THEME.bg_secondary)
+                        .border_1()
+                        .border_color(DISCORD_THEME.blurple)
+                        .rounded(px(4.))
+                        .child(
+                            div()
+                                .text_size(px(11.))
+                                .font_weight(FontWeight::BOLD)
+                                .text_color(DISCORD_THEME.text_normal)
+                                .child(captcha_banner),
+                        )
+                        .into_any_element()
+                } else {
+                    div().into_any_element()
+                },
+            )
             // 3. Переключатель метода входа (Email/Пароль или Токен)
             .child(
                 div()
@@ -533,11 +595,11 @@ impl LoginModal {
                     .text_color(gpui::white())
                     .text_size(px(14.))
                     .font_weight(FontWeight::BOLD)
-                    .child("Вход")
+                    .child(Self::login_submit_button_label(state))
                     .on_mouse_down(
                         MouseButton::Left,
                         cx.listener(|this, _, _window, cx| {
-                            let _ = this.state.submit_login();
+                            let _ = this.state.submit_login_flow();
                             cx.notify();
                         }),
                     ),
@@ -879,122 +941,102 @@ impl LoginModal {
             QrLoginUiState::Ready { matrix, .. } => {
                 Self::render_qr_matrix(matrix).into_any_element()
             }
-            QrLoginUiState::Scanned { username, user_id } => {
-                div()
-                    .size(px(144.))
-                    .v_flex()
-                    .items_center()
-                    .justify_center()
-                    .gap(px(6.))
-                    .child(
-                        div()
-                            .size(px(44.))
-                            .bg(DISCORD_THEME.blurple)
-                            .rounded(px(22.))
-                            .flex()
-                            .items_center()
-                            .justify_center()
-                            .text_color(gpui::white())
-                            .text_size(px(22.))
-                            .child("👤"),
-                    )
-                    .child(
-                        div()
-                            .text_size(px(13.))
-                            .font_weight(FontWeight::BOLD)
-                            .text_color(gpui::black())
-                            .text_center()
-                            .child(username.clone()),
-                    )
-                    .child(
-                        div()
-                            .text_size(px(11.))
-                            .text_color(gpui::rgba(0x4E5058FF))
-                            .child(format!("ID: {user_id}")),
-                    )
-                    .child(
-                        div()
-                            .text_size(px(12.))
-                            .text_color(DISCORD_THEME.status_online)
-                            .font_weight(FontWeight::BOLD)
-                            .child("✓ Код отсканирован"),
-                    )
-                    .into_any_element()
-            }
-            QrLoginUiState::Expired => {
-                div()
-                    .size(px(144.))
-                    .bg(gpui::rgba(0x000000E0))
-                    .rounded(px(4.))
-                    .v_flex()
-                    .items_center()
-                    .justify_center()
-                    .gap(px(6.))
-                    .p(px(8.))
-                    .child(
-                        div()
-                            .text_size(px(26.))
-                            .child("⏱️"),
-                    )
-                    .child(
-                        div()
-                            .text_size(px(13.))
-                            .font_weight(FontWeight::BOLD)
-                            .text_color(gpui::white())
-                            .text_center()
-                            .child("Код устарел"),
-                    )
-                    .child(
-                        div()
-                            .text_size(px(11.))
-                            .text_color(DISCORD_THEME.text_muted)
-                            .text_center()
-                            .child("Нажмите для обновления"),
-                    )
-                    .into_any_element()
-            }
-            QrLoginUiState::AwaitingFingerprint => {
-                div()
-                    .size(px(144.))
-                    .v_flex()
-                    .items_center()
-                    .justify_center()
-                    .gap(px(8.))
-                    .child(
-                        div()
-                            .text_size(px(28.))
-                            .child("⏳"),
-                    )
-                    .child(
-                        div()
-                            .text_size(px(12.))
-                            .text_color(gpui::black())
-                            .child("Загрузка QR..."),
-                    )
-                    .into_any_element()
-            }
-            QrLoginUiState::Error(err) => {
-                div()
-                    .size(px(144.))
-                    .v_flex()
-                    .items_center()
-                    .justify_center()
-                    .gap(px(6.))
-                    .p(px(8.))
-                    .child(
-                        div()
-                            .text_size(px(26.))
-                            .child("⚠️"),
-                    )
-                    .child(
-                        div()
-                            .text_size(px(11.))
-                            .text_color(gpui::rgba(0xDA373CFF))
-                            .text_center()
-                            .child(err.clone()),
-                    )
-                    .into_any_element()
-            }
+            QrLoginUiState::Scanned { username, user_id } => div()
+                .size(px(144.))
+                .v_flex()
+                .items_center()
+                .justify_center()
+                .gap(px(6.))
+                .child(
+                    div()
+                        .size(px(44.))
+                        .bg(DISCORD_THEME.blurple)
+                        .rounded(px(22.))
+                        .flex()
+                        .items_center()
+                        .justify_center()
+                        .text_color(gpui::white())
+                        .text_size(px(22.))
+                        .child("👤"),
+                )
+                .child(
+                    div()
+                        .text_size(px(13.))
+                        .font_weight(FontWeight::BOLD)
+                        .text_color(gpui::black())
+                        .text_center()
+                        .child(username.clone()),
+                )
+                .child(
+                    div()
+                        .text_size(px(11.))
+                        .text_color(gpui::rgba(0x4E5058FF))
+                        .child(format!("ID: {user_id}")),
+                )
+                .child(
+                    div()
+                        .text_size(px(12.))
+                        .text_color(DISCORD_THEME.status_online)
+                        .font_weight(FontWeight::BOLD)
+                        .child("✓ Код отсканирован"),
+                )
+                .into_any_element(),
+            QrLoginUiState::Expired => div()
+                .size(px(144.))
+                .bg(gpui::rgba(0x000000E0))
+                .rounded(px(4.))
+                .v_flex()
+                .items_center()
+                .justify_center()
+                .gap(px(6.))
+                .p(px(8.))
+                .child(div().text_size(px(26.)).child("⏱️"))
+                .child(
+                    div()
+                        .text_size(px(13.))
+                        .font_weight(FontWeight::BOLD)
+                        .text_color(gpui::white())
+                        .text_center()
+                        .child("Код устарел"),
+                )
+                .child(
+                    div()
+                        .text_size(px(11.))
+                        .text_color(DISCORD_THEME.text_muted)
+                        .text_center()
+                        .child("Нажмите для обновления"),
+                )
+                .into_any_element(),
+            QrLoginUiState::AwaitingFingerprint => div()
+                .size(px(144.))
+                .v_flex()
+                .items_center()
+                .justify_center()
+                .gap(px(8.))
+                .child(div().text_size(px(28.)).child("⏳"))
+                .child(
+                    div()
+                        .text_size(px(12.))
+                        .text_color(gpui::black())
+                        .child("Загрузка QR..."),
+                )
+                .into_any_element(),
+            QrLoginUiState::Error(err) => div()
+                .size(px(144.))
+                .v_flex()
+                .items_center()
+                .justify_center()
+                .gap(px(6.))
+                .p(px(8.))
+                .child(div().text_size(px(26.)).child("⚠️"))
+                .child(
+                    div()
+                        .text_size(px(11.))
+                        .text_color(gpui::rgba(0xDA373CFF))
+                        .text_center()
+                        .child(err.clone()),
+                )
+                .into_any_element(),
         }
     }
 
@@ -1215,9 +1257,9 @@ impl LoginModal {
                     .text_color(gpui::white())
                     .text_size(px(14.))
                     .font_weight(FontWeight::BOLD)
-                    .child("Подтвердить")
+                    .child(Self::mfa_submit_button_label(state))
                     .on_mouse_down(MouseButton::Left, cx.listener(|this, _, _window, cx| {
-                        let _ = this.state.submit_mfa();
+                        let _ = this.state.submit_mfa_flow();
                         cx.notify();
                     })),
             )

@@ -14,6 +14,8 @@ mod dispatch;
 mod media;
 #[path = "../src/net/mod.rs"]
 mod net;
+#[path = "../src/platform/mod.rs"]
+mod platform;
 #[path = "../src/perf_benchmark/mod.rs"]
 mod perf_benchmark;
 #[path = "../src/state/mod.rs"]
