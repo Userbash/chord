@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты глобальных хоткеев и Wayland/X11 In-Game Overlay (TASK-988):
- * - SUB-988-0: Статический контракт нативного модуля `rust/discord-gpui/src/ingame_overlay.rs`
+ * - SUB-988-0: Статический контракт нативного модуля `rust/chord-gpui/src/ingame_overlay.rs`
  *   (`#![forbid(unsafe_code)]`, лимиты `scripts/quality-gate.mjs`: функции < 50 строк,
  *   модуль < 800 строк, 0 `.unwrap()`/`.expect()` в продуктовом коде, чистый `rustfmt --check --edition 2024`
  *   и компиляция `rustc --test --edition 2024 -D warnings` без предупреждений).
@@ -39,7 +39,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/ingame_overlay.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/ingame_overlay.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const JS_MODULE_REL_PATH = "rust/gui-spike/ui/features/ingame-overlay.js";
 const JS_MODULE_PATH = join(ROOT, JS_MODULE_REL_PATH);
@@ -117,7 +117,7 @@ describe("TASK-988: Глобальные хоткеи и Wayland In-Game Overlay
     }
   });
 
-  it("SUB-988-0: модули rust/discord-gpui/src/ingame_overlay.rs и rust/gui-spike/ui/features/ingame-overlay.js существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
+  it("SUB-988-0: модули rust/chord-gpui/src/ingame_overlay.rs и rust/gui-spike/ui/features/ingame-overlay.js существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Модуль ${RUST_MODULE_REL_PATH} должен существовать`,

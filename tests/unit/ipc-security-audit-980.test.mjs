@@ -6,7 +6,7 @@
  *   права `0o600`, `SO_PEERCRED = 17`, `SOL_SOCKET = 1`, `RPC_LISTEN_BACKLOG = 511`, жёсткий лимит
  *   фрейма `64 KB = 65536` байт, опкоды `0..4`) с независимыми RE-оракулами
  *   (`/home/sanya/re-deep/voice/strace-renderer-s3.log`, `/home/sanya/re-deep/discord-run3.log`,
- *   `rust/crates/discord-platform/src/rpc_ipc.rs`, `waves/kanban-board.json`).
+ *   `rust/crates/chord-platform/src/rpc_ipc.rs`, `waves/kanban-board.json`).
  * - SUB-980-2: Аудит прав доступа `0o600` на Unix-сокеты `discord-ipc-0..9`, проверка безопасности
  *   родительского каталога (`0o700` / sticky `/tmp`), защита `(dev, ino)` при очистке и восстановление
  *   после осиротевших (stale) сокетов.
@@ -51,7 +51,7 @@ const RUST_RPC_IPC_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-platform",
+  "chord-platform",
   "src",
   "rpc_ipc.rs",
 );
@@ -135,7 +135,7 @@ describe("TASK-980: Аудит безопасности Unix сокетов disc
     assert.equal(candidates[0], "/run/user/1000/discord-ipc-0");
     assert.equal(candidates[9], "/run/user/1000/discord-ipc-9");
 
-    // 6. Сверка с rust/crates/discord-platform/src/rpc_ipc.rs и RE-логами
+    // 6. Сверка с rust/crates/chord-platform/src/rpc_ipc.rs и RE-логами
     const parity = verifyIpcSecurityOracleParity({
       kanbanPath: KANBAN_BOARD_PATH,
       rustRpcIpcPath: RUST_RPC_IPC_PATH,

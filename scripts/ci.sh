@@ -238,13 +238,13 @@ cargo_run test --manifest-path "$RUST_DIR/Cargo.toml" --workspace
 
 # 3.1. Нативный GPUI: Headless Smoke, E2E и Visual Regression
 echo "ci: GPUI headless smoke & contract verification"
-cargo_run run --manifest-path "$RUST_DIR/discord-gpui/Cargo.toml" -- --headless-smoke
-cargo_run test --manifest-path "$RUST_DIR/discord-gpui/Cargo.toml" --test gpui_e2e_contract
-cargo_run test --manifest-path "$RUST_DIR/discord-gpui/Cargo.toml" --test visual_regression_contract test_sub_904
+cargo_run run --manifest-path "$RUST_DIR/chord-gpui/Cargo.toml" -- --headless-smoke
+cargo_run test --manifest-path "$RUST_DIR/chord-gpui/Cargo.toml" --test gpui_e2e_contract
+cargo_run test --manifest-path "$RUST_DIR/chord-gpui/Cargo.toml" --test visual_regression_contract test_sub_904
 
 # 4. Микробенчмарк ETF (T-HARN-04 — отдельная карточка, здесь smoke производительности)
 cargo_run run --manifest-path "$RUST_DIR/Cargo.toml" \
-    --release -p discord-codec --example etf_bench -- --iterations 2000
+    --release -p chord-codec --example etf_bench -- --iterations 2000
 
 # 5. cargo-deny: если инструмент не установлен, это явный skip, а не молчаливый успех.
 if [[ "$DRY_RUN" == 1 ]]; then

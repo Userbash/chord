@@ -72,8 +72,8 @@ describe("TASK-907: Автоматизированный гейт качеств
   it("SUB-907-1 (Шаг 1.3): проверяет лицензии cargo-deny и обнаруживает уязвимости cargo audit", async () => {
     const { auditCargoLockAndDeny } = await import("../../scripts/quality-gate.mjs");
 
-    const denyPath = join(ROOT, "rust", "discord-gpui", "deny.toml");
-    const lockPath = join(ROOT, "rust", "discord-gpui", "Cargo.lock");
+    const denyPath = join(ROOT, "rust", "chord-gpui", "deny.toml");
+    const lockPath = join(ROOT, "rust", "chord-gpui", "Cargo.lock");
 
     const cleanAudit = auditCargoLockAndDeny({ denyPath, lockPath, advisories: [] });
     assert.equal(cleanAudit.passed, true);

@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты двухфакторной аутентификации TOTP 2FA и управления сессиями (TASK-1009):
- * - SUB-1009-0: Статический и компиляционный контракт `rust/discord-gpui/src/auth/totp_dialog.rs`
+ * - SUB-1009-0: Статический и компиляционный контракт `rust/chord-gpui/src/auth/totp_dialog.rs`
  *   и `scripts/verify-totp.mjs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде,
  *   соблюдение лимитов `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк,
  *   чистый `rustfmt --check --edition 2024`, компиляция `rustc --test --edition 2024 -D warnings`
@@ -23,7 +23,7 @@
  *   `DELETE /auth/sessions/{id}` и пакетный `POST /auth/sessions/logout`, откат при сетевом сбое).
  * - SUB-1009-4: Покрытие всех 9 обязательных измерений `TEST-POLICY.md` и проверка CLI
  *   `scripts/verify-totp.mjs` (коды выхода `0 / 1 / 2`).
- * - SUB-1009-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/auth/totp_dialog.rs`
+ * - SUB-1009-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/auth/totp_dialog.rs`
  *   и `scripts/verify-totp.mjs` по контракту `scripts/quality-gate.mjs`.
  */
 import assert from "node:assert/strict";
@@ -48,7 +48,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/auth/totp_dialog.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/auth/totp_dialog.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const SCRIPT_REL_PATH = "scripts/verify-totp.mjs";
 const SCRIPT_PATH = join(ROOT, SCRIPT_REL_PATH);
@@ -62,7 +62,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/auth/totp_dialog.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/auth/totp_dialog.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -113,7 +113,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1009: Двухфакторная аутентификация TOTP 2FA и управление сессиями (rust/discord-gpui/src/auth/totp_dialog.rs)", () => {
+describe("TASK-1009: Двухфакторная аутентификация TOTP 2FA и управление сессиями (rust/chord-gpui/src/auth/totp_dialog.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "totp-sessions-1009-"));
     testBinPath = join(workDir, "totp_sessions_1009_test");
@@ -125,7 +125,7 @@ describe("TASK-1009: Двухфакторная аутентификация TOT
     }
   });
 
-  it("SUB-1009-0: модули rust/discord-gpui/src/auth/totp_dialog.rs и scripts/verify-totp.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
+  it("SUB-1009-0: модули rust/chord-gpui/src/auth/totp_dialog.rs и scripts/verify-totp.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Модуль ${RUST_MODULE_REL_PATH} должен существовать`,
@@ -518,7 +518,7 @@ describe("TASK-1009: Двухфакторная аутентификация TOT
     assert.match(rustRun.stdout, /test tests::test_sub_1009_4_.*ok/);
   });
 
-  it("SUB-1009-5: убивает 5/5 контрольных мутаций в rust/discord-gpui/src/auth/totp_dialog.rs и scripts/verify-totp.mjs (100% mutation kill rate)", () => {
+  it("SUB-1009-5: убивает 5/5 контрольных мутаций в rust/chord-gpui/src/auth/totp_dialog.rs и scripts/verify-totp.mjs (100% mutation kill rate)", () => {
     assert.ok(existsSync(testBinPath), "Тестовый бинарник Rust должен быть собран");
 
     const originalRust = readFileSync(RUST_MODULE_PATH, "utf8");

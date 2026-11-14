@@ -458,11 +458,11 @@ describe("TASK-968: Релизный CI/CD workflow .github/workflows/release-be
     const publishJob = parsed.jobs["publish-release"];
     const releaseStep = publishJob.steps.find(
       (/** @type {any} */ s) =>
-        typeof s.uses === "string" && s.uses.startsWith("softprops/action-gh-release@v2"),
+        typeof s.uses === "string" && s.uses.startsWith("softprops/action-gh-release@v3"),
     );
     assert.ok(
       releaseStep,
-      "В publish-release должен присутствовать шаг публикации через softprops/action-gh-release@v2",
+      "В publish-release должен присутствовать шаг публикации через softprops/action-gh-release@v3",
     );
 
     assert.equal(

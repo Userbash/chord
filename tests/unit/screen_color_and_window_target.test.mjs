@@ -157,7 +157,7 @@ test("state persistence: preserves relationships and private channels when REST 
 });
 
 test("ws.rs capture_kwin_dbus_to_ring: routes CaptureWindow vs CaptureWorkspace, swaps RGBA/BGRA, and handles discord_capture_kick.bin", () => {
-  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs"), "utf8");
+  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs"), "utf8");
   const fnStart = wsRs.indexOf("static int capture_kwin_dbus_to_ring(");
   assert.ok(fnStart > 0, "capture_kwin_dbus_to_ring must exist in ws.rs");
   const fnEnd = wsRs.indexOf("static int load_jpeg_to_cap_ring(", fnStart);

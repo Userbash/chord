@@ -94,19 +94,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "discord-codec"
+name = "chord-codec"
 version = "0.1.0"
 dependencies = [
  "zstd",
 ]
 
 [[package]]
-name = "discord-core"
+name = "chord-core"
 version = "0.1.0"
 dependencies = [
- "discord-codec",
- "discord-json",
- "discord-voice",
+ "chord-codec",
+ "chord-json",
+ "chord-voice",
  "futures-util",
  "httparse",
  "rustls",
@@ -117,7 +117,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "discord-json"
+name = "chord-json"
 version = "0.1.0"
 
 [[package]]
@@ -125,18 +125,18 @@ name = "discord-lab-fuzz"
 version = "0.0.0"
 dependencies = [
  "arbitrary",
- "discord-codec",
- "discord-core",
- "discord-json",
- "discord-voice",
+ "chord-codec",
+ "chord-core",
+ "chord-json",
+ "chord-voice",
  "libfuzzer-sys",
 ]
 
 [[package]]
-name = "discord-voice"
+name = "chord-voice"
 version = "0.1.0"
 dependencies = [
- "discord-json",
+ "chord-json",
  "serde",
 ]
 

@@ -278,8 +278,8 @@ describe("TASK-1016: Сборки и пакеты для Windows (MSI/Portable) 
     }
 
     const backlog = readFileSync(FEATURE_BACKLOG_PATH, "utf8");
-    assert.match(backlog, /R6-03.*Windows-специфика.*portable-режим.*appBadge\.ts/);
-    assert.match(backlog, /R6-04.*macOS-специфика.*Vibrancy.*traffic lights.*open-url.*entitlements/);
+    assert.match(backlog, /R6-03.*Windows-specific.*portable mode.*appBadge\.ts/);
+    assert.match(backlog, /R6-04.*macOS-specific.*Vibrancy.*traffic lights.*open-url.*entitlements/);
 
     if (existsSync(RE_MAIN_ARCH_PATH)) {
       const mainArch = readFileSync(RE_MAIN_ARCH_PATH, "utf8");

@@ -27,7 +27,7 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
     );
     assert.match(
       dataRs,
-      /discord_core::ws::stop_live_stream_rtc_session\(\)/,
+      /chord_core::ws::stop_live_stream_rtc_session\(\)/,
       "reset_live_stream_state must call stop_live_stream_rtc_session()",
     );
   });
@@ -35,7 +35,7 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
   it("SR2: voice_stream_start and voice_stream_stop invoke data::reset_live_stream_state", () => {
     const startIdx = mainRs.indexOf("async fn voice_stream_start");
     assert.ok(startIdx > 0, "voice_stream_start must exist in main.rs");
-    const startBody = mainRs.slice(startIdx, startIdx + 1800);
+    const startBody = mainRs.slice(startIdx, mainRs.indexOf("\n}", startIdx) + 2);
     assert.match(
       startBody,
       /data::reset_live_stream_state\(\)/,
@@ -44,7 +44,7 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
 
     const stopIdx = mainRs.indexOf("async fn voice_stream_stop");
     assert.ok(stopIdx > 0, "voice_stream_stop must exist in main.rs");
-    const stopBody = mainRs.slice(stopIdx, stopIdx + 1800);
+    const stopBody = mainRs.slice(stopIdx, mainRs.indexOf("\n}", stopIdx) + 2);
     assert.match(
       stopBody,
       /data::reset_live_stream_state\(\)/,
@@ -55,7 +55,7 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
   it("SR3: voice_disconnect tears down active stream via delete queue and resets state", () => {
     const disconnIdx = mainRs.indexOf("async fn voice_disconnect");
     assert.ok(disconnIdx > 0, "voice_disconnect must exist in main.rs");
-    const disconnBody = mainRs.slice(disconnIdx, disconnIdx + 1000);
+    const disconnBody = mainRs.slice(disconnIdx, mainRs.indexOf("\n}", disconnIdx) + 2);
     assert.match(
       disconnBody,
       /queue_live_stream_delete/,

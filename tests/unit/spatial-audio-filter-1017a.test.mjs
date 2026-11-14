@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты бинаурального HRTF фильтра пространственного звука (TASK-1017A):
- * - SUB-1017A-0: Статический и компиляционный контракт `rust/crates/discord-voice/src/spatial_audio.rs`
+ * - SUB-1017A-0: Статический и компиляционный контракт `rust/crates/chord-voice/src/spatial_audio.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`:
  *   функции < 50 строк, файл < 800 строк, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -23,7 +23,7 @@
  *   громкость `0..200%`, бейдж `99+`; ошибки HTTP `400/401/403/404/413/429 retry_after_ms/5xx`;
  *   пустые; `skeleton`/`HTTP 202`; права `CONNECT`/`SPEAK`/`AGE_GATED_SPACES`; восстановление при
  *   NaN/поврежденном аудиокадре; маскирование токенов в логах).
- * - SUB-1017A-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/discord-voice/src/spatial_audio.rs`.
+ * - SUB-1017A-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/chord-voice/src/spatial_audio.rs`.
  */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -47,7 +47,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/crates/discord-voice/src/spatial_audio.rs";
+const RUST_MODULE_REL_PATH = "rust/crates/chord-voice/src/spatial_audio.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
@@ -60,7 +60,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/crates/discord-voice/src/spatial_audio.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/crates/chord-voice/src/spatial_audio.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -123,7 +123,7 @@ describe("TASK-1017A: Бинауральный HRTF фильтр 360-граду�
     }
   });
 
-  it("SUB-1017A-0: проверяет статический контракт rust/crates/discord-voice/src/spatial_audio.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
+  it("SUB-1017A-0: проверяет статический контракт rust/crates/chord-voice/src/spatial_audio.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,
@@ -242,7 +242,7 @@ describe("TASK-1017A: Бинауральный HRTF фильтр 360-граду�
     assert.match(voiceDeepRaw, /aead_aes256_gcm_rtpsize/);
     assert.match(voiceDeepRaw, /17843/);
     assert.match(voiceDeepRaw, /9208/);
-    assert.match(voiceDeepRaw, /960 @48 кГц/);
+    assert.match(voiceDeepRaw, /960 @ 48 kHz/);
 
     // 3. Сверка констант в исходнике spatial_audio.rs
     const rustSource = readFileSync(RUST_MODULE_PATH, "utf8");
@@ -363,7 +363,7 @@ describe("TASK-1017A: Бинауральный HRTF фильтр 360-граду�
     assert.match(run.stdout, /test tests::test_sub_1017a_4_.*ok/);
   });
 
-  it("SUB-1017A-5: убивает 5/5 контрольных мутаций в rust/crates/discord-voice/src/spatial_audio.rs (100% mutation kill rate)", () => {
+  it("SUB-1017A-5: убивает 5/5 контрольных мутаций в rust/crates/chord-voice/src/spatial_audio.rs (100% mutation kill rate)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       "Модуль spatial_audio.rs должен существовать",

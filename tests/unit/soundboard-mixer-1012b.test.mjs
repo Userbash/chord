@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты линейного микшера SFX эффектов в поток микрофона
  * с софт-лимитером `tanh()` по стандарту RFC 3550 RTP Opus (TASK-1012B):
- * - SUB-1012B-0: Статический и компиляционный контракт `rust/crates/discord-voice/src/soundboard_mixer.rs`
+ * - SUB-1012B-0: Статический и компиляционный контракт `rust/crates/chord-voice/src/soundboard_mixer.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`:
  *   функции < 50 строк, файл < 800 строк, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -25,7 +25,7 @@
  *   имя `2..=32` симв.; ошибки HTTP `400/401/403/404/413/429 retry_after_ms/5xx`; пустые/DTX `[0xF8, 0xFF, 0xFE]`;
  *   `skeleton`/`HTTP 202`; права `CONNECT`/`SPEAK`/`USE_SOUNDBOARD = 1 << 42`/`USE_EXTERNAL_SOUNDS = 1 << 45`/
  *   `AGE_GATED_SPACES`; самовосстановление при `NaN`/`±Infinity` отсчётах; маскирование токенов).
- * - SUB-1012B-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/discord-voice/src/soundboard_mixer.rs`.
+ * - SUB-1012B-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/chord-voice/src/soundboard_mixer.rs`.
  */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -56,7 +56,7 @@ import {
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const RUST_MODULE_REL_PATH =
-  "rust/crates/discord-voice/src/soundboard_mixer.rs";
+  "rust/crates/chord-voice/src/soundboard_mixer.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
@@ -75,7 +75,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/crates/discord-voice/src/soundboard_mixer.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/crates/chord-voice/src/soundboard_mixer.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -138,7 +138,7 @@ describe("TASK-1012B: Линейный микшер SFX эффектов в по
     }
   });
 
-  it("SUB-1012B-0: проверяет статический контракт rust/crates/discord-voice/src/soundboard_mixer.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
+  it("SUB-1012B-0: проверяет статический контракт rust/crates/chord-voice/src/soundboard_mixer.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,
@@ -255,7 +255,7 @@ describe("TASK-1012B: Линейный микшер SFX эффектов в по
     assert.match(voiceDeepRaw, /V=2, P=0, X=1, CC=0/);
     assert.match(voiceDeepRaw, /PT=120/);
     assert.match(voiceDeepRaw, /0xBEDE/);
-    assert.match(voiceDeepRaw, /960 @48 кГц/);
+    assert.match(voiceDeepRaw, /960 @ 48 kHz/);
     assert.match(voiceDeepRaw, /aead_aes256_gcm_rtpsize/);
     assert.match(voiceDeepRaw, /17843/);
     assert.match(voiceDeepRaw, /9208/);
@@ -423,7 +423,7 @@ describe("TASK-1012B: Линейный микшер SFX эффектов в по
     assert.match(run.stdout, /test tests::test_sub_1012b_4_.*ok/);
   });
 
-  it("SUB-1012B-5: убивает 5/5 контрольных мутаций в rust/crates/discord-voice/src/soundboard_mixer.rs (100% mutation kill rate)", () => {
+  it("SUB-1012B-5: убивает 5/5 контрольных мутаций в rust/crates/chord-voice/src/soundboard_mixer.rs (100% mutation kill rate)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       "Модуль soundboard_mixer.rs должен существовать",

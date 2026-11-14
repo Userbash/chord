@@ -269,8 +269,8 @@ export function planFor(changed) {
       frontend(raw);
     } else if (under(raw, "rust/gui-spike/src/")) {
       add("cargo test --offline --manifest-path rust/gui-spike/Cargo.toml", `${raw}: gui backend`);
-    } else if (under(raw, "rust/crates/discord-core/")) {
-      add("cargo test --offline --manifest-path rust/Cargo.toml -p discord-core", `${raw}: core`);
+    } else if (under(raw, "rust/crates/chord-core/")) {
+      add("cargo test --offline --manifest-path rust/Cargo.toml -p chord-core", `${raw}: core`);
     } else if (under(raw, "rust/crates/")) {
       add("cargo test --offline --manifest-path rust/Cargo.toml --workspace", `${raw}: crate`);
     } else if (raw.startsWith("rust/")) {

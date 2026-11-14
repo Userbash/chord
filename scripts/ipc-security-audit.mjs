@@ -28,7 +28,7 @@ const DEFAULT_RUST_RPC_IPC_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-platform",
+  "chord-platform",
   "src",
   "rpc_ipc.rs",
 );

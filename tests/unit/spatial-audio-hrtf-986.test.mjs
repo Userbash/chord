@@ -1,8 +1,8 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты пространственного 3D-позиционирования звука участников (HRTF)
- * (`rust/discord-voice/src/spatial_audio.rs`, ITD/ILD расчёт, HRTF convolver, 10 участников < 2% CPU) — TASK-986:
- * - SUB-986-0: Статический и структурный контракт `rust/discord-voice/src/spatial_audio.rs`
+ * (`rust/chord-voice/src/spatial_audio.rs`, ITD/ILD расчёт, HRTF convolver, 10 участников < 2% CPU) — TASK-986:
+ * - SUB-986-0: Статический и структурный контракт `rust/chord-voice/src/spatial_audio.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде, лимиты `scripts/quality-gate.mjs`
  *   < 50 строк на функцию и < 800 строк на модуль, `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -10,7 +10,7 @@
  *   `api_binaural_effect.cpp`, `api_hrtf.cpp`, `distance_attenuation.cpp`, `overlap_save_convolution_effect.cpp`,
  *   NAPI-символов `isSpatialAudioEnabled` / `setSpatialAudioStatusCallback`, дизайн-токенов и состояний
  *   `peer-avatar-3d` (`center`, `drag position`, `panned`) с независимыми оракулами `waves/kanban-board.json`,
- *   `docs/re/native-re.md`, `docs/re/native-re.json` и `rust/crates/discord-voice/src/reception.rs`.
+ *   `docs/re/native-re.md`, `docs/re/native-re.json` и `rust/crates/chord-voice/src/reception.rs`.
  * - SUB-986-2: Независимый физико-математический оракул ISO KEMAR / модели сферической головы Вудворта
  *   (`a = 0.0875 м`, `c = 343.0 м/с`, межушная разность времени `ITD` до `0.7 мс`, межушная разность уровней
  *   `ILD` до `20.0 дБ` по азимуту `-180°..+180°` и углу места `-90°..+90°`) и закона обратных квадратов/дистанции `1/r`.
@@ -41,7 +41,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-voice/src/spatial_audio.rs";
+const MODULE_REL_PATH = "rust/chord-voice/src/spatial_audio.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const NATIVE_RE_MD_PATH = join(ROOT, "docs", "re", "native-re.md");
@@ -50,7 +50,7 @@ const CRATE_RECEPTION_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-voice",
+  "chord-voice",
   "src",
   "reception.rs",
 );
@@ -61,7 +61,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-voice/src/spatial_audio.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-voice/src/spatial_audio.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -164,7 +164,7 @@ function oracleComputeBinauralCues(azimuthDeg, elevationDeg, distanceM) {
   };
 }
 
-describe("TASK-986: Пространственное 3D-позиционирование звука участников (HRTF) в rust/discord-voice/src/spatial_audio.rs", () => {
+describe("TASK-986: Пространственное 3D-позиционирование звука участников (HRTF) в rust/chord-voice/src/spatial_audio.rs", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "spatial-audio-hrtf-986-"));
     testBinPath = join(workDir, "spatial_audio_986_test");
@@ -176,7 +176,7 @@ describe("TASK-986: Пространственное 3D-позициониров
     }
   });
 
-  it("SUB-986-0: модуль rust/discord-voice/src/spatial_audio.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
+  it("SUB-986-0: модуль rust/chord-voice/src/spatial_audio.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,
@@ -291,7 +291,7 @@ describe("TASK-986: Пространственное 3D-позициониров
       "Событие SetSpatialAudioStatusCallback должно быть в docs/re/native-re.json",
     );
 
-    // 3. Независимый оракул: docs/re/native-re.md и rust/crates/discord-voice/src/reception.rs
+    // 3. Независимый оракул: docs/re/native-re.md и rust/crates/chord-voice/src/reception.rs
     const nativeReMd = readFileSync(NATIVE_RE_MD_PATH, "utf8");
     assert.match(nativeReMd, /src\/media\/spatial_mixer\.cpp/);
     assert.match(nativeReMd, /spatial_audio_options\.cpp/);
@@ -440,7 +440,7 @@ describe("TASK-986: Пространственное 3D-позициониров
     );
   });
 
-  it("SUB-986-5: убивает 5/5 контрольных мутаций модуля rust/discord-voice/src/spatial_audio.rs (100% mutation kill rate)", () => {
+  it("SUB-986-5: убивает 5/5 контрольных мутаций модуля rust/chord-voice/src/spatial_audio.rs (100% mutation kill rate)", () => {
     assert.ok(existsSync(MODULE_PATH), "Исходник модуля должен существовать");
     const source = readFileSync(MODULE_PATH, "utf8");
 

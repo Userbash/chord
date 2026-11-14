@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты интерактивного пикера эмодзи и векторных Lottie стикеров (TASK-1005B):
- * - SUB-1005B-0: Статический и компиляционный контракт `rust/discord-gpui/src/chat/emoji_picker.rs`
+ * - SUB-1005B-0: Статический и компиляционный контракт `rust/chord-gpui/src/chat/emoji_picker.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, соблюдение лимитов
  *   `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, чистый `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -46,7 +46,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-gpui/src/chat/emoji_picker.rs";
+const MODULE_REL_PATH = "rust/chord-gpui/src/chat/emoji_picker.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const FRONTEND_D03_PATH = join(ROOT, "docs", "re", "frontend-d03.json");
@@ -58,7 +58,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/chat/emoji_picker.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/chat/emoji_picker.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -121,7 +121,7 @@ describe("TASK-1005B: Интерактивный пикер эмодзи и ве
     }
   });
 
-  it("SUB-1005B-0: модуль rust/discord-gpui/src/chat/emoji_picker.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
+  it("SUB-1005B-0: модуль rust/chord-gpui/src/chat/emoji_picker.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,

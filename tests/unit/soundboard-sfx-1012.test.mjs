@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты серверной звуковой панели (Soundboard SFX — TASK-1012 / TASK-1012A / TASK-1012B / TASK-1012C):
- * - SUB-1012-0: Статический и компиляционный контракт `rust/crates/discord-voice/src/soundboard.rs`
+ * - SUB-1012-0: Статический и компиляционный контракт `rust/crates/chord-voice/src/soundboard.rs`
  *   и `scripts/verify-soundboard.mjs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде,
  *   соблюдение лимитов `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк,
  *   чистый `rustfmt --check --edition 2024`, компиляция `rustc --test --edition 2024 -D warnings`
@@ -28,7 +28,7 @@
  *   ошибки `400/401/403/404/413/429/5xx`; пустые `soundboard_sounds: null`; `skeleton`/`HTTP 202`;
  *   права `CONNECT`/`SPEAK`/`USE_SOUNDBOARD = 1 << 42`/`USE_EXTERNAL_SOUNDS = 1 << 45`/`AGE_GATED_SPACES`;
  *   восстановление при сбое CDN и смене канала; маскирование секретов) и CLI `scripts/verify-soundboard.mjs` (`0 / 1 / 2`).
- * - SUB-1012-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/discord-voice/src/soundboard.rs`
+ * - SUB-1012-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/chord-voice/src/soundboard.rs`
  *   и `scripts/verify-soundboard.mjs` по контракту `scripts/quality-gate.mjs`.
  */
 import assert from "node:assert/strict";
@@ -61,7 +61,7 @@ import {
 } from "../../rust/gui-spike/ui/features/soundboard-picker.js";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/crates/discord-voice/src/soundboard.rs";
+const RUST_MODULE_REL_PATH = "rust/crates/chord-voice/src/soundboard.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const SCRIPT_REL_PATH = "scripts/verify-soundboard.mjs";
 const SCRIPT_PATH = join(ROOT, SCRIPT_REL_PATH);
@@ -78,7 +78,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/crates/discord-voice/src/soundboard.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/crates/chord-voice/src/soundboard.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -129,7 +129,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1012: Серверная звуковая панель (Soundboard SFX — rust/crates/discord-voice/src/soundboard.rs)", () => {
+describe("TASK-1012: Серверная звуковая панель (Soundboard SFX — rust/crates/chord-voice/src/soundboard.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "soundboard-sfx-1012-"));
     testBinPath = join(workDir, "soundboard_sfx_1012_test");
@@ -141,7 +141,7 @@ describe("TASK-1012: Серверная звуковая панель (Soundboar
     }
   });
 
-  it("SUB-1012-0: модули rust/crates/discord-voice/src/soundboard.rs и scripts/verify-soundboard.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
+  it("SUB-1012-0: модули rust/crates/chord-voice/src/soundboard.rs и scripts/verify-soundboard.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Модуль ${RUST_MODULE_REL_PATH} должен существовать`,
@@ -572,7 +572,7 @@ describe("TASK-1012: Серверная звуковая панель (Soundboar
     assert.match(rustRun.stdout, /test tests::test_sub_1012_4_.*ok/);
   });
 
-  it("SUB-1012-5: убивает 5/5 контрольных мутаций в rust/crates/discord-voice/src/soundboard.rs и scripts/verify-soundboard.mjs (100% mutation kill rate)", () => {
+  it("SUB-1012-5: убивает 5/5 контрольных мутаций в rust/crates/chord-voice/src/soundboard.rs и scripts/verify-soundboard.mjs (100% mutation kill rate)", () => {
     assert.ok(existsSync(testBinPath), "Тестовый бинарник Rust должен быть собран");
 
     const originalRust = readFileSync(RUST_MODULE_PATH, "utf8");

@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты интерактивных опросов в сообщениях (Polls & Voting — TASK-1004):
- * - SUB-1004-0: Статический и компиляционный контракт `rust/discord-gpui/src/chat/polls.rs`
+ * - SUB-1004-0: Статический и компиляционный контракт `rust/chord-gpui/src/chat/polls.rs`
  *   и `scripts/verify-polls.mjs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде,
  *   соблюдение лимитов `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк,
  *   чистый `rustfmt --check --edition 2024`, компиляция `rustc --test --edition 2024 -D warnings`
@@ -27,7 +27,7 @@
  *   бейдж `99+`; ошибки `400/401/403/404/413/429/5xx`; пустые `0` голосов; `skeleton`/`HTTP 202`;
  *   права `VIEW_CHANNEL`/`SEND_MESSAGES`/`SEND_POLLS = 1 << 49`/`AGE_GATED_SPACES`; откат оптимистичного
  *   голоса при сетевом сбое; маскирование секретов) и проверка CLI `scripts/verify-polls.mjs` (коды `0 / 1 / 2`).
- * - SUB-1004-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/chat/polls.rs`
+ * - SUB-1004-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/chat/polls.rs`
  *   и `scripts/verify-polls.mjs` по контракту `scripts/quality-gate.mjs`.
  */
 import assert from "node:assert/strict";
@@ -57,7 +57,7 @@ import {
 } from "../../rust/gui-spike/ui/features/poll-progress.js";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/chat/polls.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/chat/polls.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const SCRIPT_REL_PATH = "scripts/verify-polls.mjs";
 const SCRIPT_PATH = join(ROOT, SCRIPT_REL_PATH);
@@ -74,7 +74,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/chat/polls.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/chat/polls.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -125,7 +125,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1004: Интерактивные опросы в сообщениях (Polls & Voting — rust/discord-gpui/src/chat/polls.rs)", () => {
+describe("TASK-1004: Интерактивные опросы в сообщениях (Polls & Voting — rust/chord-gpui/src/chat/polls.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "polls-voting-1004-"));
     testBinPath = join(workDir, "polls_voting_1004_test");
@@ -137,7 +137,7 @@ describe("TASK-1004: Интерактивные опросы в сообщени
     }
   });
 
-  it("SUB-1004-0: модули rust/discord-gpui/src/chat/polls.rs и scripts/verify-polls.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
+  it("SUB-1004-0: модули rust/chord-gpui/src/chat/polls.rs и scripts/verify-polls.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Модуль ${RUST_MODULE_REL_PATH} должен существовать`,
@@ -570,7 +570,7 @@ describe("TASK-1004: Интерактивные опросы в сообщени
     assert.match(rustRun.stdout, /test tests::test_sub_1004_4_.*ok/);
   });
 
-  it("SUB-1004-5: убивает 5/5 контрольных мутаций в rust/discord-gpui/src/chat/polls.rs и scripts/verify-polls.mjs (100% mutation kill rate)", () => {
+  it("SUB-1004-5: убивает 5/5 контрольных мутаций в rust/chord-gpui/src/chat/polls.rs и scripts/verify-polls.mjs (100% mutation kill rate)", () => {
     assert.ok(existsSync(testBinPath), "Тестовый бинарник Rust должен быть собран");
 
     const originalRust = readFileSync(RUST_MODULE_PATH, "utf8");

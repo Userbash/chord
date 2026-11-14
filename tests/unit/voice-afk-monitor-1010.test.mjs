@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты автоматического перевода в AFK-канал при простое (TASK-1010):
- * - SUB-1010-0: Статический и компиляционный контракт `rust/discord-gpui/src/voice/afk_monitor.rs`
+ * - SUB-1010-0: Статический и компиляционный контракт `rust/chord-gpui/src/voice/afk_monitor.rs`
  *   и `scripts/verify-afk.mjs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде,
  *   соблюдение лимитов `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк,
  *   чистый `rustfmt --check --edition 2024`, компиляция `rustc --test --edition 2024 -D warnings`
@@ -25,7 +25,7 @@
  *   `offset=9975`, громкость `0..200%`, бейдж `99+`; ошибки D-Bus `UnknownMethod` и HTTP `400/401/403/404/413/429/5xx`;
  *   пустые состояния без `afk_channel_id`; `skeleton`/`HTTP 202`; права `VIEW_CHANNEL`/`CONNECT`/`SPEAK`/`MOVE_MEMBERS`
  *   и `AGE_GATED_SPACES`; восстановление и откат при обрыве шлюза; маскирование секретов) и проверка CLI `scripts/verify-afk.mjs` (`0 / 1 / 2`).
- * - SUB-1010-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/voice/afk_monitor.rs`
+ * - SUB-1010-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/voice/afk_monitor.rs`
  *   и `scripts/verify-afk.mjs` по контракту `scripts/quality-gate.mjs`.
  */
 import assert from "node:assert/strict";
@@ -50,7 +50,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/voice/afk_monitor.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/voice/afk_monitor.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const SCRIPT_REL_PATH = "scripts/verify-afk.mjs";
 const SCRIPT_PATH = join(ROOT, SCRIPT_REL_PATH);
@@ -67,7 +67,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/voice/afk_monitor.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/voice/afk_monitor.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -118,7 +118,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1010: Автоматический перевод в AFK-канал при простое (rust/discord-gpui/src/voice/afk_monitor.rs)", () => {
+describe("TASK-1010: Автоматический перевод в AFK-канал при простое (rust/chord-gpui/src/voice/afk_monitor.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "voice-afk-monitor-1010-"));
     testBinPath = join(workDir, "voice_afk_monitor_1010_test");
@@ -130,7 +130,7 @@ describe("TASK-1010: Автоматический перевод в AFK-кана
     }
   });
 
-  it("SUB-1010-0: модули rust/discord-gpui/src/voice/afk_monitor.rs и scripts/verify-afk.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
+  it("SUB-1010-0: модули rust/chord-gpui/src/voice/afk_monitor.rs и scripts/verify-afk.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Модуль ${RUST_MODULE_REL_PATH} должен существовать`,
@@ -594,7 +594,7 @@ describe("TASK-1010: Автоматический перевод в AFK-кана
     assert.match(rustRun.stdout, /test tests::test_sub_1010_4_.*ok/);
   });
 
-  it("SUB-1010-5: убивает 5/5 контрольных мутаций в rust/discord-gpui/src/voice/afk_monitor.rs и scripts/verify-afk.mjs (100% mutation kill rate)", () => {
+  it("SUB-1010-5: убивает 5/5 контрольных мутаций в rust/chord-gpui/src/voice/afk_monitor.rs и scripts/verify-afk.mjs (100% mutation kill rate)", () => {
     assert.ok(existsSync(testBinPath), "Тестовый бинарник Rust должен быть собран");
 
     const originalRust = readFileSync(RUST_MODULE_PATH, "utf8");

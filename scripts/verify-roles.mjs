@@ -22,12 +22,12 @@ const DEFAULT_CORE_PERMS_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-core",
+  "chord-core",
   "src",
   "permissions.rs",
 );
 const DEFAULT_SPIKE_ROLES_RS_PATH = join(ROOT, "rust", "gui-spike", "src", "roles.rs");
-const DEFAULT_RUST_MODULE_PATH = join(ROOT, "rust", "discord-gpui", "src", "guild", "roles.rs");
+const DEFAULT_RUST_MODULE_PATH = join(ROOT, "rust", "chord-gpui", "src", "guild", "roles.rs");
 
 /** Дизайн-токены карточки `TASK-1007` из `waves/kanban-board.json`. */
 export const ROLES_DESIGN_TOKENS = Object.freeze({

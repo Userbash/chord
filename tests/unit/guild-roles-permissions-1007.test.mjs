@@ -2,13 +2,13 @@
 /**
  * Контрактные и модульные тесты иерархии ролей сервера, drag-and-drop упорядочивания
  * `PATCH /guilds/{id}/roles` и 64-битного редактора битовой маски прав `permissions` (TASK-1007):
- * - SUB-1007-0: Статический и компиляционный контракт нативного модуля `rust/discord-gpui/src/guild/roles.rs`
+ * - SUB-1007-0: Статический и компиляционный контракт нативного модуля `rust/chord-gpui/src/guild/roles.rs`
  *   и верификатора `scripts/verify-roles.mjs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()`
  *   в продуктовом коде, лимиты `scripts/quality-gate.mjs`: функции < 50 строк, файл < 800 строк,
  *   `rustfmt --check --edition 2024`, компиляция `rustc --test --edition 2024 -D warnings` и `secret-scan.mjs`).
  * - SUB-1007-1: Сверка с независимыми оракулами репозитория (`waves/kanban-board.json` карточка `TASK-1007`,
  *   `docs/re/gateway-schema.json` и `docs/re/gateway-schema.md` `READY.d.guilds[].roles[]` 132 роли / 13 ключей,
- *   `docs/re/rest-d02.json` метаданные снимков D-02, `rust/crates/discord-core/src/permissions.rs` 41 флаг `0..=40`
+ *   `docs/re/rest-d02.json` метаданные снимков D-02, `rust/crates/chord-core/src/permissions.rs` 41 флаг `0..=40`
  *   и `rust/gui-spike/src/roles.rs`).
  * - SUB-1007-2: Иерархия ролей сервера, проверка потолка наивысшей роли актора (запрет эскалации выше своей роли,
  *   неприкосновенность `@everyone` `position=0` и `managed`-ролей ботов), drag-and-drop перетаскивание позиций
@@ -21,7 +21,7 @@
  *   имя `1..=100` символов, `2000` символов, `10` файлов/`25 МБ`, `offset=9975`, громкость `0..200%`,
  *   бейдж `99+`, HTTP `400/401/403/404/413/429/5xx`, откат оптимистичного drag-and-drop при сбое сети,
  *   маскирование секретов) и проверка CLI `scripts/verify-roles.mjs` (коды выхода `0 / 1 / 2`).
- * - SUB-1007-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/guild/roles.rs`
+ * - SUB-1007-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/guild/roles.rs`
  *   и `scripts/verify-roles.mjs`.
  */
 import assert from "node:assert/strict";
@@ -40,7 +40,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/guild/roles.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/guild/roles.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const VERIFY_SCRIPT_REL_PATH = "scripts/verify-roles.mjs";
 const VERIFY_SCRIPT_PATH = join(ROOT, VERIFY_SCRIPT_REL_PATH);
@@ -52,7 +52,7 @@ const CORE_PERMISSIONS_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-core",
+  "chord-core",
   "src",
   "permissions.rs",
 );
@@ -127,7 +127,7 @@ describe("TASK-1007: Иерархия ролей сервера, drag-and-drop P
     }
   });
 
-  it("SUB-1007-0: проверяет статический контракт rust/discord-gpui/src/guild/roles.rs и scripts/verify-roles.mjs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test)", () => {
+  it("SUB-1007-0: проверяет статический контракт rust/chord-gpui/src/guild/roles.rs и scripts/verify-roles.mjs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,
@@ -229,7 +229,7 @@ describe("TASK-1007: Иерархия ролей сервера, drag-and-drop P
     const gwSchemaJson = JSON.parse(readFileSync(GATEWAY_SCHEMA_JSON_PATH, "utf8"));
     assert.equal(gwSchemaJson.stats?.ready?.rolesTotal, 132);
     const gwSchemaMd = readFileSync(GATEWAY_SCHEMA_MD_PATH, "utf8");
-    assert.match(gwSchemaMd, /\*\*READY\.d\.guilds\[\]\.roles\[\] \(132 роли\)\*\* \(13 ключей\)/);
+    assert.match(gwSchemaMd, /\*\*READY\.d\.guilds\[\]\.roles\[\] \(132 roles\)\*\* \(13 keys\)/);
     assert.match(gwSchemaMd, /\|\s*`permissions`\s*\|\s*string\s*\|\s*str\s*\|\s*132\/132\s*\|\s*2221977711673344\s*\|/);
 
     // 3. Оракул docs/re/rest-d02.json и rust/gui-spike/src/roles.rs
@@ -240,7 +240,7 @@ describe("TASK-1007: Иерархия ролей сервера, drag-and-drop P
     assert.match(spikeRolesRs, /pub const MAX_RGB_COLOR: u32 = 0x00FF_FFFF;/);
     assert.match(spikeRolesRs, /pub const PERM_ADMINISTRATOR: u64 = 1 << 3;/);
 
-    // 4. Оракул rust/crates/discord-core/src/permissions.rs (41 битовый флаг 0..=40)
+    // 4. Оракул rust/crates/chord-core/src/permissions.rs (41 битовый флаг 0..=40)
     const corePermsRs = readFileSync(CORE_PERMISSIONS_RS_PATH, "utf8");
     assert.match(corePermsRs, /pub const ALL_V9_DEFINED_PERMISSIONS: u64 = \(1u64 << 41\) - 1;/);
     assert.match(corePermsRs, /pub const CREATE_INSTANT_INVITE: u64 = 1 << 0;/);

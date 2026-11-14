@@ -4,9 +4,9 @@
 #![forbid(unsafe_code)]
 #![allow(dead_code)]
 
-#[path = "../../../crates/discord-voice/src/crypto/mod.rs"]
+#[path = "../../../crates/chord-voice/src/crypto/mod.rs"]
 pub mod crypto;
-#[path = "../../../crates/discord-voice/src/dave_v1/mod.rs"]
+#[path = "../../../crates/chord-voice/src/dave_v1/mod.rs"]
 pub mod dave_v1;
 
 use crypto::gcm::Aes128GcmTruncated8;

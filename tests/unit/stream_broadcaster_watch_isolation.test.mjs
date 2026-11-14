@@ -12,7 +12,7 @@ const REPO_ROOT = path.resolve(__dirname, "../..");
 describe("Stream Broadcaster vs Viewer Isolation & Signal Guard (TASK-770 / TASK-771)", () => {
   const appJsPath = path.join(REPO_ROOT, "rust/gui-spike/ui/app.js");
   const mainRsPath = path.join(REPO_ROOT, "rust/gui-spike/src/main.rs");
-  const wsRsPath = path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs");
+  const wsRsPath = path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs");
 
   const appJs = fs.readFileSync(appJsPath, "utf8");
   const mainRs = fs.readFileSync(mainRsPath, "utf8");
@@ -37,7 +37,7 @@ describe("Stream Broadcaster vs Viewer Isolation & Signal Guard (TASK-770 / TASK
   it("SB2: voice_stream_start in main.rs does not duplicate queue_live_stream_create when connect_or_update_live_voice_ext already sent it", () => {
     const streamStartIdx = mainRs.indexOf("async fn voice_stream_start");
     assert.ok(streamStartIdx > 0, "voice_stream_start must exist in main.rs");
-    const streamStartSnippet = mainRs.slice(streamStartIdx, streamStartIdx + 3000);
+    const streamStartSnippet = mainRs.slice(streamStartIdx, mainRs.indexOf("\n}", streamStartIdx) + 2);
 
     // Ensure queue_live_stream_create is not called redundantly after connect_or_update_live_voice_ext with self_stream=true
     const hasConnectExt = streamStartSnippet.includes("connect_or_update_live_voice_ext");

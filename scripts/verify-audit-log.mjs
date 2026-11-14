@@ -23,7 +23,7 @@ const DEFAULT_CORE_PERMISSIONS_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-core",
+  "chord-core",
   "src",
   "permissions.rs",
 );

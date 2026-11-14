@@ -1,11 +1,11 @@
 #![no_main]
-//! Фаззинг входящего конвейера шлюза Discord: JSON (`discord-json`), ETF (`discord-codec::etf`),
+//! Фаззинг входящего конвейера шлюза Discord: JSON (`chord-json`), ETF (`chord-codec::etf`),
 //! потоковый декодер `ZstdStream` (включая защиту от RLE zip-bomb) и `GatewayPipe` / `Session`.
 
-use discord_codec::etf;
-use discord_codec::zstd::ZstdStream;
-use discord_core::ready::Ready;
-use discord_core::{GatewayPipe, Session, State, apply_frame, route_dispatch};
+use chord_codec::etf;
+use chord_codec::zstd::ZstdStream;
+use chord_core::ready::Ready;
+use chord_core::{GatewayPipe, Session, State, apply_frame, route_dispatch};
 use libfuzzer_sys::fuzz_target;
 use std::sync::OnceLock;
 
@@ -46,13 +46,13 @@ fuzz_target!(|data: &[u8]| {
 
     // 1. Входящие текстовые JSON-кадры основного и голосового шлюзов
     if let Ok(text) = std::str::from_utf8(data) {
-        if let Ok(parsed) = discord_json::parse(text) {
-            let serialized = discord_json::to_json_string(&parsed);
-            let reparsed = discord_json::parse(&serialized)
+        if let Ok(parsed) = chord_json::parse(text) {
+            let serialized = chord_json::to_json_string(&parsed);
+            let reparsed = chord_json::parse(&serialized)
                 .expect("повторный разбор сериализованного JsonValue обязан проходить");
             assert_eq!(parsed, reparsed);
         }
-        let _ = discord_voice::parse_frame(text);
+        let _ = chord_voice::parse_frame(text);
     }
 
     // 2. Прямой разбор ETF-термов (с байтом версии 0x83 и без него) + сессия и редьюсер
@@ -71,7 +71,7 @@ fuzz_target!(|data: &[u8]| {
     // 3. Потоковый zstd + фрагментированный конвейер GatewayPipe
     let mut zstd = ZstdStream::new();
     if let Ok(chunk) = zstd.push(data) {
-        assert!(chunk.len() <= discord_codec::zstd::MAX_DECOMPRESSED_CHUNK_BYTES);
+        assert!(chunk.len() <= chord_codec::zstd::MAX_DECOMPRESSED_CHUNK_BYTES);
     }
 
     if !data.is_empty() {

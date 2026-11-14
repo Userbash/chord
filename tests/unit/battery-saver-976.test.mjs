@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты модуля снижения энергопотребления и Battery Saver Mode (TASK-976):
- * - SUB-976-0: Статический контракт `rust/discord-gpui/src/battery_saver.rs`
+ * - SUB-976-0: Статический контракт `rust/chord-gpui/src/battery_saver.rs`
  *   (`#![forbid(unsafe_code)]`, соблюдение лимитов `scripts/quality-gate.mjs`: функции < 50 строк,
  *   модуль < 800 строк, 0 `.unwrap()`/`.expect()` в prod-коде, чистый `rustfmt --check --edition 2024`
  *   и компиляция `rustc --test --edition 2024 -D warnings`).
@@ -37,7 +37,7 @@ import {
 } from "../../scripts/quality-gate.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-gpui/src/battery_saver.rs";
+const MODULE_REL_PATH = "rust/chord-gpui/src/battery_saver.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const BACKEND_IPC_JSON_PATH = join(ROOT, "docs", "re", "backend-ipc.json");
@@ -101,7 +101,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-976: Модуль снижения энергопотребления и Battery Saver Mode (rust/discord-gpui/src/battery_saver.rs)", () => {
+describe("TASK-976: Модуль снижения энергопотребления и Battery Saver Mode (rust/chord-gpui/src/battery_saver.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "battery-saver-976-"));
     testBinPath = join(workDir, "battery_saver_976_test");
@@ -113,7 +113,7 @@ describe("TASK-976: Модуль снижения энергопотреблен
     }
   });
 
-  it("SUB-976-0: модуль rust/discord-gpui/src/battery_saver.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
+  it("SUB-976-0: модуль rust/chord-gpui/src/battery_saver.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,

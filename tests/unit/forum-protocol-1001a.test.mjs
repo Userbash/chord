@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты парсера `GUILD_FORUM` (`type: 15`) и REST-пагинации
  * активных постов `GET /channels/{id}/threads/active` (TASK-1001A):
- * - SUB-1001A-0: Статический и компиляционный контракт `rust/crates/discord-core/src/forum.rs`
+ * - SUB-1001A-0: Статический и компиляционный контракт `rust/crates/chord-core/src/forum.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`:
  *   функции < 50 строк, файл < 800 строк, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений и прогон встроенных Rust-тестов).
@@ -18,7 +18,7 @@
  *   граничные Snowflake `0`/`u64::MAX`, `2000` символов, `10` файлов/`25 МБ`, `offset=9975`, громкость `0..200%`,
  *   бейдж `99+`, HTTP `400/401/403/404/413/429/5xx`, пустые, `skeleton`/`HTTP 202`, права и `AGE_GATED_SPACES`,
  *   восстановление при цикле пагинации и маскирование секретов).
- * - SUB-1001A-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/discord-core/src/forum.rs`.
+ * - SUB-1001A-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/chord-core/src/forum.rs`.
  */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -42,7 +42,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/crates/discord-core/src/forum.rs";
+const RUST_MODULE_REL_PATH = "rust/crates/chord-core/src/forum.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const GATEWAY_SCHEMA_JSON_PATH = join(ROOT, "docs", "re", "gateway-schema.json");
@@ -62,7 +62,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/crates/discord-core/src/forum.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/crates/chord-core/src/forum.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -113,7 +113,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1001A: Парсер Gateway type: 15 (GUILD_FORUM) и REST GET /channels/{id}/threads/active (rust/crates/discord-core/src/forum.rs)", () => {
+describe("TASK-1001A: Парсер Gateway type: 15 (GUILD_FORUM) и REST GET /channels/{id}/threads/active (rust/crates/chord-core/src/forum.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "forum-protocol-1001a-"));
     testBinPath = join(workDir, "forum_protocol_1001a_test");
@@ -125,7 +125,7 @@ describe("TASK-1001A: Парсер Gateway type: 15 (GUILD_FORUM) и REST GET /c
     }
   });
 
-  it("SUB-1001A-0: проверяет статический контракт rust/crates/discord-core/src/forum.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
+  it("SUB-1001A-0: проверяет статический контракт rust/crates/chord-core/src/forum.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,
@@ -303,7 +303,7 @@ describe("TASK-1001A: Парсер Gateway type: 15 (GUILD_FORUM) и REST GET /c
       /pub const MAX_FORUM_CONTENT_CHARS: usize = 2000;/,
     );
 
-    // 6. Сверка исходника rust/crates/discord-core/src/forum.rs
+    // 6. Сверка исходника rust/crates/chord-core/src/forum.rs
     const rustSource = readFileSync(RUST_MODULE_PATH, "utf8");
     for (const tokenVal of Object.values(card1001A.design_tokens)) {
       assert.ok(
@@ -414,7 +414,7 @@ describe("TASK-1001A: Парсер Gateway type: 15 (GUILD_FORUM) и REST GET /c
     assert.match(run.stdout, /test tests::test_sub_1001a_4_.*ok/);
   });
 
-  it("SUB-1001A-5: убивает 5/5 контрольных мутаций в rust/crates/discord-core/src/forum.rs (100% mutation kill rate)", () => {
+  it("SUB-1001A-5: убивает 5/5 контрольных мутаций в rust/crates/chord-core/src/forum.rs (100% mutation kill rate)", () => {
     assert.ok(existsSync(RUST_MODULE_PATH), "Модуль forum.rs должен существовать");
     const originalRust = readFileSync(RUST_MODULE_PATH, "utf8");
     const originalMd5 = createHash("md5").update(originalRust).digest("hex");

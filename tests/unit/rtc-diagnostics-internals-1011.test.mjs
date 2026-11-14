@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты продвинутой WebRTC-диагностики и окна `RTC Internals HUD`
  * (`TASK-1011` / `TASK-1011A` / `TASK-1011B` — `RE-GAP-22`):
- * - SUB-1011-0: Статический и компиляционный контракт `rust/discord-gpui/src/voice/rtc_diagnostics.rs`
+ * - SUB-1011-0: Статический и компиляционный контракт `rust/chord-gpui/src/voice/rtc_diagnostics.rs`
  *   и `scripts/verify-rtc-diag.mjs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде,
  *   лимиты `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, чистый `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -25,7 +25,7 @@
  *   2000 символов, 10 файлов/25 МБ, `offset=9975`, громкость `0..200%`, бейдж `99+`; ошибки HTTP и `AVError`
  *   `2004..2017`; пустые; `skeleton`/`HTTP 202`; права `VIEW_CHANNEL`/`CONNECT`/`SPEAK`/`AGE_GATED_SPACES`;
  *   восстановление после 3 таймаутов пинга `4000 мс` и ротации UDP-сокета; маскирование секретов) и CLI `0 / 1 / 2`.
- * - SUB-1011-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/voice/rtc_diagnostics.rs`
+ * - SUB-1011-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/voice/rtc_diagnostics.rs`
  *   и `scripts/verify-rtc-diag.mjs` по контракту `scripts/quality-gate.mjs`.
  */
 import assert from "node:assert/strict";
@@ -60,7 +60,7 @@ import {
 } from "../../rust/gui-spike/ui/features/voice-diagnostics.js";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/voice/rtc_diagnostics.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/voice/rtc_diagnostics.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const SCRIPT_REL_PATH = "scripts/verify-rtc-diag.mjs";
 const SCRIPT_PATH = join(ROOT, SCRIPT_REL_PATH);
@@ -97,7 +97,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/voice/rtc_diagnostics.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/voice/rtc_diagnostics.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -148,7 +148,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1011: Продвинутая WebRTC диагностика и RTC Internals (rust/discord-gpui/src/voice/rtc_diagnostics.rs)", () => {
+describe("TASK-1011: Продвинутая WebRTC диагностика и RTC Internals (rust/chord-gpui/src/voice/rtc_diagnostics.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "rtc-diagnostics-1011-"));
     testBinPath = join(workDir, "rtc_diagnostics_1011_test");
@@ -160,7 +160,7 @@ describe("TASK-1011: Продвинутая WebRTC диагностика и RTC
     }
   });
 
-  it("SUB-1011-0: модули rust/discord-gpui/src/voice/rtc_diagnostics.rs и scripts/verify-rtc-diag.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
+  it("SUB-1011-0: модули rust/chord-gpui/src/voice/rtc_diagnostics.rs и scripts/verify-rtc-diag.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Модуль ${RUST_MODULE_REL_PATH} должен существовать`,
@@ -644,7 +644,7 @@ describe("TASK-1011: Продвинутая WebRTC диагностика и RTC
     assert.match(rustRun.stdout, /test tests::test_sub_1011_4_.*ok/);
   });
 
-  it("SUB-1011-5: убивает 5/5 контрольных мутаций в rust/discord-gpui/src/voice/rtc_diagnostics.rs и scripts/verify-rtc-diag.mjs (100% mutation kill rate)", () => {
+  it("SUB-1011-5: убивает 5/5 контрольных мутаций в rust/chord-gpui/src/voice/rtc_diagnostics.rs и scripts/verify-rtc-diag.mjs (100% mutation kill rate)", () => {
     assert.ok(existsSync(testBinPath), "Тестовый бинарник Rust должен быть собран");
 
     const originalRust = readFileSync(RUST_MODULE_PATH, "utf8");
