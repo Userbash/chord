@@ -1281,6 +1281,7 @@ fn a05_call_over_abstract_bus_returns_mock_reply() {
 // --- a06: несуществующий abstract ------------------------------------------------
 
 #[test]
+#[cfg(target_os = "linux")]
 fn a06_connect_missing_abstract_returns_error_without_panic() {
     let name = format!(
         "discord-lab-missing-{}-{}",
@@ -1570,6 +1571,7 @@ fn f01_unix_fd_value_round_trips_through_per_message_index() {
 // --- f04: два fd в одном сообщении -----------------------------------------------
 
 #[test]
+#[cfg(target_os = "linux")]
 fn f04_two_fds_in_one_reply_are_received_in_order_and_closed() {
     let bus = logind_bus!();
     let mut connection =
@@ -1623,6 +1625,7 @@ fn f04_two_fds_in_one_reply_are_received_in_order_and_closed() {
 // --- f05: индекс вне диапазона ----------------------------------------------------
 
 #[test]
+#[cfg(target_os = "linux")]
 fn f05_out_of_range_index_is_protocol_and_fds_are_closed() {
     // Ровно один fd в очереди и один в заголовке UNIX_FDS, а индекс в теле — 7:
     // это проверяет именно границу индекса, а не сверку счётчика.
@@ -1664,6 +1667,7 @@ fn f05_out_of_range_index_is_protocol_and_fds_are_closed() {
 // --- f06: MSG_CTRUNC (ancillary не влез в буфер) ----------------------------------
 
 #[test]
+#[cfg(target_os = "linux")]
 fn f06_control_truncation_is_protocol_and_closes_received_fds() {
     let (sender, receiver) = std::os::unix::net::UnixStream::pair().expect("socketpair");
     // Уникальные имена файлов: счёт по линкам `/proc/self/fd` не пересекается с другими
@@ -1700,6 +1704,7 @@ fn f06_control_truncation_is_protocol_and_closes_received_fds() {
 // --- f07: `call` закрывает fd из ответа ------------------------------------------
 
 #[test]
+#[cfg(target_os = "linux")]
 fn f07_plain_call_closes_fds_from_reply_and_reports_protocol() {
     let bus = logind_bus!();
     let mut connection =
@@ -1780,6 +1785,7 @@ fn f09_call_with_fds_sends_two_pipe_fds_to_service() {
 // --- f11: дубликат индекса fd (мутационный пробел x2) ------------------------------
 
 #[test]
+#[cfg(target_os = "linux")]
 fn f11_duplicate_unix_fd_index_is_protocol_and_closes_fds() {
     let prefix = format!("w35a-f11-{}-{}", std::process::id(), unique_suffix());
     let mut raw = Vec::new();
@@ -1961,6 +1967,7 @@ fn f16_duplicate_cloexec_is_independent_and_preserves_io() {
 }
 
 #[test]
+#[cfg(target_os = "linux")]
 fn f17_single_receive_eof_keeps_owned_fds_but_exact_eof_closes_them() {
     use std::os::fd::IntoRawFd;
     use std::os::unix::net::UnixStream;
@@ -1992,6 +1999,7 @@ fn f17_single_receive_eof_keeps_owned_fds_but_exact_eof_closes_them() {
 }
 
 #[test]
+#[cfg(target_os = "linux")]
 fn f18_single_receive_would_block_closes_collected_fds_and_keeps_os_error() {
     use std::os::fd::IntoRawFd;
     use std::os::unix::net::UnixStream;
@@ -2021,6 +2029,7 @@ fn f18_single_receive_would_block_closes_collected_fds_and_keeps_os_error() {
 }
 
 #[test]
+#[cfg(target_os = "linux")]
 fn f19_single_receive_truncation_closes_every_delivered_fd() {
     use std::os::unix::net::UnixStream;
 

@@ -6049,7 +6049,11 @@ pub fn spawn_stream_soundshare_enforcer(child_pid: u32, target_monitor: String) 
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(180);
         let mut attached = false;
         while std::time::Instant::now() < deadline {
-            std::thread::sleep(std::time::Duration::from_millis(if attached { 2000 } else { 300 }));
+            std::thread::sleep(std::time::Duration::from_millis(if attached {
+                2000
+            } else {
+                300
+            }));
             if let Ok(out) = std::process::Command::new("pactl")
                 .args(["list", "source-outputs"])
                 .stdin(std::process::Stdio::null())
