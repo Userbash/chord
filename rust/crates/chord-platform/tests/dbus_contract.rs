@@ -390,7 +390,7 @@ fn n01_bus_address_parse_accepts_path_and_rejects_unsupported() {
 // --- n02: uid для AUTH EXTERNAL --------------------------------------------------
 
 #[test]
-fn n02b_external_auth_line_uses_hex_uid_from_proc_status() {
+fn n02b_external_auth_line_uses_effective_uid_from_os() {
     let output = Command::new("id").arg("-u").output().expect("id -u");
     assert!(output.status.success(), "id -u завершился неуспешно");
     let expected: u32 = String::from_utf8_lossy(&output.stdout)
@@ -399,7 +399,7 @@ fn n02b_external_auth_line_uses_hex_uid_from_proc_status() {
         .expect("uid из id -u");
 
     assert_eq!(
-        auth::current_uid().expect("uid из /proc/self/status"),
+        auth::current_uid().expect("effective UID from the operating system"),
         expected
     );
     // Идентичность EXTERNAL — десятичная запись uid в hex (libdbus: 1000 → "31303030").
@@ -1843,5 +1843,271 @@ fn f13_build_rejects_more_than_max_unix_fds() {
     assert!(
         matches!(result, Err(DbusError::Protocol(_))),
         "больше MAX_FDS_PER_MESSAGE → Protocol, получено {result:?}"
+    );
+}
+
+// --- f14: received descriptors are closed automatically on exec -------------------
+
+#[test]
+#[allow(unsafe_code)] // Independent POSIX fcntl oracle and ownership of received descriptors.
+fn f14_received_unix_fds_are_close_on_exec() {
+    use std::os::fd::{FromRawFd, OwnedFd};
+    use std::os::unix::net::UnixStream;
+
+    let (sender, receiver) = UnixStream::pair().expect("transport socketpair");
+    let (first, second) = UnixStream::pair().expect("source socketpair");
+    let originals = [first.as_raw_fd(), second.as_raw_fd()];
+    let flags = |raw| {
+        // SAFETY: every descriptor is owned by a live UnixStream or OwnedFd; F_GETFD
+        // only reads its flags and does not take ownership or access memory.
+        let result = unsafe { libc::fcntl(raw, libc::F_GETFD) };
+        assert!(
+            result >= 0,
+            "F_GETFD({raw}): {}",
+            std::io::Error::last_os_error()
+        );
+        result
+    };
+    let original_flags = originals.map(flags);
+
+    fd::send_with_fds(&sender, b"fd", &originals).expect("send two descriptors");
+    let mut payload = [0u8; 2];
+    let mut received = Vec::new();
+    fd::recv_exact_with_fds(&receiver, &mut payload, &mut received)
+        .expect("receive two descriptors");
+    let owned: Vec<OwnedFd> = received
+        .into_iter()
+        .map(|raw| {
+            // SAFETY: SCM_RIGHTS returns new, uniquely owned descriptors; the receive
+            // function transfers them to its caller, and no other owner is created.
+            unsafe { OwnedFd::from_raw_fd(raw) }
+        })
+        .collect();
+
+    assert_eq!(&payload, b"fd");
+    assert_eq!(owned.len(), 2);
+    for received in &owned {
+        assert_ne!(
+            flags(received.as_raw_fd()) & libc::FD_CLOEXEC,
+            0,
+            "every received descriptor must have FD_CLOEXEC before it is returned"
+        );
+    }
+    assert_eq!(
+        originals.map(flags),
+        original_flags,
+        "sender flags are unchanged"
+    );
+}
+
+#[test]
+#[allow(unsafe_code)] // Independent kernel flag oracle and ownership of received SCM_RIGHTS copies.
+fn f15_single_receive_returns_short_payload_and_close_on_exec_fds() {
+    use std::os::fd::{FromRawFd, OwnedFd};
+    use std::os::unix::net::UnixStream;
+
+    let (sender, receiver) = UnixStream::pair().expect("socketpair");
+    receiver
+        .set_read_timeout(Some(Duration::from_secs(1)))
+        .expect("timeout");
+    let source = fs::File::open("/dev/null").expect("source descriptor");
+    fd::send_with_fds(&sender, b"PW", &[source.as_raw_fd()]).expect("send short payload");
+    let mut payload = [0u8; 8];
+    let mut received = Vec::new();
+    let count = fd::recv_with_fds(&receiver, &mut payload, &mut received).expect("short receive");
+    let owned: Vec<OwnedFd> = received
+        .into_iter()
+        .map(|raw| {
+            // SAFETY: the receiver returns new uniquely owned descriptor copies.
+            unsafe { OwnedFd::from_raw_fd(raw) }
+        })
+        .collect();
+    assert_eq!(count, 2, "one receive must not wait to fill the buffer");
+    assert_eq!(&payload[..count], b"PW");
+    assert_eq!(owned.len(), 1);
+    // SAFETY: owned retains the live descriptor; F_GETFD only queries its flags.
+    let flags = unsafe { libc::fcntl(owned[0].as_raw_fd(), libc::F_GETFD) };
+    assert!(flags >= 0);
+    assert_ne!(flags & libc::FD_CLOEXEC, 0);
+}
+
+#[test]
+#[allow(unsafe_code)] // Independent kernel flag oracle and ownership of the returned duplicate.
+fn f16_duplicate_cloexec_is_independent_and_preserves_io() {
+    use std::io::{Read, Write};
+    use std::os::fd::{FromRawFd, OwnedFd};
+    use std::os::unix::net::UnixStream;
+
+    let (mut writer, source) = UnixStream::pair().expect("socketpair");
+    let raw = fd::duplicate_cloexec(source.as_raw_fd()).expect("duplicate");
+    assert_ne!(raw, source.as_raw_fd());
+    // SAFETY: duplicate_cloexec transfers the new descriptor's unique ownership.
+    let owned = unsafe { OwnedFd::from_raw_fd(raw) };
+    // SAFETY: owned retains the live descriptor; F_GETFD only queries its flags.
+    let flags = unsafe { libc::fcntl(raw, libc::F_GETFD) };
+    assert!(flags >= 0);
+    assert_ne!(flags & libc::FD_CLOEXEC, 0);
+    drop(source);
+    let mut duplicate = UnixStream::from(owned);
+    writer
+        .write_all(b"ping")
+        .expect("write after source is closed");
+    let mut data = [0u8; 4];
+    duplicate
+        .read_exact(&mut data)
+        .expect("read through duplicate");
+    assert_eq!(&data, b"ping");
+    assert!(fd::duplicate_cloexec(-1).is_err());
+}
+
+#[test]
+fn f17_single_receive_eof_keeps_owned_fds_but_exact_eof_closes_them() {
+    use std::os::fd::IntoRawFd;
+    use std::os::unix::net::UnixStream;
+
+    let prefix = format!("chord-f17-{}-{}", std::process::id(), unique_suffix());
+    let path = std::env::temp_dir().join(&prefix);
+    let file = fs::File::create(&path).expect("unique source");
+    fs::remove_file(&path).expect("unlink source");
+    let mut received = vec![file.into_raw_fd()];
+    let (sender, receiver) = UnixStream::pair().expect("socketpair");
+    drop(sender);
+    let mut data = [0u8; 1];
+    assert_eq!(
+        fd::recv_with_fds(&receiver, &mut data, &mut received).expect("EOF"),
+        0
+    );
+    assert_eq!(received.len(), 1);
+    assert_eq!(count_fds_matching(&prefix), 1);
+    assert!(matches!(
+        fd::recv_exact_with_fds(&receiver, &mut data, &mut received),
+        Err(DbusError::Protocol("truncated message"))
+    ));
+    assert!(received.is_empty());
+    assert_eq!(
+        count_fds_matching(&prefix),
+        0,
+        "premature EOF must close collected fds"
+    );
+}
+
+#[test]
+fn f18_single_receive_would_block_closes_collected_fds_and_keeps_os_error() {
+    use std::os::fd::IntoRawFd;
+    use std::os::unix::net::UnixStream;
+
+    let prefix = format!("chord-f18-{}-{}", std::process::id(), unique_suffix());
+    let path = std::env::temp_dir().join(&prefix);
+    let file = fs::File::create(&path).expect("unique source");
+    fs::remove_file(&path).expect("unlink source");
+    let mut received = vec![file.into_raw_fd()];
+    let (_sender, receiver) = UnixStream::pair().expect("socketpair");
+    receiver
+        .set_nonblocking(true)
+        .expect("nonblocking receiver");
+    let result = fd::recv_with_fds(&receiver, &mut [0u8; 1], &mut received);
+    assert!(matches!(result, Err(DbusError::Io(ref error))
+        if error.kind() == std::io::ErrorKind::WouldBlock));
+    assert!(received.is_empty());
+    assert_eq!(
+        count_fds_matching(&prefix),
+        0,
+        "failed receive must close collected fds"
+    );
+    assert!(matches!(
+        fd::recv_exact_with_fds(&receiver, &mut [0u8; 1], &mut received),
+        Err(DbusError::Timeout)
+    ));
+}
+
+#[test]
+fn f19_single_receive_truncation_closes_every_delivered_fd() {
+    use std::os::unix::net::UnixStream;
+
+    let (sender, receiver) = UnixStream::pair().expect("socketpair");
+    let prefix = format!("chord-f19-{}-{}", std::process::id(), unique_suffix());
+    let files: Vec<_> = (0..fd::MAX_FDS_PER_MESSAGE + 4)
+        .map(|index| {
+            let path = std::env::temp_dir().join(format!("{prefix}-{index}"));
+            let file = fs::File::create(&path).expect("unique source");
+            fs::remove_file(&path).expect("unlink source");
+            file
+        })
+        .collect();
+    let originals: Vec<_> = files.iter().map(AsRawFd::as_raw_fd).collect();
+    fd::send_with_fds(&sender, b"x", &originals).expect("send excess descriptors");
+    drop(files);
+    let mut received = Vec::new();
+    let result = fd::recv_with_fds(&receiver, &mut [0u8; 8], &mut received);
+    assert!(matches!(
+        result,
+        Err(DbusError::Protocol("control data truncated"))
+    ));
+    assert!(received.is_empty());
+    assert_eq!(
+        count_fds_matching(&prefix),
+        0,
+        "no truncated descriptor may leak"
+    );
+}
+
+#[test]
+fn f20_empty_receive_does_not_consume_pending_payload() {
+    use std::os::unix::net::UnixStream;
+
+    let (sender, receiver) = UnixStream::pair().expect("socketpair");
+    fd::send_with_fds(&sender, b"x", &[]).expect("pending payload");
+    let mut received = Vec::new();
+    assert_eq!(
+        fd::recv_with_fds(&receiver, &mut [], &mut received).expect("empty read"),
+        0
+    );
+    let mut data = [0u8; 1];
+    assert_eq!(
+        fd::recv_with_fds(&receiver, &mut data, &mut received).expect("pending byte"),
+        1
+    );
+    assert_eq!(&data, b"x");
+    assert!(received.is_empty());
+}
+
+#[test]
+#[cfg(target_os = "linux")]
+#[allow(unsafe_code)] // Independent SO_PASSCRED kernel fixture; all pointers reference live values.
+fn f21_unexpected_ancillary_still_closes_rights_from_later_headers() {
+    use std::os::unix::net::UnixStream;
+
+    let (sender, receiver) = UnixStream::pair().expect("socketpair");
+    let enabled: libc::c_int = 1;
+    // SAFETY: receiver is live, enabled is aligned and readable, and its exact
+    // byte size is passed to the checked socket-option syscall.
+    let result = unsafe {
+        libc::setsockopt(
+            receiver.as_raw_fd(),
+            libc::SOL_SOCKET,
+            libc::SO_PASSCRED,
+            (&raw const enabled).cast(),
+            std::mem::size_of_val(&enabled) as libc::socklen_t,
+        )
+    };
+    assert_eq!(result, 0, "enable SO_PASSCRED");
+    let prefix = format!("chord-f21-{}-{}", std::process::id(), unique_suffix());
+    let path = std::env::temp_dir().join(&prefix);
+    let file = fs::File::create(&path).expect("unique source");
+    fs::remove_file(&path).expect("unlink source");
+    fd::send_with_fds(&sender, b"x", &[file.as_raw_fd()]).expect("send rights after credentials");
+    drop(file);
+    assert_eq!(count_fds_matching(&prefix), 0);
+    let mut received = Vec::new();
+    let result = fd::recv_with_fds(&receiver, &mut [0u8; 1], &mut received);
+    assert!(matches!(
+        result,
+        Err(DbusError::Protocol("unexpected ancillary data"))
+    ));
+    assert!(received.is_empty());
+    assert_eq!(
+        count_fds_matching(&prefix),
+        0,
+        "rights from later headers must be closed when earlier credentials are rejected"
     );
 }

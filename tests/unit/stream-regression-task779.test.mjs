@@ -19,7 +19,7 @@ const CAPTURE_TARGET_SHM_PATH = "/dev/shm/discord_capture_target.txt";
 const CAPTURE_KICK_SHM_PATH = "/dev/shm/discord_capture_kick.bin";
 
 describe("TASK-779: Комплексный регрессионный сьют трансляции экрана (WebRTC, Stage Viewer/PIP, Hot Window Switch)", () => {
-  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs"), "utf8");
+  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs"), "utf8");
   const dataRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/data.rs"), "utf8");
   const mainRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/main.rs"), "utf8");
   const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
@@ -378,7 +378,9 @@ describe("TASK-779: Комплексный регрессионный сьют �
       // 2. data.rs set_capture_source пишет в /dev/shm/discord_capture_target.txt и /dev/shm/discord_capture_kick.bin
       const dataIdx = dataRs.indexOf('if kind == "set_capture_source"');
       assert.ok(dataIdx > 0, "set_capture_source должен быть в data.rs");
-      const dataBody = dataRs.slice(dataIdx, dataIdx + 2500);
+      const dataEnd = dataRs.indexOf('    if kind == "list_capture_windows"', dataIdx);
+      assert.ok(dataEnd > dataIdx, "set_capture_source must have its expected closing boundary");
+      const dataBody = dataRs.slice(dataIdx, dataEnd);
       assert.match(
         dataBody,
         /std::fs::write\("\/dev\/shm\/discord_capture_target\.txt",\s*target_handle\.as_bytes\(\)\)/,
@@ -391,14 +393,14 @@ describe("TASK-779: Комплексный регрессионный сьют �
       );
       assert.match(
         dataBody,
-        /discord_core::ws::send_native_stream_cmd\(&ucmd\)/,
+        /chord_core::ws::send_native_stream_cmd\(&ucmd\)/,
         "data.rs set_capture_source обязан отправлять команду set_stream_source в нативный мост",
       );
 
       // 3. main.rs voice_stream_start также инициализирует /dev/shm/discord_capture_target.txt
       const startIdx = mainRs.indexOf("async fn voice_stream_start");
       assert.ok(startIdx > 0, "voice_stream_start должна быть в main.rs");
-      const startBody = mainRs.slice(startIdx, startIdx + 2000);
+      const startBody = mainRs.slice(startIdx, mainRs.indexOf("\n}", startIdx) + 2);
       assert.match(
         startBody,
         /std::fs::write\("\/dev\/shm\/discord_capture_target\.txt",\s*clean_src\.as_bytes\(\)\)/,
@@ -478,7 +480,7 @@ describe("TASK-779: Комплексный регрессионный сьют �
       }
 
       /**
-       * Точная модель C-хука `capture_kwin_dbus_to_ring` из `rust/crates/discord-core/src/ws.rs`.
+       * Точная модель C-хука `capture_kwin_dbus_to_ring` из `rust/crates/chord-core/src/ws.rs`.
        */
       function readKwinTargetFromShm() {
         const raw = fs.readFileSync(CAPTURE_TARGET_SHM_PATH, "utf8");

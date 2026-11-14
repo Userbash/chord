@@ -6,7 +6,7 @@
  *   24.8 fixed-point `wl_fixed_t`) и X11 XInput2 v2.4 (`XI_TouchBegin=18`, `XI_TouchUpdate=19`,
  *   `XI_TouchEnd=20`, `XI_GesturePinchBegin=27`, `XI_GesturePinchUpdate=28`, `XI_GesturePinchEnd=29`,
  *   `XIScrollClassInfo`), автоопределение бэкенда и сверка с независимыми оракулами
- *   (`docs/re/frontend-d03.json`, `rust/discord-gpui/src/state/mod.rs`, `rust/discord-gpui/src/ui/chat_view.rs`,
+ *   (`docs/re/frontend-d03.json`, `rust/chord-gpui/src/state/mod.rs`, `rust/chord-gpui/src/ui/chat_view.rs`,
  *   `waves/kanban-board.json`).
  * - SUB-975-2: Эмуляция и верификация `pinch-to-zoom` без разрывов масштаба (непрерывность кривой,
  *   сохранение фокусной точки под пальцами `anchorDriftPx < 0.01`, зажим `zoomScale` в `0.50..2.00`
@@ -39,8 +39,8 @@ import {
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const SCRIPT_PATH = join(ROOT, "scripts", "verify-gestures.mjs");
 const FRONTEND_D03_PATH = join(ROOT, "docs", "re", "frontend-d03.json");
-const GPUI_STATE_PATH = join(ROOT, "rust", "discord-gpui", "src", "state", "mod.rs");
-const GPUI_CHAT_VIEW_PATH = join(ROOT, "rust", "discord-gpui", "src", "ui", "chat_view.rs");
+const GPUI_STATE_PATH = join(ROOT, "rust", "chord-gpui", "src", "state", "mod.rs");
+const GPUI_CHAT_VIEW_PATH = join(ROOT, "rust", "chord-gpui", "src", "ui", "chat_view.rs");
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 
 describe("TASK-975: Верификация сенсорных жестов и кинетической прокрутки Wayland/XInput2 (scripts/verify-gestures.mjs)", () => {

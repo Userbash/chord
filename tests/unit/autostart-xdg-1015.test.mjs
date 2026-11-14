@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты автозапуска с системой (XDG Autostart & Start Minimized — TASK-1015):
- * - SUB-1015-0: Статический и компиляционный контракт `rust/discord-gpui/src/platform/autostart.rs`
+ * - SUB-1015-0: Статический и компиляционный контракт `rust/chord-gpui/src/platform/autostart.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде, соблюдение лимитов
  *   `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, чистый `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -29,14 +29,16 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
+  copyFileSync,
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { after, before, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -47,8 +49,9 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-gpui/src/platform/autostart.rs";
+const MODULE_REL_PATH = "rust/chord-gpui/src/platform/autostart.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
+const MODULE_CHILDREN = ["settings.rs", "tests.rs"];
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const FEATURE_BACKLOG_PATH = join(ROOT, "docs", "feature-backlog.md");
 const BACKEND_IPC_DOC_PATH = join(ROOT, "docs", "re", "backend-ipc.md");
@@ -60,7 +63,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/platform/autostart.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/platform/autostart.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -111,7 +114,19 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1015: Автозапуск с системой (XDG Autostart & Start Minimized — rust/discord-gpui/src/platform/autostart.rs)", () => {
+/** @param {string} directory @param {string} source */
+function stageAutostartModule(directory, source) {
+  const children = join(directory, "autostart");
+  mkdirSync(children, { recursive: true });
+  for (const name of MODULE_CHILDREN) {
+    copyFileSync(join(dirname(MODULE_PATH), "autostart", name), join(children, name));
+  }
+  const modulePath = join(directory, "autostart.rs");
+  writeFileSync(modulePath, source, "utf8");
+  return modulePath;
+}
+
+describe("TASK-1015: Автозапуск с системой (XDG Autostart & Start Minimized — rust/chord-gpui/src/platform/autostart.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "autostart-xdg-1015-"));
     testBinPath = join(workDir, "autostart_xdg_1015_test");
@@ -123,7 +138,7 @@ describe("TASK-1015: Автозапуск с системой (XDG Autostart & S
     }
   });
 
-  it("SUB-1015-0: модуль rust/discord-gpui/src/platform/autostart.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
+  it("SUB-1015-0: модуль rust/chord-gpui/src/platform/autostart.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} обязан существовать`,
@@ -153,6 +168,13 @@ describe("TASK-1015: Автозапуск с системой (XDG Autostart & S
       sizeCheck.fileLines > 200 && sizeCheck.fileLines < 800,
       `Ожидался размер файла 200..800 строк, получено: ${sizeCheck.fileLines}`,
     );
+    for (const name of MODULE_CHILDREN) {
+      const childPath = join(dirname(MODULE_PATH), "autostart", name);
+      const childSource = readFileSync(childPath, "utf8");
+      const childSize = checkRustSourceSizeLimits(childPath, childSource);
+      assert.equal(childSize.passed, true, `Нарушение лимитов дочернего модуля: ${childSize.reason}`);
+      assert.deepEqual(scanTextForSecrets(childSource, childPath), []);
+    }
 
     const fmtCheck = spawnSync(
       "rustfmt",
@@ -234,7 +256,7 @@ describe("TASK-1015: Автозапуск с системой (XDG Autostart & S
     const backlog = readFileSync(FEATURE_BACKLOG_PATH, "utf8");
     assert.match(
       backlog,
-      /R4-04.*Автозапуск.*--start-minimized.*autoStart\.ts.*shell: autostart/,
+      /R4-04.*System Autostart.*--start-minimized.*autoStart\.ts.*shell: autostart/,
       "Оракул R4-04 Автозапуск обязан присутствовать в docs/feature-backlog.md",
     );
 
@@ -330,6 +352,12 @@ describe("TASK-1015: Автозапуск с системой (XDG Autostart & S
     assert.ok(existsSync(MODULE_PATH), "Исходник модуля должен существовать");
     const source = readFileSync(MODULE_PATH, "utf8");
     const originalMd5 = createHash("md5").update(source).digest("hex");
+    const controlSourcePath = stageAutostartModule(join(workDir, "control"), source);
+    const controlBinPath = join(workDir, "control_bin");
+    const controlCompile = compileRustModuleTests(controlSourcePath, controlBinPath);
+    assert.equal(controlCompile.status, 0, `Unchanged staged module must compile:\n${controlCompile.stderr}`);
+    const controlRun = runCompiledRustTests(controlBinPath);
+    assert.equal(controlRun.status, 0, `Unchanged staged module must pass:\n${controlRun.stdout}\n${controlRun.stderr}`);
 
     const mutationSpecs = [
       {
@@ -337,30 +365,35 @@ describe("TASK-1015: Автозапуск с системой (XDG Autostart & S
         operator: "StartMinimizedExecFlagOmitted",
         from: "if self.start_minimized {",
         to: "if false && self.start_minimized {",
+        expectedTest: "test_sub_1015_2_xdg_desktop_file_lifecycle",
       },
       {
         id: "MUT-autostart-02",
         operator: "GnomeAutostartEnabledInverted",
         from: 'let enabled_str = if self.enabled { "true" } else { "false" };',
         to: 'let enabled_str = if self.enabled { "false" } else { "true" };',
+        expectedTest: "test_sub_1015_2_xdg_desktop_file_lifecycle",
       },
       {
         id: "MUT-autostart-03",
         operator: "MinimizedLaunchSkipsWgpuInverted",
         from: "let wgpu_window_mapped = !minimized;",
         to: "let wgpu_window_mapped = minimized;",
+        expectedTest: "test_sub_1015_3_minimized_tray_launch",
       },
       {
         id: "MUT-autostart-04",
         operator: "TrayClickWindowMappingBypassed",
         from: "self.wgpu_window_mapped = true;",
         to: "self.wgpu_window_mapped = false;",
+        expectedTest: "test_sub_1015_3_minimized_tray_launch",
       },
       {
         id: "MUT-autostart-05",
         operator: "UninstallFileRemovalBypassed",
-        from: "fs::remove_file(&path).map_err(|_| AutostartError::IoError(\"remove_file\"))?;",
-        to: "let _ = &path;",
+        from: "fs::remove_file(&path)",
+        to: "Ok::<(), std::io::Error>(())",
+        expectedTest: "test_sub_1015_2_xdg_desktop_file_lifecycle",
       },
     ];
 
@@ -378,16 +411,17 @@ describe("TASK-1015: Автозапуск с системой (XDG Autostart & S
     });
 
     const gate = evaluateMutationGate(mutants, (mutant, idx) => {
-      const mutantSrcPath = join(workDir, `mutant_${idx + 1}.rs`);
+      const mutantSrcPath = stageAutostartModule(join(workDir, `mutant_${idx + 1}`), mutant.mutatedSource);
       const mutantBinPath = join(workDir, `mutant_${idx + 1}_bin`);
-      writeFileSync(mutantSrcPath, mutant.mutatedSource, "utf8");
 
       const compiled = compileRustModuleTests(mutantSrcPath, mutantBinPath);
-      if (compiled.status !== 0) {
-        return { killed: true, reason: "compilation_error" };
-      }
+      assert.equal(compiled.status, 0, `Mutant ${mutant.id} must compile before its behavior is tested:\n${compiled.stderr}`);
       const run = runCompiledRustTests(mutantBinPath);
       if (run.status !== 0) {
+        const expectedTest = mutationSpecs[idx]?.expectedTest;
+        assert.ok(expectedTest);
+        assert.equal(run.status, 101, `Mutant ${mutant.id} must fail through Rust assertions`);
+        assert.match(run.stdout, new RegExp(`test tests::${expectedTest} .* FAILED`));
         return { killed: true, reason: "test_assertion_failed" };
       }
       return { killed: false, reason: "mutant_survived" };

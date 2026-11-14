@@ -1329,7 +1329,7 @@ const board = {
     "summary": "Устранение дублирующей отправки OP 18 STREAM_CREATE в ws.rs/main.rs, изоляция OP 20 STREAM_WATCH строго для зрителей и нормализация channel_id в DM звонках.",
     "layout": {
       "container": "Gateway Protocol Engine",
-      "dimensions": "rust/crates/discord-core/src/ws.rs",
+      "dimensions": "rust/crates/chord-core/src/ws.rs",
       "padding": "N/A",
       "spacing": "N/A"
     },
@@ -1394,7 +1394,7 @@ const board = {
     "summary": "Сквозное дренирование native_stream_cmd_mutex в цикле основного голосового соединения до старта стрим-воркера, передача set_stream_source и set_stream в discord_voice.node.",
     "layout": {
       "container": "RTC Voice & Stream Queue Engine",
-      "dimensions": "rust/crates/discord-core/src/ws.rs:6450",
+      "dimensions": "rust/crates/chord-core/src/ws.rs:6450",
       "padding": "N/A",
       "spacing": "N/A"
     },
@@ -1586,7 +1586,7 @@ const board = {
     "summary": "Устранение жесткого падения в H.264 при получении video_codec: \"AV1\" от сервера Discord (Opcode 4 Session Description). Передача videoEncoder конфигурации AV1 (payload 101, rtxType 102) в conn.setTransportOptions.",
     "layout": {
       "container": "WebRTC Signaling Pipeline",
-      "dimensions": "rust/crates/discord-core/src/ws.rs:3675-3707",
+      "dimensions": "rust/crates/chord-core/src/ws.rs:3675-3707",
       "padding": "N/A",
       "spacing": "N/A"
     },
@@ -1618,7 +1618,7 @@ const board = {
     "summary": "Активация аппаратного ускорения NVENC/CUDA/Vulkan Video в discord_voice.node вместо медленного программного CPU libopenh264. На видеокартах NVIDIA RTX 5070 Ti VAAPI неактивен, требуется прямая передача NVENC/CUDA параметров.",
     "layout": {
       "container": "GPU Encoder Pipeline",
-      "dimensions": "rust/crates/discord-core/src/ws.rs + discord_voice.node",
+      "dimensions": "rust/crates/chord-core/src/ws.rs + discord_voice.node",
       "padding": "N/A",
       "spacing": "N/A"
     },
@@ -1650,7 +1650,7 @@ const board = {
     "summary": "Добавление валидных параметров для кодеков VP8 (payload 107, rtx 108) и VP9 в setTransportOptions (temporal layers, keyframe interval 3000ms, adaptive bitrates).",
     "layout": {
       "container": "WebRTC Codec Negotiator",
-      "dimensions": "rust/crates/discord-core/src/ws.rs:3675",
+      "dimensions": "rust/crates/chord-core/src/ws.rs:3675",
       "padding": "N/A",
       "spacing": "N/A"
     },
@@ -1682,7 +1682,7 @@ const board = {
     "summary": "Реализация packetize_av1_obu в крейте discord-media по аналогии с существующим packetize_h264_annex_b (RFC draft-ietf-avtext-av1-rtp) для нативной отправки кадров AV1.",
     "layout": {
       "container": "discord-media crate",
-      "dimensions": "rust/crates/discord-media/src/lib.rs",
+      "dimensions": "rust/crates/chord-media/src/lib.rs",
       "padding": "N/A",
       "spacing": "N/A"
     },
@@ -1714,7 +1714,7 @@ const board = {
     "summary": "Перевод захвата кадров рабочего стола с CPU-копирования на DMA-BUF / EGL аппаратный импорт в буферы энкодера, устраняя задержки 86 мс.",
     "layout": {
       "container": "PipeWire Capturer",
-      "dimensions": "rust/crates/discord-platform + discord-media",
+      "dimensions": "rust/crates/chord-platform + discord-media",
       "padding": "N/A",
       "spacing": "N/A"
     },

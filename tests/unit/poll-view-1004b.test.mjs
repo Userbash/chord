@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты UI-карточки опроса `PollCardView` с анимированными шкалами
  * результатов и бейджем победителя (TASK-1004B):
- * - SUB-1004B-0: Статический и компиляционный контракт `rust/discord-gpui/src/chat/poll_view.rs`
+ * - SUB-1004B-0: Статический и компиляционный контракт `rust/chord-gpui/src/chat/poll_view.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, соблюдение лимитов
  *   `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, чистый `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -27,7 +27,7 @@
  *   `400/401/403/404/413/429 retry_after_ms/5xx`; пустые `0` голосов; `skeleton`/`HTTP 202`;
  *   права `VIEW_CHANNEL`/`SEND_MESSAGES`/`SEND_POLLS`/`AGE_GATED_SPACES`; восстановление/откат;
  *   маскирование секретов).
- * - SUB-1004B-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/chat/poll_view.rs`.
+ * - SUB-1004B-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/chat/poll_view.rs`.
  */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -55,7 +55,7 @@ import {
 } from "../../rust/gui-spike/ui/features/poll-progress.js";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/chat/poll_view.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/chat/poll_view.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const RE_DEEP_FRONTEND_D03_PATH = "/home/sanya/re-deep/frontend-d03.json";
@@ -68,7 +68,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/chat/poll_view.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/chat/poll_view.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -119,7 +119,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1004B: UI-карточка опроса PollCardView с анимированными шкалами результатов (#5865f233) и бейджем победителя (rust/discord-gpui/src/chat/poll_view.rs)", () => {
+describe("TASK-1004B: UI-карточка опроса PollCardView с анимированными шкалами результатов (#5865f233) и бейджем победителя (rust/chord-gpui/src/chat/poll_view.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "poll-view-1004b-"));
     testBinPath = join(workDir, "poll_view_1004b_test");
@@ -131,7 +131,7 @@ describe("TASK-1004B: UI-карточка опроса PollCardView с аним�
     }
   });
 
-  it("SUB-1004B-0: проверяет статический и компиляционный контракт rust/discord-gpui/src/chat/poll_view.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, 0 .unwrap()/.expect() и отсутствие секретов)", () => {
+  it("SUB-1004B-0: проверяет статический и компиляционный контракт rust/chord-gpui/src/chat/poll_view.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, 0 .unwrap()/.expect() и отсутствие секретов)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,

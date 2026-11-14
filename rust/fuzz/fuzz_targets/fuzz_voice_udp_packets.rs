@@ -3,9 +3,9 @@
 //! 74-байтный IP Discovery (`type 1/2`), 8-байтный Keepalive (`0x1337cafe` / `0x1337f00d`)
 //! и составные пакеты обратной связи RTCP (`SR`, `RR`, `SDES`, `BYE`, `NACK`, `PLI`, `FIR`, `REMB`).
 
-use discord_voice::decode_discovery_response;
-use discord_voice::rtcp::parse_compound;
-use discord_voice::udp::{DiscoveryPacket, KeepalivePacket, VoiceUdpPacket};
+use chord_voice::decode_discovery_response;
+use chord_voice::rtcp::parse_compound;
+use chord_voice::udp::{DiscoveryPacket, KeepalivePacket, VoiceUdpPacket};
 use libfuzzer_sys::fuzz_target;
 
 fuzz_target!(|data: &[u8]| {

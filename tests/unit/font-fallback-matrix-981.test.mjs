@@ -5,8 +5,8 @@
  * - SUB-981-1: Дизайн-токены, интерактивные состояния `emoji-picker` (`rendered -> lookup glyph -> atlas cached`),
  *   классификация Unicode-скриптов (`latin`, `cyrillic`, `emoji`, `cjk`, `rtl_arabic`, `rtl_hebrew`,
  *   `symbols_math`, `private_or_unassigned`), парсинг `fc-list` и сверка с независимыми оракулами
- *   (`waves/kanban-board.json`, `rust/discord-gpui/src/theme/discord_dark.rs`, `rust/gui-spike/ui/tokens.css`,
- *   `rust/discord-gpui/src/state/mod.rs`, `docs/re/frontend-d03.json`).
+ *   (`waves/kanban-board.json`, `rust/chord-gpui/src/theme/discord_dark.rs`, `rust/gui-spike/ui/tokens.css`,
+ *   `rust/chord-gpui/src/state/mod.rs`, `docs/re/frontend-d03.json`).
  * - SUB-981-2: Сегментация графемных кластеров (ZWJ-последовательности `👨‍👩‍👧‍👦`, модификаторы тона кожи `👋🏽`,
  *   региональные флаги `🇯🇵`, вариационные селекторы `❤️`, арабские огласовки `مَرْحَبًا`) и разрешение
  *   цепочки шрифтов для Noto Color Emoji (`rgba8_unorm_srgb`), CJK (`SC`/`TC`/`JP`/`KR`, индексы TTC `0..3`)
@@ -41,8 +41,8 @@ import {
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const SCRIPT_PATH = join(ROOT, "scripts", "font-audit.mjs");
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
-const GPUI_THEME_PATH = join(ROOT, "rust", "discord-gpui", "src", "theme", "discord_dark.rs");
-const GPUI_STATE_PATH = join(ROOT, "rust", "discord-gpui", "src", "state", "mod.rs");
+const GPUI_THEME_PATH = join(ROOT, "rust", "chord-gpui", "src", "theme", "discord_dark.rs");
+const GPUI_STATE_PATH = join(ROOT, "rust", "chord-gpui", "src", "state", "mod.rs");
 const UI_TOKENS_CSS_PATH = join(ROOT, "rust", "gui-spike", "ui", "tokens.css");
 const FRONTEND_D03_PATH = join(ROOT, "docs", "re", "frontend-d03.json");
 

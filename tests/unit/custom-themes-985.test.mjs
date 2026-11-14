@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты пользовательских тем оформления и динамической CSS палитры (TASK-985):
- * - SUB-985-0: Статический контракт нативного модуля `rust/discord-gpui/src/custom_themes.rs`
+ * - SUB-985-0: Статический контракт нативного модуля `rust/chord-gpui/src/custom_themes.rs`
  *   (`#![forbid(unsafe_code)]`, лимиты `scripts/quality-gate.mjs`: функции < 50 строк,
  *   модуль < 800 строк, 0 `.unwrap()`/`.expect()` в продуктовом коде, чистый `rustfmt --check --edition 2024`
  *   и компиляция `rustc --test --edition 2024 -D warnings`).
@@ -37,7 +37,7 @@ import {
 } from "../../scripts/quality-gate.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/custom_themes.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/custom_themes.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const JS_MODULE_REL_PATH = "rust/gui-spike/ui/features/custom-themes.js";
 const JS_MODULE_PATH = join(ROOT, JS_MODULE_REL_PATH);

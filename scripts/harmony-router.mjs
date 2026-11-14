@@ -431,8 +431,8 @@ export function generateMandate(taskId) {
 
   switch (taskId) {
     case 'TASK-615':
-      writeScope = ['rust/crates/discord-voice/src/rtp/video.rs', 'rust/crates/discord-voice/tests/rtp_video_contract.rs'];
-      testCmd = 'cargo test --manifest-path rust/Cargo.toml -p discord-voice --test rtp_video_contract';
+      writeScope = ['rust/crates/chord-voice/src/rtp/video.rs', 'rust/crates/chord-voice/tests/rtp_video_contract.rs'];
+      testCmd = 'cargo test --manifest-path rust/Cargo.toml -p chord-voice --test rtp_video_contract';
       oracle = '/home/sanya/re-deep/voice-deep.md';
       break;
     case 'TASK-616':
@@ -456,73 +456,73 @@ export function generateMandate(taskId) {
       oracle = 'TEST-POLICY.md §11-§15';
       break;
     case 'TASK-702':
-      writeScope = ['rust/discord-gpui/src/state/mod.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_initial_state_and_theme_palette';
+      writeScope = ['rust/chord-gpui/src/state/mod.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_initial_state_and_theme_palette';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-703':
-      writeScope = ['rust/discord-gpui/src/theme/mod.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_initial_state_and_theme_palette';
+      writeScope = ['rust/chord-gpui/src/theme/mod.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_initial_state_and_theme_palette';
       oracle = '/home/sanya/re-deep/frontend-d03.md';
       break;
     case 'TASK-704':
-      writeScope = ['rust/discord-gpui/src/net/mod.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_rest_client_super_properties_and_rate_limit_contract';
+      writeScope = ['rust/chord-gpui/src/net/mod.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_rest_client_super_properties_and_rate_limit_contract';
       oracle = '/home/sanya/re-deep/rest-d02.md';
       break;
     case 'TASK-719':
-      writeScope = ['rust/discord-gpui/src/dispatch/mod.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_system_tray_states_and_badge_contract';
+      writeScope = ['rust/chord-gpui/src/dispatch/mod.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_system_tray_states_and_badge_contract';
       oracle = '/home/sanya/re-deep/native-re.md';
       break;
     case 'TASK-705':
-      writeScope = ['rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_120_fps_render_frame_budget_benchmark';
+      writeScope = ['rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_120_fps_render_frame_budget_benchmark';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-706':
-      writeScope = ['rust/discord-gpui/src/ui/layout.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_select_guild_and_channel_transitions';
+      writeScope = ['rust/chord-gpui/src/ui/layout.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_select_guild_and_channel_transitions';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-709':
-      writeScope = ['rust/discord-gpui/src/ui/chat_view.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_message_sending_and_feed_update';
+      writeScope = ['rust/chord-gpui/src/ui/chat_view.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_message_sending_and_feed_update';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-710':
-      writeScope = ['rust/discord-gpui/src/ui/chat_view.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_quick_switcher_and_markdown_contract';
+      writeScope = ['rust/chord-gpui/src/ui/chat_view.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_quick_switcher_and_markdown_contract';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-711':
-      writeScope = ['rust/discord-gpui/src/ui/chat_view.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_keyboard_typing_and_draft_chat_contract';
+      writeScope = ['rust/chord-gpui/src/ui/chat_view.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_keyboard_typing_and_draft_chat_contract';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-712':
-      writeScope = ['rust/discord-gpui/src/ui/captcha_modal.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_hcaptcha_challenge_trigger_and_resolution';
+      writeScope = ['rust/chord-gpui/src/ui/captcha_modal.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_hcaptcha_challenge_trigger_and_resolution';
       oracle = '/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0';
       break;
     case 'TASK-713':
-      writeScope = ['rust/discord-gpui/src/ui/create_guild_modal.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_create_guild_contract';
+      writeScope = ['rust/chord-gpui/src/ui/create_guild_modal.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_create_guild_contract';
       oracle = '/home/sanya/re-deep/frontend-d03.md';
       break;
     case 'TASK-714':
-      writeScope = ['rust/discord-gpui/src/ui/member_sidebar.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_member_sidebar_contract';
+      writeScope = ['rust/chord-gpui/src/ui/member_sidebar.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_member_sidebar_contract';
       oracle = '/home/sanya/re-deep/frontend-d03.md';
       break;
     case 'TASK-715':
-      writeScope = ['rust/discord-gpui/src/ui/settings_dialog.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_settings_dialog_contract';
+      writeScope = ['rust/chord-gpui/src/ui/settings_dialog.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_settings_dialog_contract';
       oracle = '/home/sanya/re-deep/ui8/';
       break;
     case 'TASK-720':
-      writeScope = ['rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_120_fps_render_frame_budget_benchmark';
+      writeScope = ['rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_120_fps_render_frame_budget_benchmark';
       oracle = 'TEST-POLICY.md §11-§15';
       break;
     default:
@@ -535,7 +535,7 @@ export function generateMandate(taskId) {
     taskId,
     writeScope,
     forbiddenPatterns: [
-      'rust/crates/discord-core/src/lib.rs',
+      'rust/crates/chord-core/src/lib.rs',
       'fixtures/**',
       'golden/**',
       'state/reducer.rs',

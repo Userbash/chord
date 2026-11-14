@@ -1199,13 +1199,20 @@ pub fn set_selected_voice_devices(input: Option<String>, output: Option<String>)
 }
 
 pub fn get_selected_voice_devices() -> (Option<String>, Option<String>) {
-    let inp = SELECTED_VOICE_INPUT_DEVICE.lock().ok().and_then(|g| g.clone());
-    let out = SELECTED_VOICE_OUTPUT_DEVICE.lock().ok().and_then(|g| g.clone());
+    let inp = SELECTED_VOICE_INPUT_DEVICE
+        .lock()
+        .ok()
+        .and_then(|g| g.clone());
+    let out = SELECTED_VOICE_OUTPUT_DEVICE
+        .lock()
+        .ok()
+        .and_then(|g| g.clone());
     (inp, out)
 }
 
 static NATIVE_MIC_LEVEL_DB: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-100);
-static NATIVE_MIC_SPEAKING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+static NATIVE_MIC_SPEAKING: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
 
 pub fn set_native_mic_live_level(db: i32, speaking: bool) {
     NATIVE_MIC_LEVEL_DB.store(db, std::sync::atomic::Ordering::Relaxed);
@@ -4659,7 +4666,7 @@ fn find_discord_app_dir() -> Option<std::path::PathBuf> {
                 p.is_dir()
                     && p.file_name()
                         .and_then(|n| n.to_str())
-                        .map_or(false, |name| name.starts_with("app-1."))
+                        .is_some_and(|name| name.starts_with("app-1."))
             })
             .collect();
         app_dirs.sort_by(|a, b| b.cmp(a));
@@ -6328,11 +6335,12 @@ async fn run_rtc_task(
                     {
                         let target = target.trim().to_string();
                         if !target.is_empty() && !target.starts_with("pipewire:") {
-                            let target_kind = if target.starts_with('{') || target.starts_with("win") {
-                                "window"
-                            } else {
-                                "screen"
-                            };
+                            let target_kind =
+                                if target.starts_with('{') || target.starts_with("win") {
+                                    "window"
+                                } else {
+                                    "screen"
+                                };
                             let ucmd = format!(
                                 r#"{{"cmd":"set_stream_source","sourceType":"{target_kind}","sourceId":"{target}"}}"#
                             );
@@ -6351,9 +6359,7 @@ async fn run_rtc_task(
             }
         }
     } else {
-        eprintln!(
-            "[VOICE-RTC] ensure_dv_native_bridge_files returned false (node={node_bin:?})"
-        );
+        eprintln!("[VOICE-RTC] ensure_dv_native_bridge_files returned false (node={node_bin:?})");
     }
     let has_native_voice = dv_stdin.is_some();
     let max_dave_ver = if has_native_voice { 1 } else { 0 };

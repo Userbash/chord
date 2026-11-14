@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты парсера `AuditLogActionType 1..145` и декодера диффов `old/new`
  * со связыванием объектов `users[]`, `roles[]` и `channels[]` (TASK-1008A):
- * - SUB-1008A-0: Статический и компиляционный контракт `rust/crates/discord-core/src/audit_log.rs`
+ * - SUB-1008A-0: Статический и компиляционный контракт `rust/crates/chord-core/src/audit_log.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`:
  *   функции < 50 строк, модуль < 800 строк, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -12,7 +12,7 @@
  *   (`raw -> decoding -> human readable`), REST-оракулов `/home/sanya/re-deep/rest-d02.json`
  *   (`docs/re/rest-d02.json`), `/home/sanya/re-deep/rest-static.json` (`GUILD_AUDIT_LOG`,
  *   `X-Audit-Log-Reason`), модулей RE-дампа (`117497`, `165259`, `411153`, `523599`, `555067`)
- *   и флага `VIEW_AUDIT_LOG = 1 << 7` в `rust/crates/discord-core/src/permissions.rs`.
+ *   и флага `VIEW_AUDIT_LOG = 1 << 7` в `rust/crates/chord-core/src/permissions.rs`.
  * - SUB-1008A-2: Парсер `AuditLogActionType` (`1..=145`), классификация категорий (`Create`,
  *   `Update`, `Delete`, `Other`) и типов целей (`Guild`, `Channel`, `ChannelOverwrite`, `User`,
  *   `Role`, `Invite`, `Webhook`, `Emoji`, `Sticker`, `Thread`, `AutoModerationRule`), паритет
@@ -56,7 +56,7 @@ import {
 } from "../../rust/gui-spike/ui/features/audit-log.js";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/crates/discord-core/src/audit_log.rs";
+const MODULE_REL_PATH = "rust/crates/chord-core/src/audit_log.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const RE_REST_D02_PATH = "/home/sanya/re-deep/rest-d02.json";
@@ -67,7 +67,7 @@ const PERMISSIONS_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-core",
+  "chord-core",
   "src",
   "permissions.rs",
 );
@@ -78,7 +78,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/crates/discord-core/src/audit_log.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/crates/chord-core/src/audit_log.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -129,7 +129,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1008A: Парсер AuditLogActionType 1..145 и декодер диффов old/new (rust/crates/discord-core/src/audit_log.rs)", () => {
+describe("TASK-1008A: Парсер AuditLogActionType 1..145 и декодер диффов old/new (rust/crates/chord-core/src/audit_log.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "audit-log-parser-1008a-"));
     testBinPath = join(workDir, "audit_log_parser_1008a_test");
@@ -141,7 +141,7 @@ describe("TASK-1008A: Парсер AuditLogActionType 1..145 и декодер �
     }
   });
 
-  it("SUB-1008A-0: проверяет статический и компиляционный контракт rust/crates/discord-core/src/audit_log.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, secret-scan и rustc --test -D warnings)", () => {
+  it("SUB-1008A-0: проверяет статический и компиляционный контракт rust/crates/chord-core/src/audit_log.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, secret-scan и rustc --test -D warnings)", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Отсутствует Rust-модуль ${MODULE_REL_PATH}`,
@@ -425,7 +425,7 @@ describe("TASK-1008A: Парсер AuditLogActionType 1..145 и декодер �
     assert.match(run.stdout, /test tests::test_sub_1008a_4_.*ok/);
   });
 
-  it("SUB-1008A-5: убивает 5/5 контрольных мутаций в rust/crates/discord-core/src/audit_log.rs (100% mutation kill rate: подмена стрелки диффа old/new, обход сопоставления модератора в users[], искажение кода AutoModeration 145, обход маскирования чувствительных ключей, искажение дефолтного лимита 50)", () => {
+  it("SUB-1008A-5: убивает 5/5 контрольных мутаций в rust/crates/chord-core/src/audit_log.rs (100% mutation kill rate: подмена стрелки диффа old/new, обход сопоставления модератора в users[], искажение кода AutoModeration 145, обход маскирования чувствительных ключей, искажение дефолтного лимита 50)", () => {
     assert.ok(existsSync(MODULE_PATH), "Модуль audit_log.rs должен существовать");
     const originalRust = readFileSync(MODULE_PATH, "utf8");
     const originalMd5 = createHash("md5").update(originalRust).digest("hex");

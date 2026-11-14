@@ -391,6 +391,27 @@ npm run check                            # Unified typecheck and full test pass
 
 ---
 
+
+| `tests/meta/cross-platform-ci-contract.test.mjs` | `.github/workflows/cross-platform.yml` | — |
+| `tests/meta/gpui-bootstrap-contract.test.mjs` | `scripts/bootstrap-gpui.mjs` | `bootstrapGpui` |
+| `tests/unit/gate-command-portability-regression.test.mjs` | `scripts/gate.mjs` | `runCommand` |
+| `tests/unit/gate-platform-portability.test.mjs` | `scripts/gate-platform.mjs` | `commandInvocation` |
+| `tests/unit/invite-summary-portability-regression.test.mjs` | `rust/gui-spike/ui/features/invite-parser.js` | `formatInviteSummaryRu` |
+| `tests/unit/source-path-migration.test.mjs` | `scripts/source-paths.mjs` | `canonicalRustSourcePath` |
+
+
+| `tests/unit/release-source-names.test.mjs` | `scripts/release.sh` | — |
+
+
+| `tests/unit/ui-fixture-cleanup-regression.test.mjs` | `tests/helpers/ui-fixture.mjs` | `cleanupUiFixture` |
+
+
+| `tests/meta/fixture-e2e-selection.test.mjs` | `scripts/gate.mjs` | `fixtureE2eFiles` |
+| `tests/unit/arm64-build-integrity.test.mjs` | `scripts/build-arm64.sh` | — |
+
+
+| `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |
+
 ## 9. Risks and Limitations
 
 - **Browser Availability in Headless CI:** E2E CDP tests automatically skip when no Chromium binary is located; CI environments install pinned Chromium packages.

@@ -1,0 +1,132 @@
+name: Cross-platform native
+
+on:
+  pull_request:
+  push:
+    branches: [unstable, testing, beta, main, release/developer-alpha-preview]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_BUILD_JOBS: "2"
+  CARGO_PROFILE_DEV_DEBUG: "0"
+
+jobs:
+  native:
+    name: ${{ matrix.suite }} (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [core, gui]
+        runner: [ubuntu-24.04, windows-2025, macos-15]
+        include:
+          - runner: ubuntu-24.04
+            platform: linux
+          - runner: windows-2025
+            platform: windows
+          - runner: macos-15
+            platform: macos
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: native-${{ matrix.platform }}-${{ matrix.suite }}
+          workspaces: |
+            rust
+            rust/chord-gpui
+
+      - name: Linux native libraries
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential clang pkg-config libsqlite3-dev libhunspell-dev \
+            libglib2.0-dev libsecret-1-dev libfontconfig-dev libwayland-dev \
+            libwebkit2gtk-4.1-dev libxkbcommon-x11-dev libx11-xcb-dev \
+            libssl-dev libzstd-dev libasound2-dev libpipewire-0.3-dev \
+            libenchant-2-dev vulkan-validationlayers libvulkan1 mesa-vulkan-drivers
+
+      - name: macOS native libraries and SDK
+        if: matrix.platform == 'macos'
+        run: |
+          xcodebuild -version
+          xcrun --find clang
+          brew install hunspell sqlite glib libsecret pkg-config
+          nativeRustFlags="${RUSTFLAGS:-}"
+          for formula in hunspell sqlite glib libsecret; do
+            nativeRustFlags="$nativeRustFlags -L native=$(brew --prefix "$formula")/lib"
+          done
+          printf 'RUSTFLAGS=%s\n' "$nativeRustFlags" >> "$GITHUB_ENV"
+          printf 'PKG_CONFIG_PATH=%s/lib/pkgconfig:%s/lib/pkgconfig:%s\n' "$(brew --prefix glib)" "$(brew --prefix libsecret)" "${PKG_CONFIG_PATH:-}" >> "$GITHUB_ENV"
+
+      - name: Windows native libraries and SDK
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $toolchain = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $toolchain) { throw 'Visual Studio Native Desktop C++ toolchain and Windows SDK are required' }
+          if (-not $env:VCPKG_INSTALLATION_ROOT) { throw 'VCPKG_INSTALLATION_ROOT is required' }
+          & "$env:VCPKG_INSTALLATION_ROOT/vcpkg.exe" install sqlite3:x64-windows hunspell:x64-windows glib:x64-windows
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $nativePrefix = Join-Path $env:VCPKG_INSTALLATION_ROOT 'installed/x64-windows'
+          "LIB=$nativePrefix/lib;$env:LIB" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "$nativePrefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          # libsecret's vcpkg port does not support Windows. Unconditional
+          # Secret Service FFI must be fixed in source; failures remain blocking.
+
+      - name: Bootstrap pinned GPUI dependency
+        id: bootstrap_gpui
+        run: node scripts/bootstrap-gpui.mjs
+      - name: Verify GPUI dependency without writes
+        run: node scripts/bootstrap-gpui.mjs --check
+      - name: Bootstrap and workflow contracts
+        run: node --test tests/meta/gpui-bootstrap-contract.test.mjs tests/meta/cross-platform-ci-contract.test.mjs
+
+      - name: Core formatting
+        if: matrix.suite == 'core'
+        run: cargo fmt --manifest-path rust/Cargo.toml --check
+      - name: Core lint
+        if: ${{ !cancelled() && matrix.suite == 'core' }}
+        run: cargo clippy --locked --manifest-path rust/Cargo.toml --workspace --all-targets -- -D warnings
+      - name: Core tests
+        if: ${{ !cancelled() && matrix.suite == 'core' }}
+        run: cargo test --locked --workspace --manifest-path rust/Cargo.toml
+
+      # The GUI declares its own workspace and is not included in core tests.
+      - name: GUI formatting
+        if: matrix.suite == 'gui'
+        run: cargo fmt --manifest-path rust/chord-gpui/Cargo.toml --check
+      - name: GUI lint
+        if: ${{ !cancelled() && matrix.suite == 'gui' && steps.bootstrap_gpui.outcome == 'success' }}
+        run: cargo clippy --locked --manifest-path rust/chord-gpui/Cargo.toml --all-targets -- -D warnings
+      - name: GUI build
+        if: ${{ !cancelled() && matrix.suite == 'gui' && steps.bootstrap_gpui.outcome == 'success' }}
+        run: cargo build --locked --manifest-path rust/chord-gpui/Cargo.toml
+      - name: GUI tests
+        if: ${{ !cancelled() && matrix.suite == 'gui' && steps.bootstrap_gpui.outcome == 'success' }}
+        run: cargo test --locked --manifest-path rust/chord-gpui/Cargo.toml
+      - name: GUI headless smoke
+        if: ${{ !cancelled() && matrix.suite == 'gui' && steps.bootstrap_gpui.outcome == 'success' }}
+        run: cargo run --locked --manifest-path rust/chord-gpui/Cargo.toml -- --headless-smoke

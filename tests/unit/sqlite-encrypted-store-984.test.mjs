@@ -2,15 +2,15 @@
 /**
  * Контрактные и модульные тесты шифрования локального хранилища SQLite
  * (AES-256-GCM / SQLCipher page-level encryption & Linux Keyring `org.freedesktop.secrets`) — TASK-984:
- * - SUB-984-0: Статический и структурный контракт `rust/discord-gpui/src/encrypted_store.rs`
+ * - SUB-984-0: Статический и структурный контракт `rust/chord-gpui/src/encrypted_store.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде, лимиты `scripts/quality-gate.mjs`
  *   < 50 строк на функцию и < 800 строк на файл, чистый `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
  * - SUB-984-1: Сверка констант, дизайн-токенов, состояний `keyring-auth` (`locked -> unlocking -> decrypted`),
  *   3 IPC-каналов `DISCORD_SAFE_STORAGE_*` и схемы `com.discordlab.Token` (`org.freedesktop.secrets`,
  *   префикс `dQw4w9WgXcQ:`) с независимыми оракулами (`waves/kanban-board.json`,
- *   `docs/re/backend-ipc.json`, `docs/re/rest-static.md`, `rust/crates/discord-platform/src/keyring.rs`,
- *   `rust/crates/discord-store/src/lib.rs`).
+ *   `docs/re/backend-ipc.json`, `docs/re/rest-static.md`, `rust/crates/chord-platform/src/keyring.rs`,
+ *   `rust/crates/chord-store/src/lib.rs`).
  * - SUB-984-2: Извлечение мастер-ключа из Linux Keyring (`org.freedesktop.secrets`) без утечки в логи,
  *   деривация ключей `page_key` / `wal_key` / `token_key` / `header_mac_key` по RFC 5869 HKDF-SHA256
  *   (побайтовая сверка с независимым оракулом `node:crypto`), шифрование токенов `dQw4w9WgXcQ:`,
@@ -54,7 +54,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-gpui/src/encrypted_store.rs";
+const MODULE_REL_PATH = "rust/chord-gpui/src/encrypted_store.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const BACKEND_IPC_JSON_PATH = join(ROOT, "docs", "re", "backend-ipc.json");
@@ -62,7 +62,7 @@ const KEYRING_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-platform",
+  "chord-platform",
   "src",
   "keyring.rs",
 );
@@ -70,7 +70,7 @@ const STORE_LIB_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-store",
+  "chord-store",
   "src",
   "lib.rs",
 );
@@ -82,7 +82,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/encrypted_store.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/encrypted_store.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -258,7 +258,7 @@ describe("TASK-984: Шифрование локального хранилища
     }
   });
 
-  it("SUB-984-0: модуль rust/discord-gpui/src/encrypted_store.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
+  it("SUB-984-0: модуль rust/chord-gpui/src/encrypted_store.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,
@@ -363,7 +363,7 @@ describe("TASK-984: Шифрование локального хранилища
       );
     }
 
-    // 3. Независимый оракул: rust/crates/discord-platform/src/keyring.rs и /home/sanya/re-deep/rest-static.md
+    // 3. Независимый оракул: rust/crates/chord-platform/src/keyring.rs и /home/sanya/re-deep/rest-static.md
     const keyringRs = readFileSync(KEYRING_RS_PATH, "utf8");
     assert.match(keyringRs, /pub const SCHEMA_NAME: &str = "com\.discordlab\.Token";/);
     assert.match(keyringRs, /pub const ENCRYPTED_TOKEN_PREFIX: &str = "dQw4w9WgXcQ:";/);
@@ -375,7 +375,7 @@ describe("TASK-984: Шифрование локального хранилища
       assert.match(restStaticMd, /safeStorage/);
     }
 
-    // 4. Независимый оракул: rust/crates/discord-store/src/lib.rs
+    // 4. Независимый оракул: rust/crates/chord-store/src/lib.rs
     const storeLibRs = readFileSync(STORE_LIB_RS_PATH, "utf8");
     assert.match(
       storeLibRs,

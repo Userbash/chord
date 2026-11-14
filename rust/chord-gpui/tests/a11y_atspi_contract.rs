@@ -23,7 +23,7 @@ use a11y::{
     A11yDriverError, A11yI18nKey, AccessibleRole, AccessibleState, AppDriver, AtSpiStateSet, Role,
     State, Wcag22Auditor,
 };
-use discord_platform::dbus::{
+use chord_platform::dbus::{
     Value as DbusValue,
     message::{MessageType, parse as parse_dbus_message},
 };

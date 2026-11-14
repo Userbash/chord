@@ -148,7 +148,7 @@ pub enum RpcIpcError {
     AllSlotsBusy,
     /// Каталог размещения IPC-сокета имеет небезопасные права доступа или владельца.
     UnsafeDirectory(String),
-    /// Подключившийся процесс принадлежит другому пользователю ОС (`SO_PEERCRED`).
+    /// Подключившийся процесс принадлежит другому пользователю ОС (`SO_PEERCRED`/`getpeereid`).
     UnauthorizedPeer { peer_uid: u32, expected_uid: u32 },
     /// Ошибка ввода-вывода Unix-сокета.
     IoError(String),
@@ -1313,7 +1313,7 @@ pub fn build_rpc_error_frame_for_payload(raw_payload: &str) -> IpcFrame {
 pub type RpcIpcListener = DiscordRpcListener;
 
 /// Локальный серверный слушатель Unix domain socket `discord-ipc-0..9`
-/// (с защитой прав `0o600`, проверкой `SO_PEERCRED`, очисткой мёртвых сокетов `remove_stale`
+/// (с защитой прав `0o600`, проверкой `SO_PEERCRED`/`getpeereid`, очисткой мёртвых сокетов `remove_stale`
 /// и проверкой `(device, inode)` при удалении в `Drop`).
 #[derive(Debug)]
 pub struct DiscordRpcListener {
@@ -1445,12 +1445,12 @@ impl DiscordRpcListener {
             .map_err(|e| RpcIpcError::IoError(e.to_string()))
     }
 
-    /// Принимает входящее соединение и проверяет, что `SO_PEERCRED` UID совпадает с владельцем слушателя.
+    /// Принимает входящее соединение и проверяет, что `SO_PEERCRED`/`getpeereid` UID совпадает с владельцем слушателя.
     pub fn accept(&self) -> Result<UnixStream, RpcIpcError> {
         self.accept_checked_with_expected_uid(self.uid)
     }
 
-    /// Принимает входящее соединение и сверяет `SO_PEERCRED` UID с явно переданным `expected_uid`.
+    /// Принимает входящее соединение и сверяет `SO_PEERCRED`/`getpeereid` UID с явно переданным `expected_uid`.
     pub fn accept_checked_with_expected_uid(
         &self,
         expected_uid: u32,
@@ -1513,9 +1513,14 @@ fn effective_uid() -> u32 {
     unsafe { libc::geteuid() }
 }
 
-#[allow(unsafe_code)]
 fn peer_uid(stream: &UnixStream) -> Result<u32, RpcIpcError> {
     use std::os::fd::AsRawFd;
+    peer_uid_for_fd(stream.as_raw_fd())
+}
+
+#[cfg(any(target_os = "linux", target_os = "android"))]
+#[allow(unsafe_code)] // This adapter contains only the checked native credential query.
+fn peer_uid_for_fd(raw: libc::c_int) -> Result<u32, RpcIpcError> {
     let mut cred = libc::ucred {
         pid: 0,
         uid: u32::MAX,
@@ -1525,7 +1530,7 @@ fn peer_uid(stream: &UnixStream) -> Result<u32, RpcIpcError> {
     // SAFETY: getsockopt с SOL_SOCKET/SO_PEERCRED заполняет выровненную структуру libc::ucred.
     let rc = unsafe {
         libc::getsockopt(
-            stream.as_raw_fd(),
+            raw,
             libc::SOL_SOCKET,
             libc::SO_PEERCRED,
             (&raw mut cred).cast::<libc::c_void>(),
@@ -1538,6 +1543,28 @@ fn peer_uid(stream: &UnixStream) -> Result<u32, RpcIpcError> {
         ));
     }
     Ok(cred.uid)
+}
+
+#[cfg(any(
+    target_vendor = "apple",
+    target_os = "freebsd",
+    target_os = "dragonfly",
+    target_os = "openbsd",
+    target_os = "netbsd"
+))]
+#[allow(unsafe_code)] // This adapter contains only the checked native credential query.
+fn peer_uid_for_fd(raw: libc::c_int) -> Result<u32, RpcIpcError> {
+    let mut uid: libc::uid_t = 0;
+    let mut gid: libc::gid_t = 0;
+    // SAFETY: getpeereid only queries the socket identified by raw; an invalid fd
+    // returns an OS error. Both output pointers reference live, aligned local values.
+    let result = unsafe { libc::getpeereid(raw, &raw mut uid, &raw mut gid) };
+    if result != 0 {
+        return Err(RpcIpcError::IoError(
+            std::io::Error::last_os_error().to_string(),
+        ));
+    }
+    Ok(uid)
 }
 
 /// Серверная машина состояний одной клиентской RPC IPC-сессии (`serve_ipc` в `Serein`).
@@ -2212,6 +2239,33 @@ impl JsonParser<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn peer_uid_query_matches_effective_uid_oracle() {
+        use std::os::fd::AsRawFd;
+        use std::process::Command;
+
+        let output = Command::new("id").arg("-u").output().expect("id -u");
+        assert!(output.status.success(), "id -u must succeed");
+        let expected: u32 = String::from_utf8(output.stdout)
+            .expect("id output is UTF-8")
+            .trim()
+            .parse()
+            .expect("numeric effective UID");
+        let (stream, _peer) = UnixStream::pair().expect("socketpair");
+        assert_eq!(
+            peer_uid_for_fd(stream.as_raw_fd()).expect("peer UID"),
+            expected
+        );
+    }
+
+    #[test]
+    fn peer_uid_query_rejects_invalid_descriptor() {
+        assert!(matches!(
+            peer_uid_for_fd(-1),
+            Err(RpcIpcError::IoError(message)) if !message.is_empty()
+        ));
+    }
 
     #[test]
     fn encode_and_decode_ipc_frame_roundtrip_and_bounds() {

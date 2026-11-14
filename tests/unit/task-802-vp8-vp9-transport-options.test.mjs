@@ -9,10 +9,10 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../..");
-const WS_RS_PATH = path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs");
+const WS_RS_PATH = path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs");
 
 /**
- * Извлекает тело JS-моста `DV_BRIDGE_JS` из `rust/crates/discord-core/src/ws.rs`.
+ * Извлекает тело JS-моста `DV_BRIDGE_JS` из `rust/crates/chord-core/src/ws.rs`.
  * @param {string} wsRs
  * @returns {string}
  */

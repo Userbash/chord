@@ -197,7 +197,8 @@ fn screencast_portal_wire_handshake_over_unix_socket_delivers_pipewire_fd() {
         stream.read_exact(&mut nul).expect("read nul");
         assert_eq!(nul[0], 0);
 
-        let mut reader = BufReader::new(stream.try_clone().expect("clone stream"));
+        // Keep coalesced binary Hello bytes available after the auth reader is dropped.
+        let mut reader = BufReader::with_capacity(1, stream.try_clone().expect("clone stream"));
         let mut auth_line = String::new();
         reader.read_line(&mut auth_line).expect("read AUTH");
         assert!(auth_line.starts_with("AUTH EXTERNAL "));

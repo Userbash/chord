@@ -1,6 +1,6 @@
 //! Аутентификация D-Bus: `AUTH EXTERNAL <hex>` по unix-сокету.
 //!
-//! UID берётся без `unsafe` и без внешних крейтов — из `/proc/self/status` (`Uid:`).
+//! The effective UID comes from POSIX geteuid, without requiring a mounted /proc.
 //! Оракул — спецификация D-Bus и reference-реализация (libdbus): клиент отправляет `\0`,
 //! затем `AUTH EXTERNAL <hex>\r\n`, ожидает `OK <guid>`, отправляет `BEGIN\r\n`.
 //! Идентичность EXTERNAL — **десятичная запись uid, закодированная в hex**: для uid 1000
@@ -30,9 +30,11 @@ pub fn external_auth_line(uid: u32) -> String {
 }
 
 /// Текущий effective uid процесса.
+#[allow(unsafe_code)] // POSIX identity query; no memory access or mutable process state.
 pub fn current_uid() -> Result<u32, DbusError> {
-    let status = std::fs::read_to_string("/proc/self/status").map_err(DbusError::Io)?;
-    parse_uid(&status).ok_or(DbusError::Auth("no Uid line in /proc/self/status"))
+    // SAFETY: geteuid takes no arguments, always returns the effective user ID,
+    // and neither dereferences pointers nor changes process credentials.
+    Ok(unsafe { libc::geteuid() })
 }
 
 /// Разбирает первую строку `Uid:` из `/proc/self/status` (effective uid — второй столбец).

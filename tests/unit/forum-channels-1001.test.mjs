@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты форумных каналов `GUILD_FORUM` (type 15) и карточек постов (TASK-1001):
- * - SUB-1001-0: Статический и компиляционный контракт нативного модуля `rust/discord-gpui/src/channels/forum_view.rs`
+ * - SUB-1001-0: Статический и компиляционный контракт нативного модуля `rust/chord-gpui/src/channels/forum_view.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`:
  *   функции < 50 строк, файл < 800 строк, `rustfmt --check --edition 2024`, компиляция `rustc --test --edition 2024 -D warnings`
  *   и прогон встроенных Rust-тестов).
@@ -19,7 +19,7 @@
  *   счётчик ответов с капом `99+`, счётчик реакций, состояния `surface -> border-accent -> opened` и A11y-клавиатура).
  * - SUB-1001-4: Пагинация `GET /channels/{id}/threads/active`, покрытие всех 9 измерений `TEST-POLICY.md`
  *   и проверка CLI `scripts/verify-forum.mjs` (коды выхода `0 / 1 / 2`).
- * - SUB-1001-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/channels/forum_view.rs`
+ * - SUB-1001-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/channels/forum_view.rs`
  *   и `scripts/verify-forum.mjs`.
  */
 import assert from "node:assert/strict";
@@ -38,7 +38,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/channels/forum_view.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/channels/forum_view.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const VERIFY_SCRIPT_REL_PATH = "scripts/verify-forum.mjs";
 const VERIFY_SCRIPT_PATH = join(ROOT, VERIFY_SCRIPT_REL_PATH);
@@ -117,7 +117,7 @@ describe("TASK-1001: Форумные каналы GUILD_FORUM (type 15), фил
     }
   });
 
-  it("SUB-1001-0: проверяет статический контракт rust/discord-gpui/src/channels/forum_view.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test)", () => {
+  it("SUB-1001-0: проверяет статический контракт rust/chord-gpui/src/channels/forum_view.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,

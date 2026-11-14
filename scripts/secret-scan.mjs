@@ -263,7 +263,7 @@ function collectSourceFiles(dirPath, acc = []) {
 export function scanRepositoryForSecrets(rootDir = ROOT) {
   const targetDirs = [
     join(rootDir, "rust", "crates"),
-    join(rootDir, "rust", "discord-gpui", "src"),
+    join(rootDir, "rust", "chord-gpui", "src"),
     join(rootDir, "rust", "gui-spike", "src"),
     join(rootDir, "rust", "gui-spike", "ui"),
     join(rootDir, "scripts"),
@@ -294,7 +294,7 @@ export function scanRepositoryForSecrets(rootDir = ROOT) {
  * @param {string} [rootDir]
  */
 export function verifyNoDaveMlsPrivateKeys(rootDir = ROOT) {
-  const daveDir = join(rootDir, "rust", "crates", "discord-voice", "src", "dave_v1");
+  const daveDir = join(rootDir, "rust", "crates", "chord-voice", "src", "dave_v1");
   const files = collectSourceFiles(daveDir, []);
   /** @type {string[]} */
   const leakedKeys = [];
@@ -400,8 +400,8 @@ export function zeroizeBuffer(buf) {
 export function auditRustRedactionAndZeroize(rootDir = ROOT) {
   /** @type {string[]} */
   const reasons = [];
-  const daveModPath = join(rootDir, "rust", "crates", "discord-voice", "src", "dave_v1", "mod.rs");
-  const daveMlsPath = join(rootDir, "rust", "crates", "discord-voice", "src", "dave_v1", "mls.rs");
+  const daveModPath = join(rootDir, "rust", "crates", "chord-voice", "src", "dave_v1", "mod.rs");
+  const daveMlsPath = join(rootDir, "rust", "crates", "chord-voice", "src", "dave_v1", "mls.rs");
 
   const daveModText = existsSync(daveModPath) ? readFileSync(daveModPath, "utf8") : "";
   const daveMlsText = existsSync(daveMlsPath) ? readFileSync(daveMlsPath, "utf8") : "";

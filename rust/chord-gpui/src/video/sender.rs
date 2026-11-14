@@ -75,7 +75,10 @@ impl fmt::Display for VideoSenderError {
             }
             Self::EmptyFrame => write!(f, "cannot packetize an empty video frame"),
             Self::FrameTooLarge { size, max } => {
-                write!(f, "video frame size {size} bytes exceeds maximum {max} bytes")
+                write!(
+                    f,
+                    "video frame size {size} bytes exceeds maximum {max} bytes"
+                )
             }
             Self::PacketTooShort { actual, minimum } => write!(
                 f,

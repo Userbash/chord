@@ -31,11 +31,12 @@ while [[ "$#" -gt 0 ]]; do
     esac
 done
 
-BIN="$RUST_DIR/target/release/discord-rs"
+TARGET_DIR="${CARGO_TARGET_DIR:-$RUST_DIR/target}"
+BIN="$TARGET_DIR/release/chord-rs"
 
 if [[ "$DRY_RUN" == 1 ]]; then
     echo "release: dry-run (сеть, cargo и запись файлов не выполняются)"
-    printf '+ cargo build %s--release -p discord-app --manifest-path %s\n' \
+    printf '+ cargo build %s--release -p chord-app --manifest-path %s\n' \
         "${OFFLINE[*]:+${OFFLINE[*]} }" "$RUST_DIR/Cargo.toml"
     echo "+ install -m 0755 $BIN $DIST/discord-rs"
     if [[ -f "$RUST_DIR/dist/sbom.spdx.json" ]]; then
@@ -48,8 +49,8 @@ if [[ "$DRY_RUN" == 1 ]]; then
 fi
 
 mkdir -p "$DIST"
-printf 'release: cargo build %s--release -p discord-app\n' "${OFFLINE[*]:+${OFFLINE[*]} }"
-cargo build "${OFFLINE[@]}" --release -p discord-app --manifest-path "$RUST_DIR/Cargo.toml"
+printf 'release: cargo build %s--release -p chord-app\n' "${OFFLINE[*]:+${OFFLINE[*]} }"
+cargo build "${OFFLINE[@]}" --release -p chord-app --manifest-path "$RUST_DIR/Cargo.toml"
 
 if [[ ! -x "$BIN" ]]; then
     echo "release: не найден бинарь $BIN" >&2

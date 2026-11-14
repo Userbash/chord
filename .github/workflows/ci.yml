@@ -58,14 +58,16 @@ jobs:
           node --version
           mkdir -p .gate
       - name: "Meta: qa-browser contract"
-        run: node --test --test-concurrency=1 tests/meta/ci-browser.test.mjs
+        run: |
+          node --test --test-concurrency=1 tests/meta/ci-browser.test.mjs tests/meta/fixture-e2e-selection.test.mjs
+          python3 tests/meta/fixture-junit-validator.test.py
       - name: Fixture browser e2e (live excluded)
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t files < <(find tests/e2e -maxdepth 1 -type f -name '*.e2e.test.mjs' ! -name 'live-*' | sort)
+          mapfile -t files < <(find tests/e2e -maxdepth 1 -type f -name '*.test.mjs' ! -name 'live-*' | sort)
           if [[ "${#files[@]}" -eq 0 ]]; then
-            echo "::error::fixture files tests/e2e/*.e2e.test.mjs not found"
+            echo "::error::fixture files tests/e2e/*.test.mjs not found"
             exit 1
           fi
           printf 'fixture-suite: %s\n' "${files[*]}"
@@ -74,6 +76,8 @@ jobs:
               --test-reporter=spec --test-reporter-destination=stdout \
               --test-reporter=junit --test-reporter-destination=.gate/qa-browser-junit.xml \
               "${files[@]}" 2>&1 | tee .gate/qa-browser-e2e.log
+      - name: Validate fixture JUnit (no skips or empty runs)
+        run: python3 scripts/validate-fixture-junit.py .gate/qa-browser-junit.xml
       - name: Upload .gate
         if: always()
         uses: actions/upload-artifact@v4

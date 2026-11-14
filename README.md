@@ -13,7 +13,7 @@
 [![Tests](https://img.shields.io/badge/tests-1500%2B%20100%25%20green-brightgreen.svg)](tests/)
 [![Mutations](https://img.shields.io/badge/mutations-5%2F5%20killed-success.svg)](waves/)
 [![RAM](https://img.shields.io/badge/memory-%3C%2060%20MB%20RAM-blueviolet.svg)](docs/rust-client/STATUS.md)
-[![DAVE E2EE](https://img.shields.io/badge/security-DAVE%20MLS%20v1%20E2EE-darkgreen.svg)](rust/crates/discord-voice/)
+[![DAVE E2EE](https://img.shields.io/badge/security-DAVE%20MLS%20v1%20E2EE-darkgreen.svg)](rust/crates/chord-voice/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![AI Collaboration](https://img.shields.io/badge/AI%20collaboration-AMCP%20v1.0-blueviolet.svg)](AI-AGENTS.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome%20(human%20%26%20AI)-brightgreen.svg)](CONTRIBUTING.md)
@@ -58,15 +58,14 @@ The repository is structured as a modular Rust monorepo:
 ```
 rust/
 ├── chord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
-│   └── (chord-gpui)      # Canonical alias symlink for Chord
 └── crates/
-    ├── discord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls, Permissions
-    ├── discord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°
-    ├── discord-media/    # Zero-copy audio buffers, two-tier LRU/disk media & emoji cache
-    ├── discord-platform/ # XDG autostart, system tray, D-Bus, FFI Keyring, Spotify MPRIS
-    ├── discord-store/    # SQLite FTS5 full-text search, WAL mode, encrypted storage
-    ├── discord-codec/    # ETF binary codec (decompression bomb protection) & zstd streams
-    └── discord-i18n/     # Internationalization: 36 locales, xxh64 hashed translation keys
+    ├── chord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls, Permissions
+    ├── chord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°
+    ├── chord-media/    # Zero-copy audio buffers, two-tier LRU/disk media & emoji cache
+    ├── chord-platform/ # XDG autostart, system tray, D-Bus, FFI Keyring, Spotify MPRIS
+    ├── chord-store/    # SQLite FTS5 full-text search, WAL mode, encrypted storage
+    ├── chord-codec/    # ETF binary codec (decompression bomb protection) & zstd streams
+    └── chord-i18n/     # Internationalization: 36 locales, xxh64 hashed translation keys
 ```
 
 ### Crate Highlights:
@@ -81,23 +80,23 @@ rust/
    - Interactive 2D Spatial Audio Radar (`SpatialRadar`) on WGPU with SQLite coordinate persistence.
    - 60 FPS WebRTC Telemetry overlay (`RtcDiagnosticsHud`).
    - Complete Settings suite: All 8 core Discord client settings sections.
-2. **`discord-core` (Network & Protocol Core)**:
+2. **`chord-core` (Network & Protocol Core)**:
    - WebSocket Gateway v9 state machine (`HELLO`, `Heartbeat`, `IDENTIFY`, `RESUME`, `VOICE_STATE_UPDATE`).
    - HTTP/2 connection pooling with intelligent bucket-aware rate limiting and `retry_after_ms` backoff.
    - 64-bit guild role hierarchy and permissions calculation engine.
-3. **`discord-voice` (Voice & Real-Time Media Engine)**:
+3. **`chord-voice` (Voice & Real-Time Media Engine)**:
    - **DAVE E2EE MLS v1 (`RFC 9420`)**: Cryptographic ratchets (`DaveHashRatchet`), truncated 8-byte tags (`Aes128GcmTruncated8`), epoch rollouts, and commit verification.
    - Voice Recording: 48 kHz mono recording encoded into OGG Opus 32 kbps VBR.
    - Soundboard: Voice Opcode 18 (`SOUNDBOARD_SOUND`), LRU Opus sound cache, and microphone linear mixer with soft `tanh()` clipping.
    - 3D Spatial Audio: 360-degree binaural KEMAR HRTF 512-point FFT filter.
    - Adaptive Jitter Buffer (20–60 ms) and Packet Loss Concealment (PLC).
-4. **`discord-platform` (OS & Desktop Integration)**:
+4. **`chord-platform` (OS & Desktop Integration)**:
    - XDG autostart generator and system tray daemon (`--start-minimized`, VmRSS < 8 MB).
    - Spotify D-Bus MPRIS client (Opcode 3 `LISTENING` presence & "Listen Along" synchronization).
    - Gamepad navigation via `gilrs` and on-screen keyboard trigger for Steam Deck / SteamOS.
    - Secure OS credential storage via FFI to `libsecret` / Linux Keyring.
    - Real-time native spellchecking via FFI to `libenchant-2` / `hunspell`.
-5. **`discord-media` (Media & Cache Layer)**:
+5. **`chord-media` (Media & Cache Layer)**:
    - Zero-copy ring buffers (`AudioRingBuffer`) for high-throughput audio capture and playback.
    - Two-tier cache: 256 MB RAM LRU cache + persistent disk cache with HTTP ETag validation.
 
@@ -173,19 +172,30 @@ T0: Targeted    (Targeted test impact: node scripts/test-impact.mjs --run, <1 se
 git clone https://github.com/Userbash/chord.git
 cd chord
 
-# 2. Build the optimized release binary
-cargo build --release --manifest-path rust/Cargo.toml -p chord-gpui
+# 2. Restore and verify the exact GPUI dependency recorded in the repository
+node scripts/bootstrap-gpui.mjs
+node scripts/bootstrap-gpui.mjs --check
 
-# 3. Launch the native client
-./rust/target/release/chord-gpui
+# 3. Build the optimized release binary (the GUI has its own workspace)
+cargo build --locked --release --manifest-path rust/chord-gpui/Cargo.toml
 
-# 4. Explore protocol analysis CLI
+# 4. Launch the native client
+./rust/chord-gpui/target/release/chord-gpui
+
+# 5. Explore protocol analysis CLI
 node bin/chord.mjs --help
 ```
 
 ### Running Tests:
+
+Portability verification on 2026-11-14: Linux native tests and Windows Node/browser
+checks were executed. Full Windows native compilation remains blocked by Unix-only
+APIs. The platform crate compiles for Intel/ARM macOS; native macOS and ARM64 GUI
+runtime validation is still required. Historical benchmark figures above are not
+cross-platform qualification. See [verification decisions](DECISIONS.md).
+
 ```bash
-# Architectural and documentation meta-tests (147 tests)
+# Architectural and documentation meta-tests
 npm run test:meta
 
 # All unit and contract tests
@@ -259,6 +269,7 @@ This project uses an **AI Multi-Model Collaboration Protocol (AMCP v1.0)** that 
 | **Agent & Team Rules** | [`AGENTS.md`](AGENTS.md) | Worker protocols, orchestrator guidelines, and department write-scopes |
 | **Architecture Map** | [`docs/map.md`](docs/map.md) | Dependency graph of crates, layers, and research components |
 | **Vesktop Analysis** | [`docs/vesktop-analysis.md`](docs/vesktop-analysis.md) | Architectural comparison with Vesktop / Vencord |
+| **Discord Qt Analysis** | [`docs/discord-qt-analysis.md`](docs/discord-qt-analysis.md) | Clean-room native client comparison supporting the feature backlog |
 
 ---
 

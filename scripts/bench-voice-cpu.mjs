@@ -442,7 +442,7 @@ export class AdaptiveVoiceJitterBuffer {
 }
 
 /**
- * Мягкий лимитер `tanh` (`rust/crates/discord-voice/src/reception.rs:339`).
+ * Мягкий лимитер `tanh` (`rust/crates/chord-voice/src/reception.rs:339`).
  * @param {number} sample
  * @returns {number}
  */

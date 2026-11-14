@@ -6,8 +6,8 @@
  *   100%=120, 125%=150, 150%=180, 175%=210, 200%=240) и `wp_viewporter` (`wp_viewport.set_source`
  *   в 24.8 `wl_fixed_t`, `wp_viewport.set_destination`, ошибки `BAD_VALUE=0`, `BAD_SIZE=1`,
  *   `OUT_OF_BUFFER=2`, `NO_SURFACE=3`), автоопределение композитора и сверка с независимыми оракулами
- *   (`waves/kanban-board.json`, `rust/discord-gpui/src/manual_qa/desktop_matrix.rs`,
- *   `rust/discord-gpui/src/state/mod.rs`, `rust/discord-gpui/src/visual_regression/ssim.rs`).
+ *   (`waves/kanban-board.json`, `rust/chord-gpui/src/manual_qa/desktop_matrix.rs`,
+ *   `rust/chord-gpui/src/state/mod.rs`, `rust/chord-gpui/src/visual_regression/ssim.rs`).
  * - SUB-977-2: Расчёт геометрии `wp_viewporter` + `wp_fractional_scale_v1` для 125%, 150%, 175%,
  *   выравнивание физических пикселей панелей (`serverRail=72`, `channelSidebar=240`, `memberSidebar=240`,
  *   `userPanel=52`) без 1px-щелей и проверка ошибок протокола `wp_viewport`.
@@ -36,9 +36,9 @@ import {
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const SCRIPT_PATH = join(ROOT, "scripts", "verify-fractional-scale.mjs");
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
-const DESKTOP_MATRIX_PATH = join(ROOT, "rust", "discord-gpui", "src", "manual_qa", "desktop_matrix.rs");
-const GPUI_STATE_PATH = join(ROOT, "rust", "discord-gpui", "src", "state", "mod.rs");
-const GPUI_SSIM_PATH = join(ROOT, "rust", "discord-gpui", "src", "visual_regression", "ssim.rs");
+const DESKTOP_MATRIX_PATH = join(ROOT, "rust", "chord-gpui", "src", "manual_qa", "desktop_matrix.rs");
+const GPUI_STATE_PATH = join(ROOT, "rust", "chord-gpui", "src", "state", "mod.rs");
+const GPUI_SSIM_PATH = join(ROOT, "rust", "chord-gpui", "src", "visual_regression", "ssim.rs");
 
 describe("TASK-977: Верификация дробного масштабирования Wayland wp_fractional_scale_v1 и wp_viewporter (scripts/verify-fractional-scale.mjs)", () => {
   it("SUB-977-1: проверяет константы протоколов wp_fractional_scale_v1 (делитель 120) и wp_viewporter, 24.8 wl_fixed_t и сверку с независимыми оракулами", async () => {

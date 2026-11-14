@@ -12,8 +12,8 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_FRONTEND_D03_PATH = join(ROOT, "docs", "re", "frontend-d03.json");
-const DEFAULT_GPUI_STATE_PATH = join(ROOT, "rust", "discord-gpui", "src", "state", "mod.rs");
-const DEFAULT_GPUI_CHAT_VIEW_PATH = join(ROOT, "rust", "discord-gpui", "src", "ui", "chat_view.rs");
+const DEFAULT_GPUI_STATE_PATH = join(ROOT, "rust", "chord-gpui", "src", "state", "mod.rs");
+const DEFAULT_GPUI_CHAT_VIEW_PATH = join(ROOT, "rust", "chord-gpui", "src", "ui", "chat_view.rs");
 
 export const GESTURE_DESIGN_TOKENS = Object.freeze({
   background: "#1e1f22",

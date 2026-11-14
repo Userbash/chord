@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты локального Crash Reporter и маскирования дампов памяти (TASK-970):
- * - SUB-970-1: Статический и структурный контракт `rust/discord-gpui/src/crash_reporter.rs`
+ * - SUB-970-1: Статический и структурный контракт `rust/chord-gpui/src/crash_reporter.rs`
  *   (`#![forbid(unsafe_code)]`, полный запрет сетевой отправки и Sentry DSN, соблюдение лимитов
  *   `quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, 0 `.unwrap()`/`.expect()` в prod,
  *   чистый `rustfmt --check --edition 2024` и `rustc -D warnings`, 0 находок `secret-scan.mjs`).
@@ -37,13 +37,13 @@ const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const CRASH_REPORTER_RS = join(
   ROOT,
   "rust",
-  "discord-gpui",
+  "chord-gpui",
   "src",
   "crash_reporter.rs",
 );
 
 /**
- * Компилирует Rust-драйвер, подключающий `rust/discord-gpui/src/crash_reporter.rs`,
+ * Компилирует Rust-драйвер, подключающий `rust/chord-gpui/src/crash_reporter.rs`,
  * во временный исполняемый файл с флагом `-D warnings`.
  * @param {string} outDir
  * @returns {string} путь к скомпилированному бинарнику
@@ -215,11 +215,11 @@ fn main() {
   return binPath;
 }
 
-describe("TASK-970: Локальный Crash Reporter и маскирование дампов памяти (rust/discord-gpui/src/crash_reporter.rs)", () => {
+describe("TASK-970: Локальный Crash Reporter и маскирование дампов памяти (rust/chord-gpui/src/crash_reporter.rs)", () => {
   it("SUB-970-1: соблюдает статический контракт безопасности, запрет сети, лимиты quality-gate.mjs и чистоту secret-scan.mjs", async () => {
     assert.ok(
       existsSync(CRASH_REPORTER_RS),
-      "Файл rust/discord-gpui/src/crash_reporter.rs должен существовать",
+      "Файл rust/chord-gpui/src/crash_reporter.rs должен существовать",
     );
     const source = readFileSync(CRASH_REPORTER_RS, "utf8");
 
@@ -264,7 +264,7 @@ describe("TASK-970: Локальный Crash Reporter и маскировани�
       "../../scripts/quality-gate.mjs"
     );
     const sizeVerdict = checkRustSourceSizeLimits(
-      "rust/discord-gpui/src/crash_reporter.rs",
+      "rust/chord-gpui/src/crash_reporter.rs",
       source,
     );
     assert.equal(
@@ -288,7 +288,7 @@ describe("TASK-970: Локальный Crash Reporter и маскировани�
     const { scanTextForSecrets } = await import("../../scripts/secret-scan.mjs");
     const findings = scanTextForSecrets(
       source,
-      "rust/discord-gpui/src/crash_reporter.rs",
+      "rust/chord-gpui/src/crash_reporter.rs",
     );
     assert.equal(
       findings.length,

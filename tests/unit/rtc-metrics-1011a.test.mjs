@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты сборщика RTCP метрик (`RingBuffer 120`, 60 с с шагом 500 мс)
  * и неблокирующего мониторинга эпох DAVE MLS v1 (`TASK-1011A` — `RE-GAP-22`):
- * - SUB-1011A-0: Статический и компиляционный контракт `rust/crates/discord-voice/src/rtc_metrics.rs`
+ * - SUB-1011A-0: Статический и компиляционный контракт `rust/crates/chord-voice/src/rtc_metrics.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`:
  *   функции < 50 строк, файл < 800 строк, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -25,7 +25,7 @@
  *   `400/401/403/404/413/429 retry_after_ms/5xx`; пустые; `skeleton`/`HTTP 202`; права
  *   `VIEW_CHANNEL`/`CONNECT`/`SPEAK`/`AGE_GATED_SPACES`; восстановление после 3 таймаутов пинга `4000 мс`;
  *   маскирование секретов).
- * - SUB-1011A-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/discord-voice/src/rtc_metrics.rs`.
+ * - SUB-1011A-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/chord-voice/src/rtc_metrics.rs`.
  */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -49,7 +49,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/crates/discord-voice/src/rtc_metrics.rs";
+const RUST_MODULE_REL_PATH = "rust/crates/chord-voice/src/rtc_metrics.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
@@ -84,7 +84,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/crates/discord-voice/src/rtc_metrics.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/crates/chord-voice/src/rtc_metrics.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -147,7 +147,7 @@ describe("TASK-1011A: Сборщик RTCP метрик (RingBuffer 120, 60с с 
     }
   });
 
-  it("SUB-1011A-0: проверяет статический контракт rust/crates/discord-voice/src/rtc_metrics.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
+  it("SUB-1011A-0: проверяет статический контракт rust/crates/chord-voice/src/rtc_metrics.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,
@@ -400,7 +400,7 @@ describe("TASK-1011A: Сборщик RTCP метрик (RingBuffer 120, 60с с 
     assert.match(run.stdout, /test tests::test_sub_1011a_4_.*ok/);
   });
 
-  it("SUB-1011A-5: убивает 5/5 контрольных мутаций в rust/crates/discord-voice/src/rtc_metrics.rs (100% mutation kill rate)", () => {
+  it("SUB-1011A-5: убивает 5/5 контрольных мутаций в rust/crates/chord-voice/src/rtc_metrics.rs (100% mutation kill rate)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       "Модуль rtc_metrics.rs должен существовать",

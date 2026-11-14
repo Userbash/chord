@@ -4,7 +4,7 @@
  * под 36 языков, хешей `xxh64`, RTL-текста и plural-форм (TASK-972):
  * - SUB-972-1: Сверка реестра 36 языковых локалей (`31` включённых + `5` отключённых),
  *   канонического разрешения локалей, цепочки отката (`fallbackChain`) и 24 ключей `A11yI18nKey`
- *   против `rust/crates/discord-i18n/src/locale.rs`, `docs/re/i18n-deep.json` и `cldr-oracle.json`.
+ *   против `rust/crates/chord-i18n/src/locale.rs`, `docs/re/i18n-deep.json` и `cldr-oracle.json`.
  * - SUB-972-2: Побитовая верификация `xxh64(input, seed)` и `messageKey(id)` (`xxh64 -> LE -> base64[0..6]`)
  *   по 14 эталонным векторам RE-оракула `docs/re/i18n-deep.json`, граничным буферам (`0`, `31`, `32`, `64` байт)
  *   и реальным каталогам `/home/sanya/re-deep/ru-catalog.json` (23 836 ключей) и `en-catalog.json` (23 903 ключа).
@@ -12,7 +12,7 @@
  *   обнаружения арабского/ивритского письма и BiDi-управляющих символов, нейтрализации `U+202E` (RLO)
  *   и изоляции через `U+2068` (FSI) ... `U+2069` (PDI) на границе 2000 символов.
  * - SUB-972-4: Сверка CLDR `cardinal` и `ordinal` plural-форм для всех 36 локалей против независимого
- *   ICU-оракула `rust/crates/discord-i18n/tests/data/cldr-oracle.json`, проверка больших целых (`u64::MAX`),
+ *   ICU-оракула `rust/crates/chord-i18n/tests/data/cldr-oracle.json`, проверка больших целых (`u64::MAX`),
  *   парсинг и рендеринг keyless JSON-AST (`Literal`, `Argument`, `Number`, `Date`, `Time`, `Select`,
  *   `Plural`, `Pound`, `Tag`) и проверка обязательной ветви `other` в реальных каталогах.
  * - SUB-972-5: CLI-контракт `scripts/verify-i18n.mjs` (коды выхода `0 / 1 / 2`, `--out-json`, `--locale`),
@@ -33,9 +33,9 @@ import {
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const SCRIPT_PATH = join(ROOT, "scripts", "verify-i18n.mjs");
-const CLDR_ORACLE_PATH = join(ROOT, "rust", "crates", "discord-i18n", "tests", "data", "cldr-oracle.json");
+const CLDR_ORACLE_PATH = join(ROOT, "rust", "crates", "chord-i18n", "tests", "data", "cldr-oracle.json");
 const I18N_DEEP_PATH = join(ROOT, "docs", "re", "i18n-deep.json");
-const RUST_LOCALE_PATH = join(ROOT, "rust", "crates", "discord-i18n", "src", "locale.rs");
+const RUST_LOCALE_PATH = join(ROOT, "rust", "crates", "chord-i18n", "src", "locale.rs");
 
 describe("TASK-972: Стенд верификации локализации i18n под 36 языков, xxh64, RTL и plural-форм", () => {
   it("SUB-972-1: сверяет реестр 36 локалей (31 enabled + 5 disabled), цепочки fallback и A11y-ключи с оракулами", async () => {
@@ -97,7 +97,7 @@ describe("TASK-972: Стенд верификации локализации i18
     assert.deepEqual(fallbackChain("en-US", available), ["en-US"]);
     assert.deepEqual(fallbackChain("pt-PT", available), ["en-US"]);
 
-    // 4. Полная сверка с rust/crates/discord-i18n/src/locale.rs, docs/re/i18n-deep.json и cldr-oracle.json
+    // 4. Полная сверка с rust/crates/chord-i18n/src/locale.rs, docs/re/i18n-deep.json и cldr-oracle.json
     const regReport = verifyLocalesRegistry({
       rustLocalePath: RUST_LOCALE_PATH,
       i18nDeepPath: I18N_DEEP_PATH,
@@ -109,7 +109,7 @@ describe("TASK-972: Стенд верификации локализации i18
     assert.equal(regReport.disabledCount, 5);
     assert.equal(regReport.enabledHashesVerifiedInRuCatalog, 31);
 
-    // 5. Сверка 24 ключей доступности A11yI18nKey из rust/discord-gpui/src/a11y/mod.rs
+    // 5. Сверка 24 ключей доступности A11yI18nKey из rust/chord-gpui/src/a11y/mod.rs
     const a11yReport = verifyA11yCatalogKeys();
     assert.equal(a11yReport.passed, true, `Ошибки A11y ключей: ${a11yReport.reasons.join("; ")}`);
     assert.equal(a11yReport.keyCount, 24);
@@ -140,7 +140,7 @@ describe("TASK-972: Стенд верификации локализации i18
     assert.equal(messageKey(len32).length, 6);
     assert.equal(messageKey(len64).length, 6);
 
-    // 2. Сверка всех 14 векторов из docs/re/i18n-deep.json + векторов из rust/crates/discord-i18n/src/lib.rs
+    // 2. Сверка всех 14 векторов из docs/re/i18n-deep.json + векторов из rust/crates/chord-i18n/src/lib.rs
     /** @type {Array<[string, string]>} */
     const expectedVectors = [
       ["ru", "+irF5O"],
@@ -299,7 +299,7 @@ describe("TASK-972: Стенд верификации локализации i18
       I18nCatalogStore,
     } = await import("../../scripts/verify-i18n.mjs");
 
-    // 1. Полная сверка всех 36 локалей (cardinal + ordinal) с rust/crates/discord-i18n/tests/data/cldr-oracle.json
+    // 1. Полная сверка всех 36 локалей (cardinal + ordinal) с rust/crates/chord-i18n/tests/data/cldr-oracle.json
     const cldrReport = verifyCldrPluralsAgainstOracle(CLDR_ORACLE_PATH);
     assert.equal(
       cldrReport.passed,
@@ -533,7 +533,7 @@ describe("TASK-972: Стенд верификации локализации i18
 
     // 2. Проверка лимитов размера файлов крейта discord-i18n и самого скрипта
     const rustLocaleSrc = readFileSync(RUST_LOCALE_PATH, "utf8");
-    const sizeCheck = checkRustSourceSizeLimits("rust/crates/discord-i18n/src/locale.rs", rustLocaleSrc);
+    const sizeCheck = checkRustSourceSizeLimits("rust/crates/chord-i18n/src/locale.rs", rustLocaleSrc);
     assert.equal(sizeCheck.passed, true, sizeCheck.reason);
 
     const scriptLines = readFileSync(SCRIPT_PATH, "utf8").split("\n").length;

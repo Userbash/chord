@@ -41,9 +41,9 @@ const TEST_GROUPS = [
 
 /** Крейты каркаса (`rust/crates/*`). */
 const CRATES = [
-  "discord-codec", "discord-core", "discord-store", "discord-voice", "discord-media",
-  "discord-platform", "discord-i18n", "discord-ui", "discord-app", "discord-conformance",
-  "discord-perf", "discord-updater",
+  "chord-codec", "chord-core", "chord-store", "chord-voice", "chord-media",
+  "chord-platform", "chord-i18n", "chord-ui", "chord-app", "chord-conformance",
+  "chord-perf", "chord-updater",
 ];
 
 /**
@@ -229,7 +229,7 @@ describe("rust-client-sync: план Rust-клиента цел и синхро�
     for (const crate of CRATES) {
       const cargo = await stat(join(root, "rust/crates", crate, "Cargo.toml")).catch(() => null);
       assert.ok(cargo?.isFile && cargo.size > 50, `rust/crates/${crate}/Cargo.toml отсутствует`);
-      const srcFile = crate === "discord-app" ? "src/main.rs" : "src/lib.rs";
+      const srcFile = crate === "chord-app" ? "src/main.rs" : "src/lib.rs";
       const src = await stat(join(root, "rust/crates", crate, srcFile)).catch(() => null);
       assert.ok(src?.isFile && src.size > 200, `rust/crates/${crate}/${srcFile} отсутствует/пуст`);
     }

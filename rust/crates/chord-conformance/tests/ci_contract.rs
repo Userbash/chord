@@ -61,7 +61,7 @@ fn release_dry_run_is_offline_and_writes_dist_only() {
         String::from_utf8_lossy(&output.stderr)
     );
     let stdout = String::from_utf8(output.stdout).unwrap();
-    assert!(stdout.contains("cargo build --offline --release -p discord-app"));
+    assert!(stdout.contains("cargo build --offline --release -p chord-app"));
     assert!(stdout.contains("dist"));
     assert!(stdout.contains("sha256sum"));
     assert!(!stdout.contains("curl"));

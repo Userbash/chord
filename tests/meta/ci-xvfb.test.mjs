@@ -23,7 +23,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
   accessSync, chmodSync, constants, existsSync, mkdirSync, mkdtempSync,
-  readFileSync, rmSync, statSync, writeFileSync,
+  readFileSync, readdirSync, rmSync, statSync, writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
@@ -174,6 +174,21 @@ function makeFakeExecutable(dir, name, body = "#!/usr/bin/env bash\nexit 0\n") {
   writeFileSync(filePath, body, "utf8");
   chmodSync(filePath, 0o755);
   return filePath;
+}
+
+/** @param {string} x11Dir @returns {number} */
+function firstAvailableDisplayNumber(x11Dir) {
+  // Snapshot actual occupancy independently of the shell selector. An outer
+  // Xvfb owns a real lock even when this test uses a private socket directory.
+  const sockets = readdirSync(x11Dir).filter(name => /^X\d+$/.test(name) && existsSync(join(x11Dir, name)));
+  const locks = readdirSync("/tmp").filter(name => /^\.X\d+-lock$/.test(name) && existsSync(join("/tmp", name)));
+  const occupied = new Set([
+    ...sockets.map(name => Number(name.slice(1))),
+    ...locks.map(name => Number(name.slice(2, -5))),
+  ]);
+  const display = Array.from({ length: 101 }, (_, offset) => 99 + offset).find(number => !occupied.has(number));
+  assert.ok(display !== undefined, "no available display in the required range :99..:199");
+  return display;
 }
 
 describe("TASK-621: scripts/gate.mjs — управление Xvfb и авто-обнаружение браузера", () => {
@@ -632,30 +647,44 @@ ${functionsBlock}
 start_xvfb_display
 echo "STARTED_DISPLAY=$DISPLAY"
 echo "STARTED_PID=$XVFB_PID"
-kill -0 "$XVFB_PID"
+managed_pid="$XVFB_PID"
+kill -0 "$managed_pid"
 cleanup_xvfb
+if kill -0 "$managed_pid" 2>/dev/null; then
+  echo "managed Xvfb child survived cleanup" >&2
+  exit 1
+fi
 echo "CLEANED_PID=\${XVFB_PID:-none}"
 `,
         "utf8",
       );
       chmodSync(testScript, 0o755);
 
-      const res = spawnSync("bash", [testScript], {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          DISPLAY: "",
-          DISCORD_LAB_X11_UNIX_DIR: x11Dir,
-          PATH: `${binDir}${delimiter}${process.env.PATH ?? ""}`,
-        },
-      });
-      assert.equal(res.status, 0, `stderr=${res.stderr}`);
-      assert.match(res.stdout, /STARTED_DISPLAY=:99/);
-      assert.match(res.stdout, /STARTED_PID=\d+/);
-      assert.match(res.stdout, /CLEANED_PID=none/);
-
-      const loggedArgs = readFileSync(argsLog, "utf8").trim();
-      assert.match(loggedArgs, /^:99 -screen 0 1280x720x24 -ac \+extension GLX \+render -noreset$/);
+      for (const reserveFirstAvailable of [false, true]) {
+        const firstFree = firstAvailableDisplayNumber(x11Dir);
+        const blockedSlots = reserveFirstAvailable ? [firstFree, firstFree + 1, firstFree + 3] : [];
+        for (const number of blockedSlots) writeFileSync(join(x11Dir, `X${number}`), "occupied fixture\n");
+        const expectedDisplay = firstAvailableDisplayNumber(x11Dir);
+        const res = spawnSync("bash", [testScript], {
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            DISPLAY: "",
+            DISCORD_LAB_X11_UNIX_DIR: x11Dir,
+            PATH: `${binDir}${delimiter}${process.env.PATH ?? ""}`,
+          },
+        });
+        assert.equal(res.status, 0, `stderr=${res.stderr}`);
+        assert.match(res.stdout, new RegExp(`^STARTED_DISPLAY=:${expectedDisplay}$`, "m"));
+        assert.match(res.stdout, /STARTED_PID=\d+/);
+        assert.match(res.stdout, /CLEANED_PID=none/);
+        assert.equal(existsSync(join(x11Dir, `X${expectedDisplay}`)), false, "owned socket must be removed");
+        for (const number of blockedSlots) {
+          assert.equal(readFileSync(join(x11Dir, `X${number}`), "utf8"), "occupied fixture\n");
+        }
+        assert.equal(readFileSync(argsLog, "utf8").trim(),
+          `:${expectedDisplay} -screen 0 1280x720x24 -ac +extension GLX +render -noreset`);
+      }
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }

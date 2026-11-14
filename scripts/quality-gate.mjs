@@ -356,8 +356,8 @@ function main(argv) {
   }
 
   const audit = auditCargoLockAndDeny({
-    denyPath: resolve(ROOT, "rust", "discord-gpui", "deny.toml"),
-    lockPath: resolve(ROOT, "rust", "discord-gpui", "Cargo.lock"),
+    denyPath: resolve(ROOT, "rust", "chord-gpui", "deny.toml"),
+    lockPath: resolve(ROOT, "rust", "chord-gpui", "Cargo.lock"),
     advisories: [],
   });
   if (!audit.passed) {

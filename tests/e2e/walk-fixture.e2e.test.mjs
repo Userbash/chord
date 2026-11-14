@@ -7,8 +7,8 @@ import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCli } from "../helpers/cli.mjs";
-import { findBrowser, launchBrowser, stopBrowser } from "../helpers/browser.mjs";
-import { makeTmpDir } from "../helpers/tmp.mjs";
+import { findBrowser } from "../helpers/browser.mjs";
+import { openStaticFixture } from "../helpers/static-fixture.mjs";
 
 /** @typedef {import("../../src/core/types.js").WalkRecord} WalkRecord */
 
@@ -19,18 +19,12 @@ describe("walk fixture", () => {
     const bin = findBrowser();
     if (!bin) return t.skip("нет браузера: задайте CHROME_BIN (например, /usr/bin/chromium)");
 
-    const dir = await makeTmpDir(t);
-    const browser = await launchBrowser({
-      bin,
-      url: `file://${fixture}`,
-      userDataDir: join(dir, "profile"),
-    });
-    t.after(() => stopBrowser(browser));
+    const { browser, dir, url } = await openStaticFixture(t, { bin, file: fixture });
 
     const out = join(dir, "ui-walk-fixture.jsonl");
     const screens = join(dir, "screens");
     const result = await runCli(
-      ["walk", "fixture", "--url", `file://${fixture}`, "--out", out, "--screens", screens],
+      ["walk", "fixture", "--url", url, "--out", out, "--screens", screens],
       { env: { CDP_ENDPOINT: browser.endpoint } },
     );
     assert.equal(result.code, 0, result.stderr);

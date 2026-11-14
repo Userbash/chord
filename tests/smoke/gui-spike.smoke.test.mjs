@@ -9,7 +9,10 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const binary = process.env.GUI_SPIKE_BIN
-  ?? fileURLToPath(new URL("../../rust/gui-spike/target/debug/discord-gui-spike", import.meta.url));
+  ?? join(
+    process.env.CARGO_TARGET_DIR ?? fileURLToPath(new URL("../../rust/gui-spike/target/", import.meta.url)),
+    "debug", process.platform === "win32" ? "chord-client.exe" : "chord-client",
+  );
 const uiDir = fileURLToPath(new URL("../../rust/gui-spike/ui/", import.meta.url));
 
 /** Новейший mtime в ui/** (рекурсивно) — Tauri встраивает frontendDist при сборке. @returns {number} */
