@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 # ecc-orca-bridge.sh — Мост между ECC 2.0 Control Plane (ecc-tui) и Orca Orchestration в discord-lab.
 # Соблюдает правила AGENTS.md / TEAM.md:
-# - Полный запрет codex
-# - Проверка пекинского времени (TZ=Asia/Shanghai) для маршрутизации Antigravity / DeepSeek
+# - Полный запрет codex и deepseek
+# - Строгое сохранение градаций моделей (Flash/Argon/Carbon low|medium|high) и --effort без завышения
 # - Лимит WORKER_RAM_LIMIT <= 25 GB (не более 5 активных слотов)
 # - Создание изолированных веток от unstable и запуск воркеров через orca orchestration worker-start
 
 set -euo pipefail
 
 PROJECT_ROOT="/home/sanya/orca/project"
-ORCA_BIN="/home/sanya/.config/orca/linux-orca-cli-shim/orca"
+ORCA_BIN="${ORCA_BIN:-/home/sanya/.config/orca/linux-orca-cli-shim/orca}"
 if [ ! -x "$ORCA_BIN" ]; then
   ORCA_BIN="orca"
 fi
 
-RUN_STATE_FILE="$PROJECT_ROOT/.claude/ecc-orca-run.json"
-mkdir -p "$PROJECT_ROOT/.claude"
+RUN_STATE_FILE="${ECC_RUN_STATE_FILE:-$PROJECT_ROOT/.claude/ecc-orca-run.json}"
+mkdir -p "$(dirname "$RUN_STATE_FILE")"
 
 MODEL=""
+EFFORT_OVERRIDE=""
 TASK=""
 CWD="$PROJECT_ROOT"
 SESSION_NAME="ecc-worker"
@@ -29,6 +30,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --model|-m)
       MODEL="${2:-}"
+      shift 2
+      ;;
+    --effort|-e)
+      EFFORT_OVERRIDE="${2:-}"
       shift 2
       ;;
     --cwd)
@@ -82,25 +87,57 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# 1. Маршрутизация моделей Antigravity (Gemini Carbon / Argon / Flash)
-# Полный запрет codex и deepseek по указанию пользователя
+# 1. Гранулярная маршрутизация моделей Antigravity (Gemini Flash / Argon / Carbon)
+# Полный запрет codex и deepseek; младшие уровни (low/medium) не завышаются до high
 HARNESS="${ECC_HARNESS:-antigravity}"
+ORCA_AGENT="antigravity"
 
 case "$MODEL" in
-  *carbon*|*gemini-4-carbon*)
-    ORCA_AGENT="antigravity"
-    ORCA_MODEL="gemini-4-carbon-high"
-    EFFORT_LEVEL="high"
+  *flash-low*)
+    ORCA_MODEL="gemini-3.8-flash-low"
+    EFFORT_LEVEL="low"
     ;;
-  *flash*|*gemini-3.8-flash*)
-    ORCA_AGENT="antigravity"
+  *flash-medium*)
+    ORCA_MODEL="gemini-3.8-flash-medium"
+    EFFORT_LEVEL="medium"
+    ;;
+  *flash-high*|*flash*)
     ORCA_MODEL="gemini-3.8-flash-high"
     EFFORT_LEVEL="medium"
     ;;
-  *)
-    ORCA_AGENT="antigravity"
+  *argon-low*)
+    ORCA_MODEL="gemini-4-argon-low"
+    EFFORT_LEVEL="low"
+    ;;
+  *argon-medium*)
+    ORCA_MODEL="gemini-4-argon-medium"
+    EFFORT_LEVEL="medium"
+    ;;
+  *argon-high*|*argon*)
     ORCA_MODEL="gemini-4-argon-high"
     EFFORT_LEVEL="high"
+    ;;
+  *carbon-low*)
+    ORCA_MODEL="gemini-4-carbon-low"
+    EFFORT_LEVEL="low"
+    ;;
+  *carbon-medium*)
+    ORCA_MODEL="gemini-4-carbon-medium"
+    EFFORT_LEVEL="medium"
+    ;;
+  *carbon-high*|*carbon*)
+    ORCA_MODEL="gemini-4-carbon-high"
+    EFFORT_LEVEL="high"
+    ;;
+  *)
+    ORCA_MODEL="gemini-4-argon-medium"
+    EFFORT_LEVEL="medium"
+    ;;
+esac
+
+case "$EFFORT_OVERRIDE" in
+  low|medium|high|xhigh)
+    EFFORT_LEVEL="$EFFORT_OVERRIDE"
     ;;
 esac
 

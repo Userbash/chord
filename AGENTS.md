@@ -49,10 +49,13 @@ relevant rules in `PROCESS.md` / `TEAM.md` / `TEST-POLICY.md`, and the current s
 
 1. **Worker Spawning via Orca Orchestration:**
    - Workers run as supervised terminal processes in dedicated worktrees via `orca worktree create --name <name> --base-branch unstable --branch <type>/task-<id>-<slug>` and `orca orchestration worker-start --run <run_id> --worktree branch:<type>/task-<id>-<slug> ...`.
-2. **Model Selection Policy:**
-   - **`gemini-4-carbon-high` (`--effort high` / `xhigh`):** Reserved for the most demanding core P0 challenges (zero-copy ring buffers, DAVE MLS v1 cryptography, AppState Tokio<->GPUI async sync).
-   - **`gemini-4-argon-high` / `medium`:** Standard for validation, code reviews, mutation testing (QA / DevOps verification), and standard BFF REST services.
-   - **`gemini-3.8-flash-high` / `medium` / `low`:** Used for UI layout, modal dialogues, preferences, tray integrations, and documentation sync.
+2. **Complexity-First Model & Effort Policy (Queue Priority ≠ Model Tier):**
+   - Queue priority (`P0–P3`) governs **execution order only** — never spend heavy models or high `--effort` on trivial `P0` tasks.
+   - **Tier S (`gemini-3.8-flash-low`, `--effort low`):** One-line switches, CI/config edits, design tokens/specs (`G3`), documentation (`G6`).
+   - **Tier M (`gemini-3.8-flash-medium` / `flash-high` `--effort medium`, or `gemini-4-argon-low` `--effort low`):** UI views/modals (`G2`), PM checklist acceptance (`ACCEPT.md`), DevOps scripts, lightweight `P2/P3` platform utilities.
+   - **Tier L (`gemini-4-argon-medium` `--effort medium` / `gemini-4-argon-high` `--effort high`):** `argon-medium` for standard Rust BFF/REST, Voice/Platform sessions, and QA tests; `argon-high` only for complex Gateway/permissions parsers, `5/5` mutation reviews (`REVIEW.md`), and deep `G7 RE` tracing.
+   - **Tier XL (`gemini-4-carbon-high`, `--effort high`; `xhigh` only on escalation):** Reserved exclusively for zero-copy/lock-free ring buffers, DAVE MLS v1 / SRTP / AES-GCM cryptography, and the reactive `Tokio <-> GPUI AppState` bridge.
+   - **`codex` and `deepseek`/`opencode` are strictly prohibited.**
 
 ---
 

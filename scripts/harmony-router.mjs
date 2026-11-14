@@ -48,49 +48,148 @@ export const TASK_DEPENDENCIES = Object.freeze({
 });
 
 /**
- * Модельные гармоники и уровни рассуждения по приоритету и отделу
+ * Задачи экстремальной когнитивной сложности (Tier XL):
+ * только zero-copy/lock-free буферы, криптография DAVE MLS v1 / SRTP / AES-GCM,
+ * и реактивный асинхронный мост Tokio ↔ GPUI Event Loop.
+ */
+const XL_HARDCORE_TASKS = new Set([
+  'TASK-601',
+  'TASK-602',
+  'TASK-603',
+  'TASK-605',
+  'TASK-614',
+  'TASK-615',
+  'TASK-701-VOICE',
+  'TASK-702',
+  'TASK-1021B',
+]);
+
+/**
+ * Тривиальные и механические задачи (Tier S):
+ * однострочные переключения, CI-конфиги, генерация desktop/MSI/DMG манифестов, доки.
+ */
+const S_TRIVIAL_TASKS = new Set([
+  'P0-1.1',
+  'P2-1.2',
+  'P2-3.2',
+  'H-FIX-17',
+  'TASK-1015A',
+  'TASK-1016A',
+  'TASK-1016B',
+]);
+
+/**
+ * Сложные задачи ядра Rust, RE-декодеров, KDF и мутационного аудита (Tier L-High):
+ * оправдывают gemini-4-argon-high + effort=high.
+ */
+const L_HIGH_TASKS = new Set([
+  'TASK-613',
+  'TASK-619',
+  'TASK-622',
+  'TASK-704',
+  'TASK-1007A',
+  'TASK-1008A',
+  'TASK-1009B',
+  'TASK-1021A',
+  'P0-1.3',
+  'P1-1.3',
+  'P1-1.4',
+  'P1-2.2',
+  'P1-2.3',
+]);
+
+/**
+ * Модельные гармоники и уровни рассуждения по сложности задачи и отделу.
+ * Приоритет (P0–P3) определяет очередь выполнения, но НЕ завышает модель для простых задач.
  * @param {string} taskId
  * @param {string} priority
  * @param {string} department
- * @returns {{ agent: string, model: string, effort: 'low' | 'medium' | 'high' | 'xhigh', rationale: string }}
+ * @param {{ escalate?: boolean }} [options]
+ * @returns {{ tier: 'S' | 'M' | 'L' | 'XL', agent: string, model: string, effort: 'low' | 'medium' | 'high' | 'xhigh', rationale: string }}
  */
-export function resolveModelHarmony(taskId, priority, department) {
-  // P0 задачи ядра, криптографии, атомиков и GPUI-моста — эксклюзивно Carbon
-  if (['TASK-614', 'TASK-615', 'TASK-702'].includes(taskId) || (priority === 'P0' && department.includes('G5'))) {
+export function resolveModelHarmony(taskId, priority, department, options = {}) {
+  // 1. Tier S — Тривиальные правки, конфиги, документация и дизайн-токены (независимо от P0..P3)
+  if (
+    S_TRIVIAL_TASKS.has(taskId) ||
+    department.includes('G6') ||
+    department.includes('G3')
+  ) {
     return {
+      tier: 'S',
       agent: 'antigravity',
-      model: 'gemini-4-carbon-high',
-      effort: 'xhigh',
-      rationale: 'P0 Hardcore Core: DAVE MLS v1, Ring Buffer zero-copy или Tokio↔GPUI AppState bridge'
+      model: 'gemini-3.8-flash-low',
+      effort: 'low',
+      rationale: 'Tier S (Trivial/Specs/Docs): дизайн-токены, спеки, документация или однострочные/конфигурационные правки'
     };
   }
 
-  // P1 задачи бэкенда, Rust BFF, QA и RE — рабочая лошадка Argon High
-  if (priority === 'P0' || (priority === 'P1' && (department.includes('G1') || department.includes('QA') || department.includes('DevOps') || department.includes('G7')))) {
+  // 2. Tier XL — Эксклюзивно lock-free буферы, DAVE MLS / AES-GCM криптография и мост Tokio↔GPUI
+  if (XL_HARDCORE_TASKS.has(taskId)) {
     return {
+      tier: 'XL',
+      agent: 'antigravity',
+      model: 'gemini-4-carbon-high',
+      effort: options.escalate ? 'xhigh' : 'high',
+      rationale: 'Tier XL (Hardcore Core): DAVE MLS v1 / AES-GCM криптография, zero-copy Ring Buffer или мост Tokio↔GPUI'
+    };
+  }
+
+  // 3. Tier M — Фронтенд и UI-компоненты (G2): никогда не тратят Argon/Carbon даже при P0
+  if (department.includes('G2')) {
+    const complexUi = taskId === 'TASK-1011B' || taskId === 'TASK-616';
+    return {
+      tier: 'M',
+      agent: 'antigravity',
+      model: complexUi ? 'gemini-3.8-flash-high' : 'gemini-3.8-flash-medium',
+      effort: 'medium',
+      rationale: 'Tier M (UI/Frontend): верстка компонентов, модалки, состояния и клавиатурная навигация'
+    };
+  }
+
+  // 4. RE-аналитика (G7) и сложная ядровая/мутационная логика (Tier L-High)
+  if (department.includes('G7') || L_HIGH_TASKS.has(taskId)) {
+    return {
+      tier: 'L',
       agent: 'antigravity',
       model: 'gemini-4-argon-high',
       effort: 'high',
-      rationale: 'P1 Rust Core, BFF, QA автоматизация и RE-оракулы'
+      rationale: 'Tier L-High: глубокая RE-трассировка, сложные парсеры/права/KDF или мутационный аудит'
     };
   }
 
-  // UI компоненты, верстка, CSS токены и попапы — легковесный и быстрый Flash High/Medium
-  if (department.includes('G2') || department.includes('G3')) {
+  // 5. Инженерные задачи Rust (G1, G5), QA (G4) и DevOps — градация по сложности внутри Argon
+  if (
+    department.includes('G1') ||
+    department.includes('G5') ||
+    department.includes('G4') ||
+    department.includes('QA') ||
+    department.includes('DevOps')
+  ) {
+    if (priority === 'P2' || priority === 'P3' || department.includes('DevOps')) {
+      return {
+        tier: 'M',
+        agent: 'antigravity',
+        model: 'gemini-4-argon-low',
+        effort: 'low',
+        rationale: 'Tier M (Lightweight Rust/DevOps): локальные D-Bus/IPC адаптеры, системные утилиты и CI-скрипты'
+      };
+    }
     return {
+      tier: 'L',
       agent: 'antigravity',
-      model: 'gemini-3.8-flash-high',
+      model: 'gemini-4-argon-medium',
       effort: 'medium',
-      rationale: 'UI компоненты, CSS-токены, верстка, модалки и клавиатурная навигация'
+      rationale: 'Tier L (Standard Rust/QA): типовые BFF/REST сервисы, сессии Voice/Platform и контрактные тесты'
     };
   }
 
-  // Документация, трей, второстепенные задачи — Flash Low/Medium
+  // 6. Прочие вспомогательные задачи — экономный Flash Low
   return {
+    tier: 'S',
     agent: 'antigravity',
-    model: 'gemini-3.8-flash-high',
+    model: 'gemini-3.8-flash-low',
     effort: 'low',
-    rationale: 'Документация, системный трей, вспомогательные утилиты'
+    rationale: 'Tier S: вспомогательные задачи и документация'
   };
 }
 
