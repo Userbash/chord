@@ -14,14 +14,18 @@ pub use super::headers::{
     RestHeadersConfig, format_accept_language,
 };
 use super::http1::Http1Error;
-use super::rate_limit::{classify_failure, retry_delay, should_retry};
-use super::routes::HttpMethod;
+use super::rate_limit::{classify_failure, rate_limit_info, retry_delay, should_retry};
+pub use super::routes::{
+    CHANNEL_ATTACHMENTS_PATH, HttpMethod, MAX_ATTACHMENT_SIZE_BYTES, MAX_ATTACHMENTS_PER_MESSAGE,
+    attachment_upload_route_spec, build_channel_attachments_path,
+};
 use super::super_properties::SuperProperties;
 use super::telemetry::{TelemetryError, guard_target};
 use super::transport::{
     Endpoint, HttpClientConfig, HttpError, HttpRequest, HttpResponse, send_with,
 };
 use crate::API_V9_BASE;
+use chord_json::{JsonValue, parse as parse_json};
 
 /// Шесть auth-заголовков в owned-виде (значения живут в клиенте).
 #[derive(Clone, Default, PartialEq, Eq)]
@@ -673,4 +677,646 @@ fn is_retryable_transport(error: &HttpError) -> bool {
         error,
         HttpError::Connect(_) | HttpError::Io(_) | HttpError::Timeout(_)
     )
+}
+
+// ============================================================================
+// REST v9 Attachments (`POST /channels/{id}/attachments` & Multipart `POST /channels/{id}/messages`)
+// ============================================================================
+
+/// Максимальная длина текста сообщения Discord (`2000` символов).
+pub const MAX_MESSAGE_CONTENT_CHARS: usize = 2000;
+
+/// Граница multipart/form-data по RFC 7578 для отправки файлов вложений.
+pub const MULTIPART_BOUNDARY: &str = "----DiscordLabAttachmentBoundary9f8e7d6c5b4a";
+
+/// Спецификация файла для выделения pre-signed слота загрузки (`POST /channels/{id}/attachments`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PendingAttachmentSpec {
+    /// Имя файла (санитизируется перед отправкой).
+    pub filename: String,
+    /// Размер файла в байтах (`1..=25 MiB`).
+    pub file_size: u64,
+    /// MIME-тип содержимого (например, `"image/png"`).
+    pub content_type: String,
+    /// Локальный индекс файла в пакете (`0..10`).
+    pub id: u64,
+}
+
+impl PendingAttachmentSpec {
+    /// Создать спецификацию ожидающего загрузки вложения.
+    #[must_use]
+    pub fn new(
+        id: u64,
+        filename: impl Into<String>,
+        file_size: u64,
+        content_type: impl Into<String>,
+    ) -> Self {
+        Self {
+            filename: filename.into(),
+            file_size,
+            content_type: content_type.into(),
+            id,
+        }
+    }
+}
+
+/// Бинарная часть файла для отправки в `multipart/form-data` (`POST /channels/{id}/messages`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MultipartUploadFile {
+    /// Индекс поля `files[{field_index}]` (`0..10`).
+    pub field_index: usize,
+    /// Имя файла для `Content-Disposition` (санитизируется от инъекций и `..`).
+    pub filename: String,
+    /// MIME-тип части (`Content-Type`).
+    pub content_type: String,
+    /// Сырые байты файла (`<= 25 MiB`).
+    pub bytes: Vec<u8>,
+}
+
+impl MultipartUploadFile {
+    /// Создать бинарную часть файла для multipart-отправки.
+    #[must_use]
+    pub fn new(
+        field_index: usize,
+        filename: impl Into<String>,
+        content_type: impl Into<String>,
+        bytes: impl Into<Vec<u8>>,
+    ) -> Self {
+        Self {
+            field_index,
+            filename: filename.into(),
+            content_type: content_type.into(),
+            bytes: bytes.into(),
+        }
+    }
+}
+
+/// Выделенный сервером слот загрузки вложения (`POST /channels/{id}/attachments`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AttachmentUploadSlot {
+    /// Локальный идентификатор файла из запроса.
+    pub id: u64,
+    /// Pre-signed URL облачного хранилища для загрузки.
+    pub upload_url: String,
+    /// Серверное имя загруженного файла (`upload_filename`).
+    pub upload_filename: String,
+}
+
+/// Вложение в составе отправленного сообщения (`POST /channels/{id}/messages`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UploadedMessageAttachment {
+    /// Snowflake ID вложения.
+    pub id: String,
+    /// Имя файла.
+    pub filename: String,
+    /// Размер файла в байтах.
+    pub size: u64,
+    /// CDN URL вложения.
+    pub url: String,
+    /// MIME-тип вложения, если присутствует.
+    pub content_type: Option<String>,
+}
+
+/// Результат успешной отправки сообщения с вложениями (`POST /channels/{id}/messages`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SentAttachmentMessage {
+    /// Snowflake ID созданного сообщения.
+    pub id: String,
+    /// Snowflake ID канала.
+    pub channel_id: String,
+    /// Текст сообщения.
+    pub content: String,
+    /// Список прикреплённых файлов.
+    pub attachments: Vec<UploadedMessageAttachment>,
+}
+
+/// Типизированная ошибка валидации и отправки вложений (`P2-2.2`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AttachmentUploadError {
+    /// Некорректный Snowflake ID канала.
+    InvalidChannelId(String),
+    /// Превышен лимит количества файлов на одно сообщение (`> 10`).
+    AttachmentLimitExceeded,
+    /// Размер файла превышает `25 MiB` (`26_214_400` байт) или равен `0`.
+    AttachmentTooLarge {
+        /// Фактический размер файла в байтах.
+        size: u64,
+        /// Максимально допустимый размер (`26_214_400` байт).
+        limit: u64,
+    },
+    /// Имя файла пусто или стало пустым после санитизации.
+    EmptyFilename,
+    /// Одновременно пустой текст сообщения и пустой список вложений.
+    EmptyContentAndAttachments,
+    /// HTTP `413 Payload Too Large` от сервера.
+    PayloadTooLarge,
+    /// HTTP `401 Unauthorized`.
+    Unauthorized,
+    /// HTTP `403 Forbidden`.
+    Forbidden {
+        /// Сообщение об ошибке от сервера, если есть.
+        message: Option<String>,
+    },
+    /// HTTP `400 Bad Request` или превышение лимита длины текста.
+    BadRequest {
+        /// Код ошибки Discord API, если есть.
+        code: Option<i64>,
+        /// Описание ошибки.
+        message: Option<String>,
+    },
+    /// HTTP `429 Too Many Requests` с задержкой `Retry-After`.
+    RateLimited {
+        /// Время ожидания до повторной попытки.
+        retry_after: Duration,
+    },
+    /// HTTP `500..=599` ошибка сервера.
+    Server {
+        /// HTTP-статус ответа.
+        status: u16,
+    },
+    /// Прочие HTTP `4xx` ошибки клиента.
+    Client {
+        /// HTTP-статус ответа.
+        status: u16,
+    },
+    /// Нарушение JSON-схемы ответа сервера.
+    MalformedResponse(String),
+    /// Ошибка нижнего уровня `ApiError` / `HttpError`.
+    Api(ApiError),
+}
+
+impl fmt::Display for AttachmentUploadError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidChannelId(id) => write!(f, "некорректный ID канала: {id}"),
+            Self::AttachmentLimitExceeded => write!(
+                f,
+                "превышен лимит вложений: максимум {MAX_ATTACHMENTS_PER_MESSAGE} файлов"
+            ),
+            Self::AttachmentTooLarge { size, limit } => {
+                write!(f, "файл слишком большой ({size} Б, лимит {limit} Б)")
+            }
+            Self::EmptyFilename => write!(f, "пустое или недопустимое имя файла"),
+            Self::EmptyContentAndAttachments => {
+                write!(f, "сообщение не может быть пустым без вложений")
+            }
+            Self::PayloadTooLarge => write!(f, "413 Payload Too Large: файл превышает лимит"),
+            Self::Unauthorized => write!(f, "401 Unauthorized: требуется авторизация"),
+            Self::Forbidden { message } => match message {
+                Some(msg) => write!(f, "403 Forbidden: {msg}"),
+                None => write!(f, "403 Forbidden: нет прав на отправку файлов"),
+            },
+            Self::BadRequest { code, message } => match (code, message) {
+                (Some(c), Some(msg)) => write!(f, "400 Bad Request (code {c}): {msg}"),
+                (None, Some(msg)) => write!(f, "400 Bad Request: {msg}"),
+                _ => write!(f, "400 Bad Request"),
+            },
+            Self::RateLimited { retry_after } => {
+                write!(f, "429 Too Many Requests (retry after {retry_after:?})")
+            }
+            Self::Server { status } => write!(f, "ошибка сервера HTTP {status}"),
+            Self::Client { status } => write!(f, "ошибка клиента HTTP {status}"),
+            Self::MalformedResponse(reason) => write!(f, "некорректный ответ сервера: {reason}"),
+            Self::Api(err) => write!(f, "{err}"),
+        }
+    }
+}
+
+impl std::error::Error for AttachmentUploadError {}
+
+impl From<ApiError> for AttachmentUploadError {
+    fn from(err: ApiError) -> Self {
+        Self::Api(err)
+    }
+}
+
+impl From<HttpError> for AttachmentUploadError {
+    fn from(err: HttpError) -> Self {
+        Self::Api(ApiError::from(err))
+    }
+}
+
+/// Инжектируемый HTTP-транспорт для тестирования и выполнения запросов загрузки вложений.
+#[allow(async_fn_in_trait)]
+pub trait HttpTransport: Send + Sync {
+    /// Отправить подготовленный [`HttpRequest`] и вернуть [`HttpResponse`].
+    async fn send(&self, request: &HttpRequest) -> Result<HttpResponse, HttpError>;
+}
+
+impl HttpTransport for ApiClient {
+    async fn send(&self, request: &HttpRequest) -> Result<HttpResponse, HttpError> {
+        send_with(&self.http, &self.base, request).await
+    }
+}
+
+/// Санитизировать имя файла вложения:
+/// - отсекает путевые разделители `/` и `\` (оставляя только безопасный базовый компонент);
+/// - удаляет управляющие символы (`\r`, `\n`, `\0` и др.), кавычки `"` и сегменты `..`;
+/// - отклоняет пустые имена и имена, состоящие только из точек/пробелов ([`AttachmentUploadError::EmptyFilename`]).
+pub fn sanitize_attachment_filename(raw: &str) -> Result<String, AttachmentUploadError> {
+    // Сначала удаляем управляющие символы (\r, \n, \0 и ASCII control) и кавычки
+    let stripped_controls: String = raw
+        .chars()
+        .filter(|&c| !c.is_control() && c != '"')
+        .collect();
+
+    // Берём последний непустой сегмент после разделителей пути `/` и `\`, не равный `.` или `..`
+    let candidate = stripped_controls
+        .rsplit(['/', '\\'])
+        .find(|seg| {
+            let trimmed = seg.trim();
+            !trimmed.is_empty() && trimmed != "." && trimmed != ".."
+        })
+        .ok_or(AttachmentUploadError::EmptyFilename)?;
+
+    // Дополнительно убираем любые оставшиеся последовательности `..` и слэши
+    let cleaned = candidate
+        .replace("..", "")
+        .replace(['/', '\\', '"', '\r', '\n', '\0'], "");
+    let trimmed = cleaned.trim().trim_matches('.');
+    if trimmed.is_empty() {
+        return Err(AttachmentUploadError::EmptyFilename);
+    }
+
+    Ok(cleaned.trim().to_string())
+}
+
+fn sanitize_mime_type(raw: &str) -> String {
+    let cleaned: String = raw
+        .chars()
+        .filter(|&c| !c.is_control() && c != '"')
+        .collect();
+    let trimmed = cleaned.trim();
+    if trimmed.is_empty() {
+        "application/octet-stream".to_string()
+    } else {
+        trimmed.to_string()
+    }
+}
+
+const HEX_LOWER: [char; 16] = [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+];
+
+fn push_json_str(out: &mut String, value: &str) {
+    out.push('"');
+    for ch in value.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\u{0000}'..='\u{001f}' => {
+                let code = ch as u32;
+                out.push_str("\\u00");
+                out.push(HEX_LOWER[(code >> 4) as usize]);
+                out.push(HEX_LOWER[(code & 0xf) as usize]);
+            }
+            other => out.push(other),
+        }
+    }
+    out.push('"');
+}
+
+fn validate_channel_messages_target(channel_id: &str) -> Result<String, AttachmentUploadError> {
+    let _ = build_channel_attachments_path(channel_id)
+        .map_err(|_| AttachmentUploadError::InvalidChannelId(channel_id.to_string()))?;
+    let spec = super::routes::find(HttpMethod::Post, "/channels/{id}/messages")
+        .expect("POST /channels/{id}/messages route in catalog");
+    super::routes::render_path(spec, &[channel_id])
+        .map_err(|_| AttachmentUploadError::InvalidChannelId(channel_id.to_string()))
+}
+
+fn map_attachment_error_response(response: &HttpResponse) -> AttachmentUploadError {
+    let status = response.status;
+    if status == 401 {
+        return AttachmentUploadError::Unauthorized;
+    }
+    if status == 413 {
+        return AttachmentUploadError::PayloadTooLarge;
+    }
+    if status == 429 {
+        let retry_after = rate_limit_info(status, &response.headers, &response.body)
+            .map(|info| info.retry_after)
+            .unwrap_or(Duration::from_secs(1));
+        return AttachmentUploadError::RateLimited { retry_after };
+    }
+    if (500..=599).contains(&status) {
+        return AttachmentUploadError::Server { status };
+    }
+
+    let parsed = std::str::from_utf8(&response.body)
+        .ok()
+        .and_then(|text| parse_json(text).ok());
+    let code = parsed
+        .as_ref()
+        .and_then(|v| v.get("code"))
+        .and_then(JsonValue::as_i64);
+    let message = parsed
+        .as_ref()
+        .and_then(|v| v.get("message"))
+        .and_then(JsonValue::as_str)
+        .map(str::to_string);
+
+    if status == 400 {
+        return AttachmentUploadError::BadRequest { code, message };
+    }
+    if status == 403 {
+        return AttachmentUploadError::Forbidden { message };
+    }
+
+    AttachmentUploadError::Client { status }
+}
+
+impl ApiClient {
+    /// Собрать подготовленный [`HttpRequest`] для `POST /channels/{channel_id}/attachments`
+    /// с JSON-телом `{"files":[...]}` и полным набором заголовков `ApiAuth` + `BrowserImpersonationProfile`.
+    pub fn request_attachment_upload_slots(
+        &self,
+        channel_id: &str,
+        files: &[PendingAttachmentSpec],
+    ) -> Result<HttpRequest, AttachmentUploadError> {
+        let target = build_channel_attachments_path(channel_id)
+            .map_err(|_| AttachmentUploadError::InvalidChannelId(channel_id.to_string()))?;
+
+        if files.is_empty() {
+            return Err(AttachmentUploadError::EmptyContentAndAttachments);
+        }
+        if files.len() > MAX_ATTACHMENTS_PER_MESSAGE {
+            return Err(AttachmentUploadError::AttachmentLimitExceeded);
+        }
+
+        let mut body = String::from("{\"files\":[");
+        for (idx, file) in files.iter().enumerate() {
+            if file.file_size == 0 || file.file_size > MAX_ATTACHMENT_SIZE_BYTES as u64 {
+                return Err(AttachmentUploadError::AttachmentTooLarge {
+                    size: file.file_size,
+                    limit: MAX_ATTACHMENT_SIZE_BYTES as u64,
+                });
+            }
+            let clean_name = sanitize_attachment_filename(&file.filename)?;
+            let clean_mime = sanitize_mime_type(&file.content_type);
+            if idx > 0 {
+                body.push(',');
+            }
+            body.push_str("{\"filename\":");
+            push_json_str(&mut body, &clean_name);
+            body.push_str(",\"file_size\":");
+            body.push_str(&file.file_size.to_string());
+            body.push_str(",\"content_type\":");
+            push_json_str(&mut body, &clean_mime);
+            body.push_str(",\"id\":");
+            body.push_str(&file.id.to_string());
+            body.push('}');
+        }
+        body.push_str("]}");
+
+        let raw_req = HttpRequest::new(HttpMethod::Post, target).body(body.into_bytes());
+        self.prepare(&raw_req).map_err(AttachmentUploadError::Api)
+    }
+
+    /// Собрать подготовленный `multipart/form-data` [`HttpRequest`] для `POST /channels/{channel_id}/messages`
+    /// по RFC 7578 (`payload_json` + бинарные части `files[0]`..`files[N]`).
+    pub fn build_multipart_message_request(
+        &self,
+        channel_id: &str,
+        content: &str,
+        files: &[MultipartUploadFile],
+        nonce: Option<&str>,
+    ) -> Result<HttpRequest, AttachmentUploadError> {
+        let target = validate_channel_messages_target(channel_id)?;
+
+        if content.trim().is_empty() && files.is_empty() {
+            return Err(AttachmentUploadError::EmptyContentAndAttachments);
+        }
+        if content.chars().count() > MAX_MESSAGE_CONTENT_CHARS {
+            return Err(AttachmentUploadError::BadRequest {
+                code: Some(50035),
+                message: Some(format!(
+                    "Must be {MAX_MESSAGE_CONTENT_CHARS} or fewer in length."
+                )),
+            });
+        }
+        if files.len() > MAX_ATTACHMENTS_PER_MESSAGE {
+            return Err(AttachmentUploadError::AttachmentLimitExceeded);
+        }
+
+        let mut sanitized_files = Vec::with_capacity(files.len());
+        for file in files {
+            let size = file.bytes.len() as u64;
+            if size > MAX_ATTACHMENT_SIZE_BYTES as u64 {
+                return Err(AttachmentUploadError::AttachmentTooLarge {
+                    size,
+                    limit: MAX_ATTACHMENT_SIZE_BYTES as u64,
+                });
+            }
+            let clean_name = sanitize_attachment_filename(&file.filename)?;
+            let clean_mime = sanitize_mime_type(&file.content_type);
+            sanitized_files.push((file.field_index, clean_name, clean_mime, &file.bytes));
+        }
+
+        let mut payload_json = String::from("{\"content\":");
+        push_json_str(&mut payload_json, content);
+        if let Some(nonce_val) = nonce {
+            payload_json.push_str(",\"nonce\":");
+            push_json_str(&mut payload_json, nonce_val);
+        }
+        payload_json.push_str(",\"tts\":false,\"attachments\":[");
+        for (idx, (field_index, clean_name, _, _)) in sanitized_files.iter().enumerate() {
+            if idx > 0 {
+                payload_json.push(',');
+            }
+            payload_json.push_str("{\"id\":");
+            payload_json.push_str(&field_index.to_string());
+            payload_json.push_str(",\"filename\":");
+            push_json_str(&mut payload_json, clean_name);
+            payload_json.push('}');
+        }
+        payload_json.push_str("]}");
+
+        let boundary = MULTIPART_BOUNDARY;
+        let mut body = Vec::with_capacity(
+            payload_json.len() + files.iter().map(|f| f.bytes.len() + 256).sum::<usize>() + 128,
+        );
+
+        // Часть 1: payload_json
+        body.extend_from_slice(format!("--{boundary}\r\n").as_bytes());
+        body.extend_from_slice(
+            b"Content-Disposition: form-data; name=\"payload_json\"\r\nContent-Type: application/json\r\n\r\n",
+        );
+        body.extend_from_slice(payload_json.as_bytes());
+        body.extend_from_slice(b"\r\n");
+
+        // Части 2..N: files[0]..files[N]
+        for (field_index, clean_name, clean_mime, file_bytes) in sanitized_files {
+            body.extend_from_slice(format!("--{boundary}\r\n").as_bytes());
+            body.extend_from_slice(
+                format!(
+                    "Content-Disposition: form-data; name=\"files[{field_index}]\"; filename=\"{clean_name}\"\r\nContent-Type: {clean_mime}\r\n\r\n"
+                )
+                .as_bytes(),
+            );
+            body.extend_from_slice(file_bytes);
+            body.extend_from_slice(b"\r\n");
+        }
+
+        // Закрывающая граница RFC 7578
+        body.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
+
+        let raw_req = HttpRequest::new(HttpMethod::Post, target)
+            .header(
+                "Content-Type",
+                format!("multipart/form-data; boundary={boundary}"),
+            )
+            .body(body);
+        self.prepare(&raw_req).map_err(AttachmentUploadError::Api)
+    }
+
+    /// Выделить слоты загрузки вложений (`POST /channels/{channel_id}/attachments`) через инжектируемый [`HttpTransport`].
+    pub async fn create_attachment_upload_slots<T: HttpTransport>(
+        &self,
+        transport: &T,
+        channel_id: &str,
+        files: &[PendingAttachmentSpec],
+    ) -> Result<Vec<AttachmentUploadSlot>, AttachmentUploadError> {
+        let req = self.request_attachment_upload_slots(channel_id, files)?;
+        let response = transport.send(&req).await?;
+
+        if !(200..300).contains(&response.status) {
+            return Err(map_attachment_error_response(&response));
+        }
+
+        let text = std::str::from_utf8(&response.body)
+            .map_err(|_| AttachmentUploadError::MalformedResponse("ответ не UTF-8".to_string()))?;
+        let root = parse_json(text).map_err(|e| {
+            AttachmentUploadError::MalformedResponse(format!("невалидный JSON: {e}"))
+        })?;
+        let attachments = root
+            .get("attachments")
+            .and_then(JsonValue::as_array)
+            .ok_or_else(|| {
+                AttachmentUploadError::MalformedResponse(
+                    "отсутствует массив attachments".to_string(),
+                )
+            })?;
+
+        let mut slots = Vec::with_capacity(attachments.len());
+        for (idx, item) in attachments.iter().enumerate() {
+            let id = item
+                .get("id")
+                .and_then(|v| {
+                    v.as_u64()
+                        .or_else(|| v.as_str().and_then(|s| s.parse::<u64>().ok()))
+                })
+                .unwrap_or(idx as u64);
+            let upload_url = item
+                .get("upload_url")
+                .and_then(JsonValue::as_str)
+                .filter(|s| !s.is_empty())
+                .ok_or_else(|| {
+                    AttachmentUploadError::MalformedResponse(
+                        "отсутствует поле upload_url".to_string(),
+                    )
+                })?
+                .to_string();
+            let upload_filename = item
+                .get("upload_filename")
+                .and_then(JsonValue::as_str)
+                .filter(|s| !s.is_empty())
+                .ok_or_else(|| {
+                    AttachmentUploadError::MalformedResponse(
+                        "отсутствует поле upload_filename".to_string(),
+                    )
+                })?
+                .to_string();
+            slots.push(AttachmentUploadSlot {
+                id,
+                upload_url,
+                upload_filename,
+            });
+        }
+
+        Ok(slots)
+    }
+
+    /// Отправить сообщение с вложениями (`POST /channels/{channel_id}/messages` multipart/form-data)
+    /// через инжектируемый [`HttpTransport`].
+    pub async fn send_message_with_attachments<T: HttpTransport>(
+        &self,
+        transport: &T,
+        channel_id: &str,
+        content: &str,
+        files: &[MultipartUploadFile],
+        nonce: Option<&str>,
+    ) -> Result<SentAttachmentMessage, AttachmentUploadError> {
+        let req = self.build_multipart_message_request(channel_id, content, files, nonce)?;
+        let response = transport.send(&req).await?;
+
+        if !(200..300).contains(&response.status) {
+            return Err(map_attachment_error_response(&response));
+        }
+
+        let text = std::str::from_utf8(&response.body)
+            .map_err(|_| AttachmentUploadError::MalformedResponse("ответ не UTF-8".to_string()))?;
+        let root = parse_json(text).map_err(|e| {
+            AttachmentUploadError::MalformedResponse(format!("невалидный JSON: {e}"))
+        })?;
+
+        let id = root
+            .get("id")
+            .and_then(JsonValue::as_str)
+            .filter(|s| !s.is_empty())
+            .ok_or_else(|| {
+                AttachmentUploadError::MalformedResponse("отсутствует id сообщения".to_string())
+            })?
+            .to_string();
+        let resp_channel_id = root
+            .get("channel_id")
+            .and_then(JsonValue::as_str)
+            .unwrap_or(channel_id)
+            .to_string();
+        let resp_content = root
+            .get("content")
+            .and_then(JsonValue::as_str)
+            .unwrap_or(content)
+            .to_string();
+
+        let mut uploaded_attachments = Vec::new();
+        if let Some(arr) = root.get("attachments").and_then(JsonValue::as_array) {
+            for item in arr {
+                let att_id = item
+                    .get("id")
+                    .and_then(JsonValue::as_str)
+                    .unwrap_or("0")
+                    .to_string();
+                let filename = item
+                    .get("filename")
+                    .and_then(JsonValue::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let size = item.get("size").and_then(JsonValue::as_u64).unwrap_or(0);
+                let url = item
+                    .get("url")
+                    .and_then(JsonValue::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let content_type = item
+                    .get("content_type")
+                    .and_then(JsonValue::as_str)
+                    .map(str::to_string);
+                uploaded_attachments.push(UploadedMessageAttachment {
+                    id: att_id,
+                    filename,
+                    size,
+                    url,
+                    content_type,
+                });
+            }
+        }
+
+        Ok(SentAttachmentMessage {
+            id,
+            channel_id: resp_channel_id,
+            content: resp_content,
+            attachments: uploaded_attachments,
+        })
+    }
 }

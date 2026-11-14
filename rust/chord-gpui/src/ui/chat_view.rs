@@ -1,12 +1,392 @@
-use crate::state::AppState;
+use crate::state::{AppState, MessageAttachment};
 use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;
+use chord_core::rest::client::{
+    AttachmentUploadError, AttachmentUploadSlot, MAX_ATTACHMENT_SIZE_BYTES,
+    MAX_ATTACHMENTS_PER_MESSAGE, MultipartUploadFile, PendingAttachmentSpec,
+    sanitize_attachment_filename,
+};
 use gpui::*;
 use gpui_kit::component::StyledExt;
+use std::sync::{Mutex, OnceLock};
+
+/// Фаза жизненного цикла прикреплённого файла в композере чата (`P2-2.2`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub enum AttachmentUploadPhase {
+    #[default]
+    Pending,
+    Uploading,
+    Ready,
+    Failed(String),
+}
+
+/// Прикреплённый файл в очереди отправки сообщения (`ChatView`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StagedAttachment {
+    pub id: u64,
+    pub filename: String,
+    pub content_type: String,
+    pub size_bytes: u64,
+    pub bytes: Vec<u8>,
+    pub phase: AttachmentUploadPhase,
+    pub upload_url: Option<String>,
+    pub uploaded_filename: Option<String>,
+}
+
+/// Состояние панели прикреплённых файлов композера (`<= 10` файлов, каждый `<= 25 MiB`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct AttachmentComposerState {
+    pub staged: Vec<StagedAttachment>,
+    pub next_id: u64,
+    pub error_banner: Option<String>,
+    pub is_uploading: bool,
+}
+
+#[allow(dead_code)]
+impl AttachmentComposerState {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn stage_file(
+        &mut self,
+        filename: &str,
+        content_type: &str,
+        bytes: Vec<u8>,
+    ) -> Result<u64, AttachmentUploadError> {
+        let size_bytes = bytes.len() as u64;
+        self.stage_file_with_size(filename, content_type, size_bytes, bytes)
+    }
+
+    pub fn stage_file_with_size(
+        &mut self,
+        filename: &str,
+        content_type: &str,
+        size_bytes: u64,
+        bytes: Vec<u8>,
+    ) -> Result<u64, AttachmentUploadError> {
+        if self.staged.len() >= MAX_ATTACHMENTS_PER_MESSAGE {
+            let err = AttachmentUploadError::AttachmentLimitExceeded;
+            self.error_banner = Some(err.to_string());
+            return Err(err);
+        }
+        let clean_name = match sanitize_attachment_filename(filename) {
+            Ok(name) => name,
+            Err(err) => {
+                self.error_banner = Some(err.to_string());
+                return Err(err);
+            }
+        };
+        if size_bytes == 0 || size_bytes > MAX_ATTACHMENT_SIZE_BYTES as u64 {
+            let err = AttachmentUploadError::AttachmentTooLarge {
+                size: size_bytes,
+                limit: MAX_ATTACHMENT_SIZE_BYTES as u64,
+            };
+            self.error_banner = Some(err.to_string());
+            return Err(err);
+        }
+
+        let id = self.next_id;
+        self.next_id += 1;
+        self.error_banner = None;
+        self.staged.push(StagedAttachment {
+            id,
+            filename: clean_name,
+            content_type: if content_type.trim().is_empty() {
+                "application/octet-stream".to_string()
+            } else {
+                content_type.trim().to_string()
+            },
+            size_bytes,
+            bytes,
+            phase: AttachmentUploadPhase::Pending,
+            upload_url: None,
+            uploaded_filename: None,
+        });
+        Ok(id)
+    }
+
+    pub fn remove_by_id(&mut self, id: u64) -> Option<StagedAttachment> {
+        let pos = self.staged.iter().position(|item| item.id == id)?;
+        let removed = self.staged.remove(pos);
+        if self.staged.len() < MAX_ATTACHMENTS_PER_MESSAGE {
+            self.error_banner = None;
+        }
+        Some(removed)
+    }
+
+    pub fn remove_at(&mut self, index: usize) -> Option<StagedAttachment> {
+        if index >= self.staged.len() {
+            return None;
+        }
+        let removed = self.staged.remove(index);
+        if self.staged.len() < MAX_ATTACHMENTS_PER_MESSAGE {
+            self.error_banner = None;
+        }
+        Some(removed)
+    }
+
+    pub fn clear(&mut self) {
+        self.staged.clear();
+        self.error_banner = None;
+        self.is_uploading = false;
+    }
+
+    #[must_use]
+    pub fn count(&self) -> usize {
+        self.staged.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.staged.is_empty()
+    }
+
+    #[must_use]
+    pub fn total_bytes(&self) -> u64 {
+        self.staged.iter().map(|item| item.size_bytes).sum()
+    }
+
+    #[must_use]
+    pub fn can_send(&self, draft_text: &str) -> bool {
+        (!draft_text.trim().is_empty() || !self.staged.is_empty()) && !self.is_uploading
+    }
+
+    pub fn mark_uploading(&mut self) {
+        self.is_uploading = true;
+        self.error_banner = None;
+        for item in &mut self.staged {
+            item.phase = AttachmentUploadPhase::Uploading;
+        }
+    }
+
+    pub fn mark_slots_ready(&mut self, slots: &[AttachmentUploadSlot]) {
+        for slot in slots {
+            if let Some(item) = self.staged.iter_mut().find(|a| a.id == slot.id) {
+                item.phase = AttachmentUploadPhase::Ready;
+                item.upload_url = Some(slot.upload_url.clone());
+                item.uploaded_filename = Some(slot.upload_filename.clone());
+            }
+        }
+    }
+
+    pub fn complete_send_success(&mut self) -> Vec<StagedAttachment> {
+        self.is_uploading = false;
+        self.error_banner = None;
+        std::mem::take(&mut self.staged)
+    }
+
+    pub fn handle_send_error(&mut self, error: &AttachmentUploadError) {
+        self.is_uploading = false;
+        let msg = error.to_string();
+        self.error_banner = Some(msg.clone());
+        for item in &mut self.staged {
+            item.phase = AttachmentUploadPhase::Failed(msg.clone());
+        }
+    }
+
+    pub fn retry_failed(&mut self) -> bool {
+        let mut had_failed = false;
+        for item in &mut self.staged {
+            if matches!(item.phase, AttachmentUploadPhase::Failed(_)) {
+                item.phase = AttachmentUploadPhase::Pending;
+                had_failed = true;
+            }
+        }
+        if had_failed {
+            self.error_banner = None;
+        }
+        had_failed
+    }
+
+    #[must_use]
+    pub fn to_pending_specs(&self) -> Vec<PendingAttachmentSpec> {
+        self.staged
+            .iter()
+            .map(|item| PendingAttachmentSpec {
+                filename: item.filename.clone(),
+                file_size: item.size_bytes,
+                content_type: item.content_type.clone(),
+                id: item.id,
+            })
+            .collect()
+    }
+
+    #[must_use]
+    pub fn to_multipart_files(&self) -> Vec<MultipartUploadFile> {
+        self.staged
+            .iter()
+            .enumerate()
+            .map(|(idx, item)| MultipartUploadFile {
+                field_index: idx,
+                filename: item.filename.clone(),
+                content_type: item.content_type.clone(),
+                bytes: item.bytes.clone(),
+            })
+            .collect()
+    }
+
+    #[must_use]
+    pub fn format_byte_size(bytes: u64) -> String {
+        const KIB: f64 = 1024.0;
+        const MIB: f64 = 1024.0 * 1024.0;
+        if bytes >= 1024 * 1024 {
+            format!("{:.1} MB", (bytes as f64) / MIB)
+        } else if bytes >= 1024 {
+            format!("{:.1} KB", (bytes as f64) / KIB)
+        } else {
+            format!("{bytes} B")
+        }
+    }
+}
+
+fn global_composer_state() -> &'static Mutex<AttachmentComposerState> {
+    static STATE: OnceLock<Mutex<AttachmentComposerState>> = OnceLock::new();
+    STATE.get_or_init(|| Mutex::new(AttachmentComposerState::new()))
+}
 
 pub struct ChatView;
 
+#[allow(dead_code)]
 impl ChatView {
+    /// Добавить вложение в очередь композера.
+    pub fn stage_attachment(
+        filename: &str,
+        content_type: &str,
+        bytes: Vec<u8>,
+    ) -> Result<u64, AttachmentUploadError> {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        guard.stage_file(filename, content_type, bytes)
+    }
+
+    /// Удалить прикреплённый файл по идентификатору.
+    pub fn remove_staged_attachment(id: u64) -> Option<StagedAttachment> {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        guard.remove_by_id(id)
+    }
+
+    /// Очистить все прикреплённые файлы композера.
+    pub fn clear_staged_attachments() {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        guard.clear();
+        guard.next_id = 0;
+    }
+
+    /// Количество прикреплённых файлов в композере.
+    #[must_use]
+    pub fn staged_attachment_count() -> usize {
+        global_composer_state()
+            .lock()
+            .expect("composer lock")
+            .count()
+    }
+
+    /// Суммарный размер прикреплённых файлов в байтах.
+    #[must_use]
+    pub fn staged_total_bytes() -> u64 {
+        global_composer_state()
+            .lock()
+            .expect("composer lock")
+            .total_bytes()
+    }
+
+    /// Снимок текущего состояния композера вложений.
+    #[must_use]
+    pub fn composer_snapshot() -> AttachmentComposerState {
+        global_composer_state()
+            .lock()
+            .expect("composer lock")
+            .clone()
+    }
+
+    /// Зафиксировать ошибку загрузки вложений в композере (сохраняет файлы для повтора).
+    pub fn record_upload_error(error: &AttachmentUploadError) {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        guard.handle_send_error(error);
+    }
+
+    /// Отправить сообщение из композера вместе с прикреплёнными вложениями.
+    pub fn submit_composer_message(state: &mut AppState) -> Result<bool, AttachmentUploadError> {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        if !guard.can_send(&state.draft_text) {
+            return Err(AttachmentUploadError::EmptyContentAndAttachments);
+        }
+
+        let staged_items = guard.complete_send_success();
+        drop(guard);
+
+        let text = std::mem::take(&mut state.draft_text);
+        let trimmed = text.trim().to_string();
+
+        if !trimmed.is_empty() {
+            state.send_message(trimmed);
+            if !staged_items.is_empty()
+                && let Some(cid) = state.selected_channel_id.as_ref()
+                && let Some(feed) = state.messages.get_mut(cid)
+                && let Some(last_msg) = feed.last_mut()
+            {
+                for item in staged_items {
+                    last_msg.attachments.push(MessageAttachment {
+                        id: format!("att-{}", item.id),
+                        filename: item.filename.clone(),
+                        url: item.upload_url.unwrap_or_else(|| {
+                            format!(
+                                "https://cdn.discordapp.com/attachments/{}/att-{}/{}",
+                                cid, item.id, item.filename
+                            )
+                        }),
+                        size_bytes: item.size_bytes,
+                    });
+                }
+            }
+            return Ok(true);
+        }
+
+        if let Some(cid) = state.selected_channel_id.clone() {
+            let attachments: Vec<MessageAttachment> = staged_items
+                .into_iter()
+                .map(|item| MessageAttachment {
+                    id: format!("att-{}", item.id),
+                    filename: item.filename.clone(),
+                    url: item.upload_url.unwrap_or_else(|| {
+                        format!(
+                            "https://cdn.discordapp.com/attachments/{}/att-{}/{}",
+                            cid, item.id, item.filename
+                        )
+                    }),
+                    size_bytes: item.size_bytes,
+                })
+                .collect();
+            let feed = state.messages.entry(cid.clone()).or_default();
+            let msg_id = format!("msg-att-{}", feed.len() + 1);
+            feed.push(crate::state::Message {
+                id: msg_id,
+                channel_id: cid,
+                author: crate::state::UserSummary {
+                    id: state.current_user.id.clone(),
+                    username: state.current_user.username.clone(),
+                    global_name: state.current_user.global_name.clone(),
+                    avatar: state.current_user.avatar.clone(),
+                    is_bot: false,
+                },
+                content: String::new(),
+                timestamp: "Только что".to_string(),
+                edited_timestamp: None,
+                attachments,
+                reactions: Vec::new(),
+                is_pinned: false,
+                message_kind: crate::state::MessageKind::Default,
+            });
+            return Ok(true);
+        }
+
+        Ok(false)
+    }
+
     /// Порог смещения скролла от верхнего края для инициирования пагинации (offset < 10)
     pub const PAGINATION_SCROLL_OFFSET_THRESHOLD: f32 = 10.0;
 
@@ -834,6 +1214,62 @@ impl ChatView {
                                             )
                                             // Текст сообщения с поддержкой Markdown и Codeblock
                                             .child(Self::render_formatted_content(&msg.content))
+                                            // Вложения сообщения (Attachments)
+                                            .children(if !msg.attachments.is_empty() {
+                                                Some(
+                                                    div()
+                                                        .flex()
+                                                        .flex_wrap()
+                                                        .gap(px(8.))
+                                                        .pt(px(4.))
+                                                        .children(msg.attachments.into_iter().map(
+                                                            |att| {
+                                                                div()
+                                                                    .px(px(10.))
+                                                                    .py(px(6.))
+                                                                    .rounded(px(6.))
+                                                                    .bg(DISCORD_THEME.bg_secondary)
+                                                                    .border_1()
+                                                                    .border_color(
+                                                                        DISCORD_THEME.border_subtle,
+                                                                    )
+                                                                    .flex()
+                                                                    .items_center()
+                                                                    .gap(px(8.))
+                                                                    .child(
+                                                                        div()
+                                                                            .text_size(px(14.))
+                                                                            .child("📎"),
+                                                                    )
+                                                                    .child(
+                                                                        div()
+                                                                            .text_size(px(13.))
+                                                                            .font_weight(
+                                                                                FontWeight::BOLD,
+                                                                            )
+                                                                            .text_color(
+                                                                                DISCORD_THEME
+                                                                                    .text_header,
+                                                                            )
+                                                                            .child(att.filename),
+                                                                    )
+                                                                    .child(
+                                                                        div()
+                                                                            .text_size(px(11.))
+                                                                            .text_color(
+                                                                                DISCORD_THEME
+                                                                                    .text_muted,
+                                                                            )
+                                                                            .child(AttachmentComposerState::format_byte_size(
+                                                                                att.size_bytes,
+                                                                            )),
+                                                                    )
+                                                            },
+                                                        )),
+                                                )
+                                            } else {
+                                                None
+                                            })
                                             // Реакции
                                             .child(div().flex().gap(px(6.)).pt(px(4.)).children(
                                                 msg.reactions.into_iter().map(|reaction| {
@@ -889,9 +1325,178 @@ impl ChatView {
                     }))
             })
             // 3. Нижнее поле ввода сообщения
-            .child(
+            .child({
+                let composer = Self::composer_snapshot();
                 div()
                     .p(px(16.))
+                    .v_flex()
+                    .gap(px(8.))
+                    // Баннер ошибки загрузки вложений (если есть)
+                    .children(composer.error_banner.as_ref().map(|err_msg| {
+                        div()
+                            .id("attachment-error-banner")
+                            .px(px(12.))
+                            .py(px(6.))
+                            .rounded(px(6.))
+                            .bg(gpui::rgba(0xF23F4322))
+                            .border_1()
+                            .border_color(DISCORD_THEME.status_dnd)
+                            .flex()
+                            .items_center()
+                            .justify_between()
+                            .child(
+                                div()
+                                    .text_size(px(12.))
+                                    .font_weight(FontWeight::BOLD)
+                                    .text_color(DISCORD_THEME.status_dnd)
+                                    .child(format!("⚠️ {err_msg}")),
+                            )
+                            .child(
+                                div()
+                                    .id("btn-retry-attachments")
+                                    .cursor_pointer()
+                                    .px(px(8.))
+                                    .py(px(2.))
+                                    .rounded(px(4.))
+                                    .bg(DISCORD_THEME.bg_secondary)
+                                    .text_size(px(11.))
+                                    .text_color(DISCORD_THEME.text_header)
+                                    .child("Повторить")
+                                    .on_mouse_down(
+                                        MouseButton::Left,
+                                        cx.listener(|_this, _, _, cx| {
+                                            if let Ok(mut guard) = global_composer_state().lock() {
+                                                guard.retry_failed();
+                                            }
+                                            cx.notify();
+                                        }),
+                                    ),
+                            )
+                    }))
+                    // Панель предпросмотра прикреплённых файлов (Staged Attachments Bar)
+                    .children(if !composer.staged.is_empty() {
+                        let total_str =
+                            AttachmentComposerState::format_byte_size(composer.total_bytes());
+                        let count_str = format!(
+                            "Вложения ({}/{MAX_ATTACHMENTS_PER_MESSAGE}) • {total_str}",
+                            composer.count()
+                        );
+                        Some(
+                            div()
+                                .id("attachment-staging-bar")
+                                .p(px(10.))
+                                .rounded(px(8.))
+                                .bg(DISCORD_THEME.bg_secondary)
+                                .border_1()
+                                .border_color(DISCORD_THEME.border_subtle)
+                                .v_flex()
+                                .gap(px(8.))
+                                .child(
+                                    div()
+                                        .flex()
+                                        .items_center()
+                                        .justify_between()
+                                        .child(
+                                            div()
+                                                .text_size(px(11.))
+                                                .font_weight(FontWeight::BOLD)
+                                                .text_color(DISCORD_THEME.text_muted)
+                                                .child(count_str),
+                                        )
+                                        .child(
+                                            div()
+                                                .id("btn-clear-attachments")
+                                                .cursor_pointer()
+                                                .px(px(6.))
+                                                .py(px(2.))
+                                                .rounded(px(4.))
+                                                .hover(|s| s.bg(DISCORD_THEME.bg_hover))
+                                                .text_size(px(11.))
+                                                .text_color(DISCORD_THEME.status_dnd)
+                                                .child("Очистить все ✕")
+                                                .on_mouse_down(
+                                                    MouseButton::Left,
+                                                    cx.listener(|_this, _, _, cx| {
+                                                        ChatView::clear_staged_attachments();
+                                                        cx.notify();
+                                                    }),
+                                                ),
+                                        ),
+                                )
+                                .child(
+                                    div().flex().flex_wrap().gap(px(8.)).children(
+                                        composer.staged.into_iter().map(|att| {
+                                            let att_id = att.id;
+                                            let phase_badge = match &att.phase {
+                                                AttachmentUploadPhase::Pending => "⏳ Ожидает",
+                                                AttachmentUploadPhase::Uploading => "⬆️ Загрузка...",
+                                                AttachmentUploadPhase::Ready => "✅ Готово",
+                                                AttachmentUploadPhase::Failed(_) => "❌ Ошибка",
+                                            };
+                                            div()
+                                                .id(format!("staged-attachment-card-{att_id}"))
+                                                .px(px(10.))
+                                                .py(px(6.))
+                                                .rounded(px(6.))
+                                                .bg(DISCORD_THEME.bg_tertiary)
+                                                .border_1()
+                                                .border_color(DISCORD_THEME.border_subtle)
+                                                .flex()
+                                                .items_center()
+                                                .gap(px(8.))
+                                                .child(
+                                                    div()
+                                                        .text_size(px(12.))
+                                                        .font_weight(FontWeight::BOLD)
+                                                        .text_color(DISCORD_THEME.text_header)
+                                                        .child(att.filename),
+                                                )
+                                                .child(
+                                                    div()
+                                                        .text_size(px(11.))
+                                                        .text_color(DISCORD_THEME.text_muted)
+                                                        .child(
+                                                            AttachmentComposerState::format_byte_size(
+                                                                att.size_bytes,
+                                                            ),
+                                                        ),
+                                                )
+                                                .child(
+                                                    div()
+                                                        .text_size(px(10.))
+                                                        .text_color(DISCORD_THEME.blurple)
+                                                        .child(phase_badge),
+                                                )
+                                                .child(
+                                                    div()
+                                                        .id(format!(
+                                                            "btn-remove-attachment-{att_id}"
+                                                        ))
+                                                        .cursor_pointer()
+                                                        .px(px(4.))
+                                                        .rounded(px(3.))
+                                                        .hover(|s| s.bg(DISCORD_THEME.bg_hover))
+                                                        .text_size(px(11.))
+                                                        .text_color(DISCORD_THEME.status_dnd)
+                                                        .child("✕")
+                                                        .on_mouse_down(
+                                                            MouseButton::Left,
+                                                            cx.listener(move |_this, _, _, cx| {
+                                                                let _ =
+                                                                    ChatView::remove_staged_attachment(
+                                                                        att_id,
+                                                                    );
+                                                                cx.notify();
+                                                            }),
+                                                        ),
+                                                )
+                                        }),
+                                    ),
+                                ),
+                        )
+                    } else {
+                        None
+                    })
                     .child(
                         div()
                             .h(px(44.))
@@ -909,6 +1514,7 @@ impl ChatView {
                                     .gap(px(12.))
                                     .child(
                                         div()
+                                            .id("btn-attach-file")
                                             .size(px(24.))
                                             .rounded_full()
                                             .bg(DISCORD_THEME.text_muted)
@@ -920,7 +1526,20 @@ impl ChatView {
                                             .text_color(DISCORD_THEME.bg_primary)
                                             .font_weight(FontWeight::BOLD)
                                             .text_size(px(14.))
-                                            .child("+"),
+                                            .child("+")
+                                            .on_mouse_down(
+                                                MouseButton::Left,
+                                                cx.listener(|_this, _, _, cx| {
+                                                    let next_num =
+                                                        ChatView::staged_attachment_count() + 1;
+                                                    let _ = ChatView::stage_attachment(
+                                                        &format!("attachment_{next_num}.png"),
+                                                        "image/png",
+                                                        vec![0x89, b'P', b'N', b'G'],
+                                                    );
+                                                    cx.notify();
+                                                }),
+                                            ),
                                     )
                                     // Поле ввода текста / плейсхолдер
                                     .child(
@@ -1010,12 +1629,11 @@ impl ChatView {
                                             .on_mouse_down(
                                                 MouseButton::Left,
                                                 cx.listener(|this, _, _, cx| {
-                                                    let trimmed = this.state.draft_text.trim();
-                                                    if !trimmed.is_empty() {
-                                                        let text = std::mem::take(
-                                                            &mut this.state.draft_text,
-                                                        );
-                                                        this.state.send_message(text);
+                                                    if ChatView::submit_composer_message(
+                                                        &mut this.state,
+                                                    )
+                                                    .is_ok()
+                                                    {
                                                         cx.notify();
                                                     }
                                                 }),
@@ -1057,8 +1675,8 @@ impl ChatView {
                         } else {
                             div().h(px(20.)).into_any_element()
                         }
-                    }),
-            )
+                    })
+            })
     }
 
     pub fn render_floating_action_bar(

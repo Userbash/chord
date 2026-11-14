@@ -125,13 +125,14 @@ impl RouteSpec {
 }
 
 /// Пары «метод, шаблон» всех маршрутов вне захвата D-02 (`[S]`/сырой захват).
-const STATIC_EXTENSION_ROUTES: [(HttpMethod, &str); 6] = [
+const STATIC_EXTENSION_ROUTES: [(HttpMethod, &str); 7] = [
     (HttpMethod::Post, "/channels/{id}/messages"),
     (HttpMethod::Get, GUILD_SEARCH_PATH),
     (HttpMethod::Post, TYPING_PATH),
     (HttpMethod::Get, INVITE_PATH),
     (HttpMethod::Post, INVITE_PATH),
     (HttpMethod::Get, CHANNEL_SEARCH_PATH),
+    (HttpMethod::Post, CHANNEL_ATTACHMENTS_PATH),
 ];
 
 /// Конструктор элемента каталога (приватный: состав каталога фиксирован оракулом).
@@ -374,8 +375,20 @@ pub const CHANNEL_SEARCH_PATH: &str = "/channels/{id}/messages/search";
 /// ([`RouteSpec::is_static_extension`]), хотя и находится внутри [`ROUTES`].
 pub const GUILD_SEARCH_PATH: &str = "/guilds/{id}/messages/search";
 
+/// `POST /channels/{id}/attachments` — выделение pre-signed слотов загрузки вложений в канале (`P2-2.2`).
+pub const CHANNEL_ATTACHMENTS_PATH: &str = "/channels/{id}/attachments";
+
+/// Ключи тела `POST /channels/{id}/attachments`.
+pub const CHANNEL_ATTACHMENTS_BODY_KEYS: [&str; 1] = ["files"];
+
+/// Максимальное количество вложений в одном сообщении Discord (`10`).
+pub const MAX_ATTACHMENTS_PER_MESSAGE: usize = 10;
+
+/// Максимальный размер одного файла вложения для стандартного аккаунта (`25 MiB = 26_214_400` байт).
+pub const MAX_ATTACHMENT_SIZE_BYTES: usize = 25 * 1024 * 1024;
+
 /// Статический список `[S]`-расширений: `find` возвращает `&'static RouteSpec`.
-static EXTENSIONS: [RouteSpec; 4] = [
+static EXTENSIONS: [RouteSpec; 5] = [
     route(HttpMethod::Post, TYPING_PATH, &[]),
     route(HttpMethod::Get, INVITE_PATH, &[]),
     route(HttpMethod::Post, INVITE_PATH, &INVITE_ACCEPT_BODY_KEYS),
@@ -385,7 +398,18 @@ static EXTENSIONS: [RouteSpec; 4] = [
         &[],
         MESSAGES_SEARCH_QUERY_PARAMS,
     ),
+    route(
+        HttpMethod::Post,
+        CHANNEL_ATTACHMENTS_PATH,
+        &CHANNEL_ATTACHMENTS_BODY_KEYS,
+    ),
 ];
+
+/// Возвращает статическую спецификацию маршрута `POST /channels/{id}/attachments`.
+#[must_use]
+pub fn attachment_upload_route_spec() -> &'static RouteSpec {
+    &EXTENSIONS[4]
+}
 
 /// Ошибки рендера пути.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -953,4 +977,23 @@ pub fn build_channel_search_path(
     qb.param_opt("max_id", params.max_id);
 
     Ok(qb.build_with_path(&base))
+}
+
+/// Собрать URL пути для выделения слотов загрузки вложений (`POST /channels/{id}/attachments`).
+///
+/// Валидирует `channel_id` как непустой положительный Snowflake (`1..=u64::MAX`, только ASCII-цифры).
+pub fn build_channel_attachments_path(channel_id: &str) -> Result<String, QueryError> {
+    let spec = attachment_upload_route_spec();
+    let base = render_path(spec, &[channel_id])?;
+    if !channel_id.bytes().all(|b| b.is_ascii_digit())
+        || channel_id.parse::<u64>().map_or(true, |v| v == 0)
+    {
+        return Err(QueryError::InvalidParamValue {
+            param: "channel_id",
+            reason: format!(
+                "channel_id must be a valid positive numeric snowflake, got '{channel_id}'"
+            ),
+        });
+    }
+    Ok(base)
 }
