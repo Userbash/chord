@@ -5,9 +5,9 @@ use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;
 use crate::video::{ScreenCastManager, ScreenCastState};
 use chord_platform::screencast::{
-    CaptureResolutionPreset, CaptureTargetKind, NegotiatedStreamParams, PortalCursorMode,
-    PortalSourceTypes, PortalStreamInfo, RTP_VIDEO_CLOCK_HZ, ScreenCastNegotiationRequest,
-    ScreenCastOptions, negotiate_stream_params,
+    CaptureResolutionPreset, CaptureTargetKind, NegotiatedStreamParams, PortalRequestError,
+    PortalSourceTypes, PortalStreamInfo, RTP_VIDEO_CLOCK_HZ, ScreenCastCapturePipeline,
+    ScreenCastNegotiationRequest, ScreenCastOptions, ScreenCastPortal, negotiate_stream_params,
 };
 use gpui::*;
 use gpui_kit::component::StyledExt;
@@ -295,6 +295,67 @@ impl ScreenShareContentHint {
     }
 }
 
+/// Абстракция запуска и остановки сессии портала `ScreenCast` (для мокирования в оффлайн-тестах
+/// и работы с реальным [`ScreenCastPortal`] / [`ScreenCastCapturePipeline`]).
+pub trait ScreenCastPortalRunner {
+    fn start_portal_session(
+        &mut self,
+        options: &ScreenCastOptions,
+        request: &ScreenCastNegotiationRequest,
+    ) -> Result<(Option<String>, NegotiatedStreamParams), PortalRequestError>;
+
+    fn stop_portal_session(
+        &mut self,
+        session_handle: Option<&str>,
+    ) -> Result<(), PortalRequestError>;
+}
+
+/// Оффлайн-раннер портала `ScreenCast` для контрактного тестирования отказов, отмены и успеха.
+#[derive(Debug, Clone)]
+pub struct MockScreenCastPortalRunner {
+    start_result: Result<(Option<String>, NegotiatedStreamParams), PortalRequestError>,
+    pub stop_calls: usize,
+}
+
+impl MockScreenCastPortalRunner {
+    #[must_use]
+    pub fn succeeding(params: NegotiatedStreamParams) -> Self {
+        Self {
+            start_result: Ok((
+                Some("/org/freedesktop/portal/desktop/session/mock/s1".to_string()),
+                params,
+            )),
+            stop_calls: 0,
+        }
+    }
+
+    #[must_use]
+    pub fn failing(err: PortalRequestError) -> Self {
+        Self {
+            start_result: Err(err),
+            stop_calls: 0,
+        }
+    }
+}
+
+impl ScreenCastPortalRunner for MockScreenCastPortalRunner {
+    fn start_portal_session(
+        &mut self,
+        _options: &ScreenCastOptions,
+        _request: &ScreenCastNegotiationRequest,
+    ) -> Result<(Option<String>, NegotiatedStreamParams), PortalRequestError> {
+        self.start_result.clone()
+    }
+
+    fn stop_portal_session(
+        &mut self,
+        _session_handle: Option<&str>,
+    ) -> Result<(), PortalRequestError> {
+        self.stop_calls += 1;
+        Ok(())
+    }
+}
+
 /// Состояние нативного селектора экранов и окон
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScreenShareSelectorState {
@@ -307,6 +368,10 @@ pub struct ScreenShareSelectorState {
     pub selected_source_id: Option<String>,
     pub last_started_stream: Option<ScreenCastState>,
     pub last_error: Option<String>,
+    #[serde(skip)]
+    pub active_session_handle: Option<String>,
+    #[serde(skip)]
+    pub negotiated_stream: Option<NegotiatedStreamParams>,
 }
 
 impl Default for ScreenShareSelectorState {
@@ -327,6 +392,8 @@ impl ScreenShareSelectorState {
             selected_source_id: None,
             last_started_stream: None,
             last_error: None,
+            active_session_handle: None,
+            negotiated_stream: None,
         }
     }
 
@@ -464,6 +531,143 @@ impl ScreenShareSelectorState {
         )
     }
 
+    pub const fn build_negotiation_request(&self) -> ScreenCastNegotiationRequest {
+        self.quality_preset()
+            .to_negotiation_request(self.active_tab.capture_target_kind())
+    }
+
+    fn format_portal_error(err: &PortalRequestError) -> String {
+        match err {
+            PortalRequestError::ConsentDenied => format!("Cancelled: {err}"),
+            PortalRequestError::ConsentAborted => format!("Cancelled (aborted): {err}"),
+            other => other.to_string(),
+        }
+    }
+
+    fn apply_started_stream_to_state(
+        &mut self,
+        state: &mut AppState,
+        src: ScreenSource,
+        params: &NegotiatedStreamParams,
+    ) {
+        let source_type = if src.is_screen { "Monitor" } else { "Window" }.to_string();
+        state.start_screen_sharing(&src.id);
+        if let CallStatus::Connected {
+            ref mut is_screen_sharing,
+            ..
+        } = state.active_call
+        {
+            *is_screen_sharing = true;
+        }
+
+        let cast_state = ScreenCastState {
+            is_active: true,
+            source_type,
+            source_name: src.name,
+            fps: params.fps,
+            resolution_width: params.width,
+            resolution_height: params.height,
+            pipewire_node_id: Some(params.node_id),
+        };
+
+        self.selected_source_id = Some(src.id);
+        self.last_started_stream = Some(cast_state);
+        self.negotiated_stream = Some(params.clone());
+        self.last_error = None;
+    }
+
+    pub fn confirm_go_live_with_pipeline(
+        &mut self,
+        state: &mut AppState,
+        portal: &mut ScreenCastPortal,
+        pipeline: &mut ScreenCastCapturePipeline,
+    ) -> Result<NegotiatedStreamParams, String> {
+        let Some(src) = self.effective_selected_source(state).cloned() else {
+            let err = "Не выбран источник для демонстрации экрана".to_string();
+            self.last_error = Some(err.clone());
+            return Err(err);
+        };
+
+        let options = self.build_portal_options();
+        let request = self.build_negotiation_request();
+        let params = match pipeline.start_session(portal, &options, &request) {
+            Ok(params) => params,
+            Err(portal_err) => {
+                let msg = Self::format_portal_error(&portal_err);
+                self.last_error = Some(msg.clone());
+                return Err(msg);
+            }
+        };
+
+        self.active_session_handle = pipeline.session_handle().map(str::to_string);
+        self.apply_started_stream_to_state(state, src, &params);
+        Ok(params)
+    }
+
+    pub fn confirm_go_live_with_portal(
+        &mut self,
+        state: &mut AppState,
+        portal: &mut ScreenCastPortal,
+    ) -> Result<NegotiatedStreamParams, String> {
+        let mut pipeline = ScreenCastCapturePipeline::new();
+        self.confirm_go_live_with_pipeline(state, portal, &mut pipeline)
+    }
+
+    pub fn confirm_go_live_with_runner<R: ScreenCastPortalRunner>(
+        &mut self,
+        state: &mut AppState,
+        runner: &mut R,
+    ) -> Result<NegotiatedStreamParams, String> {
+        let Some(src) = self.effective_selected_source(state).cloned() else {
+            let err = "Не выбран источник для демонстрации экрана".to_string();
+            self.last_error = Some(err.clone());
+            return Err(err);
+        };
+
+        let options = self.build_portal_options();
+        let request = self.build_negotiation_request();
+        let (session_handle, params) = match runner.start_portal_session(&options, &request) {
+            Ok(res) => res,
+            Err(portal_err) => {
+                let msg = Self::format_portal_error(&portal_err);
+                self.last_error = Some(msg.clone());
+                return Err(msg);
+            }
+        };
+
+        self.active_session_handle = session_handle;
+        self.apply_started_stream_to_state(state, src, &params);
+        Ok(params)
+    }
+
+    pub fn switch_live_source_with_pipeline(
+        &mut self,
+        source_id: &str,
+        state: &mut AppState,
+        pipeline: &mut ScreenCastCapturePipeline,
+    ) -> Result<NegotiatedStreamParams, String> {
+        let src = self.select_source(source_id, state)?;
+        let target_kind = if src.is_screen {
+            CaptureTargetKind::Monitor
+        } else {
+            CaptureTargetKind::Window
+        };
+        let preset = self.resolution.capture_preset();
+        let target_fps = self.fps.value();
+
+        let params = match pipeline.switch_stream_target(target_kind, preset, target_fps) {
+            Ok(params) => params,
+            Err(portal_err) => {
+                let msg = Self::format_portal_error(&portal_err);
+                self.last_error = Some(msg.clone());
+                return Err(msg);
+            }
+        };
+
+        self.apply_started_stream_to_state(state, src, &params);
+        Ok(params)
+    }
+
     pub fn confirm_go_live(&mut self, state: &mut AppState) -> Result<ScreenCastState, String> {
         let Some(src) = self.effective_selected_source(state).cloned() else {
             let err = "Не выбран источник для демонстрации экрана".to_string();
@@ -512,6 +716,45 @@ impl ScreenShareSelectorState {
         if let Some(ref mut last) = self.last_started_stream {
             last.is_active = false;
         }
+        self.active_session_handle = None;
+        self.negotiated_stream = None;
+    }
+
+    pub fn stop_go_live_with_pipeline(
+        &mut self,
+        state: &mut AppState,
+        portal: &mut ScreenCastPortal,
+        pipeline: &mut ScreenCastCapturePipeline,
+    ) -> Result<(), String> {
+        let res = pipeline
+            .stop(portal)
+            .map_err(|e| Self::format_portal_error(&e));
+        portal.invalidate_pipewire_cache();
+        self.stop_go_live(state);
+        if let Err(ref err) = res {
+            self.last_error = Some(err.clone());
+        }
+        res
+    }
+
+    pub fn stop_go_live_with_portal(
+        &mut self,
+        state: &mut AppState,
+        portal: &mut ScreenCastPortal,
+    ) -> Result<(), String> {
+        let res = if let Some(handle) = self.active_session_handle.take() {
+            portal
+                .close_session(&handle)
+                .map_err(|e| Self::format_portal_error(&e))
+        } else {
+            Ok(())
+        };
+        portal.invalidate_pipewire_cache();
+        self.stop_go_live(state);
+        if let Err(ref err) = res {
+            self.last_error = Some(err.clone());
+        }
+        res
     }
 
     pub fn status_summary(&self) -> String {
@@ -1177,6 +1420,7 @@ impl ScreenShareModal {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chord_platform::screencast::PortalCursorMode;
 
     #[core::prelude::v1::test]
     fn screen_share_tabs_and_source_filtering_contract() {

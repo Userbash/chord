@@ -10,6 +10,18 @@ use std::os::fd::{AsRawFd, RawFd};
 use std::os::unix::net::UnixStream;
 use std::sync::atomic::{AtomicU64, Ordering};
 
+use chord_platform::screencast::CapturedFrame;
+
+#[allow(unused_imports)]
+pub use crate::video::encoder::{RawVideoFrame, VideoFramePixelFormat};
+#[allow(unused_imports)]
+pub use crate::video::{
+    DmaBufPlaneDescriptor, FrameBridgeError, PipeWireFrameBridge, PipeWireFrameBridgeStats,
+    convert_captured_frame_ref_to_raw_frame, convert_captured_frame_to_raw_frame,
+    convert_dma_buf_plane_to_raw_frame, map_drm_fourcc_to_pixel_format,
+    swizzle_bgra_to_rgba_in_place,
+};
+
 pub const PORTAL_BUS_NAME: &str = "org.freedesktop.portal.Desktop";
 pub const PORTAL_OBJECT_PATH: &str = "/org/freedesktop/portal/desktop";
 pub const SCREENCAST_INTERFACE: &str = "org.freedesktop.portal.ScreenCast";
@@ -108,6 +120,7 @@ pub enum PortalError {
     InvalidStride(u32, u32),
     NoCompatibleDmaBufModifier,
     PipeWireDaemonDisconnected(String),
+    FrameBridge(String),
     IoError(String),
 }
 
@@ -454,14 +467,45 @@ impl PortalTelemetrySnapshot {
     }
 }
 
+pub fn negotiated_dma_buf_to_raw_frame(
+    config: &NegotiatedDmaBufConfig,
+    width: u32,
+    height: u32,
+    dma_buf_fd: Option<RawFd>,
+    plane_bytes: &[u8],
+    pts_us: u64,
+) -> Result<RawVideoFrame, FrameBridgeError> {
+    if config.is_zero_copy {
+        let fd = dma_buf_fd.unwrap_or(-1);
+        let plane = DmaBufPlaneDescriptor {
+            dma_buf_fd: fd,
+            offset_bytes: 0,
+            stride_bytes: config.stride_bytes,
+            size_bytes: plane_bytes.len(),
+            drm_fourcc: config.drm_fourcc,
+            drm_modifier: config.drm_modifier,
+        };
+        convert_dma_buf_plane_to_raw_frame(width, height, &plane, plane_bytes, pts_us)
+    } else {
+        let frame = CapturedFrame::new(width, height, config.stride_bytes, config.drm_fourcc)
+            .with_data(plane_bytes.to_vec())
+            .with_timestamp_us(pts_us);
+        convert_captured_frame_to_raw_frame(frame)
+    }
+}
+
 pub struct PipeWirePortalManager<B: PortalBackend> {
     backend: B,
     state: PortalSessionState,
     config: Option<PortalSessionConfig>,
+    negotiated_config: Option<NegotiatedDmaBufConfig>,
     session_handle: Option<String>,
     active_fd: Option<OwnedPortalFd>,
     active_node_id: Option<u32>,
     saved_restore_token: Option<String>,
+    frame_bridge: PipeWireFrameBridge,
+    manager_fds_opened: u64,
+    manager_fds_closed: u64,
 }
 
 impl<B: PortalBackend> PipeWirePortalManager<B> {
@@ -471,10 +515,14 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
             backend,
             state: PortalSessionState::Unconnected,
             config: None,
+            negotiated_config: None,
             session_handle: None,
             active_fd: None,
             active_node_id: None,
             saved_restore_token: None,
+            frame_bridge: PipeWireFrameBridge::new(),
+            manager_fds_opened: 0,
+            manager_fds_closed: 0,
         }
     }
 
@@ -496,10 +544,12 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
         }
         cfg.validate()?;
         let (path, node_id, r_tok, fd) = self.acquire_remote_session(cfg)?;
+        self.manager_fds_opened += 1;
         let negotiated = match negotiate_dma_buf_stream(dma_req) {
             Ok(neg) => neg,
             Err(err) => {
                 drop(fd);
+                self.manager_fds_closed += 1;
                 return self.fail(err);
             }
         };
@@ -507,6 +557,7 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
             self.saved_restore_token = Some(tok);
         }
         self.config = Some(cfg.clone());
+        self.negotiated_config = Some(negotiated.clone());
         self.session_handle = Some(path);
         self.active_fd = Some(fd);
         self.active_node_id = Some(node_id);
@@ -553,6 +604,7 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
         let old = self.active_fd.take()?;
         let raw = old.as_raw_fd();
         drop(old);
+        self.manager_fds_closed += 1;
         Some(raw)
     }
 
@@ -570,8 +622,17 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
             && !fds.is_empty()
         {
             let new_owned = fds.remove(0);
-            let negotiated = negotiate_dma_buf_stream(dma_req)?;
+            self.manager_fds_opened += 1;
+            let negotiated = match negotiate_dma_buf_stream(dma_req) {
+                Ok(neg) => neg,
+                Err(err) => {
+                    drop(new_owned);
+                    self.manager_fds_closed += 1;
+                    return Err(err);
+                }
+            };
             let new_fd = new_owned.as_raw_fd();
+            self.negotiated_config = Some(negotiated.clone());
             self.active_fd = Some(new_owned);
             self.state = PortalSessionState::Streaming;
             return Ok(DaemonRestartReport {
@@ -613,6 +674,38 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
         res
     }
 
+    pub fn convert_frame_for_encoder(
+        &mut self,
+        width: u32,
+        height: u32,
+        plane_bytes: &[u8],
+        pts_us: u64,
+    ) -> Result<RawVideoFrame, PortalError> {
+        if self.state != PortalSessionState::Streaming {
+            return Err(PortalError::InvalidSessionState("Streaming", self.state));
+        }
+        let cfg = self
+            .negotiated_config
+            .as_ref()
+            .ok_or(PortalError::NoCompatibleDmaBufModifier)?;
+        let active_fd = self.active_fd.as_ref().map(OwnedPortalFd::as_raw_fd);
+        let raw =
+            negotiated_dma_buf_to_raw_frame(cfg, width, height, active_fd, plane_bytes, pts_us)
+                .map_err(|e| PortalError::FrameBridge(e.to_string()))?;
+        let dummy = CapturedFrame::new(width, height, cfg.stride_bytes, cfg.drm_fourcc)
+            .with_data(plane_bytes.to_vec())
+            .with_timestamp_us(pts_us);
+        let _ = self
+            .frame_bridge
+            .convert_captured_frame_reusing_buffer(&dummy);
+        Ok(raw)
+    }
+
+    #[must_use]
+    pub const fn frame_bridge_stats(&self) -> &PipeWireFrameBridgeStats {
+        self.frame_bridge.stats()
+    }
+
     #[must_use]
     pub fn telemetry_snapshot(&self) -> PortalTelemetrySnapshot {
         let raw_tok = self.saved_restore_token.as_deref().unwrap_or("");
@@ -621,8 +714,8 @@ impl<B: PortalBackend> PipeWirePortalManager<B> {
             active_node_id: self.active_node_id,
             active_fd: self.active_fd.as_ref().map(OwnedPortalFd::as_raw_fd),
             redacted_restore_token: redact_restore_token(raw_tok),
-            total_fds_opened: TOTAL_FDS_OPENED.load(Ordering::SeqCst),
-            total_fds_closed: TOTAL_FDS_CLOSED.load(Ordering::SeqCst),
+            total_fds_opened: self.manager_fds_opened,
+            total_fds_closed: self.manager_fds_closed,
         }
     }
 }

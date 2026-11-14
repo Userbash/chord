@@ -15,11 +15,19 @@ use chord_media::capture::portal::{CropRect, PipeWireFrameBuffer, PipeWirePixelF
 use chord_media::{PixelLayout, VideoFrame};
 use chord_platform::screencast::{
     CaptureResolutionPreset, CaptureTargetKind, CapturedFrame, LockFreeFrameSlot,
-    NegotiatedStreamParams, PortalCursorMode, PortalPersistMode, PortalSourceTypes,
-    PortalStreamInfo, RTP_VIDEO_CLOCK_HZ, ScreenCastNegotiationRequest, ScreenCastOptions,
-    ScreenCastPipelineState, ScreenCastPortal, negotiate_stream_params,
+    NegotiatedStreamParams, PortalCursorMode, PortalPersistMode, PortalRequestError,
+    PortalSourceTypes, PortalStreamInfo, RTP_VIDEO_CLOCK_HZ, ScreenCastCapturePipeline,
+    ScreenCastNegotiationRequest, ScreenCastOptions, ScreenCastPipelineState, ScreenCastPortal,
+    negotiate_stream_params,
 };
 use serde::{Deserialize, Serialize};
+use serde_json::{Value, json};
+
+use self::encoder::{
+    MAX_ENCODER_DIMENSION, MIN_ENCODER_DIMENSION, RawVideoFrame, VideoEncoder, VideoEncoderConfig,
+    VideoEncoderError, VideoFramePixelFormat,
+};
+use self::sender::{VideoRtpSender, VideoSenderError};
 
 /// Целевая частота захвата экрана по контракту PipeWire DMA-BUF (60 FPS).
 pub const CAPTURE_TARGET_FPS_60: u32 = 60;
@@ -1128,6 +1136,1040 @@ impl ScreenCastManager {
             .start(&session_handle, &options)
             .map_err(|e| format!("Start error: {:?}", e))?;
         Ok((session_handle, streams))
+    }
+}
+
+// ============================================================================
+// P1-2.2: PipeWire / DMA-BUF -> `RawVideoFrame` Bridge
+// ============================================================================
+
+/// Ошибки моста конвертации `CapturedFrame` / `DmaBufPlaneDescriptor` в [`RawVideoFrame`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FrameBridgeError {
+    /// Неподдерживаемый код формата DRM FourCC.
+    UnsupportedFourCc(u32),
+    /// Разрешение кадра вне допустимых границ кодера (`64..=3840`).
+    InvalidDimensions { width: u32, height: u32 },
+    /// Нечётная ширина или высота для формата с субдискретизацией 4:2:0 (`NV12` / `I420`).
+    OddSubsampledDimensions {
+        width: u32,
+        height: u32,
+        format: VideoFramePixelFormat,
+    },
+    /// Шаг строки (`stride_bytes`) меньше минимально допустимого для ширины кадра.
+    InvalidStride {
+        stride_bytes: u32,
+        minimum_stride_bytes: u32,
+    },
+    /// Отрицательный файловый дескриптор DMA-BUF (`fd < 0`).
+    InvalidFd(i32),
+    /// Невалидный DRM формат-модификатор (`DRM_FORMAT_MOD_INVALID`) для DMA-BUF плоскости.
+    InvalidDrmModifier(u64),
+    /// Пустой буфер пиксельной плоскости.
+    EmptyPlaneBuffer,
+    /// Усечённый буфер пиксельной плоскости (`actual_bytes < expected_bytes`).
+    TruncatedPlaneBuffer {
+        actual_bytes: usize,
+        expected_bytes: usize,
+    },
+    /// Ошибка валидации упакованного [`RawVideoFrame`].
+    EncoderFrameValidation(VideoEncoderError),
+}
+
+impl fmt::Display for FrameBridgeError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::UnsupportedFourCc(fourcc) => {
+                write!(f, "неподдерживаемый формат DRM FourCC: 0x{fourcc:08X}")
+            }
+            Self::InvalidDimensions { width, height } => {
+                write!(
+                    f,
+                    "недопустимое разрешение кадра {width}x{height} (допустимо {MIN_ENCODER_DIMENSION}..={MAX_ENCODER_DIMENSION})"
+                )
+            }
+            Self::OddSubsampledDimensions {
+                width,
+                height,
+                format,
+            } => write!(
+                f,
+                "формат {format:?} (4:2:0) требует чётных размеров кадра, получено {width}x{height}"
+            ),
+            Self::InvalidStride {
+                stride_bytes,
+                minimum_stride_bytes,
+            } => write!(
+                f,
+                "недостаточный stride плоскости: получено {stride_bytes} байт, минимум {minimum_stride_bytes}"
+            ),
+            Self::InvalidFd(fd) => write!(f, "недопустимый файловый дескриптор DMA-BUF: {fd}"),
+            Self::InvalidDrmModifier(modifier) => {
+                write!(f, "недопустимый DRM модификатор: 0x{modifier:016X}")
+            }
+            Self::EmptyPlaneBuffer => write!(f, "пустой буфер пиксельной плоскости"),
+            Self::TruncatedPlaneBuffer {
+                actual_bytes,
+                expected_bytes,
+            } => write!(
+                f,
+                "усечённый буфер плоскости: получено {actual_bytes} байт, ожидалось не менее {expected_bytes}"
+            ),
+            Self::EncoderFrameValidation(err) => write!(f, "ошибка валидации кадра кодера: {err}"),
+        }
+    }
+}
+
+impl std::error::Error for FrameBridgeError {}
+
+/// Сопоставляет код DRM FourCC с [`VideoFramePixelFormat`] кодера и флагом необходимости
+/// перестановки каналов `BGRA -> RGBA` (`true` для `DRM_FOURCC_BGRA8888`).
+pub fn map_drm_fourcc_to_pixel_format(
+    drm_fourcc: u32,
+) -> Result<(VideoFramePixelFormat, bool), FrameBridgeError> {
+    match drm_fourcc {
+        DRM_FOURCC_NV12 => Ok((VideoFramePixelFormat::Nv12, false)),
+        DRM_FOURCC_YUV420 => Ok((VideoFramePixelFormat::I420, false)),
+        DRM_FOURCC_RGBA8888 => Ok((VideoFramePixelFormat::Rgba8, false)),
+        DRM_FOURCC_BGRA8888 => Ok((VideoFramePixelFormat::Rgba8, true)),
+        other => Err(FrameBridgeError::UnsupportedFourCc(other)),
+    }
+}
+
+/// Выполняет перестановку каналов `BGRA -> RGBA` на месте с учётом выравнивания шага строки (`stride_bytes`),
+/// не затрагивая хвостовые байты отступа (`padding`) в конце каждой строки.
+pub fn swizzle_bgra_to_rgba_in_place(
+    buf: &mut [u8],
+    width: u32,
+    height: u32,
+    stride_bytes: u32,
+) -> Result<(), FrameBridgeError> {
+    if !(MIN_ENCODER_DIMENSION..=MAX_ENCODER_DIMENSION).contains(&width)
+        || !(MIN_ENCODER_DIMENSION..=MAX_ENCODER_DIMENSION).contains(&height)
+    {
+        return Err(FrameBridgeError::InvalidDimensions { width, height });
+    }
+    let min_stride = width.saturating_mul(4);
+    if stride_bytes < min_stride {
+        return Err(FrameBridgeError::InvalidStride {
+            stride_bytes,
+            minimum_stride_bytes: min_stride,
+        });
+    }
+    if buf.is_empty() {
+        return Err(FrameBridgeError::EmptyPlaneBuffer);
+    }
+    let expected_bytes = (stride_bytes as usize).saturating_mul(height as usize);
+    if buf.len() < expected_bytes {
+        return Err(FrameBridgeError::TruncatedPlaneBuffer {
+            actual_bytes: buf.len(),
+            expected_bytes,
+        });
+    }
+
+    let row_active_bytes = min_stride as usize;
+    let row_stride = stride_bytes as usize;
+    for row in 0..(height as usize) {
+        let row_start = row * row_stride;
+        let active_row = &mut buf[row_start..row_start + row_active_bytes];
+        for px in active_row.chunks_exact_mut(4) {
+            px.swap(0, 2);
+        }
+    }
+    Ok(())
+}
+
+fn validate_and_pack_plane(
+    width: u32,
+    height: u32,
+    stride_bytes: u32,
+    drm_fourcc: u32,
+    plane_bytes: &[u8],
+    pts_us: u64,
+    scratch: Option<&mut Vec<u8>>,
+) -> Result<(RawVideoFrame, bool), FrameBridgeError> {
+    let (pixel_format, needs_bgra_swizzle) = map_drm_fourcc_to_pixel_format(drm_fourcc)?;
+
+    if !(MIN_ENCODER_DIMENSION..=MAX_ENCODER_DIMENSION).contains(&width)
+        || !(MIN_ENCODER_DIMENSION..=MAX_ENCODER_DIMENSION).contains(&height)
+    {
+        return Err(FrameBridgeError::InvalidDimensions { width, height });
+    }
+
+    if pixel_format.requires_even_dimensions() && (width % 2 != 0 || height % 2 != 0) {
+        return Err(FrameBridgeError::OddSubsampledDimensions {
+            width,
+            height,
+            format: pixel_format,
+        });
+    }
+
+    let min_stride = match pixel_format {
+        VideoFramePixelFormat::Rgba8 => width.saturating_mul(4),
+        VideoFramePixelFormat::Nv12 | VideoFramePixelFormat::I420 => width,
+    };
+    if stride_bytes < min_stride {
+        return Err(FrameBridgeError::InvalidStride {
+            stride_bytes,
+            minimum_stride_bytes: min_stride,
+        });
+    }
+
+    if plane_bytes.is_empty() {
+        return Err(FrameBridgeError::EmptyPlaneBuffer);
+    }
+
+    let expected_strided_bytes = match pixel_format {
+        VideoFramePixelFormat::Rgba8 => (stride_bytes as usize).saturating_mul(height as usize),
+        VideoFramePixelFormat::Nv12 | VideoFramePixelFormat::I420 => {
+            ((stride_bytes as usize).saturating_mul(height as usize) * 3) / 2
+        }
+    };
+    if plane_bytes.len() < expected_strided_bytes {
+        return Err(FrameBridgeError::TruncatedPlaneBuffer {
+            actual_bytes: plane_bytes.len(),
+            expected_bytes: expected_strided_bytes,
+        });
+    }
+
+    let compact_len = pixel_format.expected_buffer_bytes(min_stride, height);
+    let mut out = if let Some(buf) = scratch {
+        buf.clear();
+        if buf.capacity() < compact_len {
+            buf.reserve(compact_len - buf.capacity());
+        }
+        std::mem::take(buf)
+    } else {
+        Vec::with_capacity(compact_len)
+    };
+
+    if stride_bytes == min_stride {
+        out.extend_from_slice(&plane_bytes[..compact_len]);
+    } else {
+        let stride_usize = stride_bytes as usize;
+        let min_stride_usize = min_stride as usize;
+        match pixel_format {
+            VideoFramePixelFormat::Rgba8 => {
+                for row in 0..(height as usize) {
+                    let start = row * stride_usize;
+                    out.extend_from_slice(&plane_bytes[start..start + min_stride_usize]);
+                }
+            }
+            VideoFramePixelFormat::Nv12 => {
+                for row in 0..(height as usize) {
+                    let start = row * stride_usize;
+                    out.extend_from_slice(&plane_bytes[start..start + min_stride_usize]);
+                }
+                let uv_base = (height as usize) * stride_usize;
+                for row in 0..((height as usize) / 2) {
+                    let start = uv_base + row * stride_usize;
+                    out.extend_from_slice(&plane_bytes[start..start + min_stride_usize]);
+                }
+            }
+            VideoFramePixelFormat::I420 => {
+                for row in 0..(height as usize) {
+                    let start = row * stride_usize;
+                    out.extend_from_slice(&plane_bytes[start..start + min_stride_usize]);
+                }
+                let uv_base = (height as usize) * stride_usize;
+                let half_stride = stride_usize / 2;
+                let half_width = min_stride_usize / 2;
+                for row in 0..(height as usize) {
+                    let start = uv_base + row * half_stride;
+                    out.extend_from_slice(&plane_bytes[start..start + half_width]);
+                }
+            }
+        }
+    }
+
+    if needs_bgra_swizzle {
+        for px in out.chunks_exact_mut(4) {
+            px.swap(0, 2);
+        }
+    }
+
+    let raw = RawVideoFrame::new_tight(width, height, pixel_format, pts_us, out);
+    raw.validate()
+        .map_err(FrameBridgeError::EncoderFrameValidation)?;
+    Ok((raw, needs_bgra_swizzle))
+}
+
+/// Конвертирует захваченный кадр [`CapturedFrame`] (DMA-BUF или SHM/CPU) по ссылке в [`RawVideoFrame`].
+pub fn convert_captured_frame_ref_to_raw_frame(
+    frame: &CapturedFrame,
+) -> Result<RawVideoFrame, FrameBridgeError> {
+    if frame.is_dma_buf() {
+        if let Some(fd) = frame.dma_buf_raw_fd()
+            && fd < 0
+        {
+            return Err(FrameBridgeError::InvalidFd(fd));
+        }
+        if frame.drm_modifier == DRM_FORMAT_MOD_INVALID {
+            return Err(FrameBridgeError::InvalidDrmModifier(frame.drm_modifier));
+        }
+    }
+    let (raw, _) = validate_and_pack_plane(
+        frame.width,
+        frame.height,
+        frame.stride,
+        frame.format,
+        &frame.data,
+        frame.timestamp_us,
+        None,
+    )?;
+    Ok(raw)
+}
+
+/// Конвертирует захваченный кадр [`CapturedFrame`] в [`RawVideoFrame`].
+pub fn convert_captured_frame_to_raw_frame(
+    frame: CapturedFrame,
+) -> Result<RawVideoFrame, FrameBridgeError> {
+    convert_captured_frame_ref_to_raw_frame(&frame)
+}
+
+/// Конвертирует плоскость аппаратного буфера [`DmaBufPlaneDescriptor`] и отображённый байтовый срез
+/// в [`RawVideoFrame`] для подачи в [`VideoEncoder`].
+pub fn convert_dma_buf_plane_to_raw_frame(
+    width: u32,
+    height: u32,
+    plane: &DmaBufPlaneDescriptor,
+    mapped_bytes: &[u8],
+    pts_us: u64,
+) -> Result<RawVideoFrame, FrameBridgeError> {
+    if plane.dma_buf_fd < 0 {
+        return Err(FrameBridgeError::InvalidFd(plane.dma_buf_fd));
+    }
+    if plane.drm_modifier == DRM_FORMAT_MOD_INVALID {
+        return Err(FrameBridgeError::InvalidDrmModifier(plane.drm_modifier));
+    }
+    if mapped_bytes.is_empty() {
+        return Err(FrameBridgeError::EmptyPlaneBuffer);
+    }
+    let offset = plane.offset_bytes as usize;
+    if offset >= mapped_bytes.len() {
+        return Err(FrameBridgeError::TruncatedPlaneBuffer {
+            actual_bytes: 0,
+            expected_bytes: plane.size_bytes.max(1),
+        });
+    }
+    let slice = &mapped_bytes[offset..];
+    let (raw, _) = validate_and_pack_plane(
+        width,
+        height,
+        plane.stride_bytes,
+        plane.drm_fourcc,
+        slice,
+        pts_us,
+        None,
+    )?;
+    Ok(raw)
+}
+
+/// Счётчики телеметрии моста [`PipeWireFrameBridge`].
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct PipeWireFrameBridgeStats {
+    /// Общее число успешно сконвертированных кадров.
+    pub frames_converted: u64,
+    /// Число кадров с аппаратным дескриптором DMA-BUF.
+    pub dma_buf_zero_copy_frames: u64,
+    /// Число кадров в режиме CPU/SHM fallback.
+    pub shm_fallback_frames: u64,
+    /// Число кадров, прошедших перестановку каналов `BGRA -> RGBA`.
+    pub bgra_swizzled_frames: u64,
+    /// Число повторных использований внутреннего буфера при конвертации.
+    pub buffer_reuses: u64,
+    /// Число отклонённых невалидных кадров.
+    pub conversion_errors: u64,
+}
+
+/// Буферизующий мост конвертации кадров PipeWire DMA-BUF / SHM в [`RawVideoFrame`].
+#[derive(Debug, Clone, Default)]
+pub struct PipeWireFrameBridge {
+    scratch: Vec<u8>,
+    stats: PipeWireFrameBridgeStats,
+}
+
+impl PipeWireFrameBridge {
+    /// Создаёт новый мост конвертации кадров с пулом переиспользования памяти.
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            scratch: Vec::new(),
+            stats: PipeWireFrameBridgeStats {
+                frames_converted: 0,
+                dma_buf_zero_copy_frames: 0,
+                shm_fallback_frames: 0,
+                bgra_swizzled_frames: 0,
+                buffer_reuses: 0,
+                conversion_errors: 0,
+            },
+        }
+    }
+
+    /// Возвращает текущую статистику конвертации кадров.
+    #[must_use]
+    pub const fn stats(&self) -> &PipeWireFrameBridgeStats {
+        &self.stats
+    }
+
+    /// Возвращает буфер кадра обратно в пул моста для последующего переиспользования без аллокаций.
+    pub fn recycle_frame_buffer(&mut self, mut frame: RawVideoFrame) {
+        frame.data.clear();
+        if frame.data.capacity() > self.scratch.capacity() {
+            self.scratch = frame.data;
+        }
+    }
+
+    /// Конвертирует [`CapturedFrame`] в [`RawVideoFrame`] с переиспользованием буфера и учётом телеметрии.
+    pub fn convert_captured_frame_reusing_buffer(
+        &mut self,
+        frame: &CapturedFrame,
+    ) -> Result<RawVideoFrame, FrameBridgeError> {
+        if frame.is_dma_buf() {
+            if let Some(fd) = frame.dma_buf_raw_fd()
+                && fd < 0
+            {
+                self.stats.conversion_errors += 1;
+                return Err(FrameBridgeError::InvalidFd(fd));
+            }
+            if frame.drm_modifier == DRM_FORMAT_MOD_INVALID {
+                self.stats.conversion_errors += 1;
+                return Err(FrameBridgeError::InvalidDrmModifier(frame.drm_modifier));
+            }
+        }
+
+        if self.scratch.capacity() == 0 {
+            self.scratch.reserve(4096);
+        }
+
+        match validate_and_pack_plane(
+            frame.width,
+            frame.height,
+            frame.stride,
+            frame.format,
+            &frame.data,
+            frame.timestamp_us,
+            Some(&mut self.scratch),
+        ) {
+            Ok((raw, swizzled)) => {
+                self.stats.frames_converted += 1;
+                self.stats.buffer_reuses += 1;
+                if frame.is_dma_buf() {
+                    self.stats.dma_buf_zero_copy_frames += 1;
+                } else {
+                    self.stats.shm_fallback_frames += 1;
+                }
+                if swizzled {
+                    self.stats.bgra_swizzled_frames += 1;
+                }
+                self.scratch = Vec::with_capacity(raw.data.len());
+                Ok(raw)
+            }
+            Err(err) => {
+                self.stats.conversion_errors += 1;
+                Err(err)
+            }
+        }
+    }
+}
+
+// ============================================================================
+// P1-2.5: End-to-End `ScreenSharePipelineController` & Gateway Opcodes 18/19/22
+// ============================================================================
+
+/// Discord Gateway Opcode 18: `STREAM_CREATE` (`docs/re/gateway-schema.md`, `docs/specs/STREAM-WAYLAND-GUIDE.md`).
+pub const GATEWAY_OP_STREAM_CREATE: u8 = 18;
+/// Discord Gateway Opcode 19: `STREAM_DELETE`.
+pub const GATEWAY_OP_STREAM_DELETE: u8 = 19;
+/// Discord Gateway Opcode 22: `STREAM_SET_PAUSED`.
+pub const GATEWAY_OP_STREAM_SET_PAUSED: u8 = 22;
+
+/// Адресат сигнализации демонстрации экрана Discord Go Live (серверный голосовой канал или звонок DM).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct StreamSignalingTarget {
+    /// Snowflake ID гильдии (`Some(guild_id)` для `"guild"`, `None` для `"call"`).
+    pub guild_id: Option<String>,
+    /// Snowflake ID голосового канала.
+    pub channel_id: String,
+    /// Snowflake ID локального пользователя.
+    pub user_id: String,
+    /// Предпочитаемый голосовой регион RTC (опционально).
+    pub preferred_region: Option<String>,
+}
+
+impl StreamSignalingTarget {
+    /// Создаёт цель демонстрации экрана в голосовом канале сервера (`type = "guild"`).
+    #[must_use]
+    pub fn guild(
+        guild_id: impl Into<String>,
+        channel_id: impl Into<String>,
+        user_id: impl Into<String>,
+    ) -> Self {
+        Self {
+            guild_id: Some(guild_id.into()),
+            channel_id: channel_id.into(),
+            user_id: user_id.into(),
+            preferred_region: None,
+        }
+    }
+
+    /// Создаёт цель демонстрации экрана в личном или групповом звонке (`type = "call"`).
+    #[must_use]
+    pub fn call(channel_id: impl Into<String>, user_id: impl Into<String>) -> Self {
+        Self {
+            guild_id: None,
+            channel_id: channel_id.into(),
+            user_id: user_id.into(),
+            preferred_region: None,
+        }
+    }
+
+    /// Задаёт предпочитаемый голосовой регион (`preferred_region`).
+    #[must_use]
+    pub fn with_preferred_region(mut self, region: impl Into<String>) -> Self {
+        self.preferred_region = Some(region.into());
+        self
+    }
+
+    /// Проверяет непустоту идентификаторов `channel_id`, `user_id` и (если задан) `guild_id`.
+    pub fn validate(&self) -> Result<(), String> {
+        if self.channel_id.trim().is_empty() {
+            return Err("channel_id не может быть пустым для Go Live стрима".to_string());
+        }
+        if self.user_id.trim().is_empty() {
+            return Err("user_id не может быть пустым для Go Live стрима".to_string());
+        }
+        if let Some(ref gid) = self.guild_id
+            && gid.trim().is_empty()
+        {
+            return Err("guild_id не может быть пустой строкой".to_string());
+        }
+        Ok(())
+    }
+
+    /// Формирует канонический ключ стрима (`"guild:<gid>:<cid>:<uid>"` или `"call:<cid>:<uid>"`).
+    pub fn stream_key(&self) -> Result<String, String> {
+        self.validate()?;
+        match &self.guild_id {
+            Some(gid) => Ok(format!("guild:{gid}:{}:{}", self.channel_id, self.user_id)),
+            None => Ok(format!("call:{}:{}", self.channel_id, self.user_id)),
+        }
+    }
+}
+
+/// Валидирует формат `stream_key` (`"guild:<gid>:<cid>:<uid>"` или `"call:<cid>:<uid>"`).
+pub fn validate_stream_key(stream_key: &str) -> Result<(), String> {
+    let trimmed = stream_key.trim();
+    if trimmed.is_empty() {
+        return Err("stream_key не может быть пустым".to_string());
+    }
+    let parts: Vec<&str> = trimmed.split(':').collect();
+    match parts.first().copied() {
+        Some("guild") => {
+            if parts.len() != 4 || parts.iter().any(|p| p.trim().is_empty()) {
+                return Err(format!(
+                    "некорректный формат guild stream_key '{stream_key}' (ожидалось 'guild:<gid>:<cid>:<uid>')"
+                ));
+            }
+            Ok(())
+        }
+        Some("call") => {
+            if parts.len() != 3 || parts.iter().any(|p| p.trim().is_empty()) {
+                return Err(format!(
+                    "некорректный формат call stream_key '{stream_key}' (ожидалось 'call:<cid>:<uid>')"
+                ));
+            }
+            Ok(())
+        }
+        _ => Err(format!(
+            "неизвестный префикс stream_key '{stream_key}' (допустимы 'guild:' или 'call:')"
+        )),
+    }
+}
+
+/// Строит JSON-пакет Discord Gateway Opcode 18 (`STREAM_CREATE`).
+pub fn build_gateway_stream_create_op18(target: &StreamSignalingTarget) -> Result<Value, String> {
+    target.validate()?;
+    let stream_type = if target.guild_id.is_some() {
+        "guild"
+    } else {
+        "call"
+    };
+    Ok(json!({
+        "op": GATEWAY_OP_STREAM_CREATE,
+        "d": {
+            "type": stream_type,
+            "guild_id": target.guild_id,
+            "channel_id": target.channel_id,
+            "preferred_region": target.preferred_region,
+        }
+    }))
+}
+
+/// Строит JSON-пакет Discord Gateway Opcode 22 (`STREAM_SET_PAUSED`).
+pub fn build_gateway_stream_set_paused_op22(
+    stream_key: &str,
+    paused: bool,
+) -> Result<Value, String> {
+    validate_stream_key(stream_key)?;
+    Ok(json!({
+        "op": GATEWAY_OP_STREAM_SET_PAUSED,
+        "d": {
+            "stream_key": stream_key,
+            "paused": paused,
+        }
+    }))
+}
+
+/// Строит JSON-пакет Discord Gateway Opcode 19 (`STREAM_DELETE`).
+pub fn build_gateway_stream_delete_op19(stream_key: &str) -> Result<Value, String> {
+    validate_stream_key(stream_key)?;
+    Ok(json!({
+        "op": GATEWAY_OP_STREAM_DELETE,
+        "d": {
+            "stream_key": stream_key,
+        }
+    }))
+}
+
+/// Ошибки сквозного контроллера демонстрации экрана [`ScreenSharePipelineController`].
+#[derive(Debug, Clone)]
+pub enum ScreenSharePipelineError {
+    /// Конвейер не запущен или уже остановлен.
+    NotStreaming,
+    /// Ошибка взаимодействия с D-Bus порталом `ScreenCast`.
+    Portal(PortalRequestError),
+    /// Ошибка моста конвертации кадра PipeWire / DMA-BUF.
+    Bridge(FrameBridgeError),
+    /// Ошибка видеокодера VP8/VP9.
+    Encoder(VideoEncoderError),
+    /// Ошибка RTP пакетизатора.
+    Sender(VideoSenderError),
+    /// Ошибка формирования Gateway сигнализации (Opcode 18/19/22).
+    Signaling(String),
+}
+
+impl PartialEq for ScreenSharePipelineError {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::NotStreaming, Self::NotStreaming) => true,
+            (Self::Portal(a), Self::Portal(b)) => a.to_string() == b.to_string(),
+            (Self::Bridge(a), Self::Bridge(b)) => a == b,
+            (Self::Encoder(a), Self::Encoder(b)) => a == b,
+            (Self::Sender(a), Self::Sender(b)) => a == b,
+            (Self::Signaling(a), Self::Signaling(b)) => a == b,
+            _ => false,
+        }
+    }
+}
+
+impl Eq for ScreenSharePipelineError {}
+
+impl fmt::Display for ScreenSharePipelineError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::NotStreaming => write!(f, "конвейер демонстрации экрана не активен"),
+            Self::Portal(err) => write!(f, "ошибка портала ScreenCast: {err}"),
+            Self::Bridge(err) => write!(f, "ошибка моста кадра PipeWire: {err}"),
+            Self::Encoder(err) => write!(f, "ошибка видеокодера: {err}"),
+            Self::Sender(err) => write!(f, "ошибка RTP отправителя: {err}"),
+            Self::Signaling(msg) => write!(f, "ошибка сигнализации Gateway: {msg}"),
+        }
+    }
+}
+
+impl std::error::Error for ScreenSharePipelineError {}
+
+impl From<PortalRequestError> for ScreenSharePipelineError {
+    fn from(value: PortalRequestError) -> Self {
+        Self::Portal(value)
+    }
+}
+
+impl From<FrameBridgeError> for ScreenSharePipelineError {
+    fn from(value: FrameBridgeError) -> Self {
+        Self::Bridge(value)
+    }
+}
+
+impl From<VideoEncoderError> for ScreenSharePipelineError {
+    fn from(value: VideoEncoderError) -> Self {
+        Self::Encoder(value)
+    }
+}
+
+impl From<VideoSenderError> for ScreenSharePipelineError {
+    fn from(value: VideoSenderError) -> Self {
+        Self::Sender(value)
+    }
+}
+
+/// Снимок наблюдаемости сквозного конвейера [`ScreenSharePipelineController`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ScreenSharePipelineTelemetry {
+    /// Текущее состояние конечного автомата конвейера захвата.
+    pub state: ScreenCastPipelineState,
+    /// Активный `stream_key` (если сессия активна).
+    pub active_stream_key: Option<String>,
+    /// Число захваченных и принятых в обработку кадров.
+    pub frames_captured: u64,
+    /// Число закодированных кадров.
+    pub frames_encoded: u64,
+    /// Число закодированных ключевых кадров (keyframes).
+    pub keyframes_encoded: u64,
+    /// Число закодированных межкадровых дельт (inter-frames).
+    pub inter_frames_encoded: u64,
+    /// Число принудительных ключевых кадров (по RTCP PLI или после снятия с паузы).
+    pub forced_keyframes: u64,
+    /// Число отправленных RTP-пакетов.
+    pub rtp_packets_sent: u64,
+    /// Суммарный объём отправленных RTP-пакетов в байтах.
+    pub rtp_bytes_sent: u64,
+    /// Число кадров, пропущенных во время паузы (`STREAM_SET_PAUSED`).
+    pub paused_frames_skipped: u64,
+    /// Число кадров с аппаратным дескриптором DMA-BUF.
+    pub dma_buf_zero_copy_frames: u64,
+    /// Число кадров в режиме CPU/SHM fallback.
+    pub shm_fallback_frames: u64,
+    /// Число кадров с перестановкой `BGRA -> RGBA`.
+    pub bgra_swizzled_frames: u64,
+    /// Число открытых дескрипторов сессии PipeWire.
+    pub total_fds_opened: u64,
+    /// Число закрытых дескрипторов сессии PipeWire.
+    pub total_fds_closed: u64,
+}
+
+impl ScreenSharePipelineTelemetry {
+    /// Возвращает текущий баланс открытых файловых дескрипторов (`0` после `stop()`).
+    #[must_use]
+    pub const fn active_fd_balance(&self) -> u64 {
+        self.total_fds_opened.saturating_sub(self.total_fds_closed)
+    }
+}
+
+/// Сквозной контроллер конвейера демонстрации экрана (`P1-2.5`):
+/// `ScreenCastCapturePipeline` -> [`PipeWireFrameBridge`] -> [`VideoEncoder`] -> [`VideoRtpSender`]
+/// + сигнализация Discord Gateway Opcodes `18` / `22` / `19`.
+pub struct ScreenSharePipelineController {
+    pipeline: ScreenCastCapturePipeline,
+    bridge: PipeWireFrameBridge,
+    encoder: VideoEncoder,
+    sender: VideoRtpSender,
+    state: ScreenCastPipelineState,
+    negotiated_params: Option<NegotiatedStreamParams>,
+    active_stream_key: Option<String>,
+    is_paused: bool,
+    frames_captured: u64,
+    paused_frames_skipped: u64,
+    total_fds_opened: u64,
+    total_fds_closed: u64,
+}
+
+impl ScreenSharePipelineController {
+    /// Создаёт новый сквозной контроллер демонстрации экрана с заданной конфигурацией кодера и RTP SSRC.
+    pub fn new(
+        encoder_config: VideoEncoderConfig,
+        ssrc: u32,
+        payload_type: u8,
+    ) -> Result<Self, ScreenSharePipelineError> {
+        let encoder = VideoEncoder::new(encoder_config)?;
+        let sender = VideoRtpSender::new(ssrc, payload_type)?;
+        Ok(Self {
+            pipeline: ScreenCastCapturePipeline::new(),
+            bridge: PipeWireFrameBridge::new(),
+            encoder,
+            sender,
+            state: ScreenCastPipelineState::Idle,
+            negotiated_params: None,
+            active_stream_key: None,
+            is_paused: false,
+            frames_captured: 0,
+            paused_frames_skipped: 0,
+            total_fds_opened: 0,
+            total_fds_closed: 0,
+        })
+    }
+
+    /// Запускает сессию захвата через `ScreenCastPortal`, настраивает кодер под согласованное разрешение
+    /// и возвращает `(NegotiatedStreamParams, Gateway Opcode 18 JSON)`.
+    pub fn start(
+        &mut self,
+        portal: &mut ScreenCastPortal,
+        options: &ScreenCastOptions,
+        request: &ScreenCastNegotiationRequest,
+        signaling: &StreamSignalingTarget,
+    ) -> Result<(NegotiatedStreamParams, Value), ScreenSharePipelineError> {
+        let stream_key = signaling
+            .stream_key()
+            .map_err(ScreenSharePipelineError::Signaling)?;
+        let op18 = build_gateway_stream_create_op18(signaling)
+            .map_err(ScreenSharePipelineError::Signaling)?;
+
+        let params = self.pipeline.start_session(portal, options, request)?;
+        self.sync_encoder_to_negotiated(&params)?;
+        self.state = self.pipeline.state();
+        self.negotiated_params = Some(params.clone());
+        self.active_stream_key = Some(stream_key);
+        self.is_paused = false;
+        self.total_fds_opened += 1;
+
+        Ok((params, op18))
+    }
+
+    /// Подключает уже запущенный экземпляр [`ScreenCastCapturePipeline`] (например, после UI `Go Live`)
+    /// и формирует пакет сигнализации Gateway Opcode 18 (`STREAM_CREATE`).
+    pub fn attach_started_pipeline(
+        &mut self,
+        pipeline: ScreenCastCapturePipeline,
+        signaling: &StreamSignalingTarget,
+    ) -> Result<Value, ScreenSharePipelineError> {
+        let stream_key = signaling
+            .stream_key()
+            .map_err(ScreenSharePipelineError::Signaling)?;
+        let op18 = build_gateway_stream_create_op18(signaling)
+            .map_err(ScreenSharePipelineError::Signaling)?;
+
+        if !matches!(
+            pipeline.state(),
+            ScreenCastPipelineState::Streaming { .. } | ScreenCastPipelineState::Paused { .. }
+        ) {
+            return Err(ScreenSharePipelineError::NotStreaming);
+        }
+
+        if let Some(params) = pipeline.negotiated_params() {
+            self.sync_encoder_to_negotiated(params)?;
+            self.negotiated_params = Some(params.clone());
+        }
+        self.state = pipeline.state();
+        self.is_paused = matches!(self.state, ScreenCastPipelineState::Paused { .. });
+        self.pipeline = pipeline;
+        self.active_stream_key = Some(stream_key);
+        self.total_fds_opened += 1;
+
+        Ok(op18)
+    }
+
+    /// Запускает контроллер с заранее согласованными параметрами потока (для детерминированных контрактных тестов без D-Bus)
+    /// и возвращает пакет Gateway Opcode 18 (`STREAM_CREATE`).
+    pub fn start_with_negotiated(
+        &mut self,
+        params: NegotiatedStreamParams,
+        signaling: &StreamSignalingTarget,
+    ) -> Result<Value, ScreenSharePipelineError> {
+        let stream_key = signaling
+            .stream_key()
+            .map_err(ScreenSharePipelineError::Signaling)?;
+        let op18 = build_gateway_stream_create_op18(signaling)
+            .map_err(ScreenSharePipelineError::Signaling)?;
+
+        self.sync_encoder_to_negotiated(&params)?;
+        self.state = ScreenCastPipelineState::Streaming {
+            node_id: params.node_id,
+            fps: params.fps,
+        };
+        self.negotiated_params = Some(params);
+        self.active_stream_key = Some(stream_key);
+        self.is_paused = false;
+        self.total_fds_opened += 1;
+
+        Ok(op18)
+    }
+
+    /// Переводит трансляцию на паузу или возобновляет её, возвращая пакет Gateway Opcode 22 (`STREAM_SET_PAUSED`).
+    /// При возобновлении после паузы принудительно запрашивает ключевой кадр у [`VideoEncoder`].
+    pub fn set_paused(&mut self, paused: bool) -> Result<Value, ScreenSharePipelineError> {
+        let stream_key = self
+            .active_stream_key
+            .as_deref()
+            .ok_or(ScreenSharePipelineError::NotStreaming)?;
+
+        self.state = match self.state {
+            ScreenCastPipelineState::Streaming { node_id, fps } if paused => {
+                ScreenCastPipelineState::Paused { node_id, fps }
+            }
+            ScreenCastPipelineState::Paused { node_id, fps } if !paused => {
+                ScreenCastPipelineState::Streaming { node_id, fps }
+            }
+            ScreenCastPipelineState::Streaming { .. } | ScreenCastPipelineState::Paused { .. } => {
+                self.state
+            }
+            _ => return Err(ScreenSharePipelineError::NotStreaming),
+        };
+
+        if matches!(
+            self.pipeline.state(),
+            ScreenCastPipelineState::Streaming { .. } | ScreenCastPipelineState::Paused { .. }
+        ) {
+            let _ = self.pipeline.set_paused(paused);
+        }
+
+        if self.is_paused && !paused {
+            self.encoder.request_keyframe();
+        }
+        self.is_paused = paused;
+
+        build_gateway_stream_set_paused_op22(stream_key, paused)
+            .map_err(ScreenSharePipelineError::Signaling)
+    }
+
+    /// Обрабатывает захваченный кадр [`CapturedFrame`]:
+    /// - если поток на паузе, пропускает кодирование и возвращает пустой вектор пакетов;
+    /// - иначе конвертирует кадр через [`PipeWireFrameBridge`], кодирует в [`VideoEncoder`]
+    ///   и фрагментирует в RTP-пакеты через [`VideoRtpSender`].
+    pub fn process_captured_frame(
+        &mut self,
+        frame: CapturedFrame,
+    ) -> Result<Vec<Vec<u8>>, ScreenSharePipelineError> {
+        if self.active_stream_key.is_none()
+            || matches!(
+                self.state,
+                ScreenCastPipelineState::Idle | ScreenCastPipelineState::Stopped
+            )
+        {
+            return Err(ScreenSharePipelineError::NotStreaming);
+        }
+
+        if self.is_paused || matches!(self.state, ScreenCastPipelineState::Paused { .. }) {
+            self.paused_frames_skipped += 1;
+            return Ok(Vec::new());
+        }
+
+        let raw_frame = self.bridge.convert_captured_frame_reusing_buffer(&frame)?;
+        self.frames_captured += 1;
+
+        if raw_frame.width != self.encoder.config().width
+            || raw_frame.height != self.encoder.config().height
+            || raw_frame.pixel_format != self.encoder.config().pixel_format
+        {
+            let mut updated = *self.encoder.config();
+            updated.width = raw_frame.width;
+            updated.height = raw_frame.height;
+            updated.pixel_format = raw_frame.pixel_format;
+            self.encoder.reconfigure(updated)?;
+        }
+
+        let encoded = self.encoder.encode_frame(&raw_frame)?;
+        self.bridge.recycle_frame_buffer(raw_frame);
+        let packets = self
+            .sender
+            .packetize_frame(&encoded.payload, encoded.timestamp_90khz)?;
+        Ok(packets)
+    }
+
+    /// Опрашивает последний свежий кадр из `ScreenCastCapturePipeline::poll_latest_frame`
+    /// и при наличии кодирует и пакетизирует его в RTP.
+    pub fn poll_and_encode_latest_frame(
+        &mut self,
+    ) -> Result<Option<Vec<Vec<u8>>>, ScreenSharePipelineError> {
+        let maybe_frame = self
+            .pipeline
+            .poll_latest_frame(|frame, _rtp_ts| frame.clone());
+        match maybe_frame {
+            Some(frame) => self.process_captured_frame(frame).map(Some),
+            None => Ok(None),
+        }
+    }
+
+    /// Перенаправляет запрос ключевого кадра (RTCP PLI / FIR) в [`VideoEncoder`].
+    pub fn request_keyframe(&mut self) {
+        self.encoder.request_keyframe();
+    }
+
+    /// Передает оценку пропускной способности (RTCP REMB / TWCC) в [`VideoEncoder`].
+    pub fn on_bandwidth_estimate(&mut self, estimated_bps: u32) -> u32 {
+        self.encoder.on_bandwidth_estimate(estimated_bps)
+    }
+
+    /// Останавливает демонстрацию экрана, закрывает сессию портала и файловый дескриптор PipeWire
+    /// (`active_fd_balance() == 0`) и возвращает пакет Gateway Opcode 19 (`STREAM_DELETE`).
+    pub fn stop(
+        &mut self,
+        portal: &mut ScreenCastPortal,
+    ) -> Result<Value, ScreenSharePipelineError> {
+        let stream_key = self
+            .active_stream_key
+            .take()
+            .ok_or(ScreenSharePipelineError::NotStreaming)?;
+        let op19 = build_gateway_stream_delete_op19(&stream_key)
+            .map_err(ScreenSharePipelineError::Signaling)?;
+
+        let stop_res = self.pipeline.stop(portal);
+        portal.invalidate_pipewire_cache();
+        self.state = ScreenCastPipelineState::Stopped;
+        self.is_paused = false;
+        self.total_fds_closed = self.total_fds_opened;
+
+        stop_res?;
+        Ok(op19)
+    }
+
+    /// Возвращает активный `stream_key` (если сессия запущена).
+    #[must_use]
+    pub fn active_stream_key(&self) -> Option<&str> {
+        self.active_stream_key.as_deref()
+    }
+
+    /// Возвращает текущий баланс открытых файловых дескрипторов (`0` после `stop()`).
+    #[must_use]
+    pub const fn active_fd_balance(&self) -> u64 {
+        self.total_fds_opened.saturating_sub(self.total_fds_closed)
+    }
+
+    /// Возвращает ссылку на внутренний [`VideoEncoder`].
+    #[must_use]
+    pub const fn encoder(&self) -> &VideoEncoder {
+        &self.encoder
+    }
+
+    /// Возвращает ссылку на внутренний [`VideoRtpSender`].
+    #[must_use]
+    pub const fn sender(&self) -> &VideoRtpSender {
+        &self.sender
+    }
+
+    /// Возвращает полный снимок телеметрии конвейера.
+    #[must_use]
+    pub fn telemetry_snapshot(&self) -> ScreenSharePipelineTelemetry {
+        let enc_stats = self.encoder.stats();
+        let snd_stats = self.sender.stats();
+        let br_stats = self.bridge.stats();
+        ScreenSharePipelineTelemetry {
+            state: self.state,
+            active_stream_key: self.active_stream_key.clone(),
+            frames_captured: self.frames_captured,
+            frames_encoded: enc_stats.frames_encoded,
+            keyframes_encoded: enc_stats.keyframes_encoded,
+            inter_frames_encoded: enc_stats.inter_frames_encoded,
+            forced_keyframes: enc_stats.forced_keyframes,
+            rtp_packets_sent: snd_stats.packets_sent,
+            rtp_bytes_sent: snd_stats.bytes_sent,
+            paused_frames_skipped: self.paused_frames_skipped,
+            dma_buf_zero_copy_frames: br_stats.dma_buf_zero_copy_frames,
+            shm_fallback_frames: br_stats.shm_fallback_frames,
+            bgra_swizzled_frames: br_stats.bgra_swizzled_frames,
+            total_fds_opened: self.total_fds_opened,
+            total_fds_closed: self.total_fds_closed,
+        }
+    }
+
+    fn sync_encoder_to_negotiated(
+        &mut self,
+        params: &NegotiatedStreamParams,
+    ) -> Result<(), VideoEncoderError> {
+        if (MIN_ENCODER_DIMENSION..=MAX_ENCODER_DIMENSION).contains(&params.width)
+            && (MIN_ENCODER_DIMENSION..=MAX_ENCODER_DIMENSION).contains(&params.height)
+        {
+            let mut cfg = *self.encoder.config();
+            cfg.width = params.width;
+            cfg.height = params.height;
+            cfg.fps = params.fps.clamp(1, 120);
+            let target_bps = params
+                .target_bitrate_bps
+                .clamp(cfg.min_bitrate_bps, cfg.max_bitrate_bps);
+            cfg.target_bitrate_bps = target_bps;
+            self.encoder.reconfigure(cfg)?;
+        }
+        Ok(())
     }
 }
 
