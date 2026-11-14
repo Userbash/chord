@@ -445,6 +445,40 @@ describe("TASK-621: scripts/gate.mjs — управление Xvfb и авто-�
     assert.match(phaseFn, /minPass:\s*1/, "e2eFixturePhase обязана требовать minPass: 1");
     assert.match(phaseFn, /--test-concurrency=1/, "e2eFixturePhase обязана запускать тесты последовательно");
   });
+
+  it("harnessBuildPhase компилирует tests/e2e/harness/Cargo.toml и выполняется перед e2eFixturePhase вне scope worker (H-FIX-17)", () => {
+    const harnessPhaseFn = extractFunction(gateSource, "harnessBuildPhase");
+    assert.match(harnessPhaseFn, /name:\s*["']harness-build["']/, "harnessBuildPhase имя фазы harness-build");
+    assert.match(harnessPhaseFn, /command:\s*["']cargo["']/, "harnessBuildPhase команда cargo");
+    assert.match(harnessPhaseFn, /["']build["']/, "harnessBuildPhase args содержит build");
+    assert.match(harnessPhaseFn, /["']--manifest-path["']/, "harnessBuildPhase args содержит --manifest-path");
+    assert.match(harnessPhaseFn, /["']tests\/e2e\/harness\/Cargo\.toml["']/, "harnessBuildPhase args содержит tests/e2e/harness/Cargo.toml");
+    assert.match(harnessPhaseFn, /timeoutMs:\s*300000/, "harnessBuildPhase timeoutMs равен 300000");
+
+    // Проверяем preflight harnessBuildPhase
+    assert.match(harnessPhaseFn, /preflight/, "harnessBuildPhase содержит preflight");
+
+    // Проверяем порядок в main(): harnessBuildPhase() вызывается перед e2eFixturePhase() внутри options.scope !== "worker"
+    const mainFn = extractFunction(gateSource, "main");
+    assert.ok(
+      !mainFn.includes("harnessBuildPhase()") || mainFn.indexOf("harnessBuildPhase()") > mainFn.indexOf('options.scope !== "worker"'),
+      "harnessBuildPhase не должна входить в commonPhases",
+    );
+    const harnessIdx = mainFn.indexOf("phases.push(harnessBuildPhase())");
+    const e2eFixtureIdx = mainFn.indexOf("phases.push(e2eFixturePhase())");
+    assert.notEqual(harnessIdx, -1, "main() должен вызывать phases.push(harnessBuildPhase())");
+    assert.notEqual(e2eFixtureIdx, -1, "main() должен вызывать phases.push(e2eFixturePhase())");
+    assert.ok(
+      harnessIdx < e2eFixtureIdx,
+      `phases.push(harnessBuildPhase()) (${harnessIdx}) должен быть ПЕРЕД phases.push(e2eFixturePhase()) (${e2eFixtureIdx})`,
+    );
+
+    // Убедимся, что commonPhases не содержит harnessBuildPhase
+    const commonStart = gateSource.indexOf("const commonPhases = [");
+    const commonEnd = gateSource.indexOf("];", commonStart);
+    const commonBlock = gateSource.slice(commonStart, commonEnd);
+    assert.ok(!commonBlock.includes("harness-build"), "commonPhases не должна содержать harness-build");
+  });
 });
 
 describe("TASK-621: scripts/ci.sh — управление Xvfb и авто-обнаружение браузера в CI", () => {

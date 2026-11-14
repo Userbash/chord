@@ -569,6 +569,24 @@ function browserPreflight(env, options) {
 }
 
 /**
+ * Сборка Rust тестового harness для e2e (H-FIX-17).
+ * Выполняется перед запуском e2e-тестов на скоупах release и qualify.
+ * @returns {Phase}
+ */
+function harnessBuildPhase() {
+  const manifestPath = join(root, "tests", "e2e", "harness", "Cargo.toml");
+  return {
+    name: "harness-build",
+    command: "cargo",
+    args: ["build", "--manifest-path", "tests/e2e/harness/Cargo.toml"],
+    timeoutMs: 300000,
+    preflight: () => (existsSync(manifestPath)
+      ? ["манифест: tests/e2e/harness/Cargo.toml"]
+      : ["harness_unmet: tests/e2e/harness/Cargo.toml не найден"]),
+  };
+}
+
+/**
  * Fixture-файлы e2e: все `tests/e2e/*.e2e.test.mjs`, кроме `live-*`. Живой Discord идёт
  * отдельной фазой e2e-live и в T2 (release) не входит.
  * @returns {string[]}
@@ -882,6 +900,8 @@ function main() {
   /** @type {Phase[]} */
   const phases = [...commonPhases];
   if (options.scope !== "worker") {
+    // Rust e2e harness build (H-FIX-17): гарантирует готовность бинарника до прогона fixture e2e.
+    phases.push(harnessBuildPhase());
     // Fixture e2e (T2): обязательная фаза с failOnSkips; live-* в неё не входит.
     phases.push(e2eFixturePhase());
     phases.push({ name: "coverage", command: "npm", args: ["run", "test:coverage"] });
