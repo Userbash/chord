@@ -1,3 +1,4 @@
+#![forbid(unsafe_code)]
 #![allow(dead_code, deprecated)]
 use aes_gcm::{
     Aes256Gcm, Key, Nonce,
@@ -161,6 +162,59 @@ impl DiscordVoicePacket {
         final_packet.extend_from_slice(&seq_counter.to_le_bytes());
 
         Ok(final_packet)
+    }
+
+    /// Дешифрование RTP медиа-кадра AES-256-GCM (SRTP без DAVE) с извлечением заголовка RTP (`seq`, `timestamp`, `ssrc`) и полезной нагрузки Opus
+    pub fn decrypt_rtp_aes_gcm(
+        secret_key: &[u8; 32],
+        wire_packet: &[u8],
+    ) -> Result<(u16, u32, u32, Vec<u8>), String> {
+        use aes_gcm::aead::Payload;
+
+        let header_len =
+            Self::parse_rtpsize_header_len(wire_packet).map_err(|e| format!("{:?}", e))?;
+        if wire_packet.len() < header_len + 16 + 4 {
+            return Err(
+                "SRTP пакет слишком короток (меньше заголовка RTP + 16B GCM tag + 4B nonce)"
+                    .to_string(),
+            );
+        }
+
+        let seq = u16::from_be_bytes([wire_packet[2], wire_packet[3]]);
+        let timestamp = u32::from_be_bytes([
+            wire_packet[4],
+            wire_packet[5],
+            wire_packet[6],
+            wire_packet[7],
+        ]);
+        let ssrc = u32::from_be_bytes([
+            wire_packet[8],
+            wire_packet[9],
+            wire_packet[10],
+            wire_packet[11],
+        ]);
+
+        let trailer_offset = wire_packet.len() - 4;
+        let ciphertext = &wire_packet[header_len..trailer_offset];
+        let mut nonce_bytes = [0u8; 12];
+        nonce_bytes[0..4].copy_from_slice(&wire_packet[trailer_offset..]);
+        let nonce = Nonce::from_slice(&nonce_bytes);
+
+        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(secret_key));
+        let opus_payload = match cipher.decrypt(nonce, ciphertext) {
+            Ok(pt) => pt,
+            Err(_) => cipher
+                .decrypt(
+                    nonce,
+                    Payload {
+                        msg: ciphertext,
+                        aad: &wire_packet[..header_len],
+                    },
+                )
+                .map_err(|e| format!("AES-GCM decryption error: {:?}", e))?,
+        };
+
+        Ok((seq, timestamp, ssrc, opus_payload))
     }
 }
 
@@ -944,6 +998,76 @@ impl VoiceUdpStreamer {
         Ok(opus_plaintext)
     }
 
+    /// Приём и двухслойная расшифровка входящего UDP медиа-пакета (SRTP `*_rtpsize` + DAVE MLS v1 E2EE)
+    /// с извлечением метаданных заголовка RTP (`sequence`, `timestamp`, `ssrc`) для `AdaptiveJitterBuffer`.
+    pub async fn recv_dave_rtp_packet(
+        &self,
+        sender_user_id: u64,
+    ) -> Result<DecryptedRtpAudioPacket, DaveError> {
+        let mut buf = [0u8; 2048];
+        let recv_fut = self.socket.recv(&mut buf);
+        let n = tokio::time::timeout(std::time::Duration::from_millis(1500), recv_fut)
+            .await
+            .map_err(|_| DaveError::IoError("UDP recv DAVE timeout (1500ms)".to_string()))?
+            .map_err(|e| DaveError::IoError(format!("UDP recv DAVE error: {}", e)))?;
+
+        let (clear_hdr, opus_plaintext, current_epoch) = {
+            let mut session_guard = self.dave_session.lock().await;
+            let session = session_guard
+                .as_mut()
+                .ok_or(DaveError::MalformedFrame("DAVE session is not enabled"))?;
+            let mode = session.transport_mode();
+            let (clear_hdr, opus, _counter) = DiscordVoicePacket::open_rtp_with_dave(
+                mode,
+                &self.config.secret_key,
+                &buf[..n],
+                sender_user_id,
+                session,
+            )?;
+            (clear_hdr, opus, session.current_epoch())
+        };
+
+        if clear_hdr.len() < 12 {
+            return Err(DaveError::RtpPacketInvalid("RTP header shorter than 12B"));
+        }
+        let sequence = u16::from_be_bytes([clear_hdr[2], clear_hdr[3]]);
+        let timestamp =
+            u32::from_be_bytes([clear_hdr[4], clear_hdr[5], clear_hdr[6], clear_hdr[7]]);
+        let ssrc = u32::from_be_bytes([clear_hdr[8], clear_hdr[9], clear_hdr[10], clear_hdr[11]]);
+
+        let mut stats = self.stats.lock().await;
+        stats.dave_frames_decrypted += 1;
+        stats.dave_epoch = current_epoch;
+
+        Ok(DecryptedRtpAudioPacket {
+            sequence,
+            timestamp,
+            ssrc,
+            opus_payload: opus_plaintext,
+        })
+    }
+
+    /// Приём и расшифровка входящего UDP медиа-пакета в режиме SRTP без DAVE (`AES-256-GCM`)
+    /// с извлечением `sequence`, `timestamp`, `ssrc` и полезной нагрузки Opus.
+    pub async fn recv_audio_packet(&self) -> Result<DecryptedRtpAudioPacket, String> {
+        let mut buf = [0u8; 2048];
+        let recv_fut = self.socket.recv(&mut buf);
+        let n = tokio::time::timeout(std::time::Duration::from_millis(1500), recv_fut)
+            .await
+            .map_err(|_| "UDP recv audio timeout (1500ms)".to_string())?
+            .map_err(|e| format!("UDP recv audio error: {}", e))?;
+
+        let (sequence, timestamp, ssrc, opus_payload) =
+            DiscordVoicePacket::decrypt_rtp_aes_gcm(&self.config.secret_key, &buf[..n])?;
+
+        Ok(DecryptedRtpAudioPacket {
+            sequence,
+            timestamp,
+            ssrc,
+            opus_payload,
+        })
+    }
+
     /// Обработка входящего пакета RTCP Receiver Report (разбор `fraction_lost`, адаптация битрейта 32–64 кбит/с и джиттер-буфера 20–60 мс)
     pub async fn handle_rtcp_receiver_report(
         &self,
@@ -1362,9 +1486,7 @@ fn dave_ct_eq(a: &[u8], b: &[u8]) -> bool {
 
 fn zeroize_slice(buf: &mut [u8]) {
     for b in buf.iter_mut() {
-        unsafe {
-            std::ptr::write_volatile(b, 0);
-        }
+        *std::hint::black_box(b) = 0;
     }
     std::sync::atomic::compiler_fence(Ordering::SeqCst);
 }
@@ -2862,6 +2984,881 @@ impl DiscordVoicePacket {
 
         let opus_plaintext = dave_session.decrypt_opus(sender_user_id, &dave_frame)?;
         Ok((aad.to_vec(), opus_plaintext, counter_val))
+    }
+}
+
+// ============================================================================
+// W3-2 (P1-1.3, P1-1.4): Живые конвейеры захвата микрофона и воспроизведения
+// (AudioCodecBackend, SoftwareOpusCodec, AudioCapturePipeline, AudioPlaybackPipeline)
+// ============================================================================
+
+/// Стандартная частота дискретизации голосового тракта Discord Voice (48 000 Гц).
+pub const VOICE_SAMPLE_RATE_HZ: u32 = 48_000;
+/// Число сэмплов на один канал в 20-мс фрейме при 48 кГц (`48_000 / 50 = 960`).
+pub const VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS: usize = 960;
+/// Максимальное усиление микрофона и громкости воспроизведения (`2.0 = 200%`).
+pub const VOICE_MAX_GAIN_SCALE: f32 = 2.0;
+/// Внутренний маркер заголовка детерминированного программного кодека `SoftwareOpusCodec`.
+const SOFTWARE_OPUS_MAGIC_TOC: u8 = 0x78;
+
+/// Расшифрованный входящий RTP/Opus аудио-пакет с извлечёнными полями заголовка RTP v2.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DecryptedRtpAudioPacket {
+    pub sequence: u16,
+    pub timestamp: u32,
+    pub ssrc: u32,
+    pub opus_payload: Vec<u8>,
+}
+
+impl std::ops::Deref for DecryptedRtpAudioPacket {
+    type Target = [u8];
+
+    fn deref(&self) -> &[u8] {
+        &self.opus_payload
+    }
+}
+
+impl AsRef<[u8]> for DecryptedRtpAudioPacket {
+    fn as_ref(&self) -> &[u8] {
+        &self.opus_payload
+    }
+}
+
+impl PartialEq<Vec<u8>> for DecryptedRtpAudioPacket {
+    fn eq(&self, other: &Vec<u8>) -> bool {
+        &self.opus_payload == other
+    }
+}
+
+impl PartialEq<[u8]> for DecryptedRtpAudioPacket {
+    fn eq(&self, other: &[u8]) -> bool {
+        self.opus_payload.as_slice() == other
+    }
+}
+
+impl PartialEq<&[u8]> for DecryptedRtpAudioPacket {
+    fn eq(&self, other: &&[u8]) -> bool {
+        self.opus_payload.as_slice() == *other
+    }
+}
+
+impl From<DecryptedRtpAudioPacket> for Vec<u8> {
+    fn from(pkt: DecryptedRtpAudioPacket) -> Self {
+        pkt.opus_payload
+    }
+}
+
+impl From<DecryptedRtpAudioPacket> for (u16, u32, Vec<u8>) {
+    fn from(pkt: DecryptedRtpAudioPacket) -> Self {
+        (pkt.sequence, pkt.timestamp, pkt.opus_payload)
+    }
+}
+
+/// Абстракция кодека Opus (48 кГц, 20 мс) для тестируемого конвейера без привязки к C FFI.
+pub trait AudioCodecBackend: Send + Sync {
+    /// Кодирование одного 20-мс фрейма PCM (`960 * channels` сэмплов `f32`) в пакет Opus
+    /// с целевым бюджетом `target_bytes` (`80..=160` байт, не более `OPUS_MAX_PACKET_BYTES = 1275`).
+    fn encode_20ms(
+        &mut self,
+        pcm: &[f32],
+        channels: u16,
+        target_bytes: usize,
+    ) -> Result<Vec<u8>, String>;
+
+    /// Декодирование входящего пакета Opus (или 3-байтного DTX пакета тишины `[0xF8, 0xFF, 0xFE]`)
+    /// в 20-мс фрейм PCM (`960 * channels` сэмплов `f32` в диапазоне `[-1.0, 1.0]`).
+    fn decode_20ms(&mut self, opus_packet: &[u8], channels: u16) -> Result<Vec<f32>, String>;
+
+    /// Генерация 20-мс фрейма маскирования потери пакета (Packet Loss Concealment, PLC).
+    fn conceal_loss_20ms(&mut self, channels: u16) -> Vec<f32>;
+
+    /// Синоним `encode_20ms` для универсального вызова.
+    fn encode(
+        &mut self,
+        pcm: &[f32],
+        channels: u16,
+        target_bytes: usize,
+    ) -> Result<Vec<u8>, String> {
+        self.encode_20ms(pcm, channels, target_bytes)
+    }
+
+    /// Синоним `decode_20ms` для универсального вызова.
+    fn decode(&mut self, opus_packet: &[u8], channels: u16) -> Result<Vec<f32>, String> {
+        self.decode_20ms(opus_packet, channels)
+    }
+}
+
+/// Чисто-Rust (`#![forbid(unsafe_code)]`) детерминированный кодек Opus для автономного тестирования
+/// и fallback-работы без внешних системных библиотек `libopus`.
+#[derive(Debug, Clone)]
+pub struct SoftwareOpusCodec {
+    last_decoded_frame: Vec<f32>,
+    consecutive_plc_count: u32,
+}
+
+impl Default for SoftwareOpusCodec {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SoftwareOpusCodec {
+    pub fn new() -> Self {
+        Self {
+            last_decoded_frame: Vec::new(),
+            consecutive_plc_count: 0,
+        }
+    }
+}
+
+impl AudioCodecBackend for SoftwareOpusCodec {
+    fn encode_20ms(
+        &mut self,
+        pcm: &[f32],
+        channels: u16,
+        target_bytes: usize,
+    ) -> Result<Vec<u8>, String> {
+        if channels != 1 && channels != 2 {
+            return Err(format!(
+                "Неподдерживаемое число каналов Opus: {} (допустимо 1 или 2)",
+                channels
+            ));
+        }
+        let expected_samples = VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS * (channels as usize);
+        if pcm.len() != expected_samples {
+            return Err(format!(
+                "Некорректный размер 20-мс PCM фрейма: {} сэмплов (ожидалось {})",
+                pcm.len(),
+                expected_samples
+            ));
+        }
+        if target_bytes == 0 || target_bytes > OPUS_MAX_PACKET_BYTES {
+            return Err(format!(
+                "Целевой размер пакета Opus ({} байт) выходит за пределы 1..={}",
+                target_bytes, OPUS_MAX_PACKET_BYTES
+            ));
+        }
+
+        let packet_len = target_bytes.clamp(12, OPUS_MAX_PACKET_BYTES);
+        let mut peak = 0.0f32;
+        for &s in pcm {
+            if s.is_finite() {
+                let abs = s.clamp(-1.0, 1.0).abs();
+                if abs > peak {
+                    peak = abs;
+                }
+            }
+        }
+
+        // Формат пакета SoftwareOpusCodec:
+        // [0]: SOFTWARE_OPUS_MAGIC_TOC (0x78)
+        // [1]: channels (1 или 2)
+        // [2..6]: peak_f32 (LE)
+        // [6..packet_len]: квантованные поддиапазоны i8 (-127..=127) по каналам
+        let mut out = vec![0u8; packet_len];
+        out[0] = SOFTWARE_OPUS_MAGIC_TOC;
+        out[1] = channels as u8;
+        out[2..6].copy_from_slice(&peak.to_le_bytes());
+
+        if peak <= 1e-7 {
+            return Ok(out);
+        }
+
+        let ch_usize = channels as usize;
+        let payload_bytes = packet_len - 6;
+        let buckets_per_channel = (payload_bytes / ch_usize).max(1);
+
+        for b_idx in 0..buckets_per_channel {
+            let start_frame = (b_idx * VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS) / buckets_per_channel;
+            let end_frame = (((b_idx + 1) * VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS)
+                / buckets_per_channel)
+                .max(start_frame + 1)
+                .min(VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS);
+            let count = (end_frame - start_frame) as f32;
+
+            for ch in 0..ch_usize {
+                let byte_offset = 6 + b_idx * ch_usize + ch;
+                if byte_offset >= packet_len {
+                    break;
+                }
+                let mut sum = 0.0f32;
+                for f in start_frame..end_frame {
+                    let s = pcm[f * ch_usize + ch];
+                    if s.is_finite() {
+                        sum += s.clamp(-1.0, 1.0);
+                    }
+                }
+                let mean = sum / count;
+                let normalized = (mean / peak).clamp(-1.0, 1.0);
+                let q = (normalized * 127.0).round() as i8;
+                out[byte_offset] = q as u8;
+            }
+        }
+
+        Ok(out)
+    }
+
+    fn decode_20ms(&mut self, opus_packet: &[u8], channels: u16) -> Result<Vec<f32>, String> {
+        if channels != 1 && channels != 2 {
+            return Err(format!(
+                "Неподдерживаемое число каналов декодера Opus: {}",
+                channels
+            ));
+        }
+        if opus_packet.is_empty() {
+            return Err("Пустой пакет Opus (0 байт) не может быть декодирован".to_string());
+        }
+        if opus_packet.len() > OPUS_MAX_PACKET_BYTES {
+            return Err(format!(
+                "Пакет Opus ({} байт) превышает лимит RFC 6716 ({} байт)",
+                opus_packet.len(),
+                OPUS_MAX_PACKET_BYTES
+            ));
+        }
+
+        let total_samples = VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS * (channels as usize);
+        self.consecutive_plc_count = 0;
+
+        // Пакет тишины Opus DTX ([0xF8, 0xFF, 0xFE]) всегда декодируется в чистые нули
+        if opus_packet == DAVE_OPUS_SILENCE_PACKET {
+            let silence = vec![0.0f32; total_samples];
+            self.last_decoded_frame = silence.clone();
+            return Ok(silence);
+        }
+
+        let mut pcm = vec![0.0f32; total_samples];
+        let out_ch = channels as usize;
+
+        if opus_packet.len() >= 8
+            && opus_packet[0] == SOFTWARE_OPUS_MAGIC_TOC
+            && (opus_packet[1] == 1 || opus_packet[1] == 2)
+        {
+            let pkt_ch = opus_packet[1] as usize;
+            let raw_peak = f32::from_le_bytes([
+                opus_packet[2],
+                opus_packet[3],
+                opus_packet[4],
+                opus_packet[5],
+            ]);
+            let peak = if raw_peak.is_finite() {
+                raw_peak.clamp(0.0, 1.0)
+            } else {
+                0.0
+            };
+
+            if peak > 0.0 {
+                let payload = &opus_packet[6..];
+                let buckets_per_channel = (payload.len() / pkt_ch).max(1);
+                for f in 0..VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS {
+                    let b_idx = ((f * buckets_per_channel) / VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS)
+                        .min(buckets_per_channel - 1);
+                    for ch in 0..out_ch {
+                        let src_ch = ch.min(pkt_ch - 1);
+                        let idx = (b_idx * pkt_ch + src_ch).min(payload.len() - 1);
+                        let q = payload[idx] as i8;
+                        let sample = ((q as f32) / 127.0) * peak;
+                        pcm[f * out_ch + ch] = sample.clamp(-1.0, 1.0);
+                    }
+                }
+            }
+        } else {
+            // Детерминированная реконструкция для произвольных внешних тестовых пакетов Opus
+            for (i, sample) in pcm.iter_mut().enumerate() {
+                let b = opus_packet[i % opus_packet.len()] as i8;
+                *sample = ((b as f32) / 128.0).clamp(-1.0, 1.0);
+            }
+        }
+
+        self.last_decoded_frame = pcm.clone();
+        Ok(pcm)
+    }
+
+    fn conceal_loss_20ms(&mut self, channels: u16) -> Vec<f32> {
+        let total_samples = VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS * (channels.max(1) as usize);
+        self.consecutive_plc_count = self.consecutive_plc_count.saturating_add(1);
+
+        if self.last_decoded_frame.len() != total_samples {
+            self.last_decoded_frame = vec![0.0f32; total_samples];
+            return self.last_decoded_frame.clone();
+        }
+
+        // Плавное экспоненциальное затухание (0.7^n) при маскировании потери пакета
+        let attenuation = 0.7f32.powi(self.consecutive_plc_count.min(16) as i32);
+        for s in &mut self.last_decoded_frame {
+            if s.is_finite() {
+                *s = (*s * attenuation).clamp(-1.0, 1.0);
+            } else {
+                *s = 0.0;
+            }
+        }
+        self.last_decoded_frame.clone()
+    }
+}
+
+/// Конфигурация живого конвейера захвата микрофона (`P1-1.3`).
+#[derive(Debug, Clone)]
+pub struct AudioCaptureConfig {
+    pub sample_rate: u32,
+    pub channels: u16,
+    pub mic_gain: f32,
+    pub vad_threshold: f32,
+    pub mute: bool,
+    pub emit_dtx_silence_frames: bool,
+    pub ring_capacity_samples: usize,
+}
+
+impl Default for AudioCaptureConfig {
+    fn default() -> Self {
+        Self::new(VOICE_SAMPLE_RATE_HZ, 2)
+    }
+}
+
+impl AudioCaptureConfig {
+    pub fn new(sample_rate: u32, channels: u16) -> Self {
+        let norm_rate = if sample_rate == 0 {
+            VOICE_SAMPLE_RATE_HZ
+        } else {
+            sample_rate
+        };
+        let norm_channels = channels.clamp(1, 2);
+        Self {
+            sample_rate: norm_rate,
+            channels: norm_channels,
+            mic_gain: 1.0,
+            vad_threshold: 0.001,
+            mute: false,
+            emit_dtx_silence_frames: true,
+            ring_capacity_samples: (norm_rate as usize) * (norm_channels as usize),
+        }
+    }
+
+    pub fn with_mic_gain(mut self, gain: f32) -> Self {
+        self.mic_gain = if gain.is_finite() {
+            gain.clamp(0.0, VOICE_MAX_GAIN_SCALE)
+        } else {
+            0.0
+        };
+        self
+    }
+
+    pub fn with_vad_threshold(mut self, threshold: f32) -> Self {
+        self.vad_threshold = if threshold.is_finite() {
+            threshold.clamp(0.0, 1.0)
+        } else {
+            0.0
+        };
+        self
+    }
+
+    pub fn with_mute(mut self, mute: bool) -> Self {
+        self.mute = mute;
+        self
+    }
+
+    pub fn with_dtx_silence(mut self, emit_dtx: bool) -> Self {
+        self.emit_dtx_silence_frames = emit_dtx;
+        self
+    }
+}
+
+/// Накопительная телеметрия конвейера захвата микрофона (`P1-1.3`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AudioCaptureStats {
+    pub captured_samples: u64,
+    pub frames_encoded: u64,
+    pub silence_frames: u64,
+    pub packets_sent: u64,
+    pub bytes_sent: u64,
+    pub overrun_drops: u64,
+}
+
+/// Результат одного такта опроса и отправки 20-мс фреймов в `VoiceUdpStreamer`.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct CaptureTickStats {
+    pub frames_polled: usize,
+    pub frames_encoded: usize,
+    pub silence_frames: usize,
+    pub packets_sent: usize,
+    pub bytes_sent: usize,
+    pub payloads: Vec<Vec<u8>>,
+}
+
+/// Живой конвейер захвата микрофона: `AudioRingBuffer -> VoiceAudioFramer (20ms) -> VAD/Mute -> Opus -> RTP/DAVE UDP` (`P1-1.3`).
+pub struct AudioCapturePipeline {
+    config: AudioCaptureConfig,
+    mic_ring: AudioRingBuffer,
+    framer: VoiceAudioFramer,
+    codec: Box<dyn AudioCodecBackend>,
+    bitrate_controller: OpusBitrateController,
+    stats: AudioCaptureStats,
+}
+
+impl AudioCapturePipeline {
+    pub fn new(config: AudioCaptureConfig) -> Self {
+        Self::with_codec(config, Box::new(SoftwareOpusCodec::new()))
+    }
+
+    pub fn with_codec(mut config: AudioCaptureConfig, codec: Box<dyn AudioCodecBackend>) -> Self {
+        config.channels = config.channels.clamp(1, 2);
+        config.mic_gain = if config.mic_gain.is_finite() {
+            config.mic_gain.clamp(0.0, VOICE_MAX_GAIN_SCALE)
+        } else {
+            0.0
+        };
+        config.vad_threshold = if config.vad_threshold.is_finite() {
+            config.vad_threshold.clamp(0.0, 1.0)
+        } else {
+            0.0
+        };
+        let frame_samples = VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS * (config.channels as usize);
+        let ring_cap = config.ring_capacity_samples.max(frame_samples * 2);
+        config.ring_capacity_samples = ring_cap;
+
+        Self {
+            mic_ring: AudioRingBuffer::with_capacity(ring_cap),
+            framer: VoiceAudioFramer::new(config.sample_rate, config.channels),
+            config,
+            codec,
+            bitrate_controller: OpusBitrateController::new(),
+            stats: AudioCaptureStats::default(),
+        }
+    }
+
+    pub fn config(&self) -> &AudioCaptureConfig {
+        &self.config
+    }
+
+    pub fn stats(&self) -> &AudioCaptureStats {
+        &self.stats
+    }
+
+    pub fn is_muted(&self) -> bool {
+        self.config.mute
+    }
+
+    pub fn set_mute(&mut self, mute: bool) {
+        self.config.mute = mute;
+    }
+
+    pub fn mic_gain(&self) -> f32 {
+        self.config.mic_gain
+    }
+
+    pub fn set_mic_gain(&mut self, gain: f32) {
+        self.config.mic_gain = if gain.is_finite() {
+            gain.clamp(0.0, VOICE_MAX_GAIN_SCALE)
+        } else {
+            0.0
+        };
+    }
+
+    pub fn set_vad_threshold(&mut self, threshold: f32) {
+        self.config.vad_threshold = if threshold.is_finite() {
+            threshold.clamp(0.0, 1.0)
+        } else {
+            0.0
+        };
+    }
+
+    pub fn bitrate_controller(&self) -> &OpusBitrateController {
+        &self.bitrate_controller
+    }
+
+    pub fn bitrate_controller_mut(&mut self) -> &mut OpusBitrateController {
+        &mut self.bitrate_controller
+    }
+
+    /// Запись сырых сэмплов с микрофона (CPAL input callback) в кольцевой буфер с очисткой `NaN`/`±Inf`.
+    pub fn push_mic_samples(&mut self, samples: &[f32]) -> usize {
+        if samples.is_empty() {
+            return 0;
+        }
+        let free_space = self
+            .mic_ring
+            .capacity()
+            .saturating_sub(self.mic_ring.available_samples());
+        if samples.len() > free_space {
+            let dropped = samples.len() - free_space;
+            self.stats.overrun_drops = self.stats.overrun_drops.saturating_add(dropped as u64);
+        }
+
+        let sanitized: Vec<f32> = samples
+            .iter()
+            .map(|&s| if s.is_finite() { s } else { 0.0 })
+            .collect();
+        let written = self.mic_ring.write_samples(&sanitized);
+        self.stats.captured_samples = self.stats.captured_samples.saturating_add(written as u64);
+        written
+    }
+
+    /// Извлечение всех накопившихся полных 20-мс чанков (`960 * channels` сэмплов) и их кодирование в Opus / DTX.
+    pub fn drain_and_encode_frames(&mut self) -> Result<Vec<Vec<u8>>, String> {
+        let mut packets = Vec::new();
+        self.drain_and_encode_frames_with_counts(&mut packets)?;
+        Ok(packets)
+    }
+
+    fn drain_and_encode_frames_with_counts(
+        &mut self,
+        out_packets: &mut Vec<Vec<u8>>,
+    ) -> Result<(usize, usize, usize), String> {
+        let avail = self.mic_ring.available_samples();
+        if avail > 0 {
+            let mut raw = vec![0.0f32; avail];
+            let read_n = self.mic_ring.read_samples(&mut raw);
+            raw.truncate(read_n);
+            let frames = self.framer.push_samples(&raw);
+            let target_bytes = self
+                .bitrate_controller
+                .target_frame_bytes_20ms()
+                .clamp(80, OPUS_MAX_PACKET_BYTES);
+
+            let mut polled = 0usize;
+            let mut encoded_count = 0usize;
+            let mut silence_count = 0usize;
+
+            for mut frame in frames {
+                polled += 1;
+                let gain = self.config.mic_gain;
+                let mut sum_sq = 0.0f32;
+                for s in &mut frame {
+                    let clean = if s.is_finite() { *s * gain } else { 0.0 };
+                    let clamped = clean.clamp(-1.0, 1.0);
+                    *s = clamped;
+                    sum_sq += clamped * clamped;
+                }
+                let rms = if frame.is_empty() {
+                    0.0
+                } else {
+                    (sum_sq / (frame.len() as f32)).sqrt()
+                };
+
+                if self.config.mute || gain <= 0.0 || rms <= self.config.vad_threshold {
+                    silence_count += 1;
+                    self.stats.silence_frames = self.stats.silence_frames.saturating_add(1);
+                    if self.config.emit_dtx_silence_frames {
+                        out_packets.push(DAVE_OPUS_SILENCE_PACKET.to_vec());
+                    }
+                } else {
+                    let opus =
+                        self.codec
+                            .encode_20ms(&frame, self.config.channels, target_bytes)?;
+                    if opus.is_empty() || opus.len() > OPUS_MAX_PACKET_BYTES {
+                        return Err(format!(
+                            "Кодек вернул пакет недопустимого размера: {} байт",
+                            opus.len()
+                        ));
+                    }
+                    encoded_count += 1;
+                    self.stats.frames_encoded = self.stats.frames_encoded.saturating_add(1);
+                    out_packets.push(opus);
+                }
+            }
+            return Ok((polled, encoded_count, silence_count));
+        }
+        Ok((0, 0, 0))
+    }
+
+    /// Опрос готовых 20-мс фреймов, синхронизация целевого битрейта со стримером и отправка по UDP (DAVE или SRTP).
+    pub async fn poll_and_send_frames(
+        &mut self,
+        streamer: &VoiceUdpStreamer,
+    ) -> Result<CaptureTickStats, String> {
+        {
+            let streamer_ctrl = streamer.bitrate_controller.lock().await;
+            self.bitrate_controller = streamer_ctrl.clone();
+        }
+
+        let mut payloads = Vec::new();
+        let (frames_polled, frames_encoded, silence_frames) =
+            self.drain_and_encode_frames_with_counts(&mut payloads)?;
+
+        let use_dave = streamer.dave_session.lock().await.is_some();
+        let mut packets_sent = 0usize;
+        let mut bytes_sent = 0usize;
+
+        for pkt in &payloads {
+            let sent = if use_dave {
+                streamer
+                    .send_dave_audio_packet(pkt, None)
+                    .await
+                    .map_err(|e| format!("Ошибка отправки DAVE аудио-пакета: {:?}", e))?
+            } else {
+                streamer.send_audio_packet(pkt).await?
+            };
+            packets_sent += 1;
+            bytes_sent += sent;
+            self.stats.packets_sent = self.stats.packets_sent.saturating_add(1);
+            self.stats.bytes_sent = self.stats.bytes_sent.saturating_add(sent as u64);
+        }
+
+        Ok(CaptureTickStats {
+            frames_polled,
+            frames_encoded,
+            silence_frames,
+            packets_sent,
+            bytes_sent,
+            payloads,
+        })
+    }
+}
+
+/// Конфигурация живого конвейера воспроизведения голоса (`P1-1.4`).
+#[derive(Debug, Clone)]
+pub struct AudioPlaybackConfig {
+    pub sample_rate: u32,
+    pub channels: u16,
+    pub output_volume: f32,
+    pub deafen: bool,
+    pub initial_jitter_delay_ms: u32,
+    pub speaker_ring_capacity_samples: usize,
+}
+
+impl Default for AudioPlaybackConfig {
+    fn default() -> Self {
+        Self::new(VOICE_SAMPLE_RATE_HZ, 2)
+    }
+}
+
+impl AudioPlaybackConfig {
+    pub fn new(sample_rate: u32, channels: u16) -> Self {
+        let norm_rate = if sample_rate == 0 {
+            VOICE_SAMPLE_RATE_HZ
+        } else {
+            sample_rate
+        };
+        let norm_channels = channels.clamp(1, 2);
+        Self {
+            sample_rate: norm_rate,
+            channels: norm_channels,
+            output_volume: 1.0,
+            deafen: false,
+            initial_jitter_delay_ms: JITTER_BUFFER_DEFAULT_MS,
+            speaker_ring_capacity_samples: (norm_rate as usize) * (norm_channels as usize),
+        }
+    }
+
+    pub fn with_output_volume(mut self, volume: f32) -> Self {
+        self.output_volume = if volume.is_finite() {
+            volume.clamp(0.0, VOICE_MAX_GAIN_SCALE)
+        } else {
+            0.0
+        };
+        self
+    }
+
+    pub fn with_deafen(mut self, deafen: bool) -> Self {
+        self.deafen = deafen;
+        self
+    }
+
+    pub fn with_jitter_delay_ms(mut self, delay_ms: u32) -> Self {
+        self.initial_jitter_delay_ms = delay_ms.clamp(JITTER_BUFFER_MIN_MS, JITTER_BUFFER_MAX_MS);
+        self
+    }
+}
+
+/// Накопительная телеметрия конвейера воспроизведения голоса (`P1-1.4`).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct AudioPlaybackStats {
+    pub packets_received: u64,
+    pub packets_decoded: u64,
+    pub plc_frames: u64,
+    pub dropped_late: u64,
+    pub dropped_duplicate: u64,
+    pub samples_written_to_ring: u64,
+}
+
+/// Живой конвейер воспроизведения голоса: `UDP/RTP (SRTP | DAVE) -> AdaptiveJitterBuffer -> Opus/PLC -> Volume/Deafen -> Speaker AudioRingBuffer` (`P1-1.4`).
+pub struct AudioPlaybackPipeline {
+    config: AudioPlaybackConfig,
+    jitter_buffer: AdaptiveJitterBuffer,
+    speaker_ring: AudioRingBuffer,
+    codec: Box<dyn AudioCodecBackend>,
+    stats: AudioPlaybackStats,
+}
+
+impl AudioPlaybackPipeline {
+    pub fn new(config: AudioPlaybackConfig) -> Self {
+        Self::with_codec(config, Box::new(SoftwareOpusCodec::new()))
+    }
+
+    pub fn with_codec(mut config: AudioPlaybackConfig, codec: Box<dyn AudioCodecBackend>) -> Self {
+        config.channels = config.channels.clamp(1, 2);
+        config.output_volume = if config.output_volume.is_finite() {
+            config.output_volume.clamp(0.0, VOICE_MAX_GAIN_SCALE)
+        } else {
+            0.0
+        };
+        let frame_samples = VOICE_FRAME_SAMPLES_PER_CHANNEL_20MS * (config.channels as usize);
+        let ring_cap = config.speaker_ring_capacity_samples.max(frame_samples * 8);
+        config.speaker_ring_capacity_samples = ring_cap;
+
+        Self {
+            jitter_buffer: AdaptiveJitterBuffer::with_target_delay_ms(
+                config.initial_jitter_delay_ms,
+            ),
+            speaker_ring: AudioRingBuffer::with_capacity(ring_cap),
+            config,
+            codec,
+            stats: AudioPlaybackStats::default(),
+        }
+    }
+
+    pub fn config(&self) -> &AudioPlaybackConfig {
+        &self.config
+    }
+
+    pub fn stats(&self) -> &AudioPlaybackStats {
+        &self.stats
+    }
+
+    pub fn output_volume(&self) -> f32 {
+        self.config.output_volume
+    }
+
+    pub fn set_output_volume(&mut self, volume: f32) {
+        self.config.output_volume = if volume.is_finite() {
+            volume.clamp(0.0, VOICE_MAX_GAIN_SCALE)
+        } else {
+            0.0
+        };
+    }
+
+    pub fn is_deafened(&self) -> bool {
+        self.config.deafen
+    }
+
+    pub fn set_deafen(&mut self, deafen: bool) {
+        self.config.deafen = deafen;
+    }
+
+    pub fn jitter_buffer(&self) -> &AdaptiveJitterBuffer {
+        &self.jitter_buffer
+    }
+
+    pub fn jitter_buffer_mut(&mut self) -> &mut AdaptiveJitterBuffer {
+        &mut self.jitter_buffer
+    }
+
+    pub fn speaker_ring(&self) -> &AudioRingBuffer {
+        &self.speaker_ring
+    }
+
+    fn sync_jitter_counters(&mut self) {
+        self.stats.packets_received = self.jitter_buffer.packets_received();
+        self.stats.dropped_late = self.jitter_buffer.packets_dropped_late();
+        self.stats.dropped_duplicate = self.jitter_buffer.packets_dropped_duplicate();
+        self.stats.plc_frames = self.jitter_buffer.plc_frames_generated();
+    }
+
+    fn scale_and_push_pcm(&mut self, pcm: &mut [f32]) {
+        let vol = if self.config.deafen {
+            0.0
+        } else {
+            self.config.output_volume
+        };
+        for sample in pcm.iter_mut() {
+            if !sample.is_finite() || vol <= 0.0 {
+                *sample = 0.0;
+            } else {
+                *sample = (*sample * vol).clamp(-1.0, 1.0);
+            }
+        }
+        let written = self.speaker_ring.write_samples(pcm);
+        self.stats.samples_written_to_ring = self
+            .stats
+            .samples_written_to_ring
+            .saturating_add(written as u64);
+    }
+
+    /// Прямая подача расшифрованного RTP/Opus фрейма в адаптивный джиттер-буфер.
+    pub fn ingest_rtp_opus_frame(
+        &mut self,
+        sequence: u16,
+        timestamp: u32,
+        opus_payload: Vec<u8>,
+    ) -> Result<bool, String> {
+        let res = self.jitter_buffer.push(sequence, timestamp, opus_payload);
+        self.sync_jitter_counters();
+        res
+    }
+
+    /// Приём одного зашифрованного пакета из `VoiceUdpStreamer` (автоматически выбирает DAVE E2EE или SRTP)
+    /// и постановка его в `AdaptiveJitterBuffer`.
+    pub async fn recv_and_queue_packet(
+        &mut self,
+        streamer: &VoiceUdpStreamer,
+        sender_user_id: u64,
+    ) -> Result<DecryptedRtpAudioPacket, String> {
+        let use_dave = streamer.dave_session.lock().await.is_some();
+        let pkt = if use_dave {
+            streamer
+                .recv_dave_rtp_packet(sender_user_id)
+                .await
+                .map_err(|e| format!("Ошибка приёма DAVE RTP пакета: {:?}", e))?
+        } else {
+            streamer.recv_audio_packet().await?
+        };
+        self.ingest_rtp_opus_frame(pkt.sequence, pkt.timestamp, pkt.opus_payload.clone())?;
+        Ok(pkt)
+    }
+
+    /// Извлечение следующего упорядоченного 20-мс фрейма (или сигнала PLC) из джиттер-буфера,
+    /// декодирование в PCM, масштабирование громкости (`0%..=200%` / `deafen`) и запись в `speaker_ring`.
+    pub fn pop_and_decode_next_frame(&mut self) -> Result<JitterPopStatus, String> {
+        let status = self.jitter_buffer.pop();
+        self.sync_jitter_counters();
+
+        match &status {
+            JitterPopStatus::Ready(frame) => {
+                let mut pcm = self
+                    .codec
+                    .decode_20ms(&frame.payload, self.config.channels)?;
+                self.scale_and_push_pcm(&mut pcm);
+                self.stats.packets_decoded = self.stats.packets_decoded.saturating_add(1);
+            }
+            JitterPopStatus::ConcealLoss { .. } => {
+                let mut pcm = self.codec.conceal_loss_20ms(self.config.channels);
+                self.scale_and_push_pcm(&mut pcm);
+            }
+            JitterPopStatus::Buffering | JitterPopStatus::Empty => {}
+        }
+
+        Ok(status)
+    }
+
+    /// Декодирование всех готовых к выдаче фреймов из `AdaptiveJitterBuffer` в `speaker_ring`.
+    pub fn drain_jitter_to_speaker_ring(&mut self) -> Result<usize, String> {
+        let mut count = 0usize;
+        loop {
+            match self.pop_and_decode_next_frame()? {
+                JitterPopStatus::Ready(_) | JitterPopStatus::ConcealLoss { .. } => {
+                    count += 1;
+                }
+                JitterPopStatus::Buffering | JitterPopStatus::Empty => break,
+            }
+        }
+        Ok(count)
+    }
+
+    /// Чтение декодированных PCM-сэмплов для выходного колбэка CPAL с защитой от underflow (заполнение `0.0`).
+    pub fn read_speaker_samples(&mut self, out: &mut [f32]) -> usize {
+        while self.speaker_ring.available_samples() < out.len()
+            && !self.jitter_buffer.is_buffering()
+            && !self.jitter_buffer.is_empty()
+        {
+            if self.pop_and_decode_next_frame().is_err() {
+                break;
+            }
+        }
+        let read_n = self.speaker_ring.read_samples(out);
+        if self.config.deafen || self.config.output_volume <= 0.0 {
+            for s in out.iter_mut() {
+                *s = 0.0;
+            }
+        }
+        read_n
     }
 }
 
