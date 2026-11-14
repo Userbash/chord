@@ -21,15 +21,16 @@
 // а не skip и не pass. Приёмка считается по счётчикам (`e2e: {fixture, live}` + acceptance), а
 // не по вердикту. Выход: 0 — прогон принят (в т.ч. worker), 1 — failed/unmet/ошибка аргументов.
 
-import { spawnSync } from "node:child_process";
+import { spawnSync as nativeSpawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   accessSync, chmodSync, constants, existsSync, mkdirSync, mkdtempSync,
-  readFileSync, readdirSync, rmSync, statSync, writeFileSync,
+  readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { browserCandidatePaths, commandInvocation, normalizeEnvironment } from "./gate-platform.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const gateDir = join(root, ".gate");
@@ -90,20 +91,40 @@ const pkg = /** @type {{ name: string, version: string }} */ (
  */
 function runCommand(command, args, options = {}) {
   const startedMs = Date.now();
-  const result = spawnSync(command, args, {
-    cwd: options.cwd ?? root,
-    encoding: "utf8",
-    timeout: options.timeoutMs ?? 900000,
-    maxBuffer: 512 * 1024 * 1024,
-    ...(options.env ? { env: { ...process.env, ...options.env } } : {}),
-  });
-  return {
-    ok: !result.error && result.status === 0,
-    status: result.status,
-    error: result.error ? String(result.error.message) : null,
-    output: `${result.stdout ?? ""}${result.stderr ?? ""}`,
-    ms: Date.now() - startedMs,
-  };
+  try {
+    const result = spawnSync(command, args, {
+      cwd: options.cwd ?? root,
+      encoding: "utf8",
+      timeout: options.timeoutMs ?? 900000,
+      maxBuffer: 512 * 1024 * 1024,
+      shell: false,
+      ...(options.env ? { env: { ...process.env, ...options.env } } : {}),
+    });
+    return {
+      ok: !result.error && result.status === 0,
+      status: result.status,
+      error: result.error ? String(result.error.message) : null,
+      output: `${result.stdout ?? ""}${result.stderr ?? ""}`,
+      ms: Date.now() - startedMs,
+    };
+  } catch (error) {
+    return {
+      ok: false, status: null,
+      error: error instanceof Error ? error.message : String(error),
+      output: "", ms: Date.now() - startedMs,
+    };
+  }
+}
+
+/**
+ * @param {string} command
+ * @param {string[]} args
+ * @param {import("node:child_process").SpawnSyncOptionsWithStringEncoding} options
+ */
+function spawnSync(command, args, options) {
+  const activeOptions = options.env ? { ...options, env: normalizeEnvironment(options.env) } : options;
+  const invocation = commandInvocation(command, args, { env: activeOptions.env });
+  return nativeSpawnSync(invocation.command, invocation.args, activeOptions);
 }
 
 /** @param {string} output @returns {TestCounts | null} */
@@ -280,20 +301,20 @@ if (existsSync(join(root, "gpui-kit", "crates", "component", "Cargo.toml"))) {
     {
       name: "gpui-smoke",
       command: "cargo",
-      args: ["run", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--", "--headless-smoke"],
+      args: ["run", "--manifest-path", "rust/chord-gpui/Cargo.toml", "--", "--headless-smoke"],
       timeoutMs: 60000,
     },
     {
       name: "gpui-e2e",
       command: "cargo",
-      args: ["test", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--test", "gpui_e2e_contract"],
+      args: ["test", "--manifest-path", "rust/chord-gpui/Cargo.toml", "--test", "gpui_e2e_contract"],
       timeoutMs: 180000,
       countsKind: "cargo",
     },
     {
       name: "gpui-visual",
       command: "cargo",
-      args: ["test", "--manifest-path", "rust/discord-gpui/Cargo.toml", "--test", "visual_regression_contract", "test_sub_904"],
+      args: ["test", "--manifest-path", "rust/chord-gpui/Cargo.toml", "--test", "visual_regression_contract", "test_sub_904"],
       timeoutMs: 180000,
       countsKind: "cargo",
     },
@@ -336,7 +357,7 @@ function keyringLivePreflight() {
 const keyringLivePhase = {
   name: "keyring-live",
   command: "cargo",
-  args: ["test", "--offline", "-p", "discord-platform", "--test", "keyring_contract", "--", "--ignored"],
+  args: ["test", "--offline", "-p", "chord-platform", "--test", "keyring_contract", "--", "--ignored"],
   cwd: "rust",
   timeoutMs: 900000,
   countsKind: "cargo",
@@ -346,20 +367,7 @@ const keyringLivePhase = {
 };
 
 /** Стандартные пути для автоматического обнаружения браузера (TASK-621). */
-const KNOWN_BROWSER_PATHS = [
-  "/home/sanya/.local/bin/chromium",
-  "/usr/bin/chromium",
-  "/usr/bin/chromium-browser",
-  "/usr/bin/google-chrome",
-  "/usr/bin/google-chrome-stable",
-  "/usr/bin/brave-browser",
-  "/usr/bin/brave",
-  "/usr/bin/microsoft-edge",
-  "/usr/bin/microsoft-edge-stable",
-  "/snap/bin/chromium",
-  "/opt/google/chrome/chrome",
-  "/opt/brave.com/brave/brave-browser",
-];
+const KNOWN_BROWSER_PATHS = browserCandidatePaths();
 
 /** Имена исполняемых файлов браузеров для поиска в PATH. */
 const BROWSER_BIN_NAMES = [
@@ -587,7 +595,7 @@ function harnessBuildPhase() {
 }
 
 /**
- * Fixture-файлы e2e: все `tests/e2e/*.e2e.test.mjs`, кроме `live-*`. Живой Discord идёт
+ * Fixture-файлы e2e: все `tests/e2e/*.test.mjs`, кроме `live-*`. Живой Discord идёт
  * отдельной фазой e2e-live и в T2 (release) не входит.
  * @returns {string[]}
  */
@@ -595,7 +603,7 @@ function fixtureE2eFiles() {
   const dir = join(root, "tests", "e2e");
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".e2e.test.mjs") && !entry.name.startsWith("live-"))
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".test.mjs") && !entry.name.startsWith("live-"))
     .map((entry) => `tests/e2e/${entry.name}`)
     .sort();
 }
@@ -613,7 +621,7 @@ function e2eFixturePhase() {
       name: "e2e",
       run: () => ({
         name: "e2e", ok: false, unmet: false, skipKind: null, ms: 0, counts: null, attempts: [],
-        tail: "", note: "e2e_unmet: fixture-файлов tests/e2e/*.e2e.test.mjs нет",
+        tail: "", note: "e2e_unmet: fixture-файлов tests/e2e/*.test.mjs нет",
       }),
     };
   }
@@ -1001,9 +1009,22 @@ function main() {
   return results.every((result) => result.ok || result.unmet === true) && accepted ? 0 : 1;
 }
 
-try {
-  process.exitCode = main();
-} catch (error) {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
+export { runCommand, resolveBrowserBin };
+
+function isMainModule() {
+  if (!process.argv[1]) return false;
+  try {
+    return import.meta.url === pathToFileURL(realpathSync(resolve(process.argv[1]))).href;
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
+  try {
+    process.exitCode = main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }
