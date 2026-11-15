@@ -470,7 +470,8 @@ fn normalize_gift_code_segment(segment: &str) -> Result<String, GiftError> {
 
 /// Validates that a string is a canonical positive 64-bit Discord Snowflake ID.
 ///
-/// Ensures the input is non-empty, contains no leading zeros, and fits within `1..=u64::MAX`.
+/// Uses [`chord_client::net::is_snowflake`] and ensures the input has no leading zeros
+/// and fits within `1..=u64::MAX`.
 ///
 /// # Arguments
 /// * `value` - Candidate snowflake string slice.
@@ -478,14 +479,12 @@ fn normalize_gift_code_segment(segment: &str) -> Result<String, GiftError> {
 ///
 /// # Returns
 /// `Ok(())` on success, or `Err(GiftError::InvalidSnowflake)` if malformed.
+#[inline]
 fn validate_snowflake(value: &str, field: &'static str) -> Result<(), GiftError> {
-    if value.is_empty() || value.starts_with('0') || !value.bytes().all(|b| b.is_ascii_digit()) {
+    if !chord_client::net::is_snowflake(value) || value.starts_with('0') {
         return Err(GiftError::InvalidSnowflake { field });
     }
-    match value.parse::<u64>() {
-        Ok(n) if n >= 1 => Ok(()),
-        _ => Err(GiftError::InvalidSnowflake { field }),
-    }
+    Ok(())
 }
 
 fn normalize_country_code(raw: &str) -> Result<String, GiftError> {
