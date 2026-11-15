@@ -1,20 +1,21 @@
 # STATE — System Status and Wave Checkpoint
 
-- Updated: **2026-11-15 15:10**. **Wave RW-49 / Tauri Framework Adoption & Modular Architecture (ACTIVE)**:
+- Updated: **2026-11-15 15:15**. **Wave RW-49 / Tauri Framework Adoption & Modular Architecture (ACTIVE)**:
   - Active Orchestration Run: `run_31999544da31` managed via ECC Control Plane (`pm_review`).
   - Sprint Target: Radical reduction of legacy/hand-rolled code in `rust/gui-spike` through adoption of standard framework crates (`uuid`, `serde`, `ring`, `tauri::plugin`).
-  - Completed in Wave RW-48 & RW-49 (23 tasks):
+  - Completed in Wave RW-48 & RW-49 (28 tasks):
     - Cryptography & Encoding: `TAURI-CRYPTO-01` (hex), `TAURI-CRYPTO-02` (sha2), `TAURI-CRYPTO-03` (mgf1), `TAURI-CRYPTO-04` (base64), `TAURI-CRYPTO-05` (subtle constant-time), `TAURI-URL-01` (percent-encoding).
     - Snowflake Validation: `TAURI-SNOW-01`, `TAURI-SNOW-04`, `TAURI-SNOW-05`, `TAURI-SNOW-06`, `TAURI-SNOW-07`, `TAURI-SNOW-08`.
     - Standard UUID v4: `TAURI-UUID-01` (replaced hand-rolled LCG with `uuid` crate).
     - Safe Clipboard Abstraction: `TAURI-CLIP-01` (`ClipboardReader`, `SystemClipboardReader`, `MockClipboardReader`), `TAURI-CLIP-02` (process timeout).
-    - Serde DTO: `TAURI-DTO-01` (`RawDmUserDto`), `TAURI-DTO-02` (`RawPrivateChannelDto`), `TAURI-DTO-03` (`RawRelationshipDto`), `TAURI-DATA-03` (`ReadyUserDto`), `TAURI-DATA-04` (`GuildSummaryDto`).
-    - Event-Driven Shell Bridge: `TAURI-EVT-01` (`createTauriEventListener`).
-    - Modular Architecture & Cleanup: `TAURI-BOOT-01` (`initKeybinds`), `TAURI-BOOT-02` (`initModalRouter`), `TAURI-CSS-01` (deleted 864 lines of duplicate CSS), `TAURI-PLUG-01` (modular `auth_plugin`), `TAURI-MD-01` (`mentions.js` parser + 15 unit tests).
-  - Next In-Flight Quantized Tasks: `TAURI-DATA-05` (P2), `TAURI-PLUG-02` (P2), `TAURI-EVT-02` (P2), `TAURI-MD-02` (P2), `TAURI-QA-02` (P1).
-  - Acceptance status: 714 contract tests passed across all 51 test binaries + 52/52 JS unit tests passed. QA & Technical Review APPROVED (0 CRITICAL, 0 HIGH, 0 IPC breaking changes).
+    - Serde DTO: `TAURI-DTO-01` (`RawDmUserDto`), `TAURI-DTO-02` (`RawPrivateChannelDto`), `TAURI-DTO-03` (`RawRelationshipDto`), `TAURI-DATA-03` (`ReadyUserDto`), `TAURI-DATA-04` (`GuildSummaryDto`), `TAURI-DATA-05` (`RawGuildChannelDto`).
+    - Event-Driven Shell Bridge & Zero Polling: `TAURI-EVT-01` (`createTauriEventListener`), `TAURI-EVT-02` (migrated `rtcPollTimer` to event listener).
+    - Modular Architecture & Plugins: `TAURI-BOOT-01` (`initKeybinds`), `TAURI-BOOT-02` (`initModalRouter`), `TAURI-CSS-01` (deleted 864 lines of duplicate CSS), `TAURI-PLUG-01` (modular `auth_plugin`), `TAURI-PLUG-02` (modular `settings_plugin`), `TAURI-MD-01` (`mentions.js`), `TAURI-MD-02` (integrated `mentions.js` into `markdown.js`).
+    - Verification & Technical Review: `TAURI-QA-01`, `TAURI-QA-02` (`QA-BUILD-TAURI-02.md`).
+  - Next In-Flight Quantized Tasks: `TAURI-RSA-01` (P1 — Ring crypto for remote auth), `TAURI-EVT-03` (P2 — Mic level streaming event bus), `TAURI-PLUG-03` (P2 — Voice plugin modularization).
+  - Acceptance status: 714 contract tests passed across all 51 test binaries + 57/57 JS unit tests passed. QA & Technical Review APPROVED (0 CRITICAL, 0 HIGH, 0 IPC breaking changes).
   - Active Handover: Wave RW-49 multi-worker swarm coordinated across G1 Backend, G2 Frontend, G4 QA Reviewer.
-  - Remote Parity: Synchronized with `origin/release/developer-alpha-preview` and `public/release/developer-alpha-preview` at `e662692b`.
+  - Remote Parity: Synchronized with `origin/release/developer-alpha-preview` and `public/release/developer-alpha-preview` at `c032865c`.
   - Persistence reference: See `kanban-board.md` and `db.jsonl` for full event ledger.
 
 ## 1. Wave Architecture History
