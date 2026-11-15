@@ -12,17 +12,19 @@
     - Event-Driven Shell Bridge & Zero Polling: `TAURI-EVT-01` (`createTauriEventListener`), `TAURI-EVT-02` (`rtcPollTimer` event listener), `TAURI-EVT-03` (`micTestTimer` event listener), `TAURI-EVT-04` (`voiceSyncTimer` event listener), `TAURI-EVT-05` (`audioDeviceLevelsTimer` event listener).
     - Modular Architecture & Plugins: `TAURI-BOOT-01` (`initKeybinds`), `TAURI-BOOT-02` (`initModalRouter`), `TAURI-BOOT-03` (`initContextMenuRouter`), `TAURI-CSS-01` (deleted 864 lines of duplicate CSS), `TAURI-PLUG-01` (modular `auth_plugin`), `TAURI-PLUG-02` (modular `settings_plugin`), `TAURI-PLUG-04` (modular `voice_plugin`), `TAURI-PLUG-05` (modular `net_plugin`), `TAURI-PLUG-06` (modular `media_plugin`), `TAURI-MD-01` (`mentions.js`), `TAURI-MD-02` (integrated `mentions.js` into `markdown.js`), `TAURI-MD-03` (`emojis.js` modular Discord emoji & shortcode parser).
     - Verification & Technical Review: `TAURI-QA-01`, `TAURI-QA-02` (`QA-BUILD-TAURI-02.md`), `TAURI-QA-03` (`QA-BUILD-TAURI-03.md`), `TAURI-QA-04` (`QA-BUILD-TAURI-04.md`), `TAURI-QA-05` (`QA-BUILD-TAURI-05.md`).
-  - Next In-Flight Quantized Tasks (Batch 6 / Wave RW-50):
-    - `TAURI-PLUG-07` (P1 / G1 Backend): Modular `invites_plugin.rs` & `main.rs` registration.
-    - `TAURI-PLUG-08` (P2 / G1 Backend): Modular `gifts_plugin.rs` & `main.rs` registration.
-    - `TAURI-STORE-01` (P1 / G1 Backend): Long-lived SQLite Store handle in `LiveSession` (`data.rs`).
-    - `TAURI-EVT-06` (P2 / G2 Frontend): Reactive `gateway-status` event listener in `createNetStatus` (`app.js`).
-    - `TAURI-RAF-01` (P2 / G2 Frontend): Screen capture preview loop via `requestAnimationFrame` (`app.js:10643`).
-    - `TAURI-RAF-02` (P2 / G2 Frontend): PiP stream viewer loop via `requestAnimationFrame` (`app.js:10809`).
-    - `TAURI-CSS-02` (P2 / G2 Frontend): Declarative CSS classes for screen capture & streaming dialogs.
-    - `TAURI-QA-06` (P1 / G4 QA): Centralized verification and `QA-BUILD-TAURI-06.md` sign-off.
+  - Next In-Flight Quantized Tasks (Batch 6 / Wave RW-50, 10 Active Workers):
+    - `TAURI-PLUG-07` (Slot 1 / `g1_backend_snow`): Modular `invites_plugin.rs` & `main.rs` registration.
+    - `TAURI-PLUG-08` (Slot 2 / `g1_backend_clip`): Modular `gifts_plugin.rs` & `main.rs` registration.
+    - `TAURI-STORE-01` (Slot 3 / `g1_backend_uuid`): Long-lived SQLite Store handle in `LiveSession` (`data.rs`).
+    - `TAURI-DTO-06` (Slot 4 / `g1_backend_perm`): Serde DTO `RawPermissionOverwriteDto` in `permissions.rs`.
+    - `TAURI-DATE-01` (Slot 5 / `g1_backend_date`): Clean ISO-8601 date parser in `data.rs` replacing byte loop.
+    - `TAURI-EVT-06` (Slot 6 / `g2_frontend_evt`): Reactive `gateway-status` event listener in `createNetStatus` (`app.js`).
+    - `TAURI-RAF-01` (Slot 7 / `g2_frontend_portal`): Screen capture preview loop via `requestAnimationFrame` (`app.js:10643`).
+    - `TAURI-RAF-02` (Slot 8 / `g2_frontend_pip`): PiP stream viewer loop via `requestAnimationFrame` (`app.js:10809`).
+    - `TAURI-CSS-02` (Slot 9 / `g2_frontend_css`): Declarative CSS classes for screen capture & streaming dialogs.
+    - `TAURI-QA-06` (Slot 10 / `g4_qa_reviewer`): Centralized verification and `QA-BUILD-TAURI-06.md` sign-off.
   - Acceptance status: 714 contract tests passed across all 51 test binaries + 71/71 JS unit tests passed. QA & Technical Review APPROVED (0 CRITICAL, 0 HIGH, 0 IPC breaking changes, 5/5 mutations killed).
-  - Active Handover: Wave RW-49 multi-worker swarm coordinated across G1 Backend, G2 Frontend, G4 QA Reviewer.
+  - Active Handover: Wave RW-50 multi-worker swarm coordinated across 10 active slots (G1 Backend, G2 Frontend, G4 QA Reviewer) with total RSS 1.62 GiB (WORKER_RAM_LIMIT <= 25 GB).
   - Remote Parity: Synchronized with `origin/release/developer-alpha-preview` and `public/release/developer-alpha-preview` at `1afd1e32`.
   - Persistence reference: See `kanban-board.md` and `db.jsonl` for full event ledger.
 
