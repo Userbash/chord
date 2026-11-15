@@ -8548,51 +8548,205 @@ fn parse_ready_user(value: &Value, path: &Path) -> Result<ReadyUser, DataError> 
     dto.into_ready_user(path)
 }
 
+/// Serde deserializer for an optional Discord boolean field accepting booleans, `"true"`/`"false"`, or `1`/`0`.
+fn deserialize_ready_opt_bool<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    let flag = match &val {
+        Value::Bool(flag) => Some(*flag),
+        Value::String(text) => match text.as_str() {
+            "true" => Some(true),
+            "false" => Some(false),
+            _ => None,
+        },
+        Value::Number(number) => match number.as_u64() {
+            Some(1) => Some(true),
+            Some(0) => Some(false),
+            _ => None,
+        },
+        _ => None,
+    };
+    Ok(flag)
+}
+
+/// Serde deserializer for an optional Discord `u64` field accepting numbers or numeric strings.
+fn deserialize_ready_opt_u64<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    let num = match &val {
+        Value::Number(number) => number.as_u64(),
+        Value::String(text) => text.parse::<u64>().ok(),
+        _ => None,
+    };
+    Ok(num)
+}
+
+/// Serde deserializer for a JSON array of [`Value`] items, defaulting to an empty vector on non-arrays.
+fn deserialize_ready_vec_value<'de, D>(deserializer: D) -> Result<Vec<Value>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(val.as_array().cloned().unwrap_or_default())
+}
+
+/// Serde deserializer for an optional array of role Snowflake strings, filtering out empty and `"nil"` sentinels.
+fn deserialize_ready_opt_role_ids<'de, D>(
+    deserializer: D,
+) -> Result<Option<Vec<String>>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    let roles = val
+        .as_array()
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|r| as_non_nil_str(r).map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    Ok(Some(roles))
+}
+
+/// Nested `properties` object inside a Gateway `READY.guilds[]` entry.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct GuildPropertiesDto {
+    /// Guild display name inside `properties.name`.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub name: Option<String>,
+    /// Guild icon hash inside `properties.icon`.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub icon: Option<String>,
+    /// Guild owner Snowflake ID inside `properties.owner_id`.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub owner_id: Option<String>,
+    /// AFK voice channel Snowflake ID inside `properties.afk_channel_id`.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub afk_channel_id: Option<String>,
+    /// AFK timeout in seconds inside `properties.afk_timeout`.
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub afk_timeout: Option<u64>,
+}
+
+/// Serde deserializer for [`GuildPropertiesDto`], gracefully handling `null` or non-object values.
+fn deserialize_guild_properties<'de, D>(deserializer: D) -> Result<GuildPropertiesDto, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(GuildPropertiesDto::deserialize(&val).unwrap_or_default())
+}
+
+/// Data Transfer Object (DTO) for deserializing a Gateway `READY.guilds[]` entry via Serde.
+///
+/// Preserves all fallback chains from `properties.*` (`name`, `icon`, `owner_id`,
+/// `afk_channel_id`, `afk_timeout`) to top-level guild fields, as well as `my_roles`/`myRoles`
+/// and `isMember`/`is_member` aliases and ETF role sanitization.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct GuildSummaryDto {
+    /// Guild Snowflake ID.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Nested `properties` object from Gateway v9 guild payloads.
+    #[serde(deserialize_with = "deserialize_guild_properties")]
+    pub properties: GuildPropertiesDto,
+    /// Fallback top-level guild name.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub name: Option<String>,
+    /// Fallback top-level guild icon hash.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub icon: Option<String>,
+    /// Fallback top-level owner Snowflake ID.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub owner_id: Option<String>,
+    /// Fallback top-level AFK voice channel Snowflake ID.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub afk_channel_id: Option<String>,
+    /// Fallback top-level AFK timeout in seconds.
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub afk_timeout: Option<u64>,
+    /// Total member count in the guild.
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub member_count: Option<u64>,
+    /// Raw guild channels array used to compute `channel_count`.
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub channels: Vec<Value>,
+    /// Raw guild roles array sanitized for ETF bigints/sentinels.
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub roles: Vec<Value>,
+    /// Primary `snake_case` list of current user's role IDs in the guild.
+    #[serde(deserialize_with = "deserialize_ready_opt_role_ids")]
+    pub my_roles: Option<Vec<String>>,
+    /// Fallback `camelCase` list of current user's role IDs in the guild.
+    #[serde(rename = "myRoles", deserialize_with = "deserialize_ready_opt_role_ids")]
+    pub my_roles_camel: Option<Vec<String>>,
+    /// Optional lurker status flag.
+    #[serde(deserialize_with = "deserialize_ready_opt_bool")]
+    pub lurker: Option<bool>,
+    /// Primary `camelCase` membership flag.
+    #[serde(rename = "isMember", deserialize_with = "deserialize_ready_opt_bool")]
+    pub is_member_camel: Option<bool>,
+    /// Fallback `snake_case` membership flag.
+    #[serde(deserialize_with = "deserialize_ready_opt_bool")]
+    pub is_member: Option<bool>,
+    /// Optional rules screening pending flag.
+    #[serde(deserialize_with = "deserialize_ready_opt_bool")]
+    pub pending: Option<bool>,
+}
+
+impl GuildSummaryDto {
+    /// Converts the deserialized DTO into a [`GuildSummary`], resolving `properties.*` fallback chains
+    /// and sanitizing ETF role payloads.
+    ///
+    /// # Returns
+    /// A normalized [`GuildSummary`] ready for BFF state and IPC serialization.
+    #[inline]
+    #[must_use]
+    pub fn into_guild_summary(mut self) -> GuildSummary {
+        for r in self.roles.iter_mut() {
+            sanitize_etf_json_value(r);
+        }
+        GuildSummary {
+            id: self.id.unwrap_or_default(),
+            name: self.properties.name.or(self.name).unwrap_or_default(),
+            icon: self.properties.icon.or(self.icon),
+            member_count: self.member_count.unwrap_or(0),
+            channel_count: self.channels.len(),
+            owner_id: self.properties.owner_id.or(self.owner_id),
+            afk_channel_id: self.properties.afk_channel_id.or(self.afk_channel_id),
+            afk_timeout: self.properties.afk_timeout.or(self.afk_timeout),
+            roles: self.roles,
+            my_roles: self.my_roles.or(self.my_roles_camel).unwrap_or_default(),
+            members: Vec::new(),
+            lurker: self.lurker,
+            is_member: self.is_member_camel.or(self.is_member),
+            pending: self.pending,
+        }
+    }
+}
+
+/// Parses a Gateway `READY.guilds[]` JSON object into a [`GuildSummary`] using Serde ([`GuildSummaryDto`]).
+///
+/// Preserves all fallback chains from `properties.*` (`name`, `icon`, `owner_id`,
+/// `afk_channel_id`, `afk_timeout`) and sanitizes ETF role objects.
+///
+/// # Arguments
+/// * `value` - Raw JSON value representing a guild entry.
+///
+/// # Returns
+/// A populated [`GuildSummary`].
+#[inline]
 fn parse_guild(value: &Value) -> GuildSummary {
-    let properties = value.get("properties");
-    let name = properties
-        .and_then(|props| field_str(props, "name"))
-        .or_else(|| field_str(value, "name"))
+    GuildSummaryDto::deserialize(value)
         .unwrap_or_default()
-        .to_string();
-    let owner_id = properties
-        .and_then(|props| field_str(props, "owner_id"))
-        .or_else(|| field_str(value, "owner_id"))
-        .map(str::to_string);
-    let afk_channel_id = properties
-        .and_then(|props| field_str(props, "afk_channel_id"))
-        .or_else(|| field_str(value, "afk_channel_id"))
-        .map(str::to_string);
-    let afk_timeout = properties
-        .and_then(|props| field_u64(props, "afk_timeout"))
-        .or_else(|| field_u64(value, "afk_timeout"));
-    let mut roles = array(value.get("roles")).to_vec();
-    for r in roles.iter_mut() {
-        sanitize_etf_json_value(r);
-    }
-    let my_roles: Vec<String> = array(value.get("my_roles").or_else(|| value.get("myRoles")))
-        .iter()
-        .filter_map(|r| as_non_nil_str(r).map(str::to_string))
-        .collect();
-    GuildSummary {
-        id: field_str(value, "id").unwrap_or_default().to_string(),
-        name,
-        icon: properties
-            .and_then(|props| field_str(props, "icon"))
-            .or_else(|| field_str(value, "icon"))
-            .map(str::to_string),
-        member_count: field_u64(value, "member_count").unwrap_or(0),
-        channel_count: array_len(value.get("channels")),
-        owner_id,
-        afk_channel_id,
-        afk_timeout,
-        roles,
-        my_roles,
-        members: Vec::new(),
-        lurker: field_bool_opt(value, "lurker"),
-        is_member: field_bool_opt(value, "isMember").or_else(|| field_bool_opt(value, "is_member")),
-        pending: field_bool_opt(value, "pending"),
-    }
+        .into_guild_summary()
 }
 
 /// Читает `gateway/by-type/002-READY.json` и отдаёт сводку для первого экрана.
