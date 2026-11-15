@@ -1,0 +1,38 @@
+{
+  "phase": "red-linux-no-device",
+  "evidence_kind": "native_linux_filesystem_isolation",
+  "not_evidence_for": [
+    "native Windows execution",
+    "native ARM execution",
+    "Tauri GUI launch"
+  ],
+  "command": [
+    "/usr/sbin/chroot",
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/isolation/red-linux-no-device-20261115T204747095035Z",
+    "/identity-probe",
+    "--exact",
+    "system_sources_produce_fresh_rfc4122_uuids",
+    "--nocapture"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/red-linux-no-device-20261115T204747095035Z.log",
+  "kernel_getrandom_available_inside_isolation": true,
+  "unix_random_device_present": false,
+  "binary_sha256": "8dd5e573e1a73ceffa6e5b8856ceb549ac6b4ffd4a45679046184ca3207bd120",
+  "source_sha256": "f9344f48a17eef0bf9db60309fba78e2c6f0cb3f3112c0d4bb6ec0b92d8a5eed",
+  "build_receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/baseline-core-no-run-20261115T204712928903Z.json",
+  "loader_libraries": [
+    {
+      "path": "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+      "sha256": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb"
+    },
+    {
+      "path": "/lib/x86_64-linux-gnu/libc.so.6",
+      "sha256": "755a371e86cc9f564ab54f66140747700fb0a103f698f659f2060f707897e09a"
+    },
+    {
+      "path": "/lib64/ld-linux-x86-64.so.2",
+      "sha256": "5fc0940888e9d2e1a00e66d6b1a559c36364ee867683652e1074fa576952cc3f"
+    }
+  ]
+}

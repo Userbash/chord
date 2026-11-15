@@ -1,0 +1,6 @@
+{
+  "cause": "Existing sbom --check writes default tracked output; generated result retained outside protected directory. All subsequent SBOM/gate executions need private mount output isolation.",
+  "original_sha256": "4663c83dd8fc2b39477b4108b27a3097617fcc6c918b33b5cdd9bc3c9c08548f",
+  "generated_sha256": "7df98a9d7c3dc3dee2eb031a8ed1598de03fd7e6fc21022acd611045820768af",
+  "restored_exact_HEAD": true
+}

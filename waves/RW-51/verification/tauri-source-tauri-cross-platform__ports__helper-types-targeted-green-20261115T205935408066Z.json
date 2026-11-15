@@ -1,0 +1,13 @@
+{
+  "phase": "helper-types-targeted-green",
+  "command": [
+    "node",
+    "--test",
+    "tests/unit/tauri-platform-boundaries.test.mjs"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-targeted-green-20261115T205935408066Z.log",
+  "log_sha256": "62d9758f69067de909eb3c52f574ca0d562b9af12284e78fca54ca8d17b83c86",
+  "source_sha256": "5384ddd54977b1acd29f8403f282bf81d499adb62cbd724d66a6f4556d174678",
+  "cargo_execution": "Only the actual build.rs Node helper invokes Cargo under its existing flock; no direct source Cargo run"
+}

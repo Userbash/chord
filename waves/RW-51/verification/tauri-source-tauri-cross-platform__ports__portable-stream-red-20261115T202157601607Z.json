@@ -1,0 +1,45 @@
+{
+  "phase": "portable-stream-red",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--test",
+    "platform_boundaries_contract"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-stream-red-20261115T202157601607Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "error[E0425]: cannot find function `write_ipc_frame` in module `rpc_ipc`",
+    "error[E0425]: cannot find function `read_ipc_frame` in module `rpc_ipc`",
+    "error[E0425]: cannot find function `read_ipc_frame` in module `rpc_ipc`",
+    "error: could not compile `chord-platform` (test \"platform_boundaries_contract\") due to 3 previous errors"
+  ],
+  "tail": [
+    "    |                               ^^^^^^^^^^^^^^ not found in `rpc_ipc`",
+    "    |",
+    "note: similarly named function `decode_ipc_frame` defined here",
+    "   --> crates/chord-platform/src/rpc_ipc.rs:917:1",
+    "    |",
+    "917 | pub fn decode_ipc_frame(bytes: &[u8]) -> Result<IpcFrame, RpcIpcError> {",
+    "    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "help: a function with a similar name exists",
+    "    |",
+    " 66 -     assert!(matches!(rpc_ipc::read_ipc_frame(&mut oversized.as_slice()), Err(rpc_ipc::RpcIpcError::FrameTooLarge { .. })));",
+    " 66 +     assert!(matches!(rpc_ipc::decode_ipc_frame(&mut oversized.as_slice()), Err(rpc_ipc::RpcIpcError::FrameTooLarge { .. })));",
+    "    |",
+    "",
+    "For more information about this error, try `rustc --explain E0425`.",
+    "error: could not compile `chord-platform` (test \"platform_boundaries_contract\") due to 3 previous errors"
+  ]
+}

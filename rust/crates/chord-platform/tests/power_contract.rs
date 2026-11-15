@@ -12,25 +12,39 @@
 //! Live-проверка (`p11`) выключена по умолчанию и только читает состояние
 //! (`IsActive`/`GetSessionIdleTime`): экран не гасится, ингибитор не ставится.
 
+#[cfg(unix)]
 use chord_platform::dbus::{BusAddress, Connection, DbusError, Value};
+use chord_platform::power::{IdlePolicy, PresenceStatus};
+#[cfg(unix)]
 use chord_platform::power::{
-    IdlePolicy, LOGIN1_DESTINATION, LOGIN1_INTERFACE, LOGIN1_PATH, PowerEvent, PowerMonitor,
-    PresenceStatus, SCREENSAVER_DESTINATION, SCREENSAVER_INTERFACE, SCREENSAVER_PATH, SLEEP_SIGNAL,
-    ScreenSaver, SleepInhibitor,
+    LOGIN1_DESTINATION, LOGIN1_INTERFACE, LOGIN1_PATH, PowerEvent, PowerMonitor,
+    SCREENSAVER_DESTINATION, SCREENSAVER_INTERFACE, SCREENSAVER_PATH, SLEEP_SIGNAL, ScreenSaver,
+    SleepInhibitor,
 };
+#[cfg(unix)]
 use std::fs;
+#[cfg(unix)]
 use std::os::fd::RawFd;
+#[cfg(unix)]
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
 use std::process::{Child, Command, Stdio};
+#[cfg(unix)]
 use std::time::{Duration, Instant};
 
+#[cfg(unix)]
 const SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+#[cfg(unix)]
 const SKIP_NO_PYTHON: &str = "нет python3 с модулями dbus и gi";
+#[cfg(unix)]
 const MOCK_DESTINATION: &str = "lab.Mock";
+#[cfg(unix)]
 const MOCK_PATH: &str = "/lab/Mock";
+#[cfg(unix)]
 const MOCK_INTERFACE: &str = "lab.Mock.Power";
 
 /// Приватная шина + мок-сервисы; всё убирается в `Drop`.
+#[cfg(unix)]
 struct Harness {
     address: String,
     journal: PathBuf,
@@ -39,6 +53,7 @@ struct Harness {
     mock: Child,
 }
 
+#[cfg(unix)]
 impl Harness {
     fn start(extra_mock_args: &[&str]) -> Result<Self, String> {
         if !command_exists("dbus-daemon") {
@@ -166,6 +181,7 @@ impl Harness {
     }
 }
 
+#[cfg(unix)]
 impl Drop for Harness {
     fn drop(&mut self) {
         let _ = self.mock.kill();
@@ -180,12 +196,14 @@ impl Drop for Harness {
 }
 
 /// Убирает приватный демон и tempdir при ошибке старта (skip-путь без `Harness`).
+#[cfg(unix)]
 fn abort(daemon_pid: u32, dir: &Path, reason: String) -> String {
     let _ = Command::new("kill").arg(daemon_pid.to_string()).status();
     let _ = fs::remove_dir_all(dir);
     reason
 }
 
+#[cfg(unix)]
 fn read_child_stderr(child: &mut Child) -> String {
     use std::io::Read as _;
     let mut text = String::new();
@@ -195,12 +213,14 @@ fn read_child_stderr(child: &mut Child) -> String {
     text.trim().to_owned()
 }
 
+#[cfg(unix)]
 fn repo_path(relative: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../..")
         .join(relative)
 }
 
+#[cfg(unix)]
 fn command_exists(name: &str) -> bool {
     Command::new("sh")
         .arg("-c")
@@ -213,6 +233,7 @@ fn command_exists(name: &str) -> bool {
 }
 
 /// Та же проба, но с явным PATH — используется в `p12` для проверки skip-ветки.
+#[cfg(unix)]
 fn command_exists_in_path(path: &str, name: &str) -> bool {
     Command::new("sh")
         .arg("-c")
@@ -224,6 +245,7 @@ fn command_exists_in_path(path: &str, name: &str) -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(unix)]
 fn python_dbus_available() -> bool {
     Command::new("python3")
         .args(["-c", "import dbus, gi"])
@@ -235,6 +257,7 @@ fn python_dbus_available() -> bool {
 }
 
 /// Готовность окружения без запуска стенда: причина skip или `Ok(())`.
+#[cfg(unix)]
 fn environment_ready() -> Result<(), String> {
     if !command_exists("dbus-daemon") {
         return Err(SKIP_NO_DAEMON.to_owned());
@@ -245,6 +268,7 @@ fn environment_ready() -> Result<(), String> {
     Ok(())
 }
 
+#[cfg(unix)]
 fn unique_suffix() -> u64 {
     use std::sync::atomic::{AtomicU64, Ordering};
     static COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -256,6 +280,7 @@ fn unique_suffix() -> u64 {
 }
 
 /// Запускает стенд или печатает причину skip и выходит из теста.
+#[cfg(unix)]
 macro_rules! harness {
     ($extra:expr) => {
         match Harness::start($extra) {
@@ -268,10 +293,12 @@ macro_rules! harness {
     };
 }
 
+#[cfg(unix)]
 fn control_connection(harness: &Harness) -> Connection {
     Connection::connect(&harness.bus_address()).expect("управляющее соединение с моком")
 }
 
+#[cfg(unix)]
 fn call_control(connection: &mut Connection, member: &str, body: &[(char, Value)]) {
     connection
         .call(MOCK_DESTINATION, MOCK_PATH, MOCK_INTERFACE, member, body)
@@ -281,6 +308,7 @@ fn call_control(connection: &mut Connection, member: &str, body: &[(char, Value)
 // --- JSON-фикстура (минимальный парсер, как в dbus_contract) ---------------------
 
 #[derive(Debug)]
+#[cfg(unix)]
 enum Json {
     Null,
     Bool(bool),
@@ -290,6 +318,7 @@ enum Json {
     Obj(Vec<(String, Json)>),
 }
 
+#[cfg(unix)]
 impl Json {
     fn parse(text: &str) -> Result<Self, String> {
         let mut parser = JsonParser {
@@ -343,11 +372,13 @@ impl Json {
     }
 }
 
+#[cfg(unix)]
 struct JsonParser<'a> {
     bytes: &'a [u8],
     pos: usize,
 }
 
+#[cfg(unix)]
 impl JsonParser<'_> {
     fn skip_ws(&mut self) {
         while matches!(self.bytes.get(self.pos), Some(b' ' | b'\n' | b'\r' | b'\t')) {
@@ -493,6 +524,7 @@ impl JsonParser<'_> {
     }
 }
 
+#[cfg(unix)]
 fn load_fixture(name: &str) -> Json {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../../fixtures/dbus")
@@ -502,6 +534,7 @@ fn load_fixture(name: &str) -> Json {
     Json::parse(&text).unwrap_or_else(|err| panic!("JSON {}: {err}", path.display()))
 }
 
+#[cfg(unix)]
 fn fixture_service<'a>(golden: &'a Json, destination: &str) -> &'a Json {
     golden
         .get("services")
@@ -512,6 +545,7 @@ fn fixture_service<'a>(golden: &'a Json, destination: &str) -> &'a Json {
         .unwrap_or_else(|| panic!("power.json: нет сервиса {destination}"))
 }
 
+#[cfg(unix)]
 fn fixture_method<'a>(service: &'a Json, member: &str) -> &'a Json {
     service
         .get("methods")
@@ -562,6 +596,7 @@ fn p01_idle_policy_boundaries() {
 // --- p02: Inhibit → cookie и поля доходят до сервиса ------------------------------
 
 #[test]
+#[cfg(unix)]
 fn p02_inhibit_returns_cookie_and_mock_sees_fields() {
     // Фикстура libdbus фиксирует адреса/сигнатуры, с которыми сверяется клиент.
     let golden = load_fixture("power.json");
@@ -602,6 +637,7 @@ fn p02_inhibit_returns_cookie_and_mock_sees_fields() {
 // --- p03: UnInhibit, fallback Uninhibit и неизвестный cookie ----------------------
 
 #[test]
+#[cfg(unix)]
 fn p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error() {
     let harness = harness!(&[]);
     let mut screen_saver =
@@ -654,6 +690,7 @@ fn p03_uninhibit_reaches_mock_and_unknown_cookie_is_remote_error() {
 // --- p04: IsActive ----------------------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn p04_is_active_reflects_mock_state() {
     let harness = harness!(&["--active"]);
     let mut screen_saver =
@@ -675,6 +712,7 @@ fn p04_is_active_reflects_mock_state() {
 // --- p05: GetSessionIdleTime: Some / UnknownMethod / UnknownInterface / Err --------
 
 #[test]
+#[cfg(unix)]
 fn p05_idle_seconds_handles_unsupported_and_failing_services() {
     let harness = harness!(&["--idle-seconds", "1234"]);
     let mut screen_saver =
@@ -726,6 +764,7 @@ fn p05_idle_seconds_handles_unsupported_and_failing_services() {
 // --- p06: PrepareForSleep(true/false) ---------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn p06_prepare_for_sleep_maps_to_events() {
     // Фикстура libdbus: адрес менеджера и сигнатура сигнала совпадают с клиентом.
     let golden = load_fixture("power.json");
@@ -788,6 +827,7 @@ fn p06_prepare_for_sleep_maps_to_events() {
 // --- p07: чужие сигналы и битое тело пропускаются ---------------------------------
 
 #[test]
+#[cfg(unix)]
 fn p07_foreign_signals_are_skipped() {
     let harness = harness!(&[]);
     let mut monitor = PowerMonitor::connect(&harness.bus_address()).expect("PowerMonitor::connect");
@@ -826,6 +866,7 @@ fn p07_foreign_signals_are_skipped() {
 // --- p08: таймаут next_event ------------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn p08_next_event_timeout_is_none() {
     let harness = harness!(&[]);
     let mut monitor = PowerMonitor::connect(&harness.bus_address()).expect("PowerMonitor::connect");
@@ -847,6 +888,7 @@ fn p08_next_event_timeout_is_none() {
 // --- p09: пустые app_name/reason --------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn p09_inhibit_requires_app_name_and_reason() {
     let harness = harness!(&[]);
     let mut screen_saver =
@@ -873,6 +915,7 @@ fn p09_inhibit_requires_app_name_and_reason() {
 // --- p10: закрытое соединение — ошибка, без паники --------------------------------
 
 #[test]
+#[cfg(unix)]
 fn p10_closed_connection_returns_error_without_panic() {
     let mut harness = harness!(&[]);
     let mut screen_saver =
@@ -897,6 +940,7 @@ fn p10_closed_connection_returns_error_without_panic() {
 // --- p11: live-сервис — только чтение и только по флагу ---------------------------
 
 #[test]
+#[cfg(unix)]
 fn p11_live_service_is_flag_gated_and_read_only() {
     if std::env::var("DISCORD_LAB_LIVE_POWER").as_deref() != Ok("1") {
         println!("SKIP: live-питание выключено (DISCORD_LAB_LIVE_POWER != 1)");
@@ -927,6 +971,7 @@ fn p11_live_service_is_flag_gated_and_read_only() {
 // --- p12: нет dbus-daemon/python-dbus → skip с причиной ---------------------------
 
 #[test]
+#[cfg(unix)]
 fn p12_missing_environment_is_skip_with_reason() {
     // Проба с заведомо пустым PATH: dbus-daemon не должен «находиться».
     assert!(
@@ -953,11 +998,15 @@ fn p12_missing_environment_is_skip_with_reason() {
 // аргументы и умеет отвечать ERROR (`error`) или «не смог выделить fd» (`no-fd`).
 // Валидность fd проверяется через `/proc/self/fd`, утечки — по числу открытых fd.
 
+#[cfg(unix)]
 const LOGIND_CONTROL_DESTINATION: &str = "lab.Mock.Login1";
+#[cfg(unix)]
 const LOGIND_CONTROL_PATH: &str = "/lab/Mock";
+#[cfg(unix)]
 const LOGIND_CONTROL_INTERFACE: &str = "lab.Mock.Login1";
 
 /// Приватная шина + мок logind; всё убирается в `Drop`.
+#[cfg(unix)]
 struct LogindHarness {
     address: String,
     journal: PathBuf,
@@ -966,6 +1015,7 @@ struct LogindHarness {
     mock: Child,
 }
 
+#[cfg(unix)]
 impl LogindHarness {
     fn start(inhibit_mode: &str) -> Result<Self, String> {
         if !command_exists("dbus-daemon") {
@@ -1104,6 +1154,7 @@ impl LogindHarness {
     }
 }
 
+#[cfg(unix)]
 impl Drop for LogindHarness {
     fn drop(&mut self) {
         let _ = self.mock.kill();
@@ -1117,6 +1168,7 @@ impl Drop for LogindHarness {
     }
 }
 
+#[cfg(unix)]
 macro_rules! logind_harness {
     ($mode:expr) => {
         match LogindHarness::start($mode) {
@@ -1134,14 +1186,17 @@ macro_rules! logind_harness {
 /// Счёт по содержимому линка, а не по всему `/proc/self/fd`: тесты бинарника идут
 /// параллельно и открывают свои сокеты, общий счётчик был бы недетерминирован.
 /// Сериализует тесты, которые считают fd по общим именам memfd мока.
+#[cfg(unix)]
 static INHIBIT_FD_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
+#[cfg(unix)]
 fn inhibit_fd_lock() -> std::sync::MutexGuard<'static, ()> {
     INHIBIT_FD_LOCK
         .lock()
         .unwrap_or_else(|error| error.into_inner())
 }
 
+#[cfg(unix)]
 fn count_fds_matching(needle: &str) -> usize {
     fs::read_dir("/proc/self/fd")
         .map(|entries| {
@@ -1153,10 +1208,12 @@ fn count_fds_matching(needle: &str) -> usize {
         .unwrap_or(0)
 }
 
+#[cfg(unix)]
 fn fd_is_open(fd: RawFd) -> bool {
     Path::new(&format!("/proc/self/fd/{fd}")).exists()
 }
 
+#[cfg(unix)]
 fn fd_link(fd: RawFd) -> String {
     fs::read_link(format!("/proc/self/fd/{fd}"))
         .map(|target| target.to_string_lossy().into_owned())
@@ -1166,6 +1223,7 @@ fn fd_link(fd: RawFd) -> String {
 // --- f02: mock Inhibit → fd и аргументы в журнале ---------------------------------
 
 #[test]
+#[cfg(unix)]
 fn f02_inhibit_sleep_returns_fd_and_journals_arguments() {
     let _fd_guard = inhibit_fd_lock();
     let harness = logind_harness!("ok");
@@ -1222,6 +1280,7 @@ fn f02_inhibit_sleep_returns_fd_and_journals_arguments() {
 // --- f03: Drop закрывает fd ровно один раз ---------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn f03_drop_closes_inhibitor_fd_exactly_once() {
     let _fd_guard = inhibit_fd_lock();
     let harness = logind_harness!("ok");
@@ -1249,6 +1308,7 @@ fn f03_drop_closes_inhibitor_fd_exactly_once() {
 // --- f08: пустой why → Protocol, без вызова ---------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn f08_empty_why_is_protocol_and_never_reaches_bus() {
     let harness = logind_harness!("ok");
     let mut monitor = PowerMonitor::connect(&harness.bus_address()).expect("PowerMonitor::connect");
@@ -1266,6 +1326,7 @@ fn f08_empty_why_is_protocol_and_never_reaches_bus() {
 // --- f10: live logind — только по флагу и skip-aware ------------------------------
 
 #[test]
+#[cfg(unix)]
 fn f10_live_logind_inhibit_is_flag_gated_and_skip_aware() {
     if std::env::var("DISCORD_LAB_POWER_LIVE").as_deref() != Ok("1") {
         println!("SKIP: live logind выключен (DISCORD_LAB_POWER_LIVE != 1)");

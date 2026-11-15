@@ -16,7 +16,7 @@ pub trait IdentitySources {
     fn env_var(&self, name: &str) -> Option<String>;
     /// Содержимое текстового файла (пути вроде `/proc/sys/kernel/osrelease`).
     fn read_text(&self, path: &str) -> Option<String>;
-    /// Криптостойкие случайные байты (fallback — оставить буфер как есть).
+    /// Fill random bytes; SystemSources fails closed if OS entropy is unavailable.
     fn random_bytes(&self, out: &mut [u8]);
     /// `std::env::consts::OS` (`linux`/`macos`/`windows`/…).
     fn os(&self) -> &'static str;
@@ -24,7 +24,7 @@ pub trait IdentitySources {
     fn arch(&self) -> &'static str;
 }
 
-/// Реальные источники: `std::env`, `std::fs`, `/dev/urandom`.
+/// Real environment/filesystem values and the TLS provider's OS-backed CSPRNG.
 #[derive(Debug, Default)]
 pub struct SystemSources;
 
@@ -34,6 +34,13 @@ impl SystemSources {
     pub fn new() -> Self {
         Self
     }
+}
+
+/// A failed or partial entropy fill must never become a successful identity.
+fn fill_identity_random(random: &dyn rustls::crypto::SecureRandom, out: &mut [u8]) {
+    random
+        .fill(out)
+        .expect("OS entropy unavailable for client identity");
 }
 
 impl IdentitySources for SystemSources {
@@ -46,10 +53,8 @@ impl IdentitySources for SystemSources {
     }
 
     fn random_bytes(&self, out: &mut [u8]) {
-        use std::io::Read;
-        if let Ok(mut file) = std::fs::File::open("/dev/urandom") {
-            let _ = file.read_exact(out); // best-effort: при сбое буфер остаётся как пришёл
-        }
+        let provider = rustls::crypto::ring::default_provider();
+        fill_identity_random(provider.secure_random, out);
     }
 
     fn os(&self) -> &'static str {
@@ -381,6 +386,62 @@ mod tests {
     use std::cell::Cell;
 
     const KERNEL_PATH: &str = "/proc/sys/kernel/osrelease";
+
+    #[derive(Debug)]
+    struct FixedRandom;
+
+    impl rustls::crypto::SecureRandom for FixedRandom {
+        fn fill(&self, out: &mut [u8]) -> Result<(), rustls::crypto::GetRandomFailed> {
+            out.fill(0x5a);
+            Ok(())
+        }
+    }
+
+    #[derive(Debug)]
+    struct FailedRandom {
+        partial_write: bool,
+    }
+
+    impl rustls::crypto::SecureRandom for FailedRandom {
+        fn fill(&self, out: &mut [u8]) -> Result<(), rustls::crypto::GetRandomFailed> {
+            if self.partial_write
+                && let Some(first) = out.first_mut()
+            {
+                *first = 0x5a;
+            }
+            Err(rustls::crypto::GetRandomFailed)
+        }
+    }
+
+    #[test]
+    fn injected_random_fills_the_complete_output() {
+        let mut out = [0_u8; 33];
+        fill_identity_random(&FixedRandom, &mut out);
+        assert_eq!(out, [0x5a; 33]);
+    }
+
+    #[test]
+    fn system_random_accepts_empty_output() {
+        SystemSources.random_bytes(&mut []);
+    }
+
+    #[test]
+    #[should_panic(expected = "OS entropy unavailable for client identity")]
+    fn random_failure_cannot_return_success() {
+        let source = FailedRandom {
+            partial_write: false,
+        };
+        fill_identity_random(&source, &mut [0_u8; 16]);
+    }
+
+    #[test]
+    #[should_panic(expected = "OS entropy unavailable for client identity")]
+    fn partial_random_failure_cannot_return_success() {
+        let source = FailedRandom {
+            partial_write: true,
+        };
+        fill_identity_random(&source, &mut [0_u8; 16]);
+    }
 
     /// Детерминированные источники: фиксированные ОС/архитектура, окружение, файлы и UUID.
     struct FakeSources {

@@ -888,6 +888,7 @@ fn transport_functions_reject_invalid_inputs_before_network_and_send_exact_patch
 }
 
 #[test]
+#[cfg(unix)]
 fn desktop_notification_dbus_integration_builds_and_dispatches_without_panic() {
     let res = chord_client::notifications::send_desktop_notification(
         "Discord",
@@ -910,4 +911,21 @@ fn desktop_notification_fails_cleanly_when_address_is_invalid() {
     // Проверка устойчивости: при пустом/битом адресе не должно быть паники
     let bad_parse = chord_platform::dbus::BusAddress::parse("invalid-bus-address");
     assert!(bad_parse.is_none(), "невалидный адрес парсится в None");
+}
+
+#[cfg(windows)]
+#[test]
+fn desktop_notification_reports_unavailable_native_capability_on_windows() {
+    let error = chord_client::notifications::send_desktop_notification(
+        "Synthetic contract",
+        "No native notification is sent",
+        Some("im.received"),
+    )
+    .expect_err("Windows has no freedesktop notification transport");
+    assert!(
+        error.contains("freedesktop desktop notifications"),
+        "{error}"
+    );
+    assert!(error.contains("unavailable"), "{error}");
+    assert!(error.contains("windows"), "{error}");
 }

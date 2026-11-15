@@ -1,0 +1,20 @@
+{
+  "name": "control",
+  "command": [
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+    "-p",
+    "chord-core",
+    "--lib",
+    "rest::identity::tests"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-control-20261115T205054100692Z.log",
+  "log_sha256": "6b3065a8c0397d53685db74e55f84fa9b7daab014538ae757867ab2e888e9c22",
+  "mutated_source_sha256": "445d0905ca8ae6e4accc742c4bc9a4a5342efd998ebcd372a658bf4befcd5f9a",
+  "source_changes_outside_main": true
+}

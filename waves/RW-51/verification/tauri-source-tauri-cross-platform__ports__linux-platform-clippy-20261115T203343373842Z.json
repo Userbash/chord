@@ -1,0 +1,46 @@
+{
+  "phase": "linux-platform-clippy",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "clippy",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--all-targets",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-clippy-20261115T203343373842Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "error: using `chunks_exact` with a constant chunk size",
+    "error: could not compile `chord-platform` (test \"platform_boundaries_contract\") due to 1 previous error",
+    "warning: build failed, waiting for other jobs to finish..."
+  ],
+  "tail": [
+    "warning: workspace (manifest) generated 2 warnings",
+    "   Compiling chord-platform v0.1.0 (/root/projects/chord-tauri-platform/rust/crates/chord-platform)",
+    "    Checking libc v0.2.191",
+    "error: using `chunks_exact` with a constant chunk size",
+    "  --> crates/chord-platform/tests/platform_boundaries_contract.rs:15:10",
+    "   |",
+    "15 |         .chunks_exact(2)",
+    "   |          ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<2>().0.iter()`",
+    "   |",
+    "   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.100.0/index.html#chunks_exact_to_as_chunks",
+    "   = note: `-D clippy::chunks-exact-to-as-chunks` implied by `-D warnings`",
+    "   = help: to override `-D warnings` add `#[allow(clippy::chunks_exact_to_as_chunks)]`",
+    "",
+    "error: could not compile `chord-platform` (test \"platform_boundaries_contract\") due to 1 previous error",
+    "warning: build failed, waiting for other jobs to finish..."
+  ]
+}

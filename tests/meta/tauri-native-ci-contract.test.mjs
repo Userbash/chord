@@ -74,4 +74,25 @@ describe("Tauri native compilation contract", () => {
     assert.match(text.slice(stage, upload), /id: tauri_artifact/);
     assert.match(text.slice(upload), /if:.*!cancelled\(\).*steps\.tauri_artifact\.outcome == 'success'/);
   });
+
+  it("persists the real vcpkg root, target triplet and dynamic-link selection for Cargo", () => {
+    const text = workflow();
+    for (const assignment of ["VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT", "VCPKGRS_TRIPLET=$triplet", "VCPKGRS_DYNAMIC=1"]) {
+      assert.ok(text.includes(`"${assignment}" | Out-File -FilePath $env:GITHUB_ENV`), `${assignment} must reach later Cargo steps`);
+    }
+  });
+
+  it("executes native platform contracts including the real Windows credential backend", () => {
+    const text = workflow();
+    assert.match(text, /cargo test --locked --manifest-path rust\/Cargo\.toml -p chord-platform/);
+    assert.match(text, /--target "\$\{\{ matrix\.target \}\}" --lib --tests/);
+  });
+
+  it("retains bundled DLL copyright files and hashes portable nested artifact paths", () => {
+    const text = workflow();
+    assert.match(text, /copyright/);
+    assert.match(text, /licenses/);
+    assert.match(text, /readdirSync\(directory, \{ recursive: true \}\)/);
+    assert.match(text, /name\.split\(sep\)\.join\('\/'\)/);
+  });
 });

@@ -1,0 +1,30 @@
+{
+  "phase": "native-product-icons-green",
+  "command": [
+    "node",
+    "--test",
+    "tests/unit/tauri-platform-boundaries.test.mjs",
+    "tests/unit/call_stream_lifecycle.test.mjs",
+    "tests/unit/call_stream_dispatch.test.mjs"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-product-icons-green-20261115T203753967031Z.log",
+  "errors": [],
+  "tail": [
+    "  \u2714 L5: app.js GUILD_DELETE ignores unavailable: true events (0.281467ms)",
+    "  \u2714 L6: app.js openScreenShareModal verifies canStreamInChannel (0.202689ms)",
+    "\u2714 Call and Stream Lifecycle & Guild Safety Contracts (2.420261ms)",
+    "\u2714 MSVC discovery reads installed port names and dependencies for x86_64-pc-windows-msvc (3.926465ms)",
+    "\u2714 MSVC discovery reads installed port names and dependencies for aarch64-pc-windows-msvc (2.600622ms)",
+    "\u2714 MSVC missing port fails, while non-MSVC targets preserve system linkage (3.620361ms)",
+    "\u2714 product Windows and macOS icons contain valid native resource containers (0.557206ms)",
+    "\u2139 tests 17",
+    "\u2139 suites 2",
+    "\u2139 pass 17",
+    "\u2139 fail 0",
+    "\u2139 cancelled 0",
+    "\u2139 skipped 0",
+    "\u2139 todo 0",
+    "\u2139 duration_ms 77.486094"
+  ]
+}

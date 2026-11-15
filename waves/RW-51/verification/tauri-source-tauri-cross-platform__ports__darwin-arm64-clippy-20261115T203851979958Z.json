@@ -1,0 +1,45 @@
+{
+  "phase": "darwin-arm64-clippy",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "clippy",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--all-targets",
+    "--target",
+    "aarch64-apple-darwin",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-arm64-clippy-20261115T203851979958Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings"
+  ],
+  "tail": [
+    "27 | chord-conformance = { path = \"crates/chord-conformance\" }",
+    "   | ^^^^^^^^^^^^^^^^^",
+    "   |",
+    "   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default",
+    "help: consider removing the workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "  --> Cargo.toml:26:1",
+    "   |",
+    "26 | chord-perf = { path = \"crates/chord-perf\" }",
+    "   | ^^^^^^^^^^",
+    "   |",
+    "help: consider removing the workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "   Compiling chord-platform v0.1.0 (/root/projects/chord-tauri-platform/rust/crates/chord-platform)",
+    "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.68s"
+  ]
+}

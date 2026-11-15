@@ -1,0 +1,43 @@
+{
+  "phase": "capability-error-red-valid",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--test",
+    "platform_boundaries_contract"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/capability-error-red-valid-20261115T202420022378Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "error[E0433]: cannot find `UnsupportedCapability` in `chord_platform`",
+    "error: could not compile `chord-platform` (test \"platform_boundaries_contract\") due to 1 previous error"
+  ],
+  "tail": [
+    "   |",
+    "26 | chord-perf = { path = \"crates/chord-perf\" }",
+    "   | ^^^^^^^^^^",
+    "   |",
+    "help: consider removing the workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "   Compiling chord-platform v0.1.0 (/root/projects/chord-tauri-platform/rust/crates/chord-platform)",
+    "error[E0433]: cannot find `UnsupportedCapability` in `chord_platform`",
+    "  --> crates/chord-platform/tests/platform_boundaries_contract.rs:71:33",
+    "   |",
+    "71 |     let error = chord_platform::UnsupportedCapability::new(\"freedesktop notifications\");",
+    "   |                                 ^^^^^^^^^^^^^^^^^^^^^ could not find `UnsupportedCapability` in `chord_platform`",
+    "",
+    "For more information about this error, try `rustc --explain E0433`.",
+    "error: could not compile `chord-platform` (test \"platform_boundaries_contract\") due to 1 previous error"
+  ]
+}

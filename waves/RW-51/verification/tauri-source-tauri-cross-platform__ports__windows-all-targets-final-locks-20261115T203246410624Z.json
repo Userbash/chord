@@ -1,0 +1,43 @@
+{
+  "phase": "windows-all-targets-final-locks",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "check",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--all-targets",
+    "--target",
+    "x86_64-pc-windows-gnu"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-final-locks-20261115T203246410624Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "error: cannot update the lock file /root/projects/chord-tauri-platform/rust/Cargo.lock because --locked was passed to prevent this"
+  ],
+  "tail": [
+    "27 | chord-conformance = { path = \"crates/chord-conformance\" }",
+    "   | ^^^^^^^^^^^^^^^^^",
+    "   |",
+    "   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default",
+    "help: consider removing the workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "  --> Cargo.toml:26:1",
+    "   |",
+    "26 | chord-perf = { path = \"crates/chord-perf\" }",
+    "   | ^^^^^^^^^^",
+    "   |",
+    "help: consider removing the workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "error: cannot update the lock file /root/projects/chord-tauri-platform/rust/Cargo.lock because --locked was passed to prevent this",
+    "help: to generate the lock file without accessing the network, remove the --locked flag and use --offline instead."
+  ]
+}

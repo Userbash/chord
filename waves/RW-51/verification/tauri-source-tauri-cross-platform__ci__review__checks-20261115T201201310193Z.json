@@ -1,0 +1,26 @@
+[
+  {
+    "label": "ci-contracts",
+    "command": [
+      "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+      "--test",
+      "tests/meta/tauri-native-ci-contract.test.mjs",
+      "tests/meta/cross-platform-ci-contract.test.mjs"
+    ],
+    "cwd": "/root/projects/chord-modernization",
+    "exit_code": 0,
+    "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/ci-contracts-20261115T201201310193Z.log",
+    "log_sha256": "c191b530e88c0b5d15cc8a45666d0f7b627c25f8049affd602e5893807185ad2"
+  },
+  {
+    "label": "actionlint",
+    "command": [
+      "/root/.local/bin/actionlint",
+      ".github/workflows/tauri-native.yml"
+    ],
+    "cwd": "/root/projects/chord-modernization",
+    "exit_code": 0,
+    "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/actionlint-20261115T201201310193Z.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

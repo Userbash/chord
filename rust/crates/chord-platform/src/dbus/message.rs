@@ -12,9 +12,12 @@
 //! ancillary-данными (`SCM_RIGHTS`, см. [`super::fd`]); [`parse_with_fds`] заменяет
 //! индекс на реальный fd, [`build_with_fds`] собирает обратный список fd.
 
+#[cfg(unix)]
 use std::os::fd::RawFd;
 
-use super::{DbusError, MAX_BODY_BYTES, MAX_HEADER_BYTES, Value, fd};
+#[cfg(unix)]
+use super::fd;
+use super::{DbusError, MAX_BODY_BYTES, MAX_HEADER_BYTES, Value};
 
 /// Поле заголовка `PATH`.
 pub const FIELD_PATH: u8 = 1;
@@ -133,13 +136,14 @@ pub fn build(
     signature: &str,
     body: &[Value],
 ) -> Result<Vec<u8>, DbusError> {
-    let (bytes, fds) = build_with_fds(kind, serial, fields, signature, body)?;
-    if !fds.is_empty() {
+    let writer = build_inner(kind, serial, fields, signature, body)?;
+    #[cfg(unix)]
+    if !writer.fds.is_empty() {
         return Err(DbusError::Protocol(
             "body contains unix fds; use build_with_fds",
         ));
     }
-    Ok(bytes)
+    Ok(writer.buffer)
 }
 
 /// Собирает сообщение и список fd для `SCM_RIGHTS`.
@@ -147,6 +151,7 @@ pub fn build(
 /// Каждое значение `h` (`Value::UnixFd`) получает индекс в порядке появления в теле
 /// (0, 1, …); возвращённый вектор fd передаётся в [`super::fd::send_with_fds`].
 /// Не больше [`fd::MAX_FDS_PER_MESSAGE`] fd на сообщение.
+#[cfg(unix)]
 pub fn build_with_fds(
     kind: MessageType,
     serial: u32,
@@ -154,12 +159,24 @@ pub fn build_with_fds(
     signature: &str,
     body: &[Value],
 ) -> Result<(Vec<u8>, Vec<RawFd>), DbusError> {
+    let writer = build_inner(kind, serial, fields, signature, body)?;
+    Ok((writer.buffer, writer.fds))
+}
+
+fn build_inner(
+    kind: MessageType,
+    serial: u32,
+    fields: &[(u8, Value)],
+    signature: &str,
+    body: &[Value],
+) -> Result<Writer, DbusError> {
     if serial == 0 {
         return Err(DbusError::Protocol("serial must be non-zero"));
     }
 
     let mut writer = Writer {
         buffer: vec![0u8; 16],
+        #[cfg(unix)]
         fds: Vec::new(),
     };
     writer.buffer[0] = b'l';
@@ -183,15 +200,18 @@ pub fn build_with_fds(
         writer.value(field_type, value)?;
     }
 
-    // D-Bus требует поле UNIX_FDS, если к сообщению приложены fd (и запрещает его без fd).
-    let fd_count = fds_in_body(body).len();
-    if fd_count > 0 {
-        let declared = u32::try_from(fd_count)
-            .map_err(|_| DbusError::Protocol("too many unix fds in message"))?;
-        writer.align(8)?;
-        writer.buffer.push(FIELD_UNIX_FDS);
-        writer.signature("u");
-        writer.value("u", &Value::U32(declared))?;
+    #[cfg(unix)]
+    {
+        // D-Bus требует поле UNIX_FDS, если к сообщению приложены fd (и запрещает его без fd).
+        let fd_count = fds_in_body(body).len();
+        if fd_count > 0 {
+            let declared = u32::try_from(fd_count)
+                .map_err(|_| DbusError::Protocol("too many unix fds in message"))?;
+            writer.align(8)?;
+            writer.buffer.push(FIELD_UNIX_FDS);
+            writer.signature("u");
+            writer.value("u", &Value::U32(declared))?;
+        }
     }
 
     let fields_len = u32::try_from(writer.buffer.len() - 16)
@@ -210,12 +230,19 @@ pub fn build_with_fds(
         return Err(DbusError::Protocol("body too large"));
     }
     writer.buffer[4..8].copy_from_slice(&body_len.to_le_bytes());
-    Ok((writer.buffer, writer.fds))
+    Ok(writer)
 }
 
 /// Разбирает сообщение без fd: любое `h` → `Protocol` (индекс некуда разрешить).
 pub fn parse(bytes: &[u8]) -> Result<Message, DbusError> {
-    parse_with_fds(bytes, Vec::new())
+    #[cfg(unix)]
+    {
+        parse_with_fds(bytes, Vec::new())
+    }
+    #[cfg(not(unix))]
+    {
+        parse_inner(bytes)
+    }
 }
 
 /// Разбирает сообщение, разрешая `h` в реальные fd из `fds`.
@@ -225,6 +252,7 @@ pub fn parse(bytes: &[u8]) -> Result<Message, DbusError> {
 /// - успех → fd, на которые не ссылается ни один `h`, закрываются, остальные живут в
 ///   [`Value::UnixFd`] и принадлежат вызывающему;
 /// - повторный `h` на тот же индекс → `Protocol` (fd не клонируется).
+#[cfg(unix)]
 pub fn parse_with_fds(bytes: &[u8], fds: Vec<RawFd>) -> Result<Message, DbusError> {
     let mut used = vec![false; fds.len()];
     match parse_inner(bytes, &fds, &mut used) {
@@ -243,7 +271,11 @@ pub fn parse_with_fds(bytes: &[u8], fds: Vec<RawFd>) -> Result<Message, DbusErro
     }
 }
 
-fn parse_inner(bytes: &[u8], fds: &[RawFd], used: &mut [bool]) -> Result<Message, DbusError> {
+fn parse_inner(
+    bytes: &[u8],
+    #[cfg(unix)] fds: &[RawFd],
+    #[cfg(unix)] used: &mut [bool],
+) -> Result<Message, DbusError> {
     if bytes.len() < 16 {
         return Err(DbusError::Protocol("short header"));
     }
@@ -271,7 +303,9 @@ fn parse_inner(bytes: &[u8], fds: &[RawFd], used: &mut [bool]) -> Result<Message
             bytes,
             position: 16,
             end: fields_end,
+            #[cfg(unix)]
             fds,
+            #[cfg(unix)]
             used,
         };
         let mut fields = Vec::new();
@@ -315,7 +349,9 @@ fn parse_inner(bytes: &[u8], fds: &[RawFd], used: &mut [bool]) -> Result<Message
         bytes,
         position: body_offset,
         end: body_end,
+        #[cfg(unix)]
         fds,
+        #[cfg(unix)]
         used,
     };
     let mut body = Vec::new();
@@ -343,7 +379,11 @@ fn parse_inner(bytes: &[u8], fds: &[RawFd], used: &mut [bool]) -> Result<Message
         Some(Value::U32(count)) => *count as usize,
         Some(_) => return Err(DbusError::Protocol("UNIX_FDS field is not a u32")),
     };
-    if declared != fds.len() {
+    #[cfg(unix)]
+    let received_count = fds.len();
+    #[cfg(not(unix))]
+    let received_count = 0; // This parser cannot receive SCM_RIGHTS on this target.
+    if declared != received_count {
         return Err(DbusError::Protocol(
             "UNIX_FDS count does not match ancillary fds",
         ));
@@ -360,6 +400,7 @@ pub(crate) fn signature_of_value(value: &Value) -> Option<String> {
         Value::U32(_) => "u".to_owned(),
         Value::I32(_) => "i".to_owned(),
         Value::String(_) => "s".to_owned(),
+        #[cfg(unix)]
         Value::UnixFd(_) => "h".to_owned(),
         Value::Variant(_) => "v".to_owned(),
         Value::Struct(items) => {
@@ -416,6 +457,7 @@ fn write_body(writer: &mut Writer, signature: &str, body: &[Value]) -> Result<()
 struct Writer {
     buffer: Vec<u8>,
     /// fd в порядке появления `h` в теле; индекс `h` — позиция в этом векторе.
+    #[cfg(unix)]
     fds: Vec<RawFd>,
 }
 
@@ -464,6 +506,7 @@ impl Writer {
                 self.align(4)?;
                 self.buffer.extend_from_slice(&number.to_le_bytes());
             }
+            #[cfg(unix)]
             (b'h', Value::UnixFd(raw)) => {
                 if self.fds.len() >= fd::MAX_FDS_PER_MESSAGE {
                     return Err(DbusError::Protocol("too many unix fds in message"));
@@ -634,8 +677,10 @@ struct Cursor<'a> {
     position: usize,
     end: usize,
     /// fd, приложенные к сообщению; индекс `h` адресует этот срез.
+    #[cfg(unix)]
     fds: &'a [RawFd],
     /// Какие fd уже использованы (повторный индекс → `Protocol`).
+    #[cfg(unix)]
     used: &'a mut [bool],
 }
 
@@ -750,6 +795,7 @@ impl<'a> Cursor<'a> {
                 self.align(4)?;
                 Value::I32(self.u32()? as i32)
             }
+            #[cfg(unix)]
             b'h' => {
                 self.align(4)?;
                 let index = self.u32()? as usize;
@@ -766,6 +812,12 @@ impl<'a> Cursor<'a> {
                 }
                 *used = true;
                 Value::UnixFd(raw)
+            }
+            #[cfg(not(unix))]
+            b'h' => {
+                return Err(DbusError::Protocol(
+                    "unix fd values require a Unix transport",
+                ));
             }
             b's' | b'o' => Value::String(self.string()?),
             b'g' => Value::String(self.signature_string()?),
@@ -839,6 +891,7 @@ impl<'a> Cursor<'a> {
 }
 
 /// fd, на которые ссылается тело (значения `h`), в порядке появления.
+#[cfg(unix)]
 pub(crate) fn fds_in_body(body: &[Value]) -> Vec<RawFd> {
     let mut fds = Vec::new();
     collect_fds(body, &mut fds);
@@ -846,10 +899,12 @@ pub(crate) fn fds_in_body(body: &[Value]) -> Vec<RawFd> {
 }
 
 /// Закрывает все fd, на которые ссылается тело (ответ/сигнал отбрасывается).
+#[cfg(unix)]
 pub(crate) fn close_fds_in_body(body: &[Value]) {
     fd::close_all(&fds_in_body(body));
 }
 
+#[cfg(unix)]
 fn collect_fds(values: &[Value], fds: &mut Vec<RawFd>) {
     for value in values {
         match value {

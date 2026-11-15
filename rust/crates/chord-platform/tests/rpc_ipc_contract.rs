@@ -11,30 +11,41 @@
 //! - `Serein/apps/desktop/src/game_activity.rs` (`serve_ipc`, `MAX_CLIENTS = 8`)
 //! - `Serein/crates/discord-protocol/src/rpc.rs` (`SET_ACTIVITY`, `INVITE_BROWSER`, `ERROR 4000`, timestamps)
 
+#[cfg(unix)]
 use chord_platform::rpc_ipc::{
-    DiscordRpcClient, DiscordRpcListener, IPC_HEADER_LEN, IPC_SLOT_COUNT, InviteBrowserPayload,
-    IpcEndpoint, IpcFrame, LEGACY_TIMESTAMP_SECONDS_CUTOFF, MAX_INVITE_CODE_LEN,
-    MAX_IPC_FRAME_BYTES, MAX_IPC_SLOT, MAX_RPC_ASSET_KEY_LEN, MAX_RPC_BUTTONS, MAX_RPC_CLIENTS,
-    MAX_RPC_TEXT_LEN, RPC_ERROR_CODE_INVALID_PAYLOAD, RPC_LISTEN_BACKLOG, RPC_PROTOCOL_VERSION,
-    RPC_SOCKET_MODE, RpcActivity, RpcAssets, RpcButton, RpcCommand, RpcIpcError, RpcIpcListener,
-    RpcIpcSession, RpcMultiClientRegistry, RpcOpCode, RpcParty, RpcTimestamps, SetActivityPayload,
-    UNIX_SOCKET_PREFIX, WINDOWS_PIPE_MAX_INSTANCES, WINDOWS_PIPE_PREFIX, WindowsNamedPipeConfig,
+    DiscordRpcClient, DiscordRpcListener, RpcIpcListener, SetActivityPayload,
+};
+use chord_platform::rpc_ipc::{
+    IPC_HEADER_LEN, IPC_SLOT_COUNT, InviteBrowserPayload, IpcEndpoint, IpcFrame,
+    LEGACY_TIMESTAMP_SECONDS_CUTOFF, MAX_INVITE_CODE_LEN, MAX_IPC_FRAME_BYTES, MAX_IPC_SLOT,
+    MAX_RPC_ASSET_KEY_LEN, MAX_RPC_BUTTONS, MAX_RPC_CLIENTS, MAX_RPC_TEXT_LEN,
+    RPC_ERROR_CODE_INVALID_PAYLOAD, RPC_LISTEN_BACKLOG, RPC_PROTOCOL_VERSION, RPC_SOCKET_MODE,
+    RpcActivity, RpcAssets, RpcButton, RpcCommand, RpcIpcError, RpcIpcSession,
+    RpcMultiClientRegistry, RpcOpCode, RpcParty, RpcTimestamps, UNIX_SOCKET_PREFIX,
+    WINDOWS_PIPE_MAX_INSTANCES, WINDOWS_PIPE_PREFIX, WindowsNamedPipeConfig,
     build_rpc_error_frame_for_payload, build_rpc_error_json, decode_ipc_frame, encode_ipc_frame,
     format_windows_sddl_for_sid, handle_ipc_frame, is_valid_invite_code, parse_ipc_slot,
     resolve_ipc_socket_path, resolve_ipc_socket_path_from_env, resolve_windows_named_pipe_path,
 };
+#[cfg(unix)]
 use std::fs;
+#[cfg(unix)]
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
+#[cfg(unix)]
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::PathBuf;
+#[cfg(unix)]
 use std::sync::atomic::{AtomicU64, Ordering};
 
+#[cfg(unix)]
 static TEST_COUNTER: AtomicU64 = AtomicU64::new(1);
 
+#[cfg(unix)]
 struct TempIpcDir {
     path: PathBuf,
 }
 
+#[cfg(unix)]
 impl TempIpcDir {
     fn new(prefix: &str) -> Self {
         let seq = TEST_COUNTER.fetch_add(1, Ordering::Relaxed);
@@ -48,6 +59,7 @@ impl TempIpcDir {
     }
 }
 
+#[cfg(unix)]
 impl Drop for TempIpcDir {
     fn drop(&mut self) {
         let _ = fs::remove_dir_all(&self.path);
@@ -194,6 +206,7 @@ fn rpc02_windows_named_pipe_config_and_sddl_dacl_validation() {
 }
 
 #[test]
+#[cfg(unix)]
 fn rpc03_listener_binds_slot_0_sets_mode_0600_and_serves_client_roundtrip() {
     let tmp = TempIpcDir::new("bind0");
     let listener: RpcIpcListener =
@@ -283,6 +296,7 @@ fn rpc03_listener_binds_slot_0_sets_mode_0600_and_serves_client_roundtrip() {
 }
 
 #[test]
+#[cfg(unix)]
 fn rpc04_slot_contention_auto_increments_0_to_9_and_reports_all_slots_busy() {
     let tmp = TempIpcDir::new("slots0to9");
     let mut listeners = Vec::with_capacity(IPC_SLOT_COUNT);
@@ -318,6 +332,7 @@ fn rpc04_slot_contention_auto_increments_0_to_9_and_reports_all_slots_busy() {
 }
 
 #[test]
+#[cfg(unix)]
 fn rpc05_stale_socket_recovery_and_owned_inode_cleanup_on_drop() {
     let tmp = TempIpcDir::new("stale");
     let sock0 = tmp.path.join("discord-ipc-0");
@@ -363,6 +378,7 @@ fn rpc05_stale_socket_recovery_and_owned_inode_cleanup_on_drop() {
 }
 
 #[test]
+#[cfg(unix)]
 fn rpc06_security_directory_permissions_and_peer_uid_verification() {
     let tmp = TempIpcDir::new("security");
 

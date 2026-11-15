@@ -1,0 +1,28 @@
+{
+  "phase": "hunspell-discovery-red",
+  "command": [
+    "node",
+    "--test",
+    "tests/unit/tauri-platform-boundaries.test.mjs"
+  ],
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/hunspell-discovery-red-20261115T202929353400Z.log",
+  "errors": [],
+  "tail": [
+    "      at TestHook.run (node:internal/test_runner/test:1402:25)",
+    "      at TestHook.run (node:internal/test_runner/test:1757:18)",
+    "      at TestHook.run (node:internal/util:581:20)",
+    "      at Test.createHook (node:internal/test_runner/test:1117:33)",
+    "      at node:internal/test_runner/harness:426:12",
+    "      at file:///root/projects/chord-tauri-platform/tests/unit/tauri-platform-boundaries.test.mjs:16:1",
+    "      at ModuleJob.run (node:internal/modules/esm/module_job:561:25)",
+    "      at async node:internal/modules/esm/loader:647:26 {",
+    "    generatedMessage: false,",
+    "    code: 'ERR_ASSERTION',",
+    "    actual: false,",
+    "    expected: true,",
+    "    operator: '==',",
+    "    diff: 'simple'",
+    "  }"
+  ]
+}

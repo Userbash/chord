@@ -1341,17 +1341,21 @@ pub fn format_iso8601_utc(unix_secs: i64) -> String {
 /// Подключает нативный `chord_platform::notifications::Notifier` по D-Bus
 /// и отправляет десктопное системное уведомление по спецификации freedesktop
 /// (STUB-28, N-01/N-02).
+#[cfg(unix)]
 pub fn send_desktop_notification(
     summary: &str,
     body: &str,
     category: Option<&str>,
 ) -> Result<u32, String> {
-    let raw = std::env::var("DBUS_SESSION_BUS_ADDRESS")
-        .map_err(|_| "Переменная окружения DBUS_SESSION_BUS_ADDRESS не задана".to_string())?;
-    let address = chord_platform::dbus::BusAddress::parse(&raw)
-        .ok_or_else(|| format!("Не удалось распарсить DBUS_SESSION_BUS_ADDRESS: {raw}"))?;
+    let raw = std::env::var("DBUS_SESSION_BUS_ADDRESS").map_err(|_| {
+        "D-Bus notification connect: переменная окружения DBUS_SESSION_BUS_ADDRESS не задана"
+            .to_string()
+    })?;
+    let address = chord_platform::dbus::BusAddress::parse(&raw).ok_or_else(|| {
+        format!("D-Bus notification address: не удалось распарсить DBUS_SESSION_BUS_ADDRESS: {raw}")
+    })?;
     let mut notifier = chord_platform::notifications::Notifier::connect(&address)
-        .map_err(|e| format!("D-Bus Notifier connect error: {e:?}"))?;
+        .map_err(|e| format!("D-Bus notification connect error: {e:?}"))?;
     let mut hints = chord_platform::notifications::Hints::default();
     hints.desktop_entry = Some("chord".to_string());
     if let Some(cat) = category {
@@ -1367,5 +1371,16 @@ pub fn send_desktop_notification(
     };
     notifier
         .notify_with_hints(&notif, &hints)
-        .map_err(|e| format!("D-Bus notify error: {e:?}"))
+        .map_err(|e| format!("D-Bus notification send error: {e:?}"))
+}
+
+/// The freedesktop D-Bus adapter is a Unix transport. Native Windows delivery
+/// requires a separate implementation; report the capability failure explicitly.
+#[cfg(not(unix))]
+pub fn send_desktop_notification(
+    _summary: &str,
+    _body: &str,
+    _category: Option<&str>,
+) -> Result<u32, String> {
+    Err(chord_platform::UnsupportedCapability::new("freedesktop desktop notifications").to_string())
 }

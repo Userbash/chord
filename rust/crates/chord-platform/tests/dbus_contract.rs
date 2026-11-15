@@ -8,15 +8,21 @@
 //! (`mock_service.py` на приватном `dbus-daemon`).
 
 use chord_platform::dbus::message::{self, FIELD_REPLY_SERIAL, FIELD_SIGNATURE, MessageType};
-use chord_platform::dbus::{
-    BusAddress, Connection, DbusError, MAX_ABSTRACT_NAME_BYTES, Value, auth, fd,
-};
+use chord_platform::dbus::{BusAddress, DbusError, MAX_ABSTRACT_NAME_BYTES, Value};
+#[cfg(unix)]
+use chord_platform::dbus::{Connection, auth, fd};
 use chord_platform::notifications;
 use chord_platform::notifications::{Hints, Urgency};
+#[cfg(unix)]
 use std::fs;
-use std::os::fd::{AsRawFd, RawFd};
+#[cfg(unix)]
+use std::os::fd::AsRawFd;
+#[cfg(target_os = "linux")]
+use std::os::fd::RawFd;
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
 use std::process::{Child, Command, Stdio};
+#[cfg(unix)]
 use std::time::{Duration, Instant};
 
 // --- минимальный JSON-ридер фикстур (без внешних зависимостей) -------------------
@@ -390,6 +396,7 @@ fn n01_bus_address_parse_accepts_path_and_rejects_unsupported() {
 // --- n02: uid для AUTH EXTERNAL --------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n02b_external_auth_line_uses_effective_uid_from_os() {
     let output = Command::new("id").arg("-u").output().expect("id -u");
     assert!(output.status.success(), "id -u завершился неуспешно");
@@ -908,14 +915,20 @@ fn q08_hints_dict_matches_libgio_bytes_and_round_trips() {
 // `waves/RW-30/dbus/mock_service.py` (журнал TSV). Наш код здесь только клиент.
 // Если окружение запрещает abstract-сокеты, тест печатает `SKIP: причина` и не падает.
 
+#[cfg(unix)]
 const SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+#[cfg(unix)]
 const SKIP_NO_PYTHON_DBUS: &str = "нет python3 с модулями dbus и gi";
+#[cfg(unix)]
 const MOCK_DESTINATION: &str = "org.freedesktop.Notifications";
+#[cfg(unix)]
 const MOCK_PATH: &str = "/org/freedesktop/Notifications";
+#[cfg(unix)]
 const MOCK_INTERFACE: &str = "org.freedesktop.Notifications";
 
 /// Приватная шина (`unix:abstract=…` либо штатный `unix:path`) и, по запросу, мок.
 /// Демон, мок и tempdir убираются в `Drop`.
+#[cfg(unix)]
 struct TestBus {
     address: BusAddress,
     journal: Option<PathBuf>,
@@ -924,6 +937,7 @@ struct TestBus {
     mock: Option<Child>,
 }
 
+#[cfg(unix)]
 impl TestBus {
     /// Приватная шина строго на abstract-адресе + мок уведомлений.
     fn abstract_with_mock() -> Result<Self, String> {
@@ -1056,6 +1070,7 @@ impl TestBus {
     }
 }
 
+#[cfg(unix)]
 impl Drop for TestBus {
     fn drop(&mut self) {
         if let Some(mock) = self.mock.as_mut() {
@@ -1072,6 +1087,7 @@ impl Drop for TestBus {
 }
 
 /// Убирает приватный демон и tempdir при ошибке старта (skip-путь без `Drop`).
+#[cfg(unix)]
 fn abort(daemon_pid: u32, dir: &Path, reason: String) -> String {
     let _ = Command::new("kill").arg(daemon_pid.to_string()).status();
     let _ = fs::remove_dir_all(dir);
@@ -1079,6 +1095,7 @@ fn abort(daemon_pid: u32, dir: &Path, reason: String) -> String {
 }
 
 /// Ждёт строку `READY` в журнале мока; иначе — причина для skip с очисткой.
+#[cfg(unix)]
 fn wait_ready(mock: &mut Child, journal: &Path, daemon_pid: u32, dir: &Path) -> Result<(), String> {
     let deadline = Instant::now() + Duration::from_secs(10);
     loop {
@@ -1106,12 +1123,14 @@ fn wait_ready(mock: &mut Child, journal: &Path, daemon_pid: u32, dir: &Path) -> 
     }
 }
 
+#[cfg(unix)]
 fn repo_path(relative: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../..")
         .join(relative)
 }
 
+#[cfg(unix)]
 fn command_exists(name: &str) -> bool {
     Command::new("sh")
         .arg("-c")
@@ -1123,6 +1142,7 @@ fn command_exists(name: &str) -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(unix)]
 fn python_dbus_available() -> bool {
     Command::new("python3")
         .args(["-c", "import dbus, gi"])
@@ -1133,6 +1153,7 @@ fn python_dbus_available() -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(unix)]
 fn unique_suffix() -> u64 {
     use std::sync::atomic::{AtomicU64, Ordering};
     static COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -1144,6 +1165,7 @@ fn unique_suffix() -> u64 {
 }
 
 /// Поднимает стенд или печатает `SKIP: причина` и выходит из теста.
+#[cfg(unix)]
 macro_rules! test_bus {
     ($constructor:expr) => {
         match $constructor {
@@ -1226,6 +1248,7 @@ fn a03_parse_skips_unsupported_and_invalid_entries() {
 // --- a04: connect abstract → Hello -----------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn a04_connect_abstract_bus_yields_unique_name() {
     let bus = test_bus!(TestBus::abstract_with_mock());
     assert!(
@@ -1244,6 +1267,7 @@ fn a04_connect_abstract_bus_yields_unique_name() {
 // --- a05: вызов через abstract-шину ----------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn a05_call_over_abstract_bus_returns_mock_reply() {
     let bus = test_bus!(TestBus::abstract_with_mock());
     let mut connection =
@@ -1282,6 +1306,7 @@ fn a05_call_over_abstract_bus_returns_mock_reply() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn a06_connect_missing_abstract_returns_error_without_panic() {
     let name = format!(
         "discord-lab-missing-{}-{}",
@@ -1303,6 +1328,7 @@ fn a06_connect_missing_abstract_returns_error_without_panic() {
 // --- a07: path-ветка не сломана --------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn a07_path_branch_still_connects_to_path_bus() {
     let bus = test_bus!(TestBus::path_only());
     assert!(
@@ -1328,13 +1354,20 @@ fn a07_path_branch_still_connects_to_path_bus() {
 // поведение под нашу реализацию: fd-ы создаются моком/тестом и проверяются через
 // `/proc/self/fd`.
 
+#[cfg(target_os = "linux")]
 const LOGIN1_DESTINATION: &str = "org.freedesktop.login1";
+#[cfg(target_os = "linux")]
 const LOGIN1_PATH: &str = "/org/freedesktop/login1";
+#[cfg(target_os = "linux")]
 const LOGIN1_INTERFACE: &str = "org.freedesktop.login1.Manager";
+#[cfg(unix)]
 const LOGIND_CONTROL_DESTINATION: &str = "lab.Mock.Login1";
+#[cfg(unix)]
 const LOGIND_CONTROL_PATH: &str = "/lab/Mock";
+#[cfg(unix)]
 const LOGIND_CONTROL_INTERFACE: &str = "lab.Mock.Login1";
 
+#[cfg(target_os = "linux")]
 fn fd_is_open(fd: RawFd) -> bool {
     Path::new(&format!("/proc/self/fd/{fd}")).exists()
 }
@@ -1343,6 +1376,7 @@ fn fd_is_open(fd: RawFd) -> bool {
 ///
 /// Счёт по содержимому линка, а не по всему `/proc/self/fd`: тесты одного бинарника идут
 /// параллельно и открывают свои сокеты/файлы, общий счётчик был бы недетерминирован.
+#[cfg(target_os = "linux")]
 fn count_fds_matching(needle: &str) -> usize {
     fs::read_dir("/proc/self/fd")
         .map(|entries| {
@@ -1354,6 +1388,7 @@ fn count_fds_matching(needle: &str) -> usize {
         .unwrap_or(0)
 }
 
+#[cfg(target_os = "linux")]
 fn fd_link(fd: RawFd) -> String {
     fs::read_link(format!("/proc/self/fd/{fd}"))
         .map(|target| target.to_string_lossy().into_owned())
@@ -1361,6 +1396,7 @@ fn fd_link(fd: RawFd) -> String {
 }
 
 /// Приватная шина + `mock_logind.py`; всё убирается в `Drop`.
+#[cfg(unix)]
 struct LogindBus {
     address: String,
     journal: PathBuf,
@@ -1369,6 +1405,7 @@ struct LogindBus {
     mock: Child,
 }
 
+#[cfg(unix)]
 impl LogindBus {
     fn start() -> Result<Self, String> {
         if !command_exists("dbus-daemon") {
@@ -1489,6 +1526,7 @@ impl LogindBus {
     }
 }
 
+#[cfg(unix)]
 impl Drop for LogindBus {
     fn drop(&mut self) {
         let _ = self.mock.kill();
@@ -1502,6 +1540,7 @@ impl Drop for LogindBus {
     }
 }
 
+#[cfg(unix)]
 macro_rules! logind_bus {
     () => {
         match LogindBus::start() {
@@ -1515,6 +1554,7 @@ macro_rules! logind_bus {
 }
 
 /// Тело `Inhibit(sleep, discord-lab, why, block)`.
+#[cfg(target_os = "linux")]
 fn inhibit_body(why: &str) -> [(char, Value); 4] {
     [
         ('s', Value::String("sleep".to_owned())),
@@ -1525,6 +1565,7 @@ fn inhibit_body(why: &str) -> [(char, Value); 4] {
 }
 
 /// Смещение тела в собранном сообщении (после заголовка, выравнивание 8).
+#[cfg(unix)]
 fn body_offset(bytes: &[u8]) -> usize {
     let fields_len = u32::from_le_bytes(bytes[12..16].try_into().expect("fields len")) as usize;
     (16 + fields_len + 7) & !7
@@ -1533,6 +1574,7 @@ fn body_offset(bytes: &[u8]) -> usize {
 // --- f01: `h` — индекс в массиве fd, а не «просто u32» ---------------------------
 
 #[test]
+#[cfg(unix)]
 fn f01_unix_fd_value_round_trips_through_per_message_index() {
     let (reader, _writer) = std::io::pipe().expect("pipe");
     let raw = reader.as_raw_fd();
@@ -1572,6 +1614,7 @@ fn f01_unix_fd_value_round_trips_through_per_message_index() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn f04_two_fds_in_one_reply_are_received_in_order_and_closed() {
     let bus = logind_bus!();
     let mut connection =
@@ -1626,6 +1669,7 @@ fn f04_two_fds_in_one_reply_are_received_in_order_and_closed() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn f05_out_of_range_index_is_protocol_and_fds_are_closed() {
     // Ровно один fd в очереди и один в заголовке UNIX_FDS, а индекс в теле — 7:
     // это проверяет именно границу индекса, а не сверку счётчика.
@@ -1668,6 +1712,7 @@ fn f05_out_of_range_index_is_protocol_and_fds_are_closed() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn f06_control_truncation_is_protocol_and_closes_received_fds() {
     let (sender, receiver) = std::os::unix::net::UnixStream::pair().expect("socketpair");
     // Уникальные имена файлов: счёт по линкам `/proc/self/fd` не пересекается с другими
@@ -1705,6 +1750,7 @@ fn f06_control_truncation_is_protocol_and_closes_received_fds() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn f07_plain_call_closes_fds_from_reply_and_reports_protocol() {
     let bus = logind_bus!();
     let mut connection =
@@ -1738,6 +1784,7 @@ fn f07_plain_call_closes_fds_from_reply_and_reports_protocol() {
 // --- f09: отправка двух fd (SCM_RIGHTS) ------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn f09_call_with_fds_sends_two_pipe_fds_to_service() {
     use std::io::Write as _;
 
@@ -1786,6 +1833,7 @@ fn f09_call_with_fds_sends_two_pipe_fds_to_service() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn f11_duplicate_unix_fd_index_is_protocol_and_closes_fds() {
     let prefix = format!("w35a-f11-{}-{}", std::process::id(), unique_suffix());
     let mut raw = Vec::new();
@@ -1827,6 +1875,7 @@ fn f11_duplicate_unix_fd_index_is_protocol_and_closes_fds() {
 // --- f13: лимит fd на отправку (мутационный пробел x7) ----------------------------
 
 #[test]
+#[cfg(unix)]
 fn f13_build_rejects_more_than_max_unix_fds() {
     let files: Vec<fs::File> = (0..=fd::MAX_FDS_PER_MESSAGE)
         .map(|_| fs::File::open("/dev/null").expect("/dev/null"))
@@ -1856,6 +1905,7 @@ fn f13_build_rejects_more_than_max_unix_fds() {
 
 #[test]
 #[allow(unsafe_code)] // Independent POSIX fcntl oracle and ownership of received descriptors.
+#[cfg(unix)]
 fn f14_received_unix_fds_are_close_on_exec() {
     use std::os::fd::{FromRawFd, OwnedFd};
     use std::os::unix::net::UnixStream;
@@ -1908,6 +1958,7 @@ fn f14_received_unix_fds_are_close_on_exec() {
 
 #[test]
 #[allow(unsafe_code)] // Independent kernel flag oracle and ownership of received SCM_RIGHTS copies.
+#[cfg(unix)]
 fn f15_single_receive_returns_short_payload_and_close_on_exec_fds() {
     use std::os::fd::{FromRawFd, OwnedFd};
     use std::os::unix::net::UnixStream;
@@ -1939,6 +1990,7 @@ fn f15_single_receive_returns_short_payload_and_close_on_exec_fds() {
 
 #[test]
 #[allow(unsafe_code)] // Independent kernel flag oracle and ownership of the returned duplicate.
+#[cfg(unix)]
 fn f16_duplicate_cloexec_is_independent_and_preserves_io() {
     use std::io::{Read, Write};
     use std::os::fd::{FromRawFd, OwnedFd};
@@ -1968,6 +2020,7 @@ fn f16_duplicate_cloexec_is_independent_and_preserves_io() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn f17_single_receive_eof_keeps_owned_fds_but_exact_eof_closes_them() {
     use std::os::fd::IntoRawFd;
     use std::os::unix::net::UnixStream;
@@ -2000,6 +2053,7 @@ fn f17_single_receive_eof_keeps_owned_fds_but_exact_eof_closes_them() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn f18_single_receive_would_block_closes_collected_fds_and_keeps_os_error() {
     use std::os::fd::IntoRawFd;
     use std::os::unix::net::UnixStream;
@@ -2030,6 +2084,7 @@ fn f18_single_receive_would_block_closes_collected_fds_and_keeps_os_error() {
 
 #[test]
 #[cfg(target_os = "linux")]
+#[cfg(unix)]
 fn f19_single_receive_truncation_closes_every_delivered_fd() {
     use std::os::unix::net::UnixStream;
 
@@ -2061,6 +2116,7 @@ fn f19_single_receive_truncation_closes_every_delivered_fd() {
 }
 
 #[test]
+#[cfg(unix)]
 fn f20_empty_receive_does_not_consume_pending_payload() {
     use std::os::unix::net::UnixStream;
 
@@ -2083,6 +2139,7 @@ fn f20_empty_receive_does_not_consume_pending_payload() {
 #[test]
 #[cfg(target_os = "linux")]
 #[allow(unsafe_code)] // Independent SO_PASSCRED kernel fixture; all pointers reference live values.
+#[cfg(unix)]
 fn f21_unexpected_ancillary_still_closes_rights_from_later_headers() {
     use std::os::unix::net::UnixStream;
 

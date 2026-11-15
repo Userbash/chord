@@ -1,0 +1,31 @@
+{
+  "phase": "gpui-minimal-lock-validation",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "tree",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/chord-gpui/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--target",
+    "all"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/gpui-minimal-lock-validation-20261115T204035392038Z.log",
+  "errors": [
+    "error: failed to load manifest for dependency `gpui-component`"
+  ],
+  "tail": [
+    "error: failed to load manifest for dependency `gpui-component`",
+    "",
+    "Caused by:",
+    "  failed to read `/root/projects/chord-tauri-platform/gpui-kit/crates/component/Cargo.toml`",
+    "",
+    "Caused by:",
+    "  No such file or directory (os error 2)"
+  ]
+}

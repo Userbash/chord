@@ -879,6 +879,558 @@
       "archive_sha256": "f8be07f16af4bbdea4fb8ff1d5492ae020e1151fdd1aeb7b5d710e03c78c85f2"
     },
     {
+      "file": "tauri-source-rust-dependencies__tauri-native-final-actionlint-20261115T205659612258Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-native-platform-contract-green-20261115T205607283394Z.log.gz",
+      "raw_bytes": 1769,
+      "raw_sha256": "51ada8832b992c931fc3c94fe4dfc0f50920efe50cd6e7b14e9c89d59a1f9255",
+      "archive_sha256": "209d529105045b5f81a33aa498b53aff66968a58e653961dfb178991df80a4ef"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-native-platform-contract-red-20261115T205555714481Z.log.gz",
+      "raw_bytes": 24724,
+      "raw_sha256": "fd8bd6699a2f7415c9e60ec62de3549e432787ffa857e85999e64723285c4ce6",
+      "archive_sha256": "1e1bdd6cedd031b89c3d5598ffb4ef3910c17b6ce009dcdb1faba46932639b56"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-native-sdk-artifact-green-20261115T204826084325Z.log.gz",
+      "raw_bytes": 1669,
+      "raw_sha256": "650a72d5a4bb34eb397f5605b5890cc180701a977c27a546601a88d16d7f20a9",
+      "archive_sha256": "27410e3af6a477f12fab4feba728d887e9fd64c066f068a89881c6131ff6b874"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-native-sdk-artifact-red-20261115T204825626865Z.log.gz",
+      "raw_bytes": 20385,
+      "raw_sha256": "95dc830e155d502f8b57d5eb5f08c432703577f3683cc0e68a69d7cf53aabe94",
+      "archive_sha256": "80be185077728fc0f6d1e9a14b1e4f8168aa8be3d0f9c7ddf1b1e1c47658c239"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-ci-registry-final-20261115T205516191420Z.log.gz",
+      "raw_bytes": 2453,
+      "raw_sha256": "82827c066b2fb6da8953a5e6bb128c59040bf9785dc554d19e80fbbdb676f35b",
+      "archive_sha256": "334aa73ed640466c130cc2cb4a6a51b558e6249e53104824a781804f8ff09d0a"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-entropy-full-worker-20261115T205523541950Z.log.gz",
+      "raw_bytes": 10892,
+      "raw_sha256": "72dbf42da70b2f553bce957c763d01fe106ca6d6c3bce36839d3f911860a0912",
+      "archive_sha256": "b50db00deb41217b600a11c6a3bb16368a466eea1fb55fbd02ecbd47f205d299"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-entropy-linux-release-20261115T205706933484Z.log.gz",
+      "raw_bytes": 763,
+      "raw_sha256": "69a482c0fdb2a8a30c157d8258150a6ca8b4ba4288905af790bf4fbffa66617f",
+      "archive_sha256": "73a8bd4e849412d9d987d2260d70f430a1364157f4de6da248944c74f02f26aa"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-entropy-worker-final-20261115T210113200567Z.log.gz",
+      "raw_bytes": 4610,
+      "raw_sha256": "fb2515bbbc753419629bb831a250105ecc33581b6472dd62b8772f60a82c3043",
+      "archive_sha256": "2d3dac6c7bbde18091924fc7e168ecff1a12d8704e51483f3667a5dc6129c16c"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-full-unit-classify-20261115T205808771887Z.log.gz",
+      "raw_bytes": 511455,
+      "raw_sha256": "771c13bd8fb78f1c3685b72ca2ab92bf2a4d6442abc722332bcaba4395bb1075",
+      "archive_sha256": "43ca51843b98d5440e411f7f2241030217d04e7d8e6c35c2f93684035db65f3f"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-gpui-locked-resolver-20261115T204437790395Z.log.gz",
+      "raw_bytes": 4746473,
+      "raw_sha256": "322101bbd1f437424f71b1b69a5869c9bccaf2601e5d2ba43754c4a3b54380b2",
+      "archive_sha256": "9b9a9920027674814648d734ef8f52ec593de9c1adf213e64b92d5152a1d2c2e"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-license-cache-fetch-20261115T205808378889Z.log.gz",
+      "raw_bytes": 582,
+      "raw_sha256": "293bf8f2ba1781c8798cc8fcaf9f45c97a5967d1dcf8d11d1e1939dbba785e67",
+      "archive_sha256": "31eed8e5884559f47bde056312397db4480256d1aabe54306d4309c9f258d870"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-sbom-green-20261115T205836752044Z.log.gz",
+      "raw_bytes": 94,
+      "raw_sha256": "3d35411529df90cf492779d40d0aee88aaab9a0ead2057fb6b2e14855c2903e1",
+      "archive_sha256": "50740f7a04438bf4cd78c24b0d07b62693d8c6a6e111597853c18c6e41ff2a3e"
+    },
+    {
+      "file": "tauri-source-rust-dependencies__tauri-ports-sbom-red-20261115T205755373125Z.log.gz",
+      "raw_bytes": 519,
+      "raw_sha256": "588767e7e801207e96831415ceaf9cd41ae91b913842f5fd64b60d9e017333b1",
+      "archive_sha256": "2efa3823db50948c3d3c477b7b22ee77eea4f8436ba23f4f3e64571566cda210"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__actionlint-20261115T200735476608Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__control-20261115T200735476608Z.log.gz",
+      "raw_bytes": 689,
+      "raw_sha256": "90d4931dce4230ccf66259223b660a7d1c0dba4e1c45d98ea08fa312369abd6f",
+      "archive_sha256": "c824682171969c7485ccbe2f78baf5a2a39215f568edfa4569316058ce82b44b"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__drop-native-arm-runner-20261115T200735476608Z.log.gz",
+      "raw_bytes": 1678,
+      "raw_sha256": "60f06ff325c2d3cdf9a579b07743295130533769f53d2e796d8083c3f05b81e5",
+      "archive_sha256": "7c90ad5e959ae21200934369ec6a66299753e74e20abe57698a2d77c1fe5ae82"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__force-host-cpu-instruction-set-20261115T200735476608Z.log.gz",
+      "raw_bytes": 19321,
+      "raw_sha256": "cd492c22d512a5e180b20dbcc1b5ca956c93f49cea345d0c2f2d53e97ad5d227",
+      "archive_sha256": "124ac9f705bb7fa8e7917a6e5798525b95b1b6d657f9e9b34caa530d3818fe44"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__hide-build-failure-20261115T200735476608Z.log.gz",
+      "raw_bytes": 37865,
+      "raw_sha256": "8cbfeef5a8aba833a12f70542f594099be71e11a2ec92b772ece75fa1a8dfeb6",
+      "archive_sha256": "62bb10a5ff7d83f2b8994f1531d04701c747d2c987159a8a5f1ae39f108ba188"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__ignore-missing-artifact-20261115T200735476608Z.log.gz",
+      "raw_bytes": 19118,
+      "raw_sha256": "48ca8ab6afd21de7ce5b8cd436290553a13abeae68de6156a5772711218b5148",
+      "archive_sha256": "f6b2336c76fb91e9f057cca278718047017e328bfe17070bdaf3e0a523a4ad24"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__replace-release-build-with-check-20261115T200735476608Z.log.gz",
+      "raw_bytes": 19330,
+      "raw_sha256": "c09a4907b6e3ca785c869b8676fc7ac060da897d87c8e194d01e07cae4018594",
+      "archive_sha256": "68d76a459d39fd6eaf0edf0e16af29a09be32dd585695d0c83ac9326645df635"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__actionlint-20261115T201201310193Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__ci-contracts-20261115T201201310193Z.log.gz",
+      "raw_bytes": 1470,
+      "raw_sha256": "c191b530e88c0b5d15cc8a45666d0f7b627c25f8049affd602e5893807185ad2",
+      "archive_sha256": "ce7d28696084f73ca71ec9a992176642770cc11bc1ad35b378963357a6ee8130"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__final-actionlint-20261115T205817898967Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__final-ci-contracts-20261115T205817898967Z.log.gz",
+      "raw_bytes": 1770,
+      "raw_sha256": "143885b4d31c9d8f1272134d09ee22fb02b15a3983e8a31c569d13f2ab742b46",
+      "archive_sha256": "89b49baca7284e23d1205e414eae8cf2c0ea0b6bd516ee028c55d500ea6b7326"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__sbom-byteorder-1.5.0-20261115T210103614159Z.log.gz",
+      "raw_bytes": 35,
+      "raw_sha256": "82140185399b611b0a7e6af1a419bc69a5b4524adad3244dae20d6984afff046",
+      "archive_sha256": "fc26fb5deb352b355fb57f2e21884d2e23d2cef6c7fe35656b5535a69b4be067"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__sbom-control-20261115T210103498382Z.log.gz",
+      "raw_bytes": 99,
+      "raw_sha256": "b3b1b50a885c9143689eda5e3d8d222a2aa57f9f082ecc710a6de8bb17e700d9",
+      "archive_sha256": "0f10b9a8b08da68cc93cc26d88e87c67732fbe4d706cfe52118c07e1d4727616"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__sbom-keyring-3.6.3-20261115T210103729248Z.log.gz",
+      "raw_bytes": 33,
+      "raw_sha256": "435d513f54396cbf3e46fe894caed452ba0576de38cd8730c74c22964ab02c4f",
+      "archive_sha256": "6aa087504c1f0dbc6d9280b4b670855790bc83862f6e32c98dff0cb83a636b51"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__sbom-windows-sys-0.60.2-20261115T210103844352Z.log.gz",
+      "raw_bytes": 38,
+      "raw_sha256": "aebdcd3f98c393c6963758be0496b3e0806e9d7e706da12a8353be2f78585d59",
+      "archive_sha256": "7e74b5b5dee93ed4b9a3b83785cafa929c60499d90f9e0870930c150fcacb260"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__sbom-windows-targets-0.53.5-20261115T210103909187Z.log.gz",
+      "raw_bytes": 42,
+      "raw_sha256": "ab657cf3a56e0ccc3f2f385a7689ffb66961d047a4a1ebb13ddf64094ecce42f",
+      "archive_sha256": "a00f56d244451ce29b35a40c79c878fa0ce8c0d39c66cfebed6f18ae1a3e410e"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ci__review__sbom-windows_aarch64_msvc-0.53.1-20261115T210104024279Z.log.gz",
+      "raw_bytes": 47,
+      "raw_sha256": "6bc6d8b124f718d82e55c11c0168ad5b6bfb96075ac0091d53b77fedc5e97fdd",
+      "archive_sha256": "63ef41b72f051b5386fc05131419c3a2215ebd4ef0d1f080f49871b77d1acbad"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__baseline-core-no-run-20261115T204712928903Z.log.gz",
+      "raw_bytes": 71104,
+      "raw_sha256": "8113204e8046f64d320febe003ebb0a94d7cb8dac84588fb99a2b03d1a9bfdba",
+      "archive_sha256": "19d51f4197d743ba7b3edefec148c57217d3529fdbfca31e5179330e268f485a"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__clippy-core-let-chain-20261115T205448527827Z.log.gz",
+      "raw_bytes": 2583,
+      "raw_sha256": "f29627a7e8d286c789fd80dcf1b79503243ff8980cf8456511fd2b66c96fdbc1",
+      "archive_sha256": "3c6d7b1b03392f9958f40a737cf27c9efe48f4255d36e304efa2f4a148642a8f"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__green-core-integration-20261115T204836847906Z.log.gz",
+      "raw_bytes": 71443,
+      "raw_sha256": "cb5e95d7b171ab03ca17b5fcdd747a465ec9f4057b4ae74a1c5af0b1163b9d2a",
+      "archive_sha256": "5a3279b83989e39ff70df4d1983cd1a2466742513785168bd65cbfcdec61c5b3"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__green-core-unit-20261115T204838811523Z.log.gz",
+      "raw_bytes": 1485,
+      "raw_sha256": "ba9d3643d7de10c5d365b9912bcf4afb64219cbcf3f1789f8d71f76be2aaac38",
+      "archive_sha256": "1b747be8aba48443098ec511ece3279aa4a1a5b6655e8aa29955835933ec7110"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__green-core-unit-let-chain-20261115T205435376612Z.log.gz",
+      "raw_bytes": 1485,
+      "raw_sha256": "579acc86226a97b7dc579b1f698517e0eb8f93ebeee568fbd224d7337753f33a",
+      "archive_sha256": "0ebe219f08d384e9ce606d807bb91af343730747cf743200969e0df9362bb22d"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__green-gui-contract-20261115T204848182995Z.log.gz",
+      "raw_bytes": 832,
+      "raw_sha256": "0d58c82983bbeb875a85e18534e1d18a1452e9adc81abdc8234f970020f8a628",
+      "archive_sha256": "33f5564df700c9807d7e9f8b8e7a9169d00fe59fc6e7ea8ce6abd6310541b633"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__green-linux-no-device-20261115T204847836948Z.log.gz",
+      "raw_bytes": 167,
+      "raw_sha256": "1ef0059e00e9b5f3f74c165baf3e6a44bccee6941723c8a1056141e8b263c08b",
+      "archive_sha256": "43e0389584f1ac72541a60a10380c3a478333cdccb2d18a3a0d2d56238e97c37"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__green-linux-no-device-loader-20261115T204847836948Z.log.gz",
+      "raw_bytes": 230,
+      "raw_sha256": "56b832dfe4752fb04c4219c80ee0d1c2cdc848ef11100158aa5567803458629c",
+      "archive_sha256": "f363fa053bb1c8ac4052b0426982e87f5089d43131a239e718586ebc0256a47d"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__mutation-control-20261115T205054100692Z.log.gz",
+      "raw_bytes": 1521,
+      "raw_sha256": "6b3065a8c0397d53685db74e55f84fa9b7daab014538ae757867ab2e888e9c22",
+      "archive_sha256": "baa12234d1da581ac078973eb41599fdfcc912ae621360e4ee8a8b7cbf7e378f"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__mutation-invalid-uuid-variant-20261115T205102927635Z.log.gz",
+      "raw_bytes": 1494,
+      "raw_sha256": "88cccbade39e4842b0e3e26f6b4f4adcdcc5324fd398a64739fbdb76d3c77ef6",
+      "archive_sha256": "aaf7d0680f5d21e404c816255c5f000d0781a9fd08d2f31555908ddbb8d040cb"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__mutation-invalid-uuid-version-20261115T205102010920Z.log.gz",
+      "raw_bytes": 1494,
+      "raw_sha256": "fbd314b31a034f9846c08c49201acb2200bc076cd31442c41a92b9bf457877d4",
+      "archive_sha256": "7ce0525f58d8ae9fcd00f85a237bb02bc5463870cc297f5c4421783672843719"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__mutation-reorder-identity-draws-20261115T205103743748Z.log.gz",
+      "raw_bytes": 2836,
+      "raw_sha256": "731d1f50dfe684b5c31d2f246f97d1d957d10d56d4d289e9ad46ce4cc384f23a",
+      "archive_sha256": "9db8cc2caef5bd1bb47a571ac36fe24ad628ce9dc3c28ba07f2b5a4c7517a6c0"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__mutation-swallow-entropy-failure-20261115T205057822965Z.log.gz",
+      "raw_bytes": 2080,
+      "raw_sha256": "e1347b31d38150b7c3b6f8a2d9bf85c5d5a571e7aaeb22430b72b05aa392aa53",
+      "archive_sha256": "bca7a42f9873b8686c49b9f7ea28b981ce05b624761bc48aafcd67a88f614125"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__mutation-zero-os-entropy-20261115T205058689155Z.log.gz",
+      "raw_bytes": 1967,
+      "raw_sha256": "71b52cfe715ecb5f9957d23b3fc071e65010a20fdeb3c0de546b3e3f8b855048",
+      "archive_sha256": "c9d2ce5ca46b6e5a0b2d450741d3ef6e20ee82516f1e42758fe87b4ad1030e8f"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__red-linux-no-device-20261115T204747095035Z.log.gz",
+      "raw_bytes": 570,
+      "raw_sha256": "e2d56110fc6de3ffd53b5407bcae4fdd632950ff7b6a20e99d220fb7b9835a7a",
+      "archive_sha256": "c506fb628cd4a3ad2f59971f7a543615877ac85f7b94c2ee01e167948237e80d"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__red-linux-no-device-loader-20261115T204747095035Z.log.gz",
+      "raw_bytes": 230,
+      "raw_sha256": "7a4256162550d91ac58bcc08066ddc300951df69272bea0d357ae9fa107bbc04",
+      "archive_sha256": "a9f9ceb9135ccb8a52ca71250ad99f120da1ee69564ad58a3b49e3ee372527df"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__review__green-linux-no-device-replay-20261115T205249323101Z.log.gz",
+      "raw_bytes": 167,
+      "raw_sha256": "1ef0059e00e9b5f3f74c165baf3e6a44bccee6941723c8a1056141e8b263c08b",
+      "archive_sha256": "43e0389584f1ac72541a60a10380c3a478333cdccb2d18a3a0d2d56238e97c37"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__review__partial-fill-lint-20261115T205400690928Z.log.gz",
+      "raw_bytes": 803,
+      "raw_sha256": "b566c88a0ce1de71489b8c489de57eed5bee68b2dfded9a081fd86c0a5032307",
+      "archive_sha256": "9a7a506e098669cbd52369282c1181d6146efa8ed6a3d1b5992b888144413fa7"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__entropy__review__red-linux-no-device-replay-20261115T205249323101Z.log.gz",
+      "raw_bytes": 570,
+      "raw_sha256": "0a1c0c5dadff49f0115719ef2b6afa5d2d33601fd1b0d1268fa28aa14173a218",
+      "archive_sha256": "a858309dd06f97368babaa9f68dcfc28fefabbf795d4b50cc96e013f656f7dc5"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__adjacent-pipewire-contracts-20261115T203906679540Z.log.gz",
+      "raw_bytes": 1707,
+      "raw_sha256": "b343f46fe202e5e8709fad8c10d554c4d7357cece41f7abdec326bc43c1e8849",
+      "archive_sha256": "28d3bca7d99636e9cdddb01577b2132f8fe7402eb9e53268eef891bb57724063"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__capability-error-red-20261115T202413698540Z.log.gz",
+      "raw_bytes": 4509,
+      "raw_sha256": "29befb4494592f1ce18d3456d956cbb7ad87b4f7f69f46d08acfc25f776fbdb8",
+      "archive_sha256": "3e8f546080b703e12b6ce4aa842ddb91f782409a46664fd293718ee83022ba73"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__capability-error-red-valid-20261115T202420022378Z.log.gz",
+      "raw_bytes": 1214,
+      "raw_sha256": "7847b92e5074d13123f038d261f174ff80e07fc16836fecd7b9d3150b5b7359c",
+      "archive_sha256": "8bd0939e04c5e3b812d56aebdfa7d0e21e7a770ad4d3f9dfd74c4366408d1ab0"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__darwin-arm64-clippy-20261115T203851979958Z.log.gz",
+      "raw_bytes": 754,
+      "raw_sha256": "bce900e3210e9865654093311183459da65486bcb06a9cea336cf5955adadb7a",
+      "archive_sha256": "d49eba3abc810452dea8671b955a35bf4550f3cde53e42cb17b5719ef33164ca"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__darwin-arm64-platform-check-20261115T203558447366Z.log.gz",
+      "raw_bytes": 2318,
+      "raw_sha256": "0f3f10efc3cbbb19c260e7df7f0fddba103b1db328387c0bc8d73f3e3035a29e",
+      "archive_sha256": "ee8d1254244559202ec8c3ae3d8cbfba032e52260f3def3729580c932edaa446"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__darwin-x64-clippy-20261115T203850963363Z.log.gz",
+      "raw_bytes": 754,
+      "raw_sha256": "388da061fadb1499333966c1965e1d9940f6447f7aa212884edf9d503f45bf19",
+      "archive_sha256": "957221aea135234b8e8815c7d5e6fddb5394b9f8af58c1c722f2f549ccf0eb52"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__darwin-x64-platform-check-20261115T203557069121Z.log.gz",
+      "raw_bytes": 2318,
+      "raw_sha256": "9167c8015736a3741e3e17a9677a8fe42ec52ffdfc9bda8bf6a06bb6f4fa0b99",
+      "archive_sha256": "458cb84186b576495f428d08857594bf99024851eace379e13f035514052754e"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__dbus-private-oracle-check-20261115T203401871104Z.log.gz",
+      "raw_bytes": 1081,
+      "raw_sha256": "218ffc364d7ba3d30fb5b8732f20c919bef24215bff649e95763cb6fa49285a2",
+      "archive_sha256": "024fa3d5f2beb4238307c609808a9d6a37c944fa0b5eece652821d824303bedc"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__dependency-resolve-core-20261115T202335288625Z.log.gz",
+      "raw_bytes": 3329,
+      "raw_sha256": "dadfc934c5cd7acb7038e7c8edcd456efe390054a68d37b33a97723c8acff686",
+      "archive_sha256": "7e9900dee8ef2a0c111352921d272f1ad1777078a6c2faf9fc1a6bb40b0a1d3d"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__format-platform-20261115T203320775552Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__format-platform-check-20261115T204122991187Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__format-platform-final-20261115T203953162832Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__generate-native-product-icons-20261115T203735562284Z.log.gz",
+      "raw_bytes": 2288,
+      "raw_sha256": "25d128450b8724cabc55c86ff2a4f78341ac84d557bb994c67051571bcdf3c9d",
+      "archive_sha256": "14e7b494b92ac36f5b7a59a318cbb6a376b99b66c4379c06aea0e457e398e4f3"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__gpui-minimal-lock-validation-20261115T204035392038Z.log.gz",
+      "raw_bytes": 220,
+      "raw_sha256": "682da936c525f9fd2bf16c3b4c57c8933cf453329c99b36914e02732800fdeca",
+      "archive_sha256": "b73213465d5b3708c9cf99fc721012d999a7f4915ad98b3b17bdf566d26173fd"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__helper-types-green-20261115T205844237802Z.log.gz",
+      "raw_bytes": 87,
+      "raw_sha256": "c9abc238a72081f5b225a3bad84761e2ce20f02e786e51bb6ecc075747575b81",
+      "archive_sha256": "f56c45603463facf714d3b7f789f04d1be4d40e8c7b4dd758013e0f86eb718ce"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__helper-types-red-20261115T205821219552Z.log.gz",
+      "raw_bytes": 2950,
+      "raw_sha256": "0490e84cb55ab5c42d761d52c17931ae84d645154a54d0463588897813ef5071",
+      "archive_sha256": "a32fc68e91a072748ee6b5b8dab45ce94225869ad572bfc73acca3cf84a8bd60"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__helper-types-targeted-green-20261115T205935408066Z.log.gz",
+      "raw_bytes": 501,
+      "raw_sha256": "62d9758f69067de909eb3c52f574ca0d562b9af12284e78fca54ca8d17b83c86",
+      "archive_sha256": "6cbc8bd307252f51e659858326e79af9eadaebde5b46c05e1e5de5e538aa6c8f"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__hunspell-discovery-green-20261115T202948759232Z.log.gz",
+      "raw_bytes": 411,
+      "raw_sha256": "8da334d6434af55c94343fb5ccccb8454758d0920c816a43443166beea6623cf",
+      "archive_sha256": "00a3110858a3ce4527e7a738232057ac309121aee5b9987aff59f54201144408"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__hunspell-discovery-red-20261115T202929353400Z.log.gz",
+      "raw_bytes": 3765,
+      "raw_sha256": "289f502965763554dd25dca104b9143489bc82ff12d9c093ec7c519a0f5ca443",
+      "archive_sha256": "0444df796dfa8a81ff28944ca5865a9c839d224e2f65c23302ab7a2da1cadb6f"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__linux-platform-clippy-20261115T203343373842Z.log.gz",
+      "raw_bytes": 1433,
+      "raw_sha256": "df4707acfccc3ba895b5a8f47df93b7580723bb9fed3d278b0b4b6831b822d71",
+      "archive_sha256": "08a68926a82d5db84444486fdfa6cd0c824637e15dea38dd6d8472962be9d100"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__linux-platform-clippy-green-20261115T203400867160Z.log.gz",
+      "raw_bytes": 754,
+      "raw_sha256": "75ec9521387f5bb84a1fae0389fd474454dfc341362dedfc9ebdda03aa633a69",
+      "archive_sha256": "83f78c934c9c2e0c84ebd8b83c684d2b9145b9c32d69837b2eea4217175f4559"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__linux-platform-contracts-20261115T203321243367Z.log.gz",
+      "raw_bytes": 20102,
+      "raw_sha256": "4d4737fe065668f478cf2f243cd2ecff121b65af553fef9b09d55c85a6e1ba07",
+      "archive_sha256": "0adaa859f5fcd5950f9623d05a33c80fc80b485bde51b129f55e7dcc3c77490d"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__linux-platform-final-20261115T204120621815Z.log.gz",
+      "raw_bytes": 20102,
+      "raw_sha256": "edf81951bba4fd85376caefe015cfee8fc4a38c54efe476d56b41e1fc8492cf8",
+      "archive_sha256": "d996a5298369be609732615289241fba378859ba61b1a6000145061a487b3950"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__native-product-icons-green-20261115T203753967031Z.log.gz",
+      "raw_bytes": 1865,
+      "raw_sha256": "780f974f5953e9ba981830113ddf5c6841fa1c4baf169da7e1491d553cb12a59",
+      "archive_sha256": "90e0c2435fe7eac4095646a524cf84dfc2123689652391cbf5264f8a4b1f9ad3"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__native-product-icons-red-20261115T203726971681Z.log.gz",
+      "raw_bytes": 1334,
+      "raw_sha256": "c1a8fc897ede0f42ee213166c037dedbdaa256de2f690106f177e6d93151b340",
+      "archive_sha256": "b1448b582b7c9c8c0f2c64643e221cd410da34205273b3fbf7f510959f4c4b68"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__official-icon-generator-version-20261115T204231403586Z.log.gz",
+      "raw_bytes": 17,
+      "raw_sha256": "9b3bfd97bdbbb1caca492a182482702522f4861cac9c38b60655010daaf0a7e3",
+      "archive_sha256": "21f7756827ed3e2ca146f5fdf29a7254bda203f8cc36dedb6c416b81e1c9f561"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__portable-linux-green-20261115T202441828916Z.log.gz",
+      "raw_bytes": 1395,
+      "raw_sha256": "4d4c6ebfaaf47da1bfd0b1398ab3febcb5c99fe364086df946f7e85f0e7dc3ac",
+      "archive_sha256": "455bbafee78511d370bb882ca57f1f6e3a4b27bdbd5a357d0c4d022374062460"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__portable-stream-red-20261115T202157601607Z.log.gz",
+      "raw_bytes": 3494,
+      "raw_sha256": "9f3145c450bd3dbe9a0b0af7dd83776976baf8ade62c6a8c865d6585ef7c62c4",
+      "archive_sha256": "20dc17aef04cf691096039e0041c7aff1c7ebc78a768733a81485b8683cf0eb5"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__portable-windows-green-20261115T202352188725Z.log.gz",
+      "raw_bytes": 1101,
+      "raw_sha256": "59a5c7ea4a33598ce4c9a33019c24f4b0ebb249fa1fbac56e3fa8f3c7ab0b6c9",
+      "archive_sha256": "d462e647c7358d07c1ceee41de3b957b9e6595459cf98ff7647b5ab049deca48"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__portable-windows-red-20261115T202127522017Z.log.gz",
+      "raw_bytes": 24067,
+      "raw_sha256": "ed3f77811b705bdb29e69781bdcf74322eff2ac56cffbae59384d169affe0183",
+      "archive_sha256": "99361e7dde36ff72c1115c5dd6e548cb27d2e0d28c30b33de865680d9808d26a"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__tauri-notification-minimal-locks-20261115T203615117678Z.log.gz",
+      "raw_bytes": 1034,
+      "raw_sha256": "14a674e4bf4be5915e1a3a15af9d2d8119319df5fd0b350fb9afab4cd54fd4f7",
+      "archive_sha256": "46d6cc87cc1053c8b4675667ebef068b7565b7b844b7eba6d96a0981c1149c3e"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__tauri-notification-no-session-green-20261115T203108695516Z.log.gz",
+      "raw_bytes": 532,
+      "raw_sha256": "54d9c7c91a326125004019237d6fee261baee8a1c8b22ad8a9b57adcee88a41f",
+      "archive_sha256": "97968d7756ee6dd822b9b059875acda22000ac6869c6cf1a22f1b2cfd40c341f"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__tauri-notification-no-session-red-20261115T203002621757Z.log.gz",
+      "raw_bytes": 13134,
+      "raw_sha256": "7a4cb5fd09ead351dff14c912519dd2b25204c85432d93c41fa1ecc14c69a2cd",
+      "archive_sha256": "a76b2ce8e94c12c64a2e04f7fe63633c18225f168bf89df3fb6ad89891250f24"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__tauri-windows-source-after-icons-20261115T203754405129Z.log.gz",
+      "raw_bytes": 1304,
+      "raw_sha256": "a22cfd1f80c69aea586672d09ef8651ce6c674bb9710e40c9ade9ded8b4fbd8a",
+      "archive_sha256": "9cad5900017457ee5a47ea3ba11446fb28e73db70f79379bd7a394474378e4dd"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__tauri-windows-source-check-20261115T203415358031Z.log.gz",
+      "raw_bytes": 10771,
+      "raw_sha256": "bbc1f9dc1f01d31a5e0147fc59ae6b9fb0ab59a5e7462428f957ace5969f809b",
+      "archive_sha256": "1757d157e81e7797b2be572fe0a480469d09ad11ab0f0afc50b5ae3ce31c70a6"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__tauri-windows-source-final-20261115T203953970514Z.log.gz",
+      "raw_bytes": 158,
+      "raw_sha256": "43b60071ec521165bd6fe369bd5e04303da57f7e215667bf98cb0ae9d8c67c43",
+      "archive_sha256": "9d04281a00d3038585d2cc270f1dc051091e465b8b36bb3007ba55f25a043bd3"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__windows-all-targets-contracts-20261115T202755784213Z.log.gz",
+      "raw_bytes": 3712,
+      "raw_sha256": "62d22d76bd424a50545cc7db502ff174f889a8e07b6209814692cbf3958fab7b",
+      "archive_sha256": "733af1dc3744afc12c8845ec244063dde9db0e6b60a7cdeb185c1a422285c38f"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__windows-all-targets-final-locks-20261115T203246410624Z.log.gz",
+      "raw_bytes": 828,
+      "raw_sha256": "6f13873fea5509ccb675fb47df75cb2a927ef34d290631b0b7e66d953069460d",
+      "archive_sha256": "067b30deeed18677bc950347e7c887db119b046a85472ac1356f56a749e07ff1"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__windows-all-targets-followup-20261115T202503000085Z.log.gz",
+      "raw_bytes": 30216,
+      "raw_sha256": "6e372a089ce2d9b0e9da244c3f5e48746a64e3127a93cd56632ef489154bc92f",
+      "archive_sha256": "539c1abc61837e246883bd9f14a9c1d236c676918a59ed2849afaed0951f908a"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__windows-all-targets-minimal-locks-20261115T203305895813Z.log.gz",
+      "raw_bytes": 781,
+      "raw_sha256": "c4f26bb8c6e6d631d45da35674a0b88b72d7631ff0e7ed077880693b9f5a5cba",
+      "archive_sha256": "b70f2a48e989ea88e746cd31fd9f5d4955056bd1c4c6059c41179393365b814d"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__windows-platform-clippy-20261115T203614128003Z.log.gz",
+      "raw_bytes": 1528,
+      "raw_sha256": "fc1ce52902f8104fddc1a0fb44ce7dc28251bce3081d6b7c0c1269b2546f7ab1",
+      "archive_sha256": "e32965635ff64ffa5c0efe937c2e307e18e3cdda8568ff215837721cc3fcba86"
+    },
+    {
+      "file": "tauri-source-tauri-cross-platform__ports__windows-platform-clippy-green-20261115T203840972568Z.log.gz",
+      "raw_bytes": 754,
+      "raw_sha256": "22f0b29d51dc4333959a1a2601b3cd6109d3e19471b9ba52477644164b515749",
+      "archive_sha256": "f2675e07db88ae374e52f8be143647bf4bd1392fa62bd2857a55d70c48562c66"
+    },
+    {
       "file": "theme-oracle-independent-worktree-20261115T161432022512Z.log.gz",
       "raw_bytes": 122,
       "raw_sha256": "711a1df2d1ea79e3deb2ecf369f808d02e99d53caebdfb9cedca9c94b014fe2c",

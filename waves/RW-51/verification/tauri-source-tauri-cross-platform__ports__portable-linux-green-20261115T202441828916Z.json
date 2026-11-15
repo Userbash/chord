@@ -1,0 +1,41 @@
+{
+  "phase": "portable-linux-green",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--test",
+    "platform_boundaries_contract"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-linux-green-20261115T202441828916Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings"
+  ],
+  "tail": [
+    "help: consider removing the workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "   Compiling chord-platform v0.1.0 (/root/projects/chord-tauri-platform/rust/crates/chord-platform)",
+    "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.93s",
+    "     Running tests/platform_boundaries_contract.rs (/root/projects/chord-verification/target/debug/build/chord-platform/f72b67771420e9ce/out/platform_boundaries_contract-f72b67771420e9ce)",
+    "",
+    "running 5 tests",
+    "test cpu_frames_and_presence_tray_policy_work_without_unix_fds ... ok",
+    "test dbus_descriptor_free_wire_matches_existing_gio_oracle ... ok",
+    "test rpc_framing_and_windows_endpoint_policy_are_portable ... ok",
+    "test rpc_stream_codec_does_not_depend_on_unix_socket_type ... ok",
+    "test unsupported_capabilities_are_typed_and_identify_the_platform ... ok",
+    "",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    ""
+  ]
+}

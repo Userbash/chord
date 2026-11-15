@@ -1,0 +1,18 @@
+{
+  "generator": "@tauri-apps/cli@2.12.4",
+  "npm_integrity": "sha512-JI9bHfudSRJikGOrjbXEm6RjzzvmKuLc+JixB1NE8hNzQkNlCCIC3pTES3uypkR9lxHrsbxzcnSwhI2IxBQphw==",
+  "original_png_sha256": "36edc085ac26d48a9fbed602ad67cf7772a1e8a638e014588a7e39e9c4d35094",
+  "original_png_unchanged": true,
+  "generated": {
+    "rust/gui-spike/icons/icon.ico": {
+      "bytes": 29933,
+      "sha256": "c92be982d93db303d8adb544527c197fe4c9820e18656e3ab7ce005a2f8fe3f8"
+    },
+    "rust/gui-spike/icons/icon.icns": {
+      "bytes": 311391,
+      "sha256": "e6d6f99538e447ec26896e3847662dfde301680f393a03a4453d7fe27390dfb2"
+    }
+  },
+  "command_log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/generate-native-product-icons-20261115T203735562284Z.log",
+  "runtime_qualification": false
+}

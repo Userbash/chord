@@ -6,15 +6,19 @@
 //! Идентичность EXTERNAL — **десятичная запись uid, закодированная в hex**: для uid 1000
 //! аргумент — `31303030` («1000» в ASCII-hex), а не `3e8`.
 
+#[cfg(unix)]
 use std::io::{Read, Write};
+#[cfg(unix)]
 use std::os::unix::net::UnixStream;
 use std::time::Duration;
 
+#[cfg(unix)]
 use super::DbusError;
 
 /// Таймаут рукопожатия аутентификации.
 pub const AUTH_TIMEOUT: Duration = Duration::from_secs(5);
 /// Предел длины строки ответа шины (защита от мусора в сокете).
+#[cfg(unix)]
 const MAX_LINE: usize = 1024;
 
 /// Строка `AUTH EXTERNAL` для uid: десятичная запись uid, закодированная в hex.
@@ -30,6 +34,7 @@ pub fn external_auth_line(uid: u32) -> String {
 }
 
 /// Текущий effective uid процесса.
+#[cfg(unix)]
 #[allow(unsafe_code)] // POSIX identity query; no memory access or mutable process state.
 pub fn current_uid() -> Result<u32, DbusError> {
     // SAFETY: geteuid takes no arguments, always returns the effective user ID,
@@ -49,6 +54,7 @@ pub fn parse_uid(status: &str) -> Option<u32> {
 /// Проходит рукопожатие на уже подключённом сокете.
 ///
 /// Сокет должен быть в блокирующем режиме (таймаут выставляет вызывающая сторона).
+#[cfg(unix)]
 pub fn authenticate(stream: &UnixStream) -> Result<(), DbusError> {
     let uid = current_uid()?;
     let mut request = Vec::with_capacity(32);
@@ -73,6 +79,7 @@ pub fn authenticate(stream: &UnixStream) -> Result<(), DbusError> {
     Err(DbusError::Protocol("unexpected auth reply"))
 }
 
+#[cfg(unix)]
 fn read_line(stream: &UnixStream) -> Result<String, DbusError> {
     let mut reader = stream;
     let mut bytes = Vec::with_capacity(64);

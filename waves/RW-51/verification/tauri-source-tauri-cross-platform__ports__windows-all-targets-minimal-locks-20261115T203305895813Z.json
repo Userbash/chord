@@ -1,0 +1,42 @@
+{
+  "phase": "windows-all-targets-minimal-locks",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "check",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--all-targets",
+    "--target",
+    "x86_64-pc-windows-gnu"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-minimal-locks-20261115T203305895813Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings"
+  ],
+  "tail": [
+    "   | ^^^^^^^^^^^^^^^^^",
+    "   |",
+    "   = note: `cargo::unused_workspace_dependencies` is set to `warn` by default",
+    "help: consider removing the workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "  --> Cargo.toml:26:1",
+    "   |",
+    "26 | chord-perf = { path = \"crates/chord-perf\" }",
+    "   | ^^^^^^^^^^",
+    "   |",
+    "help: consider removing the workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "   Compiling vcpkg v0.2.15",
+    "   Compiling chord-platform v0.1.0 (/root/projects/chord-tauri-platform/rust/crates/chord-platform)",
+    "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.84s"
+  ]
+}

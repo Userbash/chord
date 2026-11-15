@@ -1,0 +1,52 @@
+{
+  "phase": "windows-all-targets-contracts",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "check",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--all-targets",
+    "--target",
+    "x86_64-pc-windows-gnu"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-contracts-20261115T202755784213Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "warning: unused import: `SetActivityPayload`",
+    "warning: unused imports: `CapturedFrame`, `NegotiatedStreamParams`, `PortalPersistMode`, `PortalRequestError`, `ScreenCastOptions`, and `parse_x11_display_spec`",
+    "warning: `chord-platform` (test \"rpc_ipc_contract\") generated 1 warning (run `cargo fix --test \"rpc_ipc_contract\" -p chord-platform` to apply 1 suggestion)",
+    "warning: `chord-platform` (test \"screencast_portal_contract\") generated 1 warning (run `cargo fix --test \"screencast_portal_contract\" -p chord-platform` to apply 1 suggestion)",
+    "warning: unused import: `std::fs`",
+    "warning: unused import: `Notification`",
+    "warning: `chord-platform` (test \"dbus_contract\") generated 1 warning (run `cargo fix --test \"dbus_contract\" -p chord-platform` to apply 1 suggestion)",
+    "warning: `chord-platform` (test \"notifications_contract\") generated 1 warning (run `cargo fix --test \"notifications_contract\" -p chord-platform` to apply 1 suggestion)",
+    "warning: unused dependency `libc`",
+    "warning: `chord-platform` (manifest) generated 1 warning"
+  ],
+  "tail": [
+    "   |",
+    "   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default",
+    "",
+    "warning: `chord-platform` (test \"dbus_contract\") generated 1 warning (run `cargo fix --test \"dbus_contract\" -p chord-platform` to apply 1 suggestion)",
+    "warning: `chord-platform` (test \"notifications_contract\") generated 1 warning (run `cargo fix --test \"notifications_contract\" -p chord-platform` to apply 1 suggestion)",
+    "warning: unused dependency `libc`",
+    "  --> crates/chord-platform/Cargo.toml:10:1",
+    "   |",
+    "10 | libc = \"0.2\"",
+    "   | ^^^^^^^^^^^^",
+    "   |",
+    "   = note: `cargo::unused_dependencies` is set to `warn` by default",
+    "help: consider removing the dependency on `libc`",
+    "warning: `chord-platform` (manifest) generated 1 warning",
+    "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.20s"
+  ]
+}

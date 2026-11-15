@@ -1,0 +1,41 @@
+{
+  "phase": "tauri-windows-source-after-icons",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "check",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--all-targets",
+    "--target",
+    "x86_64-pc-windows-gnu"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-after-icons-20261115T203754405129Z.log",
+  "errors": [
+    "warning: static `LAST_PIPEWIRE_NODE_ID` is never used",
+    "warning: static `LAST_PIPEWIRE_FD` is never used",
+    "warning: `chord-client` (bin \"chord-client\") generated 2 warnings",
+    "warning: `chord-client` (bin \"chord-client\" test) generated 2 warnings (2 duplicates)"
+  ],
+  "tail": [
+    "   |",
+    "19 | static LAST_PIPEWIRE_NODE_ID: AtomicU32 = AtomicU32::new(0);",
+    "   |        ^^^^^^^^^^^^^^^^^^^^^",
+    "   |",
+    "   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default",
+    "",
+    "warning: static `LAST_PIPEWIRE_FD` is never used",
+    "  --> src/voice_plugin.rs:23:8",
+    "   |",
+    "23 | static LAST_PIPEWIRE_FD: AtomicI32 = AtomicI32::new(-1);",
+    "   |        ^^^^^^^^^^^^^^^^",
+    "",
+    "warning: `chord-client` (bin \"chord-client\") generated 2 warnings",
+    "warning: `chord-client` (bin \"chord-client\" test) generated 2 warnings (2 duplicates)",
+    "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.00s"
+  ]
+}

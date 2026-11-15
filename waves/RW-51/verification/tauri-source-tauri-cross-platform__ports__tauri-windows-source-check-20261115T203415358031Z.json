@@ -1,0 +1,38 @@
+{
+  "phase": "tauri-windows-source-check",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "check",
+    "--locked",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--all-targets",
+    "--target",
+    "x86_64-pc-windows-gnu"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-check-20261115T203415358031Z.log",
+  "errors": [
+    "error: failed to run custom build command for `chord-client v0.1.0 (/root/projects/chord-tauri-platform/rust/gui-spike)`",
+    "warning: build failed, waiting for other jobs to finish..."
+  ],
+  "tail": [
+    "  cargo:rustc-check-cfg=cfg(desktop)",
+    "  cargo:rustc-cfg=desktop",
+    "  cargo:rustc-check-cfg=cfg(mobile)",
+    "  cargo:rerun-if-changed=/root/projects/chord-tauri-platform/rust/gui-spike/tauri.conf.json",
+    "  cargo:rustc-env=TAURI_ANDROID_PACKAGE_NAME_APP_NAME=client",
+    "  cargo:rustc-env=TAURI_ANDROID_PACKAGE_NAME_PREFIX=app_chord",
+    "  cargo:rustc-check-cfg=cfg(dev)",
+    "  cargo:rustc-cfg=dev",
+    "  cargo:PERMISSION_FILES_PATH=/root/projects/chord-verification/target/x86_64-pc-windows-gnu/debug/build/chord-client/80c8eadf4f6fcc68/out/app-manifest/__app__-permission-files",
+    "  cargo:rerun-if-changed=/root/projects/chord-tauri-platform/rust/gui-spike/capabilities",
+    "  cargo:rerun-if-env-changed=REMOVE_UNUSED_COMMANDS",
+    "  cargo:rustc-env=TAURI_ENV_TARGET_TRIPLE=x86_64-pc-windows-gnu",
+    "  package.metadata does not exist",
+    "  `/root/projects/chord-tauri-platform/rust/gui-spike/icons/icon.ico` not found; required for generating a Windows Resource file during tauri-build",
+    "warning: build failed, waiting for other jobs to finish..."
+  ]
+}

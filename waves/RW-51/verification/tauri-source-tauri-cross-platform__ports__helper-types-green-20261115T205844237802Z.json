@@ -1,0 +1,11 @@
+{
+  "phase": "helper-types-green",
+  "command": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-green-20261115T205844237802Z.log",
+  "source_sha256": "5384ddd54977b1acd29f8403f282bf81d499adb62cbd724d66a6f4556d174678"
+}

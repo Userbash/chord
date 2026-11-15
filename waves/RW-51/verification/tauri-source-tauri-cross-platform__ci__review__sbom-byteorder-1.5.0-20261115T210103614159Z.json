@@ -1,0 +1,15 @@
+{
+  "case": "byteorder@1.5.0",
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/byteorder-1.5.0/scripts/sbom.mjs",
+    "--check",
+    "--output",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/byteorder-1.5.0/sbom-output.json"
+  ],
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-byteorder-1.5.0-20261115T210103614159Z.log",
+  "log_sha256": "82140185399b611b0a7e6af1a419bc69a5b4524adad3244dae20d6984afff046",
+  "script_sha256": "e9b9b212ebb04d68f8cb135104ee3543e4100fb30eb975ece31cceba82e1c301",
+  "explicit_output_outside_main": true
+}

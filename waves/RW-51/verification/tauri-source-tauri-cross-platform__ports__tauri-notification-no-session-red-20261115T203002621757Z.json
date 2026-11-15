@@ -1,0 +1,43 @@
+{
+  "phase": "tauri-notification-no-session-red",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "env",
+    "-u",
+    "DBUS_SESSION_BUS_ADDRESS",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--test",
+    "notifications_contract",
+    "desktop_notification_dbus_integration_builds_and_dispatches_without_panic",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-no-session-red-20261115T203002621757Z.log",
+  "errors": [
+    "error: test failed, to rerun pass `--test notifications_contract`"
+  ],
+  "tail": [
+    "running 1 test",
+    "",
+    "thread 'desktop_notification_dbus_integration_builds_and_dispatches_without_panic' (55716) panicked at tests/notifications_contract.rs:900:13:",
+    "\u043e\u0448\u0438\u0431\u043a\u0430 \u043e\u0431\u044f\u0437\u0430\u043d\u0430 \u0431\u044b\u0442\u044c \u043f\u043e\u043d\u044f\u0442\u043d\u043e\u0439 \u0438 \u043e\u0442\u043d\u043e\u0441\u0438\u0442\u044c\u0441\u044f \u043a D-Bus: \u041f\u0435\u0440\u0435\u043c\u0435\u043d\u043d\u0430\u044f \u043e\u043a\u0440\u0443\u0436\u0435\u043d\u0438\u044f DBUS_SESSION_BUS_ADDRESS \u043d\u0435 \u0437\u0430\u0434\u0430\u043d\u0430",
+    "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+    "test desktop_notification_dbus_integration_builds_and_dispatches_without_panic ... FAILED",
+    "",
+    "failures:",
+    "",
+    "failures:",
+    "    desktop_notification_dbus_integration_builds_and_dispatches_without_panic",
+    "",
+    "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s",
+    "",
+    "error: test failed, to rerun pass `--test notifications_contract`"
+  ]
+}

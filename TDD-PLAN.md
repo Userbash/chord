@@ -4,7 +4,7 @@ Plan Date: 2026-10-18. Updated: 2026-10-19.
 Operating process (roles, waves, quality gates, spec/report templates): `PROCESS.md`; agent guidelines: `AGENTS.md`.  
 Rust client specifications: `docs/rust-client/` (`README.md`, `ARCHITECTURE.md`, `PLAN.md`).
 
-Current Status: All core and native layers accepted; zero test failures across test suites. Development proceeds strictly via Test-Driven Development (red → green → refactor).
+Current Status: RW-51 is in progress. Targeted Tauri portability and entropy contracts pass; native cross-platform builds and the full worker gate are recorded in `waves/RW-51/TAURI-COMPILE-BATCH.json`. Historical acceptance below does not qualify the current revision. Development follows Test-Driven Development (red → green → refactor).
 
 ---
 
@@ -429,6 +429,17 @@ RW-51 control-plane and planning contracts:
 | `tests/unit/mentions.test.mjs` | `rust/gui-spike/ui/features/mentions.js` | `extractMentions`, `createMentionElement` |
 | `tests/unit/modal-router.test.mjs` | `rust/gui-spike/ui/features/modal-router.js` | `initModalRouter` |
 | `tests/unit/screen-share-dialog.test.mjs` | `rust/gui-spike/ui/features/screen-share-dialog.js` | `createScreenShareDialogController`, `createScreenSharePortalPicker` |
+
+| `tests/unit/tauri-platform-boundaries.test.mjs` | `rust/crates/chord-platform/build.rs`, `rust/gui-spike/icons` | Real vcpkg metadata discovery for x64/ARM64, missing-port failure, Unix linkage preservation and native icon containers |
+
+Tauri portability Rust contracts execute through the native workflow and workspace gates:
+
+| Rust test | Contract |
+| --- | --- |
+| `rust/crates/chord-platform/tests/platform_boundaries_contract.rs` | Portable wire/RPC/policy/frame types and explicit unsupported capabilities |
+| `rust/crates/chord-platform/tests/windows_keyring_contract.rs` | Real WinCredential persistence, deletion and invalid UTF-8 handling on Windows |
+| `rust/crates/chord-core/tests/rest_identity.rs` | System entropy freshness, existing identity format, draw order and config overrides |
+| `rust/gui-spike/tests/identity_entropy_contract.rs` | Fresh Tauri telemetry identities and stable cached session identity |
 
 ## 9. Risks and Limitations
 

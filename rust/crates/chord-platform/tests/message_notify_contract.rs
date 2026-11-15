@@ -3,19 +3,29 @@
 //! Проверяет все 9 измерений фильтрации, форматирования, UTF-8 обрезки и интеграцию
 //! с `Notifier::notify_message` поверх приватного `dbus-daemon` и `mock_service.py`.
 
+#[cfg(unix)]
 use chord_platform::dbus::BusAddress;
+#[cfg(unix)]
+use chord_platform::notifications::Notifier;
 use chord_platform::notifications::{
-    MessageNotificationContext, MessageNotificationEvent, NotificationLevel, Notifier,
+    MessageNotificationContext, MessageNotificationEvent, NotificationLevel,
     PreparedMessageNotification, Urgency, prepare_message_notification,
 };
+#[cfg(unix)]
 use std::fs;
+#[cfg(unix)]
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
 use std::process::{Child, Command, Stdio};
+#[cfg(unix)]
 use std::time::{Duration, Instant};
 
+#[cfg(unix)]
 const SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+#[cfg(unix)]
 const SKIP_NO_PYTHON: &str = "нет python3 с модулями dbus и gi";
 
+#[cfg(unix)]
 struct Harness {
     address: String,
     journal: PathBuf,
@@ -24,6 +34,7 @@ struct Harness {
     mock: Child,
 }
 
+#[cfg(unix)]
 impl Harness {
     fn start() -> Result<Self, String> {
         if !command_exists("dbus-daemon") {
@@ -132,6 +143,7 @@ impl Harness {
     }
 }
 
+#[cfg(unix)]
 impl Drop for Harness {
     fn drop(&mut self) {
         let _ = self.mock.kill();
@@ -145,12 +157,14 @@ impl Drop for Harness {
     }
 }
 
+#[cfg(unix)]
 fn abort(daemon_pid: u32, dir: &Path, reason: String) -> String {
     let _ = Command::new("kill").arg(daemon_pid.to_string()).status();
     let _ = fs::remove_dir_all(dir);
     reason
 }
 
+#[cfg(unix)]
 fn read_child_stderr(child: &mut Child) -> String {
     use std::io::Read as _;
     let mut text = String::new();
@@ -160,12 +174,14 @@ fn read_child_stderr(child: &mut Child) -> String {
     text.trim().to_owned()
 }
 
+#[cfg(unix)]
 fn repo_path(relative: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../..")
         .join(relative)
 }
 
+#[cfg(unix)]
 fn command_exists(name: &str) -> bool {
     Command::new("sh")
         .arg("-c")
@@ -177,6 +193,7 @@ fn command_exists(name: &str) -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(unix)]
 fn python_dbus_available() -> bool {
     Command::new("python3")
         .args(["-c", "import dbus, gi"])
@@ -187,6 +204,7 @@ fn python_dbus_available() -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(unix)]
 fn unique_suffix() -> u64 {
     use std::sync::atomic::{AtomicU64, Ordering};
     static COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -379,6 +397,7 @@ fn m07_utf8_multibyte_safe_truncation() {
 }
 
 #[test]
+#[cfg(unix)]
 fn m08_notifier_notify_message_sends_over_dbus_and_suppresses_when_filtered() {
     let harness = match Harness::start() {
         Ok(harness) => harness,

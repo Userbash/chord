@@ -1,0 +1,38 @@
+{
+  "phase": "green-gui-contract",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--test",
+    "identity_entropy_contract"
+  ],
+  "exit_code": 0,
+  "cwd": "/root/projects/chord-modernization",
+  "cargo_build_jobs": 4,
+  "cargo_target_dir": null,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-gui-contract-20261115T204848182995Z.log",
+  "log_sha256": "0d58c82983bbeb875a85e18534e1d18a1452e9adc81abdc8234f970020f8a628",
+  "executables": [],
+  "tail": [
+    "   Compiling vcpkg v0.2.15",
+    "   Compiling chord-core v0.1.0 (/root/projects/chord-modernization/rust/crates/chord-core)",
+    "   Compiling chord-client v0.1.0 (/root/projects/chord-modernization/rust/gui-spike)",
+    "   Compiling chord-platform v0.1.0 (/root/projects/chord-modernization/rust/crates/chord-platform)",
+    "    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.80s",
+    "     Running tests/identity_entropy_contract.rs (rust/gui-spike/target/debug/build/chord-client/41c6b76fac60984f/out/identity_entropy_contract-41c6b76fac60984f)",
+    "",
+    "running 3 tests",
+    "test cached_session_identity_keeps_its_original_telemetry_ids ... ok",
+    "test fresh_system_uuids_are_valid_and_distinct ... ok",
+    "test fresh_identity_builds_have_fresh_telemetry_ids ... ok",
+    "",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    ""
+  ]
+}

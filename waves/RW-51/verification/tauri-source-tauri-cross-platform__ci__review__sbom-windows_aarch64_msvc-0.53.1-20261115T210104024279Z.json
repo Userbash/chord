@@ -1,0 +1,15 @@
+{
+  "case": "windows_aarch64_msvc@0.53.1",
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/windows_aarch64_msvc-0.53.1/scripts/sbom.mjs",
+    "--check",
+    "--output",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/windows_aarch64_msvc-0.53.1/sbom-output.json"
+  ],
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows_aarch64_msvc-0.53.1-20261115T210104024279Z.log",
+  "log_sha256": "6bc6d8b124f718d82e55c11c0168ad5b6bfb96075ac0091d53b77fedc5e97fdd",
+  "script_sha256": "86321b5aec5dfe9b17b18eec8d30622ea34f5ed729d4f100c07936c94a314208",
+  "explicit_output_outside_main": true
+}

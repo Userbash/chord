@@ -19,8 +19,38 @@ pub mod tray;
 
 #[allow(unsafe_code)]
 mod ffi_hunspell;
+#[cfg(unix)]
 #[allow(unsafe_code)]
 mod ffi_secret;
+
+/// A native adapter is not implemented on the current operating system.
+/// This reports capability availability, never a successful native operation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct UnsupportedCapability {
+    pub capability: &'static str,
+    pub platform: &'static str,
+}
+
+impl UnsupportedCapability {
+    pub const fn new(capability: &'static str) -> Self {
+        Self {
+            capability,
+            platform: std::env::consts::OS,
+        }
+    }
+}
+
+impl std::fmt::Display for UnsupportedCapability {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            formatter,
+            "{} is unavailable on {}",
+            self.capability, self.platform
+        )
+    }
+}
+
+impl std::error::Error for UnsupportedCapability {}
 
 /// Корневых IPC-каналов наследия Electron, наблюдавшихся в волне R7.
 pub const LEGACY_ROOT_CHANNELS: usize = 168;

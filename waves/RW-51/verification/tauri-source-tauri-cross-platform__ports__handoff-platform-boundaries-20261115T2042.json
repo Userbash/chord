@@ -1,0 +1,689 @@
+{
+  "base_commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+  "branch": "bugfix/task-tauri-platform-boundaries",
+  "worktree": "/root/projects/chord-tauri-platform",
+  "state": "ready_for_parent_review_no_commit_or_push",
+  "files": [
+    {
+      "path": "rust/Cargo.lock",
+      "bytes": 22628,
+      "sha256": "82dce51258a340e54d307f7b121025e1cd14a4283beec1b6f66fc902421d6e60",
+      "md5": "3b2f3937facac96388578892c4046d4d"
+    },
+    {
+      "path": "rust/chord-gpui/Cargo.lock",
+      "bytes": 251036,
+      "sha256": "23e7a12750d6f665b607bfc683f9caf3b0ab15b6078992946cefabb787ff98da",
+      "md5": "ca712691483d462fa6387120a85ee0c4"
+    },
+    {
+      "path": "rust/crates/chord-platform/Cargo.toml",
+      "bytes": 757,
+      "sha256": "b00ae35f1753614026ef552a0f57415cbe71738c0f7b964c5eb6590caaeb861e",
+      "md5": "a107edfa4565c0b3ef4239cc14046694"
+    },
+    {
+      "path": "rust/crates/chord-platform/build.rs",
+      "bytes": 805,
+      "sha256": "288bae71c1dd74cb5528620da254272ea348f2b4bf325784b260dcb669f30c93",
+      "md5": "0273d64a91c97b3d13a63a8cfc69d1f2"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/auth.rs",
+      "bytes": 4620,
+      "sha256": "c867376dd2904275cf0de1973bfe89006314eebd70fa60716b46574ba3b68c60",
+      "md5": "94a1ee9534a032d8dfc2303a04fa7019"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/connection.rs",
+      "bytes": 17340,
+      "sha256": "8eea58f8c15d39f6861c6525e093a24d834028ab5e83ae7e56105a813984ca02",
+      "md5": "f981f5eb36c5e3c9b3502bffdbb32c49"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/message.rs",
+      "bytes": 34200,
+      "sha256": "599d505be722f0cf3571eda4e16d210b0263512ffe9bc59cd6f508ccb2eb7509",
+      "md5": "53da847d1e02c3ed430d57727567292b"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/mod.rs",
+      "bytes": 8032,
+      "sha256": "7e8ad2b3598be69c334ef46dc6b77e36176f056204fbfa2527547e856bc0f601",
+      "md5": "44995096baf5ac0a25c491b03ba4dff9"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/ffi_hunspell.rs",
+      "bytes": 9096,
+      "sha256": "0a744baf6407866867d899181729d5dad910c5d608e09e7ae31a604cb7f729f6",
+      "md5": "c306da14a506825f4af9a442bb20b570"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/keyring.rs",
+      "bytes": 28647,
+      "sha256": "99b5d158e45c5c87c09efea3e083b205902d603241d8928d04269ae937cf9786",
+      "md5": "85dd3093ce6541b63c0b9a9f559d7e3b"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/keyring/windows.rs",
+      "bytes": 2660,
+      "sha256": "3683f6ecfc065634bc8599eac1c55fd19919aa344bfced003244650ba11ebc9c",
+      "md5": "75be547b6a0cf3d4b624389afe3782ab"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/lib.rs",
+      "bytes": 2449,
+      "sha256": "973bc7161a5ababa36b141d7e58161e06c821e373291911da9deaf5ae3332773",
+      "md5": "d98e7ed1450aabb99c18567326f8ea8f"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/notifications.rs",
+      "bytes": 29104,
+      "sha256": "75c4ff9dcd3b9a1e201ce18d9ce7d4c1883f0eb9eee83a2212c14a63b1021408",
+      "md5": "f85ab34ff93ec17d9845e2fd1523078e"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/power.rs",
+      "bytes": 16472,
+      "sha256": "382ae0ad4b474442630210dbd6b901ac5d4052041ab5b4856a277c50f0918dee",
+      "md5": "fad35258674c1db0b32e6022f9032312"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/rpc_ipc.rs",
+      "bytes": 98752,
+      "sha256": "0865f4ca391e7df0335cef3a3becd461b5e0372d41a0f5b28d5a5b4e41335f4a",
+      "md5": "e90915c0d6022c567d1e3f5367babf49"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/screencast.rs",
+      "bytes": 74845,
+      "sha256": "3ea032e41e07848d4d0a4362c770079ec9a915951bb6806d7248bdd5abcf8a8e",
+      "md5": "0ba68bcebc92d4c878e764d510b94c37"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/dbus_contract.rs",
+      "bytes": 79952,
+      "sha256": "0205c04e676b8c29d652faae1c6771164c5f0d09a5b35f586b0117cd37ffb3ed",
+      "md5": "fc39136debea1c6a6a82c41b366bd715"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/message_notify_contract.rs",
+      "bytes": 14303,
+      "sha256": "d00454e37935753543f5562eea97a48fe463e0c5792e84556386e8d3a9e70912",
+      "md5": "55a049430b694bf45e490e0cae4dcb3e"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/notifications_contract.rs",
+      "bytes": 72505,
+      "sha256": "6de7ebe4cf5ab2e024ea1963ff76b361c8a230a6c0f9d729bd08f262e9cca680",
+      "md5": "e870bb1b47fc1bc600c9cfd3b686db14"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/platform_boundaries_contract.rs",
+      "bytes": 4529,
+      "sha256": "0b41a4bd6c4317f0fafb212013e3deb385d2a859c386a9ae3d5c58c15f7dde04",
+      "md5": "c50ffae9987380e04f937aa7f25be9f9"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/power_contract.rs",
+      "bytes": 47610,
+      "sha256": "c05eeae3a2af2eae96bb2ae27d220997e112518b1dc54d8c88a894903fc8a1e4",
+      "md5": "c8db2eed7605b4171a9d62f13654d3c1"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/rpc_ipc_contract.rs",
+      "bytes": 27214,
+      "sha256": "b55d9f4098f7bc146ca958869884758e3e9716c62c04b203e836286560d2604f",
+      "md5": "8298c17db423d859ff4909c8acd7d432"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_contract.rs",
+      "bytes": 22624,
+      "sha256": "43e1c90f4dc9581ee8e783a0026c074b7a1b585c67798332c7321a38f2be5bf5",
+      "md5": "72d1705a014857d947560eb1138df3b5"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_portal_contract.rs",
+      "bytes": 34991,
+      "sha256": "129a7c5ccbef431b09151e6fd2cd6b20f54fb9294d91170235ed7b9e58d3f88a",
+      "md5": "16848e6523f058f93c385904cb2f8f1b"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/windows_keyring_contract.rs",
+      "bytes": 1896,
+      "sha256": "bf6679b372c87c7fcdfaf19c188c838da808ae5a837ac7877c7b6c60be566311",
+      "md5": "b83dc2dff174d1fb69af3b918539516c"
+    },
+    {
+      "path": "rust/gui-spike/Cargo.lock",
+      "bytes": 130508,
+      "sha256": "9de80fc3518750d59dcccdcf3f19e20840a235546bfc8444d871b45243244332",
+      "md5": "f8265fed022823632be02cfbd2ae995d"
+    },
+    {
+      "path": "rust/gui-spike/Cargo.toml",
+      "bytes": 2834,
+      "sha256": "421b1c8c38c3f5a183393ce6be9660d76f5de7bf66557468b57f76c09252da88",
+      "md5": "9839cf14b9f33631eb28903b5d7d2382"
+    },
+    {
+      "path": "rust/gui-spike/icons/icon.icns",
+      "bytes": 311391,
+      "sha256": "e6d6f99538e447ec26896e3847662dfde301680f393a03a4453d7fe27390dfb2",
+      "md5": "673a8caf1a702a2dabe22f3ccf449517"
+    },
+    {
+      "path": "rust/gui-spike/icons/icon.ico",
+      "bytes": 29933,
+      "sha256": "c92be982d93db303d8adb544527c197fe4c9820e18656e3ab7ce005a2f8fe3f8",
+      "md5": "f96e5d474971317dd9ffdaa39a873933"
+    },
+    {
+      "path": "rust/gui-spike/src/main.rs",
+      "bytes": 111287,
+      "sha256": "e6957c00faabfe127ef48d324ae784d9fc4163c072992d4b9e0bde18e2f84409",
+      "md5": "4ce7238c004720a365c7216d46cdf66e"
+    },
+    {
+      "path": "rust/gui-spike/src/notifications.rs",
+      "bytes": 58563,
+      "sha256": "7992f29605c6420ab2ccc92a9604f32c50ef5a7e603ee00c98ab9701a4bcb343",
+      "md5": "28fafbe66434478e54c4cfe05bde7bfa"
+    },
+    {
+      "path": "rust/gui-spike/src/voice_plugin.rs",
+      "bytes": 20828,
+      "sha256": "d4c9afec9bec70c05c651fa551efba3adf0299837292b08bc5a030d7d06580d0",
+      "md5": "3ee6a9259c484579f2f26b65ebf03f69"
+    },
+    {
+      "path": "rust/gui-spike/tauri.conf.json",
+      "bytes": 564,
+      "sha256": "6b65e5d5cf7f53eedb9d17022dbdd8b9acc106787a9217a42ff6b45602a417b8",
+      "md5": "5ef1040d3af4e81a6f188cb5e0695d56"
+    },
+    {
+      "path": "rust/gui-spike/tests/notifications_contract.rs",
+      "bytes": 35349,
+      "sha256": "4cecdb567d3fc1cf776a022aee8233da92a8ae476c55306afc550ecd12492c8a",
+      "md5": "f03157420f76e2a6e392b75cccc0f08e"
+    },
+    {
+      "path": "tests/unit/tauri-platform-boundaries.test.mjs",
+      "bytes": 6176,
+      "sha256": "b66c9a85b03cf8baeeb311024345a18aeb915f36f14e345b0febbe5f48c46894",
+      "md5": "dbb6be3cfa4542d7050fe31ae43a53db"
+    }
+  ],
+  "checks": [
+    {
+      "phase": "portable-windows-red",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--lib",
+        "--test",
+        "platform_boundaries_contract",
+        "--target",
+        "x86_64-pc-windows-gnu"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-windows-red-20261115T202127522017Z.log"
+    },
+    {
+      "phase": "portable-stream-red",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--test",
+        "platform_boundaries_contract"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-stream-red-20261115T202157601607Z.log"
+    },
+    {
+      "phase": "capability-error-red-valid",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--test",
+        "platform_boundaries_contract"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/capability-error-red-valid-20261115T202420022378Z.log"
+    },
+    {
+      "phase": "hunspell-discovery-red",
+      "command": [
+        "node",
+        "--test",
+        "tests/unit/tauri-platform-boundaries.test.mjs"
+      ],
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/hunspell-discovery-red-20261115T202929353400Z.log"
+    },
+    {
+      "phase": "native-product-icons-red",
+      "command": [
+        "node",
+        "--test",
+        "tests/unit/tauri-platform-boundaries.test.mjs"
+      ],
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-product-icons-red-20261115T203726971681Z.log"
+    },
+    {
+      "phase": "tauri-notification-no-session-red",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "env",
+        "-u",
+        "DBUS_SESSION_BUS_ADDRESS",
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "rust/gui-spike/Cargo.toml",
+        "--test",
+        "notifications_contract",
+        "desktop_notification_dbus_integration_builds_and_dispatches_without_panic",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-no-session-red-20261115T203002621757Z.log"
+    },
+    {
+      "phase": "linux-platform-final",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--lib",
+        "--tests"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-final-20261115T204120621815Z.log"
+    },
+    {
+      "phase": "linux-platform-clippy-green",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-clippy-green-20261115T203400867160Z.log"
+    },
+    {
+      "phase": "windows-platform-clippy-green",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--all-targets",
+        "--target",
+        "x86_64-pc-windows-gnu",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-platform-clippy-green-20261115T203840972568Z.log"
+    },
+    {
+      "phase": "darwin-x64-clippy",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--all-targets",
+        "--target",
+        "x86_64-apple-darwin",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-x64-clippy-20261115T203850963363Z.log"
+    },
+    {
+      "phase": "darwin-arm64-clippy",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--all-targets",
+        "--target",
+        "aarch64-apple-darwin",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-arm64-clippy-20261115T203851979958Z.log"
+    },
+    {
+      "phase": "tauri-windows-source-final",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/gui-spike/Cargo.toml",
+        "--all-targets",
+        "--target",
+        "x86_64-pc-windows-gnu"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-final-20261115T203953970514Z.log"
+    },
+    {
+      "phase": "tauri-notification-minimal-locks",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "env",
+        "-u",
+        "DBUS_SESSION_BUS_ADDRESS",
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "rust/gui-spike/Cargo.toml",
+        "--test",
+        "notifications_contract",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-minimal-locks-20261115T203615117678Z.log"
+    },
+    {
+      "phase": "native-product-icons-green",
+      "command": [
+        "node",
+        "--test",
+        "tests/unit/tauri-platform-boundaries.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs",
+        "tests/unit/call_stream_dispatch.test.mjs"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-product-icons-green-20261115T203753967031Z.log"
+    },
+    {
+      "phase": "adjacent-pipewire-contracts",
+      "command": [
+        "node",
+        "--test",
+        "tests/unit/pipewire-portal-971.test.mjs"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/adjacent-pipewire-contracts-20261115T203906679540Z.log"
+    },
+    {
+      "phase": "format-platform-check",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "fmt",
+        "--manifest-path",
+        "rust/Cargo.toml",
+        "--package",
+        "chord-platform",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/format-platform-check-20261115T204122991187Z.log"
+    },
+    {
+      "phase": "gpui-minimal-lock-validation",
+      "command": [
+        "flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/chord-gpui/Cargo.toml",
+        "-p",
+        "chord-platform",
+        "--target",
+        "all"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/gpui-minimal-lock-validation-20261115T204035392038Z.log"
+    }
+  ],
+  "locks": [
+    {
+      "path": "rust/Cargo.lock",
+      "added": [
+        [
+          "byteorder",
+          "1.5.0"
+        ],
+        [
+          "keyring",
+          "3.6.3"
+        ],
+        [
+          "vcpkg",
+          "0.2.15"
+        ],
+        [
+          "windows-sys",
+          "0.60.2"
+        ],
+        [
+          "windows-targets",
+          "0.53.5"
+        ],
+        [
+          "windows_aarch64_gnullvm",
+          "0.53.1"
+        ],
+        [
+          "windows_aarch64_msvc",
+          "0.53.1"
+        ],
+        [
+          "windows_i686_gnu",
+          "0.53.1"
+        ],
+        [
+          "windows_i686_gnullvm",
+          "0.53.1"
+        ],
+        [
+          "windows_i686_msvc",
+          "0.53.1"
+        ],
+        [
+          "windows_x86_64_gnu",
+          "0.53.1"
+        ],
+        [
+          "windows_x86_64_gnullvm",
+          "0.53.1"
+        ],
+        [
+          "windows_x86_64_msvc",
+          "0.53.1"
+        ]
+      ],
+      "removed": [],
+      "existing_checksums_unchanged": true
+    },
+    {
+      "path": "rust/gui-spike/Cargo.lock",
+      "added": [
+        [
+          "keyring",
+          "3.6.3"
+        ],
+        [
+          "vcpkg",
+          "0.2.15"
+        ],
+        [
+          "windows-sys",
+          "0.60.2"
+        ],
+        [
+          "windows-targets",
+          "0.53.5"
+        ],
+        [
+          "windows_aarch64_gnullvm",
+          "0.53.1"
+        ],
+        [
+          "windows_aarch64_msvc",
+          "0.53.1"
+        ],
+        [
+          "windows_i686_gnu",
+          "0.53.1"
+        ],
+        [
+          "windows_i686_gnullvm",
+          "0.53.1"
+        ],
+        [
+          "windows_i686_msvc",
+          "0.53.1"
+        ],
+        [
+          "windows_x86_64_gnu",
+          "0.53.1"
+        ],
+        [
+          "windows_x86_64_gnullvm",
+          "0.53.1"
+        ],
+        [
+          "windows_x86_64_msvc",
+          "0.53.1"
+        ]
+      ],
+      "removed": [],
+      "existing_checksums_unchanged": true
+    },
+    {
+      "path": "rust/chord-gpui/Cargo.lock",
+      "added": [
+        [
+          "keyring",
+          "3.6.3"
+        ]
+      ],
+      "removed": [],
+      "existing_checksums_unchanged": true
+    }
+  ],
+  "public_api": {
+    "added": [
+      "chord_platform::UnsupportedCapability { capability, platform } + new/Display/Error",
+      "rpc_ipc::read_ipc_frame(Read)",
+      "rpc_ipc::write_ipc_frame(Write)"
+    ],
+    "generalized": [
+      "RpcIpcSession::serve_stream now accepts impl Read+Write; UnixStream callers unchanged"
+    ],
+    "target_scoped": [
+      "Unix D-Bus Connection, fd transport/owned-FD values, Notifier, ScreenSaver/PowerMonitor/SleepInhibitor, Unix RPC listener/client, portal/FD owners and pipeline",
+      "CPU CapturedFrame, buffers, negotiation/policy, D-Bus descriptor-free codec/models, RPC frame/activity/session/endpoint policy remain portable"
+    ],
+    "preserved": [
+      "Keyring Result API, Unix Secret Service schema, parser validation",
+      "Every Tauri IPC registration",
+      "Existing targeted assertion bodies/thresholds; only mixed CPU/DMA native section adds cfg/unix scope"
+    ]
+  },
+  "known_limits": [
+    "Windows Credential Manager tests compile but have not run on native Windows in this slice",
+    "Darwin compile/clippy evidence is source-only; native link/runtime requires CI",
+    "Windows native notification delivery is explicitly unsupported; no successful stub",
+    "Non-Linux screen capture remains existing non-portal path, not native hardware qualification",
+    "GPUI lock resolver check blocked by absent gpui-kit/crates/component/Cargo.toml in dedicated worktree; baseline versions/checksums structurally preserved",
+    "MSVC vcpkg native links must run with VCPKG_ROOT, VCPKGRS_TRIPLET and VCPKGRS_DYNAMIC configured by parent CI"
+  ],
+  "evidence": {
+    "test_preservation": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/test-preservation-audit.json",
+    "lock_audit": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/minimal-lock-audit.json",
+    "native_dependency_provenance": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-dependency-provenance.json",
+    "native_icon_provenance": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-icon-provenance.json"
+  }
+}

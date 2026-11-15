@@ -1,0 +1,23 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "tests/unit/**/*.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-full-unit-classify-20261115T205808771887Z.log",
+  "lock_sha256_before": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+  "lock_sha256_after": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+  "lock_unchanged": true,
+  "all_lock_hashes_before": {
+    "rust/Cargo.lock": "9a52c3354a146bd752faf418095ea7e1e36968af4d9f208e011893fd4cdea7a0",
+    "rust/gui-spike/Cargo.lock": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+    "rust/chord-gpui/Cargo.lock": "23e7a12750d6f665b607bfc683f9caf3b0ab15b6078992946cefabb787ff98da"
+  },
+  "all_lock_hashes_after": {
+    "rust/Cargo.lock": "9a52c3354a146bd752faf418095ea7e1e36968af4d9f208e011893fd4cdea7a0",
+    "rust/gui-spike/Cargo.lock": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+    "rust/chord-gpui/Cargo.lock": "23e7a12750d6f665b607bfc683f9caf3b0ab15b6078992946cefabb787ff98da"
+  }
+}

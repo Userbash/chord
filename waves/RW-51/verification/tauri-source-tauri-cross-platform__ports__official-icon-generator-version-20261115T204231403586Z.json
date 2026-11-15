@@ -1,0 +1,22 @@
+{
+  "phase": "official-icon-generator-version",
+  "command": [
+    "env",
+    "PATH=/root/.local/share/mcp/node-v24.22.3-linux-x64/bin:/usr/bin:/bin",
+    "npm",
+    "exec",
+    "--offline",
+    "--yes",
+    "--package",
+    "@tauri-apps/cli@2.12.4",
+    "--",
+    "tauri",
+    "--version"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/official-icon-generator-version-20261115T204231403586Z.log",
+  "errors": [],
+  "tail": [
+    "tauri-cli 2.12.4"
+  ]
+}

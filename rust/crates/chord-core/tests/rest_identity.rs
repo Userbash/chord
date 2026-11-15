@@ -17,7 +17,7 @@
 //! - I8 проверяет стык с W9a/W9b: `SuperProperties::to_base64`/`from_base64` и сборку
 //!   `AuthHeaderValues` из `rest::headers` (6 пар, значение `X-Super-Properties` непустое).
 //!
-//! Внешней среды нет: все источники — `FakeSources`; тест-данные не читаются.
+//! I1–I8 use injected `FakeSources`; the additional SystemSources contract checks real OS entropy.
 
 use chord_core::rest::headers::{AUTH_HEADER_NAMES, AuthHeaderValues, auth_headers};
 use chord_core::rest::identity::{IdentityConfig, IdentitySources, build, uuid_v4};
@@ -483,4 +483,24 @@ fn integration_base64_headers() {
         !pairs[1].1.is_empty(),
         "значение X-Super-Properties в headers непустое"
     );
+}
+
+/// Real OS entropy must work without relying on a Unix device-file path.
+#[test]
+fn system_sources_produce_fresh_rfc4122_uuids() {
+    use chord_core::rest::identity::SystemSources;
+    use std::collections::HashSet;
+
+    let sources = SystemSources::new();
+    let mut seen = HashSet::new();
+    for _ in 0..256 {
+        let value = uuid_v4(&sources);
+        assert_uuid_shape(&value);
+        assert_ne!(value, "00000000-0000-4000-8000-000000000000");
+        assert!(
+            seen.insert(value),
+            "fresh OS entropy repeated an identity UUID"
+        );
+    }
+    assert_eq!(seen.len(), 256);
 }

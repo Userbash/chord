@@ -1,0 +1,115 @@
+{
+  "phase": "core_identity_os_entropy_implementation",
+  "observed_at": "2026-11-15T20:52:06.199708+00:00",
+  "worktree": "/root/projects/chord-modernization",
+  "base_commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+  "application_source_frozen": true,
+  "worker": "/root/arm_cpu_slice",
+  "source_changes_committed_or_staged_by_worker": false,
+  "public_signature_changes": false,
+  "worker_dependency_or_lockfile_changes": false,
+  "inherited_staged_lock_changes": [
+    "rust/Cargo.lock"
+  ],
+  "uuid_formatter_and_build_order_byte_identical": true,
+  "original_integration_assertions_preserved": true,
+  "native_test_host": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2"
+  },
+  "tests": {
+    "core_identity_unit": {
+      "passed": 6,
+      "ignored": 0,
+      "filtered_out": 41
+    },
+    "core_identity_integration": {
+      "passed": 9,
+      "ignored": 0
+    },
+    "tauri_identity_contract": {
+      "passed": 3,
+      "ignored": 0
+    },
+    "linux_no_device_isolation": {
+      "passed_after_fix": 1,
+      "failed_before_fix": 1
+    }
+  },
+  "mutations": {
+    "killed": 5,
+    "total": 5,
+    "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-summary.json"
+  },
+  "format_and_diff_check": "passed for exact scoped files",
+  "full_gate": "coordinator integration lane; not run by this worker",
+  "not_claimed": [
+    "native Windows execution",
+    "native ARM execution",
+    "all-six-platform build completion",
+    "Tauri GUI runtime qualification",
+    "ECC session",
+    "release qualification"
+  ],
+  "remaining_limits": [
+    "OS entropy failure intentionally panics through the existing infallible IdentitySources contract.",
+    "The direct rustls ring provider allocates small provider vectors per entropy fill; no new cache or API was added.",
+    "Native per-target commands and full integration gates remain the coordinator responsibility."
+  ],
+  "files": [
+    {
+      "path": "rust/crates/chord-core/src/rest/identity.rs",
+      "sha256": "445d0905ca8ae6e4accc742c4bc9a4a5342efd998ebcd372a658bf4befcd5f9a",
+      "md5": "207381362f7a65d1980c65b60063b42a"
+    },
+    {
+      "path": "rust/crates/chord-core/tests/rest_identity.rs",
+      "sha256": "bf13beece222b8c4aaf21cf892f6bf77390383eb73313306decd1407a960c52a",
+      "md5": "d792d489e6cfa340fa7cc07cf29f003a"
+    },
+    {
+      "path": "rust/gui-spike/tests/identity_entropy_contract.rs",
+      "sha256": "b393dcbafdf689f8596be46ba6c9ee3abf7fdfd5ad1e5088431080b7dc845c1a",
+      "md5": "d5cd92abad16466d6b33d20e7a6907e6"
+    }
+  ],
+  "execution_receipts": [
+    {
+      "phase": "baseline-core-no-run",
+      "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/baseline-core-no-run-20261115T204712928903Z.json",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/baseline-core-no-run-20261115T204712928903Z.log"
+    },
+    {
+      "phase": "red-linux-no-device",
+      "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/red-linux-no-device-20261115T204747095035Z.json",
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/red-linux-no-device-20261115T204747095035Z.log"
+    },
+    {
+      "phase": "green-core-integration",
+      "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-integration-20261115T204836847906Z.json",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-integration-20261115T204836847906Z.log"
+    },
+    {
+      "phase": "green-core-unit",
+      "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-unit-20261115T204838811523Z.json",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-unit-20261115T204838811523Z.log"
+    },
+    {
+      "phase": "green-linux-no-device",
+      "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-linux-no-device-20261115T204847836948Z.json",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-linux-no-device-20261115T204847836948Z.log"
+    },
+    {
+      "phase": "green-gui-contract",
+      "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-gui-contract-20261115T204848182995Z.json",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-gui-contract-20261115T204848182995Z.log"
+    }
+  ]
+}

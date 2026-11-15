@@ -1,0 +1,23 @@
+{
+  "phase": "tauri-windows-source-final",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "check",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--all-targets",
+    "--target",
+    "x86_64-pc-windows-gnu"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-final-20261115T203953970514Z.log",
+  "errors": [],
+  "tail": [
+    "   Compiling chord-client v0.1.0 (/root/projects/chord-tauri-platform/rust/gui-spike)",
+    "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.96s"
+  ]
+}

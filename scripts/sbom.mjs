@@ -20,6 +20,19 @@ const exceptions = new Set(['LLVM-exception']);
  * @type {Map<string,string>}
  */
 const knownLicenses = new Map([
+  // Windows credential dependency licenses verified against locked crate archives.
+  ['byteorder@1.5.0', 'Unlicense OR MIT'],
+  ['keyring@3.6.3', 'MIT OR Apache-2.0'],
+  ['windows-sys@0.60.2', 'MIT OR Apache-2.0'],
+  ['windows-targets@0.53.5', 'MIT OR Apache-2.0'],
+  ['windows_aarch64_gnullvm@0.53.1', 'MIT OR Apache-2.0'],
+  ['windows_aarch64_msvc@0.53.1', 'MIT OR Apache-2.0'],
+  ['windows_i686_gnu@0.53.1', 'MIT OR Apache-2.0'],
+  ['windows_i686_gnullvm@0.53.1', 'MIT OR Apache-2.0'],
+  ['windows_i686_msvc@0.53.1', 'MIT OR Apache-2.0'],
+  ['windows_x86_64_gnu@0.53.1', 'MIT OR Apache-2.0'],
+  ['windows_x86_64_gnullvm@0.53.1', 'MIT OR Apache-2.0'],
+  ['windows_x86_64_msvc@0.53.1', 'MIT OR Apache-2.0'],
   ['r-efi@6.0.0', 'MIT OR Apache-2.0 OR LGPL-2.1-or-later'],
   ['wasi@0.11.1+wasi-snapshot-preview1', 'Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT'],
   ['windows-link@0.2.1', 'MIT OR Apache-2.0'],

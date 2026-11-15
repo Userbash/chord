@@ -1,0 +1,139 @@
+{
+  "phase": "entropy_behavior_mutations",
+  "control_passed": true,
+  "mutations_killed": 5,
+  "mutations_total": 5,
+  "cargo_serialization": "outer flock /tmp/chord-cargo.lock held for entire batch",
+  "main_source_unchanged_during_mutations": true,
+  "native_platform": "Linux x86_64",
+  "not_evidence_for": [
+    "native Windows execution",
+    "native ARM execution"
+  ],
+  "runs": [
+    {
+      "name": "control",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+        "-p",
+        "chord-core",
+        "--lib",
+        "rest::identity::tests"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-control-20261115T205054100692Z.log",
+      "log_sha256": "6b3065a8c0397d53685db74e55f84fa9b7daab014538ae757867ab2e888e9c22",
+      "mutated_source_sha256": "445d0905ca8ae6e4accc742c4bc9a4a5342efd998ebcd372a658bf4befcd5f9a",
+      "source_changes_outside_main": true
+    },
+    {
+      "name": "swallow-entropy-failure",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+        "-p",
+        "chord-core",
+        "--lib",
+        "rest::identity::tests"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-swallow-entropy-failure-20261115T205057822965Z.log",
+      "log_sha256": "e1347b31d38150b7c3b6f8a2d9bf85c5d5a571e7aaeb22430b72b05aa392aa53",
+      "mutated_source_sha256": "9013417c1f7c846f1196ddd65748ce23e9ead7d55da2ffa28effd73ce40c212e",
+      "source_changes_outside_main": true
+    },
+    {
+      "name": "zero-os-entropy",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+        "-p",
+        "chord-core",
+        "--test",
+        "rest_identity",
+        "system_sources_produce_fresh_rfc4122_uuids"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-zero-os-entropy-20261115T205058689155Z.log",
+      "log_sha256": "71b52cfe715ecb5f9957d23b3fc071e65010a20fdeb3c0de546b3e3f8b855048",
+      "mutated_source_sha256": "308304b39a30f4ee117ff917fffdb7ac33a73a485a9c5eff57598625c51f070a",
+      "source_changes_outside_main": true
+    },
+    {
+      "name": "invalid-uuid-version",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+        "-p",
+        "chord-core",
+        "--test",
+        "rest_identity",
+        "uuid_v4_shape"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-version-20261115T205102010920Z.log",
+      "log_sha256": "fbd314b31a034f9846c08c49201acb2200bc076cd31442c41a92b9bf457877d4",
+      "mutated_source_sha256": "033788ef8004a100fb8c90c633d1749633c8a96ce8c598dfc5c1c8e0bf9a66a5",
+      "source_changes_outside_main": true
+    },
+    {
+      "name": "invalid-uuid-variant",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+        "-p",
+        "chord-core",
+        "--test",
+        "rest_identity",
+        "uuid_v4_shape"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-variant-20261115T205102927635Z.log",
+      "log_sha256": "88cccbade39e4842b0e3e26f6b4f4adcdcc5324fd398a64739fbdb76d3c77ef6",
+      "mutated_source_sha256": "c419337e4a0d5ba978a0145046595a3f68051e7e270fc3d89e8536bcbeaeeffb",
+      "source_changes_outside_main": true
+    },
+    {
+      "name": "reorder-identity-draws",
+      "command": [
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+        "-p",
+        "chord-core",
+        "--test",
+        "rest_identity",
+        "wayland_kde_full_build"
+      ],
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-reorder-identity-draws-20261115T205103743748Z.log",
+      "log_sha256": "731d1f50dfe684b5c31d2f246f97d1d957d10d56d4d289e9ad46ce4cc384f23a",
+      "mutated_source_sha256": "375bc613262e954dfd01089646e7bd0331fe03b1ecef5c1b77f0c67c9fefa8bd",
+      "source_changes_outside_main": true
+    }
+  ]
+}

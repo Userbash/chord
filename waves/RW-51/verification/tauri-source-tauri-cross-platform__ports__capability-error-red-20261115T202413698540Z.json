@@ -1,0 +1,51 @@
+{
+  "phase": "capability-error-red",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--test",
+    "platform_boundaries_contract"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/capability-error-red-20261115T202413698540Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "error: could not compile `chord-platform` (lib) due to 9 previous errors"
+  ],
+  "tail": [
+    "    |",
+    "",
+    "error[E0433]: cannot find type `MessageType` in this scope",
+    "   --> crates/chord-platform/src/dbus/connection.rs:218:17",
+    "    |",
+    "218 |                 MessageType::Error => {",
+    "    |                 ^^^^^^^^^^^ use of undeclared type `MessageType`",
+    "    |",
+    "help: consider importing this enum through its public re-export",
+    "    |",
+    "  3 + use crate::dbus::MessageType;",
+    "    |",
+    "",
+    "For more information about this error, try `rustc --explain E0433`.",
+    "error: could not compile `chord-platform` (lib) due to 9 previous errors"
+  ]
+}

@@ -14,7 +14,9 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Duration;
 
-use crate::dbus::{BusAddress, Connection, DbusError, Value};
+use crate::dbus::Value;
+#[cfg(unix)]
+use crate::dbus::{BusAddress, Connection, DbusError};
 
 /// Well-known имя сервиса уведомлений.
 pub const DESTINATION: &str = "org.freedesktop.Notifications";
@@ -594,10 +596,12 @@ impl Default for NotificationRouter {
 
 /// Клиент сервиса уведомлений.
 #[derive(Debug)]
+#[cfg(unix)]
 pub struct Notifier {
     connection: Connection,
 }
 
+#[cfg(unix)]
 impl Notifier {
     /// Подключается к шине (AUTH EXTERNAL + `Hello`), но ничего не отправляет.
     pub fn connect(address: &BusAddress) -> Result<Self, DbusError> {
@@ -760,6 +764,7 @@ impl Notifier {
     }
 }
 
+#[cfg(unix)]
 fn action_event(body: &[Value]) -> Option<NotificationEvent> {
     // Сигнатура `us`: тело — два значения подряд (без struct-обёртки).
     match body {
@@ -771,6 +776,7 @@ fn action_event(body: &[Value]) -> Option<NotificationEvent> {
     }
 }
 
+#[cfg(unix)]
 fn closed_event(body: &[Value]) -> Option<NotificationEvent> {
     // Сигнатура `uu`.
     match body {

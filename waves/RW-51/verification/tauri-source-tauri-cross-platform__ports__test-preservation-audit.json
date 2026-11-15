@@ -1,0 +1,124 @@
+{
+  "contracts": [
+    {
+      "path": "rust/crates/chord-platform/tests/dbus_contract.rs",
+      "all_existing_functions_present": true,
+      "old_function_count": 53,
+      "changed_bodies": [],
+      "assert_macros_before": {
+        "assert_eq": 136,
+        "assert": 43,
+        "assert_ne": 4
+      },
+      "assert_macros_after": {
+        "assert_eq": 136,
+        "assert": 43,
+        "assert_ne": 4
+      }
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/message_notify_contract.rs",
+      "all_existing_functions_present": true,
+      "old_function_count": 16,
+      "changed_bodies": [],
+      "assert_macros_before": {
+        "assert_eq": 26,
+        "assert": 5
+      },
+      "assert_macros_after": {
+        "assert_eq": 26,
+        "assert": 5
+      }
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/notifications_contract.rs",
+      "all_existing_functions_present": true,
+      "old_function_count": 54,
+      "changed_bodies": [],
+      "assert_macros_before": {
+        "assert": 28,
+        "assert_eq": 89
+      },
+      "assert_macros_after": {
+        "assert": 28,
+        "assert_eq": 89
+      }
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/power_contract.rs",
+      "all_existing_functions_present": true,
+      "old_function_count": 33,
+      "changed_bodies": [],
+      "assert_macros_before": {
+        "assert_eq": 46,
+        "assert": 22
+      },
+      "assert_macros_after": {
+        "assert_eq": 46,
+        "assert": 22
+      }
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/rpc_ipc_contract.rs",
+      "all_existing_functions_present": true,
+      "old_function_count": 10,
+      "changed_bodies": [],
+      "assert_macros_before": {
+        "assert_eq": 100,
+        "assert": 46
+      },
+      "assert_macros_after": {
+        "assert_eq": 100,
+        "assert": 46
+      }
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_contract.rs",
+      "all_existing_functions_present": true,
+      "old_function_count": 11,
+      "changed_bodies": [
+        "captured_frame_dma_buf_and_cpu_data_contracts"
+      ],
+      "assert_macros_before": {
+        "assert_eq": 76,
+        "assert": 37,
+        "assert_ne": 3
+      },
+      "assert_macros_after": {
+        "assert_eq": 76,
+        "assert": 37,
+        "assert_ne": 3
+      }
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_portal_contract.rs",
+      "all_existing_functions_present": true,
+      "old_function_count": 9,
+      "changed_bodies": [],
+      "assert_macros_before": {
+        "assert_eq": 62,
+        "assert": 17
+      },
+      "assert_macros_after": {
+        "assert_eq": 62,
+        "assert": 17
+      }
+    },
+    {
+      "path": "rust/gui-spike/tests/notifications_contract.rs",
+      "all_existing_functions_present": true,
+      "old_function_count": 10,
+      "changed_bodies": [],
+      "assert_macros_before": {
+        "assert_eq": 63,
+        "assert": 49
+      },
+      "assert_macros_after": {
+        "assert_eq": 63,
+        "assert": 52
+      }
+    }
+  ],
+  "dbus_connection_move_token_identical": true,
+  "screencast_mixed_body_change": "Only cfg(unix) guards/imports and a scoped native DMA-BUF block were added; all assertions retained."
+}

@@ -1,0 +1,31 @@
+{
+  "keyring": {
+    "version": "3.6.3",
+    "features": [
+      "windows-native"
+    ],
+    "default_features": false,
+    "type": "keyring::windows::WinCredential",
+    "constructor": "new_with_target(None, SCHEMA_NAME, key)",
+    "operations": [
+      "set_secret",
+      "get_secret",
+      "delete_credential"
+    ],
+    "official_api": "https://docs.rs/keyring/3.6.3/x86_64-pc-windows-msvc/keyring/windows/struct.WinCredential.html",
+    "feature_contract": "https://docs.rs/keyring/3.6.3/keyring/",
+    "cpu_support": "windows-sys0.60.2 / windows-targets0.53.5 provides x86_64 and aarch64 MSVC import libraries; native CI link/runtime evidence separate"
+  },
+  "vcpkg": {
+    "version": "0.2.15",
+    "official_api": "https://docs.rs/vcpkg/0.2.15/vcpkg/struct.Config.html",
+    "environment": [
+      "VCPKG_ROOT",
+      "VCPKGRS_TRIPLET",
+      "VCPKGRS_DYNAMIC"
+    ],
+    "discovery": "Config::new().copy_dlls(false).find_package(\"hunspell\")",
+    "linkage": "MSVC installed port manifests authoritative; Unix/MinGW system hunspell-1.7 unchanged",
+    "host_target": "build-script host dependency; runtime CARGO_CFG_TARGET_OS/ENV guards"
+  }
+}

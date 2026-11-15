@@ -9,11 +9,16 @@
 
 use std::collections::BTreeMap;
 use std::fmt;
+#[cfg(unix)]
 use std::fs;
 use std::io::{Read, Write};
+#[cfg(unix)]
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
+#[cfg(unix)]
 use std::os::unix::net::{UnixDatagram, UnixListener, UnixStream};
-use std::path::{Path, PathBuf};
+#[cfg(unix)]
+use std::path::Path;
+use std::path::PathBuf;
 
 /// Длина бинарного заголовка фрейма Discord IPC (`[opcode: u32 LE][length: u32 LE]`).
 pub const IPC_HEADER_LEN: usize = 8;
@@ -1310,12 +1315,14 @@ pub fn build_rpc_error_frame_for_payload(raw_payload: &str) -> IpcFrame {
 }
 
 /// Псевдоним типа локального слушателя IPC-сокета Discord (`discord-ipc-0..9`).
+#[cfg(unix)]
 pub type RpcIpcListener = DiscordRpcListener;
 
 /// Локальный серверный слушатель Unix domain socket `discord-ipc-0..9`
 /// (с защитой прав `0o600`, проверкой `SO_PEERCRED`/`getpeereid`, очисткой мёртвых сокетов `remove_stale`
 /// и проверкой `(device, inode)` при удалении в `Drop`).
 #[derive(Debug)]
+#[cfg(unix)]
 pub struct DiscordRpcListener {
     listener: UnixListener,
     path: PathBuf,
@@ -1328,6 +1335,7 @@ pub struct DiscordRpcListener {
     emulated_tmp_symlink: Option<PathBuf>,
 }
 
+#[cfg(unix)]
 impl DiscordRpcListener {
     /// Привязывается к первому свободному слоту `discord-ipc-0..9` в системном каталоге
     /// (`XDG_RUNTIME_DIR`, `TMPDIR`, `TMP`, `TEMP`, либо `/tmp`).
@@ -1451,7 +1459,9 @@ impl DiscordRpcListener {
                 if meta.uid() == self.uid {
                     let _ = fs::remove_file(&tmp_socket_path);
                 }
-            } else if meta.file_type().is_socket() && !remove_stale_socket(&tmp_socket_path, self.uid) {
+            } else if meta.file_type().is_socket()
+                && !remove_stale_socket(&tmp_socket_path, self.uid)
+            {
                 // Socket is currently occupied by an active process
                 return Ok(None);
             }
@@ -1539,6 +1549,7 @@ impl DiscordRpcListener {
     }
 }
 
+#[cfg(unix)]
 impl Drop for DiscordRpcListener {
     fn drop(&mut self) {
         // Clean up emulated `/tmp/discord-ipc-<slot>` symlink if it was created and belongs to us
@@ -1561,6 +1572,7 @@ impl Drop for DiscordRpcListener {
     }
 }
 
+#[cfg(unix)]
 fn validate_ipc_dir_permissions(dir: &Path, uid: u32) -> Result<(), RpcIpcError> {
     let meta = fs::symlink_metadata(dir).map_err(|e| RpcIpcError::IoError(e.to_string()))?;
     let trusted_owner = meta.uid() == uid || meta.uid() == 0;
@@ -1571,6 +1583,7 @@ fn validate_ipc_dir_permissions(dir: &Path, uid: u32) -> Result<(), RpcIpcError>
     Ok(())
 }
 
+#[cfg(unix)]
 fn remove_stale_socket(path: &Path, uid: u32) -> bool {
     let Ok(meta) = fs::symlink_metadata(path) else {
         return false;
@@ -1587,11 +1600,13 @@ fn remove_stale_socket(path: &Path, uid: u32) -> bool {
 }
 
 #[allow(unsafe_code)]
+#[cfg(unix)]
 fn effective_uid() -> u32 {
     // SAFETY: POSIX geteuid не принимает аргументов и всегда возвращает эффективный UID процесса.
     unsafe { libc::geteuid() }
 }
 
+#[cfg(unix)]
 fn peer_uid(stream: &UnixStream) -> Result<u32, RpcIpcError> {
     use std::os::fd::AsRawFd;
     peer_uid_for_fd(stream.as_raw_fd())
@@ -1735,11 +1750,11 @@ impl RpcIpcSession {
     /// Обслуживает поток `UnixStream` от `Handshake` до `Close` или закрытия сокета клиентом.
     pub fn serve_stream(
         &mut self,
-        stream: &mut UnixStream,
+        stream: &mut (impl Read + Write),
     ) -> Result<Vec<RpcServerResponse>, RpcIpcError> {
         let mut responses = Vec::new();
         loop {
-            let frame = match DiscordRpcClient::read_frame(stream) {
+            let frame = match read_ipc_frame(stream) {
                 Ok(f) => f,
                 Err(RpcIpcError::IoError(_)) if self.handshaked => {
                     self.current_activity = None;
@@ -1750,7 +1765,7 @@ impl RpcIpcSession {
             };
             let resp = self.process_frame(&frame)?;
             if let Some(ref reply) = resp.reply_frame {
-                DiscordRpcClient::write_frame(stream, reply.opcode, &reply.payload)?;
+                write_ipc_frame(stream, reply.opcode, &reply.payload)?;
             }
             let closed = resp.closed;
             responses.push(resp);
@@ -1837,12 +1852,14 @@ impl RpcMultiClientRegistry {
 
 /// Клиент локального IPC-сокета Discord (`rust-discord-activity` совместимый).
 #[derive(Debug)]
+#[cfg(unix)]
 pub struct DiscordRpcClient {
     client_id: String,
     is_connected: bool,
     socket: Option<UnixStream>,
 }
 
+#[cfg(unix)]
 impl DiscordRpcClient {
     /// Создаёт новый неактивный клиент для заданного Application ID (`client_id`).
     #[must_use]
@@ -1964,25 +1981,7 @@ impl DiscordRpcClient {
 
     /// Читает один бинарный фрейм из потока `Read`.
     pub fn read_frame(reader: &mut impl Read) -> Result<IpcFrame, RpcIpcError> {
-        let mut header = [0u8; IPC_HEADER_LEN];
-        reader
-            .read_exact(&mut header)
-            .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
-        let raw_opcode = u32::from_le_bytes([header[0], header[1], header[2], header[3]]);
-        let length = u32::from_le_bytes([header[4], header[5], header[6], header[7]]) as usize;
-        if length > MAX_IPC_FRAME_BYTES {
-            return Err(RpcIpcError::FrameTooLarge {
-                length,
-                max: MAX_IPC_FRAME_BYTES,
-            });
-        }
-        let mut body = vec![0u8; length];
-        reader
-            .read_exact(&mut body)
-            .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
-        let opcode = RpcOpCode::try_from(raw_opcode)?;
-        let payload = String::from_utf8(body).map_err(|_| RpcIpcError::InvalidUtf8)?;
-        Ok(IpcFrame { opcode, payload })
+        read_ipc_frame(reader)
     }
 
     /// Кодирует и записывает один бинарный фрейм в поток `Write`.
@@ -1991,15 +1990,47 @@ impl DiscordRpcClient {
         opcode: RpcOpCode,
         payload: &str,
     ) -> Result<usize, RpcIpcError> {
-        let frame = encode_ipc_frame(opcode, payload)?;
-        writer
-            .write_all(&frame)
-            .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
-        writer
-            .flush()
-            .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
-        Ok(frame.len())
+        write_ipc_frame(writer, opcode, payload)
     }
+}
+
+/// Читает один бинарный фрейм из потока `Read`.
+pub fn read_ipc_frame(reader: &mut impl Read) -> Result<IpcFrame, RpcIpcError> {
+    let mut header = [0u8; IPC_HEADER_LEN];
+    reader
+        .read_exact(&mut header)
+        .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
+    let raw_opcode = u32::from_le_bytes([header[0], header[1], header[2], header[3]]);
+    let length = u32::from_le_bytes([header[4], header[5], header[6], header[7]]) as usize;
+    if length > MAX_IPC_FRAME_BYTES {
+        return Err(RpcIpcError::FrameTooLarge {
+            length,
+            max: MAX_IPC_FRAME_BYTES,
+        });
+    }
+    let mut body = vec![0u8; length];
+    reader
+        .read_exact(&mut body)
+        .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
+    let opcode = RpcOpCode::try_from(raw_opcode)?;
+    let payload = String::from_utf8(body).map_err(|_| RpcIpcError::InvalidUtf8)?;
+    Ok(IpcFrame { opcode, payload })
+}
+
+/// Кодирует и записывает один бинарный фрейм в поток `Write`.
+pub fn write_ipc_frame(
+    writer: &mut impl Write,
+    opcode: RpcOpCode,
+    payload: &str,
+) -> Result<usize, RpcIpcError> {
+    let frame = encode_ipc_frame(opcode, payload)?;
+    writer
+        .write_all(&frame)
+        .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
+    writer
+        .flush()
+        .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
+    Ok(frame.len())
 }
 
 // --- Встроенный минимальный парсер/сериализатор JSON без внешних зависимостей ---
@@ -2320,6 +2351,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[cfg(unix)]
     fn peer_uid_query_matches_effective_uid_oracle() {
         use std::os::fd::AsRawFd;
         use std::process::Command;
@@ -2339,6 +2371,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(unix)]
     fn peer_uid_query_rejects_invalid_descriptor() {
         assert!(matches!(
             peer_uid_for_fd(-1),
@@ -2495,34 +2528,39 @@ mod tests {
         .unwrap();
         assert!(close_resp.closed);
 
-        // 3. Полный roundtrip через UnixStream::pair между DiscordRpcClient и серверным обработчиком
-        let (client_sock, mut server_sock) = UnixStream::pair().unwrap();
-        let mut client = DiscordRpcClient::from_stream("424242", client_sock);
-        let handle = std::thread::spawn(move || {
-            let hs_in = DiscordRpcClient::read_frame(&mut server_sock).unwrap();
-            let hs_out = handle_ipc_frame(&hs_in).unwrap().reply_frame.unwrap();
-            DiscordRpcClient::write_frame(&mut server_sock, hs_out.opcode, &hs_out.payload)
-                .unwrap();
+        #[cfg(unix)]
+        {
+            // 3. Полный roundtrip через UnixStream::pair между DiscordRpcClient и серверным обработчиком
+            let (client_sock, mut server_sock) = UnixStream::pair().unwrap();
+            let mut client = DiscordRpcClient::from_stream("424242", client_sock);
+            let handle = std::thread::spawn(move || {
+                let hs_in = DiscordRpcClient::read_frame(&mut server_sock).unwrap();
+                let hs_out = handle_ipc_frame(&hs_in).unwrap().reply_frame.unwrap();
+                DiscordRpcClient::write_frame(&mut server_sock, hs_out.opcode, &hs_out.payload)
+                    .unwrap();
 
-            let act_in = DiscordRpcClient::read_frame(&mut server_sock).unwrap();
-            let act_res = handle_ipc_frame(&act_in).unwrap();
-            let act_out = act_res.reply_frame.unwrap();
-            DiscordRpcClient::write_frame(&mut server_sock, act_out.opcode, &act_out.payload)
-                .unwrap();
-            act_res.activity
-        });
+                let act_in = DiscordRpcClient::read_frame(&mut server_sock).unwrap();
+                let act_res = handle_ipc_frame(&act_in).unwrap();
+                let act_out = act_res.reply_frame.unwrap();
+                DiscordRpcClient::write_frame(&mut server_sock, act_out.opcode, &act_out.payload)
+                    .unwrap();
+                act_res.activity
+            });
 
-        let ready_reply = client.handshake().unwrap();
-        assert!(ready_reply.payload.contains("READY"));
-        let ack_reply = client.send_activity(&set_payload).unwrap();
-        assert!(ack_reply.payload.contains("nonce-abc-123"));
-        let server_parsed = handle.join().unwrap();
-        assert_eq!(server_parsed, Some(activity));
+            let ready_reply = client.handshake().unwrap();
+            assert!(ready_reply.payload.contains("READY"));
+            let ack_reply = client.send_activity(&set_payload).unwrap();
+            assert!(ack_reply.payload.contains("nonce-abc-123"));
+            let server_parsed = handle.join().unwrap();
+            assert_eq!(server_parsed, Some(activity));
+        }
     }
 
     #[test]
+    #[cfg(unix)]
     fn test_arrpc_tmp_socket_emulation() {
-        let temp_dir = std::env::temp_dir().join(format!("chord-ipc-arrpc-test-{}", std::process::id()));
+        let temp_dir =
+            std::env::temp_dir().join(format!("chord-ipc-arrpc-test-{}", std::process::id()));
         let _ = fs::create_dir_all(&temp_dir);
         let socket_path = temp_dir.join("discord-ipc-0");
         let mut listener = DiscordRpcListener::bind_path_with_slot(&socket_path, Some(0)).unwrap();

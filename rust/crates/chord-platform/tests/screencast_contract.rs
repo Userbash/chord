@@ -6,10 +6,13 @@
 //! и `/home/sanya/re-deep/native-re.md` (`chord_voice.node` -> `capture_linux`).
 
 use chord_platform::screencast::{
-    CapturedFrame, DoubleBufferedFrame, LockFreeFrameSlot, OwnedDmaBuf, OwnedPipeWireFd,
-    PORTAL_BUS_NAME, PORTAL_OBJECT_PATH, PortalCursorMode, PortalPersistMode, PortalRequestError,
-    PortalSourceTypes, PortalStreamInfo, SCREENCAST_INTERFACE, ScreenCastOptions, ScreenCastPortal,
-    parse_x11_display_spec,
+    CapturedFrame, DoubleBufferedFrame, LockFreeFrameSlot, PORTAL_BUS_NAME, PORTAL_OBJECT_PATH,
+    PortalCursorMode, PortalPersistMode, PortalRequestError, PortalSourceTypes,
+    SCREENCAST_INTERFACE, ScreenCastOptions, parse_x11_display_spec,
+};
+#[cfg(unix)]
+use chord_platform::screencast::{
+    OwnedDmaBuf, OwnedPipeWireFd, PortalStreamInfo, ScreenCastPortal,
 };
 
 #[test]
@@ -102,6 +105,7 @@ fn screencast_options_validation_checks_tokens_and_source_types() {
 }
 
 #[test]
+#[cfg(unix)]
 fn owned_pipewire_fd_rejects_negative_fd_and_closes_valid_fd_on_drop() {
     assert!(OwnedPipeWireFd::from_raw_fd_checked(-1).is_err());
 
@@ -114,6 +118,7 @@ fn owned_pipewire_fd_rejects_negative_fd_and_closes_valid_fd_on_drop() {
 }
 
 #[test]
+#[cfg(unix)]
 fn screencast_portal_parses_start_response_streams_and_restore_token() {
     use chord_platform::dbus::Value;
 
@@ -174,6 +179,7 @@ fn screencast_portal_parses_start_response_streams_and_restore_token() {
 }
 
 #[test]
+#[cfg(unix)]
 fn screencast_portal_wire_handshake_over_unix_socket_delivers_pipewire_fd() {
     use chord_platform::dbus::message::{
         self, FIELD_INTERFACE, FIELD_MEMBER, FIELD_PATH, FIELD_REPLY_SERIAL, FIELD_SIGNATURE,
@@ -389,6 +395,7 @@ fn screencast_portal_wire_handshake_over_unix_socket_delivers_pipewire_fd() {
 }
 
 #[test]
+#[cfg(unix)]
 fn owned_pipewire_fd_and_dma_buf_try_clone_creates_independent_descriptors() {
     use std::os::fd::IntoRawFd;
     use std::os::unix::net::UnixStream;
@@ -423,13 +430,16 @@ fn owned_pipewire_fd_and_dma_buf_try_clone_creates_independent_descriptors() {
 
 #[test]
 fn captured_frame_dma_buf_and_cpu_data_contracts() {
+    #[cfg(unix)]
     use std::os::fd::IntoRawFd;
+    #[cfg(unix)]
     use std::os::unix::net::UnixStream;
 
     let empty = CapturedFrame::default();
     assert!(empty.is_empty());
     assert_eq!(empty.byte_len(), 0);
     assert!(!empty.is_dma_buf());
+    #[cfg(unix)]
     assert_eq!(empty.dma_buf_raw_fd(), None);
 
     let cpu_frame = CapturedFrame::new(1920, 1080, 7680, 0x34324152)
@@ -440,14 +450,17 @@ fn captured_frame_dma_buf_and_cpu_data_contracts() {
     assert_eq!(cpu_frame.timestamp_us, 123_456_789);
     assert!(!cpu_frame.is_dma_buf());
 
-    let (sock, _) = UnixStream::pair().expect("sock");
-    let raw_fd = sock.into_raw_fd();
-    let dma = OwnedDmaBuf::from_raw_fd_checked(raw_fd).expect("dma buf");
-    let dma_frame = CapturedFrame::new_dma_buf(2560, 1440, 10240, 0x34325241, dma, 0);
-    assert!(!dma_frame.is_empty());
-    assert!(dma_frame.is_dma_buf());
-    assert_eq!(dma_frame.dma_buf_raw_fd(), Some(raw_fd));
-    assert_eq!(dma_frame.byte_len(), 10240 * 1440);
+    #[cfg(unix)]
+    {
+        let (sock, _) = UnixStream::pair().expect("sock");
+        let raw_fd = sock.into_raw_fd();
+        let dma = OwnedDmaBuf::from_raw_fd_checked(raw_fd).expect("dma buf");
+        let dma_frame = CapturedFrame::new_dma_buf(2560, 1440, 10240, 0x34325241, dma, 0);
+        assert!(!dma_frame.is_empty());
+        assert!(dma_frame.is_dma_buf());
+        assert_eq!(dma_frame.dma_buf_raw_fd(), Some(raw_fd));
+        assert_eq!(dma_frame.byte_len(), 10240 * 1440);
+    }
 }
 
 #[test]
@@ -546,6 +559,7 @@ fn double_buffered_frame_atomic_swapping() {
 }
 
 #[test]
+#[cfg(unix)]
 fn screencast_dma_buf_zero_copy_eliminates_86ms_latency_and_passes_60fps_budget() {
     use std::os::fd::IntoRawFd;
     use std::os::unix::net::UnixStream;

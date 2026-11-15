@@ -1,0 +1,10 @@
+{
+  "commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+  "previous_head": "ed130d722102b6043644111dad9fe6dd946a8145",
+  "published": true,
+  "pr": "https://github.com/Userbash/chord/pull/16",
+  "all_six_targets_compiled": false,
+  "native_runtime_qualified": false,
+  "full_worker_gate": "failed",
+  "unit_failures": 34
+}

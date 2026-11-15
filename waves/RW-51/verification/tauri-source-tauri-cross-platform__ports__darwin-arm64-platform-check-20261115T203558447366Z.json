@@ -1,0 +1,50 @@
+{
+  "phase": "darwin-arm64-platform-check",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "check",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--all-targets",
+    "--target",
+    "aarch64-apple-darwin"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-arm64-platform-check-20261115T203558447366Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "warning: constant `LOGIN1_DESTINATION` is never used",
+    "warning: constant `LOGIN1_PATH` is never used",
+    "warning: constant `LOGIN1_INTERFACE` is never used",
+    "warning: function `fd_is_open` is never used",
+    "warning: function `count_fds_matching` is never used",
+    "warning: function `fd_link` is never used",
+    "warning: function `inhibit_body` is never used",
+    "warning: `chord-platform` (test \"dbus_contract\") generated 7 warnings"
+  ],
+  "tail": [
+    "",
+    "warning: function `fd_link` is never used",
+    "    --> crates/chord-platform/tests/dbus_contract.rs:1390:4",
+    "     |",
+    "1390 | fn fd_link(fd: RawFd) -> String {",
+    "     |    ^^^^^^^",
+    "",
+    "warning: function `inhibit_body` is never used",
+    "    --> crates/chord-platform/tests/dbus_contract.rs:1556:4",
+    "     |",
+    "1556 | fn inhibit_body(why: &str) -> [(char, Value); 4] {",
+    "     |    ^^^^^^^^^^^^",
+    "",
+    "warning: `chord-platform` (test \"dbus_contract\") generated 7 warnings",
+    "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.01s"
+  ]
+}

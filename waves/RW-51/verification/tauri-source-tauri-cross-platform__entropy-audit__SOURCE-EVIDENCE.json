@@ -1,0 +1,115 @@
+{
+  "phase": "read_only_entropy_source_audit",
+  "observed_at": "2026-11-15T20:21:25.468435+00:00",
+  "application_revision": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+  "sources_changed": false,
+  "tests_executed": [],
+  "cargo_commands_executed": [],
+  "native_validation": "not_run",
+  "windows_fixed_uuid": "source_inference_not_native_observation",
+  "direct_dependency_route": "rustls::crypto::ring::default_provider().secure_random.fill(out)",
+  "new_dependency_required": false,
+  "public_signature_change_required": false,
+  "minimal_fail_closed_policy": "panic clearly on OS entropy failure with existing infallible trait",
+  "libraries": [
+    {
+      "name": "rustls",
+      "version": "0.23.46",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/rustls-0.23.46.crate",
+      "archive_sha256": "48e13bd8c0e9365c43cfa5c9e8f9ad49d3c8444926c9aac819e0e4dc503c8fdf",
+      "lock_checksum_match": true,
+      "files": [
+        {
+          "path": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.46/src/crypto/mod.rs",
+          "archive_member": "rustls-0.23.46/src/crypto/mod.rs",
+          "sha256": "46cb1c195e52824c98ea11129c93cbab03d06fb0c3a6daed81a3bab6f9f79e12",
+          "archive_bytes_match": true
+        },
+        {
+          "path": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rustls-0.23.46/src/crypto/ring/mod.rs",
+          "archive_member": "rustls-0.23.46/src/crypto/ring/mod.rs",
+          "sha256": "0548e46ea13e22f6f6f7918d99f68d724d1d7a3e6f3a5a8171c5c6741c2e88e3",
+          "archive_bytes_match": true
+        }
+      ]
+    },
+    {
+      "name": "ring",
+      "version": "0.17.14",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/ring-0.17.14.crate",
+      "archive_sha256": "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7",
+      "lock_checksum_match": true,
+      "files": [
+        {
+          "path": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ring-0.17.14/src/rand.rs",
+          "archive_member": "ring-0.17.14/src/rand.rs",
+          "sha256": "fb8708fe62706fe7f7c7aad5f7df9f65ca19def5fabac9616375e9f1e532f4b8",
+          "archive_bytes_match": true
+        },
+        {
+          "path": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ring-0.17.14/Cargo.toml",
+          "archive_member": "ring-0.17.14/Cargo.toml",
+          "sha256": "b81a19b27cc744410b056eb1d1195ecd41e25a163acadfca3c6457e96b797d3f",
+          "archive_bytes_match": true
+        },
+        {
+          "path": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ring-0.17.14/build.rs",
+          "archive_member": "ring-0.17.14/build.rs",
+          "sha256": "9d1928ffb1d8e15766c1c1b9ead73e4b81a21703dd25f7c27b87842a2e6e9cee",
+          "archive_bytes_match": true
+        }
+      ]
+    },
+    {
+      "name": "getrandom",
+      "version": "0.2.17",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/getrandom-0.2.17.crate",
+      "archive_sha256": "ff2abc00be7fca6ebc474524697ae276ad847ad0a6b3faa4bcb027e9a4614ad0",
+      "lock_checksum_match": true,
+      "files": [
+        {
+          "path": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.2.17/src/lib.rs",
+          "archive_member": "getrandom-0.2.17/src/lib.rs",
+          "sha256": "50dbe3913bc42b354bfedd773b54540d569215cc4615140f549fd6be7266f24d",
+          "archive_bytes_match": true
+        },
+        {
+          "path": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/getrandom-0.2.17/src/windows.rs",
+          "archive_member": "getrandom-0.2.17/src/windows.rs",
+          "sha256": "695666d2bf31257e4a02cf970dee50a9a1f83c118b88b67d1a261cc5f7c1a66f",
+          "archive_bytes_match": true
+        }
+      ]
+    }
+  ],
+  "source_files": [
+    {
+      "path": "rust/crates/chord-core/src/rest/identity.rs",
+      "sha256": "f9344f48a17eef0bf9db60309fba78e2c6f0cb3f3112c0d4bb6ec0b92d8a5eed"
+    },
+    {
+      "path": "rust/crates/chord-core/tests/rest_identity.rs",
+      "sha256": "b551956f9b38e0d18eb7676b6bd13de09061aebfe47c76e8fb52db12b8f8300a"
+    },
+    {
+      "path": "rust/crates/chord-core/Cargo.toml",
+      "sha256": "c9a8d49f411d431172a7bedd19bcec95ac50c55120bdd06f995d9f20cd971be4"
+    },
+    {
+      "path": "rust/Cargo.toml",
+      "sha256": "f20ab1522dd846ca03f2cf530b98c240c4c0920820a3c9b720e4f268fec35317"
+    },
+    {
+      "path": "rust/Cargo.lock",
+      "sha256": "34cc56b45e1a638b4ff356b6934b9eeac6233d8b95f5edc04f3a111809426237"
+    },
+    {
+      "path": "rust/gui-spike/src/auth.rs",
+      "sha256": "adc5ef063b1a819caefe1dd9e562c915dc1d2c693b20b04a5b37078bf00a88e0"
+    },
+    {
+      "path": "rust/gui-spike/Cargo.lock",
+      "sha256": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0"
+    }
+  ]
+}

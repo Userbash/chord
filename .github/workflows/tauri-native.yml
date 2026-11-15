@@ -72,6 +72,7 @@ jobs:
         with:
           key: tauri-${{ matrix.target }}
           workspaces: rust/gui-spike -> ../../target/tauri-native
+          cache-on-failure: true
 
       - name: Record native build environment
         env:
@@ -105,7 +106,27 @@ jobs:
           printf 'RUSTFLAGS=%s\n' "$tauriRustFlags" >> "$GITHUB_ENV"
           printf 'PKG_CONFIG_PATH=%s/lib/pkgconfig:%s/lib/pkgconfig:%s\n' "$(brew --prefix glib)" "$(brew --prefix libsecret)" "${PKG_CONFIG_PATH:-}" >> "$GITHUB_ENV"
 
+      - name: Configure Windows package cache
+        id: vcpkg_paths
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $tauriBinaryCache = Join-Path $env:RUNNER_TEMP 'tauri-vcpkg-binary-cache'
+          New-Item -ItemType Directory -Path $tauriBinaryCache -Force | Out-Null
+          "VCPKG_DEFAULT_BINARY_CACHE=$tauriBinaryCache" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "binary_cache=$tauriBinaryCache" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Restore Windows package cache
+        id: vcpkg_cache
+        if: matrix.platform == 'windows'
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ steps.vcpkg_paths.outputs.binary_cache }}
+          key: tauri-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-${{ github.sha }}
+          restore-keys: tauri-vcpkg-${{ runner.os }}-${{ matrix.triplet }}-
+
       - name: Windows Tauri libraries
+        id: windows_libraries
         if: matrix.platform == 'windows'
         shell: pwsh
         env:
@@ -117,6 +138,9 @@ jobs:
           & "$env:VCPKG_INSTALLATION_ROOT/vcpkg.exe" install "sqlite3:$triplet" "hunspell:$triplet"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $tauriNativePrefix = Join-Path $env:VCPKG_INSTALLATION_ROOT "installed/$triplet"
+          "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "VCPKGRS_TRIPLET=$triplet" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "VCPKGRS_DYNAMIC=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "LIB=$tauriNativePrefix/lib;$env:LIB" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "TAURI_NATIVE_DLL_DIR=$tauriNativePrefix/bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "$tauriNativePrefix/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -133,6 +157,18 @@ jobs:
           cargo test --locked --manifest-path rust/gui-spike/Cargo.toml \
             --target "${{ matrix.target }}" --features tauri/custom-protocol --lib --tests
 
+      - name: Native identity contracts
+        if: ${{ !cancelled() && steps.tauri_build.outcome == 'success' }}
+        run: |
+          cargo test --locked --manifest-path rust/Cargo.toml -p chord-core \
+            --target "${{ matrix.target }}" --lib --test rest_identity
+
+      - name: Native platform contracts
+        if: ${{ !cancelled() && steps.tauri_build.outcome == 'success' }}
+        run: |
+          cargo test --locked --manifest-path rust/Cargo.toml -p chord-platform \
+            --target "${{ matrix.target }}" --lib --tests
+
       - name: Stage compiled binary and provenance
         id: tauri_artifact
         if: ${{ !cancelled() && steps.tauri_build.outcome == 'success' }}
@@ -140,24 +176,41 @@ jobs:
           TAURI_TARGET: ${{ matrix.target }}
         run: |
           node --input-type=module <<'JS'
-          import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+          import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
           import { createHash } from 'node:crypto';
           import { execFileSync } from 'node:child_process';
-          import { join } from 'node:path';
+          import { dirname, join, sep } from 'node:path';
           const target = process.env.TAURI_TARGET;
           const directory = join('artifacts', `tauri-${target}`);
           mkdirSync(directory, { recursive: true });
           const filename = process.platform === 'win32' ? 'chord-client.exe' : 'chord-client';
           copyFileSync(join(process.env.CARGO_TARGET_DIR, target, 'release', filename), join(directory, filename));
+          for (const name of ['LICENSE', 'LICENSE-MIT', 'LICENSE-APACHE', 'NOTICE']) {
+            if (existsSync(name)) copyFileSync(name, join(directory, name));
+          }
           if (process.platform === 'win32') {
             const nativeDirectory = process.env.TAURI_NATIVE_DLL_DIR;
             if (!nativeDirectory || !existsSync(nativeDirectory)) throw new Error('Native DLL directory is missing');
             for (const name of readdirSync(nativeDirectory).filter(name => name.toLowerCase().endsWith('.dll'))) {
               copyFileSync(join(nativeDirectory, name), join(directory, name));
             }
+            const shared = join(dirname(nativeDirectory), 'share');
+            const licenses = join(directory, 'licenses');
+            mkdirSync(licenses);
+            let copyrights = 0;
+            for (const port of readdirSync(shared)) {
+              const copyright = join(shared, port, 'copyright');
+              if (existsSync(copyright)) {
+                copyFileSync(copyright, join(licenses, `${port}.txt`));
+                copyrights += 1;
+              }
+            }
+            if (copyrights === 0) throw new Error('Bundled native DLL copyright records are missing');
           }
           const SHA256 = path => createHash('sha256').update(readFileSync(path)).digest('hex');
-          const files = Object.fromEntries(readdirSync(directory).map(name => [name, SHA256(join(directory, name))]));
+          const files = Object.fromEntries(readdirSync(directory, { recursive: true })
+            .filter(name => statSync(join(directory, name)).isFile())
+            .map(name => [name.split(sep).join('/'), SHA256(join(directory, name))]));
           const provenance = { target, source_commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
             build_host: { platform: process.platform, arch: process.arch },
             compiler: execFileSync('rustc', ['--version', '--verbose'], { encoding: 'utf8' }),
@@ -174,3 +227,10 @@ jobs:
           path: artifacts/tauri-${{ matrix.target }}/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Save Windows package cache
+        if: ${{ !cancelled() && matrix.platform == 'windows' && steps.windows_libraries.outcome == 'success' && steps.vcpkg_cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ steps.vcpkg_paths.outputs.binary_cache }}
+          key: ${{ steps.vcpkg_cache.outputs.cache-primary-key }}

@@ -5,9 +5,17 @@ edition.workspace = true
 license.workspace = true
 description = "Системная интеграция: tray, уведомления, нативные мосты"
 
-[dependencies]
+[target.'cfg(unix)'.dependencies]
 # SCM_RIGHTS для передачи unix-fd (RW-35); версия уже в Cargo.lock/офлайн-кэше.
 libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+# Explicit native provider: no default/mock credential store or Linux dependency churn.
+keyring = { version = "=3.6.3", default-features = false, features = ["windows-native"] }
+
+[build-dependencies]
+# Build scripts execute on the host; TARGET/CARGO_CFG_TARGET_* select the library.
+vcpkg = "=0.2.15"
 
 [lints.rust]
 unsafe_code = "deny"

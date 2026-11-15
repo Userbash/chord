@@ -1,0 +1,155 @@
+{
+  "reviewer": "/root/arm_review",
+  "phase": "final_ROOT_CI_additions_and_lock_normalization_review",
+  "reviewed_at": "2026-11-15T20:59:25.462682+00:00",
+  "base_commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+  "verdict": "approve_listed_CI_and_normalization_changes_only",
+  "findings": [],
+  "files": [
+    {
+      "path": ".github/workflows/tauri-native.yml",
+      "sha256": "3f5ec9b7fe42a48c436f1994cfca91e26cda06e86509ddb94561fd9036a23d4f"
+    },
+    {
+      "path": "tests/meta/tauri-native-ci-contract.test.mjs",
+      "sha256": "1ea890313f421696d0950abe6cfa1d24ba251d8d98ffac664f6458f08e214982"
+    },
+    {
+      "path": ".gitleaksignore",
+      "sha256": "e5a51676edcc7116b933d8c334ba8d37a9852f6d1768b648b2a17bc5bc2da67d"
+    }
+  ],
+  "accepted_normalized_locks": [
+    {
+      "path": "rust/Cargo.lock",
+      "sha256": "9a52c3354a146bd752faf418095ea7e1e36968af4d9f208e011893fd4cdea7a0",
+      "normalization": "windows-targets0.53.5 dependency token windows-link0.2.1 becomes unqualified windows-link; same unique package.",
+      "packages_versions_checksums_and_dependency_graph_unchanged": true
+    },
+    {
+      "path": "rust/gui-spike/Cargo.lock",
+      "sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+      "normalization": "windows-targets0.53.5 dependency token windows-link0.2.1 becomes unqualified windows-link; same unique package.",
+      "packages_versions_checksums_and_dependency_graph_unchanged": true
+    }
+  ],
+  "independent_checks": [
+    {
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/meta/tauri-native-ci-contract.test.mjs",
+        "tests/meta/cross-platform-ci-contract.test.mjs"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/final-ci-contracts-20261115T205817898967Z.log",
+      "log_sha256": "143885b4d31c9d8f1272134d09ee22fb02b15a3983e8a31c569d13f2ab742b46"
+    },
+    {
+      "command": [
+        "/root/.local/bin/actionlint",
+        ".github/workflows/tauri-native.yml"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/final-actionlint-20261115T205817898967Z.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "CI_contract_tests": {
+    "tests": 16,
+    "pass": 16,
+    "fail": 0,
+    "skipped": 0
+  },
+  "Cargo_runs_by_reviewer": false,
+  "VCPKG_review": {
+    "standard_root_triplet_dynamic_variables_persisted_to_GITHUB_ENV": true,
+    "native_LIB_DLL_and_license_prefix_consistent": true,
+    "missing_port_or_copyright_records_preserve_failure": true
+  },
+  "cache_review": {
+    "vcpkg_binary_cache_created_before_restore": true,
+    "triplet_specific_primary_and_prefix_restore_keys": true,
+    "save_uses_restore_primary_key": true,
+    "save_requires_successful_native_install_and_nonexact_cache_hit": true,
+    "explicit_not_cancelled_allows_save_after_later_build_test_failure": true,
+    "Rust_cache_on_failure_preserves_diagnostics_iteration": true,
+    "cache_optimization_does_not_claim_build_success": true,
+    "primary_output_contract_checked": "https://github.com/actions/cache/blob/v5/restore/README.md"
+  },
+  "native_test_review": {
+    "actual_chord_core_lib_and_rest_identity_targets": true,
+    "actual_chord_platform_lib_and_tests_targets": true,
+    "WindowsCredential_native_tests_enabled_on_Windows_targets": true,
+    "review_does_not_claim_the_native_tests_have_run": true
+  },
+  "artifact_review": {
+    "Windows_DLL_copyright_records_retained": true,
+    "repository_license_notice_files_retained": true,
+    "nested_payload_and_license_files_hashed": true,
+    "Windows_paths_normalized_to_portable_slashes": true,
+    "upload_requires_complete_staging": true,
+    "native_runtime_qualified_remains_false": true
+  },
+  "gitleaks_review": {
+    "prior_exact_exceptions": 2,
+    "new_exact_false_positive_exceptions": 3,
+    "total_exact_exceptions": 5,
+    "fingerprints": [
+      "ed130d722102b6043644111dad9fe6dd946a8145:waves/RW-51/verification/theme-oracle-independent-review.json:generic-api-key:51",
+      "ed130d722102b6043644111dad9fe6dd946a8145:waves/RW-51/verification/theme-oracle-independent-review.json:generic-api-key:52",
+      "3c4be0c2787856df38e6da8703cb3461b82c0470:tests/meta/tauri-native-ci-contract.test.mjs:generic-api-key:37",
+      "3c4be0c2787856df38e6da8703cb3461b82c0470:waves/RW-51/reports/TAURI-CI-INDEPENDENT-REVIEW.json:generic-api-key:95",
+      "3c4be0c2787856df38e6da8703cb3461b82c0470:waves/RW-51/reports/TAURI-CI-INDEPENDENT-REVIEW.json:generic-api-key:96"
+    ],
+    "immutable_public_source_or_expression_verification": [
+      {
+        "commit": "ed130d722102b6043644111dad9fe6dd946a8145",
+        "report": "waves/RW-51/verification/theme-oracle-independent-review.json",
+        "line": 51,
+        "source": "rust/gui-spike/ui/features/token-map.js",
+        "sha256": "269a8a95a6c24a27afda19e30b4342de4a052cc6833cc4b55496ca1635504a0e"
+      },
+      {
+        "commit": "ed130d722102b6043644111dad9fe6dd946a8145",
+        "report": "waves/RW-51/verification/theme-oracle-independent-review.json",
+        "line": 52,
+        "source": "rust/gui-spike/ui/tokens.css",
+        "sha256": "24e94411e2ccc173f3a69ec1571d61e7fcc0fbf2261185296f740e6ddccfc485"
+      },
+      {
+        "commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+        "report": "waves/RW-51/reports/TAURI-CI-INDEPENDENT-REVIEW.json",
+        "line": 95,
+        "source": "rust/gui-spike/ui/features/token-map.js",
+        "sha256": "269a8a95a6c24a27afda19e30b4342de4a052cc6833cc4b55496ca1635504a0e"
+      },
+      {
+        "commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+        "report": "waves/RW-51/reports/TAURI-CI-INDEPENDENT-REVIEW.json",
+        "line": 96,
+        "source": "rust/gui-spike/ui/tokens.css",
+        "sha256": "24e94411e2ccc173f3a69ec1571d61e7fcc0fbf2261185296f740e6ddccfc485"
+      },
+      {
+        "commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+        "report": "tests/meta/tauri-native-ci-contract.test.mjs",
+        "line": 37,
+        "meaning": "Public literal platform-library list in a source-contract test; no credential."
+      }
+    ],
+    "wildcard_path_wide_or_rule_wide_suppression": false,
+    "scanner_independently_rerun_by_reviewer": false
+  },
+  "scope_exclusions": [
+    "The separately approved35-file platform source slice was not changed by this review.",
+    "The separate entropy source fix is outside this report.",
+    "No GitHub native run outcome or runtime qualification is inferred from configuration."
+  ],
+  "native_MSVC_ARM_GUI_or_credential_runtime_qualified": false,
+  "whole_cross_platform_goal_complete": false,
+  "index_or_application_files_written_by_reviewer": false,
+  "ECC_session_started": false
+}

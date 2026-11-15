@@ -1,0 +1,50 @@
+{
+  "phase": "dependency-resolve-core",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "check",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--lib",
+    "--test",
+    "platform_boundaries_contract",
+    "--target",
+    "x86_64-pc-windows-gnu"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/dependency-resolve-core-20261115T202335288625Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "error: unknown start of token: `",
+    "error: expected item after attributes",
+    "error[E0425]: cannot find type `OwnedDmaBuf` in this scope",
+    "warning: unused import: `Path`",
+    "warning: unused import: `Value`",
+    "error[E0560]: struct `CapturedFrame` has no field named `dma_buf`",
+    "warning: `chord-platform` (lib) generated 2 warnings",
+    "error: could not compile `chord-platform` (lib) due to 4 previous errors; 2 warnings emitted"
+  ],
+  "tail": [
+    "19 | use crate::dbus::{DbusError, Value};",
+    "   |                              ^^^^^",
+    "",
+    "error[E0560]: struct `CapturedFrame` has no field named `dma_buf`",
+    "   --> crates/chord-platform/src/screencast.rs:372:13",
+    "    |",
+    "372 |             dma_buf: Some(Arc::new(dma_buf)),",
+    "    |             ^^^^^^^ `CapturedFrame` does not have this field",
+    "    |",
+    "    = note: all struct fields are already assigned",
+    "",
+    "Some errors have detailed explanations: E0425, E0560.",
+    "For more information about an error, try `rustc --explain E0425`.",
+    "warning: `chord-platform` (lib) generated 2 warnings",
+    "error: could not compile `chord-platform` (lib) due to 4 previous errors; 2 warnings emitted"
+  ]
+}

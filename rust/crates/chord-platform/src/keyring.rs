@@ -1,6 +1,10 @@
+//! Native credential storage. Unix preserves the existing Secret Service schema;
+//! Windows uses the Windows Credential Manager through an explicit keyring provider.
+//! The Windows provider is stateless: connect does not create an entry or store a secret.
+//!
 //! P1-10: хранение токена в Secret Service (`org.freedesktop.secrets`) через libsecret.
 //!
-//! Безопасный API поверх [`crate::ffi_secret`] (единственное место с `unsafe`):
+//! Безопасный API поверх `ffi_secret` (единственное место с `unsafe`):
 //! [`Keyring::connect`] поднимает default-сервис сессионной шины, `store`/`lookup`/`clear`
 //! работают с одной схемой `com.discordlab.Token` и строковым атрибутом `key`. Метка записи —
 //! `discord-lab token`, коллекция — default (`collection = NULL`).
@@ -28,13 +32,17 @@
 use std::fmt;
 use std::marker::PhantomData;
 
+#[cfg(unix)]
 use crate::ffi_secret::{FfiError, Schema, Service};
+#[cfg(windows)]
+mod windows;
 
 /// Имя схемы записей (TZ W33a §1).
 pub const SCHEMA_NAME: &str = "com.discordlab.Token";
 /// Префикс токена, зашифрованного через Electron safeStorage (BE-P3-08, RE/rest-static.md §4).
 pub const ENCRYPTED_TOKEN_PREFIX: &str = "dQw4w9WgXcQ:";
 /// Строковый атрибут, по которому ищется запись.
+#[cfg(unix)]
 const ATTRIBUTE_KEY: &str = "key";
 /// Метка записи в Secret Service.
 const LABEL: &str = "discord-lab token";
@@ -117,6 +125,7 @@ impl fmt::Display for KeyringError {
 
 impl std::error::Error for KeyringError {}
 
+#[cfg(unix)]
 impl From<FfiError> for KeyringError {
     fn from(error: FfiError) -> Self {
         Self::Secret {
@@ -128,7 +137,9 @@ impl From<FfiError> for KeyringError {
 
 /// Клиент Secret Service с default-коллекцией. Однопоточный: `!Send + !Sync`.
 pub struct Keyring {
+    #[cfg(unix)]
     service: Service,
+    #[cfg(unix)]
     schema: Schema,
     /// Явная фиксация `!Send + !Sync` независимо от состава полей.
     _not_send_sync: PhantomData<*mut ()>,
@@ -145,12 +156,17 @@ impl fmt::Debug for Keyring {
 }
 
 impl Keyring {
-    /// Подключение к default-сервису через `secret_service_get_sync`.
+    /// Initializes the credential adapter. Unix opens the default Secret Service.
+    /// Windows makes native calls per operation; store access errors arise there.
     pub fn connect() -> Result<Self, KeyringError> {
+        #[cfg(unix)]
         let service = Service::connect()?;
+        #[cfg(unix)]
         let schema = Schema::new(SCHEMA_NAME, ATTRIBUTE_KEY)?;
         Ok(Self {
+            #[cfg(unix)]
             service,
+            #[cfg(unix)]
             schema,
             _not_send_sync: PhantomData,
         })
@@ -162,20 +178,38 @@ impl Keyring {
         if secret.contains('\0') {
             return Err(KeyringError::InvalidSecret);
         }
-        self.service
-            .store(&self.schema, ATTRIBUTE_KEY, key, LABEL, secret)
-            .map_err(KeyringError::from)
+        #[cfg(unix)]
+        {
+            self.service
+                .store(&self.schema, ATTRIBUTE_KEY, key, LABEL, secret)
+                .map_err(KeyringError::from)
+        }
+        #[cfg(windows)]
+        {
+            windows::store(key, secret)
+        }
     }
 
     /// Читает секрет по ключу; отсутствие записи — `Ok(None)`.
     pub fn lookup(&mut self, key: &str) -> Result<Option<String>, KeyringError> {
         validate_key(key)?;
-        let Some(bytes) = self
-            .service
-            .lookup(&self.schema, ATTRIBUTE_KEY, key)
-            .map_err(KeyringError::from)?
-        else {
-            return Ok(None);
+        #[cfg(unix)]
+        let bytes = {
+            let Some(bytes) = self
+                .service
+                .lookup(&self.schema, ATTRIBUTE_KEY, key)
+                .map_err(KeyringError::from)?
+            else {
+                return Ok(None);
+            };
+            bytes
+        };
+        #[cfg(windows)]
+        let bytes = {
+            let Some(bytes) = windows::lookup(key)? else {
+                return Ok(None);
+            };
+            bytes
         };
         String::from_utf8(bytes)
             .map(Some)
@@ -185,9 +219,16 @@ impl Keyring {
     /// Удаляет запись по ключу: `true` — запись была и удалена, `false` — записи не было.
     pub fn clear(&mut self, key: &str) -> Result<bool, KeyringError> {
         validate_key(key)?;
-        self.service
-            .clear(&self.schema, ATTRIBUTE_KEY, key)
-            .map_err(KeyringError::from)
+        #[cfg(unix)]
+        {
+            self.service
+                .clear(&self.schema, ATTRIBUTE_KEY, key)
+                .map_err(KeyringError::from)
+        }
+        #[cfg(windows)]
+        {
+            windows::clear(key)
+        }
     }
 
     /// Миграция токена из safeStorage Electron (BE-P3-08).

@@ -1,0 +1,13 @@
+{
+  "phase": "helper-types-red",
+  "command": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-red-20261115T205821219552Z.log",
+  "source_sha256": "b66c9a85b03cf8baeeb311024345a18aeb915f36f14e345b0febbe5f48c46894",
+  "before_snapshot": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-before-20261115T205821219552Z.mjs",
+  "index_blob": "7ab4b3c29248f913442878bf9696e7a0dd9b6cea"
+}

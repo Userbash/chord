@@ -1,0 +1,17 @@
+{
+  "phase": "format-platform",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "fmt",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "--package",
+    "chord-platform"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/format-platform-20261115T203320775552Z.log",
+  "errors": [],
+  "tail": []
+}

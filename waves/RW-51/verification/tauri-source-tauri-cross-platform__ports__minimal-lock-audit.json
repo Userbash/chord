@@ -1,0 +1,157 @@
+[
+  {
+    "path": "rust/Cargo.lock",
+    "added": [
+      [
+        "byteorder",
+        "1.5.0"
+      ],
+      [
+        "keyring",
+        "3.6.3"
+      ],
+      [
+        "vcpkg",
+        "0.2.15"
+      ],
+      [
+        "windows-sys",
+        "0.60.2"
+      ],
+      [
+        "windows-targets",
+        "0.53.5"
+      ],
+      [
+        "windows_aarch64_gnullvm",
+        "0.53.1"
+      ],
+      [
+        "windows_aarch64_msvc",
+        "0.53.1"
+      ],
+      [
+        "windows_i686_gnu",
+        "0.53.1"
+      ],
+      [
+        "windows_i686_gnullvm",
+        "0.53.1"
+      ],
+      [
+        "windows_i686_msvc",
+        "0.53.1"
+      ],
+      [
+        "windows_x86_64_gnu",
+        "0.53.1"
+      ],
+      [
+        "windows_x86_64_gnullvm",
+        "0.53.1"
+      ],
+      [
+        "windows_x86_64_msvc",
+        "0.53.1"
+      ]
+    ],
+    "removed": [],
+    "baseline_checksums_preserved": true,
+    "changed_baseline_dependency_lists": [
+      [
+        "chord-platform",
+        "0.1.0"
+      ],
+      [
+        "windows-sys",
+        "0.52.0"
+      ],
+      [
+        "windows-targets",
+        "0.52.6"
+      ]
+    ]
+  },
+  {
+    "path": "rust/gui-spike/Cargo.lock",
+    "added": [
+      [
+        "keyring",
+        "3.6.3"
+      ],
+      [
+        "vcpkg",
+        "0.2.15"
+      ],
+      [
+        "windows-sys",
+        "0.60.2"
+      ],
+      [
+        "windows-targets",
+        "0.53.5"
+      ],
+      [
+        "windows_aarch64_gnullvm",
+        "0.53.1"
+      ],
+      [
+        "windows_aarch64_msvc",
+        "0.53.1"
+      ],
+      [
+        "windows_i686_gnu",
+        "0.53.1"
+      ],
+      [
+        "windows_i686_gnullvm",
+        "0.53.1"
+      ],
+      [
+        "windows_i686_msvc",
+        "0.53.1"
+      ],
+      [
+        "windows_x86_64_gnu",
+        "0.53.1"
+      ],
+      [
+        "windows_x86_64_gnullvm",
+        "0.53.1"
+      ],
+      [
+        "windows_x86_64_msvc",
+        "0.53.1"
+      ]
+    ],
+    "removed": [],
+    "baseline_checksums_preserved": true,
+    "changed_baseline_dependency_lists": [
+      [
+        "chord-platform",
+        "0.1.0"
+      ],
+      [
+        "windows-targets",
+        "0.52.6"
+      ]
+    ]
+  },
+  {
+    "path": "rust/chord-gpui/Cargo.lock",
+    "added": [
+      [
+        "keyring",
+        "3.6.3"
+      ]
+    ],
+    "removed": [],
+    "baseline_checksums_preserved": true,
+    "changed_baseline_dependency_lists": [
+      [
+        "chord-platform",
+        "0.1.0"
+      ]
+    ]
+  }
+]

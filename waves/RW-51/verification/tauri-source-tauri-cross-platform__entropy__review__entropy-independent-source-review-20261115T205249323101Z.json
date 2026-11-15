@@ -1,0 +1,227 @@
+{
+  "reviewer": "platform_audit",
+  "author": "arm_cpu_slice",
+  "role": "independent_read_only_source_review",
+  "verdict": "approve_source",
+  "blocking_findings": [],
+  "scope_files": [
+    {
+      "path": "rust/crates/chord-core/src/rest/identity.rs",
+      "sha256": "445d0905ca8ae6e4accc742c4bc9a4a5342efd998ebcd372a658bf4befcd5f9a"
+    },
+    {
+      "path": "rust/crates/chord-core/tests/rest_identity.rs",
+      "sha256": "bf13beece222b8c4aaf21cf892f6bf77390383eb73313306decd1407a960c52a"
+    },
+    {
+      "path": "rust/gui-spike/tests/identity_entropy_contract.rs",
+      "sha256": "b393dcbafdf689f8596be46ba6c9ee3abf7fdfd5ad1e5088431080b7dc845c1a"
+    }
+  ],
+  "head": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+  "performed_at_utc": "2026-11-15T20:52:49.407319+00:00",
+  "cargo_commands_executed": [],
+  "source_index_commits_modified": false,
+  "checks": {
+    "public_api_and_cache": "IdentitySources/SystemSources signatures and constructor preserved; UUID formatting, lazy overrides, canonical draw order, ClientIdentity build/rw_client OnceLock implementation byte-identical",
+    "failure_policy": "Production path calls private fill_identity_random; complete/partial errors panic before UUID publication; fixed message plus unit GetRandomFailed cannot print output bytes",
+    "provider_lifetime": "Locked rustls0.23.46 CryptoProvider.secure_random is an explicit static trait-object reference. Its ring provider stores &Ring and delegates fill to ring SystemRandom. Temporary provider allocation does not invalidate it; no global provider installation",
+    "direct_dependency": "chord-core directly inherits rustls; workspace enables ring,std,tls12. No transitive-only ring call or new manifest/lock change in entropy scope",
+    "old_test_oracles": "Existing rest_identity import/body suffix retained byte-for-byte; tests appended. Six identity units, nine integration tests and three GUI entropy tests have validated immutable green receipts",
+    "mutation_evidence": "Control passed; all5 mutants compiled/executed and failed runtime assertions (swallowed errors, zero entropy, UUID version, UUID variant, draw order)",
+    "entropy_behavioral_red": "Independent recorded-binary replay under missing-/dev/urandom chroot reproduces original constant UUID failure while kernel getrandom works; fixed binary passes same environment"
+  },
+  "mutation_log_checks": [
+    {
+      "name": "control",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-control-20261115T205054100692Z.log",
+      "log_sha256": "6b3065a8c0397d53685db74e55f84fa9b7daab014538ae757867ab2e888e9c22",
+      "compiled_and_executed": true,
+      "tail": [
+        "warning: workspace (manifest) generated 2 warnings",
+        "   Compiling chord-core v0.1.0 (/tmp/chord-entropy-mutants-5r1muyj7/rust/crates/chord-core)",
+        "    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.64s",
+        "     Running unittests src/lib.rs (/root/projects/chord-modernization/rust/target/debug/build/chord-core/b2e634fac0b39555/out/chord_core-b2e634fac0b39555)",
+        "",
+        "running 6 tests",
+        "test rest::identity::tests::build_stays_a_wrapper_over_client_identity ... ok",
+        "test rest::identity::tests::client_identity_builds_rest_and_identify_from_one_set_of_uuids ... ok",
+        "test rest::identity::tests::injected_random_fills_the_complete_output ... ok",
+        "test rest::identity::tests::partial_random_failure_cannot_return_success - should panic ... ok",
+        "test rest::identity::tests::random_failure_cannot_return_success - should panic ... ok",
+        "test rest::identity::tests::system_random_accepts_empty_output ... ok",
+        "",
+        "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 41 filtered out; finished in 0.00s",
+        ""
+      ]
+    },
+    {
+      "name": "swallow-entropy-failure",
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-swallow-entropy-failure-20261115T205057822965Z.log",
+      "log_sha256": "e1347b31d38150b7c3b6f8a2d9bf85c5d5a571e7aaeb22430b72b05aa392aa53",
+      "compiled_and_executed": true,
+      "tail": [
+        "",
+        "failures:",
+        "",
+        "---- rest::identity::tests::partial_random_failure_cannot_return_success stdout ----",
+        "note: test did not panic as expected at crates/chord-core/src/rest/identity.rs:439:8",
+        "---- rest::identity::tests::random_failure_cannot_return_success stdout ----",
+        "note: test did not panic as expected at crates/chord-core/src/rest/identity.rs:430:8",
+        "",
+        "failures:",
+        "    rest::identity::tests::partial_random_failure_cannot_return_success",
+        "    rest::identity::tests::random_failure_cannot_return_success",
+        "",
+        "test result: FAILED. 4 passed; 2 failed; 0 ignored; 0 measured; 41 filtered out; finished in 0.00s",
+        "",
+        "error: test failed, to rerun pass `-p chord-core --lib`"
+      ]
+    },
+    {
+      "name": "zero-os-entropy",
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-zero-os-entropy-20261115T205058689155Z.log",
+      "log_sha256": "71b52cfe715ecb5f9957d23b3fc071e65010a20fdeb3c0de546b3e3f8b855048",
+      "compiled_and_executed": true,
+      "tail": [
+        "---- system_sources_produce_fresh_rfc4122_uuids stdout ----",
+        "",
+        "thread 'system_sources_produce_fresh_rfc4122_uuids' (70889) panicked at crates/chord-core/tests/rest_identity.rs:499:9:",
+        "assertion `left != right` failed",
+        "  left: \"00000000-0000-4000-8000-000000000000\"",
+        " right: \"00000000-0000-4000-8000-000000000000\"",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "",
+        "",
+        "failures:",
+        "    system_sources_produce_fresh_rfc4122_uuids",
+        "",
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s",
+        "",
+        "error: test failed, to rerun pass `-p chord-core --test rest_identity`"
+      ]
+    },
+    {
+      "name": "invalid-uuid-version",
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-version-20261115T205102010920Z.log",
+      "log_sha256": "fbd314b31a034f9846c08c49201acb2200bc076cd31442c41a92b9bf457877d4",
+      "compiled_and_executed": true,
+      "tail": [
+        "---- uuid_v4_shape stdout ----",
+        "",
+        "thread 'uuid_v4_shape' (71239) panicked at crates/chord-core/tests/rest_identity.rs:358:5:",
+        "assertion `left == right` failed",
+        "  left: \"00010203-0405-1607-8809-0a0b0c0d0e0f\"",
+        " right: \"00010203-0405-4607-8809-0a0b0c0d0e0f\"",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "",
+        "",
+        "failures:",
+        "    uuid_v4_shape",
+        "",
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s",
+        "",
+        "error: test failed, to rerun pass `-p chord-core --test rest_identity`"
+      ]
+    },
+    {
+      "name": "invalid-uuid-variant",
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-variant-20261115T205102927635Z.log",
+      "log_sha256": "88cccbade39e4842b0e3e26f6b4f4adcdcc5324fd398a64739fbdb76d3c77ef6",
+      "compiled_and_executed": true,
+      "tail": [
+        "---- uuid_v4_shape stdout ----",
+        "",
+        "thread 'uuid_v4_shape' (71591) panicked at crates/chord-core/tests/rest_identity.rs:358:5:",
+        "assertion `left == right` failed",
+        "  left: \"00010203-0405-4607-c809-0a0b0c0d0e0f\"",
+        " right: \"00010203-0405-4607-8809-0a0b0c0d0e0f\"",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "",
+        "",
+        "failures:",
+        "    uuid_v4_shape",
+        "",
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s",
+        "",
+        "error: test failed, to rerun pass `-p chord-core --test rest_identity`"
+      ]
+    },
+    {
+      "name": "reorder-identity-draws",
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-reorder-identity-draws-20261115T205103743748Z.log",
+      "log_sha256": "731d1f50dfe684b5c31d2f246f97d1d957d10d56d4d289e9ad46ce4cc384f23a",
+      "compiled_and_executed": true,
+      "tail": [
+        "---- wayland_kde_full_build stdout ----",
+        "",
+        "thread 'wayland_kde_full_build' (71944) panicked at crates/chord-core/tests/rest_identity.rs:220:5:",
+        "assertion `left == right` failed",
+        "  left: SuperProperties { os: \"Linux\", browser: \"discord-lab\", release_channel: \"stable\", client_version: \"0.1.0\", os_version: \"6.16.7-arch1-1\", os_arch: \"x64\", app_arch: \"x64\", system_locale: \"ru\", has_client_mods: false, client_launch_id: \"10111213-1415-4617-9819-1a1b1c1d1e1f\", browser_user_agent: \"discord-lab/0.1.0 (Linux; x64)\", browser_version: \"0.1.0\", window_manager: \"KDE\", distro: \"\\\"Arch Linux\\\"\", runtime_environment: \"native\", display_server: \"wayland\", client_build_number: 0, native_build_number: 0, client_event_source: None, launch_signature: \"00010203-0405-4607-8809-0a0b0c0d0e0f\", client_heartbeat_session_id: \"20212223-2425-4627-a829-2a2b2c2d2e2f\", client_app_state: \"focused\" }",
+        " right: SuperProperties { os: \"Linux\", browser: \"discord-lab\", release_channel: \"stable\", client_version: \"0.1.0\", os_version: \"6.16.7-arch1-1\", os_arch: \"x64\", app_arch: \"x64\", system_locale: \"ru\", has_client_mods: false, client_launch_id: \"00010203-0405-4607-8809-0a0b0c0d0e0f\", browser_user_agent: \"discord-lab/0.1.0 (Linux; x64)\", browser_version: \"0.1.0\", window_manager: \"KDE\", distro: \"\\\"Arch Linux\\\"\", runtime_environment: \"native\", display_server: \"wayland\", client_build_number: 0, native_build_number: 0, client_event_source: None, launch_signature: \"10111213-1415-4617-9819-1a1b1c1d1e1f\", client_heartbeat_session_id: \"20212223-2425-4627-a829-2a2b2c2d2e2f\", client_app_state: \"focused\" }",
+        "note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+        "",
+        "",
+        "failures:",
+        "    wayland_kde_full_build",
+        "",
+        "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.00s",
+        "",
+        "error: test failed, to rerun pass `-p chord-core --test rest_identity`"
+      ]
+    }
+  ],
+  "independent_binary_replays": [
+    {
+      "phase": "red-linux-no-device",
+      "command": [
+        "/usr/sbin/chroot",
+        "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/isolation/red-linux-no-device-20261115T204747095035Z",
+        "/identity-probe",
+        "--exact",
+        "system_sources_produce_fresh_rfc4122_uuids",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "binary_sha256": "8dd5e573e1a73ceffa6e5b8856ceb549ac6b4ffd4a45679046184ca3207bd120",
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/review/red-linux-no-device-replay-20261115T205249323101Z.log",
+      "log_sha256": "0a1c0c5dadff49f0115719ef2b6afa5d2d33601fd1b0d1268fa28aa14173a218",
+      "kernel_getrandom_available_inside_chroot": true,
+      "unix_random_device_present": false,
+      "platform": "Linux x86_64 filesystem isolation only"
+    },
+    {
+      "phase": "green-linux-no-device",
+      "command": [
+        "/usr/sbin/chroot",
+        "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/isolation/green-linux-no-device-20261115T204847836948Z",
+        "/identity-probe",
+        "--exact",
+        "system_sources_produce_fresh_rfc4122_uuids",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "a61a3e983b4efcda05cf21fb1f8d99592803d77040bf596ab8f85e6b85fd5ae7",
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/review/green-linux-no-device-replay-20261115T205249323101Z.log",
+      "log_sha256": "1ef0059e00e9b5f3f74c165baf3e6a44bccee6941723c8a1056141e8b263c08b",
+      "kernel_getrandom_available_inside_chroot": true,
+      "unix_random_device_present": false,
+      "platform": "Linux x86_64 filesystem isolation only"
+    }
+  ],
+  "qualification_limits": [
+    "Source approval and Linux filesystem-isolation behavior only",
+    "No native Windows, ARM64, macOS, GUI-launch, release or hardware qualification is inferred",
+    "Frozen infallible API intentionally panics on unavailable OS entropy; recoverable Result migration remains separate"
+  ],
+  "non_blocking_notes": [
+    "default_provider allocates small cipher-suite/KX vectors for each draw, as acknowledged in the approved minimal plan; this is not a functional blocker for three identity draws"
+  ],
+  "dependency_source_provenance": "entropy-audit/SOURCE-EVIDENCE.json archives, lock checksums and source members independently reverified"
+}

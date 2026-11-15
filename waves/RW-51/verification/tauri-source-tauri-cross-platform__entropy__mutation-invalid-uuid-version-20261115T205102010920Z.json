@@ -1,0 +1,21 @@
+{
+  "name": "invalid-uuid-version",
+  "command": [
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+    "-p",
+    "chord-core",
+    "--test",
+    "rest_identity",
+    "uuid_v4_shape"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-version-20261115T205102010920Z.log",
+  "log_sha256": "fbd314b31a034f9846c08c49201acb2200bc076cd31442c41a92b9bf457877d4",
+  "mutated_source_sha256": "033788ef8004a100fb8c90c633d1749633c8a96ce8c598dfc5c1c8e0bf9a66a5",
+  "source_changes_outside_main": true
+}

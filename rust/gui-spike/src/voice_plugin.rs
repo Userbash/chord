@@ -4,7 +4,10 @@
 //! `voice_set_audio_device`, `voice_desktop_sources`, `voice_stream_start`, `voice_stream_stop`,
 //! `voice_stream_watch`, and `voice_stream_set_paused` via `tauri::plugin::Builder::new("voice")`.
 
-use std::sync::atomic::{AtomicI32, AtomicU32, AtomicU64, Ordering};
+#[cfg(target_os = "linux")]
+use std::sync::atomic::{AtomicI32, AtomicU32};
+use std::sync::atomic::{AtomicU64, Ordering};
+#[cfg(target_os = "linux")]
 use std::sync::Mutex;
 
 use chord_client::data;
@@ -15,14 +18,17 @@ static LAST_STREAM_START_MS: AtomicU64 = AtomicU64::new(0);
 
 /// PipeWire node id obtained from the last XDG Desktop Portal screencast session.
 /// `0` = not yet acquired.
+#[cfg(target_os = "linux")]
 static LAST_PIPEWIRE_NODE_ID: AtomicU32 = AtomicU32::new(0);
 
 /// PipeWire fd obtained from the last XDG Desktop Portal screencast session.
 /// `-1` = not yet acquired.
+#[cfg(target_os = "linux")]
 static LAST_PIPEWIRE_FD: AtomicI32 = AtomicI32::new(-1);
 
 /// Active XDG ScreenCast portal session; must remain alive for the duration of the stream,
 /// otherwise the portal destroys the PipeWire node after ~1.5 seconds.
+#[cfg(target_os = "linux")]
 static ACTIVE_PORTAL_SESSION: Mutex<
     Option<ashpd::desktop::Session<ashpd::desktop::screencast::Screencast>>,
 > = Mutex::new(None);
@@ -36,6 +42,7 @@ async fn blocking<T: Send + 'static>(
 }
 
 /// Acquires a PipeWire node id via the XDG Desktop Portal ScreenCast API on Wayland.
+#[cfg(target_os = "linux")]
 async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
     if std::env::var("WAYLAND_DISPLAY").is_err() {
         return Err("not Wayland".to_string());
@@ -314,7 +321,9 @@ pub async fn voice_stream_start(
         LAST_STREAM_START_MS.store(now_ms, Ordering::SeqCst);
     }
 
+    #[cfg(target_os = "linux")]
     let is_wayland = std::env::var("WAYLAND_DISPLAY").is_ok();
+    #[cfg(target_os = "linux")]
     let pipewire_info: Option<(u32, i32)> = if is_wayland
         || spec.source_id.is_empty()
         || spec.source_id.starts_with("screen")
@@ -340,6 +349,10 @@ pub async fn voice_stream_start(
     } else {
         None
     };
+    // Other platforms retain the existing non-portal stream path. This does not
+    // claim that PipeWire or a native capture adapter is available there.
+    #[cfg(not(target_os = "linux"))]
+    let pipewire_info: Option<(u32, i32)> = None;
 
     let op18 = chord_client::voice_stage::build_gateway_stream_create_op18(&spec)?;
     let stream_key = blocking(move || {
@@ -445,6 +458,7 @@ pub async fn voice_stream_stop(
     let k = key.clone();
     let _ = blocking(move || {
         chord_core::ws::clear_last_stream_key();
+        #[cfg(target_os = "linux")]
         if let Ok(mut guard) = ACTIVE_PORTAL_SESSION.lock() {
             *guard = None;
         }

@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-15T20:15:49.001036+00:00",
-  "status": "native_matrix_ready_platform_ports_open",
+  "updated_at": "2026-11-15T21:04:27.836006+00:00",
+  "status": "source_reviewed_linux_rebuilt_six_native_rebuilds_pending",
   "source_baseline": "ed130d722102b6043644111dad9fe6dd946a8145",
   "rust_tree": "2765c050e3d37b71a581f8a4c92e2408b0d07bda",
   "workflow": ".github/workflows/tauri-native.yml",
@@ -82,16 +82,16 @@
   "independent_review": "reports/TAURI-CI-INDEPENDENT-REVIEW.json",
   "source_audit": "reports/TAURI-PLATFORM-AUDIT.json",
   "gitleaks_false_positives": {
-    "scope": "exactly two immutable public-source SHA256 fingerprints in .gitleaksignore",
+    "scope": "Five exact immutable public-source/library-pattern fingerprints, no broad exclusion",
     "files": [
       "rust/gui-spike/ui/features/token-map.js",
       "rust/gui-spike/ui/tokens.css"
     ],
-    "native_scanner_rerun": "pending_GitHub_CI"
+    "native_scanner_rerun": "Local actual baseline-to-HEAD scanner passed with exact exceptions; new commit scan follows staging"
   },
   "all_six_targets_compiled": false,
   "all_native_features_qualified": false,
-  "next": "Port the Windows Unix/credential boundary, then build all six actual Tauri targets and retain failures honestly.",
+  "next": "Push reviewed source and run all six actual native release builds, GUI contracts and native shared contracts. Fix genuine build failures before marking compilation complete.",
   "evidence": [
     "waves/RW-51/verification/tauri-compile-tauri-linux-release-red-20261115T195554035183Z.json",
     "waves/RW-51/verification/tauri-compile-tauri-linux-embedded-release-20261115T200652498643Z.log.gz",
@@ -119,5 +119,1339 @@
     "waves/RW-51/verification/tauri-compile-ci-tooling-20261115T200735476608Z.json",
     "waves/RW-51/verification/tauri-compile-force-host-cpu-instruction-set-20261115T200735476608Z.log.gz",
     "waves/RW-51/verification/tauri-compile-drop-native-arm-runner-20261115T200735476608Z.log.gz"
+  ],
+  "first_native_run": {
+    "url": "https://github.com/Userbash/chord/actions/runs/43757126458",
+    "source_commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+    "release_compiled": [
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu",
+      "x86_64-apple-darwin",
+      "aarch64-apple-darwin"
+    ],
+    "Windows_failure": "Missing mandatory icons/icon.ico on both native MSVC runners",
+    "non_Windows_contract_failure": "D-Bus connection error lacked operation context; original assertion preserved in fix"
+  },
+  "current_source_manifest": [
+    {
+      "path": ".github/workflows/tauri-native.yml",
+      "sha256": "3f5ec9b7fe42a48c436f1994cfca91e26cda06e86509ddb94561fd9036a23d4f"
+    },
+    {
+      "path": ".gitleaksignore",
+      "sha256": "e5a51676edcc7116b933d8c334ba8d37a9852f6d1768b648b2a17bc5bc2da67d"
+    },
+    {
+      "path": "rust/Cargo.lock",
+      "sha256": "9a52c3354a146bd752faf418095ea7e1e36968af4d9f208e011893fd4cdea7a0"
+    },
+    {
+      "path": "rust/chord-gpui/Cargo.lock",
+      "sha256": "23e7a12750d6f665b607bfc683f9caf3b0ab15b6078992946cefabb787ff98da"
+    },
+    {
+      "path": "rust/crates/chord-core/src/rest/identity.rs",
+      "sha256": "8f50014d7dea85ef26937aa840df6e228deaf22fe057ee747faa92d1b7e52e27"
+    },
+    {
+      "path": "rust/crates/chord-core/tests/rest_identity.rs",
+      "sha256": "bf13beece222b8c4aaf21cf892f6bf77390383eb73313306decd1407a960c52a"
+    },
+    {
+      "path": "rust/crates/chord-platform/Cargo.toml",
+      "sha256": "b00ae35f1753614026ef552a0f57415cbe71738c0f7b964c5eb6590caaeb861e"
+    },
+    {
+      "path": "rust/crates/chord-platform/build.rs",
+      "sha256": "288bae71c1dd74cb5528620da254272ea348f2b4bf325784b260dcb669f30c93"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/auth.rs",
+      "sha256": "c867376dd2904275cf0de1973bfe89006314eebd70fa60716b46574ba3b68c60"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/connection.rs",
+      "sha256": "8eea58f8c15d39f6861c6525e093a24d834028ab5e83ae7e56105a813984ca02"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/message.rs",
+      "sha256": "599d505be722f0cf3571eda4e16d210b0263512ffe9bc59cd6f508ccb2eb7509"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/mod.rs",
+      "sha256": "7e8ad2b3598be69c334ef46dc6b77e36176f056204fbfa2527547e856bc0f601"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/ffi_hunspell.rs",
+      "sha256": "0a744baf6407866867d899181729d5dad910c5d608e09e7ae31a604cb7f729f6"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/keyring.rs",
+      "sha256": "99b5d158e45c5c87c09efea3e083b205902d603241d8928d04269ae937cf9786"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/keyring/windows.rs",
+      "sha256": "3683f6ecfc065634bc8599eac1c55fd19919aa344bfced003244650ba11ebc9c"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/lib.rs",
+      "sha256": "973bc7161a5ababa36b141d7e58161e06c821e373291911da9deaf5ae3332773"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/notifications.rs",
+      "sha256": "75c4ff9dcd3b9a1e201ce18d9ce7d4c1883f0eb9eee83a2212c14a63b1021408"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/power.rs",
+      "sha256": "382ae0ad4b474442630210dbd6b901ac5d4052041ab5b4856a277c50f0918dee"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/rpc_ipc.rs",
+      "sha256": "0865f4ca391e7df0335cef3a3becd461b5e0372d41a0f5b28d5a5b4e41335f4a"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/screencast.rs",
+      "sha256": "3ea032e41e07848d4d0a4362c770079ec9a915951bb6806d7248bdd5abcf8a8e"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/dbus_contract.rs",
+      "sha256": "0205c04e676b8c29d652faae1c6771164c5f0d09a5b35f586b0117cd37ffb3ed"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/message_notify_contract.rs",
+      "sha256": "d00454e37935753543f5562eea97a48fe463e0c5792e84556386e8d3a9e70912"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/notifications_contract.rs",
+      "sha256": "6de7ebe4cf5ab2e024ea1963ff76b361c8a230a6c0f9d729bd08f262e9cca680"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/platform_boundaries_contract.rs",
+      "sha256": "0b41a4bd6c4317f0fafb212013e3deb385d2a859c386a9ae3d5c58c15f7dde04"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/power_contract.rs",
+      "sha256": "c05eeae3a2af2eae96bb2ae27d220997e112518b1dc54d8c88a894903fc8a1e4"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/rpc_ipc_contract.rs",
+      "sha256": "b55d9f4098f7bc146ca958869884758e3e9716c62c04b203e836286560d2604f"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_contract.rs",
+      "sha256": "43e1c90f4dc9581ee8e783a0026c074b7a1b585c67798332c7321a38f2be5bf5"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_portal_contract.rs",
+      "sha256": "129a7c5ccbef431b09151e6fd2cd6b20f54fb9294d91170235ed7b9e58d3f88a"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/windows_keyring_contract.rs",
+      "sha256": "bf6679b372c87c7fcdfaf19c188c838da808ae5a837ac7877c7b6c60be566311"
+    },
+    {
+      "path": "rust/gui-spike/Cargo.lock",
+      "sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087"
+    },
+    {
+      "path": "rust/gui-spike/Cargo.toml",
+      "sha256": "421b1c8c38c3f5a183393ce6be9660d76f5de7bf66557468b57f76c09252da88"
+    },
+    {
+      "path": "rust/gui-spike/icons/icon.icns",
+      "sha256": "e6d6f99538e447ec26896e3847662dfde301680f393a03a4453d7fe27390dfb2"
+    },
+    {
+      "path": "rust/gui-spike/icons/icon.ico",
+      "sha256": "c92be982d93db303d8adb544527c197fe4c9820e18656e3ab7ce005a2f8fe3f8"
+    },
+    {
+      "path": "rust/gui-spike/src/main.rs",
+      "sha256": "e6957c00faabfe127ef48d324ae784d9fc4163c072992d4b9e0bde18e2f84409"
+    },
+    {
+      "path": "rust/gui-spike/src/notifications.rs",
+      "sha256": "7992f29605c6420ab2ccc92a9604f32c50ef5a7e603ee00c98ab9701a4bcb343"
+    },
+    {
+      "path": "rust/gui-spike/src/voice_plugin.rs",
+      "sha256": "d4c9afec9bec70c05c651fa551efba3adf0299837292b08bc5a030d7d06580d0"
+    },
+    {
+      "path": "rust/gui-spike/tauri.conf.json",
+      "sha256": "6b65e5d5cf7f53eedb9d17022dbdd8b9acc106787a9217a42ff6b45602a417b8"
+    },
+    {
+      "path": "rust/gui-spike/tests/identity_entropy_contract.rs",
+      "sha256": "b393dcbafdf689f8596be46ba6c9ee3abf7fdfd5ad1e5088431080b7dc845c1a"
+    },
+    {
+      "path": "rust/gui-spike/tests/notifications_contract.rs",
+      "sha256": "4cecdb567d3fc1cf776a022aee8233da92a8ae476c55306afc550ecd12492c8a"
+    },
+    {
+      "path": "scripts/sbom.mjs",
+      "sha256": "c1ea7e8dade202f8f57fabdab3dee26a6a4b5cdfcf766c811ad67f83ebe4601a"
+    },
+    {
+      "path": "tests/meta/tauri-native-ci-contract.test.mjs",
+      "sha256": "1ea890313f421696d0950abe6cfa1d24ba251d8d98ffac664f6458f08e214982"
+    },
+    {
+      "path": "tests/unit/tauri-platform-boundaries.test.mjs",
+      "sha256": "5384ddd54977b1acd29f8403f282bf81d499adb62cbd724d66a6f4556d174678"
+    }
+  ],
+  "source_reviews": [
+    "waves/RW-51/reports/TAURI-PORTS-INDEPENDENT-REVIEW.json",
+    "waves/RW-51/reports/TAURI-ENTROPY-INDEPENDENT-REVIEW.json",
+    "waves/RW-51/reports/TAURI-CI-FINAL-REVIEW.json",
+    "waves/RW-51/reports/TAURI-SBOM-INDEPENDENT-REVIEW.json",
+    "waves/RW-51/reports/TAURI-HELPER-TYPES-REVIEW.json"
+  ],
+  "source_boundaries": {
+    "windows_source_errors_before": 72,
+    "windows_full_Tauri_source_check_after": "passed_zero_errors_and_warnings",
+    "source_check_target": "x86_64-pc-windows-gnu",
+    "native_MSCV_link_qualified": false,
+    "Unix_implementations_and_assertions_preserved": true,
+    "portable_models_retained": true,
+    "unavailable_native_transports": "typed UnsupportedCapability, never fake success",
+    "Windows_credentials": "explicit keyring3.6.3 WinCredential; native tests included, awaiting native execution",
+    "MSVC_Hunspell": "vcpkg0.2.15 installed metadata; root/triplet/dynamic env persisted",
+    "native_icons": "Official @tauri-apps/cli2.12.4 from unchanged product PNG",
+    "all_old_dependency_versions_and_checksums_preserved": true,
+    "normalized_lock_tokens_only": "windows-link0.2.1 qualifier removed when unique; same graph"
+  },
+  "entropy": {
+    "provider": "Existing direct rustls ring OS CSPRNG",
+    "Linux_no_device_RED_exit": 101,
+    "Linux_no_device_GREEN_exit": 0,
+    "OS_getrandom_independently_available": true,
+    "targeted_counts": {
+      "core_identity_unit": {
+        "passed": 6,
+        "ignored": 0,
+        "filtered_out": 41
+      },
+      "core_identity_integration": {
+        "passed": 9,
+        "ignored": 0
+      },
+      "tauri_identity_contract": {
+        "passed": 3,
+        "ignored": 0
+      },
+      "linux_no_device_isolation": {
+        "passed_after_fix": 1,
+        "failed_before_fix": 1
+      }
+    },
+    "behavioral_mutants_killed": 5,
+    "total_behavioral_mutants": 5,
+    "public_API_formatter_draw_order_overrides_and_cache_preserved": true,
+    "native_Windows_ARM_qualification": false
+  },
+  "linux_release_after_ports": {
+    "bytes": 30983960,
+    "sha256": "dd810e6c9598018c5513fa535445c9495f0554443fec0f9708858ab85aa2925d",
+    "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/ports-entropy-local-x86_64-unknown-linux-gnu/chord-client",
+    "build_exit": 0,
+    "features": [
+      "tauri/custom-protocol"
+    ],
+    "native_gui_qualified": false
+  },
+  "tests_after_ports": {
+    "full_worker_gate": "waves/RW-51/verification/tauri-source-worker-2026-11-15T21-02-19-285Z.json",
+    "unit": {
+      "tests": 2652,
+      "pass": 2618,
+      "fail": 34,
+      "skipped": 0
+    },
+    "phases": [
+      {
+        "name": "typecheck",
+        "ok": true,
+        "counts": null
+      },
+      {
+        "name": "ui-tsc",
+        "ok": true,
+        "counts": null
+      },
+      {
+        "name": "meta",
+        "ok": true,
+        "counts": {
+          "tests": 219,
+          "pass": 219,
+          "fail": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "name": "unit",
+        "ok": false,
+        "counts": {
+          "tests": 2652,
+          "pass": 2618,
+          "fail": 34,
+          "skipped": 0
+        }
+      },
+      {
+        "name": "spike-rust",
+        "ok": true,
+        "counts": null
+      },
+      {
+        "name": "workspace-rust",
+        "ok": true,
+        "counts": {
+          "tests": 1512,
+          "pass": 1500,
+          "fail": 0,
+          "skipped": 12
+        }
+      },
+      {
+        "name": "smoke",
+        "ok": true,
+        "counts": {
+          "tests": 22,
+          "pass": 19,
+          "fail": 0,
+          "skipped": 3
+        }
+      },
+      {
+        "name": "gpui-smoke",
+        "ok": true,
+        "counts": null
+      },
+      {
+        "name": "gpui-e2e",
+        "ok": true,
+        "counts": {
+          "tests": 55,
+          "pass": 55,
+          "fail": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "name": "gpui-visual",
+        "ok": true,
+        "counts": {
+          "tests": 10,
+          "pass": 10,
+          "fail": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "CI_contracts": {
+      "pass": 16,
+      "fail": 0,
+      "skip": 0
+    },
+    "actionlint": "passed",
+    "SBOM_new_licenses_provenance_verified": 12,
+    "SBOM_license_mutants_killed": 5,
+    "strict_Node_helper_types_and_four_actual_contracts": "passed"
+  },
+  "current_evidence_archives": [
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-final-actionlint-20261115T205659612258Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-final-actionlint-20261115T205659612258Z.json",
+      "raw_sha256": "251512e3b063e095a99f107d5a541705b7c6673f37868859cfd1587fd92712c7"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-final-actionlint-20261115T205659612258Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-final-actionlint-20261115T205659612258Z.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-platform-contract-green-20261115T205607283394Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-platform-contract-green-20261115T205607283394Z.json",
+      "raw_sha256": "042a66f023efc113ab09f8ef4b948df16dac299f6736c9f3a4148a0994f27dbd"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-platform-contract-green-20261115T205607283394Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-platform-contract-green-20261115T205607283394Z.log",
+      "raw_sha256": "51ada8832b992c931fc3c94fe4dfc0f50920efe50cd6e7b14e9c89d59a1f9255"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-platform-contract-red-20261115T205555714481Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-platform-contract-red-20261115T205555714481Z.json",
+      "raw_sha256": "c40f0479b0ef06736bd35bb68b409c396c9443bb56c3a4fe9583f90db928a246"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-platform-contract-red-20261115T205555714481Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-platform-contract-red-20261115T205555714481Z.log",
+      "raw_sha256": "fd8bd6699a2f7415c9e60ec62de3549e432787ffa857e85999e64723285c4ce6"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-sdk-artifact-green-20261115T204826084325Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-sdk-artifact-green-20261115T204826084325Z.json",
+      "raw_sha256": "be5761f546150e90f55a2a6b5423cfa05b23486c6174f0eaf5b64bd349153dee"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-sdk-artifact-green-20261115T204826084325Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-sdk-artifact-green-20261115T204826084325Z.log",
+      "raw_sha256": "650a72d5a4bb34eb397f5605b5890cc180701a977c27a546601a88d16d7f20a9"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-sdk-artifact-red-20261115T204825626865Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-sdk-artifact-red-20261115T204825626865Z.json",
+      "raw_sha256": "7d8579085cf399f79e7f25db55adcc4dd70b3250b62a0f694f61ce1e5bb8a390"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-native-sdk-artifact-red-20261115T204825626865Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-native-sdk-artifact-red-20261115T204825626865Z.log",
+      "raw_sha256": "95dc830e155d502f8b57d5eb5f08c432703577f3683cc0e68a69d7cf53aabe94"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-ci-registry-final-20261115T205516191420Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-ci-registry-final-20261115T205516191420Z.json",
+      "raw_sha256": "f5a775c38b7431ab86a96bdc3b0d888bb2a09042a7e3e6d864ad68cee09788a6"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-ci-registry-final-20261115T205516191420Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-ci-registry-final-20261115T205516191420Z.log",
+      "raw_sha256": "82827c066b2fb6da8953a5e6bb128c59040bf9785dc554d19e80fbbdb676f35b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-entropy-full-worker-20261115T205523541950Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-entropy-full-worker-20261115T205523541950Z.json",
+      "raw_sha256": "c3d36e7ac3188ee1d2cb8c1ea5eeb3242d213eca147d5e9d634e32a9eee71b40"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-entropy-full-worker-20261115T205523541950Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-entropy-full-worker-20261115T205523541950Z.log",
+      "raw_sha256": "72dbf42da70b2f553bce957c763d01fe106ca6d6c3bce36839d3f911860a0912"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-entropy-linux-release-20261115T205706933484Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-entropy-linux-release-20261115T205706933484Z.json",
+      "raw_sha256": "b1e62c1bcb203f0d4fed9a2f7989892762b9587d570de4536b5a02b8b4ee659e"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-entropy-linux-release-20261115T205706933484Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-entropy-linux-release-20261115T205706933484Z.log",
+      "raw_sha256": "69a482c0fdb2a8a30c157d8258150a6ca8b4ba4288905af790bf4fbffa66617f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-entropy-worker-final-20261115T210113200567Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-entropy-worker-final-20261115T210113200567Z.json",
+      "raw_sha256": "e1ba931d8dbfb33005dd6c369aa0d78ab58ad6d87f651372522e0c67d461ab3b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-entropy-worker-final-20261115T210113200567Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-entropy-worker-final-20261115T210113200567Z.log",
+      "raw_sha256": "fb2515bbbc753419629bb831a250105ecc33581b6472dd62b8772f60a82c3043"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-full-unit-classify-20261115T205808771887Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-full-unit-classify-20261115T205808771887Z.json",
+      "raw_sha256": "37485d9f78aafee2ccece89b17527f90c1e6fc8e7ce4297602faef0c0cf8ccd8"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-full-unit-classify-20261115T205808771887Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-full-unit-classify-20261115T205808771887Z.log",
+      "raw_sha256": "771c13bd8fb78f1c3685b72ca2ab92bf2a4d6442abc722332bcaba4395bb1075"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-gpui-locked-resolver-20261115T204437790395Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-gpui-locked-resolver-20261115T204437790395Z.json",
+      "raw_sha256": "6e73ecdf46c817714f423270361737ebefb167371ac229187ba3a8aac7261173"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-gpui-locked-resolver-20261115T204437790395Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-gpui-locked-resolver-20261115T204437790395Z.log",
+      "raw_sha256": "322101bbd1f437424f71b1b69a5869c9bccaf2601e5d2ba43754c4a3b54380b2"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-license-cache-fetch-20261115T205808378889Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-license-cache-fetch-20261115T205808378889Z.json",
+      "raw_sha256": "c863129f532a22cf084501867fa427beea16a8ccf03736aae7abd907cac75629"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-license-cache-fetch-20261115T205808378889Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-license-cache-fetch-20261115T205808378889Z.log",
+      "raw_sha256": "293bf8f2ba1781c8798cc8fcaf9f45c97a5967d1dcf8d11d1e1939dbba785e67"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-sbom-green-20261115T205836752044Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-sbom-green-20261115T205836752044Z.json",
+      "raw_sha256": "c8cc9768118d6571f9adedb8c62b2f99748f4daeefa85dbbf065d99486635916"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-sbom-green-20261115T205836752044Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-sbom-green-20261115T205836752044Z.log",
+      "raw_sha256": "3d35411529df90cf492779d40d0aee88aaab9a0ead2057fb6b2e14855c2903e1"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-sbom-red-20261115T205755373125Z.json",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-sbom-red-20261115T205755373125Z.json",
+      "raw_sha256": "94930e2f0d2be4dbe2bba9ec23ef6967e4fddbb0fc7a4e20d716374aa4845e3c"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-rust-dependencies__tauri-ports-sbom-red-20261115T205755373125Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-ports-sbom-red-20261115T205755373125Z.log",
+      "raw_sha256": "588767e7e801207e96831415ceaf9cd41ae91b913842f5fd64b60d9e017333b1"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__actionlint-20261115T200735476608Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/actionlint-20261115T200735476608Z.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__ci-tooling-20261115T200735476608Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/ci-tooling-20261115T200735476608Z.json",
+      "raw_sha256": "feecf2e120cca62b9d01506139f8b6d1a72dfb643685bbbe5a04f4d45e0f18f9"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__control-20261115T200735476608Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/control-20261115T200735476608Z.log",
+      "raw_sha256": "90d4931dce4230ccf66259223b660a7d1c0dba4e1c45d98ea08fa312369abd6f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__drop-native-arm-runner-20261115T200735476608Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/drop-native-arm-runner-20261115T200735476608Z.log",
+      "raw_sha256": "60f06ff325c2d3cdf9a579b07743295130533769f53d2e796d8083c3f05b81e5"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__force-host-cpu-instruction-set-20261115T200735476608Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/force-host-cpu-instruction-set-20261115T200735476608Z.log",
+      "raw_sha256": "cd492c22d512a5e180b20dbcc1b5ca956c93f49cea345d0c2f2d53e97ad5d227"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__generated-sbom-before-protected-restore.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/generated-sbom-before-protected-restore.json",
+      "raw_sha256": "7df98a9d7c3dc3dee2eb031a8ed1598de03fd7e6fc21022acd611045820768af"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__hide-build-failure-20261115T200735476608Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/hide-build-failure-20261115T200735476608Z.log",
+      "raw_sha256": "8cbfeef5a8aba833a12f70542f594099be71e11a2ec92b772ece75fa1a8dfeb6"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__ignore-missing-artifact-20261115T200735476608Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/ignore-missing-artifact-20261115T200735476608Z.log",
+      "raw_sha256": "48ca8ab6afd21de7ce5b8cd436290553a13abeae68de6156a5772711218b5148"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__protected-sbom-restored.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/protected-sbom-restored.json",
+      "raw_sha256": "be6d41bff59188c9bf713c124402692d08b7429fcb24ad2f4c463061f2334780"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__published-ci-slice.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/published-ci-slice.json",
+      "raw_sha256": "42de047215ece6299b1b707ebedb31d5efb8137d8d57cb43410204345039bb2f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__replace-release-build-with-check-20261115T200735476608Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/replace-release-build-with-check-20261115T200735476608Z.log",
+      "raw_sha256": "c09a4907b6e3ca785c869b8676fc7ac060da897d87c8e194d01e07cae4018594"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__actionlint-20261115T201201310193Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/actionlint-20261115T201201310193Z.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__checks-20261115T201201310193Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/checks-20261115T201201310193Z.json",
+      "raw_sha256": "ba39d5b1a8b349b018873134c0ce8cee531e4cf6ecf0bb376f3e775d6482411b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__ci-contracts-20261115T201201310193Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/ci-contracts-20261115T201201310193Z.log",
+      "raw_sha256": "c191b530e88c0b5d15cc8a45666d0f7b627c25f8049affd602e5893807185ad2"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__final-actionlint-20261115T205817898967Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/final-actionlint-20261115T205817898967Z.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__final-checks-20261115T205817898967Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/final-checks-20261115T205817898967Z.json",
+      "raw_sha256": "eb3e04b7bec9451c4a53996b95b2d92e30a72ae1eeaa60975c37bcd49e428521"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__final-ci-contracts-20261115T205817898967Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/final-ci-contracts-20261115T205817898967Z.log",
+      "raw_sha256": "143885b4d31c9d8f1272134d09ee22fb02b15a3983e8a31c569d13f2ab742b46"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__final-ci-review.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/final-ci-review.json",
+      "raw_sha256": "7f82b75477f64461217fa2b3fa52e1d125c5a42b3f3632d0abd52b505c86d75a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__final-review-driver.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/final-review-driver.json",
+      "raw_sha256": "98e7cc9f70de7957c14486ef68d372db5613f14f06f274e2f18b1bfb0510c5f4"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__independent-review.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/independent-review.json",
+      "raw_sha256": "4896fd1527dfa5a39cf11375e759e5025d789a8353fe4e3db3ebd436e7091864"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-byteorder-1.5.0-20261115T210103614159Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-byteorder-1.5.0-20261115T210103614159Z.json",
+      "raw_sha256": "6940e03098b9e88207cf942dc8c528043c081ea96f3e1dc51008b677cf85bb2c"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-byteorder-1.5.0-20261115T210103614159Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-byteorder-1.5.0-20261115T210103614159Z.log",
+      "raw_sha256": "82140185399b611b0a7e6af1a419bc69a5b4524adad3244dae20d6984afff046"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-control-20261115T210103498382Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-control-20261115T210103498382Z.json",
+      "raw_sha256": "6b1c65aef2f558f8d3bde028eb0c87ea306abc2c390bb63440300d9e669c70b2"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-control-20261115T210103498382Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-control-20261115T210103498382Z.log",
+      "raw_sha256": "b3b1b50a885c9143689eda5e3d8d222a2aa57f9f082ecc710a6de8bb17e700d9"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-control.spdx.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-control.spdx.json",
+      "raw_sha256": "7df98a9d7c3dc3dee2eb031a8ed1598de03fd7e6fc21022acd611045820768af"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-keyring-3.6.3-20261115T210103729248Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-keyring-3.6.3-20261115T210103729248Z.json",
+      "raw_sha256": "c9de6338161166f64265b4d3abd99eea647aae34b3a6562a70ccefcc97daf701"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-keyring-3.6.3-20261115T210103729248Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-keyring-3.6.3-20261115T210103729248Z.log",
+      "raw_sha256": "435d513f54396cbf3e46fe894caed452ba0576de38cd8730c74c22964ab02c4f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-review.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-review.json",
+      "raw_sha256": "f32e4fa9b71cd6b1c4c1f8f6615b1e71b07b15c912726c97bfc3bfa6fd6eb88a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-windows-sys-0.60.2-20261115T210103844352Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows-sys-0.60.2-20261115T210103844352Z.json",
+      "raw_sha256": "fb70d1cfbc267de6ff10b9578073be58aedb964b1bca358d5f58660026b2e9fa"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-windows-sys-0.60.2-20261115T210103844352Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows-sys-0.60.2-20261115T210103844352Z.log",
+      "raw_sha256": "aebdcd3f98c393c6963758be0496b3e0806e9d7e706da12a8353be2f78585d59"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-windows-targets-0.53.5-20261115T210103909187Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows-targets-0.53.5-20261115T210103909187Z.json",
+      "raw_sha256": "db3a296e3a5e05109ea4c0bc891217122ed59a9aaa16b651630f185c168ff8ff"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-windows-targets-0.53.5-20261115T210103909187Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows-targets-0.53.5-20261115T210103909187Z.log",
+      "raw_sha256": "ab657cf3a56e0ccc3f2f385a7689ffb66961d047a4a1ebb13ddf64094ecce42f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-windows_aarch64_msvc-0.53.1-20261115T210104024279Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows_aarch64_msvc-0.53.1-20261115T210104024279Z.json",
+      "raw_sha256": "56a41319c125549fb9f068eab156ad8bc4b2298d2fd0fc7583a69c9cd9b31b56"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__sbom-windows_aarch64_msvc-0.53.1-20261115T210104024279Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows_aarch64_msvc-0.53.1-20261115T210104024279Z.log",
+      "raw_sha256": "6bc6d8b124f718d82e55c11c0168ad5b6bfb96075ac0091d53b77fedc5e97fdd"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__sbom-license-provenance.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/sbom-license-provenance.json",
+      "raw_sha256": "0ee8bc5836994ec8b2f0bfca207e4d04856d58de3a664499ca0cfc4d0f065c65"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__baseline-core-no-run-20261115T204712928903Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/baseline-core-no-run-20261115T204712928903Z.json",
+      "raw_sha256": "232abb859a4edf8061b8200d97e28c558e0c97d1071a9f885fbf376a52be9605"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__baseline-core-no-run-20261115T204712928903Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/baseline-core-no-run-20261115T204712928903Z.log",
+      "raw_sha256": "8113204e8046f64d320febe003ebb0a94d7cb8dac84588fb99a2b03d1a9bfdba"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__clippy-core-let-chain-20261115T205448527827Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/clippy-core-let-chain-20261115T205448527827Z.json",
+      "raw_sha256": "2c8d2c4319cee90a89c11bee826890f6afa4954fdaf8fa1d6f39fe485c7bf03d"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__clippy-core-let-chain-20261115T205448527827Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/clippy-core-let-chain-20261115T205448527827Z.log",
+      "raw_sha256": "f29627a7e8d286c789fd80dcf1b79503243ff8980cf8456511fd2b66c96fdbc1"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-core-integration-20261115T204836847906Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-integration-20261115T204836847906Z.json",
+      "raw_sha256": "de8468f69bacd458b33f7d7ad25d0e6de085b7b4700b9aa0bffb1252f4d80bff"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-core-integration-20261115T204836847906Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-integration-20261115T204836847906Z.log",
+      "raw_sha256": "cb5e95d7b171ab03ca17b5fcdd747a465ec9f4057b4ae74a1c5af0b1163b9d2a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-core-unit-20261115T204838811523Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-unit-20261115T204838811523Z.json",
+      "raw_sha256": "bd75885c7ba2681b14e30d14ae3ceffe86815614096dbe5c274c2b74b2335a89"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-core-unit-20261115T204838811523Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-unit-20261115T204838811523Z.log",
+      "raw_sha256": "ba9d3643d7de10c5d365b9912bcf4afb64219cbcf3f1789f8d71f76be2aaac38"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-core-unit-let-chain-20261115T205435376612Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-unit-let-chain-20261115T205435376612Z.json",
+      "raw_sha256": "174382f6b19be492fd30e45ce16d4e403c1f4732d6cf4eaaac6fdddf0cba94f4"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-core-unit-let-chain-20261115T205435376612Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-unit-let-chain-20261115T205435376612Z.log",
+      "raw_sha256": "579acc86226a97b7dc579b1f698517e0eb8f93ebeee568fbd224d7337753f33a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-gui-contract-20261115T204848182995Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-gui-contract-20261115T204848182995Z.json",
+      "raw_sha256": "ae35967f15e39dcdc5f91d258bfed75da15f8db927ece8d44ad9373c2dba1c19"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-gui-contract-20261115T204848182995Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-gui-contract-20261115T204848182995Z.log",
+      "raw_sha256": "0d58c82983bbeb875a85e18534e1d18a1452e9adc81abdc8234f970020f8a628"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-linux-no-device-20261115T204847836948Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-linux-no-device-20261115T204847836948Z.json",
+      "raw_sha256": "279ea3f4e38e1c4d7ae236432e7e3a5ea2562aac607a163b59228efa3df71ec0"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-linux-no-device-20261115T204847836948Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-linux-no-device-20261115T204847836948Z.log",
+      "raw_sha256": "1ef0059e00e9b5f3f74c165baf3e6a44bccee6941723c8a1056141e8b263c08b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__green-linux-no-device-loader-20261115T204847836948Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-linux-no-device-loader-20261115T204847836948Z.log",
+      "raw_sha256": "56b832dfe4752fb04c4219c80ee0d1c2cdc848ef11100158aa5567803458629c"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__handoff-before-let-chain-20261115T205510918713Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/handoff-before-let-chain-20261115T205510918713Z.json",
+      "raw_sha256": "54e039f55513c4d61a2c3c8f61d96b2371e89ca9000dc5b69f19b101cd0ff619"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__handoff.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/handoff.json",
+      "raw_sha256": "823d0d79c23923c8fbfd7f651047d2066f619dd6374d74a71d9645945044dc61"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-control-20261115T205054100692Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-control-20261115T205054100692Z.json",
+      "raw_sha256": "a97c1bf85ac0686b5d91cac13f68ee125139f793d6920ff8e1b3c3a9e1869b51"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-control-20261115T205054100692Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-control-20261115T205054100692Z.log",
+      "raw_sha256": "6b3065a8c0397d53685db74e55f84fa9b7daab014538ae757867ab2e888e9c22"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-invalid-uuid-variant-20261115T205102927635Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-variant-20261115T205102927635Z.json",
+      "raw_sha256": "11f9815b320b18d4d810f49818b9e81041f30cd41e87e8a55b182531e4d77d71"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-invalid-uuid-variant-20261115T205102927635Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-variant-20261115T205102927635Z.log",
+      "raw_sha256": "88cccbade39e4842b0e3e26f6b4f4adcdcc5324fd398a64739fbdb76d3c77ef6"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-invalid-uuid-version-20261115T205102010920Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-version-20261115T205102010920Z.json",
+      "raw_sha256": "6c10c70121d3c0cb41e32b359e0fbccf49bcb7172a8e6055ce28cc4322e240e2"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-invalid-uuid-version-20261115T205102010920Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-invalid-uuid-version-20261115T205102010920Z.log",
+      "raw_sha256": "fbd314b31a034f9846c08c49201acb2200bc076cd31442c41a92b9bf457877d4"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-reorder-identity-draws-20261115T205103743748Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-reorder-identity-draws-20261115T205103743748Z.json",
+      "raw_sha256": "0d50ef63e8d9345e83e9fd6613cd221b91e0506adc9de88bf42407bf99542546"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-reorder-identity-draws-20261115T205103743748Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-reorder-identity-draws-20261115T205103743748Z.log",
+      "raw_sha256": "731d1f50dfe684b5c31d2f246f97d1d957d10d56d4d289e9ad46ce4cc384f23a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-summary.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-summary.json",
+      "raw_sha256": "49d62833b5b9e74b3e1adca9925b2362b27f9324830780629b811dabb5f623d2"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-swallow-entropy-failure-20261115T205057822965Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-swallow-entropy-failure-20261115T205057822965Z.json",
+      "raw_sha256": "d154ab5a2300dea432614448bae60cbed0b504bc96abed79c63aa32c890189e8"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-swallow-entropy-failure-20261115T205057822965Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-swallow-entropy-failure-20261115T205057822965Z.log",
+      "raw_sha256": "e1347b31d38150b7c3b6f8a2d9bf85c5d5a571e7aaeb22430b72b05aa392aa53"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-zero-os-entropy-20261115T205058689155Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-zero-os-entropy-20261115T205058689155Z.json",
+      "raw_sha256": "a657da6b4b3c2b303d9f3719168d5fb925920d272d2d3aa81141cd87e8aa7a8a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__mutation-zero-os-entropy-20261115T205058689155Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-zero-os-entropy-20261115T205058689155Z.log",
+      "raw_sha256": "71b52cfe715ecb5f9957d23b3fc071e65010a20fdeb3c0de546b3e3f8b855048"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__red-linux-no-device-20261115T204747095035Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/red-linux-no-device-20261115T204747095035Z.json",
+      "raw_sha256": "e05f137dfee2c15b303ace16de9da7e9ad903ed6c3c19ec9a6aab01fbbb28eae"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__red-linux-no-device-20261115T204747095035Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/red-linux-no-device-20261115T204747095035Z.log",
+      "raw_sha256": "e2d56110fc6de3ffd53b5407bcae4fdd632950ff7b6a20e99d220fb7b9835a7a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__red-linux-no-device-loader-20261115T204747095035Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/red-linux-no-device-loader-20261115T204747095035Z.log",
+      "raw_sha256": "7a4256162550d91ac58bcc08066ddc300951df69272bea0d357ae9fa107bbc04"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__review__FINAL-entropy-source-approval-20261115T205602559681Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/review/FINAL-entropy-source-approval-20261115T205602559681Z.json",
+      "raw_sha256": "2bdde37286150075e018bd77a54016aeb527156831b5dd2a237b6713bfd786be"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__review__entropy-independent-source-review-20261115T205249323101Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/review/entropy-independent-source-review-20261115T205249323101Z.json",
+      "raw_sha256": "b383ae50ab5fafab77ac424f04dde923dafd962df3dac42d4cedc4dc5295ce5c"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__review__entropy-source-review-lint-addendum-20261115T2054.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/review/entropy-source-review-lint-addendum-20261115T2054.json",
+      "raw_sha256": "04a1a0cb7b0f527ccca12ab6f90499b0e93b631ae043d075842d1c16c5acc1f6"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__review__green-linux-no-device-replay-20261115T205249323101Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/review/green-linux-no-device-replay-20261115T205249323101Z.log",
+      "raw_sha256": "1ef0059e00e9b5f3f74c165baf3e6a44bccee6941723c8a1056141e8b263c08b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__review__partial-fill-lint-20261115T205400690928Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/review/partial-fill-lint-20261115T205400690928Z.log",
+      "raw_sha256": "b566c88a0ce1de71489b8c489de57eed5bee68b2dfded9a081fd86c0a5032307"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy__review__red-linux-no-device-replay-20261115T205249323101Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/review/red-linux-no-device-replay-20261115T205249323101Z.log",
+      "raw_sha256": "0a1c0c5dadff49f0115719ef2b6afa5d2d33601fd1b0d1268fa28aa14173a218"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy-audit__PLAN.md",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy-audit/PLAN.md",
+      "raw_sha256": "387cb3096ad30fecb681d6bea3ecf0e8f21cfea569e5441a248d0b15421528f4"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__entropy-audit__SOURCE-EVIDENCE.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy-audit/SOURCE-EVIDENCE.json",
+      "raw_sha256": "6f53e55c41a0daff7dd1b444691bb99466e56fc12851d27a76a037fee3595a22"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__adjacent-pipewire-contracts-20261115T203906679540Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/adjacent-pipewire-contracts-20261115T203906679540Z.json",
+      "raw_sha256": "a8849c6b21ffaa4aeaa293feb8165aaad7d593d6dd24c40327892082faa96d1c"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__adjacent-pipewire-contracts-20261115T203906679540Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/adjacent-pipewire-contracts-20261115T203906679540Z.log",
+      "raw_sha256": "b343f46fe202e5e8709fad8c10d554c4d7357cece41f7abdec326bc43c1e8849"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__capability-error-red-20261115T202413698540Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/capability-error-red-20261115T202413698540Z.json",
+      "raw_sha256": "2bf061626d497be24c3b8116f51635e672a4c0571d99ae73fc03e94af1793131"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__capability-error-red-20261115T202413698540Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/capability-error-red-20261115T202413698540Z.log",
+      "raw_sha256": "29befb4494592f1ce18d3456d956cbb7ad87b4f7f69f46d08acfc25f776fbdb8"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__capability-error-red-valid-20261115T202420022378Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/capability-error-red-valid-20261115T202420022378Z.json",
+      "raw_sha256": "4de3013e8525120d21aacc1f929ba287406d70becd11e84f63c741dc8d201525"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__capability-error-red-valid-20261115T202420022378Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/capability-error-red-valid-20261115T202420022378Z.log",
+      "raw_sha256": "7847b92e5074d13123f038d261f174ff80e07fc16836fecd7b9d3150b5b7359c"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__darwin-arm64-clippy-20261115T203851979958Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-arm64-clippy-20261115T203851979958Z.json",
+      "raw_sha256": "a7160caa495ed72980e14611b140d8756fee0213d2bf1d18aff2b9f13197623a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__darwin-arm64-clippy-20261115T203851979958Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-arm64-clippy-20261115T203851979958Z.log",
+      "raw_sha256": "bce900e3210e9865654093311183459da65486bcb06a9cea336cf5955adadb7a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__darwin-arm64-platform-check-20261115T203558447366Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-arm64-platform-check-20261115T203558447366Z.json",
+      "raw_sha256": "d4e1a7e983e6fe216695f7db2824885aa582ecf0bc6dc74c7cf6e92824d4232c"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__darwin-arm64-platform-check-20261115T203558447366Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-arm64-platform-check-20261115T203558447366Z.log",
+      "raw_sha256": "0f3f10efc3cbbb19c260e7df7f0fddba103b1db328387c0bc8d73f3e3035a29e"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__darwin-x64-clippy-20261115T203850963363Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-x64-clippy-20261115T203850963363Z.json",
+      "raw_sha256": "fe1c695829d0e16d09c0a9be095d994266565c5850fea38ac93db0adb71ceca0"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__darwin-x64-clippy-20261115T203850963363Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-x64-clippy-20261115T203850963363Z.log",
+      "raw_sha256": "388da061fadb1499333966c1965e1d9940f6447f7aa212884edf9d503f45bf19"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__darwin-x64-platform-check-20261115T203557069121Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-x64-platform-check-20261115T203557069121Z.json",
+      "raw_sha256": "5e52b28d528ac35c8f9884b998a2d7eda61f54f458c7131ddbe9f0ac21c91b14"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__darwin-x64-platform-check-20261115T203557069121Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/darwin-x64-platform-check-20261115T203557069121Z.log",
+      "raw_sha256": "9167c8015736a3741e3e17a9677a8fe42ec52ffdfc9bda8bf6a06bb6f4fa0b99"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__dbus-private-oracle-check-20261115T203401871104Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/dbus-private-oracle-check-20261115T203401871104Z.json",
+      "raw_sha256": "52e95bb41b215026e2ec9db733eee2bfd40830a57cf3c7b1eb9eb1bc31f061de"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__dbus-private-oracle-check-20261115T203401871104Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/dbus-private-oracle-check-20261115T203401871104Z.log",
+      "raw_sha256": "218ffc364d7ba3d30fb5b8732f20c919bef24215bff649e95763cb6fa49285a2"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__dependency-resolve-core-20261115T202335288625Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/dependency-resolve-core-20261115T202335288625Z.json",
+      "raw_sha256": "54a53d701c3acd93366dc14818741644334c89f72d53a4b583ad25c5474f0cfb"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__dependency-resolve-core-20261115T202335288625Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/dependency-resolve-core-20261115T202335288625Z.log",
+      "raw_sha256": "dadfc934c5cd7acb7038e7c8edcd456efe390054a68d37b33a97723c8acff686"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__final-handoff-platform-boundaries-20261115T204312858881Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/final-handoff-platform-boundaries-20261115T204312858881Z.json",
+      "raw_sha256": "c77c29b784e45cced2e60b8a6554c7b0b27990b775c4e473e6f472cfaebb0a8f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__format-platform-20261115T203320775552Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/format-platform-20261115T203320775552Z.json",
+      "raw_sha256": "b408b2bc170649243c694f14d05e13c32e3820dae064880b838025b50247c192"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__format-platform-20261115T203320775552Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/format-platform-20261115T203320775552Z.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__format-platform-check-20261115T204122991187Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/format-platform-check-20261115T204122991187Z.json",
+      "raw_sha256": "60b0b6bd1960c8496e8bbc0561dc17015d95842781a33d4f01cba7a06f8b107b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__format-platform-check-20261115T204122991187Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/format-platform-check-20261115T204122991187Z.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__format-platform-final-20261115T203953162832Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/format-platform-final-20261115T203953162832Z.json",
+      "raw_sha256": "ddddc17af4311e054ae52fc72df3f934ff8806f89f5cbee5db16aa4043fee9ee"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__format-platform-final-20261115T203953162832Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/format-platform-final-20261115T203953162832Z.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__generate-native-product-icons-20261115T203735562284Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/generate-native-product-icons-20261115T203735562284Z.json",
+      "raw_sha256": "7815539bff736262c26687e698b2913b99ba713ef7394e29e5ad1e127cd11d0f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__generate-native-product-icons-20261115T203735562284Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/generate-native-product-icons-20261115T203735562284Z.log",
+      "raw_sha256": "25d128450b8724cabc55c86ff2a4f78341ac84d557bb994c67051571bcdf3c9d"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__gpui-minimal-lock-validation-20261115T204035392038Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/gpui-minimal-lock-validation-20261115T204035392038Z.json",
+      "raw_sha256": "5d4adf4096d363ba3ae92c13fcafedbd19e9f89c7f352dc76e44c4cc5dea4aa8"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__gpui-minimal-lock-validation-20261115T204035392038Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/gpui-minimal-lock-validation-20261115T204035392038Z.log",
+      "raw_sha256": "682da936c525f9fd2bf16c3b4c57c8933cf453329c99b36914e02732800fdeca"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__handoff-platform-boundaries-20261115T2042.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/handoff-platform-boundaries-20261115T2042.json",
+      "raw_sha256": "47dabaf3c55d6af606ec52aaf984f68acfc51de2f4b8e9fa9672f101d6526423"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__helper-types-frozen-handoff-20261115T2059.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-frozen-handoff-20261115T2059.json",
+      "raw_sha256": "07e4e08fabdfbbc1bf41e39752baa12837ccaadd40d389bd1b7974ef540beddc"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__helper-types-green-20261115T205844237802Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-green-20261115T205844237802Z.json",
+      "raw_sha256": "f489eaece215e8d658ce5cccf65d6934a8d16a79581f6fd8046e3740f6349ecc"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__helper-types-green-20261115T205844237802Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-green-20261115T205844237802Z.log",
+      "raw_sha256": "c9abc238a72081f5b225a3bad84761e2ce20f02e786e51bb6ecc075747575b81"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__helper-types-preservation-20261115T205910800251Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-preservation-20261115T205910800251Z.json",
+      "raw_sha256": "cfac3454a5e09e15c62cca6dd1b850152c0a8b1af84c81ed81be0a7f52dc2d34"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__helper-types-red-20261115T205821219552Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-red-20261115T205821219552Z.json",
+      "raw_sha256": "6e77b6037785f77ebd4e90265a6d6596fd8c2ff0a14527bb258d7f153943a5b5"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__helper-types-red-20261115T205821219552Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-red-20261115T205821219552Z.log",
+      "raw_sha256": "0490e84cb55ab5c42d761d52c17931ae84d645154a54d0463588897813ef5071"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__helper-types-targeted-green-20261115T205935408066Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-targeted-green-20261115T205935408066Z.json",
+      "raw_sha256": "39a4fb8b475e5bffa50dae8d2006a791fe68538aefb0f88ca6efaf5d9b554f7e"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__helper-types-targeted-green-20261115T205935408066Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-targeted-green-20261115T205935408066Z.log",
+      "raw_sha256": "62d9758f69067de909eb3c52f574ca0d562b9af12284e78fca54ca8d17b83c86"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__hunspell-discovery-green-20261115T202948759232Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/hunspell-discovery-green-20261115T202948759232Z.json",
+      "raw_sha256": "2a4e1362caea6d461ad4e6301061b05f31011dffb5398571333665203a5c940b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__hunspell-discovery-green-20261115T202948759232Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/hunspell-discovery-green-20261115T202948759232Z.log",
+      "raw_sha256": "8da334d6434af55c94343fb5ccccb8454758d0920c816a43443166beea6623cf"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__hunspell-discovery-red-20261115T202929353400Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/hunspell-discovery-red-20261115T202929353400Z.json",
+      "raw_sha256": "377cf2617305dca378c28fbb2e5e11f28839fc58ed281f2e08cb766260acba38"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__hunspell-discovery-red-20261115T202929353400Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/hunspell-discovery-red-20261115T202929353400Z.log",
+      "raw_sha256": "289f502965763554dd25dca104b9143489bc82ff12d9c093ec7c519a0f5ca443"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__linux-platform-clippy-20261115T203343373842Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-clippy-20261115T203343373842Z.json",
+      "raw_sha256": "958fbbeff9eb1868b413deca1d3cb24e1cae166bc2d1775ae020490763b3c9cb"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__linux-platform-clippy-20261115T203343373842Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-clippy-20261115T203343373842Z.log",
+      "raw_sha256": "df4707acfccc3ba895b5a8f47df93b7580723bb9fed3d278b0b4b6831b822d71"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__linux-platform-clippy-green-20261115T203400867160Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-clippy-green-20261115T203400867160Z.json",
+      "raw_sha256": "4155d65ab21b4904102ce2a359ea723c8d2653ca038f5898012f683058431166"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__linux-platform-clippy-green-20261115T203400867160Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-clippy-green-20261115T203400867160Z.log",
+      "raw_sha256": "75ec9521387f5bb84a1fae0389fd474454dfc341362dedfc9ebdda03aa633a69"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__linux-platform-contracts-20261115T203321243367Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-contracts-20261115T203321243367Z.json",
+      "raw_sha256": "30bcd62e60f717d02ab724f2ad0dd5e9d44b16e837e17ddfd1bcc2380071d1e0"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__linux-platform-contracts-20261115T203321243367Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-contracts-20261115T203321243367Z.log",
+      "raw_sha256": "4d4737fe065668f478cf2f243cd2ecff121b65af553fef9b09d55c85a6e1ba07"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__linux-platform-final-20261115T204120621815Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-final-20261115T204120621815Z.json",
+      "raw_sha256": "8031b8f162206e02c420a0242a6f51de9599df2ce30bb8533eeeba0b87174969"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__linux-platform-final-20261115T204120621815Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/linux-platform-final-20261115T204120621815Z.log",
+      "raw_sha256": "edf81951bba4fd85376caefe015cfee8fc4a38c54efe476d56b41e1fc8492cf8"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__minimal-lock-audit.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/minimal-lock-audit.json",
+      "raw_sha256": "de1d6c3f5bfddce5abc18be0dccaa8ea02b858da8789b2082fb0acf2bc6817e6"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__native-dependency-provenance.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-dependency-provenance.json",
+      "raw_sha256": "179b5e890c99bc8b2edd518e8534f570da3da795b6126ce169b0124ea574f886"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__native-icon-provenance.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-icon-provenance.json",
+      "raw_sha256": "445f83e3b29a3c2758b8815b5ce72c039604e3ba9d02f1a40466378651f322b1"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__native-product-icons-green-20261115T203753967031Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-product-icons-green-20261115T203753967031Z.json",
+      "raw_sha256": "d204559cc11c16a382059507b4a524731cfbbed1e2346f36645cdc8d52c10ba2"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__native-product-icons-green-20261115T203753967031Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-product-icons-green-20261115T203753967031Z.log",
+      "raw_sha256": "780f974f5953e9ba981830113ddf5c6841fa1c4baf169da7e1491d553cb12a59"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__native-product-icons-red-20261115T203726971681Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-product-icons-red-20261115T203726971681Z.json",
+      "raw_sha256": "4fcdf8dc3d660af1be4cecb5899789832b96bc8ac614eb58a388bdbca14cde96"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__native-product-icons-red-20261115T203726971681Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-product-icons-red-20261115T203726971681Z.log",
+      "raw_sha256": "c1a8fc897ede0f42ee213166c037dedbdaa256de2f690106f177e6d93151b340"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__official-icon-generator-version-20261115T204231403586Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/official-icon-generator-version-20261115T204231403586Z.json",
+      "raw_sha256": "680eb3b6b5d349ab58b23700af8740703a5cd0854a9514f528726402ba1b3b75"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__official-icon-generator-version-20261115T204231403586Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/official-icon-generator-version-20261115T204231403586Z.log",
+      "raw_sha256": "9b3bfd97bdbbb1caca492a182482702522f4861cac9c38b60655010daaf0a7e3"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__portable-linux-green-20261115T202441828916Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-linux-green-20261115T202441828916Z.json",
+      "raw_sha256": "413b464f609af5f1359a0dd25448f9c34e3b429da398a31608a192b24ba3537c"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__portable-linux-green-20261115T202441828916Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-linux-green-20261115T202441828916Z.log",
+      "raw_sha256": "4d4c6ebfaaf47da1bfd0b1398ab3febcb5c99fe364086df946f7e85f0e7dc3ac"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__portable-stream-red-20261115T202157601607Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-stream-red-20261115T202157601607Z.json",
+      "raw_sha256": "23da33076984f80b22ee7ad39f6b2242195ce730fb06adfc2dc167cf021b776b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__portable-stream-red-20261115T202157601607Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-stream-red-20261115T202157601607Z.log",
+      "raw_sha256": "9f3145c450bd3dbe9a0b0af7dd83776976baf8ade62c6a8c865d6585ef7c62c4"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__portable-windows-green-20261115T202352188725Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-windows-green-20261115T202352188725Z.json",
+      "raw_sha256": "e1ce8c616bd9ac635d14b5fc7782dfaa51c8d87ddf9ac5d45b2a95adca938cda"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__portable-windows-green-20261115T202352188725Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-windows-green-20261115T202352188725Z.log",
+      "raw_sha256": "59a5c7ea4a33598ce4c9a33019c24f4b0ebb249fa1fbac56e3fa8f3c7ab0b6c9"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__portable-windows-red-20261115T202127522017Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-windows-red-20261115T202127522017Z.json",
+      "raw_sha256": "b1a5d6ac5594b69c1cc8339e1951a2cade2d024a6e9b70f5f1e3ebd6053584eb"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__portable-windows-red-20261115T202127522017Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/portable-windows-red-20261115T202127522017Z.log",
+      "raw_sha256": "ed3f77811b705bdb29e69781bdcf74322eff2ac56cffbae59384d169affe0183"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__review__helper-types-review.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/review/helper-types-review.json",
+      "raw_sha256": "c57c3dfa47d4a522acd3ee275e28e0a10d05307ff6268b4f90f7684b26d70419"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__review__independent-review.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/review/independent-review.json",
+      "raw_sha256": "18575e81aae624a451c1ae29d7f506d4fd3e61b51d4eea6cec135c81e3351ba6"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-notification-minimal-locks-20261115T203615117678Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-minimal-locks-20261115T203615117678Z.json",
+      "raw_sha256": "14ba2f96dbbbb07929f41a668c3018047df1bf25ff9af989a7987698263dd707"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-notification-minimal-locks-20261115T203615117678Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-minimal-locks-20261115T203615117678Z.log",
+      "raw_sha256": "14a674e4bf4be5915e1a3a15af9d2d8119319df5fd0b350fb9afab4cd54fd4f7"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-notification-no-session-green-20261115T203108695516Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-no-session-green-20261115T203108695516Z.json",
+      "raw_sha256": "fd0534f5c5a9df557fb5c0728d97420ed7853651673871e5d7cce3186e67ee98"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-notification-no-session-green-20261115T203108695516Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-no-session-green-20261115T203108695516Z.log",
+      "raw_sha256": "54d9c7c91a326125004019237d6fee261baee8a1c8b22ad8a9b57adcee88a41f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-notification-no-session-red-20261115T203002621757Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-no-session-red-20261115T203002621757Z.json",
+      "raw_sha256": "0524f5104248b2a5b430af2a135065294e90c5d3e37361957e475cd312b4cc15"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-notification-no-session-red-20261115T203002621757Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-no-session-red-20261115T203002621757Z.log",
+      "raw_sha256": "7a4cb5fd09ead351dff14c912519dd2b25204c85432d93c41fa1ecc14c69a2cd"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-windows-source-after-icons-20261115T203754405129Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-after-icons-20261115T203754405129Z.json",
+      "raw_sha256": "31245d2c480bd8a7589e5a75762489c3c1eba0d1318838f4037f566af9a2ec8d"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-windows-source-after-icons-20261115T203754405129Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-after-icons-20261115T203754405129Z.log",
+      "raw_sha256": "a22cfd1f80c69aea586672d09ef8651ce6c674bb9710e40c9ade9ded8b4fbd8a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-windows-source-check-20261115T203415358031Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-check-20261115T203415358031Z.json",
+      "raw_sha256": "aa4e4362fd40079b1d50b8ff1195ad2331506372824062de00e4840c51eadb5a"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-windows-source-check-20261115T203415358031Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-check-20261115T203415358031Z.log",
+      "raw_sha256": "bbc1f9dc1f01d31a5e0147fc59ae6b9fb0ab59a5e7462428f957ace5969f809b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-windows-source-final-20261115T203953970514Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-final-20261115T203953970514Z.json",
+      "raw_sha256": "89e8fa521606011c99472b68b4d7caff1d8a13cb6526da66ba1408340c4b52a4"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__tauri-windows-source-final-20261115T203953970514Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-windows-source-final-20261115T203953970514Z.log",
+      "raw_sha256": "43b60071ec521165bd6fe369bd5e04303da57f7e215667bf98cb0ae9d8c67c43"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__test-preservation-audit.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/test-preservation-audit.json",
+      "raw_sha256": "560ccf3f890ed28adce28c6b433fcbd4a664ee9827cf29abe901ab439a9eab29"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-all-targets-contracts-20261115T202755784213Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-contracts-20261115T202755784213Z.json",
+      "raw_sha256": "b47c9d0bc7ddd809c983241360d450a62ffaa79e051d483fe9b3cd95211f40ea"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-all-targets-contracts-20261115T202755784213Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-contracts-20261115T202755784213Z.log",
+      "raw_sha256": "62d22d76bd424a50545cc7db502ff174f889a8e07b6209814692cbf3958fab7b"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-all-targets-final-locks-20261115T203246410624Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-final-locks-20261115T203246410624Z.json",
+      "raw_sha256": "0af668d0901ae49f728732f4a21387ee7d10e83be6bab1863634df598a2d265e"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-all-targets-final-locks-20261115T203246410624Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-final-locks-20261115T203246410624Z.log",
+      "raw_sha256": "6f13873fea5509ccb675fb47df75cb2a927ef34d290631b0b7e66d953069460d"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-all-targets-followup-20261115T202503000085Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-followup-20261115T202503000085Z.json",
+      "raw_sha256": "f3d554c83f513a51744b7b893b5bf319c3e205e87de67605bd56dd76218223e4"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-all-targets-followup-20261115T202503000085Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-followup-20261115T202503000085Z.log",
+      "raw_sha256": "6e372a089ce2d9b0e9da244c3f5e48746a64e3127a93cd56632ef489154bc92f"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-all-targets-minimal-locks-20261115T203305895813Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-minimal-locks-20261115T203305895813Z.json",
+      "raw_sha256": "abef6db37cf7320361ab52e31563c17346a602a5c242e7f74dd62f8889aa0443"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-all-targets-minimal-locks-20261115T203305895813Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-all-targets-minimal-locks-20261115T203305895813Z.log",
+      "raw_sha256": "c4f26bb8c6e6d631d45da35674a0b88b72d7631ff0e7ed077880693b9f5a5cba"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-platform-clippy-20261115T203614128003Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-platform-clippy-20261115T203614128003Z.json",
+      "raw_sha256": "69bc803b4a15aad44f0724b6dbee34a4a669692964cf2e47a2fdbee4794f29bc"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-platform-clippy-20261115T203614128003Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-platform-clippy-20261115T203614128003Z.log",
+      "raw_sha256": "fc1ce52902f8104fddc1a0fb44ce7dc28251bce3081d6b7c0c1269b2546f7ab1"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-platform-clippy-green-20261115T203840972568Z.json",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-platform-clippy-green-20261115T203840972568Z.json",
+      "raw_sha256": "8e750796c935d30877037a90c164bf349d3cff2994ef8ce7c3e5d92031f05a73"
+    },
+    {
+      "archive": "waves/RW-51/verification/tauri-source-tauri-cross-platform__ports__windows-platform-clippy-green-20261115T203840972568Z.log.gz",
+      "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-platform-clippy-green-20261115T203840972568Z.log",
+      "raw_sha256": "22f0b29d51dc4333959a1a2601b3cd6109d3e19471b9ba52477644164b515749"
+    }
   ]
 }

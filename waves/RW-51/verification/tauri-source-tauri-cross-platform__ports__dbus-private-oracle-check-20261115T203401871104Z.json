@@ -1,0 +1,45 @@
+{
+  "phase": "dbus-private-oracle-check",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-platform",
+    "--test",
+    "dbus_contract",
+    "a07_path_branch_still_connects_to_path_bus",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/dbus-private-oracle-check-20261115T203401871104Z.log",
+  "errors": [
+    "warning: unused workspace dependency `chord-conformance`",
+    "warning: unused workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings"
+  ],
+  "tail": [
+    "   |",
+    "26 | chord-perf = { path = \"crates/chord-perf\" }",
+    "   | ^^^^^^^^^^",
+    "   |",
+    "help: consider removing the workspace dependency `chord-perf`",
+    "warning: workspace (manifest) generated 2 warnings",
+    "   Compiling chord-platform v0.1.0 (/root/projects/chord-tauri-platform/rust/crates/chord-platform)",
+    "    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.13s",
+    "     Running tests/dbus_contract.rs (/root/projects/chord-verification/target/debug/build/chord-platform/f23e037fbbe2802f/out/dbus_contract-f23e037fbbe2802f)",
+    "",
+    "running 1 test",
+    "test a07_path_branch_still_connects_to_path_bus ... ok",
+    "",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.00s",
+    ""
+  ]
+}

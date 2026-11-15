@@ -1,5 +1,7 @@
 # STATE — System Status and Wave Checkpoint
 
+- Tauri source integration: Windows72→0source errors; explicit native credential/provider boundaries, icons and OS entropy reviewed. Linux release rebuilt; final worker retains34JSunit failures. Next six-target native rebuild remains open. See [compile batch](RW-51/TAURI-COMPILE-BATCH.md).
+
 - Tauri transition compile batch, 2026-11-15: actual Linux release compiled
   with embedded frontend; six-target native CI configuration reviewed.
   Windows source has72baseline errors; native jobs/ports and runtime

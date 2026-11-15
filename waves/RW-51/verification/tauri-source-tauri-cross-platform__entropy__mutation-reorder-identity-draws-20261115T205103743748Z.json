@@ -1,0 +1,21 @@
+{
+  "name": "reorder-identity-draws",
+  "command": [
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+    "-p",
+    "chord-core",
+    "--test",
+    "rest_identity",
+    "wayland_kde_full_build"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-reorder-identity-draws-20261115T205103743748Z.log",
+  "log_sha256": "731d1f50dfe684b5c31d2f246f97d1d957d10d56d4d289e9ad46ce4cc384f23a",
+  "mutated_source_sha256": "375bc613262e954dfd01089646e7bd0331fe03b1ecef5c1b77f0c67c9fefa8bd",
+  "source_changes_outside_main": true
+}

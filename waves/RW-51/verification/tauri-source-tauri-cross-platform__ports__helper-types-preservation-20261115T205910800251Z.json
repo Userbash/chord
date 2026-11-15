@@ -1,0 +1,13 @@
+{
+  "phase": "helper-types-preservation",
+  "file": "tests/unit/tauri-platform-boundaries.test.mjs",
+  "before_sha256": "b66c9a85b03cf8baeeb311024345a18aeb915f36f14e345b0febbe5f48c46894",
+  "frozen_sha256": "5384ddd54977b1acd29f8403f282bf81d499adb62cbd724d66a6f4556d174678",
+  "all_assertion_lines_unchanged": true,
+  "runtime_code_identical_after_jsdoc_erasure_and_pure_tuple_array_inlining": true,
+  "index_blob_unchanged": "7ab4b3c29248f913442878bf9696e7a0dd9b6cea",
+  "patch": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-diff-20261115T205910800251Z.patch",
+  "patch_sha256": "db2d64873fb36372de3e0ebfbf68faf7d1cae6239902e6a8832b2b1c5bb6daa6",
+  "cargo_lock_probe": "free",
+  "source_scope": "only this Node test helper; no source/index/lock/docs edits elsewhere by this writer"
+}

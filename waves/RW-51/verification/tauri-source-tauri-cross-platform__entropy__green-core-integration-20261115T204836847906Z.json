@@ -1,0 +1,49 @@
+{
+  "phase": "green-core-integration",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/Cargo.toml",
+    "-p",
+    "chord-core",
+    "--test",
+    "rest_identity",
+    "--message-format=json-render-diagnostics"
+  ],
+  "exit_code": 0,
+  "cwd": "/root/projects/chord-modernization",
+  "cargo_build_jobs": 4,
+  "cargo_target_dir": null,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-integration-20261115T204836847906Z.log",
+  "log_sha256": "cb5e95d7b171ab03ca17b5fcdd747a465ec9f4057b4ae74a1c5af0b1163b9d2a",
+  "executables": [
+    "/root/projects/chord-modernization/rust/target/debug/build/chord-core/3ffdb59279bbe4c6/out/rest_identity-3ffdb59279bbe4c6"
+  ],
+  "tail": [
+    "   Compiling chord-core v0.1.0 (/root/projects/chord-modernization/rust/crates/chord-core)",
+    "{\"reason\":\"compiler-artifact\",\"package_id\":\"path+file:///root/projects/chord-modernization/rust/crates/chord-core#0.1.0\",\"manifest_path\":\"/root/projects/chord-modernization/rust/crates/chord-core/Cargo.toml\",\"target\":{\"kind\":[\"lib\"],\"crate_types\":[\"lib\"],\"name\":\"chord_core\",\"src_path\":\"/root/projects/chord-modernization/rust/crates/chord-core/src/lib.rs\",\"edition\":\"2024\",\"doc\":true,\"doctest\":true,\"test\":true},\"profile\":{\"opt_level\":\"0\",\"debuginfo\":1,\"debug_assertions\":true,\"overflow_checks\":true,\"test\":false},\"features\":[],\"filenames\":[\"/root/projects/chord-modernization/rust/target/debug/build/chord-core/48f9e7accc6735b0/out/libchord_core-48f9e7accc6735b0.rlib\",\"/root/projects/chord-modernization/rust/target/debug/build/chord-core/48f9e7accc6735b0/out/libchord_core-48f9e7accc6735b0.rmeta\"],\"executable\":null,\"fresh\":false}",
+    "{\"reason\":\"compiler-artifact\",\"package_id\":\"path+file:///root/projects/chord-modernization/rust/crates/chord-core#0.1.0\",\"manifest_path\":\"/root/projects/chord-modernization/rust/crates/chord-core/Cargo.toml\",\"target\":{\"kind\":[\"test\"],\"crate_types\":[\"bin\"],\"name\":\"rest_identity\",\"src_path\":\"/root/projects/chord-modernization/rust/crates/chord-core/tests/rest_identity.rs\",\"edition\":\"2024\",\"doc\":false,\"doctest\":false,\"test\":true},\"profile\":{\"opt_level\":\"0\",\"debuginfo\":1,\"debug_assertions\":true,\"overflow_checks\":true,\"test\":true},\"features\":[],\"filenames\":[\"/root/projects/chord-modernization/rust/target/debug/build/chord-core/3ffdb59279bbe4c6/out/rest_identity-3ffdb59279bbe4c6\"],\"executable\":\"/root/projects/chord-modernization/rust/target/debug/build/chord-core/3ffdb59279bbe4c6/out/rest_identity-3ffdb59279bbe4c6\",\"fresh\":false}",
+    "{\"reason\":\"build-finished\",\"success\":true}",
+    "    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.64s",
+    "     Running tests/rest_identity.rs (rust/target/debug/build/chord-core/3ffdb59279bbe4c6/out/rest_identity-3ffdb59279bbe4c6)",
+    "",
+    "running 9 tests",
+    "test config_overrides_win ... ok",
+    "test display_server_fallbacks ... ok",
+    "test distro_sources ... ok",
+    "test locale_parsing ... ok",
+    "test integration_base64_headers ... ok",
+    "test uuid_v4_shape ... ok",
+    "test os_arch_mapping ... ok",
+    "test wayland_kde_full_build ... ok",
+    "test system_sources_produce_fresh_rfc4122_uuids ... ok",
+    "",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    ""
+  ]
+}

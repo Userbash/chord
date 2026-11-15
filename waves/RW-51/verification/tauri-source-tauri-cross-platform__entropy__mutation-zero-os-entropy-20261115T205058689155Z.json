@@ -1,0 +1,21 @@
+{
+  "name": "zero-os-entropy",
+  "command": [
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/tmp/chord-entropy-mutants-5r1muyj7/rust/Cargo.toml",
+    "-p",
+    "chord-core",
+    "--test",
+    "rest_identity",
+    "system_sources_produce_fresh_rfc4122_uuids"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/mutation-zero-os-entropy-20261115T205058689155Z.log",
+  "log_sha256": "71b52cfe715ecb5f9957d23b3fc071e65010a20fdeb3c0de546b3e3f8b855048",
+  "mutated_source_sha256": "308304b39a30f4ee117ff917fffdb7ac33a73a485a9c5eff57598625c51f070a",
+  "source_changes_outside_main": true
+}

@@ -11,23 +11,35 @@
 //! Live-сервис на сессионной шине не трогается: `n16` только читает возможности и лишь при
 //! `DISCORD_LAB_LIVE_NOTIFY=1`; уведомления наружу не отправляются.
 
-use chord_platform::dbus::{BusAddress, Connection, DbusError, Value};
+use chord_platform::dbus::Value;
+#[cfg(unix)]
+use chord_platform::dbus::{BusAddress, Connection, DbusError};
 use chord_platform::notifications::{
-    Event, Hints, IncomingMessageNotification, Notification, NotificationDispatchDecision,
-    NotificationEvent, NotificationRouter, Notifier, Urgency, redact_secrets,
+    Event, Hints, IncomingMessageNotification, NotificationDispatchDecision, NotificationEvent,
+    NotificationRouter, Urgency, redact_secrets,
 };
+#[cfg(unix)]
+use chord_platform::notifications::{Notification, Notifier};
 use std::fs;
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
 use std::process::{Child, Command, Stdio};
+#[cfg(unix)]
 use std::time::{Duration, Instant};
 
+#[cfg(unix)]
 const SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+#[cfg(unix)]
 const SKIP_NO_PYTHON: &str = "нет python3 с модулями dbus и gi";
+#[cfg(unix)]
 const MOCK_DESTINATION: &str = "lab.Mock";
+#[cfg(unix)]
 const MOCK_PATH: &str = "/lab/Mock";
+#[cfg(unix)]
 const MOCK_INTERFACE: &str = "lab.Mock.Notifications";
 
 /// Приватная шина + мок-сервис; всё убирается в `Drop`.
+#[cfg(unix)]
 struct Harness {
     address: String,
     journal: PathBuf,
@@ -36,6 +48,7 @@ struct Harness {
     mock: Child,
 }
 
+#[cfg(unix)]
 impl Harness {
     fn start(extra_mock_args: &[&str]) -> Result<Self, String> {
         if !command_exists("dbus-daemon") {
@@ -163,6 +176,7 @@ impl Harness {
     }
 }
 
+#[cfg(unix)]
 impl Drop for Harness {
     fn drop(&mut self) {
         let _ = self.mock.kill();
@@ -177,12 +191,14 @@ impl Drop for Harness {
 }
 
 /// Убирает приватный демон и tempdir при ошибке старта (skip-путь без `Drop`).
+#[cfg(unix)]
 fn abort(daemon_pid: u32, dir: &Path, reason: String) -> String {
     let _ = Command::new("kill").arg(daemon_pid.to_string()).status();
     let _ = fs::remove_dir_all(dir);
     reason
 }
 
+#[cfg(unix)]
 fn read_child_stderr(child: &mut Child) -> String {
     use std::io::Read as _;
     let mut text = String::new();
@@ -198,6 +214,7 @@ fn repo_path(relative: &str) -> PathBuf {
         .join(relative)
 }
 
+#[cfg(unix)]
 fn command_exists(name: &str) -> bool {
     Command::new("sh")
         .arg("-c")
@@ -209,6 +226,7 @@ fn command_exists(name: &str) -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(unix)]
 fn python_dbus_available() -> bool {
     Command::new("python3")
         .args(["-c", "import dbus, gi"])
@@ -219,6 +237,7 @@ fn python_dbus_available() -> bool {
         .unwrap_or(false)
 }
 
+#[cfg(unix)]
 fn unique_suffix() -> u64 {
     use std::sync::atomic::{AtomicU64, Ordering};
     static COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -230,6 +249,7 @@ fn unique_suffix() -> u64 {
 }
 
 /// Запускает стенд или печатает причину skip и выходит из теста.
+#[cfg(unix)]
 macro_rules! harness {
     ($extra:expr) => {
         match Harness::start($extra) {
@@ -242,6 +262,7 @@ macro_rules! harness {
     };
 }
 
+#[cfg(unix)]
 fn sample_notification() -> Notification {
     Notification {
         app_name: "Discord Lab".to_owned(),
@@ -256,6 +277,7 @@ fn sample_notification() -> Notification {
 // --- n02/n06: auth EXTERNAL + Hello ----------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n02_auth_external_and_hello_yield_unique_name() {
     let harness = harness!(&[]);
     let connection = Connection::connect(&harness.bus_address())
@@ -269,6 +291,7 @@ fn n02_auth_external_and_hello_yield_unique_name() {
 // --- n07: GetCapabilities и GetServerInformation ---------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n07_capabilities_and_server_information_come_from_mock() {
     let harness = harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -299,6 +322,7 @@ fn n07_capabilities_and_server_information_come_from_mock() {
 // --- n08: Notify → id, поля доходят до сервиса -----------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n08_notify_returns_server_id_and_mock_sees_fields() {
     let harness = harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -323,6 +347,7 @@ fn n08_notify_returns_server_id_and_mock_sees_fields() {
 // --- n09: actions парами ---------------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n09_notify_actions_reach_mock_as_pairs() {
     let harness = harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -345,6 +370,7 @@ fn n09_notify_actions_reach_mock_as_pairs() {
 // --- n10: CloseNotification ------------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n10_close_notification_reaches_mock() {
     let harness = harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -360,6 +386,7 @@ fn n10_close_notification_reaches_mock() {
 // --- n11: ERROR-ответ → DbusError::Remote ----------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n11_error_reply_maps_to_remote_error() {
     let harness = harness!(&["--fail-notify"]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -388,6 +415,7 @@ fn n11_error_reply_maps_to_remote_error() {
 // --- n12: ActionInvoked / NotificationClosed -------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n12_action_and_close_signals_become_events() {
     let harness = harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -436,6 +464,7 @@ fn n12_action_and_close_signals_become_events() {
 // --- n13: чужие сигналы пропускаются ---------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n13_foreign_signals_are_skipped() {
     let harness = harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -483,6 +512,7 @@ fn n13_foreign_signals_are_skipped() {
 // --- n15: повторный close и закрытая сессия --------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n15_repeated_close_and_closed_session_survive() {
     let mut harness = harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -507,6 +537,7 @@ fn n15_repeated_close_and_closed_session_survive() {
 // --- защита от пустых обязательных полей -----------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn n08b_notify_requires_app_name_and_summary() {
     let harness = harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -537,6 +568,7 @@ fn n08b_notify_requires_app_name_and_summary() {
 // --- n16: live-сервис — только чтение и только по флагу --------------------------
 
 #[test]
+#[cfg(unix)]
 fn n16_live_service_is_flag_gated_and_read_only() {
     if std::env::var("DISCORD_LAB_LIVE_NOTIFY").as_deref() != Ok("1") {
         println!("SKIP: live-уведомления выключены (DISCORD_LAB_LIVE_NOTIFY != 1)");
@@ -566,11 +598,14 @@ fn n16_live_service_is_flag_gated_and_read_only() {
 // тип варианта, ключ, пропуск пустой строки или порядок видны как расхождение строки.
 // =================================================================================
 
+#[cfg(unix)]
 const HINTS_SKIP_NO_DAEMON: &str = "нет dbus-daemon";
+#[cfg(unix)]
 const HINTS_SKIP_NO_PYTHON: &str = "нет python3 с модулями dbus и gi";
 
 /// Приватная шина + мок hints; отличается от `Harness` только скриптом мока
 /// (`waves/RW-32/dbus/mock_hints.py`) и префиксом временного каталога.
+#[cfg(unix)]
 struct HintsHarness {
     address: String,
     journal: PathBuf,
@@ -579,6 +614,7 @@ struct HintsHarness {
     mock: Child,
 }
 
+#[cfg(unix)]
 impl HintsHarness {
     fn start(extra_mock_args: &[&str]) -> Result<Self, String> {
         Self::start_with_mock(
@@ -706,6 +742,7 @@ impl HintsHarness {
     }
 }
 
+#[cfg(unix)]
 impl Drop for HintsHarness {
     fn drop(&mut self) {
         let _ = self.mock.kill();
@@ -719,6 +756,7 @@ impl Drop for HintsHarness {
     }
 }
 
+#[cfg(unix)]
 macro_rules! hints_harness {
     ($extra:expr) => {
         match HintsHarness::start($extra) {
@@ -732,6 +770,7 @@ macro_rules! hints_harness {
 }
 
 /// Запись журнала `Notify` по индексу (ждёт, пока мок допишет).
+#[cfg(unix)]
 fn hints_notify_record(harness: &HintsHarness, index: usize) -> Vec<String> {
     let records = harness.wait_for_member("Notify", index + 1);
     records.get(index).cloned().unwrap_or_else(|| {
@@ -743,6 +782,7 @@ fn hints_notify_record(harness: &HintsHarness, index: usize) -> Vec<String> {
 }
 
 /// Поле `hints` журнала: `ключ:сигнатура:значение|…` (пусто для пустого `a{sv}`).
+#[cfg(unix)]
 fn hints_field(record: &[String]) -> &str {
     record.get(9).map(String::as_str).unwrap_or("")
 }
@@ -750,6 +790,7 @@ fn hints_field(record: &[String]) -> &str {
 // --- q01: notify без hints → пустой a{sv} (0 записей, не null) --------------------
 
 #[test]
+#[cfg(unix)]
 fn q01_notify_without_hints_sends_empty_dict() {
     let harness = hints_harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -777,6 +818,7 @@ fn q01_notify_without_hints_sends_empty_dict() {
 // --- q02: urgency → вариант y (0/1/2) --------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn q02_urgency_is_byte_variant_with_contract_values() {
     let harness = hints_harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -806,6 +848,7 @@ fn q02_urgency_is_byte_variant_with_contract_values() {
 // --- q03: category → вариант s ---------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn q03_category_is_string_variant() {
     let harness = hints_harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -828,6 +871,7 @@ fn q03_category_is_string_variant() {
 // --- q04: desktop-entry + resident (s + b) ---------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn q04_desktop_entry_and_resident_have_string_and_bool_variants() {
     let harness = hints_harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -861,6 +905,7 @@ fn q04_desktop_entry_and_resident_have_string_and_bool_variants() {
 // --- q05: все hints вместе → 4 записи в фиксированном порядке --------------------
 
 #[test]
+#[cfg(unix)]
 fn q05_all_hints_are_four_entries_in_frozen_order() {
     let harness = hints_harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -890,6 +935,7 @@ fn q05_all_hints_are_four_entries_in_frozen_order() {
 // --- q06: пустые строки не отправляются ------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn q06_empty_category_and_desktop_entry_are_skipped() {
     let harness = hints_harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -915,6 +961,7 @@ fn q06_empty_category_and_desktop_entry_are_skipped() {
 // --- q07: Unicode и длинная строка (4 КиБ) ---------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn q07_unicode_and_long_values_are_delivered_without_panic() {
     let harness = hints_harness!(&[]);
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -958,9 +1005,12 @@ fn q07_unicode_and_long_values_are_delivered_without_panic() {
 use chord_platform::dbus::message::{self, MessageType};
 use chord_platform::notifications;
 
+#[cfg(unix)]
 const EXT_MOCK: &str = "waves/RW-34/dbus/mock_hints2.py";
+#[cfg(unix)]
 const EXT_TEMP_PREFIX: &str = "discord-lab-w34b";
 
+#[cfg(unix)]
 macro_rules! ext_harness {
     () => {
         match HintsHarness::start_with_mock(EXT_MOCK, EXT_TEMP_PREFIX, &[]) {
@@ -974,6 +1024,7 @@ macro_rules! ext_harness {
 }
 
 /// Полный набор из восьми hints; значения совпадают с набором `all_eight` фикстуры.
+#[cfg(unix)]
 fn full_hints() -> Hints {
     Hints {
         urgency: Some(Urgency::Normal),
@@ -988,6 +1039,7 @@ fn full_hints() -> Hints {
 }
 
 /// Запись журнала `hints` → тройки (ключ, сигнатура варианта, значение).
+#[cfg(unix)]
 fn hint_entries(field: &str) -> Vec<(&str, &str, &str)> {
     if field.is_empty() {
         return Vec::new();
@@ -1008,6 +1060,7 @@ fn hint_entries(field: &str) -> Vec<(&str, &str, &str)> {
 // --- e01: все 8 hints — 8 записей, варианты y/s/b --------------------------------
 
 #[test]
+#[cfg(unix)]
 fn e01_all_eight_hints_reach_mock_with_freedesktop_types() {
     let harness = ext_harness!();
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -1043,6 +1096,7 @@ fn e01_all_eight_hints_reach_mock_with_freedesktop_types() {
 // --- e02: image-path и sound-name — варианты s -----------------------------------
 
 #[test]
+#[cfg(unix)]
 fn e02_image_path_and_sound_name_are_string_variants() {
     let harness = ext_harness!();
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -1070,6 +1124,7 @@ fn e02_image_path_and_sound_name_are_string_variants() {
 // --- e03: transient/suppress-sound — b, включая false ----------------------------
 
 #[test]
+#[cfg(unix)]
 fn e03_transient_and_suppress_sound_are_bools_including_false() {
     let harness = ext_harness!();
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -1106,6 +1161,7 @@ fn e03_transient_and_suppress_sound_are_bools_including_false() {
 // --- e04: пустые строки новых полей не отправляются ------------------------------
 
 #[test]
+#[cfg(unix)]
 fn e04_empty_new_strings_are_skipped() {
     let harness = ext_harness!();
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -1150,6 +1206,7 @@ fn e04_empty_new_strings_are_skipped() {
 // --- e05: порядок ключей фиксирован ----------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn e05_key_order_is_frozen() {
     let harness = ext_harness!();
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");
@@ -1184,6 +1241,7 @@ fn e05_key_order_is_frozen() {
 // --- e06: Unicode и 4 КиБ --------------------------------------------------------
 
 #[test]
+#[cfg(unix)]
 fn e06_unicode_and_long_new_hints_are_delivered_without_panic() {
     let harness = ext_harness!();
     let mut notifier = Notifier::connect(&harness.bus_address()).expect("Notifier::connect");

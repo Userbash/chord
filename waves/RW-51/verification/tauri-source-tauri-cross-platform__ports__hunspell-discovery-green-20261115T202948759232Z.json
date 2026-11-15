@@ -1,0 +1,24 @@
+{
+  "phase": "hunspell-discovery-green",
+  "command": [
+    "node",
+    "--test",
+    "tests/unit/tauri-platform-boundaries.test.mjs"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/hunspell-discovery-green-20261115T202948759232Z.log",
+  "errors": [],
+  "tail": [
+    "\u2714 MSVC discovery reads installed port names and dependencies for x86_64-pc-windows-msvc (2.941235ms)",
+    "\u2714 MSVC discovery reads installed port names and dependencies for aarch64-pc-windows-msvc (2.320648ms)",
+    "\u2714 MSVC missing port fails, while non-MSVC targets preserve system linkage (2.941235ms)",
+    "\u2139 tests 3",
+    "\u2139 suites 0",
+    "\u2139 pass 3",
+    "\u2139 fail 0",
+    "\u2139 cancelled 0",
+    "\u2139 skipped 0",
+    "\u2139 todo 0",
+    "\u2139 duration_ms 443.546873"
+  ]
+}

@@ -8,25 +8,35 @@
 //! - `/home/sanya/re-deep/native-re.md` (`chord_voice.node` -> `BaseCapturerPipeWire`, `CcPipewireConfig`)
 //! - `docs/reference-projects/sources/Serein/crates/discord-voice/src/screen/portal_linux.rs`
 
+#[cfg(unix)]
 use std::io::{BufRead, BufReader, Read, Write};
+#[cfg(unix)]
 use std::os::fd::{AsRawFd, IntoRawFd};
+#[cfg(unix)]
 use std::os::unix::net::{UnixListener, UnixStream};
+#[cfg(unix)]
 use std::time::Duration;
 
+#[cfg(unix)]
 use chord_platform::dbus::message::{
     self, FIELD_INTERFACE, FIELD_MEMBER, FIELD_PATH, FIELD_REPLY_SERIAL, FIELD_SIGNATURE,
     MessageType,
 };
+#[cfg(unix)]
 use chord_platform::dbus::{BusAddress, Value, fd};
 use chord_platform::screencast::{
-    CaptureResolutionPreset, CaptureTargetKind, CapturedFrame, MAX_CAPTURE_HEIGHT,
-    MAX_CAPTURE_WIDTH, MIN_CAPTURE_DIMENSION, NegotiatedStreamParams, OwnedDmaBuf,
-    PortalCapabilities, PortalCursorMode, PortalPersistMode, PortalRequestError, PortalSourceTypes,
-    PortalStreamInfo, RTP_VIDEO_CLOCK_HZ, ScreenCastCapturePipeline, ScreenCastNegotiationRequest,
-    ScreenCastOptions, ScreenCastPipelineState, ScreenCastPortal, negotiate_stream_params,
+    CaptureResolutionPreset, CaptureTargetKind, MAX_CAPTURE_HEIGHT, MAX_CAPTURE_WIDTH,
+    MIN_CAPTURE_DIMENSION, PortalCapabilities, PortalCursorMode, PortalSourceTypes,
+    PortalStreamInfo, RTP_VIDEO_CLOCK_HZ, ScreenCastNegotiationRequest, negotiate_stream_params,
+};
+#[cfg(unix)]
+use chord_platform::screencast::{
+    CapturedFrame, NegotiatedStreamParams, OwnedDmaBuf, PortalPersistMode, PortalRequestError,
+    ScreenCastCapturePipeline, ScreenCastOptions, ScreenCastPipelineState, ScreenCastPortal,
     parse_x11_display_spec,
 };
 
+#[cfg(unix)]
 fn read_dbus_msg(stream: &UnixStream) -> message::Message {
     let mut fds = Vec::new();
     let mut hdr = [0u8; 16];
@@ -40,6 +50,7 @@ fn read_dbus_msg(stream: &UnixStream) -> message::Message {
     message::parse_with_fds(&full, fds).expect("parse dbus message")
 }
 
+#[cfg(unix)]
 fn complete_dbus_auth_and_hello(stream: &mut UnixStream, server_serial: &mut u32) {
     let mut nul = [0u8; 1];
     stream.read_exact(&mut nul).expect("read nul byte");
@@ -86,6 +97,7 @@ fn complete_dbus_auth_and_hello(stream: &mut UnixStream, server_serial: &mut u32
     stream.write_all(&hello_reply).expect("write Hello reply");
 }
 
+#[cfg(unix)]
 fn assert_auth_reply(stream: &mut UnixStream, expected: &[u8]) {
     let mut reply = vec![0u8; expected.len()];
     stream
@@ -95,6 +107,7 @@ fn assert_auth_reply(stream: &mut UnixStream, expected: &[u8]) {
 }
 
 #[test]
+#[cfg(unix)]
 fn mock_auth_keeps_binary_hello_when_begin_and_hello_are_coalesced() {
     let (mut client, mut server) = UnixStream::pair().expect("socketpair");
     client
@@ -340,6 +353,7 @@ fn portal_capabilities_validate_source_types_and_negotiate_cursor_mode() {
 }
 
 #[test]
+#[cfg(unix)]
 fn full_screencast_pipeline_screen_and_window_60fps_lifecycle_over_mock_dbus() {
     let sock_path = std::env::temp_dir().join(format!(
         "discord-lab-portal-pipeline-60fps-{}.sock",
@@ -736,6 +750,7 @@ fn full_screencast_pipeline_screen_and_window_60fps_lifecycle_over_mock_dbus() {
 }
 
 #[test]
+#[cfg(unix)]
 fn screencast_pipeline_cleans_up_session_when_consent_denied_or_streams_empty() {
     let sock_path = std::env::temp_dir().join(format!(
         "discord-lab-portal-pipeline-err-{}.sock",

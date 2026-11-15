@@ -1829,6 +1829,7 @@ fn spawn_system_tray_indicator(app_handle: tauri::AppHandle) {
 }
 
 fn main() {
+    #[cfg(target_os = "linux")]
     chord_platform::screencast::allow_ptrace_yama();
     let is_headless_ci = std::env::var_os("SPIKE_EXIT_AFTER_MS").is_some()
         || std::env::var_os("SPIKE_AUTH_DISABLED").is_some();

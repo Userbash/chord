@@ -172,3 +172,14 @@ contrast, injection and mutation checks. No Serein implementation is executed,
 linked or copied into application code. Updating this independent oracle
 requires fresh provenance and independent review, rather than fitting it to
 new palette values.
+
+
+## ADR-RW51-TAURI-PORTS-20261115 — Preserve native boundaries and fail closed
+
+The Tauri transition's Windows source could not compile because Unix UID, socket and file-descriptor APIs were unconditional. Native GitHub builds independently exposed the missing Windows resource icon and a D-Bus diagnostic without operation context. The reviewed implementation scopes Unix transports and their unchanged fixtures to Unix, retains portable wire models and RPC/policy/CPU-frame contracts on every target, and returns typed `UnsupportedCapability` errors for unavailable transports. It never returns fake IDs, descriptors or successful no-op service results. Linux portal/ptrace calls remain Linux-only. The original Unix test bodies and assertion counts are preserved; a Windows-specific assertion checks the explicit unavailable notification capability.
+
+Windows credentials use the explicit `keyring = 3.6.3` `WinCredential` backend, with existing raw-secret UTF-8 and redacted-error contracts. MSVC Hunspell discovery uses `vcpkg = 0.2.15` and installed port metadata; all existing dependency versions and checksums are retained. The two lockfile token normalizations retain exactly the same dependency graph. Native icons were generated from the unchanged product PNG by the official pinned Tauri CLI. All twelve new target dependency licenses were read from checksum-verified registry package manifests; the license allowlist is unchanged.
+
+`SystemSources` uses the already-direct rustls ring provider's operating-system CSPRNG instead of `/dev/urandom`. The existing infallible identity API fails closed on entropy errors; formatter, draw order, configuration overrides and cached session identity remain unchanged. A real Linux device-absent RED/GREEN check and five behavioral mutants verify this boundary. Native Windows/ARM runtime evidence is separate.
+
+Independent author/reviewer receipts, old/new contract mapping, exact source hashes, RED/GREEN commands and native build limitations are retained in `waves/RW-51/TAURI-COMPILE-BATCH.json` and its linked reports. These source decisions do not accept full native GUI, notification, capture, audio, RPC or ISA parity. Reverting the dedicated source/CI commits restores the previous behavior and dependency graph. No release or merge is authorized by a draft push.

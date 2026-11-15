@@ -1,0 +1,34 @@
+{
+  "scope": "Node helper strict JSDoc types only",
+  "worktree": "/root/projects/chord-modernization",
+  "files": [
+    {
+      "path": "tests/unit/tauri-platform-boundaries.test.mjs",
+      "sha256": "5384ddd54977b1acd29f8403f282bf81d499adb62cbd724d66a6f4556d174678"
+    }
+  ],
+  "changes": [
+    "Explicit string types for before-hook directory/executable state",
+    "String parameter types for triplet/target/vcpkg",
+    "NodeJS.ProcessEnv annotations support deleting inherited fixture-contaminating variables",
+    "Typed two-element tuple arrays keep both loop bindings defined under noUncheckedIndexedAccess"
+  ],
+  "assertions_oracles_execution_preserved": true,
+  "production_source_lock_docs_or_index_modified": false,
+  "receipts": [
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-red-20261115T205821219552Z.json",
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-green-20261115T205844237802Z.json",
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-targeted-green-20261115T205935408066Z.json",
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-preservation-20261115T205910800251Z.json"
+  ],
+  "patch": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/helper-types-diff-20261115T205910800251Z.patch",
+  "targeted_tests": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typecheck": "npm run typecheck exits0 for tsconfig.json and tsconfig.agent.json",
+  "independent_review_requested_from": "/root/arm_review",
+  "stage_commit_push_performed": false,
+  "frozen_at_utc": "2026-11-15T21:00:04.662097+00:00"
+}

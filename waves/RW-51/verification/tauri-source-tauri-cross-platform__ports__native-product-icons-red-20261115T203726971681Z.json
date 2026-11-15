@@ -1,0 +1,28 @@
+{
+  "phase": "native-product-icons-red",
+  "command": [
+    "node",
+    "--test",
+    "tests/unit/tauri-platform-boundaries.test.mjs"
+  ],
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/native-product-icons-red-20261115T203726971681Z.log",
+  "errors": [],
+  "tail": [
+    "",
+    "test at tests/unit/tauri-platform-boundaries.test.mjs:86:1",
+    "\u2716 product Windows and macOS icons contain valid native resource containers (0.26885ms)",
+    "  Error: ENOENT: no such file or directory, open '/root/projects/chord-tauri-platform/rust/gui-spike/icons/icon.ico'",
+    "      at Object.openSync (node:fs:621:18)",
+    "      at readFileSync (node:fs:487:35)",
+    "      at TestContext.<anonymous> (file:///root/projects/chord-tauri-platform/tests/unit/tauri-platform-boundaries.test.mjs:87:16)",
+    "      at Test.runInAsyncScope (node:async_hooks:227:14)",
+    "      at Test.run (node:internal/test_runner/test:1402:25)",
+    "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {",
+    "    errno: -2,",
+    "    code: 'ENOENT',",
+    "    syscall: 'open',",
+    "    path: '/root/projects/chord-tauri-platform/rust/gui-spike/icons/icon.ico'",
+    "  }"
+  ]
+}

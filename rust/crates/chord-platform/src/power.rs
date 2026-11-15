@@ -20,9 +20,12 @@
 //! `DISCORD_LAB_POWER_LIVE=1` ставит ингибитор на время теста (в CI флаг выключен).
 //! Только `std` + [`crate::dbus`] + `libc` (изоляция `unsafe` — `dbus/fd.rs`).
 
+#[cfg(unix)]
 use std::os::fd::RawFd;
+#[cfg(unix)]
 use std::time::Duration;
 
+#[cfg(unix)]
 use crate::dbus::{BusAddress, Connection, DbusError, Signal, Value, fd};
 
 /// Well-known имя сервиса скринсейвера (сессионная шина).
@@ -63,10 +66,12 @@ pub const SLEEP_INHIBIT_MODE: &str = "block";
 
 /// `org.freedesktop.ScreenSaver`: ингибитор гашения экрана в звонке.
 #[derive(Debug)]
+#[cfg(unix)]
 pub struct ScreenSaver {
     connection: Connection,
 }
 
+#[cfg(unix)]
 impl ScreenSaver {
     /// Подключается к шине (AUTH EXTERNAL + `Hello`), ничего не вызывая.
     pub fn connect(address: &BusAddress) -> Result<Self, DbusError> {
@@ -169,10 +174,12 @@ pub enum PowerEvent {
 /// fd не клонируется (`Clone` не реализован); `Drop` закрывает его ровно один раз, после
 /// чего ингибитор снят. Переживание `fork` не гарантируется: fd принадлежит процессу.
 #[derive(Debug)]
+#[cfg(unix)]
 pub struct SleepInhibitor {
     fd: RawFd,
 }
 
+#[cfg(unix)]
 impl SleepInhibitor {
     /// Тестовый хук: сырой fd ингибитора (владелец — структура).
     pub fn fd(&self) -> RawFd {
@@ -180,6 +187,7 @@ impl SleepInhibitor {
     }
 }
 
+#[cfg(unix)]
 impl Drop for SleepInhibitor {
     fn drop(&mut self) {
         fd::close_fd(self.fd);
@@ -187,6 +195,7 @@ impl Drop for SleepInhibitor {
 }
 
 /// Берёт первый `h` из ответа `Inhibit`, закрывает лишние fd; без fd — ошибка.
+#[cfg(unix)]
 fn take_inhibitor(values: &[Value], fds: Vec<RawFd>) -> Result<SleepInhibitor, DbusError> {
     let chosen = values.iter().find_map(|value| match value {
         Value::UnixFd(raw) => Some(*raw),
@@ -213,10 +222,12 @@ fn take_inhibitor(values: &[Value], fds: Vec<RawFd>) -> Result<SleepInhibitor, D
 
 /// `org.freedesktop.login1.Manager`: подписка на сон/пробуждение.
 #[derive(Debug)]
+#[cfg(unix)]
 pub struct PowerMonitor {
     connection: Connection,
 }
 
+#[cfg(unix)]
 impl PowerMonitor {
     /// Подключается к шине, ничего не подписывая.
     pub fn connect(address: &BusAddress) -> Result<Self, DbusError> {
@@ -288,6 +299,7 @@ impl PowerMonitor {
     }
 }
 
+#[cfg(unix)]
 fn sleep_event(signal: &Signal) -> Option<PowerEvent> {
     if signal.path != LOGIN1_PATH
         || signal.interface != LOGIN1_INTERFACE
@@ -303,6 +315,7 @@ fn sleep_event(signal: &Signal) -> Option<PowerEvent> {
     }
 }
 
+#[cfg(unix)]
 fn is_unknown_member(name: &str) -> bool {
     matches!(
         name,

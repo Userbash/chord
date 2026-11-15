@@ -1,0 +1,15 @@
+{
+  "case": "control",
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/control/scripts/sbom.mjs",
+    "--check",
+    "--output",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/control/sbom-output.json"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-control-20261115T210103498382Z.log",
+  "log_sha256": "b3b1b50a885c9143689eda5e3d8d222a2aa57f9f082ecc710a6de8bb17e700d9",
+  "script_sha256": "c1ea7e8dade202f8f57fabdab3dee26a6a4b5cdfcf766c811ad67f83ebe4601a",
+  "explicit_output_outside_main": true
+}

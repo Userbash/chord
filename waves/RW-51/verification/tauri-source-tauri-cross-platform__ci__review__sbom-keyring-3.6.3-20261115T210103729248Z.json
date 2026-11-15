@@ -1,0 +1,15 @@
+{
+  "case": "keyring@3.6.3",
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/keyring-3.6.3/scripts/sbom.mjs",
+    "--check",
+    "--output",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/keyring-3.6.3/sbom-output.json"
+  ],
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-keyring-3.6.3-20261115T210103729248Z.log",
+  "log_sha256": "435d513f54396cbf3e46fe894caed452ba0576de38cd8730c74c22964ab02c4f",
+  "script_sha256": "54bf962767f88bb3f57ee43410719e16865879bcd785abcbcf5d2e9838a36e7e",
+  "explicit_output_outside_main": true
+}

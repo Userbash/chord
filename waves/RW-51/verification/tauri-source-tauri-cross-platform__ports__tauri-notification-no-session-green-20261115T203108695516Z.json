@@ -1,0 +1,36 @@
+{
+  "phase": "tauri-notification-no-session-green",
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "env",
+    "-u",
+    "DBUS_SESSION_BUS_ADDRESS",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--test",
+    "notifications_contract",
+    "desktop_notification_dbus_integration_builds_and_dispatches_without_panic",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/tauri-notification-no-session-green-20261115T203108695516Z.log",
+  "errors": [],
+  "tail": [
+    "   Compiling chord-client v0.1.0 (/root/projects/chord-tauri-platform/rust/gui-spike)",
+    "    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.62s",
+    "     Running tests/notifications_contract.rs (/root/projects/chord-verification/target/debug/build/chord-client/5b7ed0b9906570ff/out/notifications_contract-5b7ed0b9906570ff)",
+    "",
+    "running 1 test",
+    "test desktop_notification_dbus_integration_builds_and_dispatches_without_panic ... ok",
+    "",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s",
+    ""
+  ]
+}

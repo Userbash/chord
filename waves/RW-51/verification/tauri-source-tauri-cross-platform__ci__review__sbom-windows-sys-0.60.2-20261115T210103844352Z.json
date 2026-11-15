@@ -1,0 +1,15 @@
+{
+  "case": "windows-sys@0.60.2",
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/windows-sys-0.60.2/scripts/sbom.mjs",
+    "--check",
+    "--output",
+    "/tmp/chord-sbom-license-review-cn2mbkyx/windows-sys-0.60.2/sbom-output.json"
+  ],
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows-sys-0.60.2-20261115T210103844352Z.log",
+  "log_sha256": "aebdcd3f98c393c6963758be0496b3e0806e9d7e706da12a8353be2f78585d59",
+  "script_sha256": "e36cfec04a270ad881aa2aabed5266d3e508d6d4494a4a081de4d5e51b82da86",
+  "explicit_output_outside_main": true
+}

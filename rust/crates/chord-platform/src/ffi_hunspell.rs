@@ -1,6 +1,6 @@
 //! Тонкая обёртка над системным `libhunspell` — единственное место крейта, где есть `unsafe`.
 //!
-//! Линкуется системная библиотека `libhunspell-1.7` (`#[link(name = "hunspell-1.7")]`,
+//! Links ABI 1.7 on Unix/MinGW; build.rs discovers MSVC library names from vcpkg,
 //! 1.7.5). C-API hunspell экспортирует символы с заглавной буквы (`Hunspell_create`,
 //! `Hunspell_spell`, …), поэтому Rust-имена модуля — по контракту TZ W32a §1
 //! (`hunspell_create`, …), а `#[link_name]` указывает реальный символ.
@@ -28,7 +28,7 @@ pub(crate) struct Hunhandle {
 
 // SAFETY: имена и сигнатуры совпадают с `/usr/include/hunspell/hunspell.h` 1.7.5;
 // линковка — системная `libhunspell-1.7`.
-#[link(name = "hunspell-1.7")]
+#[cfg_attr(not(target_env = "msvc"), link(name = "hunspell-1.7"))]
 unsafe extern "C" {
     #[link_name = "Hunspell_create"]
     fn hunspell_create(affpath: *const c_char, dpath: *const c_char) -> *mut Hunhandle;

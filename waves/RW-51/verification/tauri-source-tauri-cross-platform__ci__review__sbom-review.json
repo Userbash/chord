@@ -1,0 +1,232 @@
+{
+  "phase": "independent_pinned_sbom_license_review",
+  "observed_at": "2026-11-15T21:01:04.139845+00:00",
+  "reviewer": "/root/arm_cpu_slice",
+  "verdict": "approved_scoped_change",
+  "scope": "12 version-pinned license entries and explanatory comment only",
+  "allowlist_parser_and_other_script_bytes_unchanged": true,
+  "all_12_archives_match_cargo_lock_and_package_license": true,
+  "provenance": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/sbom-license-provenance.json",
+  "provenance_sha256": "0ee8bc5836994ec8b2f0bfca207e4d04856d58de3a664499ca0cfc4d0f065c65",
+  "verified_packages": [
+    {
+      "name": "byteorder",
+      "version": "1.5.0",
+      "license": "Unlicense OR MIT",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/byteorder-1.5.0.crate",
+      "archive_sha256": "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b",
+      "manifest_sha256": "94ba374cb26f3c68fb83da2e5e7dce85920fc4fb827620b06b39d71a9d0e1e18",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "keyring",
+      "version": "3.6.3",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/keyring-3.6.3.crate",
+      "archive_sha256": "eebcc3aff044e5944a8fbaf69eb277d11986064cba30c468730e8b9909fb551c",
+      "manifest_sha256": "ecebaa095f7181b35d774b34f60fdfe387b1ba5eefe667cbdcad1d01d6bede64",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.60.2",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows-sys-0.60.2.crate",
+      "archive_sha256": "f2f500e4d28234f72040990ec9d39e3a6b950f9f22d3dba18416c35882612bcb",
+      "manifest_sha256": "aa08b6b0d5b166fe95ee3e2b6d3956de853140c09486d33367b05d70e4c47aa7",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows-targets",
+      "version": "0.53.5",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows-targets-0.53.5.crate",
+      "archive_sha256": "4945f9f551b88e0d65f3db0bc25c33b8acea4d9e41163edf90dcd0b19f9069f3",
+      "manifest_sha256": "4d409ff6af2cefe1fea154f20a8a42758806efcb11afcd9b2665188e40962c2a",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows_aarch64_gnullvm",
+      "version": "0.53.1",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows_aarch64_gnullvm-0.53.1.crate",
+      "archive_sha256": "a9d8416fa8b42f5c947f8482c43e7d89e73a173cead56d044f6a56104a6d1b53",
+      "manifest_sha256": "9ce883210156a0365aba70b2e002e2603580233e8f989433cb7dd16ea2a52cc2",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows_aarch64_msvc",
+      "version": "0.53.1",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows_aarch64_msvc-0.53.1.crate",
+      "archive_sha256": "b9d782e804c2f632e395708e99a94275910eb9100b2114651e04744e9b125006",
+      "manifest_sha256": "84fa9808eff6f9a8211909bf63957cba796277f63f16bc0a595461595f3fa775",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows_i686_gnu",
+      "version": "0.53.1",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows_i686_gnu-0.53.1.crate",
+      "archive_sha256": "960e6da069d81e09becb0ca57a65220ddff016ff2d6af6a223cf372a506593a3",
+      "manifest_sha256": "de0db004807245aef1740277392774678ae24baa63057d3c6fffd133dbe63b68",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows_i686_gnullvm",
+      "version": "0.53.1",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows_i686_gnullvm-0.53.1.crate",
+      "archive_sha256": "fa7359d10048f68ab8b09fa71c3daccfb0e9b559aed648a8f95469c27057180c",
+      "manifest_sha256": "b603cfa602c233e75859322f81651ea1181e7b5f412e4cfd69e3faf0d2b5b715",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows_i686_msvc",
+      "version": "0.53.1",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows_i686_msvc-0.53.1.crate",
+      "archive_sha256": "1e7ac75179f18232fe9c285163565a57ef8d3c89254a30685b57d83a38d326c2",
+      "manifest_sha256": "8fd07f7e0d0794cd149b8e41c2f279ebc5517621a3d30082b03faaac87150cac",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows_x86_64_gnu",
+      "version": "0.53.1",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows_x86_64_gnu-0.53.1.crate",
+      "archive_sha256": "9c3842cdd74a865a8066ab39c8a7a473c0778a3f29370b5fd6b4b9aa7df4a499",
+      "manifest_sha256": "f0e5d86c89067eccfc351f81bfdab94fbe2a3172f527741379a8a0a6b0e1b9b7",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows_x86_64_gnullvm",
+      "version": "0.53.1",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows_x86_64_gnullvm-0.53.1.crate",
+      "archive_sha256": "0ffa179e2d07eee8ad8f57493436566c7cc30ac536a3379fdf008f47f6bb7ae1",
+      "manifest_sha256": "361cb8bf811d54b8387cafef5c11c5eb611a8d039c297fb6fe83c5b2d3d34788",
+      "lock_archive_and_provenance_match": true
+    },
+    {
+      "name": "windows_x86_64_msvc",
+      "version": "0.53.1",
+      "license": "MIT OR Apache-2.0",
+      "archive": "/root/.cargo/registry/cache/index.crates.io-1949cf8c6b5b557f/windows_x86_64_msvc-0.53.1.crate",
+      "archive_sha256": "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650",
+      "manifest_sha256": "6e60ae5f5d58fc727d409e212a09b7a3bb14b77d48d08171af12d9602658ced7",
+      "lock_archive_and_provenance_match": true
+    }
+  ],
+  "behavior": {
+    "control_green": true,
+    "deletion_mutations_killed": 5,
+    "total_mutations": 5,
+    "mutant_failure_reason": "exact removed package emits NOASSERTION",
+    "runs": [
+      {
+        "case": "control",
+        "command": [
+          "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/control/scripts/sbom.mjs",
+          "--check",
+          "--output",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/control/sbom-output.json"
+        ],
+        "exit_code": 0,
+        "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-control-20261115T210103498382Z.log",
+        "log_sha256": "b3b1b50a885c9143689eda5e3d8d222a2aa57f9f082ecc710a6de8bb17e700d9",
+        "script_sha256": "c1ea7e8dade202f8f57fabdab3dee26a6a4b5cdfcf766c811ad67f83ebe4601a",
+        "explicit_output_outside_main": true
+      },
+      {
+        "case": "byteorder@1.5.0",
+        "command": [
+          "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/byteorder-1.5.0/scripts/sbom.mjs",
+          "--check",
+          "--output",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/byteorder-1.5.0/sbom-output.json"
+        ],
+        "exit_code": 1,
+        "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-byteorder-1.5.0-20261115T210103614159Z.log",
+        "log_sha256": "82140185399b611b0a7e6af1a419bc69a5b4524adad3244dae20d6984afff046",
+        "script_sha256": "e9b9b212ebb04d68f8cb135104ee3543e4100fb30eb975ece31cceba82e1c301",
+        "explicit_output_outside_main": true
+      },
+      {
+        "case": "keyring@3.6.3",
+        "command": [
+          "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/keyring-3.6.3/scripts/sbom.mjs",
+          "--check",
+          "--output",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/keyring-3.6.3/sbom-output.json"
+        ],
+        "exit_code": 1,
+        "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-keyring-3.6.3-20261115T210103729248Z.log",
+        "log_sha256": "435d513f54396cbf3e46fe894caed452ba0576de38cd8730c74c22964ab02c4f",
+        "script_sha256": "54bf962767f88bb3f57ee43410719e16865879bcd785abcbcf5d2e9838a36e7e",
+        "explicit_output_outside_main": true
+      },
+      {
+        "case": "windows-sys@0.60.2",
+        "command": [
+          "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/windows-sys-0.60.2/scripts/sbom.mjs",
+          "--check",
+          "--output",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/windows-sys-0.60.2/sbom-output.json"
+        ],
+        "exit_code": 1,
+        "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows-sys-0.60.2-20261115T210103844352Z.log",
+        "log_sha256": "aebdcd3f98c393c6963758be0496b3e0806e9d7e706da12a8353be2f78585d59",
+        "script_sha256": "e36cfec04a270ad881aa2aabed5266d3e508d6d4494a4a081de4d5e51b82da86",
+        "explicit_output_outside_main": true
+      },
+      {
+        "case": "windows-targets@0.53.5",
+        "command": [
+          "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/windows-targets-0.53.5/scripts/sbom.mjs",
+          "--check",
+          "--output",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/windows-targets-0.53.5/sbom-output.json"
+        ],
+        "exit_code": 1,
+        "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows-targets-0.53.5-20261115T210103909187Z.log",
+        "log_sha256": "ab657cf3a56e0ccc3f2f385a7689ffb66961d047a4a1ebb13ddf64094ecce42f",
+        "script_sha256": "5333c3cc7273a66e26310218ca7d1a51c87ae6c73bfd11bc3d3287a1fde5c33b",
+        "explicit_output_outside_main": true
+      },
+      {
+        "case": "windows_aarch64_msvc@0.53.1",
+        "command": [
+          "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/windows_aarch64_msvc-0.53.1/scripts/sbom.mjs",
+          "--check",
+          "--output",
+          "/tmp/chord-sbom-license-review-cn2mbkyx/windows_aarch64_msvc-0.53.1/sbom-output.json"
+        ],
+        "exit_code": 1,
+        "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/sbom-windows_aarch64_msvc-0.53.1-20261115T210104024279Z.log",
+        "log_sha256": "6bc6d8b124f718d82e55c11c0168ad5b6bfb96075ac0091d53b77fedc5e97fdd",
+        "script_sha256": "86321b5aec5dfe9b17b18eec8d30622ea34f5ed729d4f100c07936c94a314208",
+        "explicit_output_outside_main": true
+      }
+    ]
+  },
+  "cargo_execution": "metadata only; outer flock /tmp/chord-cargo.lock held for batch",
+  "golden_script_lock_and_git_index_hashes_unchanged": true,
+  "protected_hashes": {
+    "/root/projects/chord-modernization/scripts/sbom.mjs": "c1ea7e8dade202f8f57fabdab3dee26a6a4b5cdfcf766c811ad67f83ebe4601a",
+    "/root/projects/chord-modernization/rust/Cargo.lock": "9a52c3354a146bd752faf418095ea7e1e36968af4d9f208e011893fd4cdea7a0",
+    "/root/projects/chord-modernization/rust/dist/sbom.spdx.json": "4663c83dd8fc2b39477b4108b27a3097617fcc6c918b33b5cdd9bc3c9c08548f",
+    "/root/projects/chord/.git/worktrees/chord-modernization/index": "db77cf60073906d9b8250f8a9aeea18529000b12ebf70412d558c09ef7f42c84"
+  },
+  "limits": [
+    "Review of declared license metadata is not a legal opinion.",
+    "These metadata runs do not demonstrate native Windows/ARM builds or application behavior.",
+    "Full integration gate remains coordinator-owned."
+  ]
+}

@@ -1,0 +1,403 @@
+{
+  "reviewer": "/root/arm_review",
+  "phase": "frozen_Tauri_platform_boundary_source_review",
+  "reviewed_at": "2026-11-15T20:51:57.947359+00:00",
+  "base_commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+  "patch_sha256": "69a72068b43e5723a880ec95c69a55f4221bb0328d42e54e62f43a6e6faaa2fc",
+  "verdict": "approve_source_slice_pending_integration_and_native_evidence",
+  "findings": [],
+  "files": [
+    {
+      "path": "rust/Cargo.lock",
+      "sha256": "82dce51258a340e54d307f7b121025e1cd14a4283beec1b6f66fc902421d6e60"
+    },
+    {
+      "path": "rust/chord-gpui/Cargo.lock",
+      "sha256": "23e7a12750d6f665b607bfc683f9caf3b0ab15b6078992946cefabb787ff98da"
+    },
+    {
+      "path": "rust/crates/chord-platform/Cargo.toml",
+      "sha256": "b00ae35f1753614026ef552a0f57415cbe71738c0f7b964c5eb6590caaeb861e"
+    },
+    {
+      "path": "rust/crates/chord-platform/build.rs",
+      "sha256": "288bae71c1dd74cb5528620da254272ea348f2b4bf325784b260dcb669f30c93"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/auth.rs",
+      "sha256": "c867376dd2904275cf0de1973bfe89006314eebd70fa60716b46574ba3b68c60"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/connection.rs",
+      "sha256": "8eea58f8c15d39f6861c6525e093a24d834028ab5e83ae7e56105a813984ca02"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/message.rs",
+      "sha256": "599d505be722f0cf3571eda4e16d210b0263512ffe9bc59cd6f508ccb2eb7509"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/mod.rs",
+      "sha256": "7e8ad2b3598be69c334ef46dc6b77e36176f056204fbfa2527547e856bc0f601"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/ffi_hunspell.rs",
+      "sha256": "0a744baf6407866867d899181729d5dad910c5d608e09e7ae31a604cb7f729f6"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/keyring.rs",
+      "sha256": "99b5d158e45c5c87c09efea3e083b205902d603241d8928d04269ae937cf9786"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/keyring/windows.rs",
+      "sha256": "3683f6ecfc065634bc8599eac1c55fd19919aa344bfced003244650ba11ebc9c"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/lib.rs",
+      "sha256": "973bc7161a5ababa36b141d7e58161e06c821e373291911da9deaf5ae3332773"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/notifications.rs",
+      "sha256": "75c4ff9dcd3b9a1e201ce18d9ce7d4c1883f0eb9eee83a2212c14a63b1021408"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/power.rs",
+      "sha256": "382ae0ad4b474442630210dbd6b901ac5d4052041ab5b4856a277c50f0918dee"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/rpc_ipc.rs",
+      "sha256": "0865f4ca391e7df0335cef3a3becd461b5e0372d41a0f5b28d5a5b4e41335f4a"
+    },
+    {
+      "path": "rust/crates/chord-platform/src/screencast.rs",
+      "sha256": "3ea032e41e07848d4d0a4362c770079ec9a915951bb6806d7248bdd5abcf8a8e"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/dbus_contract.rs",
+      "sha256": "0205c04e676b8c29d652faae1c6771164c5f0d09a5b35f586b0117cd37ffb3ed"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/message_notify_contract.rs",
+      "sha256": "d00454e37935753543f5562eea97a48fe463e0c5792e84556386e8d3a9e70912"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/notifications_contract.rs",
+      "sha256": "6de7ebe4cf5ab2e024ea1963ff76b361c8a230a6c0f9d729bd08f262e9cca680"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/platform_boundaries_contract.rs",
+      "sha256": "0b41a4bd6c4317f0fafb212013e3deb385d2a859c386a9ae3d5c58c15f7dde04"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/power_contract.rs",
+      "sha256": "c05eeae3a2af2eae96bb2ae27d220997e112518b1dc54d8c88a894903fc8a1e4"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/rpc_ipc_contract.rs",
+      "sha256": "b55d9f4098f7bc146ca958869884758e3e9716c62c04b203e836286560d2604f"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_contract.rs",
+      "sha256": "43e1c90f4dc9581ee8e783a0026c074b7a1b585c67798332c7321a38f2be5bf5"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_portal_contract.rs",
+      "sha256": "129a7c5ccbef431b09151e6fd2cd6b20f54fb9294d91170235ed7b9e58d3f88a"
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/windows_keyring_contract.rs",
+      "sha256": "bf6679b372c87c7fcdfaf19c188c838da808ae5a837ac7877c7b6c60be566311"
+    },
+    {
+      "path": "rust/gui-spike/Cargo.lock",
+      "sha256": "9de80fc3518750d59dcccdcf3f19e20840a235546bfc8444d871b45243244332"
+    },
+    {
+      "path": "rust/gui-spike/Cargo.toml",
+      "sha256": "421b1c8c38c3f5a183393ce6be9660d76f5de7bf66557468b57f76c09252da88"
+    },
+    {
+      "path": "rust/gui-spike/icons/icon.icns",
+      "sha256": "e6d6f99538e447ec26896e3847662dfde301680f393a03a4453d7fe27390dfb2"
+    },
+    {
+      "path": "rust/gui-spike/icons/icon.ico",
+      "sha256": "c92be982d93db303d8adb544527c197fe4c9820e18656e3ab7ce005a2f8fe3f8"
+    },
+    {
+      "path": "rust/gui-spike/src/main.rs",
+      "sha256": "e6957c00faabfe127ef48d324ae784d9fc4163c072992d4b9e0bde18e2f84409"
+    },
+    {
+      "path": "rust/gui-spike/src/notifications.rs",
+      "sha256": "7992f29605c6420ab2ccc92a9604f32c50ef5a7e603ee00c98ab9701a4bcb343"
+    },
+    {
+      "path": "rust/gui-spike/src/voice_plugin.rs",
+      "sha256": "d4c9afec9bec70c05c651fa551efba3adf0299837292b08bc5a030d7d06580d0"
+    },
+    {
+      "path": "rust/gui-spike/tauri.conf.json",
+      "sha256": "6b65e5d5cf7f53eedb9d17022dbdd8b9acc106787a9217a42ff6b45602a417b8"
+    },
+    {
+      "path": "rust/gui-spike/tests/notifications_contract.rs",
+      "sha256": "4cecdb567d3fc1cf776a022aee8233da92a8ae476c55306afc550ecd12492c8a"
+    },
+    {
+      "path": "tests/unit/tauri-platform-boundaries.test.mjs",
+      "sha256": "b66c9a85b03cf8baeeb311024345a18aeb915f36f14e345b0febbe5f48c46894"
+    }
+  ],
+  "locks": [
+    {
+      "path": "rust/Cargo.lock",
+      "added_packages": [
+        {
+          "name": "byteorder",
+          "version": "1.5.0"
+        },
+        {
+          "name": "keyring",
+          "version": "3.6.3"
+        },
+        {
+          "name": "vcpkg",
+          "version": "0.2.15"
+        },
+        {
+          "name": "windows-sys",
+          "version": "0.60.2"
+        },
+        {
+          "name": "windows-targets",
+          "version": "0.53.5"
+        },
+        {
+          "name": "windows_aarch64_gnullvm",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_aarch64_msvc",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_i686_gnu",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_i686_gnullvm",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_i686_msvc",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_x86_64_gnu",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_x86_64_gnullvm",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_x86_64_msvc",
+          "version": "0.53.1"
+        }
+      ],
+      "baseline_packages_and_checksums_preserved": true
+    },
+    {
+      "path": "rust/gui-spike/Cargo.lock",
+      "added_packages": [
+        {
+          "name": "keyring",
+          "version": "3.6.3"
+        },
+        {
+          "name": "vcpkg",
+          "version": "0.2.15"
+        },
+        {
+          "name": "windows-sys",
+          "version": "0.60.2"
+        },
+        {
+          "name": "windows-targets",
+          "version": "0.53.5"
+        },
+        {
+          "name": "windows_aarch64_gnullvm",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_aarch64_msvc",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_i686_gnu",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_i686_gnullvm",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_i686_msvc",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_x86_64_gnu",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_x86_64_gnullvm",
+          "version": "0.53.1"
+        },
+        {
+          "name": "windows_x86_64_msvc",
+          "version": "0.53.1"
+        }
+      ],
+      "baseline_packages_and_checksums_preserved": true
+    },
+    {
+      "path": "rust/chord-gpui/Cargo.lock",
+      "added_packages": [
+        {
+          "name": "keyring",
+          "version": "3.6.3"
+        }
+      ],
+      "baseline_packages_and_checksums_preserved": true
+    }
+  ],
+  "existing_test_preservation": [
+    {
+      "path": "rust/crates/chord-platform/tests/dbus_contract.rs",
+      "existing_functions": 76,
+      "removed_functions": [],
+      "changed_bodies": [],
+      "assertion_counts_not_reduced": true
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/message_notify_contract.rs",
+      "existing_functions": 20,
+      "removed_functions": [],
+      "changed_bodies": [],
+      "assertion_counts_not_reduced": true
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/notifications_contract.rs",
+      "existing_functions": 76,
+      "removed_functions": [],
+      "changed_bodies": [],
+      "assertion_counts_not_reduced": true
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/power_contract.rs",
+      "existing_functions": 60,
+      "removed_functions": [],
+      "changed_bodies": [],
+      "assertion_counts_not_reduced": true
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/rpc_ipc_contract.rs",
+      "existing_functions": 12,
+      "removed_functions": [],
+      "changed_bodies": [],
+      "assertion_counts_not_reduced": true
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_contract.rs",
+      "existing_functions": 11,
+      "removed_functions": [],
+      "changed_bodies": [
+        "captured_frame_dma_buf_and_cpu_data_contracts"
+      ],
+      "assertion_counts_not_reduced": true
+    },
+    {
+      "path": "rust/crates/chord-platform/tests/screencast_portal_contract.rs",
+      "existing_functions": 9,
+      "removed_functions": [],
+      "changed_bodies": [],
+      "assertion_counts_not_reduced": true
+    },
+    {
+      "path": "rust/gui-spike/tests/notifications_contract.rs",
+      "existing_functions": 14,
+      "removed_functions": [],
+      "changed_bodies": [],
+      "assertion_counts_not_reduced": true
+    }
+  ],
+  "Unix_DBus_connection_move_byte_identical": true,
+  "Windows_credential_review": {
+    "provider": "keyring3.6.3 explicit windows::WinCredential",
+    "no_global_builder_or_mock_fallback": true,
+    "raw_secret_UTF8_contract_preserved": true,
+    "NoEntry_maps_only_to_absence": true,
+    "provider_errors_and_credential_objects_redacted": true,
+    "connect_is_documented_stateless_adapter_initialization": true,
+    "native_store_permissions_and_runtime_not_exercised": true
+  },
+  "target_boundaries_review": {
+    "real_Unix_UID_and_FD_APIs_target_scoped": true,
+    "no_Windows_fake_UID_or_RawFd_alias": true,
+    "portable_wire_models_RPC_codecs_policies_and_CPU_frames_retained": true,
+    "nonUnix_FD_wire_decode_explicitly_errors": true,
+    "Windows_notification_capability_returns_error": true,
+    "Linux_only_portal_and_ptrace_guards": true,
+    "Unix_bodies_and_assertions_retained": true
+  },
+  "native_discovery_review": {
+    "dependency": "vcpkg0.2.15",
+    "build_host_and_Cargo_target_separated": true,
+    "library_names_and_dependencies_from_installed_port_metadata": true,
+    "missing_required_port_fails": true,
+    "metadata_fixtures_not_runtime_libraries": true,
+    "Unix_and_MinGW_link_names_preserved": true,
+    "required_CI_environment": [
+      "VCPKG_ROOT",
+      "VCPKGRS_TRIPLET",
+      "VCPKGRS_DYNAMIC"
+    ],
+    "MSVC_link_test_pending": true
+  },
+  "icons": {
+    "generator": "@tauri-apps/cli@2.12.4",
+    "original_PNG_unchanged": true,
+    "original_PNG_sha256": "36edc085ac26d48a9fbed602ad67cf7772a1e8a638e014588a7e39e9c4d35094",
+    "generated": [
+      {
+        "path": "rust/gui-spike/icons/icon.ico",
+        "sha256": "c92be982d93db303d8adb544527c197fe4c9820e18656e3ab7ce005a2f8fe3f8",
+        "bytes": 29933,
+        "native_container_valid": true
+      },
+      {
+        "path": "rust/gui-spike/icons/icon.icns",
+        "sha256": "e6d6f99538e447ec26896e3847662dfde301680f393a03a4453d7fe27390dfb2",
+        "bytes": 311391,
+        "native_container_valid": true
+      }
+    ]
+  },
+  "notification_error_review": "Missing-session errors now identify D-Bus/notification context and remain errors; original Unix assertions are unchanged. Non-Unix delivery explicitly reports unavailable capability.",
+  "registry_API_sources_inspected": [
+    "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/keyring-3.6.3/src/windows.rs",
+    "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/vcpkg-0.2.15/src/lib.rs"
+  ],
+  "writer_green_logs_not_claimed_as_reviewer_executions": true,
+  "Cargo_builds_run_by_reviewer": false,
+  "native_MSVC_or_credential_runtime_qualified": false,
+  "native_ARM_or_GUI_media_qualified": false,
+  "whole_parent_tasks_complete": false,
+  "ECC_session_started": false,
+  "integration_requirements": [
+    "Parent must resolve the GPUI lock in a populated SDK checkout and run the integration gate.",
+    "Native Windows CI must set VCPKG_ROOT, matching VCPKGRS_TRIPLET, and VCPKGRS_DYNAMIC before MSVC linking/testing.",
+    "Real native MSVC/ARM credential runtime, GUI/media and package qualification remain mandatory; cross-target checks are source evidence only."
+  ]
+}

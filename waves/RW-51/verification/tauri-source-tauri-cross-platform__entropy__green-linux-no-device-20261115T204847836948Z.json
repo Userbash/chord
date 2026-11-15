@@ -1,0 +1,38 @@
+{
+  "phase": "green-linux-no-device",
+  "evidence_kind": "native_linux_filesystem_isolation",
+  "not_evidence_for": [
+    "native Windows execution",
+    "native ARM execution",
+    "Tauri GUI launch"
+  ],
+  "command": [
+    "/usr/sbin/chroot",
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/isolation/green-linux-no-device-20261115T204847836948Z",
+    "/identity-probe",
+    "--exact",
+    "system_sources_produce_fresh_rfc4122_uuids",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-linux-no-device-20261115T204847836948Z.log",
+  "kernel_getrandom_available_inside_isolation": true,
+  "unix_random_device_present": false,
+  "binary_sha256": "a61a3e983b4efcda05cf21fb1f8d99592803d77040bf596ab8f85e6b85fd5ae7",
+  "source_sha256": "445d0905ca8ae6e4accc742c4bc9a4a5342efd998ebcd372a658bf4befcd5f9a",
+  "build_receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/entropy/green-core-integration-20261115T204836847906Z.json",
+  "loader_libraries": [
+    {
+      "path": "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+      "sha256": "d93224d2b0dab4247598be683adca02f5cf00586f99c187579cd7e92058fb7cb"
+    },
+    {
+      "path": "/lib/x86_64-linux-gnu/libc.so.6",
+      "sha256": "755a371e86cc9f564ab54f66140747700fb0a103f698f659f2060f707897e09a"
+    },
+    {
+      "path": "/lib64/ld-linux-x86-64.so.2",
+      "sha256": "5fc0940888e9d2e1a00e66d6b1a559c36364ee867683652e1074fa576952cc3f"
+    }
+  ]
+}
