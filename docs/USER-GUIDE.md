@@ -1,5 +1,8 @@
 # Chord — User Guide & Feature Reference
 
+> **Notice:** This document is now consolidated into the unified master guide: [`docs/GUIDE.md`](GUIDE.md).  
+> You can also refer to [`docs/BETA-TESTING-GUIDE.md`](BETA-TESTING-GUIDE.md) for beta verification and bug reporting templates.
+
 This guide covers end-user features, settings, keyboard shortcuts, and troubleshooting for **Chord** (`chord-gpui`), the native Linux Discord client built in Rust with GPUI and WGPU.
 
 ---

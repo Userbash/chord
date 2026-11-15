@@ -1,5 +1,6 @@
 # Beta Tester's Guide for `chord-gpui` (`v1.0.0-beta.1`)
 
+> **Notice:** This document is consolidated alongside the user guide into the unified master guide: [`docs/GUIDE.md`](GUIDE.md).  
 > **Document Status:** `Published Beta Testing Guide (v1.0.0-beta.1)`  
 > **Target Release Package:** [`rust/dist/chord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz`](rust/dist/chord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz)  
 > **Executable Binary:** [`rust/dist/chord-gpui`](rust/dist/chord-gpui) (`42 MB`, stripped ELF 64-bit, Thin LTO, `opt-level = 3`)  

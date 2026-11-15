@@ -258,6 +258,7 @@ This project uses an **AI Multi-Model Collaboration Protocol (AMCP v1.0)** that 
 
 | Document | Path | Description |
 | :--- | :--- | :--- |
+| **Comprehensive Guide** | [`docs/GUIDE.md`](docs/GUIDE.md) | Unified user guide, beta testing, shortcuts, audio/video streaming, and debugging |
 | **Contributing Guide** | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Full contribution guide for humans and AI operators |
 | **AI Agents Protocol** | [`AI-AGENTS.md`](AI-AGENTS.md) | Machine-readable protocol for AI models — start here if you are an AI |
 | **Project Registry** | [`docs/PROJECT-REGISTRY.md`](docs/PROJECT-REGISTRY.md) | Canonical registry of crates, artifacts, and test contracts |

@@ -12,6 +12,7 @@ Welcome to the comprehensive documentation for **Chord**.
 | Document | Link | Purpose |
 | :--- | :--- | :--- |
 | **Main Overview** | [`README.md`](../README.md) | Architecture, benchmarks, features, quick start |
+| **Comprehensive Guide** | [`GUIDE.md`](GUIDE.md) | Unified user guide, beta testing instructions, shortcuts, audio/video streaming, debugging |
 | **User Guide** | [`USER-GUIDE.md`](USER-GUIDE.md) | Features, shortcuts, keyring troubleshooting, media cache, integrations |
 | **Architecture Reference** | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Crate inventory, REST v9, 64-bit permissions, SQLite WAL, UI catalog, i18n |
 | **AI Collaboration Guide** | [`AI-AGENTS.md`](../AI-AGENTS.md) | AMCP v1.0 protocol, multi-agent rules, review gates |
