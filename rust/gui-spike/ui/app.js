@@ -14538,6 +14538,14 @@ function boot() {
 
       if (!cleanCid) {
         if (idx >= 0) list.splice(idx, 1);
+        for (const [otherGk, otherArr] of liveVoiceStatesByGuild.entries()) {
+          if (!ev.guildId || otherGk === gId || otherGk === ev.guildId || normalizeVoiceGuildKey(otherGk) === gId) {
+            const filtered = otherArr.filter((x) => String(x?.user_id ?? x?.userId ?? "") !== uId);
+            if (filtered.length !== otherArr.length) {
+              liveVoiceStatesByGuild.set(otherGk, filtered);
+            }
+          }
+        }
         if (uId === selfId && activeVoiceConnection && myActiveGidKey === gId) {
           activeVoiceConnection = null;
           lastVoiceConnectState = {
@@ -14774,6 +14782,34 @@ function boot() {
               ...(nick ? { nick } : {}),
             });
           }
+          // [ANTI-PHANTOM FIX]: Применяем живой VOICE_STATE_UPDATE к списку участников голосовых каналов
+          const rawGid = cleanDiscordStr(String(data.guild_id ?? data.guildId ?? ""));
+          const normGid = normalizeVoiceGuildKey(rawGid);
+          const rawCid =
+            data.channel_id === null || data.channelId === null
+              ? ""
+              : cleanDiscordStr(String(data.channel_id ?? data.channelId ?? ""));
+          if (!rawCid) {
+            // Пользователь покинул голосовой канал: удаляем из всех списков гильдии
+            for (const [gk, arr] of liveVoiceStatesByGuild.entries()) {
+              if (!rawGid || gk === rawGid || gk === normGid) {
+                const filtered = arr.filter((x) => String(x?.user_id ?? x?.userId ?? "") !== uid);
+                if (filtered.length !== arr.length) {
+                  liveVoiceStatesByGuild.set(gk, filtered);
+                }
+              }
+            }
+          } else {
+            mergeVoiceStatesForGuild(liveVoiceStatesByGuild, normGid, [data]);
+            if (rawGid && rawGid !== normGid) {
+              mergeVoiceStatesForGuild(liveVoiceStatesByGuild, rawGid, [data]);
+            }
+          }
+          applyVoiceStateUpdateEvent(liveVoiceStatesByGuild, data);
+          tree.refreshView();
+          renderLiveVoicePanel();
+          renderLiveDmCallStage();
+          updateLiveRtcDomInPlace();
         }
       } else if (kind === "GUILD_MEMBER_UPDATE") {
         if (data && typeof data === "object") {

@@ -2251,6 +2251,9 @@ const DV_SCOPE_FIX_C: &str = r#"#define _GNU_SOURCE
 #include <unistd.h>
 #include <pthread.h>
 #include <turbojpeg.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <sys/prctl.h>
 
 typedef void* napi_env;
 typedef void* napi_value;
@@ -2410,25 +2413,71 @@ static void ensure_dv_pipewire_symbols(void) {
 #define SYS_pidfd_getfd 438
 #endif
 
+static int recv_fd_from_sock(const char* sock_path) {
+  int sock = socket(AF_UNIX, SOCK_STREAM, 0);
+  if (sock < 0) return -1;
+  struct sockaddr_un addr;
+  memset(&addr, 0, sizeof(addr));
+  addr.sun_family = AF_UNIX;
+  strncpy(addr.sun_path, sock_path, sizeof(addr.sun_path) - 1);
+  if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
+    close(sock);
+    return -1;
+  }
+  char dummy = 0;
+  struct iovec iov;
+  memset(&iov, 0, sizeof(iov));
+  iov.iov_base = &dummy;
+  iov.iov_len = 1;
+  char cmsg_buf[CMSG_SPACE(sizeof(int))];
+  memset(cmsg_buf, 0, sizeof(cmsg_buf));
+  struct msghdr msg;
+  memset(&msg, 0, sizeof(msg));
+  msg.msg_iov = &iov;
+  msg.msg_iovlen = 1;
+  msg.msg_control = cmsg_buf;
+  msg.msg_controllen = sizeof(cmsg_buf);
+  if (recvmsg(sock, &msg, 0) <= 0) {
+    close(sock);
+    return -1;
+  }
+  struct cmsghdr *cmsg = CMSG_FIRSTHDR(&msg);
+  int received_fd = -1;
+  if (cmsg && cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_RIGHTS) {
+    memcpy(&received_fd, CMSG_DATA(cmsg), sizeof(int));
+  }
+  close(sock);
+  return received_fd;
+}
+
 static int import_foreign_fd(int target_pid, int target_fd) {
   if (target_pid <= 0 || target_pid == (int)getpid()) return target_fd;
+#if defined(__linux__)
+  prctl(0x59616d61, (unsigned long)-1, 0, 0, 0);
+#endif
   int pidfd = (int)syscall(SYS_pidfd_open, target_pid, 0);
-  if (pidfd < 0) {
-    fprintf(stderr, "[PIPEWIRE_HOOK] SYS_pidfd_open(pid=%d) failed: errno=%d (%s)\n", target_pid, errno, strerror(errno));
+  if (pidfd >= 0) {
+    int dup_fd = (int)syscall(SYS_pidfd_getfd, pidfd, target_fd, 0);
+    int saved_errno = errno;
+    close(pidfd);
+    if (dup_fd >= 0) {
+      fprintf(stderr, "[PIPEWIRE_HOOK] Successfully duplicated socket fd via pidfd_getfd from PID %d: remote_fd=%d -> local_fd=%d\n", target_pid, target_fd, dup_fd);
+      fflush(stderr);
+      return dup_fd;
+    }
+    fprintf(stderr, "[PIPEWIRE_HOOK] SYS_pidfd_getfd(pid=%d, fd=%d) failed: errno=%d (%s), trying SCM_RIGHTS fallback...\n", target_pid, target_fd, saved_errno, strerror(saved_errno));
     fflush(stderr);
-    return -1;
-  }
-  int dup_fd = (int)syscall(SYS_pidfd_getfd, pidfd, target_fd, 0);
-  int saved_errno = errno;
-  close(pidfd);
-  if (dup_fd < 0) {
-    fprintf(stderr, "[PIPEWIRE_HOOK] SYS_pidfd_getfd(pid=%d, fd=%d) failed: errno=%d (%s)\n", target_pid, target_fd, saved_errno, strerror(saved_errno));
+  } else {
+    fprintf(stderr, "[PIPEWIRE_HOOK] SYS_pidfd_open(pid=%d) failed: errno=%d (%s), trying SCM_RIGHTS fallback...\n", target_pid, errno, strerror(errno));
     fflush(stderr);
-    return -1;
   }
-  fprintf(stderr, "[PIPEWIRE_HOOK] Successfully duplicated socket fd from PID %d: remote_fd=%d -> local_fd=%d\n", target_pid, target_fd, dup_fd);
-  fflush(stderr);
-  return dup_fd;
+  int sock_fd = recv_fd_from_sock("/dev/shm/discord_pipewire_fd.sock");
+  if (sock_fd >= 0) {
+    fprintf(stderr, "[PIPEWIRE_HOOK] Successfully received socket fd via SCM_RIGHTS fallback: local_fd=%d\n", sock_fd);
+    fflush(stderr);
+    return sock_fd;
+  }
+  return -1;
 }
 
 static napi_value js_import_foreign_fd(napi_env env, napi_callback_info info) {
@@ -3695,16 +3744,18 @@ function applyScreenBroadcast(active) {
               }
             }
           } catch (_) {}
-          if (typeof scopeFix !== "undefined" && typeof scopeFix.setPipewireConfig === "function" && pwFd >= 0) {
+          if (typeof scopeFix !== "undefined" && typeof scopeFix.setPipewireConfig === "function") {
             let localFd = -1;
-            if (remotePid > 0 && typeof scopeFix.importForeignFd === "function") {
+            if (typeof scopeFix.importForeignFd === "function") {
               localFd = scopeFix.importForeignFd(remotePid, pwFd);
               sendEv({ ev: "log", msg: "scopeFix.importForeignFd(pid=" + remotePid + ", fd=" + pwFd + ") -> " + localFd });
             }
             if (localFd >= 0) {
               pwFd = localFd;
             }
-            scopeFix.setPipewireConfig(pwFd, Number(currentSourceId));
+            if (pwFd >= 0) {
+              scopeFix.setPipewireConfig(pwFd, Number(currentSourceId));
+            }
           }
           if (pwFd >= 0) {
             srcOpts.pipewireConfig = { fd: pwFd, node_id: Number(currentSourceId) };
@@ -4615,16 +4666,18 @@ rl.on("line", (line) => {
               }
             } catch (_) {}
           }
-          if (typeof scopeFix !== "undefined" && typeof scopeFix.setPipewireConfig === "function" && pwFd >= 0) {
+          if (typeof scopeFix !== "undefined" && typeof scopeFix.setPipewireConfig === "function") {
             let localFd = -1;
-            if (remotePid > 0 && typeof scopeFix.importForeignFd === "function") {
+            if (typeof scopeFix.importForeignFd === "function") {
               localFd = scopeFix.importForeignFd(remotePid, pwFd);
               sendEv({ ev: "log", msg: "scopeFix.importForeignFd(pid=" + remotePid + ", fd=" + pwFd + ") -> " + localFd });
             }
             if (localFd >= 0) {
               pwFd = localFd;
             }
-            scopeFix.setPipewireConfig(pwFd, Number(msg.nodeId));
+            if (pwFd >= 0) {
+              scopeFix.setPipewireConfig(pwFd, Number(msg.nodeId));
+            }
           }
           if (pwFd >= 0) {
             opts.pipewireConfig = { fd: pwFd, node_id: Number(msg.nodeId) };
@@ -6476,11 +6529,16 @@ async fn run_rtc_task(
                                 ),
                             };
                             let (inp_dev, out_dev) = get_selected_voice_devices();
-                            let dev_fields = format!(
-                                "{}{}",
-                                inp_dev.as_deref().map(|d| format!(",\"inputDevice\":\"{d}\"")).unwrap_or_default(),
-                                out_dev.as_deref().map(|d| format!(",\"outputDevice\":\"{d}\"")).unwrap_or_default()
-                            );
+                            let dev_fields = if is_stream_conn && is_self_broadcaster {
+                                let mon = resolve_optimal_stream_soundshare_source();
+                                format!(",\"inputDevice\":\"{mon}\"")
+                            } else {
+                                format!(
+                                    "{}{}",
+                                    inp_dev.as_deref().map(|d| format!(",\"inputDevice\":\"{d}\"")).unwrap_or_default(),
+                                    out_dev.as_deref().map(|d| format!(",\"outputDevice\":\"{d}\"")).unwrap_or_default()
+                                )
+                            };
                             let cmd = format!(
                                 "{{\"cmd\":\"ready\",\"userId\":\"{user_id}\",\"channelId\":\"{cid}\",\"ssrc\":{ssrc},\"ip\":\"{ip}\",\"port\":{port}{stream_uid_field}{dev_fields}}}\n"
                             );

@@ -1835,3 +1835,79 @@ impl Default for ScreenCastCapturePipeline {
         Self::new()
     }
 }
+
+/// Разрешает процессам воркеров/потомков того же пользователя ptrace/pidfd_getfd (Yama LSM).
+#[cfg(target_os = "linux")]
+pub fn allow_ptrace_yama() {
+    unsafe {
+        libc::prctl(0x59616d61, !0usize as libc::c_ulong, 0, 0, 0);
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+pub fn allow_ptrace_yama() {}
+
+#[cfg(target_os = "linux")]
+unsafe fn send_fd_over_unix_socket(sock_fd: i32, fd_to_send: i32) {
+    unsafe {
+        let mut dummy: [u8; 1] = [0];
+        let mut iov = libc::iovec {
+            iov_base: dummy.as_mut_ptr() as *mut libc::c_void,
+            iov_len: 1,
+        };
+        let mut cmsg_buf = [0u8; 64];
+        let mut msg = libc::msghdr {
+            msg_name: std::ptr::null_mut(),
+            msg_namelen: 0,
+            msg_iov: &mut iov,
+            msg_iovlen: 1,
+            msg_control: cmsg_buf.as_mut_ptr() as *mut libc::c_void,
+            msg_controllen: 64,
+            msg_flags: 0,
+        };
+        let cmsg = libc::CMSG_FIRSTHDR(&msg);
+        if !cmsg.is_null() {
+            (*cmsg).cmsg_level = libc::SOL_SOCKET;
+            (*cmsg).cmsg_type = libc::SCM_RIGHTS;
+            let cmsg_space = libc::CMSG_SPACE(std::mem::size_of::<i32>() as u32) as usize;
+            let cmsg_len = libc::CMSG_LEN(std::mem::size_of::<i32>() as u32) as usize;
+            (*cmsg).cmsg_len = cmsg_len;
+            msg.msg_controllen = cmsg_space;
+            let data_ptr = libc::CMSG_DATA(cmsg) as *mut i32;
+            *data_ptr = fd_to_send;
+            libc::sendmsg(sock_fd, &msg, 0);
+        }
+    }
+}
+
+/// Запускает легковесный Unix domain сокет для надёжной передачи дескриптора PipeWire (SCM_RIGHTS).
+#[cfg(target_os = "linux")]
+pub fn start_pipewire_fd_server(pipewire_fd: i32) {
+    use std::os::unix::net::UnixListener;
+    use std::os::fd::AsRawFd;
+
+    let sock_path = "/dev/shm/discord_pipewire_fd.sock";
+    let _ = std::fs::remove_file(sock_path);
+    if let Ok(listener) = UnixListener::bind(sock_path) {
+        let _ = std::fs::set_permissions(sock_path, std::os::unix::fs::PermissionsExt::from_mode(0o666));
+        std::thread::Builder::new()
+            .name("pipewire-fd-server".to_string())
+            .spawn(move || {
+                for stream in listener.incoming() {
+                    match stream {
+                        Ok(s) => {
+                            let stream_fd = s.as_raw_fd();
+                            unsafe {
+                                send_fd_over_unix_socket(stream_fd, pipewire_fd);
+                            }
+                        }
+                        Err(_) => break,
+                    }
+                }
+            })
+            .ok();
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+pub fn start_pipewire_fd_server(_pipewire_fd: i32) {}

@@ -450,8 +450,8 @@ pub fn accept_invite_via_live_rest(
                     &identity.timezone,
                 )
                 .map_err(|e| e.to_string())?;
-                let client = chord_core::rest::client::ApiClient::new(
-                    chord_core::rest::client::ApiConfig {
+                let client =
+                    chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
                         base: chord_core::API_V9_BASE.to_string(),
                         auth,
                         http: chord_core::rest::transport::HttpClientConfig {
@@ -464,9 +464,8 @@ pub fn accept_invite_via_live_rest(
                             max_attempts: 1,
                             ..chord_core::rest::client::ApiRetryPolicy::default()
                         },
-                    },
-                )
-                .map_err(|e| e.to_string())?;
+                    })
+                    .map_err(|e| e.to_string())?;
                 let runtime = tokio::runtime::Builder::new_current_thread()
                     .enable_all()
                     .build()
@@ -4299,10 +4298,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                     let gid = field_str(data, "guild_id")
                         .filter(|s| !s.is_empty() && *s != "@me" && *s != "null" && *s != "nil")
                         .map(str::to_string);
-                    if local_active
-                        && is_our_gateway_session
-                        && cid.is_none()
-                    {
+                    if local_active && is_our_gateway_session && cid.is_none() {
                         // Discord Gateway explicitly disconnected our active voice session
                         let _old_gid = guard.voice_guild_id.take();
                         guard.voice_channel_id = None;
@@ -4323,11 +4319,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         if let Some(ref s) = sid {
                             guard.voice_session_id = Some(s.clone());
                         }
-                        chord_core::ws::note_live_rtc_target(
-                            gid.clone(),
-                            cid.clone(),
-                            sid.clone(),
-                        );
+                        chord_core::ws::note_live_rtc_target(gid.clone(), cid.clone(), sid.clone());
                         if cid.is_none() {
                             LOCAL_VOICE_ACTIVE.store(false, Ordering::SeqCst);
                             guard.voice_endpoint = None;
@@ -4394,8 +4386,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         guard.voice_got_server_update = true;
                         if guard.voice_got_state_update
                             && guard.voice_got_server_update
-                            && (guard.voice_got_rtc_op4
-                                || chord_core::ws::is_live_rtc_connected())
+                            && (guard.voice_got_rtc_op4 || chord_core::ws::is_live_rtc_connected())
                         {
                             guard.voice_phase = "connected".to_string();
                         } else if guard.voice_got_state_update && guard.voice_got_server_update {
@@ -6026,8 +6017,10 @@ fn ensure_local_mic_monitor() {
                 {
                     let is_muted = LOCAL_SELF_MUTE.load(Ordering::Relaxed)
                         || LOCAL_SELF_DEAF.load(Ordering::Relaxed);
-                    let in_vol = LOCAL_INPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as f64 / 100.0;
-                    let out_vol = LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as f64 / 100.0;
+                    let in_vol =
+                        LOCAL_INPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as f64 / 100.0;
+                    let out_vol =
+                        LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as f64 / 100.0;
 
                     let mut sum_sq = 0.0f64;
                     let num_samples = pcm_buf.len() / 2;
@@ -6042,7 +6035,9 @@ fn ensure_local_mic_monitor() {
                         ((rms / 32768.0).log10() * 20.0).round().clamp(-100.0, 0.0) as i32
                     };
 
-                    let eff_vad_db = LOCAL_VAD_THRESHOLD_DB.load(Ordering::Relaxed).clamp(-85, -5);
+                    let eff_vad_db = LOCAL_VAD_THRESHOLD_DB
+                        .load(Ordering::Relaxed)
+                        .clamp(-85, -5);
                     let is_speaking = if db >= eff_vad_db {
                         hold_frames = 14;
                         true
@@ -6065,7 +6060,11 @@ fn ensure_local_mic_monitor() {
                                 } else {
                                     let mut scaled = pcm_buf;
                                     for chunk in scaled.chunks_exact_mut(2) {
-                                        let sample = (i16::from_le_bytes([chunk[0], chunk[1]]) as f64 * out_vol).clamp(-32000.0, 32000.0) as i16;
+                                        let sample = (i16::from_le_bytes([chunk[0], chunk[1]])
+                                            as f64
+                                            * out_vol)
+                                            .clamp(-32000.0, 32000.0)
+                                            as i16;
                                         chunk.copy_from_slice(&sample.to_le_bytes());
                                     }
                                     let _ = stdin.write_all(&scaled);
@@ -7232,21 +7231,7 @@ pub fn set_system_audio_device(
     }
     if kind == "voice_states_sync" {
         if let Ok(guard) = live_session().lock() {
-            let mut combined = guard.voice_states.clone();
-            if let Some(ref rd) = guard.ready_data {
-                if let Some(g_arr) = rd.get("guilds").and_then(Value::as_array) {
-                    for g in g_arr {
-                        if let Some(gid) = field_str(g, "id") {
-                            if !combined.contains_key(gid) {
-                                let vs = array(g.get("voice_states"));
-                                if !vs.is_empty() {
-                                    combined.insert(gid.to_string(), vs.to_vec());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            let combined = guard.voice_states.clone();
             return json!({
                 "ok": true,
                 "voiceStates": combined

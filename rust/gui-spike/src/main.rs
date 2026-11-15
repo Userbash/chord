@@ -11,18 +11,15 @@
 #![forbid(unsafe_code)]
 
 /// Debounce: minimum milliseconds between consecutive voice_stream_start calls.
-static LAST_STREAM_START_MS: std::sync::atomic::AtomicU64 =
-    std::sync::atomic::AtomicU64::new(0);
+static LAST_STREAM_START_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 
 /// PipeWire node id obtained from the last XDG Desktop Portal screencast session.
 /// 0 = not yet acquired.
-static LAST_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 =
-    std::sync::atomic::AtomicU32::new(0);
+static LAST_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
 
 /// PipeWire fd obtained from the last XDG Desktop Portal screencast session.
 /// -1 = not yet acquired.
-static LAST_PIPEWIRE_FD: std::sync::atomic::AtomicI32 =
-    std::sync::atomic::AtomicI32::new(-1);
+static LAST_PIPEWIRE_FD: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-1);
 
 /// Сессия портала XDG ScreenCast должна жить всё время трансляции,
 /// иначе портал уничтожает PipeWire node через ~1.5 секунды!
@@ -98,20 +95,26 @@ async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
     }
     use ashpd::desktop::screencast::{CursorMode, Screencast, SelectSourcesOptions, SourceType};
     use enumflags2::BitFlags;
-    let proxy = Screencast::new().await.map_err(|e| format!("portal proxy: {e}"))?;
+    let proxy = Screencast::new()
+        .await
+        .map_err(|e| format!("portal proxy: {e}"))?;
     let session = proxy
         .create_session(Default::default())
         .await
         .map_err(|e| format!("create session: {e}"))?;
     let opts = SelectSourcesOptions::default()
         .set_cursor_mode(CursorMode::Embedded)
-        .set_sources(BitFlags::from(SourceType::Monitor));
+        .set_sources(BitFlags::from(SourceType::Monitor) | BitFlags::from(SourceType::Window));
     proxy
         .select_sources(&session, opts)
         .await
         .map_err(|e| format!("select sources: {e}"))?;
     let response = proxy
-        .start(&session, None::<&ashpd::WindowIdentifier>, Default::default())
+        .start(
+            &session,
+            None::<&ashpd::WindowIdentifier>,
+            Default::default(),
+        )
         .await
         .map_err(|e| format!("start: {e}"))?
         .response()
@@ -122,7 +125,10 @@ async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
         .map(|s| s.pipe_wire_node_id())
         .ok_or_else(|| "no streams selected".to_string())?;
     // Get PipeWire fd for native module
-    let fd = match proxy.open_pipe_wire_remote(&session, Default::default()).await {
+    let fd = match proxy
+        .open_pipe_wire_remote(&session, Default::default())
+        .await
+    {
         Ok(owned_fd) => {
             use std::os::unix::io::IntoRawFd;
             let raw = owned_fd.into_raw_fd();
@@ -130,7 +136,9 @@ async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
             raw
         }
         Err(e) => {
-            println!("[IPC-TRACE] acquire_pipewire: open_pipe_wire_remote failed ({e}), using fd=-1");
+            println!(
+                "[IPC-TRACE] acquire_pipewire: open_pipe_wire_remote failed ({e}), using fd=-1"
+            );
             -1
         }
     };
@@ -138,8 +146,13 @@ async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
         *guard = Some(session);
     }
     if fd >= 0 {
+        chord_platform::screencast::allow_ptrace_yama();
         let pid = std::process::id();
-        let _ = std::fs::write("/dev/shm/discord_pipewire_fd.txt", format!("{pid}:{fd}\n").as_bytes());
+        let _ = std::fs::write(
+            "/dev/shm/discord_pipewire_fd.txt",
+            format!("{pid}:{fd}\n").as_bytes(),
+        );
+        chord_platform::screencast::start_pipewire_fd_server(fd);
     }
     Ok((node_id, fd))
 }
@@ -516,8 +529,7 @@ async fn join_guild(
 async fn confirm_member_rules(
     backend: tauri::State<'_, Arc<AuthBackend>>,
     guild_id: Option<String>,
-    #[allow(non_snake_case)]
-    guildId: Option<String>,
+    #[allow(non_snake_case)] guildId: Option<String>,
 ) -> Result<serde_json::Value, String> {
     let gid = guild_id
         .or(guildId)
@@ -540,14 +552,12 @@ async fn confirm_member_rules(
     )
     .map_err(|e| format!("Ошибка авторизации: {e}"))?;
 
-    let client = chord_core::rest::client::ApiClient::new(
-        chord_core::rest::client::ApiConfig {
-            base: chord_core::API_V9_BASE.to_string(),
-            auth,
-            http: chord_core::rest::transport::HttpClientConfig::default(),
-            retry: chord_core::rest::client::ApiRetryPolicy::default(),
-        },
-    )
+    let client = chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
+        base: chord_core::API_V9_BASE.to_string(),
+        auth,
+        http: chord_core::rest::transport::HttpClientConfig::default(),
+        retry: chord_core::rest::client::ApiRetryPolicy::default(),
+    })
     .map_err(|e| format!("Ошибка клиента API: {e}"))?;
 
     // 1. Быстрая проверка: возможно, пользователь уже является полноправным участником сервера
@@ -630,8 +640,8 @@ async fn confirm_member_rules(
     };
 
     // 3. Отправка подтверждения правил PUT /guilds/{gid}/requests/@me
-    let body_bytes = serde_json::to_vec(&accept_body)
-        .map_err(|e| format!("Ошибка сериализации формы: {e}"))?;
+    let body_bytes =
+        serde_json::to_vec(&accept_body).map_err(|e| format!("Ошибка сериализации формы: {e}"))?;
 
     let req_path = format!("/guilds/{gid}/requests/@me");
     let put_res = client.put(&req_path, &body_bytes).await;
@@ -1879,15 +1889,23 @@ async fn voice_stream_start(
             .as_millis() as u64;
         let last_ms = LAST_STREAM_START_MS.load(Ordering::SeqCst);
         if now_ms.saturating_sub(last_ms) < 8_000 && last_ms > 0 {
-            println!("[IPC-TRACE] voice_stream_start: debounced ({}ms since last)", now_ms - last_ms);
+            println!(
+                "[IPC-TRACE] voice_stream_start: debounced ({}ms since last)",
+                now_ms - last_ms
+            );
             return Ok(serde_json::json!({ "ok": true, "debounced": true, "streamKey": "" }));
         }
         LAST_STREAM_START_MS.store(now_ms, Ordering::SeqCst);
     }
 
-    // --- PipeWire Portal: request screen capture via XDG Desktop Portal on Wayland (Bug #1) ---
-    // Only when no source_id override is provided (UI-less background capture).
-    let pipewire_info: Option<(u32, i32)> = if spec.source_id.is_empty() || spec.source_id.starts_with("screen:") {
+    // --- PipeWire Portal: request screen capture via XDG Desktop Portal on Wayland (Bug #1 / Error 2012 fix) ---
+    // On Wayland, all screen/window streaming must acquire a PipeWire stream through XDG Desktop Portal,
+    // otherwise the native WebRTC engine logs "No screencast portal config available" and terminates with 2012.
+    let is_wayland = std::env::var("WAYLAND_DISPLAY").is_ok();
+    let pipewire_info: Option<(u32, i32)> = if is_wayland
+        || spec.source_id.is_empty()
+        || spec.source_id.starts_with("screen")
+    {
         match acquire_pipewire_node_id().await {
             Ok((nid, fd)) => {
                 println!("[IPC-TRACE] voice_stream_start: PipeWire node_id={nid} fd={fd}");
@@ -1898,7 +1916,10 @@ async fn voice_stream_start(
                 chord_core::ws::set_cached_pipewire_fd(fd);
                 // [BUG FIX] Write PipeWire marker BEFORE blocking() so data.rs guard
                 // catches the JS set_capture_source call that races with us.
-                let _ = std::fs::write("/dev/shm/discord_capture_target.txt", format!("pipewire:{nid}").as_bytes());
+                let _ = std::fs::write(
+                    "/dev/shm/discord_capture_target.txt",
+                    format!("pipewire:{nid}").as_bytes(),
+                );
                 Some((nid, fd))
             }
             Err(e) => {
@@ -2001,6 +2022,7 @@ async fn voice_stream_stop(
             *guard = None;
         }
         let _ = std::fs::remove_file("/dev/shm/discord_pipewire_fd.txt");
+        let _ = std::fs::remove_file("/dev/shm/discord_pipewire_fd.sock");
         let (gid, cid) = data::current_live_voice_target();
         let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
         let _ = data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, false);
@@ -2336,13 +2358,22 @@ fn spawn_system_tray_indicator(app_handle: tauri::AppHandle) {
     use tauri::menu::{Menu, MenuItem};
     use tauri::tray::TrayIconBuilder;
 
-    let Ok(show_i) = MenuItem::with_id(&app_handle, "show", "Открыть Chord", true, None::<&str>) else {
+    let Ok(show_i) = MenuItem::with_id(&app_handle, "show", "Открыть Chord", true, None::<&str>)
+    else {
         return;
     };
-    let Ok(credits_i) = MenuItem::with_id(&app_handle, "credits", "Благодарности", true, None::<&str>) else {
+    let Ok(credits_i) =
+        MenuItem::with_id(&app_handle, "credits", "Благодарности", true, None::<&str>)
+    else {
         return;
     };
-    let Ok(quit_i) = MenuItem::with_id(&app_handle, "quit", "Выйти из Chord          Ctrl+Q", true, None::<&str>) else {
+    let Ok(quit_i) = MenuItem::with_id(
+        &app_handle,
+        "quit",
+        "Выйти из Chord          Ctrl+Q",
+        true,
+        None::<&str>,
+    ) else {
         return;
     };
     let Ok(menu) = Menu::with_items(&app_handle, &[&show_i, &credits_i, &quit_i]) else {
@@ -2353,31 +2384,29 @@ fn spawn_system_tray_indicator(app_handle: tauri::AppHandle) {
     let mut builder = TrayIconBuilder::new()
         .menu(&menu)
         .show_menu_on_left_click(true)
-        .on_menu_event(|app_handle, event| {
-            match event.id().as_ref() {
-                "show" => {
-                    if let Some(window) = app_handle.get_webview_window("main") {
-                        let _ = window.show();
-                        let _ = window.unminimize();
-                        let _ = window.set_focus();
-                    }
+        .on_menu_event(|app_handle, event| match event.id().as_ref() {
+            "show" => {
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.unminimize();
+                    let _ = window.set_focus();
                 }
-                "credits" => {
-                    if let Some(window) = app_handle.get_webview_window("main") {
-                        let _ = window.show();
-                        let _ = window.unminimize();
-                        let _ = window.set_focus();
-                        let _ = window.eval(
-                            "if (window.__OPEN_DISCORD_CREDITS__) window.__OPEN_DISCORD_CREDITS__();",
-                        );
-                    }
-                }
-                "quit" => {
-                    data::shutdown_live_workers();
-                    std::process::exit(0);
-                }
-                _ => {}
             }
+            "credits" => {
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.unminimize();
+                    let _ = window.set_focus();
+                    let _ = window.eval(
+                        "if (window.__OPEN_DISCORD_CREDITS__) window.__OPEN_DISCORD_CREDITS__();",
+                    );
+                }
+            }
+            "quit" => {
+                data::shutdown_live_workers();
+                std::process::exit(0);
+            }
+            _ => {}
         });
     if let Some(ic) = icon {
         builder = builder.icon(ic);
@@ -2386,6 +2415,7 @@ fn spawn_system_tray_indicator(app_handle: tauri::AppHandle) {
 }
 
 fn main() {
+    chord_platform::screencast::allow_ptrace_yama();
     let is_headless_ci = std::env::var_os("SPIKE_EXIT_AFTER_MS").is_some()
         || std::env::var_os("SPIKE_AUTH_DISABLED").is_some();
     if is_headless_ci && std::env::var_os("WEBKIT_DISABLE_COMPOSITING_MODE").is_none() {
@@ -3032,10 +3062,7 @@ mod wiring_tests {
         ) -> std::pin::Pin<
             Box<
                 dyn std::future::Future<
-                        Output = Result<
-                            chord_core::rest::transport::HttpResponse,
-                            AttachmentError,
-                        >,
+                        Output = Result<chord_core::rest::transport::HttpResponse, AttachmentError>,
                     > + Send
                     + 'a,
             >,
@@ -3051,10 +3078,7 @@ mod wiring_tests {
         ) -> std::pin::Pin<
             Box<
                 dyn std::future::Future<
-                        Output = Result<
-                            chord_core::rest::transport::HttpResponse,
-                            AttachmentError,
-                        >,
+                        Output = Result<chord_core::rest::transport::HttpResponse, AttachmentError>,
                     > + Send
                     + 'a,
             >,
@@ -3212,8 +3236,9 @@ mod wiring_tests {
 
         let slots_body = command_body(head, "attachments_upload_slots");
         assert!(slots_body.contains("UploadSlotsEnvelope { attachments }"));
-        assert!(slots_body
-            .contains("chord_client::request_upload_slots(&api, &channel_id, &specs)"));
+        assert!(
+            slots_body.contains("chord_client::request_upload_slots(&api, &channel_id, &specs)")
+        );
 
         let invite_body = command_body(head, "create_invite");
         assert!(invite_body.contains(
