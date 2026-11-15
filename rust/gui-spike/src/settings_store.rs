@@ -35,10 +35,9 @@
 
 use std::collections::BTreeMap;
 use std::fmt;
-use std::fs::{self, OpenOptions};
+use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU64, Ordering};
 
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Serialize, Serializer};
@@ -61,9 +60,6 @@ pub const SETTINGS_PATH_ENV: &str = "DL_SETTINGS_PATH";
 pub const HOME_GUILD_ID: &str = "@me";
 /// Сколько символов значения показывать в тексте ошибки (плюс `…` при усечении).
 const ERROR_VALUE_PREVIEW: usize = 32;
-
-/// Счётчик временных файлов: имя уникально даже при двух записях из процесса.
-static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 // ---------------------------------------------------------------------------
 // Allowlisted values
@@ -637,36 +633,37 @@ impl SettingsStore {
             )
         })?;
 
-        let file_name = self
-            .path
-            .file_name()
-            .map(|name| name.to_string_lossy().into_owned())
-            .unwrap_or_else(|| SETTINGS_FILE_NAME.to_string());
-        let temp = parent.join(format!(
-            ".{file_name}.tmp-{}-{}",
-            std::process::id(),
-            TEMP_COUNTER.fetch_add(1, Ordering::Relaxed)
-        ));
-
-        let outcome = write_temp(&temp, bytes).and_then(|()| fs::rename(&temp, &self.path));
-        if let Err(error) = outcome {
-            // best-effort: уборка мусора не должна подменять исходную ошибку.
-            let _ = fs::remove_file(&temp);
-            return Err(SettingsError::io(
+        // Atomically write through NamedTempFile in the target directory to ensure same-filesystem persist
+        let mut temp_file = tempfile::NamedTempFile::new_in(parent).map_err(|error| {
+            SettingsError::io(
                 &self.path,
-                format!("не удалось записать настройки: {error}"),
-            ));
-        }
+                format!("не удалось создать временный файл настроек: {error}"),
+            )
+        })?;
+
+        temp_file.write_all(bytes).map_err(|error| {
+            SettingsError::io(
+                &self.path,
+                format!("не удалось записать временный файл настроек: {error}"),
+            )
+        })?;
+
+        temp_file.as_file().sync_all().map_err(|error| {
+            SettingsError::io(
+                &self.path,
+                format!("не удалось синхронизировать временный файл настроек: {error}"),
+            )
+        })?;
+
+        temp_file.persist(&self.path).map_err(|error| {
+            SettingsError::io(
+                &self.path,
+                format!("не удалось атомарно зафиксировать настройки: {error}"),
+            )
+        })?;
+
         Ok(())
     }
-}
-
-/// Полная запись временного файла: `create_new` не даёт переиспользовать чужой
-/// файл, `sync_all` фиксирует данные до `rename`.
-fn write_temp(path: &Path, bytes: &[u8]) -> io::Result<()> {
-    let mut file = OpenOptions::new().write(true).create_new(true).open(path)?;
-    file.write_all(bytes)?;
-    file.sync_all()
 }
 
 // ---------------------------------------------------------------------------

@@ -1227,6 +1227,16 @@ fn validate_has_tokens(value: Option<&str>) -> Result<Vec<&str>, SearchError> {
     Ok(tokens)
 }
 
+/// Validates and parses a Discord 64-bit Snowflake ID string.
+///
+/// Ensures the input string is non-empty, contains strictly ASCII decimal digits,
+/// and fits within a standard 64-bit unsigned integer (`u64`).
+///
+/// # Arguments
+/// * `value` - Candidate snowflake string slice.
+///
+/// # Returns
+/// `Ok(u64)` on valid format, or `Err(SearchError::InvalidArg)` if malformed.
 fn parse_snowflake(value: &str) -> Result<u64, SearchError> {
     if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
         return Err(SearchError::InvalidArg);
@@ -1234,18 +1244,23 @@ fn parse_snowflake(value: &str) -> Result<u64, SearchError> {
     value.parse::<u64>().map_err(|_| SearchError::InvalidArg)
 }
 
+/// Percent-encodes a URI query parameter value conforming to RFC 3986.
+///
+/// Uses the audited `percent-encoding` crate with standard unreserved characters
+/// `[A-Za-z0-9-_.~]`, eliminating manual byte manipulation and lookup tables.
+///
+/// # Arguments
+/// * `value` - Raw string slice to encode.
+///
+/// # Returns
+/// An RFC 3986 percent-encoded string.
 fn percent_encode(value: &str) -> String {
-    let mut encoded = String::new();
-    for byte in value.as_bytes() {
-        if byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'~') {
-            encoded.push(*byte as char);
-        } else {
-            encoded.push('%');
-            encoded.push(char::from(b"0123456789ABCDEF"[(byte >> 4) as usize]));
-            encoded.push(char::from(b"0123456789ABCDEF"[(byte & 0x0f) as usize]));
-        }
-    }
-    encoded
+    const QUERY_VALUE: &percent_encoding::AsciiSet = &percent_encoding::NON_ALPHANUMERIC
+        .remove(b'-')
+        .remove(b'_')
+        .remove(b'.')
+        .remove(b'~');
+    percent_encoding::utf8_percent_encode(value, QUERY_VALUE).to_string()
 }
 
 #[cfg(test)]
