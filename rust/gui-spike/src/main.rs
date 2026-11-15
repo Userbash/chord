@@ -1429,6 +1429,16 @@ async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Value,
 }
 
 #[tauri::command]
+async fn voice_mute(self_mute: bool) -> Result<serde_json::Value, String> {
+    voice_plugin::voice_mute(self_mute).await
+}
+
+#[tauri::command]
+async fn voice_deaf(self_deaf: bool) -> Result<serde_json::Value, String> {
+    voice_plugin::voice_deaf(self_deaf).await
+}
+
+#[tauri::command]
 async fn voice_rtc_status() -> Result<serde_json::Value, String> {
     voice_plugin::voice_rtc_status().await
 }
@@ -1861,9 +1871,7 @@ fn main() {
                     let _ = window.hide();
                 } else {
                     eprintln!("[window_event] CloseRequested -> disconnecting live voice & shutting down workers");
-                    let (active_gid, _) = data::active_voice_guild_and_channel();
-                    let _ = data::connect_or_update_live_voice(active_gid.clone(), None, false, false);
-                    let _ = chord_core::ws::queue_live_voice_state(active_gid, None, false, false);
+                    voice_plugin::disconnect_on_window_close();
                     data::shutdown_live_workers();
                     std::thread::sleep(std::time::Duration::from_millis(100));
                     std::process::exit(0);
@@ -1971,6 +1979,8 @@ fn main() {
             invoke_bff_domain,
             voice_connect,
             voice_disconnect,
+            voice_mute,
+            voice_deaf,
             voice_rtc_status,
             voice_audio_devices,
             voice_set_audio_device,

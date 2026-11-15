@@ -54,9 +54,11 @@ pub use identify::{
     qos_token_client_provided,
 };
 pub use permissions::{
-    ALL_PERMISSIONS, OVERWRITE_TYPE_MEMBER, OVERWRITE_TYPE_ROLE, PermissionOverwrite, Permissions,
-    compute_base_permissions, compute_channel_permissions, has_permission,
+    ALL_PERMISSIONS, OVERWRITE_TYPE_MEMBER, OVERWRITE_TYPE_ROLE, PermissionCalculator,
+    PermissionOverwrite, Permissions, compute_base_permissions, compute_channel_permissions,
+    has_permission,
 };
+pub use twilight_util;
 pub use ready::ReadySummary;
 pub use rest::client::{ApiAuth, ApiAuthError, AuthScheme};
 pub use rest::user::{Me, MeError, parse_me};

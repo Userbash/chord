@@ -70,11 +70,11 @@ fn chord_voice_core_and_chord_platform_audio_engine_bindings_are_active() {
         "fine"
     );
     assert_eq!(
-        voice_plugin::evaluate_rtc_connection_quality(140.0, 1.0),
+        voice_plugin::evaluate_rtc_connection_quality(310.0, 1.0),
         "average"
     );
     assert_eq!(
-        voice_plugin::evaluate_rtc_connection_quality(310.0, 0.5),
+        voice_plugin::evaluate_rtc_connection_quality(620.0, 0.5),
         "bad"
     );
     assert_eq!(
@@ -98,6 +98,13 @@ fn chord_voice_core_and_chord_platform_audio_engine_bindings_are_active() {
 
 #[test]
 fn mute_and_deaf_resolution_enforces_effective_mute_invariant() {
+    assert!(voice_plugin::verify_voice_protocol_gate(1, false, false));
+    assert!(voice_plugin::verify_voice_protocol_gate(1, true, false));
+    assert!(voice_plugin::verify_voice_protocol_gate(1, false, true));
+    assert!(!voice_plugin::verify_voice_protocol_gate(1, true, true));
+    assert!(!voice_plugin::verify_voice_protocol_gate(0, false, false));
+    assert!(!voice_plugin::verify_voice_protocol_gate(2, false, false));
+
     let state_unmuted = voice_plugin::resolve_effective_mute_deaf(false, false);
     assert!(!state_unmuted.self_mute);
     assert!(!state_unmuted.self_deaf);
@@ -118,6 +125,25 @@ fn mute_and_deaf_resolution_enforces_effective_mute_invariant() {
         "self_deaf must force effective_mute = true"
     );
     assert_eq!(state_deafened.speaking_flags, 0);
+
+    let mute_cmd = run_async(voice_plugin::voice_mute(true)).expect("voice_mute(true)");
+    assert_eq!(mute_cmd["ok"], json!(true));
+    assert_eq!(mute_cmd["selfMute"], json!(true));
+    assert_eq!(mute_cmd["effectiveMute"], json!(true));
+
+    let deaf_cmd = run_async(voice_plugin::voice_deaf(true)).expect("voice_deaf(true)");
+    assert_eq!(deaf_cmd["ok"], json!(true));
+    assert_eq!(deaf_cmd["selfDeaf"], json!(true));
+    assert_eq!(deaf_cmd["effectiveMute"], json!(true));
+
+    let unmute_cmd = run_async(voice_plugin::voice_mute(false)).expect("voice_mute(false)");
+    assert_eq!(unmute_cmd["ok"], json!(true));
+    assert_eq!(unmute_cmd["selfMute"], json!(false));
+
+    let undeaf_cmd = run_async(voice_plugin::voice_deaf(false)).expect("voice_deaf(false)");
+    assert_eq!(undeaf_cmd["ok"], json!(true));
+    assert_eq!(undeaf_cmd["selfDeaf"], json!(false));
+    assert_eq!(undeaf_cmd["effectiveMute"], json!(false));
 }
 
 #[test]

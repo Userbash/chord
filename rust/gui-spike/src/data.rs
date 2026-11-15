@@ -7039,31 +7039,31 @@ pub fn record_sent_message(channel_id: &str, mut message: Value) {
 }
 
 // ---------------------------------------------------------------------------
-// Битовые маски прав доступа Discord API v9 и расчёт переопределений каналов
+// Discord API v9 permission bitmasks and channel overwrite calculation (`RW51-EPIC3-T3`)
 // ---------------------------------------------------------------------------
 
-/// Создание мгновенного приглашения (`CREATE_INSTANT_INVITE`, `1 << 0`).
+/// Create instant invite (`CREATE_INSTANT_INVITE`, `1 << 0`).
 pub const PERM_CREATE_INSTANT_INVITE: u64 = 1 << 0;
-/// Полный административный доступ (`ADMINISTRATOR`, `1 << 3`).
+/// Full administrative access (`ADMINISTRATOR`, `1 << 3`).
 pub const PERM_ADMINISTRATOR: u64 = 1 << 3;
-/// Добавление реакций к сообщениям (`ADD_REACTIONS`, `1 << 6`).
+/// Add reactions to messages (`ADD_REACTIONS`, `1 << 6`).
 pub const PERM_ADD_REACTIONS: u64 = 1 << 6;
-/// Просмотр текстового или голосового канала (`VIEW_CHANNEL`, `1 << 10`).
+/// View text or voice channel (`VIEW_CHANNEL`, `1 << 10`).
 pub const PERM_VIEW_CHANNEL: u64 = 1 << 10;
-/// Отправка сообщений в текстовый канал (`SEND_MESSAGES`, `1 << 11`).
+/// Send messages in text channel (`SEND_MESSAGES`, `1 << 11`).
 pub const PERM_SEND_MESSAGES: u64 = 1 << 11;
-/// Прикрепление файлов и медиа (`ATTACH_FILES`, `1 << 15`).
+/// Attach files and media (`ATTACH_FILES`, `1 << 15`).
 pub const PERM_ATTACH_FILES: u64 = 1 << 15;
-/// Чтение истории сообщений канала (`READ_MESSAGE_HISTORY`, `1 << 16`).
+/// Read channel message history (`READ_MESSAGE_HISTORY`, `1 << 16`).
 pub const PERM_READ_MESSAGE_HISTORY: u64 = 1 << 16;
-/// Подключение к голосовому каналу (`CONNECT`, `1 << 20`).
+/// Connect to voice channel (`CONNECT`, `1 << 20`).
 pub const PERM_CONNECT: u64 = 1 << 20;
-/// Разговор в голосовом канале (`SPEAK`, `1 << 21`).
+/// Speak in voice channel (`SPEAK`, `1 << 21`).
 pub const PERM_SPEAK: u64 = 1 << 21;
-/// Использование активации по голосу (`USE_VAD`, `1 << 25`).
+/// Use voice activity detection (`USE_VAD`, `1 << 25`).
 pub const PERM_USE_VAD: u64 = 1 << 25;
 
-/// Итоговая политика доступа пользователя к конкретному каналу.
+/// Effective user access policy for a specific channel.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChannelAccessPolicy {
@@ -7077,13 +7077,9 @@ pub struct ChannelAccessPolicy {
     pub can_speak_voice: bool,
 }
 
-/// Вычисляет эффективные 64-битные права доступа пользователя в канале по официальной иерархии Discord:
-/// 1. Владелец гильдии (`owner_id == Some(user_id)`) получает `u64::MAX`.
-/// 2. Базовые права складываются побитовым ИЛИ из роли `@everyone` (`role.id == guild_id`)
-///    и всех ролей участника (`member_roles`). Если установлен [`PERM_ADMINISTRATOR`], возвращается `u64::MAX`.
-/// 3. Применяется переопределение канала для `@everyone` (`overwrite.id == guild_id`): `(perms & !deny) | allow`.
-/// 4. Применяются суммарные переопределения ролей участника (`member_roles`): `(perms & !role_deny) | role_allow`.
-/// 5. Применяется персональное переопределение участника (`overwrite.id == user_id`): `(perms & !member_deny) | member_allow`.
+/// Computes effective 64-bit channel permissions by delegating to
+/// [`chord_core::permissions::resolve_guild_base_permissions`] and
+/// [`chord_core::permissions::compute_channel_permissions`] (`twilight-util::permission_calculator`).
 #[must_use]
 pub fn compute_effective_permissions(
     user_id: &str,
@@ -7097,55 +7093,68 @@ pub fn compute_effective_permissions(
         return u64::MAX;
     }
 
-    let mut base = 0u64;
-    for role in guild_roles {
-        if let Some(role_id) = field_str(role, "id") {
-            if role_id == guild_id || member_roles.iter().any(|r| r == role_id) {
-                base |= field_u64(role, "permissions").unwrap_or(0);
-            }
-        }
-    }
+    let gid = guild_id.trim().parse::<u64>().unwrap_or(1);
+    let uid = user_id.trim().parse::<u64>().unwrap_or(0);
+    let oid = owner_id
+        .and_then(|s| s.trim().parse::<u64>().ok())
+        .filter(|&id| id != uid || (!user_id.is_empty() && owner_id == Some(user_id)))
+        .unwrap_or(u64::MAX);
 
-    if (base & PERM_ADMINISTRATOR) != 0 {
-        return u64::MAX;
-    }
+    let role_defs: Vec<chord_core::permissions::RolePermissions> = guild_roles
+        .iter()
+        .filter_map(|role| {
+            let rid = field_str(role, "id")?.trim().parse::<u64>().ok()?;
+            Some(chord_core::permissions::RolePermissions {
+                id: rid,
+                permissions: field_u64(role, "permissions").unwrap_or(0),
+            })
+        })
+        .collect();
 
-    let mut perms = base;
+    let member_role_ids: Vec<u64> = member_roles
+        .iter()
+        .filter_map(|r| r.trim().parse::<u64>().ok())
+        .collect();
 
-    for ov in overwrites {
-        if field_str(ov, "id") == Some(guild_id) {
-            let allow = field_u64(ov, "allow").unwrap_or(0);
-            let deny = field_u64(ov, "deny").unwrap_or(0);
-            perms = (perms & !deny) | allow;
-        }
-    }
+    let base = chord_core::permissions::resolve_guild_base_permissions(
+        gid,
+        oid,
+        uid,
+        &role_defs,
+        &member_role_ids,
+    );
 
-    let mut role_allow = 0u64;
-    let mut role_deny = 0u64;
-    for ov in overwrites {
-        if let Some(ov_id) = field_str(ov, "id") {
-            if ov_id != guild_id && member_roles.iter().any(|r| r == ov_id) {
-                role_allow |= field_u64(ov, "allow").unwrap_or(0);
-                role_deny |= field_u64(ov, "deny").unwrap_or(0);
-            }
-        }
-    }
-    perms = (perms & !role_deny) | role_allow;
+    let parsed_overwrites: Vec<chord_core::permissions::PermissionOverwrite> = overwrites
+        .iter()
+        .filter_map(|ov| {
+            let ov_id_str = field_str(ov, "id")?;
+            let ov_id = ov_id_str.trim().parse::<u64>().ok()?;
+            let overwrite_type = if !user_id.is_empty() && ov_id_str == user_id {
+                chord_core::permissions::OVERWRITE_TYPE_MEMBER
+            } else if ov_id_str == guild_id || member_roles.iter().any(|r| r == ov_id_str) {
+                chord_core::permissions::OVERWRITE_TYPE_ROLE
+            } else {
+                u8::try_from(field_u64(ov, "type").unwrap_or(0)).unwrap_or(u8::MAX)
+            };
+            Some(chord_core::permissions::PermissionOverwrite {
+                id: ov_id,
+                overwrite_type,
+                allow: field_u64(ov, "allow").unwrap_or(0),
+                deny: field_u64(ov, "deny").unwrap_or(0),
+            })
+        })
+        .collect();
 
-    if !user_id.is_empty() {
-        for ov in overwrites {
-            if field_str(ov, "id") == Some(user_id) {
-                let member_allow = field_u64(ov, "allow").unwrap_or(0);
-                let member_deny = field_u64(ov, "deny").unwrap_or(0);
-                perms = (perms & !member_deny) | member_allow;
-            }
-        }
-    }
-
-    perms
+    chord_core::permissions::compute_channel_permissions(
+        base,
+        gid,
+        uid,
+        &member_role_ids,
+        &parsed_overwrites,
+    )
 }
 
-/// Вычисляет прикладную политику доступа к каналу по маске прав `perms` и типу канала `channel_type`.
+/// Evaluates channel access capabilities from the computed `perms` bitmask and `channel_type`.
 #[must_use]
 pub fn evaluate_channel_access(perms: u64, channel_type: i64) -> ChannelAccessPolicy {
     if channel_type == 1 || channel_type == 3 {

@@ -15,11 +15,11 @@ mod support;
 
 use chord_core::permissions::{
     ALL_PERMISSIONS, ALL_V9_DEFINED_PERMISSIONS, LURKER_PERMISSIONS_MASK, MemberRestrictions,
-    OVERWRITE_TYPE_MEMBER, OVERWRITE_TYPE_ROLE, PermissionOverwrite, PermissionParseError,
-    Permissions, QUARANTINED_PERMISSIONS_MASK, ResolvedPermissions, RolePermissions,
-    TIMED_OUT_PERMISSIONS_MASK, compute_base_permissions, compute_channel_permissions,
-    has_permission, resolve_guild_base_permissions, resolve_permissions,
-    resolve_permissions_with_restrictions,
+    OVERWRITE_TYPE_MEMBER, OVERWRITE_TYPE_ROLE, PermissionCalculator, PermissionOverwrite,
+    PermissionParseError, Permissions, QUARANTINED_PERMISSIONS_MASK, ResolvedPermissions,
+    RolePermissions, TIMED_OUT_PERMISSIONS_MASK, TwilightChannelType, TwilightPermissions,
+    compute_base_permissions, compute_channel_permissions, has_permission,
+    resolve_guild_base_permissions, resolve_permissions, resolve_permissions_with_restrictions,
 };
 use chord_core::ready::Ready;
 
@@ -507,4 +507,235 @@ fn ready_capture_guild_roles_and_channel_overwrites_resolve_exact_capabilities()
     assert!(default_channel.can_send);
     assert!(default_channel.can_attach);
     assert!(default_channel.can_kick);
+}
+
+/// 7. `twilight-util::permission_calculator::PermissionCalculator` Administrator bypass:
+///    Administrator role or base bit bypasses all channel denial overwrites.
+#[test]
+fn twilight_permission_calculator_administrator_bypass_ignores_channel_denials() {
+    let guild_id = 10_001u64;
+    let user_id = 20_002u64;
+    let admin_role_id = 30_003u64;
+
+    let deny_all = [
+        PermissionOverwrite {
+            id: guild_id,
+            overwrite_type: OVERWRITE_TYPE_ROLE,
+            allow: 0,
+            deny: Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES | Permissions::CONNECT,
+        },
+        PermissionOverwrite {
+            id: admin_role_id,
+            overwrite_type: OVERWRITE_TYPE_ROLE,
+            allow: 0,
+            deny: Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES,
+        },
+        PermissionOverwrite {
+            id: user_id,
+            overwrite_type: OVERWRITE_TYPE_MEMBER,
+            allow: 0,
+            deny: Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES,
+        },
+    ];
+
+    let channel_perms = compute_channel_permissions(
+        Permissions::VIEW_CHANNEL | Permissions::ADMINISTRATOR,
+        guild_id,
+        user_id,
+        &[admin_role_id],
+        &deny_all,
+    );
+    assert_eq!(channel_perms, ALL_PERMISSIONS);
+
+    let granted_admin_ow = [PermissionOverwrite {
+        id: user_id,
+        overwrite_type: OVERWRITE_TYPE_MEMBER,
+        allow: Permissions::ADMINISTRATOR,
+        deny: Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES,
+    }];
+    let channel_admin = compute_channel_permissions(
+        Permissions::VIEW_CHANNEL,
+        guild_id,
+        user_id,
+        &[],
+        &granted_admin_ow,
+    );
+    assert_eq!(channel_admin, ALL_PERMISSIONS);
+}
+
+/// 8. `twilight-util::permission_calculator::PermissionCalculator` Guild Owner bypass:
+///    Guild owner always receives full permissions regardless of empty roles or channel denials.
+#[test]
+fn twilight_permission_calculator_guild_owner_bypass_grants_full_access() {
+    let guild_id = 50_000u64;
+    let owner_id = 60_000u64;
+
+    let base = compute_base_permissions(owner_id, owner_id, 0, &[]);
+    assert_eq!(base, ALL_PERMISSIONS);
+
+    let deny_overwrites = [PermissionOverwrite {
+        id: owner_id,
+        overwrite_type: OVERWRITE_TYPE_MEMBER,
+        allow: 0,
+        deny: Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES,
+    }];
+    let resolved = resolve_permissions(base, guild_id, owner_id, &[], &deny_overwrites);
+    assert!(resolved.is_admin);
+    assert!(resolved.can_view);
+    assert!(resolved.can_send);
+    assert_eq!(resolved.effective_bits, ALL_PERMISSIONS);
+}
+
+/// 9. `twilight-util::permission_calculator::PermissionCalculator` Denial overwrites:
+///    `@everyone`, role, and member denial overwrites strip permissions according to hierarchy.
+#[test]
+fn twilight_permission_calculator_denial_overwrites_cascade_everyone_role_member() {
+    use twilight_model::id::Id;
+
+    let guild_id = Id::new(100);
+    let user_id = Id::new(200);
+    let role_id = Id::new(300);
+
+    let everyone = TwilightPermissions::VIEW_CHANNEL
+        | TwilightPermissions::SEND_MESSAGES
+        | TwilightPermissions::EMBED_LINKS
+        | TwilightPermissions::ATTACH_FILES
+        | TwilightPermissions::ADD_REACTIONS;
+    let member_roles = [(role_id, TwilightPermissions::MANAGE_MESSAGES)];
+
+    let overwrites = [
+        PermissionOverwrite {
+            id: 300,
+            overwrite_type: OVERWRITE_TYPE_ROLE,
+            allow: Permissions::ATTACH_FILES,
+            deny: Permissions::SEND_MESSAGES,
+        }
+        .to_twilight_overwrite(1),
+    ];
+
+    let calc = PermissionCalculator::new(guild_id, user_id, everyone, &member_roles);
+    let result = calc.in_channel(TwilightChannelType::GuildText, &overwrites);
+
+    assert!(result.contains(TwilightPermissions::VIEW_CHANNEL));
+    assert!(result.contains(TwilightPermissions::MANAGE_MESSAGES));
+    assert!(result.contains(TwilightPermissions::ADD_REACTIONS));
+    assert!(!result.contains(TwilightPermissions::SEND_MESSAGES));
+    assert!(!result.contains(TwilightPermissions::ATTACH_FILES));
+    assert!(!result.contains(TwilightPermissions::EMBED_LINKS));
+}
+
+/// 10. Multi-role overwrite union: role `allow` on one role overrides role `deny` on another role,
+///     while member `deny` overrides role `allow`.
+#[test]
+fn twilight_permission_calculator_multi_role_allow_overrides_other_role_deny() {
+    let guild_id = 1_000u64;
+    let user_id = 2_000u64;
+    let role_deny = 3_001u64;
+    let role_allow = 3_002u64;
+
+    let base = Permissions::VIEW_CHANNEL | Permissions::CONNECT | Permissions::SPEAK;
+    let overwrites = [
+        PermissionOverwrite {
+            id: role_deny,
+            overwrite_type: OVERWRITE_TYPE_ROLE,
+            allow: 0,
+            deny: Permissions::CONNECT | Permissions::SPEAK | Permissions::STREAM,
+        },
+        PermissionOverwrite {
+            id: role_allow,
+            overwrite_type: OVERWRITE_TYPE_ROLE,
+            allow: Permissions::CONNECT | Permissions::SPEAK | Permissions::STREAM,
+            deny: 0,
+        },
+        PermissionOverwrite {
+            id: user_id,
+            overwrite_type: OVERWRITE_TYPE_MEMBER,
+            allow: 0,
+            deny: Permissions::STREAM,
+        },
+    ];
+
+    let perms = compute_channel_permissions(
+        base,
+        guild_id,
+        user_id,
+        &[role_deny, role_allow],
+        &overwrites,
+    );
+    assert!(has_permission(perms, Permissions::VIEW_CHANNEL));
+    assert!(has_permission(perms, Permissions::CONNECT));
+    assert!(has_permission(perms, Permissions::SPEAK));
+    assert!(!has_permission(perms, Permissions::STREAM));
+}
+
+/// 11. Boundary snowflakes (`0`, `u64::MAX`), high bitmasks (`> 1 << 46`), and unknown overwrite types.
+#[test]
+fn twilight_permission_calculator_boundary_snowflakes_and_unknown_overwrite_types() {
+    let guild_id = 0u64;
+    let user_id = u64::MAX;
+    let role_id = u64::MAX - 1;
+    let high_bit = 1u64 << 50;
+
+    let base = Permissions::VIEW_CHANNEL | Permissions::SEND_MESSAGES | high_bit;
+    let overwrites = [
+        PermissionOverwrite {
+            id: guild_id,
+            overwrite_type: OVERWRITE_TYPE_ROLE,
+            allow: 0,
+            deny: high_bit,
+        },
+        PermissionOverwrite {
+            id: role_id,
+            overwrite_type: OVERWRITE_TYPE_ROLE,
+            allow: high_bit,
+            deny: Permissions::SEND_MESSAGES,
+        },
+        PermissionOverwrite {
+            id: user_id,
+            overwrite_type: 99,
+            allow: Permissions::ADMINISTRATOR,
+            deny: Permissions::VIEW_CHANNEL,
+        },
+    ];
+
+    let perms = compute_channel_permissions(base, guild_id, user_id, &[role_id], &overwrites);
+    assert!(has_permission(perms, Permissions::VIEW_CHANNEL));
+    assert!(has_permission(perms, high_bit));
+    assert!(!has_permission(perms, Permissions::SEND_MESSAGES));
+    assert!(!has_permission(perms, Permissions::ADMINISTRATOR));
+}
+
+/// 12. Channel-type specific permission filtering via `PermissionCalculator::in_channel`.
+#[test]
+fn twilight_permission_calculator_channel_type_omissions_text_voice_stage() {
+    use twilight_model::id::Id;
+
+    let guild_id = Id::new(777);
+    let user_id = Id::new(888);
+    let everyone = TwilightPermissions::VIEW_CHANNEL
+        | TwilightPermissions::SEND_MESSAGES
+        | TwilightPermissions::CONNECT
+        | TwilightPermissions::SPEAK
+        | TwilightPermissions::REQUEST_TO_SPEAK;
+
+    let text_perms = PermissionCalculator::new(guild_id, user_id, everyone, &[])
+        .in_channel(TwilightChannelType::GuildText, &[]);
+    assert!(text_perms.contains(TwilightPermissions::VIEW_CHANNEL));
+    assert!(text_perms.contains(TwilightPermissions::SEND_MESSAGES));
+    assert!(!text_perms.contains(TwilightPermissions::CONNECT));
+    assert!(!text_perms.contains(TwilightPermissions::SPEAK));
+
+    let voice_perms = PermissionCalculator::new(guild_id, user_id, everyone, &[])
+        .in_channel(TwilightChannelType::GuildVoice, &[]);
+    assert!(voice_perms.contains(TwilightPermissions::VIEW_CHANNEL));
+    assert!(voice_perms.contains(TwilightPermissions::CONNECT));
+    assert!(voice_perms.contains(TwilightPermissions::SPEAK));
+    assert!(!voice_perms.contains(TwilightPermissions::SEND_MESSAGES));
+
+    let stage_perms = PermissionCalculator::new(guild_id, user_id, everyone, &[])
+        .in_channel(TwilightChannelType::GuildStageVoice, &[]);
+    assert!(stage_perms.contains(TwilightPermissions::VIEW_CHANNEL));
+    assert!(stage_perms.contains(TwilightPermissions::CONNECT));
+    assert!(stage_perms.contains(TwilightPermissions::REQUEST_TO_SPEAK));
+    assert!(!stage_perms.contains(TwilightPermissions::SPEAK));
 }
