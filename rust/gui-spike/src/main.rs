@@ -55,6 +55,7 @@ pub mod gifts_plugin;
 pub mod invites_plugin;
 pub mod media_plugin;
 pub mod net_plugin;
+pub mod search_plugin;
 pub mod settings_plugin;
 pub mod voice_plugin;
 use gifts::{
@@ -1864,6 +1865,7 @@ fn main() {
         .plugin(invites_plugin::init())
         .plugin(media_plugin::init())
         .plugin(net_plugin::init())
+        .plugin(search_plugin::init())
         .plugin(settings_plugin::init())
         .plugin(voice_plugin::init())
         .on_window_event(|window, event| match event {
