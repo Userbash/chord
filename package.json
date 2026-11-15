@@ -34,6 +34,8 @@
     "pr:inspect": "bash scripts/pr.sh inspect",
     "pr:audit": "bash scripts/pr.sh audit",
     "pr:comment": "bash scripts/pr.sh comment",
+    "pr:request-changes": "bash scripts/pr.sh request-changes",
+    "pr:approve": "bash scripts/pr.sh approve",
     "pr:template": "bash scripts/pr.sh template",
     "bus": "node scripts/agent-bus.mjs",
     "bus:status": "node scripts/agent-bus.mjs status"

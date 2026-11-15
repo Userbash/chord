@@ -20,6 +20,12 @@ case "$ACTION" in
   --comment|comment)
     node "$SCRIPT_DIR/pr-ops.mjs" comment "$PR_NUMBER"
     ;;
+  --request-changes|request-changes|reject)
+    node "$SCRIPT_DIR/pr-ops.mjs" request-changes "$PR_NUMBER"
+    ;;
+  --approve|approve)
+    node "$SCRIPT_DIR/pr-ops.mjs" approve "$PR_NUMBER"
+    ;;
   *)
     node "$SCRIPT_DIR/pr-ops.mjs" audit "$PR_NUMBER"
     ;;

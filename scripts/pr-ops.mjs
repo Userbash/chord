@@ -339,8 +339,35 @@ async function main() {
         break;
       }
 
+      case 'request-changes': {
+        const auditResult = auditPr(prDetails);
+        const report = generateMarkdownReport(auditResult);
+        const tmpFile = `/tmp/pr-${prNumber}-request-changes.md`;
+        const reviewBody = `${report}\n\n### 🔄 Action Required\nPlease resolve the blocking issues listed above, ensure all 34 JS unit tests pass, and push updates to this branch. The review bot will automatically re-evaluate upon new commits.`;
+        fs.writeFileSync(tmpFile, reviewBody, 'utf8');
+        console.log(`Submitting formal 'REQUEST_CHANGES' review to GitHub PR #${prNumber}...`);
+        execSync(`gh pr review ${prNumber} --repo ${repo} --request-changes --body-file "${tmpFile}"`, { stdio: 'inherit' });
+        console.log(`🔴 PR #${prNumber} marked as Changes Requested (returned for rework)!`);
+        break;
+      }
+
+      case 'approve': {
+        const auditResult = auditPr(prDetails);
+        if (auditResult.blockers.length > 0) {
+          console.error(`❌ Cannot approve PR #${prNumber}: ${auditResult.blockers.length} blockers remain!`);
+          process.exit(1);
+        }
+        const report = generateMarkdownReport(auditResult);
+        const tmpFile = `/tmp/pr-${prNumber}-approval.md`;
+        fs.writeFileSync(tmpFile, report, 'utf8');
+        console.log(`Submitting formal 'APPROVE' review to GitHub PR #${prNumber}...`);
+        execSync(`gh pr review ${prNumber} --repo ${repo} --approve --body-file "${tmpFile}"`, { stdio: 'inherit' });
+        console.log(`🟢 PR #${prNumber} successfully approved for merge!`);
+        break;
+      }
+
       default:
-        console.log(`Usage: pr-ops <inspect|audit|review-template|comment> [PR_NUMBER] [--repo REPO]`);
+        console.log(`Usage: pr-ops <inspect|audit|review-template|comment|request-changes|approve> [PR_NUMBER] [--repo REPO]`);
     }
   } catch (err) {
     console.error(`❌ PR-OPS Error:`, err.message);
