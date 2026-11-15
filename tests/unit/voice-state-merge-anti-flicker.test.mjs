@@ -23,34 +23,43 @@ const APP_JS_PATH = path.join(REPO_ROOT, "rust/gui-spike/ui/app.js");
  * @param {string} appJs
  */
 function loadVoiceStateMergeHelpers(appJs) {
-  const flagIdx = appJs.indexOf("function isTruthyVoiceFlag(");
+  const voiceStateSyncJs = fs.readFileSync(
+    path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-state-sync.js"),
+    "utf8",
+  );
+  const flagIdx = voiceStateSyncJs.indexOf("function isTruthyVoiceFlag(");
   const cleanIdx = appJs.indexOf("function cleanDiscordStr(");
-  const normIdx = appJs.indexOf("function normalizeVoiceGuildKey(");
-  const mergeGuildIdx = appJs.indexOf("function mergeVoiceStatesForGuild(");
-  const mergeSnapIdx = appJs.indexOf("function mergeVoiceStatesSnapshot(");
-  const timerIdx = appJs.indexOf("function getVoiceChannelTimer(");
+  const normIdx = voiceStateSyncJs.indexOf("function normalizeVoiceGuildKey(");
+  const mergeGuildIdx = voiceStateSyncJs.indexOf("function mergeVoiceStatesForGuild(");
+  const mergeSnapIdx = voiceStateSyncJs.indexOf("function mergeVoiceStatesSnapshot(");
+  const timerIdx = voiceStateSyncJs.indexOf("function getVoiceChannelTimer(");
 
-  assert.ok(flagIdx > 0, "isTruthyVoiceFlag must exist in app.js");
-  assert.ok(cleanIdx > flagIdx, "cleanDiscordStr must exist in app.js");
-  assert.ok(normIdx > cleanIdx, "normalizeVoiceGuildKey must exist in app.js");
+  assert.ok(flagIdx > 0, "isTruthyVoiceFlag must exist in voice-state-sync.js");
+  assert.ok(cleanIdx > 0, "cleanDiscordStr must exist in app.js");
+  assert.ok(normIdx > flagIdx, "normalizeVoiceGuildKey must exist in voice-state-sync.js");
   assert.ok(
     mergeGuildIdx > normIdx,
-    "mergeVoiceStatesForGuild must be defined in app.js after normalizeVoiceGuildKey",
+    "mergeVoiceStatesForGuild must be defined in voice-state-sync.js after normalizeVoiceGuildKey",
   );
   assert.ok(
     mergeSnapIdx > mergeGuildIdx,
-    "mergeVoiceStatesSnapshot must be defined in app.js after mergeVoiceStatesForGuild",
+    "mergeVoiceStatesSnapshot must be defined in voice-state-sync.js after mergeVoiceStatesForGuild",
   );
   assert.ok(timerIdx > mergeSnapIdx, "getVoiceChannelTimer must follow voice state merge helpers");
 
-  const utilSnippet = appJs.slice(flagIdx, appJs.indexOf("function hydrateGuildMembersAndRoles("));
-  const voiceMergeSnippet = appJs.slice(normIdx, timerIdx);
+  const flagSnippet = voiceStateSyncJs.slice(flagIdx, voiceStateSyncJs.indexOf("function normalizeVoiceGuildKey("));
+  const cleanSnippet = appJs.slice(cleanIdx, appJs.indexOf("function hydrateGuildMembersAndRoles("));
+  const voiceMergeSnippet = voiceStateSyncJs.slice(normIdx, timerIdx);
 
   /** @type {any} */
   const sandbox = {
     HOME_GUILD_ID: "@me",
     isConfirmedVoiceStateRecord,
     activeVoiceConnection: null,
+    ctx: {
+      cleanDiscordStr: (/** @type {any} */ v) => sandbox.cleanDiscordStr(v),
+      getActiveVoiceConnection: () => sandbox.activeVoiceConnection,
+    },
     Map,
     Set,
     Array,
@@ -60,7 +69,7 @@ function loadVoiceStateMergeHelpers(appJs) {
     Number,
   };
   vm.createContext(sandbox);
-  vm.runInContext(`${utilSnippet}\n${voiceMergeSnippet}`, sandbox);
+  vm.runInContext(`${flagSnippet}\n${cleanSnippet}\n${voiceMergeSnippet}`, sandbox);
 
   return {
     /** @type {(gid: any) => string} */
@@ -73,7 +82,10 @@ function loadVoiceStateMergeHelpers(appJs) {
 }
 
 describe("TASK-766: Conflict-Free Voice States Merge & Guild Key Normalization (Anti-Flicker)", () => {
-  const appJs = fs.readFileSync(APP_JS_PATH, "utf8");
+  const appJs = [
+    fs.readFileSync(APP_JS_PATH, "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-connection-controller.js"), "utf8"),
+  ].join("\n");
 
   it("VSM-01 [Negative / Anti-Flicker Invariant]: app.js never calls destructive liveVoiceStatesByGuild.clear()", () => {
     assert.doesNotMatch(
@@ -83,11 +95,11 @@ describe("TASK-766: Conflict-Free Voice States Merge & Guild Key Normalization (
     );
 
     const refreshIdx = appJs.indexOf("async function refreshLiveReadyVoiceAndUsers()");
-    assert.ok(refreshIdx > 0, "refreshLiveReadyVoiceAndUsers must exist in app.js");
+    assert.ok(refreshIdx > 0, "refreshLiveReadyVoiceAndUsers must exist");
     const refreshBody = appJs.slice(refreshIdx, refreshIdx + 2200);
     assert.match(
       refreshBody,
-      /mergeVoiceStatesSnapshot\s*\(\s*liveVoiceStatesByGuild\s*,\s*rawVs\s*\)/,
+      /(?:ctx\.)?mergeVoiceStatesSnapshot\s*\(\s*(?:ctx\.)?liveVoiceStatesByGuild\s*,\s*rawVs\s*\)/,
       "refreshLiveReadyVoiceAndUsers must delegate to mergeVoiceStatesSnapshot(liveVoiceStatesByGuild, rawVs)",
     );
     assert.doesNotMatch(

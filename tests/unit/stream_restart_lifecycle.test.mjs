@@ -12,7 +12,13 @@ const REPO_ROOT = path.resolve(__dirname, "../..");
 describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
   const dataRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/data.rs"), "utf8");
   const mainRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/main.rs"), "utf8");
-  const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
+  const appJs = [
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-renderer.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer-controls.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stream-controller.js"), "utf8"),
+  ].join("\n");
 
   it("SR1: data.rs defines reset_live_stream_state clearing stream tokens and stopping RTC", () => {
     assert.match(
@@ -85,15 +91,15 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
     );
     assert.match(
       appJs,
-      /stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(true\);/,
+      /stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(true\);/,
       "stopStageBtn must invoke closeStageViewer(true) to stop stream",
     );
     assert.match(
       appJs,
-      /closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(false\);/,
+      /closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(false\);/,
       "closeStageBtn for broadcaster must invoke closeStageViewer(false) to minimize into PIP",
     );
-    const viewerClosePattern = /if\s*\(isSelfStream\)\s*\{[\s\S]*?if\s*\(stopStream\s*&&\s*activeVoiceConnection\)[\s\S]*?invoke\("voice_stream_stop"/;
+    const viewerClosePattern = /if\s*\(isSelfStream\)\s*\{[\s\S]*?if\s*\(stopStream\s*&&\s*(?:activeVoiceConnection|activeConn)\)[\s\S]*?(?:ctx\.)?invoke\("voice_stream_stop"/;
     assert.match(
       appJs,
       viewerClosePattern,

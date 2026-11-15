@@ -13,8 +13,10 @@
 //! `events`/`take_events`, T-GW-08) реализованы и покрыты тестами.
 
 pub mod audit_log;
+pub mod cache;
 pub mod dispatch;
 pub mod gateway;
+pub mod gateway_events;
 pub mod history;
 pub mod identify;
 pub mod permissions;
@@ -30,6 +32,9 @@ pub mod ws;
 /// Ре-экспорт кодека: потребителям и интеграционным тестам `discord-core` не нужна
 /// отдельная зависимость на `discord-codec`.
 pub use chord_codec as codec;
+pub use cache::*;
+pub use gateway_events::*;
+pub use twilight_model;
 pub use dispatch::{DispatchEvent, DispatchKind, route_dispatch};
 pub use gateway::supervisor::{
     Backoff, CloseAction, StopReason, Supervisor, SupervisorConfig, SupervisorEvent,

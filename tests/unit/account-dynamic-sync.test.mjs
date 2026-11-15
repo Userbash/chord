@@ -21,31 +21,34 @@ test("CARD-DYN-001 & CARD-DYN-004: data.rs has zero occurrences of hardcoded use
 });
 
 test("CARD-DYN-005: canDeleteLiveMessage permission rules for DMs and Guilds", async () => {
-  const appJsPath = path.join(repoRoot, "rust/gui-spike/ui/app.js");
-  assert.ok(fs.existsSync(appJsPath), "app.js must exist");
-  const appJs = fs.readFileSync(appJsPath, "utf8");
+  const msgCtrlPath = path.join(
+    repoRoot,
+    "rust/gui-spike/ui/features/message-interaction-controller.js",
+  );
+  assert.ok(fs.existsSync(msgCtrlPath), "message-interaction-controller.js must exist");
+  const msgCtrlJs = fs.readFileSync(msgCtrlPath, "utf8");
 
-  // Verify canDeleteLiveMessage is present in app.js
+  // Verify canDeleteLiveMessage is present in message-interaction-controller.js
   assert.ok(
-    appJs.includes("function canDeleteLiveMessage("),
-    "app.js must declare function canDeleteLiveMessage",
+    msgCtrlJs.includes("function canDeleteLiveMessage("),
+    "message-interaction-controller.js must declare function canDeleteLiveMessage",
   );
 
   // Verify DM restriction: in DMs, deleting someone else's message returns false
   assert.ok(
-    appJs.includes("isDmOrGroupContext") && appJs.includes("return false;"),
+    msgCtrlJs.includes("isDmOrGroupContext") && msgCtrlJs.includes("return false;"),
     "canDeleteLiveMessage must block deleting someone else's message in DM or group context",
   );
 
   // Verify Server restriction: deleting someone else's message requires canManageMessages / isAdmin / isOwner
   assert.ok(
-    appJs.includes("perms.canManageMessages") || appJs.includes("1n << 13n"),
+    msgCtrlJs.includes("perms.canManageMessages") || msgCtrlJs.includes("1n << 13n"),
     "canDeleteLiveMessage must require MANAGE_MESSAGES on servers",
   );
 
   // Verify user-friendly error notice instead of silent crash
   assert.ok(
-    appJs.includes("У вас нет прав на удаление чужого сообщения"),
+    msgCtrlJs.includes("У вас нет прав на удаление чужого сообщения"),
     "deleteLiveMessageRow must show a toast notice when unauthorized",
   );
 });
@@ -53,22 +56,29 @@ test("CARD-DYN-005: canDeleteLiveMessage permission rules for DMs and Guilds", a
 test("CARD-DYN-003: DM Call, Camera, Screen Share and Group DM actions", () => {
   const appJsPath = path.join(repoRoot, "rust/gui-spike/ui/app.js");
   const appJs = fs.readFileSync(appJsPath, "utf8");
+  const channelPermsPath = path.join(
+    repoRoot,
+    "rust/gui-spike/ui/features/channel-switch-permissions.js",
+  );
+  const targetCode = fs.existsSync(channelPermsPath)
+    ? fs.readFileSync(channelPermsPath, "utf8") + "\n" + appJs
+    : appJs;
 
   // Verify DM action toolbar buttons
   assert.ok(
-    appJs.includes("dm-call-voice"),
+    targetCode.includes("dm-call-voice"),
     "DM header toolbar must include voice call button",
   );
   assert.ok(
-    appJs.includes("dm-call-video"),
+    targetCode.includes("dm-call-video"),
     "DM header toolbar must include video call button",
   );
   assert.ok(
-    appJs.includes("dm-call-stream"),
+    targetCode.includes("dm-call-stream"),
     "DM header toolbar must include screen share button",
   );
   assert.ok(
-    appJs.includes("openGroupDmModal"),
+    targetCode.includes("openGroupDmModal"),
     "DM header must allow opening group DM modal",
   );
 });

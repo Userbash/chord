@@ -797,7 +797,7 @@ export function createVoiceStateSync(ctx) {
     if (isChannelAfk(gId, cId)) return false;
     const selfId = ctx.cleanDiscordStr(String(ctx.getLiveSelfUser()?.id || ""));
     const vList = ctx.liveVoiceStatesByGuild.get(gId) ?? [];
-    const myVs = vList.find((v) => String(v?.user_id ?? v?.userId ?? "") === selfId);
+    const myVs = vList.find((/** @type {any} */ v) => String(v?.user_id ?? v?.userId ?? "") === selfId);
     if (myVs && isTruthyVoiceFlag(myVs.suppress)) return false;
     const REQUIRED = (1n << 10n) | (1n << 20n) | (1n << 9n);
     const perms = ctx.computeEffectiveChannelPermissions(gId, chObj, allChannels);
@@ -821,7 +821,7 @@ export function createVoiceStateSync(ctx) {
     if (isChannelAfk(gId, cId)) return false;
     const selfId = ctx.cleanDiscordStr(String(ctx.getLiveSelfUser()?.id || ""));
     const vList = ctx.liveVoiceStatesByGuild.get(gId) ?? [];
-    const myVs = vList.find((v) => String(v?.user_id ?? v?.userId ?? "") === selfId);
+    const myVs = vList.find((/** @type {any} */ v) => String(v?.user_id ?? v?.userId ?? "") === selfId);
     if (myVs && (isTruthyVoiceFlag(myVs.mute) || isTruthyVoiceFlag(myVs.suppress))) return false;
     const REQUIRED = (1n << 10n) | (1n << 20n) | (1n << 21n);
     const perms = ctx.computeEffectiveChannelPermissions(gId, chObj, allChannels);
@@ -869,7 +869,7 @@ export function createVoiceStateSync(ctx) {
     const parentId = ctx.cleanDiscordStr(String(channel.parentId ?? channel.parent_id ?? ""));
     const chList = Array.isArray(allChannels) ? allChannels : ctx.getTreeChannels?.() ?? [];
     if (parentId && chList.length > 0) {
-      const parentCh = chList.find((c) => String(c?.id ?? "") === parentId);
+      const parentCh = chList.find((/** @type {any} */ c) => String(c?.id ?? "") === parentId);
       const parentOw = /** @type {any} */ (parentCh)?.permissionOverwrites ?? /** @type {any} */ (parentCh)?.permission_overwrites ?? [];
       if (checkOverwrites(parentOw)) return true;
     }

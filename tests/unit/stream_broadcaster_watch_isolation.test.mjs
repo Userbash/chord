@@ -14,7 +14,10 @@ describe("Stream Broadcaster vs Viewer Isolation & Signal Guard (TASK-770 / TASK
   const mainRsPath = path.join(REPO_ROOT, "rust/gui-spike/src/main.rs");
   const wsRsPath = path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs");
 
-  const appJs = fs.readFileSync(appJsPath, "utf8");
+  const appJs = [
+    fs.readFileSync(appJsPath, "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer.js"), "utf8"),
+  ].join("\n");
   const mainRs = fs.readFileSync(mainRsPath, "utf8");
   const wsRs = fs.readFileSync(wsRsPath, "utf8");
 

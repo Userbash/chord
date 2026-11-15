@@ -490,7 +490,7 @@ export function createVoiceConnectionController(ctx) {
       event: "voice-state-update",
       intervalMs: 1000,
       initialFetch: pollOnce,
-      onEvent: (payload) => {
+      onEvent: (/** @type {any} */ payload) => {
         if (payload && typeof payload === "object") {
           handleRtcUpdate(payload);
         } else {

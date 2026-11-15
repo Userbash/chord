@@ -20,6 +20,10 @@ const MAIN_RS = readFileSync(
   new URL("../../rust/gui-spike/src/main.rs", import.meta.url),
   "utf8",
 );
+const VOICE_PLUGIN_RS = readFileSync(
+  new URL("../../rust/gui-spike/src/voice_plugin.rs", import.meta.url),
+  "utf8",
+);
 const DATA_RS = readFileSync(
   new URL("../../rust/gui-spike/src/data.rs", import.meta.url),
   "utf8",
@@ -59,9 +63,16 @@ describe("Call and Stream Protocol & UI Contracts", () => {
   });
 
   it("C4: voice_stream_start queues OP 18 through the voice-state delegate and uses real self_uid", () => {
-    const start = MAIN_RS.indexOf("async fn voice_stream_start(");
-    assert.ok(start > 0, "voice_stream_start must exist");
-    const startBody = MAIN_RS.slice(start, MAIN_RS.indexOf("\n}", start) + 2);
+    const wrapper = MAIN_RS.indexOf("async fn voice_stream_start(");
+    assert.ok(wrapper > 0, "voice_stream_start IPC wrapper must exist");
+    const wrapperBody = MAIN_RS.slice(wrapper, MAIN_RS.indexOf("\n}", wrapper) + 2);
+    assert.match(wrapperBody, /voice_plugin::voice_stream_start\(spec\)\.await/,
+      "the public IPC wrapper must forward the request to the voice plugin");
+    // The upstream extraction moved implementation into the registered plugin.
+    // Keep protocol assertions on that implementation, not the wrapper's comments.
+    const start = VOICE_PLUGIN_RS.indexOf("pub async fn voice_stream_start(");
+    assert.ok(start > 0, "voice plugin must implement voice_stream_start");
+    const startBody = VOICE_PLUGIN_RS.slice(start, VOICE_PLUGIN_RS.indexOf("\n}", start) + 2);
     assert.match(
       startBody,
       /data::connect_or_update_live_voice_ext\(gid, cid, vmute, vdeaf, vvideo, true\)/,
@@ -110,8 +121,16 @@ describe("Call and Stream Protocol & UI Contracts", () => {
   });
 
   it("C7: disconnectFromLiveVoiceChannel stops active screen share", () => {
+    let voiceConnCode = "";
+    try {
+      voiceConnCode = readFileSync(
+        new URL("../../rust/gui-spike/ui/features/voice-connection-controller.js", import.meta.url),
+        "utf8",
+      );
+    } catch {}
+    const targetCode = voiceConnCode ? voiceConnCode + "\n" + APP_JS : APP_JS;
     assert.match(
-      APP_JS,
+      targetCode,
       /disconnectFromLiveVoiceChannel[\s\S]*?voice_stream_stop/,
       "disconnectFromLiveVoiceChannel must call voice_stream_stop when screen share is active",
     );

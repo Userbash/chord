@@ -22,7 +22,12 @@ describe("TASK-779: Комплексный регрессионный сьют �
   const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs"), "utf8");
   const dataRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/data.rs"), "utf8");
   const mainRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/main.rs"), "utf8");
-  const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
+  const appJs = [
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer-controls.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stream-controller.js"), "utf8"),
+  ].join("\n");
 
   describe("1. Контракт WebRTC: sourceId: '-1', type: 'screen', исключение сброса захватчика в nil", () => {
     it("T779-1a: ws.rs applyScreenBroadcast и set_stream_source всегда передают type: 'screen', sourceId: '-1' и не сбрасывают захватчик в nil", () => {
@@ -203,22 +208,25 @@ describe("TASK-779: Комплексный регрессионный сьют �
       assert.match(fnBody, /stopStageBtn\.id\s*=\s*"stage-stop-stream-btn"/);
       assert.match(fnBody, /closeStageBtn\.id\s*=\s*"stage-close-viewer-btn"/);
 
-      // Minimize и крестик ✕ у стримера вызывают closeStageViewer(false) (свернуть в PIP, стрим продолжается)
+      const controlsIdx = appJs.indexOf("function buildStageViewerTopBar(");
+      const controlsBody = controlsIdx > 0 ? appJs.slice(controlsIdx, controlsIdx + 15000) : fnBody;
+
+      // Minimize и крестик ✕ у стримера вызывают closeStageViewer(false) / onCloseStage(false) (свернуть в PIP, стрим продолжается)
       assert.match(
-        fnBody,
-        /minimizeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(false\);\s*\}\)/,
+        controlsBody,
+        /minimizeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(false\);\s*\}\)/,
         "Кнопка 'Свернуть 🗕' должна вызывать closeStageViewer(false)",
       );
       assert.match(
-        fnBody,
-        /closeStageBtn\.textContent\s*=\s*"✕"[\s\S]{0,400}?closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(false\);\s*\}\)/,
+        controlsBody,
+        /closeStageBtn\.textContent\s*=\s*"✕"[\s\S]{0,400}?closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(false\);\s*\}\)/,
         "Крестик закрытия Stage Viewer у стримера должен сворачивать окно в PIP (closeStageViewer(false)), а не обрывать стрим",
       );
 
-      // Кнопка 'Прекратить стрим' вызывает closeStageViewer(true)
+      // Кнопка 'Прекратить стрим' вызывает closeStageViewer(true) / onCloseStage(true)
       assert.match(
-        fnBody,
-        /stopStageBtn\.textContent\s*=\s*"Прекратить стрим"[\s\S]{0,400}?stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(true\);\s*\}\)/,
+        controlsBody,
+        /stopStageBtn\.textContent\s*=\s*"Прекратить стрим"[\s\S]{0,400}?stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(true\);\s*\}\)/,
         "Кнопка 'Прекратить стрим' должна вызывать closeStageViewer(true)",
       );
 
@@ -229,12 +237,12 @@ describe("TASK-779: Комплексный регрессионный сьют �
 
       assert.match(
         closeBody,
-        /if\s*\(stopStream\s*&&\s*activeVoiceConnection\)[\s\S]*?document\.getElementById\("live-stream-pip-preview"\)\?\.remove\(\)[\s\S]*?invoke\("voice_stream_stop"/,
+        /if\s*\(stopStream\s*&&\s*(?:activeVoiceConnection|activeConn)\)[\s\S]*?document\.getElementById\("live-stream-pip-preview"\)\?\.remove\(\)[\s\S]*?(?:ctx\.)?invoke\("voice_stream_stop"/,
         "При stopStream=true должны удаляться #live-stream-pip-preview и вызываться voice_stream_stop",
       );
       assert.match(
         closeBody,
-        /else\s+if\s*\(!stopStream\)\s*\{[\s\S]{0,250}?syncFloatingStreamPipPreview\(\);\s*\}/,
+        /else\s+if\s*\(!stopStream\)\s*\{[\s\S]{0,250}?(?:ctx\.)?syncFloatingStreamPipPreview\(\);\s*\}/,
         "При stopStream=false должен вызываться syncFloatingStreamPipPreview() для показа PIP",
       );
     });

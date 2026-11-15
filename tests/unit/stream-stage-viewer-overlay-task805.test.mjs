@@ -10,7 +10,10 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../..");
 
 describe("TASK-805: Устранение оверлея «Подключение к видеопотоку…» у ведущего в Stage Viewer", () => {
-  const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
+  const appJs = [
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer.js"), "utf8"),
+  ].join("\n");
 
   it("T805-1: emptyNotice has pointer-events: none and display: none when isSelfStream is true", () => {
     const fnIdx = appJs.indexOf("function openLiveStreamStageViewer(");
@@ -70,7 +73,7 @@ describe("TASK-805: Устранение оверлея «Подключение
 
     const emptyNoticeIdx = fnBody.indexOf("const emptyNotice = document.createElement(\"div\");");
     assert.ok(emptyNoticeIdx > 0, "emptyNotice must exist in openLiveStreamStageViewer");
-    const emptyNoticeSection = fnBody.slice(emptyNoticeIdx, emptyNoticeIdx + 1200);
+    const emptyNoticeSection = fnBody.slice(emptyNoticeIdx, emptyNoticeIdx + 1600);
 
     assert.match(
       emptyNoticeSection,

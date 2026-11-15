@@ -1,0 +1,22 @@
+{
+  "repository": "ViceVerse-cz/Serein",
+  "commit": "04f348092910a77cc317516b25577ad006cb708b",
+  "path": "extensions/themes/midnight.serein-extension",
+  "url": "https://github.com/ViceVerse-cz/Serein/blob/04f348092910a77cc317516b25577ad006cb708b/extensions/themes/midnight.serein-extension",
+  "git_blob_sha1": "58d7e3b17bf440c0fa3d6435b8da5f8d8f2dc142",
+  "sha256": "f7ffb0acdb7269f1e2fdb235536870cef344f3fac761543174ddc091bb2aebb6",
+  "bytes": 1458,
+  "licenses": [
+    {
+      "path": "LICENSE-APACHE",
+      "git_blob_sha1": "136d90045663ab0acaeff2a3ecf0013c968de8c9",
+      "sha256": "e3ba223bb1423f0aad8c3dfce0fe3148db48926d41e6fbc3afbbf5ff9e1c89cb"
+    },
+    {
+      "path": "LICENSE-MIT",
+      "git_blob_sha1": "db954095584150ac9298035fbccb4c422dd5db7e",
+      "sha256": "33901c362268dade203b4031d247ef378220c0264103ca710bf51729cc447db3"
+    }
+  ],
+  "scope": "Independent test data only; no Serein source is executed or linked into the application."
+}
