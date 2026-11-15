@@ -1197,6 +1197,8 @@ impl GatewayDriver for FakeGateway {
 ///
 /// # Returns
 /// `true` if valid 64-bit snowflake; otherwise `false`.
+#[inline]
+#[must_use]
 pub fn is_snowflake(id: &str) -> bool {
     !id.is_empty() && id.bytes().all(|byte| byte.is_ascii_digit()) && id.parse::<u64>().is_ok()
 }

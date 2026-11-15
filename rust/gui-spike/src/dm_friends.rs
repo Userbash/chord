@@ -532,9 +532,35 @@ pub trait DmFriendsTransport: Send + Sync {
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, DmFriendsError>> + Send + 'a>>;
 }
 
-/// Валидирует snowflake ID (строго непустая строка из ASCII-цифр, парсящаяся в `u64 > 0`).
+/// Validates that an identifier string is a decimal Discord Snowflake ID.
+///
+/// Delegates to [`crate::net::is_snowflake`] to ensure the string is non-empty,
+/// contains strictly ASCII decimal digits, and parses into a `u64`.
+///
+/// # Arguments
+/// * `id` - Identifier string slice to validate.
+///
+/// # Returns
+/// `true` if valid 64-bit snowflake; otherwise `false`.
+#[inline]
+#[must_use]
+pub fn is_snowflake(id: &str) -> bool {
+    crate::net::is_snowflake(id)
+}
+
+/// Validates a Discord Snowflake ID as a non-zero `u64`.
+///
+/// Ensures `id` is a valid decimal snowflake ([`is_snowflake`]) and strictly greater than `0`.
+///
+/// # Arguments
+/// * `id` - Identifier string slice to validate and parse.
+///
+/// # Errors
+/// Returns [`DmFriendsError::InvalidSnowflakeId`] if `id` is empty, contains non-digit bytes,
+/// overflows `u64`, or equals `0`.
+#[inline]
 pub fn validate_snowflake_id(id: &str) -> Result<u64, DmFriendsError> {
-    if id.is_empty() || id != id.trim() || !id.bytes().all(|b| b.is_ascii_digit()) {
+    if !is_snowflake(id) {
         return Err(DmFriendsError::InvalidSnowflakeId {
             value: id.to_string(),
         });
