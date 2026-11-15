@@ -316,7 +316,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: linear-gradient(180deg, rgb(0 0 0 / 68%) 0%, transparent 100%);
+  background: var(--surface-1);
 }
 
 .stream-portal-hint {
