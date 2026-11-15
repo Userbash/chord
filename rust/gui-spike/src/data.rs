@@ -10336,17 +10336,44 @@ pub struct MessagesPage {
     pub loaded_rows_limit: usize,
 }
 
+/// Serde DTO for message author (`TAURI-DATA-07`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawMessageAuthorDto {
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub username: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub global_name: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub avatar: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub bot: bool,
+}
+
+impl RawMessageAuthorDto {
+    /// Converts DTO into a validated [`MessageAuthor`].
+    #[inline]
+    pub fn into_message_author(self, path: &Path) -> Result<MessageAuthor, DataError> {
+        let id = self
+            .id
+            .ok_or_else(|| DataError::parse(path, "author без строкового id"))?;
+        let username = self.username.unwrap_or_else(|| id.clone());
+        Ok(MessageAuthor {
+            id,
+            username,
+            global_name: self.global_name,
+            avatar: self.avatar,
+            bot: self.bot,
+        })
+    }
+}
+
 fn parse_message_author(value: &Value, path: &Path) -> Result<MessageAuthor, DataError> {
-    let id =
-        field_str(value, "id").ok_or_else(|| DataError::parse(path, "author без строкового id"))?;
-    let username = field_str(value, "username").unwrap_or(id);
-    Ok(MessageAuthor {
-        id: id.to_string(),
-        username: username.to_string(),
-        global_name: field_str(value, "global_name").map(str::to_string),
-        avatar: field_str(value, "avatar").map(str::to_string),
-        bot: field_bool(value, "bot"),
-    })
+    let dto: RawMessageAuthorDto = serde_json::from_value(value.clone())
+        .map_err(|e| DataError::parse(path, format!("некорректный author: {e}")))?;
+    dto.into_message_author(path)
 }
 
 /// Дата `YYYY-MM-DD` из ISO-подобного `timestamp`. Непарсящееся значение
@@ -10788,22 +10815,52 @@ fn parse_components_for_frame(data: &Value) -> Vec<MessageActionRow> {
     out
 }
 
+/// Serde DTO for a Discord message in gateway/REST payloads (`TAURI-DATA-07`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawMessageDto {
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub channel_id: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub guild_id: Option<String>,
+    pub author: Option<RawMessageAuthorDto>,
+    pub content: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub timestamp: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub edited_timestamp: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub pinned: bool,
+    #[serde(rename = "type", deserialize_with = "deserialize_ready_opt_u64")]
+    pub kind: Option<u64>,
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub flags: Option<u64>,
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub mention_everyone: bool,
+}
+
 fn parse_message(data: &Value, path: &Path) -> Result<MessageRow, DataError> {
-    let id = field_str(data, "id")
+    let dto = serde_json::from_value::<RawMessageDto>(data.clone())
+        .map_err(|e| DataError::parse(path, format!("некорректное сообщение: {e}")))?;
+    let id = dto
+        .id
         .ok_or_else(|| DataError::parse(path, "сообщение без строкового id"))?;
-    let channel_id = field_str(data, "channel_id")
+    let channel_id = dto
+        .channel_id
         .ok_or_else(|| DataError::parse(path, format!("сообщение {id} без channel_id")))?;
     let author_value = data
         .get("author")
         .ok_or_else(|| DataError::parse(path, format!("сообщение {id} без author")))?;
-    let timestamp = field_str(data, "timestamp").map(str::to_string);
-    let edited_at = field_str(data, "edited_timestamp").map(str::to_string);
+    let author = match dto.author {
+        Some(a) => a.into_message_author(path)?,
+        None => parse_message_author(author_value, path)?,
+    };
+    let timestamp = dto.timestamp;
+    let edited_at = dto.edited_timestamp;
     let is_live = path.to_string_lossy().starts_with("live://");
-    let mut raw_content = data
-        .get("content")
-        .and_then(Value::as_str)
-        .unwrap_or_default()
-        .to_string();
+    let mut raw_content = dto.content.unwrap_or_default();
     if is_live && raw_content.is_empty() {
         for snap in array(data.get("message_snapshots")) {
             if let Some(sc) = snap
@@ -10823,10 +10880,10 @@ fn parse_message(data: &Value, path: &Path) -> Result<MessageRow, DataError> {
         raw_content
     };
     Ok(MessageRow {
-        id: id.to_string(),
-        channel_id: channel_id.to_string(),
-        guild_id: field_str(data, "guild_id").map(str::to_string),
-        author: parse_message_author(author_value, path)?,
+        id,
+        channel_id,
+        guild_id: dto.guild_id,
+        author,
         content,
         day: day_of(timestamp.as_deref()),
         timestamp,
@@ -10834,17 +10891,17 @@ fn parse_message(data: &Value, path: &Path) -> Result<MessageRow, DataError> {
         edited_at,
         // Заполняется в `collect_messages` по соседним строкам канала.
         group: "start".to_string(),
-        pinned: field_bool(data, "pinned"),
-        message_type: field_u64(data, "type").unwrap_or(0),
+        pinned: dto.pinned,
+        message_type: dto.kind.unwrap_or(0),
         embeds: parse_embeds_for_frame(data, is_live),
         attachments: parse_attachments_for_frame(data, is_live),
         reactions: parse_reactions(data.get("reactions")),
         components: parse_components_for_frame(data),
         reply_to: parse_reply_to(data),
         mentions: parse_mentions(data),
-        mention_everyone: field_bool(data, "mention_everyone"),
+        mention_everyone: dto.mention_everyone,
         flags: if is_live {
-            field_u64(data, "flags")
+            dto.flags
         } else {
             None
         },
@@ -11607,25 +11664,43 @@ fn status_group(status: &str) -> &'static str {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default)]
 pub struct RawGuildMemberDto {
+    /// Embedded Discord user profile (`user`).
     #[serde(deserialize_with = "deserialize_opt_user_dto")]
     pub user: Option<RawUserDto>,
+    /// Guild-specific nickname (`nick`).
     #[serde(deserialize_with = "deserialize_ready_opt_str")]
     pub nick: Option<String>,
+    /// Guild-specific avatar hash (`avatar`).
     #[serde(deserialize_with = "deserialize_ready_opt_str")]
     pub avatar: Option<String>,
+    /// Assigned role Snowflake IDs (`roles`).
     #[serde(deserialize_with = "deserialize_member_role_strs")]
     pub roles: Vec<String>,
+    /// Embedded member presence snapshot (`presence`).
     #[serde(deserialize_with = "deserialize_opt_presence_dto")]
     pub presence: Option<RawPresenceDto>,
 }
 
 impl RawGuildMemberDto {
-    /// Converts deserialized DTO into a validated [`MemberRow`] according to guild roles and presences.
+    /// Converts the deserialized DTO into a validated [`MemberRow`] according to guild roles and presences.
+    ///
+    /// # Errors
+    /// Returns [`DataError::Parse`] if `user` or `user.id` is missing or empty.
     #[inline]
-    #[must_use]
-    fn into_member_row(self, guild: &GuildInfo) -> Option<MemberRow> {
-        let user = self.user?;
-        let id = user.id.clone()?;
+    #[must_use = "returns the validated MemberRow result"]
+    fn into_member_row(
+        self,
+        guild: &GuildInfo,
+        path: &Path,
+        at: &str,
+    ) -> Result<MemberRow, DataError> {
+        let user = self
+            .user
+            .ok_or_else(|| DataError::parse(path, format!("{at} без member.user.id")))?;
+        let id = user
+            .id
+            .clone()
+            .ok_or_else(|| DataError::parse(path, format!("{at} без member.user.id")))?;
         let status = self
             .presence
             .as_ref()
@@ -11676,7 +11751,7 @@ impl RawGuildMemberDto {
         let role_color = resolve_role_color_hex(&roles, guild);
         let clan_tag = user.clan_tag();
         let activity = self.presence.as_ref().and_then(|p| p.activity_label());
-        Some(MemberRow {
+        Ok(MemberRow {
             id,
             username,
             display_name,
@@ -11693,9 +11768,21 @@ impl RawGuildMemberDto {
     }
 }
 
-fn parse_member(value: &Value, guild: &GuildInfo) -> Option<MemberRow> {
-    let dto = serde_json::from_value::<RawGuildMemberDto>(value.clone()).ok()?;
-    dto.into_member_row(guild)
+/// Deserializes a raw guild member JSON value via [`RawGuildMemberDto`] into a [`MemberRow`].
+///
+/// # Errors
+/// Returns [`DataError::Parse`] if deserialization fails or `member.user.id` is missing.
+#[inline]
+#[must_use = "returns the parsed MemberRow result"]
+fn parse_guild_member(
+    value: &Value,
+    guild: &GuildInfo,
+    path: &Path,
+    at: &str,
+) -> Result<MemberRow, DataError> {
+    let dto = RawGuildMemberDto::deserialize(value)
+        .map_err(|_| DataError::parse(path, format!("{at} без member.user.id")))?;
+    dto.into_member_row(guild, path, at)
 }
 
 /// Участники гильдии из всех `GUILD_MEMBER_LIST_UPDATE` + роли/имя/счётчик из READY.
@@ -11729,24 +11816,14 @@ fn collect_members(
                         continue;
                     }
                 }
+                let at = format!("GUILD_MEMBER_LIST_UPDATE: элемент ops[{op_index}].items[{item_index}]");
                 let Some(member) = item.get("member") else {
                     return Err(DataError::parse(
                         &frame.path,
-                        format!(
-                            "GUILD_MEMBER_LIST_UPDATE: элемент ops[{op_index}].items[{item_index}] \
-                             без member и без group"
-                        ),
+                        format!("{at} без member и без group"),
                     ));
                 };
-                let mut row = parse_member(member, guild).ok_or_else(|| {
-                    DataError::parse(
-                        &frame.path,
-                        format!(
-                            "GUILD_MEMBER_LIST_UPDATE: элемент ops[{op_index}].items[{item_index}] \
-                             без member.user.id"
-                        ),
-                    )
-                })?;
+                let mut row = parse_guild_member(member, guild, &frame.path, &at)?;
                 row.group = group
                     .clone()
                     .unwrap_or_else(|| status_group(&row.status).to_string());
