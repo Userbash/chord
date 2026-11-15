@@ -413,6 +413,7 @@ name = "chord-client"
 version = "0.1.0"
 dependencies = [
  "ashpd",
+ "base64 0.21.7",
  "chord-codec",
  "chord-core",
  "chord-i18n",
@@ -425,10 +426,12 @@ dependencies = [
  "chord-voice",
  "enumflags2",
  "nix",
+ "percent-encoding",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
+ "tempfile",
  "thiserror 2.0.21",
  "tokio",
 ]

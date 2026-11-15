@@ -57,6 +57,7 @@ use std::sync::{Mutex, OnceLock};
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Serialize, Serializer};
 use serde_json::{json, Value};
+use base64::Engine;
 
 #[derive(Default)]
 pub struct LiveSession {
@@ -156,42 +157,34 @@ pub fn extract_user_id_from_token(token: &str) -> Option<String> {
     }
 }
 
+/// Decodes a Base64-encoded string conforming to RFC 4648.
+/// Supports both standard and URL-safe Base64 encodings with or without padding.
+///
+/// # Arguments:
+/// * `input` — ASCII/UTF-8 string containing the Base64 payload.
+///
+/// # Returns:
+/// * `Some(Vec<u8>)` — Decoded raw bytes.
+/// * `None` — If string is empty or contains invalid characters.
 fn decode_base64_ascii(input: &str) -> Option<Vec<u8>> {
-    let clean: Vec<u8> = input
-        .bytes()
-        .filter(|&b| b != b'=' && !b.is_ascii_whitespace())
+    let clean: String = input
+        .chars()
+        .filter(|c| !c.is_ascii_whitespace())
         .collect();
     if clean.is_empty() {
         return None;
     }
-    let map_byte = |b: u8| -> Option<u8> {
-        match b {
-            b'A'..=b'Z' => Some(b - b'A'),
-            b'a'..=b'z' => Some(b - b'a' + 26),
-            b'0'..=b'9' => Some(b - b'0' + 52),
-            b'+' | b'-' => Some(62),
-            b'/' | b'_' => Some(63),
-            _ => None,
-        }
-    };
-    let mut out = Vec::with_capacity(clean.len() * 3 / 4);
-    for chunk in clean.chunks(4) {
-        if chunk.len() < 2 {
-            return None;
-        }
-        let v0 = map_byte(chunk[0])? as u32;
-        let v1 = map_byte(chunk[1])? as u32;
-        out.push(((v0 << 2) | (v1 >> 4)) as u8);
-        if chunk.len() > 2 {
-            let v2 = map_byte(chunk[2])? as u32;
-            out.push((((v1 & 0x0F) << 4) | (v2 >> 2)) as u8);
-            if chunk.len() > 3 {
-                let v3 = map_byte(chunk[3])? as u32;
-                out.push((((v2 & 0x03) << 6) | v3) as u8);
-            }
-        }
-    }
-    Some(out)
+    base64::engine::general_purpose::STANDARD
+        .decode(clean.as_bytes())
+        .or_else(|_| {
+            base64::engine::general_purpose::URL_SAFE_NO_PAD
+                .decode(clean.trim_end_matches('=').as_bytes())
+        })
+        .or_else(|_| {
+            base64::engine::general_purpose::STANDARD_NO_PAD
+                .decode(clean.trim_end_matches('=').as_bytes())
+        })
+        .ok()
 }
 
 pub fn outbound_voice_op4_frames() -> Vec<Value> {
@@ -337,28 +330,15 @@ pub fn cached_invite_code_for_guild(guild_id: &str) -> Option<String> {
     None
 }
 
+/// Encodes a byte slice into canonical Base64 string conforming to RFC 4648 §4.
+///
+/// # Arguments:
+/// * `bytes` — Input byte slice.
+///
+/// # Returns:
+/// * `String` — Standard Base64 encoded string with `=` padding.
 fn encode_base64_ascii(bytes: &[u8]) -> String {
-    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    let mut out = String::with_capacity(bytes.len().div_ceil(3) * 4);
-    for chunk in bytes.chunks(3) {
-        let b0 = chunk[0] as u32;
-        let b1 = if chunk.len() > 1 { chunk[1] as u32 } else { 0 };
-        let b2 = if chunk.len() > 2 { chunk[2] as u32 } else { 0 };
-        let triple = (b0 << 16) | (b1 << 8) | b2;
-        out.push(TABLE[((triple >> 18) & 0x3F) as usize] as char);
-        out.push(TABLE[((triple >> 12) & 0x3F) as usize] as char);
-        if chunk.len() > 1 {
-            out.push(TABLE[((triple >> 6) & 0x3F) as usize] as char);
-        } else {
-            out.push('=');
-        }
-        if chunk.len() > 2 {
-            out.push(TABLE[(triple & 0x3F) as usize] as char);
-        } else {
-            out.push('=');
-        }
-    }
-    out
+    base64::engine::general_purpose::STANDARD.encode(bytes)
 }
 
 /// Строит Base64-заголовок `X-Context-Properties` по эталонному `getInviteContext("Desktop Invite Modal", invite)`

@@ -38,28 +38,57 @@ fn clipboard_bytes_cache() -> &'static Mutex<HashMap<String, Vec<u8>>> {
     CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
+/// Decodes a URL-encoded filesystem path or URI string conforming to RFC 3986.
+/// Strips an optional `file://` scheme prefix and uses the audited `percent_encoding` library.
+///
+/// # Arguments:
+/// * `raw` — Input string containing a raw or percent-encoded filesystem path.
+///
+/// # Returns:
+/// * `String` — Decoded canonical filesystem path.
 fn percent_decode_path(raw: &str) -> String {
     let stripped = raw.trim().strip_prefix("file://").unwrap_or(raw.trim());
-    let bytes = stripped.as_bytes();
-    let mut out = Vec::with_capacity(bytes.len());
-    let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            if let (Some(h), Some(l)) = (
-                (bytes[i + 1] as char).to_digit(16),
-                (bytes[i + 2] as char).to_digit(16),
-            ) {
-                out.push(((h << 4) | l) as u8);
-                i += 3;
-                continue;
-            }
-        }
-        out.push(bytes[i]);
-        i += 1;
-    }
-    String::from_utf8_lossy(&out).into_owned()
+    percent_encoding::percent_decode_str(stripped)
+        .decode_utf8_lossy()
+        .into_owned()
 }
 
+/// Parses the first existing file payload from a `text/uri-list` MIME payload.
+///
+/// # Arguments:
+/// * `uri_list` — Raw UTF-8 string containing line-delimited URI entries.
+///
+/// # Returns:
+/// * `Some((filename, bytes))` — First successfully read file attachment.
+/// * `None` — If no valid or accessible file paths were found.
+fn parse_uri_list_first_file(uri_list: &str) -> Option<(String, Vec<u8>)> {
+    for line in uri_list.lines() {
+        let trim = line.trim();
+        if trim.is_empty() || trim.starts_with('#') {
+            continue;
+        }
+        let decoded = percent_decode_path(trim);
+        if let Ok(data) = std::fs::read(&decoded) {
+            if !data.is_empty() {
+                let fname = std::path::Path::new(&decoded)
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("file.bin")
+                    .to_string();
+                return Some((fname, data));
+            }
+        }
+    }
+    None
+}
+
+/// Attempts to read an image or file attachment from the host system clipboard.
+///
+/// Probes Wayland (`wl-paste`) or X11 (`xclip`) interfaces for `image/png` or `text/uri-list`.
+///
+/// # Returns:
+/// * `Some((filename, data))` — The clipboard image or file binary contents.
+/// * `None` — If clipboard does not contain supported media or tools are unavailable.
 fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
     // 1. Try Wayland clipboard via wl-paste
     if std::env::var_os("WAYLAND_DISPLAY").is_some() {
@@ -77,21 +106,8 @@ fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
         {
             if out.status.success() && !out.stdout.is_empty() {
                 let s = String::from_utf8_lossy(&out.stdout);
-                for line in s.lines() {
-                    let trim = line.trim();
-                    if let Some(path) = trim.strip_prefix("file://") {
-                        let decoded = percent_decode_path(path);
-                        if let Ok(data) = std::fs::read(&decoded) {
-                            if !data.is_empty() {
-                                let fname = std::path::Path::new(&decoded)
-                                    .file_name()
-                                    .and_then(|n| n.to_str())
-                                    .unwrap_or("file.bin")
-                                    .to_string();
-                                return Some((fname, data));
-                            }
-                        }
-                    }
+                if let Some(res) = parse_uri_list_first_file(&s) {
+                    return Some(res);
                 }
             }
         }
@@ -112,21 +128,8 @@ fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
     {
         if out.status.success() && !out.stdout.is_empty() {
             let s = String::from_utf8_lossy(&out.stdout);
-            for line in s.lines() {
-                let trim = line.trim();
-                if let Some(path) = trim.strip_prefix("file://") {
-                    let decoded = percent_decode_path(path);
-                    if let Ok(data) = std::fs::read(&decoded) {
-                        if !data.is_empty() {
-                            let fname = std::path::Path::new(&decoded)
-                                .file_name()
-                                .and_then(|n| n.to_str())
-                                .unwrap_or("file.bin")
-                                .to_string();
-                            return Some((fname, data));
-                        }
-                    }
-                }
+            if let Some(res) = parse_uri_list_first_file(&s) {
+                return Some(res);
             }
         }
     }

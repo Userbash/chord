@@ -66,21 +66,21 @@ const ERROR_VALUE_PREVIEW: usize = 32;
 static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 // ---------------------------------------------------------------------------
-// Значения с белым списком
+// Allowlisted values
 // ---------------------------------------------------------------------------
 
-/// Плотность сообщений (UI S-14; ядро: `UIDensity` 1 COMPACT / 2 COZY).
+/// Chat message density setting (UI S-14; Core: `UIDensity` 1 COMPACT / 2 COZY).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Density {
-    /// Уютная (дефолт отгруженного UI: `data-density="cozy"`).
+    /// Cozy display mode (default: `data-density="cozy"`).
     Cozy,
-    /// Компактная.
+    /// Compact display mode.
     Compact,
 }
 
 impl Density {
-    /// Допустимые строки файла — в порядке UI (`settings.js`: compact, cozy).
+    /// Allowlisted wire representations in UI order (`settings.js`: compact, cozy).
     pub const ALLOWED: [&'static str; 2] = ["cozy", "compact"];
 
     fn from_wire(value: &str) -> Option<Self> {
@@ -92,18 +92,18 @@ impl Density {
     }
 }
 
-/// Тема оформления (UI: light/dark; ядро: `Theme` 1 DARK / 2 LIGHT).
+/// Visual theme setting (UI: light/dark; Core: `Theme` 1 DARK / 2 LIGHT).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Theme {
-    /// Тёмная (дефолт: `color-scheme: dark`).
+    /// Dark theme (default: `color-scheme: dark`).
     Dark,
-    /// Светлая.
+    /// Light theme.
     Light,
 }
 
 impl Theme {
-    /// Допустимые строки файла.
+    /// Allowlisted wire representations.
     pub const ALLOWED: [&'static str; 2] = ["dark", "light"];
 
     fn from_wire(value: &str) -> Option<Self> {
@@ -115,18 +115,18 @@ impl Theme {
     }
 }
 
-/// Язык интерфейса. Список ровно тот, что реализован в UI (C4).
+/// UI localization language (C4).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Locale {
-    /// Русский (дефолт: `<html lang="ru">`).
+    /// Russian language (default: `<html lang="ru">`).
     Ru,
-    /// Английский.
+    /// English language.
     En,
 }
 
 impl Locale {
-    /// Допустимые строки файла.
+    /// Allowlisted wire representations.
     pub const ALLOWED: [&'static str; 2] = ["ru", "en"];
 
     fn from_wire(value: &str) -> Option<Self> {
@@ -139,28 +139,25 @@ impl Locale {
 }
 
 // ---------------------------------------------------------------------------
-// Модель настроек
+// Settings Model
 // ---------------------------------------------------------------------------
 
-/// UI-настройки, которые переживают перезапуск. Сикретов нет.
+/// Persistent UI settings surviving application restarts. No secrets stored.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UiSettings {
-    /// Версия схемы файла ([`SETTINGS_VERSION`]).
+    /// File schema version ([`SETTINGS_VERSION`]).
     pub version: u32,
-    /// Тумблеры: стабильный id → включён. Пустая карта = состояния из UI.
+    /// Boolean toggles: stable toggle identifier → enabled state.
     pub toggles: BTreeMap<String, bool>,
-    /// Плотность сообщений.
+    /// Message display density.
     pub density: Density,
-    /// Тема.
+    /// Active visual theme.
     pub theme: Theme,
-    /// Язык интерфейса.
+    /// UI localization language.
     pub locale: Locale,
-    /// G-01b: последний выбранный сервер или [`HOME_GUILD_ID`] (`"@me"`) —
-    /// **подсказка** восстановления рейла. `None` — выбора не было или значение
-    /// вне контракта; backend не выдумывает гильдию из READY/списка. В файле и
-    /// IPC — camelCase `lastGuildId`; отсутствие ключа и `null` читаются как
-    /// `None` (аддитивная миграция).
+    /// G-01b: Last selected guild ID or [`HOME_GUILD_ID`] (`"@me"`).
+    /// Used as a hint for server navigation rail restoration.
     #[serde(
         default,
         rename = "lastGuildId",
@@ -168,38 +165,36 @@ pub struct UiSettings {
         deserialize_with = "deserialize_last_guild_id"
     )]
     pub last_guild_id: Option<String>,
-    /// Признак активного режима Home («Личные сообщения и Друзья», N1-07 / G-01b)
-    /// для обратной и прямой совместимости. Отсутствие ключа и `null` читаются
-    /// как `None`; при `None` ключ не сериализуется.
+    /// Flag indicating whether Home mode ("Direct Messages & Friends", N1-07 / G-01b) was active.
     #[serde(default, rename = "homeMode", skip_serializing_if = "Option::is_none")]
     pub home_mode: Option<bool>,
 }
 
-/// Частичное обновление [`UiSettings`] (patch): изменяет только переданные поля,
-/// сохраняя остальные значения настроек нетронутыми.
+/// Partial update patch for [`UiSettings`].
+/// Updates only provided fields while preserving all unmentioned values.
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UiSettingsPatch {
-    /// Обновления тумблеров (`id → bool`), мержатся поверх существующей карты.
+    /// Toggle updates (`id → bool`), merged over existing map.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub toggles: Option<BTreeMap<String, bool>>,
-    /// Новая плотность сообщений.
+    /// New message display density.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub density: Option<Density>,
-    /// Новая тема оформления.
+    /// New visual theme.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub theme: Option<Theme>,
-    /// Новый язык интерфейса.
+    /// New UI localization language.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub locale: Option<Locale>,
-    /// Новый `lastGuildId` (`"@me"` или snowflake u64).
+    /// New `lastGuildId` (`"@me"` or 64-bit snowflake string).
     #[serde(
         default,
         rename = "lastGuildId",
         skip_serializing_if = "Option::is_none"
     )]
     pub last_guild_id: Option<String>,
-    /// Признак режима Home (`homeMode`).
+    /// Home mode flag (`homeMode`).
     #[serde(default, rename = "homeMode", skip_serializing_if = "Option::is_none")]
     pub home_mode: Option<bool>,
 }
