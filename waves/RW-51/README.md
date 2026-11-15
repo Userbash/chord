@@ -5,6 +5,7 @@
 - [Plan and execution strategy](PLAN.md)
 - [ARM blocker, CPU/ELF/SDK and native qualification](ARM-BLOCKERS.md)
 - [ARM source implementation batch and remaining gates](ARM-SOURCE-BATCH.md), [machine receipt](ARM-SOURCE-BATCH.json)
+- [Sequential step 1: locked Rust dependency cache restored](SEQUENTIAL-01-DEPENDENCIES.md)
 - [Library decisions and rejection gates](LIBRARY-MATRIX.md)
 - [Human task breakdown](TASKS.md), [full machine-readable tasks](TASKS.json)
 - [Worker instructions](WORKER-RULES.md)

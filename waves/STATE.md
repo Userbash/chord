@@ -1,5 +1,10 @@
 # STATE — System Status and Wave Checkpoint
 
+- Sequential step 1 completed, 2026-11-15: locked Linux GUI dependency cache restored;
+  748 offline Rust tests pass and the lockfile is unchanged. The full worker gate now
+  passes `spike-rust`; 39 JS unit failures remain for step 2. Native ARM remains
+  unqualified. See [dependency checkpoint](RW-51/SEQUENTIAL-01-DEPENDENCIES.md).
+
 - RW-51 local source batch, 2026-11-15: `LIB-ARM-02` and `LIB-ARM-08` source slices
   implemented and independently reviewed; parent cards are ready for product review.
   Generic compiler inputs and ELF integrity/metadata were corrected. Full batch and

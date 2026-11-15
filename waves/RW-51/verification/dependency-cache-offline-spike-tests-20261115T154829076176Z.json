@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/usr/bin/flock",
+    "/tmp/chord-cargo.lock",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/rust-dependencies/offline-spike-tests-20261115T154829076176Z.log",
+  "lock_sha256_before": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+  "lock_sha256_after": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+  "lock_unchanged": true
+}

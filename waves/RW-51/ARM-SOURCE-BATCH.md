@@ -1,5 +1,9 @@
 # ARM source batch — ready for product review
 
+Later environment update: [sequential step 1](SEQUENTIAL-01-DEPENDENCIES.md)
+resolved the offline GUI dependency cache issue recorded below. The full worker
+gate still fails on 39 JS unit tests; parent/native ARM acceptance remains open.
+
 The user selected backlog work on 2026-11-15. Two bounded source slices are implemented: `LIB-ARM-02` portable CPU inputs and `LIB-ARM-08` ELF integrity/metadata. The dependent source-test subtask `LIB-ARM-06.I1` reconciles the current configuration contract. Parent cards and native ARM release qualification remain open. No branch was merged or published by this batch.
 
 The working branch includes the two upstream release commits through `4653bdec`: chat plugin and reactive signals. Planning's measured baseline remains `2b7cfb52`; immutable earlier audit packets retain their original revisions. CPU and ELF work used disjoint source leases; the coordinator retained shared metadata and ARM release-qualification ownership.

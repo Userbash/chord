@@ -10,6 +10,9 @@ Execution update 2026-11-15: ARM CPU and ELF source slices (`LIB-ARM-02`, `LIB-A
 have implementation and independent review evidence in [ARM source batch](waves/RW-51/ARM-SOURCE-BATCH.md).
 Both parent cards await product/full-gate/native qualification; ARM release remains blocked.
 
+Sequential step 1 is complete: [locked GUI dependency cache restored](waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.md),
+748 offline Rust tests pass. Step 2 is the remaining 39 JS unit failures.
+
 Updated: 2026-10-18 (waves W1–W4 closed and accepted: M1 and M2 completed — 176 tests,
 172 pass / 0 fail / 4 e2e-skip; coverage 99.3/90.5/97.6; post-W4 audit is in the backlog below).
 Updated: 2026-10-19 (waves R7/RC: specification `docs/re/`, Rust client plan `docs/rust-client/`,

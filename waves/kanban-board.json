@@ -1,7 +1,7 @@
 {
   "project": "Chord — Rust core, Tauri and GPUI",
   "wave": "RW-51: Library-first Rust modernization",
-  "updated_at": "2026-11-15T15:43:09.025618+00:00",
+  "updated_at": "2026-11-15T15:54:30.988835+00:00",
   "columns": [
     {
       "id": "backlog",
@@ -933,7 +933,7 @@
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
         "Before/after net owned production code and performance measurements attached; rollback documented."
       ],
-      "coding_instructions": "Completed ECC planning phase: 051d71c3. Report: waves/RW-51/reports/LIB-GOV-02.json. The source audit is available; this card still needs its next-phase contract/baseline/approval evidence. No application migration or test run was performed by this phase.\nOne leaf outcome: Record existing direct/transitive versions, minimum features, MSRV, licenses, advisories and target support separately for all three Rust workspaces.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Locked manifests, cargo metadata/tree, primary crate documentation and advisory database; no install based only on a package name.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Serialized cargo metadata --locked for each manifest; security/license/MSRV review and duplicate links/features report.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
+      "coding_instructions": "Sequential step 1 completed: existing locked Linux GUI dependency cache restored;748 offline Rust tests passed, lockfile unchanged. Full dependency intake/target qualification remains open. See waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.md.\nCompleted ECC planning phase: 051d71c3. Report: waves/RW-51/reports/LIB-GOV-02.json. The source audit is available; this card still needs its next-phase contract/baseline/approval evidence. No application migration or test run was performed by this phase.\nOne leaf outcome: Record existing direct/transitive versions, minimum features, MSRV, licenses, advisories and target support separately for all three Rust workspaces.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Locked manifests, cargo metadata/tree, primary crate documentation and advisory database; no install based only on a package name.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Serialized cargo metadata --locked for each manifest; security/license/MSRV review and duplicate links/features report.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
       "tests": {
         "targeted_command": "Serialized cargo metadata --locked for each manifest; security/license/MSRV review and duplicate links/features report.",
         "independent_oracle": "Locked manifests, cargo metadata/tree, primary crate documentation and advisory database; no install based only on a package name.",
@@ -968,7 +968,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-gov-02",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T15:54:30.988835+00:00",
       "integration_subtasks": [],
       "exclusive_resources": [
         "gov-slice",
@@ -1011,7 +1011,18 @@
         "report": "waves/RW-51/reports/LIB-GOV-02.json",
         "report_sha256": "9d910f4ce8fddfbcd502a730297a9c47cb2562bd003ebb8a93b7c1738ac34ff3",
         "coordinator_review": "Source-grounded findings reviewed and incorporated into the plan; independent-vector, dependency approval, implementation and native gates remain open."
-      }
+      },
+      "verification_checkpoints": [
+        {
+          "id": "SEQUENTIAL-01-DEPENDENCIES",
+          "state": "completed",
+          "full_parent_completed": false,
+          "target": "x86_64-unknown-linux-gnu",
+          "tests_passed": 748,
+          "lock_changed": false,
+          "record": "waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.json"
+        }
+      ]
     },
     {
       "id": "LIB-GOV-03",
@@ -20777,6 +20788,11 @@
     "arm_release_blocked": true,
     "arm_plan": "waves/RW-51/ARM-BLOCKERS.md",
     "completed_source_review_sessions": 2,
-    "source_batch": "waves/RW-51/ARM-SOURCE-BATCH.json"
+    "source_batch": "waves/RW-51/ARM-SOURCE-BATCH.json",
+    "sequential_progress": {
+      "completed_step": 1,
+      "next_step": 2,
+      "record": "waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.json"
+    }
   }
 }

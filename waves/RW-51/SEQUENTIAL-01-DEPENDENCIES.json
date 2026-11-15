@@ -1,0 +1,138 @@
+{
+  "id": "SEQUENTIAL-01-DEPENDENCIES",
+  "parent_card": "LIB-GOV-02",
+  "step": 1,
+  "scope": "Restore the existing locked GUI dependency cache for native Linux x86_64.",
+  "status": "completed",
+  "observed_at": "2026-11-15T15:54:30.988835+00:00",
+  "source_commit": "a9806254c34e199705bf87100db50415ae09dc2d",
+  "target": "x86_64-unknown-linux-gnu",
+  "lock_sha256": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+  "lock_changed": false,
+  "production_code_changed": false,
+  "new_dependency_selection": false,
+  "resolved_packages": 360,
+  "spike_rust_tests": {
+    "pass": 748,
+    "fail": 0,
+    "ignored": 0,
+    "result_summaries": 51
+  },
+  "checks": [
+    {
+      "command": [
+        "/usr/bin/flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "fetch",
+        "--locked",
+        "--target",
+        "x86_64-unknown-linux-gnu",
+        "--manifest-path",
+        "rust/gui-spike/Cargo.toml"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/rust-dependencies/locked-fetch-20261115T154759091205Z.log",
+      "lock_sha256_before": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_sha256_after": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_unchanged": true
+    },
+    {
+      "command": [
+        "/usr/bin/flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "metadata",
+        "--locked",
+        "--offline",
+        "--filter-platform",
+        "x86_64-unknown-linux-gnu",
+        "--manifest-path",
+        "rust/gui-spike/Cargo.toml",
+        "--format-version",
+        "1"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/rust-dependencies/offline-metadata-green-20261115T154828562467Z.log",
+      "lock_sha256_before": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_sha256_after": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_unchanged": true
+    },
+    {
+      "command": [
+        "/usr/bin/flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "metadata",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/gui-spike/Cargo.toml",
+        "--format-version",
+        "1"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 101,
+      "log": "/root/projects/chord-modernization-verification/rust-dependencies/offline-red-20261115T154758668913Z.log",
+      "lock_sha256_before": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_sha256_after": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_unchanged": true
+    },
+    {
+      "command": [
+        "/usr/bin/flock",
+        "/tmp/chord-cargo.lock",
+        "/root/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "rust/gui-spike/Cargo.toml"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/rust-dependencies/offline-spike-tests-20261115T154829076176Z.log",
+      "lock_sha256_before": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_sha256_after": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_unchanged": true
+    },
+    {
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "scripts/gate.mjs",
+        "--scope",
+        "worker"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/rust-dependencies/worker-gate-after-cache-20261115T155228889163Z.log",
+      "lock_sha256_before": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_sha256_after": "9e1e91728438890cc43f0a73ab66b6f14127016b7b0c201e8de28eae464556d0",
+      "lock_unchanged": true
+    }
+  ],
+  "worker_gate_verdict": "failed",
+  "worker_gate": "waves/RW-51/verification/dependency-cache-worker-gate.json",
+  "remaining_unit_failures": 39,
+  "next_step": {
+    "step": 2,
+    "state": "queued",
+    "scope": "Triage and repair the 39 existing JS unit failures."
+  },
+  "full_parent_card_completed": false,
+  "native_arm_qualified": false,
+  "evidence": [
+    "waves/RW-51/verification/dependency-cache-locked-fetch-20261115T154759091205Z.json",
+    "waves/RW-51/verification/dependency-cache-locked-fetch-20261115T154759091205Z.log.gz",
+    "waves/RW-51/verification/dependency-cache-offline-metadata-green-20261115T154828562467Z.json",
+    "waves/RW-51/verification/dependency-cache-offline-metadata-green-20261115T154828562467Z.log.gz",
+    "waves/RW-51/verification/dependency-cache-offline-red-20261115T154758668913Z.json",
+    "waves/RW-51/verification/dependency-cache-offline-red-20261115T154758668913Z.log.gz",
+    "waves/RW-51/verification/dependency-cache-offline-spike-tests-20261115T154829076176Z.json",
+    "waves/RW-51/verification/dependency-cache-offline-spike-tests-20261115T154829076176Z.log.gz",
+    "waves/RW-51/verification/dependency-cache-worker-gate-after-cache-20261115T155228889163Z.json",
+    "waves/RW-51/verification/dependency-cache-worker-gate-after-cache-20261115T155228889163Z.log.gz"
+  ]
+}

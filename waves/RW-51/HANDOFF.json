@@ -706,7 +706,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "Completed ECC planning phase: 051d71c3. Report: waves/RW-51/reports/LIB-GOV-02.json. The source audit is available; this card still needs its next-phase contract/baseline/approval evidence. No application migration or test run was performed by this phase.\nOne leaf outcome: Record existing direct/transitive versions, minimum features, MSRV, licenses, advisories and target support separately for all three Rust workspaces.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Locked manifests, cargo metadata/tree, primary crate documentation and advisory database; no install based only on a package name.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Serialized cargo metadata --locked for each manifest; security/license/MSRV review and duplicate links/features report.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
+      "coding_instructions": "Sequential step 1 completed: existing locked Linux GUI dependency cache restored;748 offline Rust tests passed, lockfile unchanged. Full dependency intake/target qualification remains open. See waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.md.\nCompleted ECC planning phase: 051d71c3. Report: waves/RW-51/reports/LIB-GOV-02.json. The source audit is available; this card still needs its next-phase contract/baseline/approval evidence. No application migration or test run was performed by this phase.\nOne leaf outcome: Record existing direct/transitive versions, minimum features, MSRV, licenses, advisories and target support separately for all three Rust workspaces.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Locked manifests, cargo metadata/tree, primary crate documentation and advisory database; no install based only on a package name.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Serialized cargo metadata --locked for each manifest; security/license/MSRV review and duplicate links/features report.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
       "tests": {
         "targeted_command": "Serialized cargo metadata --locked for each manifest; security/license/MSRV review and duplicate links/features report.",
         "independent_oracle": "Locked manifests, cargo metadata/tree, primary crate documentation and advisory database; no install based only on a package name.",
@@ -741,7 +741,18 @@
         "initial_phase_model": "gpt-6.1-sol",
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
-      }
+      },
+      "verification_checkpoints": [
+        {
+          "id": "SEQUENTIAL-01-DEPENDENCIES",
+          "state": "completed",
+          "full_parent_completed": false,
+          "target": "x86_64-unknown-linux-gnu",
+          "tests_passed": 748,
+          "lock_changed": false,
+          "record": "waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.json"
+        }
+      ]
     },
     {
       "id": "LIB-GOV-03",
@@ -10032,5 +10043,10 @@
   "arm_audit_session": "af4a762f",
   "source_batch": "waves/RW-51/ARM-SOURCE-BATCH.json",
   "integration_base_commit": "4653bdec519bec8cd6719e92d9736e5299c38468",
-  "updated_at": "2026-11-15T15:43:09.025618+00:00"
+  "updated_at": "2026-11-15T15:54:30.988835+00:00",
+  "sequential_progress": {
+    "completed_step": 1,
+    "next_step": 2,
+    "record": "waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.json"
+  }
 }
