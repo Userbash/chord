@@ -1,5 +1,7 @@
 # STATE — System Status and Wave Checkpoint
 
+- Six native Tauri baseline releases compiled and artifacts verified. Reviewed LF checkout/deadline follow-up is locally tested and awaits its own native matrix;34baseline JS failures and full runtime/ISA acceptance remain open. See [compile batch](RW-51/TAURI-COMPILE-BATCH.md).
+
 - Tauri source integration: Windows72→0source errors; explicit native credential/provider boundaries, icons and OS entropy reviewed. Linux release rebuilt; final worker retains34JSunit failures. Next six-target native rebuild remains open. See [compile batch](RW-51/TAURI-COMPILE-BATCH.md).
 
 - Tauri transition compile batch, 2026-11-15: actual Linux release compiled

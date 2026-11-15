@@ -1,0 +1,264 @@
+{
+  "reviewer": "/root/arm_review",
+  "author": "/root/platform_audit",
+  "reviewed_at_utc": "2026-11-15T21:49:04.210236+00:00",
+  "scope": "Only caller-anchored coalescer deadline in rust/gui-spike/src/data.rs:5281-5284",
+  "base_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "verdict": "approve_minimal_caller_deadline_fix",
+  "findings": [],
+  "source_checks": {
+    "exact_expected_one_block_change_and_all_other_bytes_identical": true,
+    "entire_original_rust_test_byte_identical": true,
+    "original_window_ms": 120,
+    "original_observation_ms": 160,
+    "original_phantom_cleanup_seconds": 15,
+    "sequence_active_channel_guards_unchanged": true,
+    "latest_mute_deaf_video_stream_flag_reads_and_output_identity_unchanged": true,
+    "monotonic_deadline_captured_before_spawn": true,
+    "worker_sleeps_only_nonnegative_remaining_duration": true,
+    "no_test_hooks_assertion_or_budget_changes": true
+  },
+  "instrumentation_review": {
+    "external_preload_only": true,
+    "resolved_exact_callsite_in_selected_coalescer_spawn": [
+      {
+        "binary": "original-server-contract-bin",
+        "pc": "0x4138e5",
+        "resolution": "chord_client::data::connect_or_update_live_voice_ext\n/root/projects/chord-modernization/rust/gui-spike/src/data.rs:5281\n"
+      },
+      {
+        "binary": "fixed-server-contract-bin",
+        "pc": "0x4b3065",
+        "resolution": "<std::thread::builder::Builder>::spawn::<chord_client::data::connect_or_update_live_voice_ext::{closure#30}, ()>\n/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/builder.rs:191\n"
+      }
+    ],
+    "delays_os_child_entry_before_original_rust_callback": true,
+    "original_callback_arg_and_unselected_threads_forwarded": true,
+    "original_sleep_function_forwarded_not_short_circuited": true,
+    "no_injector_data_frame_state_or_permission_mutations": true,
+    "v2_parent_pause_ms5_only_for_early_send_mutation_and_passing_control": true,
+    "verified_handoff_hash_bindings": 46
+  },
+  "independent_runtime": {
+    "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/receipt.json",
+    "original_binary": "101; unchanged exact-one assertion0vs1",
+    "fixed_binary": "0; same unchanged test passes",
+    "selected_children_each": 3,
+    "observed_original_child_entry_delays_ms": [
+      80,
+      80,
+      80
+    ],
+    "observed_fixed_child_entry_delays_ms": [
+      81,
+      80,
+      80
+    ]
+  },
+  "author_mutation_evidence_independently_checked": {
+    "compiled_runtime_mutants_killed": 5,
+    "unchanged_positive_control_passed_both_delayed_and_early_observer_modes": true,
+    "runs": [
+      {
+        "name": "control",
+        "source_sha256": "9a524c32a1de609c0b7bb625a5aa4ccbceb6f51804046868a827a7726885b2d1",
+        "build_exit": 0,
+        "recorded_binary_sha256": "7654fb7da6d448123ad1fdac76c26b0242c78907a0922ee67ca73b7925674887",
+        "executions": [
+          {
+            "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-control-delayed-20261115T214148751892Z.log",
+            "exit_code": 0,
+            "matched_children": 3,
+            "requested_child_delay_ms": 80,
+            "requested_parent_pause_ms": 0
+          },
+          {
+            "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-control-early-observer-20261115T214148968004Z.log",
+            "exit_code": 0,
+            "matched_children": 3,
+            "requested_child_delay_ms": 0,
+            "requested_parent_pause_ms": 5
+          }
+        ]
+      },
+      {
+        "name": "arm-inside-worker",
+        "source_sha256": "e668f988148b794db1255e229053ba39dc68d42757dd38506dec43bb089f3074",
+        "build_exit": 0,
+        "recorded_binary_sha256": "cf843a1eee6d6b212d37f00bce39747dfbe32f26e2da4a640c93d5f5e301ef60",
+        "executions": [
+          {
+            "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-arm-inside-worker-delayed-20261115T214158970129Z.log",
+            "exit_code": 101,
+            "matched_children": 3,
+            "requested_child_delay_ms": 80,
+            "requested_parent_pause_ms": 0
+          }
+        ]
+      },
+      {
+        "name": "fixed-relative-sleep",
+        "source_sha256": "af34fb6df2f4b9b5f52d96499968b5f0da270a5db9ca4a5828eef86cc1e33880",
+        "build_exit": 0,
+        "recorded_binary_sha256": "b963f92a78451fcd4544176727f123a471e26a57d77284a3a6e20a989050270c",
+        "executions": [
+          {
+            "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-fixed-relative-sleep-delayed-20261115T214208645967Z.log",
+            "exit_code": 101,
+            "matched_children": 3,
+            "requested_child_delay_ms": 80,
+            "requested_parent_pause_ms": 0
+          }
+        ]
+      },
+      {
+        "name": "early-send",
+        "source_sha256": "28fb089b8d2d585432a6560c17584ac7a8f6deca348c66c3ba83a70e09556bda",
+        "build_exit": 0,
+        "recorded_binary_sha256": "70ff1f5fd3a0eb0c3df6a97c668590ccfed36b8e116f42eded8810f240237cb1",
+        "executions": [
+          {
+            "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-early-send-early-observer-20261115T214218202987Z.log",
+            "exit_code": 101,
+            "matched_children": 3,
+            "requested_child_delay_ms": 0,
+            "requested_parent_pause_ms": 5
+          }
+        ]
+      },
+      {
+        "name": "remove-sequence-guard",
+        "source_sha256": "1c4c7eaa2c3d0d97d9952a0e1870b542bc60536e4aa14973de1ecab3e6d993ac",
+        "build_exit": 0,
+        "recorded_binary_sha256": "33855adc571b3fe5257f5fe7312dc97b01f0461c6fa84633571ca797cce9ff09",
+        "executions": [
+          {
+            "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-remove-sequence-guard-delayed-20261115T214229713708Z.log",
+            "exit_code": 101,
+            "matched_children": 3,
+            "requested_child_delay_ms": 80,
+            "requested_parent_pause_ms": 0
+          }
+        ]
+      },
+      {
+        "name": "wrong-final-flags",
+        "source_sha256": "fd35a6a6546b34e3432c9bd109caa372152edea662a72c15bd856b1a729afad6",
+        "build_exit": 0,
+        "recorded_binary_sha256": "82078f934ab22e42f3f04d4f4bacbc38065eb394674d32d754bd52e0a3a68847",
+        "executions": [
+          {
+            "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-wrong-final-flags-delayed-20261115T214240597865Z.log",
+            "exit_code": 101,
+            "matched_children": 3,
+            "requested_child_delay_ms": 80,
+            "requested_parent_pause_ms": 0
+          }
+        ]
+      }
+    ],
+    "mutant_binary_hash_note": "Recorded during author execution; exact five mutant source snapshots, build/run logs and traces rehashed by reviewer. Temporary compiled mutant binaries were not independently rehashed after shared output was restored."
+  },
+  "author_canonical_contracts_inspected": {
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0,
+    "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/canonical-seven-contracts-20261115T214457197377Z.json"
+  },
+  "files": [
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/handoff.json",
+      "sha256": "ab2f45e82a0f261a5e3df08b52888423a602d015e2164e6f591605d8fd26eba0"
+    },
+    {
+      "path": "/root/projects/chord-modernization/rust/gui-spike/src/data.rs",
+      "sha256": "9a524c32a1de609c0b7bb625a5aa4ccbceb6f51804046868a827a7726885b2d1"
+    },
+    {
+      "path": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs",
+      "sha256": "86b6f9c678aa4fdf70281763afdc2f6a0b7b4aeb650e9cafdd33af8f900bbd2f"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/original-data.rs",
+      "sha256": "a9a065741f7a740439cb44ef987b173d3fc25fa43e9ef4358ebff17615980fe7"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/fixed-data.rs",
+      "sha256": "9a524c32a1de609c0b7bb625a5aa4ccbceb6f51804046868a827a7726885b2d1"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/original-server-contract-bin",
+      "sha256": "1142de083a5d85e7ce91eb3daa1e3524c4cc9cfed1a966c865009a8e9d9057ff"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/fixed-server-contract-bin",
+      "sha256": "0f2b7c09a887afc5384e63f571aee4f71aaec6de5f6d9ffef89abb9ad294c77c"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v1.c",
+      "sha256": "bbfe5811f8e15d4ebfb8b9fbc9ce66c649b410ac5473b30965f8fcabcca8e904"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v1.so",
+      "sha256": "c8f484c121db5b3918ed9adad492571aa5bd72c97151c95c17b27f1b67cf9073"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v2.c",
+      "sha256": "c0f014e6c6e4639eaf68b35b541f10edd0e29d545f7cc00ed9acd8ce94f35f88"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v2.so",
+      "sha256": "98e7689759e15458afa5532d2b0c431c8471d0d47e82946cdf21169f5bca1f10"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-summary.json",
+      "sha256": "702701ff9ee80247d389bfb78ae6289292b3ffc747dde28ebc69848fc26575f1"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/run_mutations.py",
+      "sha256": "63551fbeb4d8972bd4ca4a361c596e044cb5fed723bd3754fc7d8684bb59f791"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/strict-delayed-child-proof.json",
+      "sha256": "5e5770590f8e061b324398582020f3eb074d52338a7c5493939aa51b4e0ff5e7"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/original-controlled-red-proof.json",
+      "sha256": "4412ca8cf69276d2bb09c7bd98841b017d9ec669e639a7c2610608f887d92e44"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/canonical-seven-contracts-20261115T214457197377Z.json",
+      "sha256": "040e443d32aff4f9a0c03c58a234bf20d5cc52893e497b188571457a94077396"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/canonical-seven-contracts-20261115T214457197377Z.log",
+      "sha256": "238a7390ad7841453fc9ce1abab9b771bdafc46453b2948b786fd8a6e804fedf"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/receipt.json",
+      "sha256": "739ecce82041a9ee67aa67bb598c321f6b1dc06dab379718398f8e89acbe8354"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/original.log",
+      "sha256": "600f81cfc46d1368b7322ed9e489ba4ae206bbaac3dadfa6e3801b6278fdf1f7"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/fixed.log",
+      "sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/original.trace",
+      "sha256": "7ae9138a5039733f4b73e57b18e6deffb2f6dc16e4e64fa33cf49f940061a55a"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/fixed.trace",
+      "sha256": "01b0bf6a0005f717d4043f45bfbf3153bff9b75d97f84cb65eccf86f6ed432f6"
+    }
+  ],
+  "limits": [
+    "Reviewer executed only preserved Linux test binaries, addr2line and read-only source/hash checks; no Cargo/builds/main or index writes",
+    "Controlled Linux scheduling establishes deadline restart defect; exact historical macOS scheduler sequence was not observed",
+    "No hard real-time guarantee: an OS delay beyond observation can still postpone execution",
+    "Native macOS/Windows/ARM runtime qualification and integration gate remain coordinator responsibility"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "phase": "mutation-wrong-final-flags-delayed",
+  "command": [
+    "unshare",
+    "--net",
+    "env",
+    "LD_PRELOAD=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v2.so",
+    "CHORD_THREAD_TRACE=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-wrong-final-flags-delayed.trace",
+    "CHORD_DELAY_CALLSITE=0x3efb55",
+    "CHORD_DELAY_MS=80",
+    "CHORD_PARENT_PAUSE_MS=0",
+    "/root/projects/chord-modernization/rust/gui-spike/target/debug/build/chord-client/9fc044a2d0cc36ac/out/server_join_and_subscriptions_contract-9fc044a2d0cc36ac",
+    "--exact",
+    "v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+    "--nocapture"
+  ],
+  "exit_code": 101,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-wrong-final-flags-delayed-20261115T214240597865Z.log",
+  "log_sha256": "3c88f3058a78bb6188c4ccc518f1ad39bacc0af8c309ddfcaba445efef467483"
+}

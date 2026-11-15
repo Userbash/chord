@@ -1,0 +1,321 @@
+{
+  "binary_sha256": "0f2b7c09a887afc5384e63f571aee4f71aaec6de5f6d9ffef89abb9ad294c77c",
+  "callsite": {
+    "pc": "0x4b3065",
+    "function": "<std::thread::builder::Builder>::spawn::<chord_client::data::connect_or_update_live_voice_ext::{closure#30}, ()>",
+    "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/builder.rs:191"
+  },
+  "symbol_resolution": [
+    {
+      "pc": "0x310a65",
+      "function": "_start",
+      "location": "??:?"
+    },
+    {
+      "pc": "0x311e9b",
+      "function": "<fn() -> std::process::ExitCode as core::ops::function::FnOnce<()>>::call_once",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/ops/function.rs:250"
+    },
+    {
+      "pc": "0x311f76",
+      "function": "<server_join_and_subscriptions_contract::v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout::{closure#0} as core::ops::function::FnOnce<()>>::call_once",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/ops/function.rs:?"
+    },
+    {
+      "pc": "0x31eeae",
+      "function": "std::sys::backtrace::__rust_begin_short_backtrace::<fn() -> std::process::ExitCode, std::process::ExitCode>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/sys/backtrace.rs:172"
+    },
+    {
+      "pc": "0x320403",
+      "function": "server_join_and_subscriptions_contract::v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout::{closure#0}",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs:711"
+    },
+    {
+      "pc": "0x321965",
+      "function": "server_join_and_subscriptions_contract::main",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs:?"
+    },
+    {
+      "pc": "0x33844b",
+      "function": "server_join_and_subscriptions_contract::v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs:746"
+    },
+    {
+      "pc": "0x33964b",
+      "function": "server_join_and_subscriptions_contract::v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs:785"
+    },
+    {
+      "pc": "0x33a035",
+      "function": "server_join_and_subscriptions_contract::v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs:828"
+    },
+    {
+      "pc": "0x33a236",
+      "function": "server_join_and_subscriptions_contract::v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs:835"
+    },
+    {
+      "pc": "0x33a43a",
+      "function": "server_join_and_subscriptions_contract::v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs:842"
+    },
+    {
+      "pc": "0x34d14e",
+      "function": "main",
+      "location": "??:?"
+    },
+    {
+      "pc": "0x34d321",
+      "function": "std::rt::lang_start::<std::process::ExitCode>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/rt.rs:211"
+    },
+    {
+      "pc": "0x34d339",
+      "function": "std::rt::lang_start::<std::process::ExitCode>::{closure#0}",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/rt.rs:206"
+    },
+    {
+      "pc": "0x34d66b",
+      "function": "test::__rust_begin_short_backtrace::<core::result::Result<(), alloc::string::String>, fn() -> core::result::Result<(), alloc::string::String>>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:705"
+    },
+    {
+      "pc": "0x355234",
+      "function": "<std::sync::poison::Flag>::done",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/sync/poison.rs:126"
+    },
+    {
+      "pc": "0x35a845",
+      "function": "std::panicking::catch_unwind::do_call::<core::panic::unwind_safe::AssertUnwindSafe<test::run_test_in_process::{closure#0}>, core::result::Result<(), alloc::string::String>>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/panicking.rs:573"
+    },
+    {
+      "pc": "0x35d8d2",
+      "function": "std::thread::lifecycle::spawn_unchecked::<test::run_test::{closure#1}, ()>::{closure#1}",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/lifecycle.rs:?"
+    },
+    {
+      "pc": "0x35eeda",
+      "function": "test::test_main_inner",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:?"
+    },
+    {
+      "pc": "0x35fad8",
+      "function": "test::test_main_env_args",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:?"
+    },
+    {
+      "pc": "0x36088a",
+      "function": "std::thread::lifecycle::spawn_unchecked::<test::run_test::{closure#1}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/lifecycle.rs:116"
+    },
+    {
+      "pc": "0x37494d",
+      "function": "test::run_tests::<test::console::run_tests_console::{closure#2}>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/test/src/lib.rs:439"
+    },
+    {
+      "pc": "0x3ee650",
+      "function": "chord_client::data::ensure_local_mic_monitor",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/src/data.rs:6178"
+    },
+    {
+      "pc": "0x405bef",
+      "function": "chord_client::data::ingest_raw_gateway_dispatch",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/src/data.rs:4672"
+    },
+    {
+      "pc": "0x407ae0",
+      "function": "chord_client::data::connect_or_update_live_voice",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/src/data.rs:4839"
+    },
+    {
+      "pc": "0x4137ac",
+      "function": "chord_client::data::connect_or_update_live_voice_ext",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/src/data.rs:5270"
+    },
+    {
+      "pc": "0x413a13",
+      "function": "chord_client::data::connect_or_update_live_voice_ext",
+      "location": "/root/projects/chord-modernization/rust/gui-spike/src/data.rs:5283"
+    },
+    {
+      "pc": "0x47d3f3",
+      "function": "std::thread::lifecycle::spawn_unchecked::<chord_client::data::ensure_local_mic_monitor::{closure#0}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/lifecycle.rs:116"
+    },
+    {
+      "pc": "0x47f6a0",
+      "function": "std::thread::lifecycle::spawn_unchecked::<chord_client::data::connect_or_update_live_voice_ext::{closure#30}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/lifecycle.rs:116"
+    },
+    {
+      "pc": "0x49e572",
+      "function": "<core::result::Result<std::thread::lifecycle::JoinInner<()>, core::io::error::Error> as core::ops::try_trait::Try>::branch",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:2176"
+    },
+    {
+      "pc": "0x49eb29",
+      "function": "<core::result::Result<std::thread::lifecycle::JoinInner<()>, core::io::error::Error> as core::ops::try_trait::Try>::branch",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:2176"
+    },
+    {
+      "pc": "0x4b2df2",
+      "function": "<std::thread::builder::Builder>::spawn::<chord_client::data::ensure_local_mic_monitor::{closure#0}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/builder.rs:191"
+    },
+    {
+      "pc": "0x4b3065",
+      "function": "<std::thread::builder::Builder>::spawn::<chord_client::data::connect_or_update_live_voice_ext::{closure#30}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/builder.rs:191"
+    },
+    {
+      "pc": "0x54922a",
+      "function": "tokio::net::addr::to_socket_addrs::<alloc::string::String>",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/net/addr.rs:28"
+    },
+    {
+      "pc": "0x55fe7f",
+      "function": "<tokio::net::tcp::stream::TcpStream>::connect::<alloc::string::String>::{closure#0}",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/net/tcp/stream.rs:122"
+    },
+    {
+      "pc": "0x5655ad",
+      "function": "chord_core::ws::start_live_rtc_session::{closure#1}::{closure#0}::{closure#0}",
+      "location": "/root/projects/chord-modernization/rust/crates/chord-core/src/ws.rs:5181"
+    },
+    {
+      "pc": "0x56c3e4",
+      "function": "chord_core::ws::run_rtc_task::{closure#0}",
+      "location": "/root/projects/chord-modernization/rust/crates/chord-core/src/ws.rs:6053"
+    },
+    {
+      "pc": "0x5932b7",
+      "function": "<core::pin::Pin<alloc::boxed::Box<chord_core::ws::start_live_rtc_session::{closure#1}::{closure#0}::{closure#0}>> as core::future::future::Future>::poll",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/future/future.rs:134"
+    },
+    {
+      "pc": "0x5b0460",
+      "function": "std::thread::lifecycle::spawn_unchecked::<chord_core::ws::start_live_rtc_session::{closure#1}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/lifecycle.rs:116"
+    },
+    {
+      "pc": "0x5bada8",
+      "function": "<tokio::runtime::scheduler::current_thread::CoreGuard>::block_on::<core::pin::Pin<alloc::boxed::Box<chord_core::ws::start_live_rtc_session::{closure#1}::{closure#0}::{closure#0}>>>::{closure#0}::{closure#0}::{closure#0}",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/scheduler/current_thread/mod.rs:830"
+    },
+    {
+      "pc": "0x5d6c74",
+      "function": "tokio_tungstenite::connect::connect_async_tls_with_config::<&alloc::string::String>::{closure#0}",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-tungstenite-0.30.0/src/connect.rs:70"
+    },
+    {
+      "pc": "0x5d740c",
+      "function": "tokio_tungstenite::connect::connect::{closure#0}",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-tungstenite-0.30.0/src/connect.rs:91"
+    },
+    {
+      "pc": "0x5e2689",
+      "function": "<core::result::Result<std::thread::lifecycle::JoinInner<()>, core::io::error::Error> as core::ops::try_trait::Try>::branch",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:2176"
+    },
+    {
+      "pc": "0x5e2aae",
+      "function": "<std::thread::builder::Builder>::spawn::<chord_core::ws::start_live_rtc_session::{closure#1}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/builder.rs:191"
+    },
+    {
+      "pc": "0x5f6e68",
+      "function": "chord_core::ws::start_live_rtc_session",
+      "location": "/root/projects/chord-modernization/rust/crates/chord-core/src/ws.rs:5156"
+    },
+    {
+      "pc": "0x898a5d",
+      "function": "<tokio::runtime::blocking::pool::Spawner>::spawn_blocking::<<str as tokio::net::addr::sealed::ToSocketAddrsPriv>::to_socket_addrs::{closure#0}, core::result::Result<alloc::vec::into_iter::IntoIter<core::net::socket_addr::SocketAddr>, core::io::error::Error>>",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:373"
+    },
+    {
+      "pc": "0x8995fe",
+      "function": "<tokio::runtime::blocking::pool::Spawner>::spawn_blocking_inner::<<str as tokio::net::addr::sealed::ToSocketAddrsPriv>::to_socket_addrs::{closure#0}, core::result::Result<alloc::vec::into_iter::IntoIter<core::net::socket_addr::SocketAddr>, core::io::error::Error>>",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:451"
+    },
+    {
+      "pc": "0x899b40",
+      "function": "<tokio::runtime::blocking::pool::InnerImpl>::spawn_task::<<tokio::runtime::blocking::pool::Spawner>::spawn_task::{closure#0}>",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:559"
+    },
+    {
+      "pc": "0x899e0e",
+      "function": "<tokio::runtime::blocking::pool::LockedImpl>::spawn_task::<<tokio::runtime::blocking::pool::Spawner>::spawn_task::{closure#0}>",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:628"
+    },
+    {
+      "pc": "0x89a131",
+      "function": "tokio::runtime::blocking::pool::spawn_blocking::<<str as tokio::net::addr::sealed::ToSocketAddrsPriv>::to_socket_addrs::{closure#0}, core::result::Result<alloc::vec::into_iter::IntoIter<core::net::socket_addr::SocketAddr>, core::io::error::Error>>",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:244"
+    },
+    {
+      "pc": "0x89aa8f",
+      "function": "<tokio::runtime::blocking::pool::Spawner>::spawn_task::{closure#0}",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:482"
+    },
+    {
+      "pc": "0x89e2e3",
+      "function": "<tokio::runtime::blocking::pool::Spawner>::spawn_task",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:468"
+    },
+    {
+      "pc": "0x89e5db",
+      "function": "<tokio::runtime::blocking::pool::Spawner>::spawn_thread",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/blocking/pool.rs:522"
+    },
+    {
+      "pc": "0x8a7ef9",
+      "function": "<core::result::Result<std::thread::lifecycle::JoinInner<()>, core::io::error::Error> as core::ops::try_trait::Try>::branch",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/result.rs:2176"
+    },
+    {
+      "pc": "0x8a801e",
+      "function": "<std::thread::builder::Builder>::spawn::<<tokio::runtime::blocking::pool::Spawner>::spawn_thread::{closure#0}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/builder.rs:191"
+    },
+    {
+      "pc": "0x8b91ae",
+      "function": "<tokio::runtime::handle::Handle>::spawn_blocking::<<str as tokio::net::addr::sealed::ToSocketAddrsPriv>::to_socket_addrs::{closure#0}, core::result::Result<alloc::vec::into_iter::IntoIter<core::net::socket_addr::SocketAddr>, core::io::error::Error>>",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/runtime/handle.rs:239"
+    },
+    {
+      "pc": "0x8d0f64",
+      "function": "<alloc::string::String as tokio::net::addr::sealed::ToSocketAddrsPriv>::to_socket_addrs",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/net/addr.rs:247"
+    },
+    {
+      "pc": "0x8e4d1f",
+      "function": "<str as tokio::net::addr::sealed::ToSocketAddrsPriv>::to_socket_addrs",
+      "location": "/root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.54.1/src/net/addr.rs:182"
+    },
+    {
+      "pc": "0x8f20c0",
+      "function": "std::thread::lifecycle::spawn_unchecked::<<tokio::runtime::blocking::pool::Spawner>::spawn_thread::{closure#0}, ()>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/thread/lifecycle.rs:116"
+    },
+    {
+      "pc": "0x939da8",
+      "function": "<std::sys::thread::unix::Thread>::new",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/sys/thread/unix.rs:108"
+    },
+    {
+      "pc": "0x950da8",
+      "function": "std::rt::lang_start_internal::{closure#0}",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/std/src/rt.rs:185"
+    },
+    {
+      "pc": "0x95a41f",
+      "function": "core::mem::size_of_val_raw::<dyn core::ops::function::FnOnce<(), Output = ()> + core::marker::Send>",
+      "location": "/rustc/0ef1bc386059596dada8fb65b50425aab2ea637a/library/core/src/mem/mod.rs:468"
+    }
+  ],
+  "coalescer_creates": 3
+}

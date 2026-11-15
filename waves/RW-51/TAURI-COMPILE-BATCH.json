@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "updated_at": "2026-11-15T21:04:27.836006+00:00",
-  "status": "source_reviewed_linux_rebuilt_six_native_rebuilds_pending",
+  "updated_at": "2026-11-15T21:50:32.512139+00:00",
+  "status": "six_native_baseline_releases_compiled_reviewed_followup_rebuild_pending",
   "source_baseline": "ed130d722102b6043644111dad9fe6dd946a8145",
   "rust_tree": "2765c050e3d37b71a581f8a4c92e2408b0d07bda",
   "workflow": ".github/workflows/tauri-native.yml",
@@ -91,7 +91,7 @@
   },
   "all_six_targets_compiled": false,
   "all_native_features_qualified": false,
-  "next": "Push reviewed source and run all six actual native release builds, GUI contracts and native shared contracts. Fix genuine build failures before marking compilation complete.",
+  "next": "Push reviewed LF/deadline fixes and verify all six native contract jobs on the candidate revision. Full GUI/media/ISA acceptance and existing repository gate failures stay open.",
   "evidence": [
     "waves/RW-51/verification/tauri-compile-tauri-linux-release-red-20261115T195554035183Z.json",
     "waves/RW-51/verification/tauri-compile-tauri-linux-embedded-release-20261115T200652498643Z.log.gz",
@@ -133,6 +133,10 @@
     "non_Windows_contract_failure": "D-Bus connection error lacked operation context; original assertion preserved in fix"
   },
   "current_source_manifest": [
+    {
+      "path": ".gitattributes",
+      "sha256": "dbc2b902a2f87e1e3ad249c13ff9b7815cae638c510d351d86929281ea97c721"
+    },
     {
       "path": ".github/workflows/tauri-native.yml",
       "sha256": "3f5ec9b7fe42a48c436f1994cfca91e26cda06e86509ddb94561fd9036a23d4f"
@@ -266,6 +270,10 @@
       "sha256": "c92be982d93db303d8adb544527c197fe4c9820e18656e3ab7ce005a2f8fe3f8"
     },
     {
+      "path": "rust/gui-spike/src/data.rs",
+      "sha256": "9a524c32a1de609c0b7bb625a5aa4ccbceb6f51804046868a827a7726885b2d1"
+    },
+    {
       "path": "rust/gui-spike/src/main.rs",
       "sha256": "e6957c00faabfe127ef48d324ae784d9fc4163c072992d4b9e0bde18e2f84409"
     },
@@ -295,7 +303,7 @@
     },
     {
       "path": "tests/meta/tauri-native-ci-contract.test.mjs",
-      "sha256": "1ea890313f421696d0950abe6cfa1d24ba251d8d98ffac664f6458f08e214982"
+      "sha256": "dc5c3871d1446aa0de90a1ccc2b2991b818e29aa65c45cd89ddad65bc43dc5bb"
     },
     {
       "path": "tests/unit/tauri-platform-boundaries.test.mjs",
@@ -308,7 +316,10 @@
     "waves/RW-51/reports/TAURI-CI-FINAL-REVIEW.json",
     "waves/RW-51/reports/TAURI-SBOM-INDEPENDENT-REVIEW.json",
     "waves/RW-51/reports/TAURI-HELPER-TYPES-REVIEW.json",
-    "waves/RW-51/reports/TAURI-PUBLIC-DIGEST-REVIEW.json"
+    "waves/RW-51/reports/TAURI-PUBLIC-DIGEST-REVIEW.json",
+    "waves/RW-51/reports/TAURI-RUST-EOL-REVIEW.json",
+    "waves/RW-51/reports/TAURI-LOCK-EOL-REVIEW.json",
+    "waves/RW-51/reports/TAURI-DEADLINE-REVIEW.json"
   ],
   "source_boundaries": {
     "windows_source_errors_before": 72,
@@ -1454,5 +1465,171 @@
       "original": "/root/projects/chord-modernization-verification/tauri-cross-platform/ports/windows-platform-clippy-green-20261115T203840972568Z.log",
       "raw_sha256": "22f0b29d51dc4333959a1a2601b3cd6109d3e19471b9ba52477644164b515749"
     }
-  ]
+  ],
+  "baseline_six_native": {
+    "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+    "run_url": "https://github.com/Userbash/chord/actions/runs/43761825263",
+    "all_six_release_compilations_passed": true,
+    "all_six_artifacts_verified": true,
+    "artifact_report": "waves/RW-51/reports/TAURI-C0-SIX-ARTIFACTS.json",
+    "job_snapshot": "waves/RW-51/verification/tauri-followup-tauri-cross-platform__ci__source-c0-six-native-snapshot.json",
+    "passed_full_jobs": [
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu",
+      "aarch64-apple-darwin"
+    ],
+    "remaining_native_contract_failures": {
+      "Windows": "two source parser assertions fail on CRLF checkout",
+      "macOS_Intel": "one coalesced voice update missing at original160ms observation"
+    },
+    "historical_Windows_lock_bytes": "Exact immutable Git blob transformed by Windows CRLF checkout; independently pinned d2f42f25…; candidate preserves canonical LF instead.",
+    "native_runtime_qualified": false
+  },
+  "reviewed_followup": {
+    "source_base": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+    "source_paths": [
+      ".gitattributes",
+      "tests/meta/tauri-native-ci-contract.test.mjs",
+      "rust/gui-spike/src/data.rs"
+    ],
+    "Rust_and_lock_checkout": "standard Git LF rules, genuine checkout RED/GREEN, hostile-env isolation, five Rust and five lock bad-rule mutations killed",
+    "voice_deadline": "caller-captured Instant deadline; original test/guards/120ms+160ms+15s contracts unchanged",
+    "deadline_reproduction": "Original and fixed real binaries: independently delayed exactly3coalescer children80ms; original RED101, fixed GREEN0; exact original native Mac scheduler history unobserved",
+    "deadline_mutations_killed": 5,
+    "native_candidate_rebuild": "pending",
+    "worker_gate": "waves/RW-51/verification/tauri-followup-worker-20261115T214627444Z.json",
+    "meta_pass": 220,
+    "unit_pass": 2618,
+    "unit_fail": 34,
+    "workspace_pass": 1500,
+    "workspace_ignored": 12,
+    "reviews": [
+      "waves/RW-51/reports/TAURI-RUST-EOL-REVIEW.json",
+      "waves/RW-51/reports/TAURI-LOCK-EOL-REVIEW.json",
+      "waves/RW-51/reports/TAURI-DEADLINE-REVIEW.json"
+    ]
+  },
+  "followup_evidence": [
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-deadline-eol-linux-release-20261115T214746246074Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-deadline-eol-linux-release-20261115T214746246074Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-deadline-eol-worker-final-20261115T214520271947Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-deadline-eol-worker-final-20261115T214520271947Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-lock-checkout-eol-green-20261115T213801873587Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-lock-checkout-eol-green-20261115T213801873587Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-lock-checkout-eol-red-20261115T213801069908Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-lock-checkout-eol-red-20261115T213801069908Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-green-20261115T213339804231Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-green-20261115T213339804231Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-isolated-green-20261115T213459283403Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-isolated-green-20261115T213459283403Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-isolated-types-20261115T213459278690Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-isolated-types-20261115T213459278690Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-red-20261115T213310719529Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-red-20261115T213310719529Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-typecheck-20261115T213339814542Z.json",
+    "waves/RW-51/verification/tauri-followup-rust-dependencies__tauri-rust-checkout-eol-typecheck-20261115T213339814542Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__ci__review__rust-lock-eol-addendum.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__ci__source-c0-six-native-snapshot.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__ci__windows-lock-checkout-provenance.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__caller-deadline.patch",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__canonical-seven-contracts-20261115T214457197377Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__canonical-seven-contracts-20261115T214457197377Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__deadline-targeted-control-20261115T213805001354Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__deadline-targeted-control-20261115T213805001354Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__delayed-worker-deadline-green-20261115T213859140291Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__delayed-worker-deadline-green-20261115T213859140291Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__delayed-worker-original-red-20261115T213649674391Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__delayed-worker-original-red-20261115T213649674391Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__external-trace-control-20261115T213621528277Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__external-trace-control-20261115T213621528277Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__fixed-callsite-resolution.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__fixed-resolve-trace-20261115T213839974672Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__fixed-resolve-trace-20261115T213839974672Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__focused-linux-baseline-20261115T213213356037Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__focused-linux-baseline-20261115T213213356037Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__handoff.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__isolated_loopback.py",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-build-20261115T214149235922Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-build-20261115T214149235922Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-delayed-20261115T214158970129Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-delayed-20261115T214158970129Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-delayed.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-resolve-20261115T214153480707Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-resolve-20261115T214153480707Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-resolve.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-build-20261115T214125435992Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-build-20261115T214125435992Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-delayed-20261115T214148751892Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-delayed-20261115T214148751892Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-delayed.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-early-observer-20261115T214148968004Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-early-observer-20261115T214148968004Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-early-observer.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-resolve-20261115T214143444068Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-resolve-20261115T214143444068Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-control-resolve.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-build-20261115T214208911883Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-build-20261115T214208911883Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-early-observer-20261115T214218202987Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-early-observer-20261115T214218202987Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-early-observer.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-resolve-20261115T214212687182Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-resolve-20261115T214212687182Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-resolve.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-build-20261115T214159236366Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-build-20261115T214159236366Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-delayed-20261115T214208645967Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-delayed-20261115T214208645967Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-delayed.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-resolve-20261115T214203060560Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-resolve-20261115T214203060560Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-resolve.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-build-20261115T214218292851Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-build-20261115T214218292851Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-delayed-20261115T214229713708Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-delayed-20261115T214229713708Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-delayed.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-resolve-20261115T214224255261Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-resolve-20261115T214224255261Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-resolve.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-summary.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-build-20261115T214229981187Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-build-20261115T214229981187Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-delayed-20261115T214240597865Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-delayed-20261115T214240597865Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-delayed.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-resolve-20261115T214235309359Z.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-resolve-20261115T214235309359Z.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-resolve.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__native-mac-intel-job-132958094971-excerpt.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__original-controlled-red-proof.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__review__independent-review.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__review__runtime__fixed.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__review__runtime__fixed.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__review__runtime__original.log.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__review__runtime__original.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__review__runtime__receipt.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__run.py",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__run_mutations.py",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__scoped-format-receipt.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__strict-delayed-child-proof.json",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__thread-control.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__thread-delayed-deadline.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__thread-delayed-original.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__thread-fixed-control.trace.gz",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__thread_start_probe-v1.c",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__thread_start_probe-v2.c",
+    "waves/RW-51/verification/tauri-followup-tauri-cross-platform__coalescing__thread_start_probe.c"
+  ],
+  "followup_local_release": {
+    "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/deadline-eol-local-linux/chord-client",
+    "bytes": 30984200,
+    "sha256": "099bf246d4f3556f589aa9835462d60ea747ea14089f11304580d4b79a8b3cd3",
+    "features": [
+      "tauri/custom-protocol"
+    ],
+    "build_exit": 0,
+    "native_runtime_qualified": false
+  },
+  "candidate_Rust_tree": "4391d09e12f8e802e8c9c2b7170602a03c94f169"
 }

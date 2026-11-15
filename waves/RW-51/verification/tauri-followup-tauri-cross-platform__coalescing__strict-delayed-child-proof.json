@@ -1,0 +1,53 @@
+{
+  "traces": [
+    {
+      "trace": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread-delayed-original.trace",
+      "sha256": "2e64fee9daa3e5e6d96bfddfea08e37ca168a285934a34ae8d396f3688170803",
+      "matched_coalescer_children": 3,
+      "requested_delay_ms": 80,
+      "observed": [
+        {
+          "id": 4,
+          "create_ms": 7625115,
+          "entry_delay_ms": 80
+        },
+        {
+          "id": 5,
+          "create_ms": 7625115,
+          "entry_delay_ms": 80
+        },
+        {
+          "id": 6,
+          "create_ms": 7625115,
+          "entry_delay_ms": 80
+        }
+      ]
+    },
+    {
+      "trace": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread-delayed-deadline.trace",
+      "sha256": "b391fd44223df98815269752cf4cbe65b2ab33c1b3d890bd33067979950b2075",
+      "matched_coalescer_children": 3,
+      "requested_delay_ms": 80,
+      "observed": [
+        {
+          "id": 4,
+          "create_ms": 7754582,
+          "entry_delay_ms": 80
+        },
+        {
+          "id": 5,
+          "create_ms": 7754582,
+          "entry_delay_ms": 80
+        },
+        {
+          "id": 7,
+          "create_ms": 7754582,
+          "entry_delay_ms": 81
+        }
+      ]
+    }
+  ],
+  "unchanged_test_budget_ms": 160,
+  "unchanged_coalescing_window_ms": 120,
+  "inference": "independently reproduced deadline-anchor defect; exact prior Mac scheduler history was not observed"
+}

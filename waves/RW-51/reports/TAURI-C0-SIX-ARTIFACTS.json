@@ -1,0 +1,661 @@
+{
+  "schema": 1,
+  "verified_at_utc": "2026-11-15T21:50:33.207896+00:00",
+  "verifier_sha256": "9c5186967dc9e106d2f22cdb121918c48588c9684c8384b19125e7217190a8dc",
+  "ok": true,
+  "all_six_targets_verified": true,
+  "native_runtime_qualified": false,
+  "payloads_executed": false,
+  "artifacts": [
+    {
+      "target": "aarch64-pc-windows-msvc",
+      "ok": true,
+      "zip_path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/c0cbd53e-aarch64-pc-windows-msvc/artifact.zip",
+      "archive_sha256": "b7222ec18eb0e23955cd85d12adaeb0c0a1a3d032f9b9b83bf77ed9c294449a7",
+      "archive_bytes": 9817323,
+      "zip_crc_verified": true,
+      "hashes_verified": true,
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "gui_lock_sha256": "d2f42f25bf12a2da015526f35887742b18bbc12012aadd987718daa505d0746d",
+      "build_host": {
+        "platform": "win32",
+        "arch": "arm64"
+      },
+      "compiler_host": "aarch64-pc-windows-msvc",
+      "binary": {
+        "path": "chord-client.exe",
+        "sha256": "881c2c606200307dc21994c4fc7f0fcf7c3ebd247529a8c3a12a3d81aa4771b9",
+        "bytes": 18986496,
+        "format": "PE32+",
+        "architecture": "arm64",
+        "bits": 64,
+        "endianness": "little",
+        "machine": 43620,
+        "machine_hex": "0xaa64",
+        "dll": false,
+        "subsystem": 2
+      },
+      "windows_dlls": [
+        {
+          "path": "charset-1.dll",
+          "sha256": "33c0e7e00d457a218e20ba6e61e6f4486d3d08c4efa6f893137750c5bcdf08de",
+          "bytes": 12800,
+          "format": "PE32+",
+          "architecture": "arm64",
+          "bits": 64,
+          "endianness": "little",
+          "machine": 43620,
+          "machine_hex": "0xaa64",
+          "dll": true,
+          "subsystem": 2
+        },
+        {
+          "path": "hunspell-1.7-0.dll",
+          "sha256": "6bacfd885b989ec33585fb22d6ce88bae34a49b75935b0b8f943d9734024f854",
+          "bytes": 553472,
+          "format": "PE32+",
+          "architecture": "arm64",
+          "bits": 64,
+          "endianness": "little",
+          "machine": 43620,
+          "machine_hex": "0xaa64",
+          "dll": true,
+          "subsystem": 2
+        },
+        {
+          "path": "iconv-2.dll",
+          "sha256": "4a5d1d79c3b041b0b897c3f32de7215d715e8740d9a3403bc4ccb95695301582",
+          "bytes": 1104896,
+          "format": "PE32+",
+          "architecture": "arm64",
+          "bits": 64,
+          "endianness": "little",
+          "machine": 43620,
+          "machine_hex": "0xaa64",
+          "dll": true,
+          "subsystem": 2
+        },
+        {
+          "path": "sqlite3.dll",
+          "sha256": "271709b4b224c61b9e7419ca4012663c65e0c9185c3cb8499156a477295c0d12",
+          "bytes": 1118208,
+          "format": "PE32+",
+          "architecture": "arm64",
+          "bits": 64,
+          "endianness": "little",
+          "machine": 43620,
+          "machine_hex": "0xaa64",
+          "dll": true,
+          "subsystem": 2
+        }
+      ],
+      "licenses": [
+        {
+          "path": "LICENSE",
+          "sha256": "6c9d6a40416c8f286d66fc226dcaf7d3b1a215de97dbad1cf21de2ff99c8bc00",
+          "bytes": 33085
+        },
+        {
+          "path": "licenses/hunspell.txt",
+          "sha256": "945cc35220db542027275c0bd312cf0d89626af5ff1fdef952ac77714445d025",
+          "bytes": 76856
+        },
+        {
+          "path": "licenses/libiconv.txt",
+          "sha256": "57242af4e5f8e054ab14ecacf99c88ddc49a6543318601ba75ba996a93ad4bc4",
+          "bytes": 62960
+        },
+        {
+          "path": "licenses/sqlite3.txt",
+          "sha256": "3cafdd9b568b924b234b91f4a24649d509f02643ae727eac6a4e33818288c9c4",
+          "bytes": 71
+        },
+        {
+          "path": "licenses/vcpkg-cmake-config.txt",
+          "sha256": "04b60f99a43bfd7fefdc8364b24aac704a2160cef969b75ba6a38b62dc4c4b70",
+          "bytes": 1096
+        },
+        {
+          "path": "licenses/vcpkg-cmake-get-vars.txt",
+          "sha256": "1ee376fc340e0aa6ad6a3581c94126e741468705096ac92263048a21daa86460",
+          "bytes": 1073
+        },
+        {
+          "path": "licenses/vcpkg-cmake.txt",
+          "sha256": "1ee376fc340e0aa6ad6a3581c94126e741468705096ac92263048a21daa86460",
+          "bytes": 1073
+        },
+        {
+          "path": "licenses/vcpkg-make.txt",
+          "sha256": "a016cb0f66f4aca928d93608f34ba342ecaff292c652793113c8b007bb7b1ad9",
+          "bytes": 19657
+        }
+      ],
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "6c9d6a40416c8f286d66fc226dcaf7d3b1a215de97dbad1cf21de2ff99c8bc00",
+          "bytes": 33085
+        },
+        {
+          "path": "SHA256SUMS",
+          "sha256": "56475d1e4275b3cc445b5bdf8dec7ecbc43e54fa5a119de18261a0b785d6ffec",
+          "bytes": 1120
+        },
+        {
+          "path": "charset-1.dll",
+          "sha256": "33c0e7e00d457a218e20ba6e61e6f4486d3d08c4efa6f893137750c5bcdf08de",
+          "bytes": 12800
+        },
+        {
+          "path": "chord-client.exe",
+          "sha256": "881c2c606200307dc21994c4fc7f0fcf7c3ebd247529a8c3a12a3d81aa4771b9",
+          "bytes": 18986496
+        },
+        {
+          "path": "hunspell-1.7-0.dll",
+          "sha256": "6bacfd885b989ec33585fb22d6ce88bae34a49b75935b0b8f943d9734024f854",
+          "bytes": 553472
+        },
+        {
+          "path": "iconv-2.dll",
+          "sha256": "4a5d1d79c3b041b0b897c3f32de7215d715e8740d9a3403bc4ccb95695301582",
+          "bytes": 1104896
+        },
+        {
+          "path": "licenses/hunspell.txt",
+          "sha256": "945cc35220db542027275c0bd312cf0d89626af5ff1fdef952ac77714445d025",
+          "bytes": 76856
+        },
+        {
+          "path": "licenses/libiconv.txt",
+          "sha256": "57242af4e5f8e054ab14ecacf99c88ddc49a6543318601ba75ba996a93ad4bc4",
+          "bytes": 62960
+        },
+        {
+          "path": "licenses/sqlite3.txt",
+          "sha256": "3cafdd9b568b924b234b91f4a24649d509f02643ae727eac6a4e33818288c9c4",
+          "bytes": 71
+        },
+        {
+          "path": "licenses/vcpkg-cmake-config.txt",
+          "sha256": "04b60f99a43bfd7fefdc8364b24aac704a2160cef969b75ba6a38b62dc4c4b70",
+          "bytes": 1096
+        },
+        {
+          "path": "licenses/vcpkg-cmake-get-vars.txt",
+          "sha256": "1ee376fc340e0aa6ad6a3581c94126e741468705096ac92263048a21daa86460",
+          "bytes": 1073
+        },
+        {
+          "path": "licenses/vcpkg-cmake.txt",
+          "sha256": "1ee376fc340e0aa6ad6a3581c94126e741468705096ac92263048a21daa86460",
+          "bytes": 1073
+        },
+        {
+          "path": "licenses/vcpkg-make.txt",
+          "sha256": "a016cb0f66f4aca928d93608f34ba342ecaff292c652793113c8b007bb7b1ad9",
+          "bytes": 19657
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "ca0a5c7c136818a90518af0c15772efa6f888ebc928283ec8cdb0a6e724a1461",
+          "bytes": 1777
+        },
+        {
+          "path": "sqlite3.dll",
+          "sha256": "271709b4b224c61b9e7419ca4012663c65e0c9185c3cb8499156a477295c0d12",
+          "bytes": 1118208
+        }
+      ],
+      "native_runtime_qualified": false,
+      "payload_executed": false
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "ok": true,
+      "zip_path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/c0cbd53e-x86_64-apple-darwin/artifact.zip",
+      "archive_sha256": "cd4b1333b6ec0e4bda1cbb9b98232b9952c49b9b00929ceeab0a872db6630d30",
+      "archive_bytes": 8786215,
+      "zip_crc_verified": true,
+      "hashes_verified": true,
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "gui_lock_sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+      "build_host": {
+        "platform": "darwin",
+        "arch": "x64"
+      },
+      "compiler_host": "x86_64-apple-darwin",
+      "binary": {
+        "path": "chord-client",
+        "sha256": "08262343ffaeebb844496ac2e787772608050936319bab3a427237f5636e7ae0",
+        "bytes": 24238832,
+        "format": "Mach-O64 thin",
+        "architecture": "x64",
+        "bits": 64,
+        "endianness": "little",
+        "machine": 16777223,
+        "machine_hex": "0x01000007",
+        "cpu_subtype": 3,
+        "thin": true
+      },
+      "windows_dlls": [],
+      "licenses": [
+        {
+          "path": "LICENSE",
+          "sha256": "6d8575938cdd9875c9544de11e1d60f781df17a6988e68f605011c1bd9d88c94",
+          "bytes": 32463
+        }
+      ],
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "6d8575938cdd9875c9544de11e1d60f781df17a6988e68f605011c1bd9d88c94",
+          "bytes": 32463
+        },
+        {
+          "path": "SHA256SUMS",
+          "sha256": "e9d7e78accadb182a54f61f39d9575294f3d3674ade56496f2afeec171e78fb3",
+          "bytes": 153
+        },
+        {
+          "path": "chord-client",
+          "sha256": "08262343ffaeebb844496ac2e787772608050936319bab3a427237f5636e7ae0",
+          "bytes": 24238832
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "4fb82273d4f24ff3c5cf7a24ef45c6e286fddd3b55b25c045faf4c110556253d",
+          "bytes": 702
+        }
+      ],
+      "native_runtime_qualified": false,
+      "payload_executed": false
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "ok": true,
+      "zip_path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/c0cbd53e-x86_64-pc-windows-msvc/artifact.zip",
+      "archive_sha256": "117871a3909092df89269bb56b90f36a5f2ca3662b7127a354e255d69d77ef29",
+      "archive_bytes": 10342828,
+      "zip_crc_verified": true,
+      "hashes_verified": true,
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "gui_lock_sha256": "d2f42f25bf12a2da015526f35887742b18bbc12012aadd987718daa505d0746d",
+      "build_host": {
+        "platform": "win32",
+        "arch": "x64"
+      },
+      "compiler_host": "x86_64-pc-windows-msvc",
+      "binary": {
+        "path": "chord-client.exe",
+        "sha256": "e840e1ef481b68423dcef16dd45db986690e2758b3d517f4e36dc526e355ab17",
+        "bytes": 22502912,
+        "format": "PE32+",
+        "architecture": "x64",
+        "bits": 64,
+        "endianness": "little",
+        "machine": 34404,
+        "machine_hex": "0x8664",
+        "dll": false,
+        "subsystem": 2
+      },
+      "windows_dlls": [
+        {
+          "path": "charset-1.dll",
+          "sha256": "b5f2257e154bda4913651933985c3314dc39794d83b7552c8120ebda315ad36b",
+          "bytes": 11264,
+          "format": "PE32+",
+          "architecture": "x64",
+          "bits": 64,
+          "endianness": "little",
+          "machine": 34404,
+          "machine_hex": "0x8664",
+          "dll": true,
+          "subsystem": 2
+        },
+        {
+          "path": "hunspell-1.7-0.dll",
+          "sha256": "ad14c41804efdf002d54c70a9ed5dcbbbd02ce6c58aabd41785a2afef76e99a3",
+          "bytes": 564736,
+          "format": "PE32+",
+          "architecture": "x64",
+          "bits": 64,
+          "endianness": "little",
+          "machine": 34404,
+          "machine_hex": "0x8664",
+          "dll": true,
+          "subsystem": 2
+        },
+        {
+          "path": "iconv-2.dll",
+          "sha256": "a9bbe78d9351452cd779b4ed3f68e787fc4534f75d20a066e9142e4dfeb07dba",
+          "bytes": 1093120,
+          "format": "PE32+",
+          "architecture": "x64",
+          "bits": 64,
+          "endianness": "little",
+          "machine": 34404,
+          "machine_hex": "0x8664",
+          "dll": true,
+          "subsystem": 2
+        },
+        {
+          "path": "sqlite3.dll",
+          "sha256": "204de4a8599d0c930ba155d11d2ab8737fda40f5c393d7dfeeca0b989304868b",
+          "bytes": 1126400,
+          "format": "PE32+",
+          "architecture": "x64",
+          "bits": 64,
+          "endianness": "little",
+          "machine": 34404,
+          "machine_hex": "0x8664",
+          "dll": true,
+          "subsystem": 2
+        }
+      ],
+      "licenses": [
+        {
+          "path": "LICENSE",
+          "sha256": "6c9d6a40416c8f286d66fc226dcaf7d3b1a215de97dbad1cf21de2ff99c8bc00",
+          "bytes": 33085
+        },
+        {
+          "path": "licenses/hunspell.txt",
+          "sha256": "945cc35220db542027275c0bd312cf0d89626af5ff1fdef952ac77714445d025",
+          "bytes": 76856
+        },
+        {
+          "path": "licenses/libiconv.txt",
+          "sha256": "57242af4e5f8e054ab14ecacf99c88ddc49a6543318601ba75ba996a93ad4bc4",
+          "bytes": 62960
+        },
+        {
+          "path": "licenses/sqlite3.txt",
+          "sha256": "3cafdd9b568b924b234b91f4a24649d509f02643ae727eac6a4e33818288c9c4",
+          "bytes": 71
+        },
+        {
+          "path": "licenses/vcpkg-cmake-config.txt",
+          "sha256": "04b60f99a43bfd7fefdc8364b24aac704a2160cef969b75ba6a38b62dc4c4b70",
+          "bytes": 1096
+        },
+        {
+          "path": "licenses/vcpkg-cmake-get-vars.txt",
+          "sha256": "1ee376fc340e0aa6ad6a3581c94126e741468705096ac92263048a21daa86460",
+          "bytes": 1073
+        },
+        {
+          "path": "licenses/vcpkg-cmake.txt",
+          "sha256": "1ee376fc340e0aa6ad6a3581c94126e741468705096ac92263048a21daa86460",
+          "bytes": 1073
+        },
+        {
+          "path": "licenses/vcpkg-make.txt",
+          "sha256": "a016cb0f66f4aca928d93608f34ba342ecaff292c652793113c8b007bb7b1ad9",
+          "bytes": 19657
+        }
+      ],
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "6c9d6a40416c8f286d66fc226dcaf7d3b1a215de97dbad1cf21de2ff99c8bc00",
+          "bytes": 33085
+        },
+        {
+          "path": "SHA256SUMS",
+          "sha256": "936714792730c02d06032ac26e237deff700c565e04b8ed64fcb28e8557e85ed",
+          "bytes": 1120
+        },
+        {
+          "path": "charset-1.dll",
+          "sha256": "b5f2257e154bda4913651933985c3314dc39794d83b7552c8120ebda315ad36b",
+          "bytes": 11264
+        },
+        {
+          "path": "chord-client.exe",
+          "sha256": "e840e1ef481b68423dcef16dd45db986690e2758b3d517f4e36dc526e355ab17",
+          "bytes": 22502912
+        },
+        {
+          "path": "hunspell-1.7-0.dll",
+          "sha256": "ad14c41804efdf002d54c70a9ed5dcbbbd02ce6c58aabd41785a2afef76e99a3",
+          "bytes": 564736
+        },
+        {
+          "path": "iconv-2.dll",
+          "sha256": "a9bbe78d9351452cd779b4ed3f68e787fc4534f75d20a066e9142e4dfeb07dba",
+          "bytes": 1093120
+        },
+        {
+          "path": "licenses/hunspell.txt",
+          "sha256": "945cc35220db542027275c0bd312cf0d89626af5ff1fdef952ac77714445d025",
+          "bytes": 76856
+        },
+        {
+          "path": "licenses/libiconv.txt",
+          "sha256": "57242af4e5f8e054ab14ecacf99c88ddc49a6543318601ba75ba996a93ad4bc4",
+          "bytes": 62960
+        },
+        {
+          "path": "licenses/sqlite3.txt",
+          "sha256": "3cafdd9b568b924b234b91f4a24649d509f02643ae727eac6a4e33818288c9c4",
+          "bytes": 71
+        },
+        {
+          "path": "licenses/vcpkg-cmake-config.txt",
+          "sha256": "04b60f99a43bfd7fefdc8364b24aac704a2160cef969b75ba6a38b62dc4c4b70",
+          "bytes": 1096
+        },
+        {
+          "path": "licenses/vcpkg-cmake-get-vars.txt",
+          "sha256": "1ee376fc340e0aa6ad6a3581c94126e741468705096ac92263048a21daa86460",
+          "bytes": 1073
+        },
+        {
+          "path": "licenses/vcpkg-cmake.txt",
+          "sha256": "1ee376fc340e0aa6ad6a3581c94126e741468705096ac92263048a21daa86460",
+          "bytes": 1073
+        },
+        {
+          "path": "licenses/vcpkg-make.txt",
+          "sha256": "a016cb0f66f4aca928d93608f34ba342ecaff292c652793113c8b007bb7b1ad9",
+          "bytes": 19657
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "e571c6cc591599f093d054c5dfe06cc2d9ef827f2877535200e1069fdaaf95ae",
+          "bytes": 1773
+        },
+        {
+          "path": "sqlite3.dll",
+          "sha256": "204de4a8599d0c930ba155d11d2ab8737fda40f5c393d7dfeeca0b989304868b",
+          "bytes": 1126400
+        }
+      ],
+      "native_runtime_qualified": false,
+      "payload_executed": false
+    },
+    {
+      "target": "aarch64-apple-darwin",
+      "ok": true,
+      "zip_path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/c0cbd53e-aarch64-apple-darwin/artifact.zip",
+      "archive_sha256": "d04d3ccd050ad19135d6449df78d0b887aa731bf8d81a4bf4e559c770d3db8b7",
+      "archive_bytes": 8628903,
+      "zip_crc_verified": true,
+      "hashes_verified": true,
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "gui_lock_sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+      "build_host": {
+        "platform": "darwin",
+        "arch": "arm64"
+      },
+      "compiler_host": "aarch64-apple-darwin",
+      "binary": {
+        "path": "chord-client",
+        "sha256": "79dc2511aca8de46aacfafa45225dfd0f847dbc7ed8c16a92db284387fc07d91",
+        "bytes": 23340880,
+        "format": "Mach-O64 thin",
+        "architecture": "arm64",
+        "bits": 64,
+        "endianness": "little",
+        "machine": 16777228,
+        "machine_hex": "0x0100000c",
+        "cpu_subtype": 0,
+        "thin": true
+      },
+      "windows_dlls": [],
+      "licenses": [
+        {
+          "path": "LICENSE",
+          "sha256": "6d8575938cdd9875c9544de11e1d60f781df17a6988e68f605011c1bd9d88c94",
+          "bytes": 32463
+        }
+      ],
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "6d8575938cdd9875c9544de11e1d60f781df17a6988e68f605011c1bd9d88c94",
+          "bytes": 32463
+        },
+        {
+          "path": "SHA256SUMS",
+          "sha256": "89aac71eb6116711e45528a70a8338aec25c42c8107711223f0ccc81d03fc96a",
+          "bytes": 153
+        },
+        {
+          "path": "chord-client",
+          "sha256": "79dc2511aca8de46aacfafa45225dfd0f847dbc7ed8c16a92db284387fc07d91",
+          "bytes": 23340880
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "5fa1373416a1c71df7746341811777bcc1ed0e0e54dc6f418b95bea22aa6127c",
+          "bytes": 706
+        }
+      ],
+      "native_runtime_qualified": false,
+      "payload_executed": false
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "ok": true,
+      "zip_path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/c0cbd53e-aarch64-unknown-linux-gnu/artifact.zip",
+      "archive_sha256": "fd054c6371cf621cc286ae1a09f0b872941a182aab9e420a36043ea97b81562d",
+      "archive_bytes": 10821203,
+      "zip_crc_verified": true,
+      "hashes_verified": true,
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "gui_lock_sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+      "build_host": {
+        "platform": "linux",
+        "arch": "arm64"
+      },
+      "compiler_host": "aarch64-unknown-linux-gnu",
+      "binary": {
+        "path": "chord-client",
+        "sha256": "827f3c9a35a7af23d7d5e9c2b2e28149bf0fd1dacc1af41a84f42239a1862ffe",
+        "bytes": 29574792,
+        "format": "ELF64",
+        "architecture": "arm64",
+        "bits": 64,
+        "endianness": "little",
+        "machine": 183,
+        "machine_hex": "0x00b7",
+        "executable_kind": "ET_DYN"
+      },
+      "windows_dlls": [],
+      "licenses": [
+        {
+          "path": "LICENSE",
+          "sha256": "6d8575938cdd9875c9544de11e1d60f781df17a6988e68f605011c1bd9d88c94",
+          "bytes": 32463
+        }
+      ],
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "6d8575938cdd9875c9544de11e1d60f781df17a6988e68f605011c1bd9d88c94",
+          "bytes": 32463
+        },
+        {
+          "path": "SHA256SUMS",
+          "sha256": "c9edeba16da2095f492ab27966dcacf162209747cf15084a0943a4034f03e4c5",
+          "bytes": 153
+        },
+        {
+          "path": "chord-client",
+          "sha256": "827f3c9a35a7af23d7d5e9c2b2e28149bf0fd1dacc1af41a84f42239a1862ffe",
+          "bytes": 29574792
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "1f2234f183546d5494981eabd7ee1eaff96599d676a01f106d15c9a687d1aef7",
+          "bytes": 715
+        }
+      ],
+      "native_runtime_qualified": false,
+      "payload_executed": false
+    },
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "ok": true,
+      "zip_path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/c0cbd53e-x86_64-unknown-linux-gnu/artifact.zip",
+      "archive_sha256": "63a42d2611ba8c91ac27fc618ab396219e4cc7cacc9f48363292b05e7a7e599a",
+      "archive_bytes": 10514555,
+      "zip_crc_verified": true,
+      "hashes_verified": true,
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "gui_lock_sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+      "build_host": {
+        "platform": "linux",
+        "arch": "x64"
+      },
+      "compiler_host": "x86_64-unknown-linux-gnu",
+      "binary": {
+        "path": "chord-client",
+        "sha256": "dc463fce63b11a8bd1e64ba24c14bd7ba60fbb36692356b96947c5a318c957cb",
+        "bytes": 30979400,
+        "format": "ELF64",
+        "architecture": "x64",
+        "bits": 64,
+        "endianness": "little",
+        "machine": 62,
+        "machine_hex": "0x003e",
+        "executable_kind": "ET_DYN"
+      },
+      "windows_dlls": [],
+      "licenses": [
+        {
+          "path": "LICENSE",
+          "sha256": "6d8575938cdd9875c9544de11e1d60f781df17a6988e68f605011c1bd9d88c94",
+          "bytes": 32463
+        }
+      ],
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "6d8575938cdd9875c9544de11e1d60f781df17a6988e68f605011c1bd9d88c94",
+          "bytes": 32463
+        },
+        {
+          "path": "SHA256SUMS",
+          "sha256": "9187aea8ce6a66833d90dfcb1c20f1ff34a6c9fdc67060cecd044b6e4186231d",
+          "bytes": 153
+        },
+        {
+          "path": "chord-client",
+          "sha256": "dc463fce63b11a8bd1e64ba24c14bd7ba60fbb36692356b96947c5a318c957cb",
+          "bytes": 30979400
+        },
+        {
+          "path": "provenance.json",
+          "sha256": "51786f00085c6336a2eb09c379fd00cc87c338eae865db2734f5c0a649c691dd",
+          "bytes": 711
+        }
+      ],
+      "native_runtime_qualified": false,
+      "payload_executed": false
+    }
+  ]
+}

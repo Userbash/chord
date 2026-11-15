@@ -1,0 +1,7 @@
+{
+  "tool": "rustfmt --edition 2024 --emit stdout",
+  "scope": "new deadline snippet in syntactic wrapper only",
+  "unchanged": true,
+  "full_data_rs_formatting_performed": false,
+  "git_diff_check_exit": 0
+}

@@ -1,0 +1,85 @@
+{
+  "reviewer": "/root/arm_review",
+  "created_at_utc": "2026-11-15T21:48:03.880594+00:00",
+  "actual_preserved_test_binaries_executed": true,
+  "cargo_or_builds": false,
+  "cases": [
+    {
+      "case": "original",
+      "command": [
+        "unshare",
+        "--net",
+        "env",
+        "LD_PRELOAD=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v1.so",
+        "CHORD_THREAD_TRACE=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/original.trace",
+        "CHORD_DELAY_CALLSITE=0x4138e5",
+        "CHORD_DELAY_MS=80",
+        "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/original-server-contract-bin",
+        "--exact",
+        "v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "binary_sha256": "1142de083a5d85e7ce91eb3daa1e3524c4cc9cfed1a966c865009a8e9d9057ff",
+      "probe_sha256": "c8f484c121db5b3918ed9adad492571aa5bd72c97151c95c17b27f1b67cf9073",
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/original.log",
+      "log_sha256": "600f81cfc46d1368b7322ed9e489ba4ae206bbaac3dadfa6e3801b6278fdf1f7",
+      "trace": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/original.trace",
+      "trace_sha256": "7ae9138a5039733f4b73e57b18e6deffb2f6dc16e4e64fa33cf49f940061a55a",
+      "selected_coalescer_children": 3,
+      "entry_delays": [
+        {
+          "id": 4,
+          "entry_delay_ms": 80
+        },
+        {
+          "id": 5,
+          "entry_delay_ms": 80
+        },
+        {
+          "id": 7,
+          "entry_delay_ms": 80
+        }
+      ]
+    },
+    {
+      "case": "fixed",
+      "command": [
+        "unshare",
+        "--net",
+        "env",
+        "LD_PRELOAD=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v1.so",
+        "CHORD_THREAD_TRACE=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/fixed.trace",
+        "CHORD_DELAY_CALLSITE=0x4b3065",
+        "CHORD_DELAY_MS=80",
+        "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/fixed-server-contract-bin",
+        "--exact",
+        "v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "binary_sha256": "0f2b7c09a887afc5384e63f571aee4f71aaec6de5f6d9ffef89abb9ad294c77c",
+      "probe_sha256": "c8f484c121db5b3918ed9adad492571aa5bd72c97151c95c17b27f1b67cf9073",
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/fixed.log",
+      "log_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "trace": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/review/runtime/fixed.trace",
+      "trace_sha256": "01b0bf6a0005f717d4043f45bfbf3153bff9b75d97f84cb65eccf86f6ed432f6",
+      "selected_coalescer_children": 3,
+      "entry_delays": [
+        {
+          "id": 4,
+          "entry_delay_ms": 81
+        },
+        {
+          "id": 5,
+          "entry_delay_ms": 80
+        },
+        {
+          "id": 7,
+          "entry_delay_ms": 80
+        }
+      ]
+    }
+  ],
+  "scope": "Linux scheduling reproduction only; exact historical macOS scheduling unobserved"
+}

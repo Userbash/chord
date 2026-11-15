@@ -1,0 +1,21 @@
+{
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "unshare",
+    "--net",
+    "env",
+    "LD_PRELOAD=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v1.so",
+    "CHORD_THREAD_TRACE=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread-fixed-control.trace",
+    "/root/projects/chord-modernization/rust/gui-spike/target/debug/build/chord-client/458e227e89b4f579/out/server_join_and_subscriptions_contract-458e227e89b4f579",
+    "--exact",
+    "v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/fixed-resolve-trace-20261115T213839974672Z.log",
+  "log_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+  "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "source_sha256": "9a524c32a1de609c0b7bb625a5aa4ccbceb6f51804046868a827a7726885b2d1",
+  "test_sha256": "86b6f9c678aa4fdf70281763afdc2f6a0b7b4aeb650e9cafdd33af8f900bbd2f"
+}

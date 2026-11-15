@@ -1,0 +1,18 @@
+{
+  "phase": "mutation-fixed-relative-sleep-build",
+  "command": [
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/coalescing-mutants-4_k7ymt2/rust/gui-spike/Cargo.toml",
+    "--test",
+    "server_join_and_subscriptions_contract",
+    "--no-run",
+    "--message-format=json-render-diagnostics"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-fixed-relative-sleep-build-20261115T214159236366Z.log",
+  "log_sha256": "de6436240094c7e9fe6c6358b39b31e6120ddd644a6cdeea99cbb0a6d180b6f4"
+}

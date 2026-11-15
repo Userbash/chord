@@ -1,0 +1,26 @@
+{
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "unshare",
+    "--net",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--test",
+    "server_join_and_subscriptions_contract",
+    "v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/deadline-targeted-control-20261115T213805001354Z.log",
+  "log_sha256": "e859a47a192d8cb62cd0f8a6570161e1fdc3d813eb5729ba2becd3fbb63c5dcd",
+  "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "source_sha256": "9a524c32a1de609c0b7bb625a5aa4ccbceb6f51804046868a827a7726885b2d1",
+  "test_sha256": "86b6f9c678aa4fdf70281763afdc2f6a0b7b4aeb650e9cafdd33af8f900bbd2f"
+}

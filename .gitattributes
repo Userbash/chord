@@ -6,3 +6,7 @@ functions/ export-ignore
 logs/ export-ignore
 .gate/ export-ignore
 .local/ export-ignore
+
+# Keep Rust source contracts and rustfmt input identical across native checkouts.
+*.rs text eol=lf
+Cargo.lock text eol=lf

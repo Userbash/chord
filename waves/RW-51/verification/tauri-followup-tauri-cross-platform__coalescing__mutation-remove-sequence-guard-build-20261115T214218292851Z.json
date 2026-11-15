@@ -1,0 +1,18 @@
+{
+  "phase": "mutation-remove-sequence-guard-build",
+  "command": [
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/coalescing-mutants-4_k7ymt2/rust/gui-spike/Cargo.toml",
+    "--test",
+    "server_join_and_subscriptions_contract",
+    "--no-run",
+    "--message-format=json-render-diagnostics"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-remove-sequence-guard-build-20261115T214218292851Z.log",
+  "log_sha256": "41a3ef284776ed3274f2a664a9f9534f422f45d6db88c573291ba6eb3be734f1"
+}

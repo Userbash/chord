@@ -1,0 +1,1068 @@
+{
+  "phase": "read_only_adjacent_ci_comparison",
+  "repository": "Userbash/chord",
+  "observed_at": "2026-11-15T21:11:28.275Z",
+  "baseline_commit": "3c4be0c2787856df38e6da8703cb3461b82c0470",
+  "current_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "query_provenance": {
+    "tool": "GitHub connector fetch_commit_workflow_runs / fetch_workflow_run_jobs / fetch_workflow_job_logs",
+    "event_filter_limitation": "Commit workflow wrapper returns pull-request-triggered first-page runs only; named run/job logs were retrieved directly."
+  },
+  "scope": "Three specified adjacent CI failures; not final qualification of native Tauri matrix or remaining in-progress jobs.",
+  "comparisons": [
+    {
+      "check": "qa-browser reconnect fixture",
+      "classification": "same_failure_signature_observed_at_baseline",
+      "baseline": {
+        "run_id": 43757126438,
+        "job_id": 132943545324,
+        "name": "qa-browser",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Pinned Chromium",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "CHROME_BIN",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Preflight: browser required",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Meta: qa-browser contract",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Fixture browser e2e (live excluded)",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 9
+          },
+          {
+            "name": "Validate fixture JUnit (no skips or empty runs)",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10
+          },
+          {
+            "name": "Upload .gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/setup-node@v7",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 21
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ],
+        "job_url": "https://github.com/Userbash/chord/actions/runs/43757126438/job/132943545324",
+        "evidence": [
+          {
+            "log_line": 289,
+            "text": "2026-11-15T20:17:02.0444039Z ℹ tests 13"
+          },
+          {
+            "log_line": 291,
+            "text": "2026-11-15T20:17:02.0444840Z ℹ pass 13"
+          },
+          {
+            "log_line": 292,
+            "text": "2026-11-15T20:17:02.0445138Z ℹ fail 0"
+          },
+          {
+            "log_line": 370,
+            "text": "2026-11-15T20:17:24.2983995Z ℹ tests 18"
+          },
+          {
+            "log_line": 372,
+            "text": "2026-11-15T20:17:24.2993182Z ℹ pass 17"
+          },
+          {
+            "log_line": 373,
+            "text": "2026-11-15T20:17:24.2993565Z ℹ fail 1"
+          },
+          {
+            "log_line": 381,
+            "text": "2026-11-15T20:17:24.2995857Z test at tests/e2e/m2-reconnect.e2e.test.mjs:20:3"
+          },
+          {
+            "log_line": 383,
+            "text": "2026-11-15T20:17:24.3002951Z   Error: waitFor(net-status=reconnecting): не выполнено за 8000 мс; последнее значение: false; ошибка: нет"
+          },
+          {
+            "log_line": 390,
+            "text": "2026-11-15T20:17:24.3087422Z ##[error]Process completed with exit code 1."
+          }
+        ]
+      },
+      "current": {
+        "run_id": 43761825171,
+        "job_id": 132958094789,
+        "name": "qa-browser",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Pinned Chromium",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "CHROME_BIN",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Preflight: browser required",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Meta: qa-browser contract",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Fixture browser e2e (live excluded)",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 9
+          },
+          {
+            "name": "Validate fixture JUnit (no skips or empty runs)",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10
+          },
+          {
+            "name": "Upload .gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/setup-node@v7",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 21
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ],
+        "job_url": "https://github.com/Userbash/chord/actions/runs/43761825171/job/132958094789",
+        "evidence": [
+          {
+            "log_line": 289,
+            "text": "2026-11-15T21:07:17.2508187Z ℹ tests 13"
+          },
+          {
+            "log_line": 291,
+            "text": "2026-11-15T21:07:17.2508953Z ℹ pass 13"
+          },
+          {
+            "log_line": 292,
+            "text": "2026-11-15T21:07:17.2509309Z ℹ fail 0"
+          },
+          {
+            "log_line": 370,
+            "text": "2026-11-15T21:07:39.7265893Z ℹ tests 18"
+          },
+          {
+            "log_line": 372,
+            "text": "2026-11-15T21:07:39.7269032Z ℹ pass 17"
+          },
+          {
+            "log_line": 373,
+            "text": "2026-11-15T21:07:39.7269330Z ℹ fail 1"
+          },
+          {
+            "log_line": 381,
+            "text": "2026-11-15T21:07:39.7274790Z test at tests/e2e/m2-reconnect.e2e.test.mjs:20:3"
+          },
+          {
+            "log_line": 383,
+            "text": "2026-11-15T21:07:39.7279955Z   Error: waitFor(net-status=reconnecting): не выполнено за 8000 мс; последнее значение: false; ошибка: нет"
+          },
+          {
+            "log_line": 390,
+            "text": "2026-11-15T21:07:39.7356178Z ##[error]Process completed with exit code 1."
+          }
+        ]
+      },
+      "matched_signature": "tests/e2e/m2-reconnect.e2e.test.mjs:20; UiFixture.waitFor at :554 and test :36; net-status=reconnecting remains false after 8000 ms.",
+      "causality_limit": "Same observed baseline failure is demonstrated; this comparison does not diagnose its root cause or prove a timing flake."
+    },
+    {
+      "check": "general CI Local CI contract",
+      "classification": "same_preexisting_formatting_hunks_still_fail",
+      "baseline": {
+        "run_id": 43757126438,
+        "job_id": 132943544951,
+        "name": "fmt-clippy-test-bench",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install system dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Local CI contract",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 6
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ],
+        "job_url": "https://github.com/Userbash/chord/actions/runs/43757126438/job/132943544951",
+        "evidence": [
+          {
+            "log_line": 590,
+            "text": "2026-11-15T20:16:54.1542823Z ci: cargo fmt --manifest-path /home/runner/work/chord/chord/rust/Cargo.toml --all -- --check"
+          },
+          {
+            "log_line": 591,
+            "text": "2026-11-15T20:16:54.4067496Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:108:"
+          },
+          {
+            "log_line": 605,
+            "text": "2026-11-15T20:16:54.4080220Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:153:"
+          },
+          {
+            "log_line": 632,
+            "text": "2026-11-15T20:16:54.4088783Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:180:"
+          },
+          {
+            "log_line": 659,
+            "text": "2026-11-15T20:16:54.4097797Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:197:"
+          },
+          {
+            "log_line": 723,
+            "text": "2026-11-15T20:16:54.4117814Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:238:"
+          },
+          {
+            "log_line": 742,
+            "text": "2026-11-15T20:16:54.4123099Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:330:"
+          },
+          {
+            "log_line": 794,
+            "text": "2026-11-15T20:16:55.0936395Z Diff in /home/runner/work/chord/chord/rust/crates/chord-platform/src/rpc_ipc.rs:1451:"
+          },
+          {
+            "log_line": 805,
+            "text": "2026-11-15T20:16:55.0942532Z Diff in /home/runner/work/chord/chord/rust/crates/chord-platform/src/rpc_ipc.rs:2522:"
+          },
+          {
+            "log_line": 815,
+            "text": "2026-11-15T20:16:55.1044400Z Diff in /home/runner/work/chord/chord/rust/crates/chord-platform/src/screencast.rs:1883:"
+          },
+          {
+            "log_line": 825,
+            "text": "2026-11-15T20:16:55.1062487Z Diff in /home/runner/work/chord/chord/rust/crates/chord-platform/src/screencast.rs:1891:"
+          },
+          {
+            "log_line": 835,
+            "text": "2026-11-15T20:16:55.3334442Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:749:"
+          },
+          {
+            "log_line": 845,
+            "text": "2026-11-15T20:16:55.3341773Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:871:"
+          },
+          {
+            "log_line": 857,
+            "text": "2026-11-15T20:16:55.3345966Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:880:"
+          },
+          {
+            "log_line": 869,
+            "text": "2026-11-15T20:16:55.4905154Z ##[error]Process completed with exit code 1."
+          }
+        ]
+      },
+      "current": {
+        "run_id": 43761825171,
+        "job_id": 132958095005,
+        "name": "fmt-clippy-test-bench",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install system dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Local CI contract",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 6
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ],
+        "job_url": "https://github.com/Userbash/chord/actions/runs/43761825171/job/132958095005",
+        "evidence": [
+          {
+            "log_line": 590,
+            "text": "2026-11-15T21:07:09.1980615Z ci: cargo fmt --manifest-path /home/runner/work/chord/chord/rust/Cargo.toml --all -- --check"
+          },
+          {
+            "log_line": 591,
+            "text": "2026-11-15T21:07:09.4433440Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:108:"
+          },
+          {
+            "log_line": 605,
+            "text": "2026-11-15T21:07:09.4446877Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:153:"
+          },
+          {
+            "log_line": 632,
+            "text": "2026-11-15T21:07:09.4455806Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:180:"
+          },
+          {
+            "log_line": 659,
+            "text": "2026-11-15T21:07:09.4464461Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:197:"
+          },
+          {
+            "log_line": 723,
+            "text": "2026-11-15T21:07:09.4484066Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:238:"
+          },
+          {
+            "log_line": 742,
+            "text": "2026-11-15T21:07:09.4489243Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:330:"
+          },
+          {
+            "log_line": 794,
+            "text": "2026-11-15T21:07:10.3516459Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:749:"
+          },
+          {
+            "log_line": 804,
+            "text": "2026-11-15T21:07:10.3523556Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:871:"
+          },
+          {
+            "log_line": 816,
+            "text": "2026-11-15T21:07:10.3528130Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:880:"
+          },
+          {
+            "log_line": 828,
+            "text": "2026-11-15T21:07:10.5038044Z ##[error]Process completed with exit code 1."
+          }
+        ]
+      },
+      "current_hunk_comparison": [
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 108,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 153,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 180,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 197,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 238,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 330,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-voice/src/noise.rs",
+          "line": 749,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-voice/src/noise.rs",
+          "line": 871,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-voice/src/noise.rs",
+          "line": 880,
+          "identical_normalized_hunk_at_baseline": true
+        }
+      ],
+      "baseline_additional_files_no_longer_reported": [
+        "rust/crates/chord-platform/src/rpc_ipc.rs",
+        "rust/crates/chord-platform/src/screencast.rs"
+      ],
+      "limitation": "Command stopped at cargo fmt; later local-CI phases were not qualified by this job."
+    },
+    {
+      "check": "Cross-platform native core Linux formatting",
+      "classification": "same_preexisting_formatting_hunks_still_fail",
+      "baseline": {
+        "run_id": 43757126393,
+        "job_id": 132943571424,
+        "name": "core (ubuntu-24.04)",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Linux native libraries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "macOS native libraries and SDK",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Windows native libraries and SDK",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Bootstrap pinned GPUI dependency",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify GPUI dependency without writes",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Bootstrap and workflow contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Core formatting",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 12
+          },
+          {
+            "name": "Core lint",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Core tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "GUI formatting",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "GUI lint",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 16
+          },
+          {
+            "name": "GUI build",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 17
+          },
+          {
+            "name": "GUI tests",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 18
+          },
+          {
+            "name": "GUI headless smoke",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 19
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 36
+          },
+          {
+            "name": "Post Run actions/setup-node@v7",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 37
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 38
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 39
+          }
+        ],
+        "job_url": "https://github.com/Userbash/chord/actions/runs/43757126393/job/132943571424",
+        "evidence": [
+          {
+            "log_line": 1638,
+            "text": "2026-11-15T20:17:20.8092114Z ##[group]Run cargo fmt --manifest-path rust/Cargo.toml --check"
+          },
+          {
+            "log_line": 1649,
+            "text": "2026-11-15T20:17:20.9736497Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:108:"
+          },
+          {
+            "log_line": 1663,
+            "text": "2026-11-15T20:17:20.9741231Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:153:"
+          },
+          {
+            "log_line": 1690,
+            "text": "2026-11-15T20:17:20.9749572Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:180:"
+          },
+          {
+            "log_line": 1717,
+            "text": "2026-11-15T20:17:20.9758800Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:197:"
+          },
+          {
+            "log_line": 1781,
+            "text": "2026-11-15T20:17:20.9780042Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:238:"
+          },
+          {
+            "log_line": 1800,
+            "text": "2026-11-15T20:17:20.9785722Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:330:"
+          },
+          {
+            "log_line": 1852,
+            "text": "2026-11-15T20:17:21.3869932Z Diff in /home/runner/work/chord/chord/rust/crates/chord-platform/src/rpc_ipc.rs:1451:"
+          },
+          {
+            "log_line": 1863,
+            "text": "2026-11-15T20:17:21.3874738Z Diff in /home/runner/work/chord/chord/rust/crates/chord-platform/src/rpc_ipc.rs:2522:"
+          },
+          {
+            "log_line": 1873,
+            "text": "2026-11-15T20:17:21.3943446Z Diff in /home/runner/work/chord/chord/rust/crates/chord-platform/src/screencast.rs:1883:"
+          },
+          {
+            "log_line": 1883,
+            "text": "2026-11-15T20:17:21.3947766Z Diff in /home/runner/work/chord/chord/rust/crates/chord-platform/src/screencast.rs:1891:"
+          },
+          {
+            "log_line": 1893,
+            "text": "2026-11-15T20:17:21.5347592Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:749:"
+          },
+          {
+            "log_line": 1903,
+            "text": "2026-11-15T20:17:21.5352769Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:871:"
+          },
+          {
+            "log_line": 1915,
+            "text": "2026-11-15T20:17:21.5357613Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:880:"
+          },
+          {
+            "log_line": 1927,
+            "text": "2026-11-15T20:17:21.6300868Z ##[error]Process completed with exit code 1."
+          }
+        ]
+      },
+      "current": {
+        "run_id": 43761825239,
+        "job_id": 132958095165,
+        "name": "core (ubuntu-24.04)",
+        "status": "completed",
+        "conclusion": "failure",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run dtolnay/rust-toolchain@stable",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Linux native libraries",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "macOS native libraries and SDK",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Windows native libraries and SDK",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Bootstrap pinned GPUI dependency",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify GPUI dependency without writes",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Bootstrap and workflow contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Core formatting",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 12
+          },
+          {
+            "name": "Core lint",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Core tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "GUI formatting",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "GUI lint",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 16
+          },
+          {
+            "name": "GUI build",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 17
+          },
+          {
+            "name": "GUI tests",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 18
+          },
+          {
+            "name": "GUI headless smoke",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 19
+          },
+          {
+            "name": "Post Run Swatinem/rust-cache@v2",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 36
+          },
+          {
+            "name": "Post Run actions/setup-node@v7",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 37
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 38
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 39
+          }
+        ],
+        "job_url": "https://github.com/Userbash/chord/actions/runs/43761825239/job/132958095165",
+        "evidence": [
+          {
+            "log_line": 1640,
+            "text": "2026-11-15T21:08:08.5827772Z ##[group]Run cargo fmt --manifest-path rust/Cargo.toml --check"
+          },
+          {
+            "log_line": 1651,
+            "text": "2026-11-15T21:08:08.7950311Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:108:"
+          },
+          {
+            "log_line": 1665,
+            "text": "2026-11-15T21:08:08.7956792Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:153:"
+          },
+          {
+            "log_line": 1692,
+            "text": "2026-11-15T21:08:08.7964993Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:180:"
+          },
+          {
+            "log_line": 1719,
+            "text": "2026-11-15T21:08:08.7973179Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:197:"
+          },
+          {
+            "log_line": 1783,
+            "text": "2026-11-15T21:08:08.7993009Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:238:"
+          },
+          {
+            "log_line": 1802,
+            "text": "2026-11-15T21:08:08.7998608Z Diff in /home/runner/work/chord/chord/rust/crates/chord-core/src/soundshare.rs:330:"
+          },
+          {
+            "log_line": 1854,
+            "text": "2026-11-15T21:08:09.5174805Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:749:"
+          },
+          {
+            "log_line": 1864,
+            "text": "2026-11-15T21:08:09.5182093Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:871:"
+          },
+          {
+            "log_line": 1876,
+            "text": "2026-11-15T21:08:09.5188067Z Diff in /home/runner/work/chord/chord/rust/crates/chord-voice/src/noise.rs:880:"
+          },
+          {
+            "log_line": 1888,
+            "text": "2026-11-15T21:08:09.6403478Z ##[error]Process completed with exit code 1."
+          }
+        ]
+      },
+      "current_hunk_comparison": [
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 108,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 153,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 180,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 197,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 238,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-core/src/soundshare.rs",
+          "line": 330,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-voice/src/noise.rs",
+          "line": 749,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-voice/src/noise.rs",
+          "line": 871,
+          "identical_normalized_hunk_at_baseline": true
+        },
+        {
+          "file": "rust/crates/chord-voice/src/noise.rs",
+          "line": 880,
+          "identical_normalized_hunk_at_baseline": true
+        }
+      ],
+      "limitation": "Formatting failure precedes core tests. Other cross-platform jobs were still in progress at the queried snapshot."
+    }
+  ],
+  "new_failure_identified_within_compared_scope": false,
+  "all_current_formatting_hunks_match_baseline": true,
+  "native_tauri_run_outside_this_classification": 43761825263,
+  "local_actions": {
+    "application_changes": false,
+    "index_changes": false,
+    "docs_changes": false,
+    "cargo_commands": [],
+    "full_test_rerun": false
+  },
+  "source_comparison": [
+    {
+      "path": "tests/e2e/m2-reconnect.e2e.test.mjs",
+      "baseline_sha256": "32ace3c544cd3363b0f9c4dfa75e9541fb953e19bbd94606beeeb4b60e3f2095",
+      "current_sha256": "32ace3c544cd3363b0f9c4dfa75e9541fb953e19bbd94606beeeb4b60e3f2095",
+      "byte_identical": true
+    },
+    {
+      "path": "tests/helpers/ui-fixture.mjs",
+      "baseline_sha256": "7df36c99fcff8bd0b94f9eb08de79d0483bb394720e943e76e2df83130d2b3da",
+      "current_sha256": "7df36c99fcff8bd0b94f9eb08de79d0483bb394720e943e76e2df83130d2b3da",
+      "byte_identical": true
+    },
+    {
+      "path": "rust/crates/chord-core/src/soundshare.rs",
+      "baseline_sha256": "5465455c53c6f6be1d4e813129c9ba869dbf94c462da1d363a0d42badeb84b9f",
+      "current_sha256": "5465455c53c6f6be1d4e813129c9ba869dbf94c462da1d363a0d42badeb84b9f",
+      "byte_identical": true
+    },
+    {
+      "path": "rust/crates/chord-voice/src/noise.rs",
+      "baseline_sha256": "09b7cd8cf28905284b8f3e5cac4855e3ae5ec9a45f46a2a171c49e4ca71436fe",
+      "current_sha256": "09b7cd8cf28905284b8f3e5cac4855e3ae5ec9a45f46a2a171c49e4ca71436fe",
+      "byte_identical": true
+    }
+  ]
+}

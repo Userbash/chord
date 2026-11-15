@@ -1,0 +1,759 @@
+{
+  "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "run_id": 43761825263,
+  "run_url": "https://github.com/Userbash/chord/actions/runs/43761825263",
+  "jobs": [
+    {
+      "id": 132958094762,
+      "name": "Tauri (x86_64-unknown-linux-gnu)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record native build environment",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Linux Tauri libraries",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "macOS Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Configure Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Restore Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Windows Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Tauri release compilation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tauri contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native identity contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native platform contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stage compiled binary and provenance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Tauri build artifact",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 132958094933,
+      "name": "Tauri (aarch64-unknown-linux-gnu)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record native build environment",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Linux Tauri libraries",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "macOS Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Configure Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Restore Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Windows Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Tauri release compilation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tauri contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native identity contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native platform contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stage compiled binary and provenance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Tauri build artifact",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 132958094960,
+      "name": "Tauri (aarch64-pc-windows-msvc)",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record native build environment",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Linux Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "macOS Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Configure Windows package cache",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Restore Windows package cache",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Windows Tauri libraries",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tauri release compilation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tauri contracts",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Native identity contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native platform contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stage compiled binary and provenance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Tauri build artifact",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save Windows package cache",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 132958094971,
+      "name": "Tauri (x86_64-apple-darwin)",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record native build environment",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Linux Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "macOS Tauri libraries",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Configure Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Restore Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Windows Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Tauri release compilation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tauri contracts",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Native identity contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native platform contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stage compiled binary and provenance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Tauri build artifact",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 132958094994,
+      "name": "Tauri (aarch64-apple-darwin)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record native build environment",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Linux Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "macOS Tauri libraries",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Configure Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Restore Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Windows Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Tauri release compilation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tauri contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native identity contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native platform contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stage compiled binary and provenance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Tauri build artifact",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save Windows package cache",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 132958095094,
+      "name": "Tauri (x86_64-pc-windows-msvc)",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run dtolnay/rust-toolchain@stable",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record native build environment",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Linux Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "macOS Tauri libraries",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Configure Windows package cache",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Restore Windows package cache",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Windows Tauri libraries",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tauri release compilation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Tauri contracts",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Native identity contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Native platform contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stage compiled binary and provenance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Upload Tauri build artifact",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Save Windows package cache",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run Swatinem/rust-cache@v2",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v7",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 14181813066,
+      "name": "tauri-aarch64-pc-windows-msvc",
+      "digest": "sha256:b7222ec18eb0e23955cd85d12adaeb0c0a1a3d032f9b9b83bf77ed9c294449a7",
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "size": 9817323
+    },
+    {
+      "id": 14181421253,
+      "name": "tauri-x86_64-apple-darwin",
+      "digest": "sha256:cd4b1333b6ec0e4bda1cbb9b98232b9952c49b9b00929ceeab0a872db6630d30",
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "size": 8786215
+    },
+    {
+      "id": 14181139589,
+      "name": "tauri-x86_64-pc-windows-msvc",
+      "digest": "sha256:117871a3909092df89269bb56b90f36a5f2ca3662b7127a354e255d69d77ef29",
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "size": 10342828
+    },
+    {
+      "id": 14181077729,
+      "name": "tauri-aarch64-apple-darwin",
+      "digest": "sha256:d04d3ccd050ad19135d6449df78d0b887aa731bf8d81a4bf4e559c770d3db8b7",
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "size": 8628903
+    },
+    {
+      "id": 14180554689,
+      "name": "tauri-aarch64-unknown-linux-gnu",
+      "digest": "sha256:fd054c6371cf621cc286ae1a09f0b872941a182aab9e420a36043ea97b81562d",
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "size": 10821203
+    },
+    {
+      "id": 14180383151,
+      "name": "tauri-x86_64-unknown-linux-gnu",
+      "digest": "sha256:63a42d2611ba8c91ac27fc618ab396219e4cc7cacc9f48363292b05e7a7e599a",
+      "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+      "size": 10514555
+    }
+  ]
+}

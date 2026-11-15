@@ -879,6 +879,342 @@
       "archive_sha256": "f8be07f16af4bbdea4fb8ff1d5492ae020e1151fdd1aeb7b5d710e03c78c85f2"
     },
     {
+      "file": "tauri-followup-rust-dependencies__tauri-deadline-eol-linux-release-20261115T214746246074Z.log.gz",
+      "raw_bytes": 546,
+      "raw_sha256": "cd6eeb6a1be1aa6b8abcf5d936b600d9dd4b5f20950370ed584c462ece5f23fe",
+      "archive_sha256": "041cdad5b4712c60af331a1ac7b5a0c5dbbbd73dcb633cc88cd81e0732b82f6d"
+    },
+    {
+      "file": "tauri-followup-rust-dependencies__tauri-deadline-eol-worker-final-20261115T214520271947Z.log.gz",
+      "raw_bytes": 4610,
+      "raw_sha256": "ab2bf299f5f69b9c42e5a13fda15b7e381e747d7c14fe5e4ead4f8e18ea65efd",
+      "archive_sha256": "547207377456352ec5f5fd6e3dc96775fe19a7688a1783be270e6d3e9727d27b"
+    },
+    {
+      "file": "tauri-followup-rust-dependencies__tauri-lock-checkout-eol-green-20261115T213801873587Z.log.gz",
+      "raw_bytes": 1875,
+      "raw_sha256": "d5a8c02eada8713b63c63c9f8939a6d14fb745db63712f98fff2247d2fc5d843",
+      "archive_sha256": "3f7d6e8c2ef6f253ea9d0ac21f5a2b64e679682b4bd36d6de9421747bac5275e"
+    },
+    {
+      "file": "tauri-followup-rust-dependencies__tauri-lock-checkout-eol-red-20261115T213801069908Z.log.gz",
+      "raw_bytes": 2211,
+      "raw_sha256": "fba01ad95cbf617b947bc5c1e77d455a424eb77bce5a6dd8508afb77e866b8d3",
+      "archive_sha256": "860c783ea1bbc29be41b99317ee25d996d9d35748faa2e449408906e3d16f662"
+    },
+    {
+      "file": "tauri-followup-rust-dependencies__tauri-rust-checkout-eol-green-20261115T213339804231Z.log.gz",
+      "raw_bytes": 1863,
+      "raw_sha256": "1f57b4852f3df4e74eb069b5c02e3739f6bcd8a1b52a3668304d4e87cea3ad0a",
+      "archive_sha256": "d0bdb2b89014c847f9271ed5397dedb88267dd401294ed658381988dad69b4a9"
+    },
+    {
+      "file": "tauri-followup-rust-dependencies__tauri-rust-checkout-eol-isolated-green-20261115T213459283403Z.log.gz",
+      "raw_bytes": 1866,
+      "raw_sha256": "784947a0d97e726bee31ced4cfc7f02fa36ab5d2cb0dd302724037fd5fdf7fbb",
+      "archive_sha256": "899030f9e60fa69342b942610728b295c53d184b57bd7033ea9b1d2c8233e3b8"
+    },
+    {
+      "file": "tauri-followup-rust-dependencies__tauri-rust-checkout-eol-isolated-types-20261115T213459278690Z.log.gz",
+      "raw_bytes": 87,
+      "raw_sha256": "c9abc238a72081f5b225a3bad84761e2ce20f02e786e51bb6ecc075747575b81",
+      "archive_sha256": "f56c45603463facf714d3b7f789f04d1be4d40e8c7b4dd758013e0f86eb718ce"
+    },
+    {
+      "file": "tauri-followup-rust-dependencies__tauri-rust-checkout-eol-red-20261115T213310719529Z.log.gz",
+      "raw_bytes": 2196,
+      "raw_sha256": "4a19d0f5b0c2694afd90a93bef96d59a932311b04de880c4218860d6c5a45f81",
+      "archive_sha256": "e90f096000733d29b30075244bca59bdbd8d791f8d1deb6f319829db4b395145"
+    },
+    {
+      "file": "tauri-followup-rust-dependencies__tauri-rust-checkout-eol-typecheck-20261115T213339814542Z.log.gz",
+      "raw_bytes": 87,
+      "raw_sha256": "c9abc238a72081f5b225a3bad84761e2ce20f02e786e51bb6ecc075747575b81",
+      "archive_sha256": "f56c45603463facf714d3b7f789f04d1be4d40e8c7b4dd758013e0f86eb718ce"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__canonical-seven-contracts-20261115T214457197377Z.log.gz",
+      "raw_bytes": 1196,
+      "raw_sha256": "238a7390ad7841453fc9ce1abab9b771bdafc46453b2948b786fd8a6e804fedf",
+      "archive_sha256": "f1756103a63bdbcdb3f6d32b5b749e28d9e31e759e9790df4132adfa94716380"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__deadline-targeted-control-20261115T213805001354Z.log.gz",
+      "raw_bytes": 634,
+      "raw_sha256": "e859a47a192d8cb62cd0f8a6570161e1fdc3d813eb5729ba2becd3fbb63c5dcd",
+      "archive_sha256": "42aa1f79be24390bde1543be76ccdbbd942dbd0d6a4b3c4e37d1fae3d7d81334"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__delayed-worker-deadline-green-20261115T213859140291Z.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "archive_sha256": "8e61881e2bc584c02a0a878e34b9df17b7cdd2acf039ae1d2e3b03e876fe02c6"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__delayed-worker-original-red-20261115T213649674391Z.log.gz",
+      "raw_bytes": 782,
+      "raw_sha256": "929fd66235ed12ca8583ebf53299c83241828ef8e2a4b379f9f55cf658bff549",
+      "archive_sha256": "99d40d799ed7d925fdf9605190b9c7061ee1165072243eb9b8ab61d86725e02a"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__external-trace-control-20261115T213621528277Z.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "archive_sha256": "8e61881e2bc584c02a0a878e34b9df17b7cdd2acf039ae1d2e3b03e876fe02c6"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__fixed-resolve-trace-20261115T213839974672Z.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "archive_sha256": "8e61881e2bc584c02a0a878e34b9df17b7cdd2acf039ae1d2e3b03e876fe02c6"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__focused-linux-baseline-20261115T213213356037Z.log.gz",
+      "raw_bytes": 634,
+      "raw_sha256": "f39dfcabeef27426cb635f8e1201ba722958d9afc06f9b1eff27e73df4fa36b2",
+      "archive_sha256": "dc9a7f4c36f1e5ed4d14ee59894df5b083fc2f549e8f63d59e866ac039e4f247"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-build-20261115T214149235922Z.log.gz",
+      "raw_bytes": 454620,
+      "raw_sha256": "c1468da684832905a55f1c8e3447214583280fc7a9ebe74c9f06649e60f6833f",
+      "archive_sha256": "2df2a8b728d77766f20a0ddc0176bdcef650500909682fea37d42b1138e2165d"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-delayed-20261115T214158970129Z.log.gz",
+      "raw_bytes": 782,
+      "raw_sha256": "a09a89742f284a8a97b03bd6bcdc53fbb59fa573d94390af2242af554721d13e",
+      "archive_sha256": "92148a64b6f685073664ca8fc441c5a59bf28e343f86923c59a57aef11df3531"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-delayed.trace.gz",
+      "raw_bytes": 1759,
+      "raw_sha256": "933b5d411fac7bac21f26c69d268a163d79685dc3efff102155b4d4b72f37adb",
+      "archive_sha256": "f0879b0fd23c7e13432ffca1a9d7bb4f78d9261579b68a0ddaddc83aad97e2f1"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-resolve-20261115T214153480707Z.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "archive_sha256": "8e61881e2bc584c02a0a878e34b9df17b7cdd2acf039ae1d2e3b03e876fe02c6"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-arm-inside-worker-resolve.trace.gz",
+      "raw_bytes": 1846,
+      "raw_sha256": "6e89f0c0daba7a11a400fcdc7043dd7b84497dd442e30138b65df5e32d4fcaf0",
+      "archive_sha256": "3eb8453328bf3d8b6ecfa6b54cc9439f33f117a41f9b3dfeb6632679d7bee289"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-control-build-20261115T214125435992Z.log.gz",
+      "raw_bytes": 456290,
+      "raw_sha256": "8cd776f72a9744b0305ba92b3aa3b55004b11985ec5772572b3a60d20ad456c9",
+      "archive_sha256": "57770f8a210fed16bcf2a9992fe613b37f7dddd164bd712521c92adb6281fd08"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-control-delayed-20261115T214148751892Z.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "archive_sha256": "8e61881e2bc584c02a0a878e34b9df17b7cdd2acf039ae1d2e3b03e876fe02c6"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-control-delayed.trace.gz",
+      "raw_bytes": 1870,
+      "raw_sha256": "593a549470dd550a534a6684d71b3d91ee91de382a26eeac06280a04cbd37f40",
+      "archive_sha256": "8344739b752a76cf101224ac5442fd133ac0f28514455ef07acffe921d8b5c75"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-control-early-observer-20261115T214148968004Z.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "fe159dbccd07f4f3e40c10374582d0b1661baa67cf4444c606abef8d600350b5",
+      "archive_sha256": "6319dcad06cc27aaaec9df546c5e27e5c0f1a6f53e0bda473779a4dd7a3ae351"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-control-early-observer.trace.gz",
+      "raw_bytes": 2131,
+      "raw_sha256": "b6cf8fc3d5abafa7ac5d3294000d737bf7cbbe19dcb616f650665d04ab09c107",
+      "archive_sha256": "03d18a624f35e6de9523510a72ec19071bdd05bf2a77c5f5d7a8a70c3866dc00"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-control-resolve-20261115T214143444068Z.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "archive_sha256": "8e61881e2bc584c02a0a878e34b9df17b7cdd2acf039ae1d2e3b03e876fe02c6"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-control-resolve.trace.gz",
+      "raw_bytes": 1846,
+      "raw_sha256": "62f456bcb40c643327199fe928dc41215a60b37d3b2028dabf045a5699e383f2",
+      "archive_sha256": "9fba8793b065f99166a86a8e1ac56da419c9b9a774a34684c9baf44c6091b421"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-build-20261115T214208911883Z.log.gz",
+      "raw_bytes": 455092,
+      "raw_sha256": "b80c1a91e177e53ebdc78a1bef7d38214421e4ef2bc574c0046da4789cdc5063",
+      "archive_sha256": "b583ba1a63d07627684fc4ad4e3b155ad933520d764c53f3fcdf6dfbdb82c2e2"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-early-observer-20261115T214218202987Z.log.gz",
+      "raw_bytes": 799,
+      "raw_sha256": "747aec62df600e1f3c53ab428795f4e0b2c1ee3774871147757770b491d8c61b",
+      "archive_sha256": "2f881acd65b53ba3fb228e2a707baa99fff32d0562975a2d394369e7cb39094f"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-early-observer.trace.gz",
+      "raw_bytes": 2131,
+      "raw_sha256": "38ae8ea50d5d734fd57d29dd648edcb6fae0ebc8c03478edf570017080c146a2",
+      "archive_sha256": "2f099d27879d5438a78e04887ea77fa2cfab0822653d3de47ae3c9158da3a1b8"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-resolve-20261115T214212687182Z.log.gz",
+      "raw_bytes": 723,
+      "raw_sha256": "3f4d67030c65125d47793293232a80d039d1b897ee1bdae3c624dc6e56e7d5ca",
+      "archive_sha256": "31b4e225e82a97a81ff5064bac1da3195bbd0b31a3c0e27204dc5b7a8fe14a03"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-early-send-resolve.trace.gz",
+      "raw_bytes": 1846,
+      "raw_sha256": "72f0513eaa9b37aa803a07b08a8b5b3523613042f85916d28b27267f3fc545bf",
+      "archive_sha256": "4fb930161678ab54aeb48ae67981f4ee2df30ba7478374d21ba2adb98909edc5"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-build-20261115T214159236366Z.log.gz",
+      "raw_bytes": 455092,
+      "raw_sha256": "de6436240094c7e9fe6c6358b39b31e6120ddd644a6cdeea99cbb0a6d180b6f4",
+      "archive_sha256": "782a274ffae6464f3c94ed797f05cdf70935a7f34ccb741c5f050617c53fe8df"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-delayed-20261115T214208645967Z.log.gz",
+      "raw_bytes": 782,
+      "raw_sha256": "ad729688b195ac2e7b7e9347559aca09f0465086160c93edc6bb2f834d7c1a27",
+      "archive_sha256": "8f13138b27ed10cbcef48ae412614a42eaa9e39ada77362b388d923dcebb78eb"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-delayed.trace.gz",
+      "raw_bytes": 1759,
+      "raw_sha256": "360bce4cf397a8cc7a812b96078e86d7eb1fe4c06d6eb03f0ea0c02d3e9d3388",
+      "archive_sha256": "467b58d958905b99aec8599e948058e2c10e260ea3313f16a08f8ff9460a141f"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-resolve-20261115T214203060560Z.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "archive_sha256": "8e61881e2bc584c02a0a878e34b9df17b7cdd2acf039ae1d2e3b03e876fe02c6"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-fixed-relative-sleep-resolve.trace.gz",
+      "raw_bytes": 1846,
+      "raw_sha256": "dcd4429492e5a0dfd482ca5cf865f8264beceaa1c806d3bfdf71a79d1f7d87c2",
+      "archive_sha256": "2150efee85f9ca275059585db4b7f595422fa28334013f48d057d205a3742607"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-build-20261115T214218292851Z.log.gz",
+      "raw_bytes": 455114,
+      "raw_sha256": "41a3ef284776ed3274f2a664a9f9534f422f45d6db88c573291ba6eb3be734f1",
+      "archive_sha256": "169a7a6f6f806c100911a684cda778dc566cde967a1204c4726b36e0b1149e4c"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-delayed-20261115T214229713708Z.log.gz",
+      "raw_bytes": 782,
+      "raw_sha256": "2817eb28c1e0feb948a073b7f45ab7da4854bca89f37907dbc39e3bda0de878c",
+      "archive_sha256": "563776fc37c0e8b651869f42a66030b7a37384d70870688ebee8896fe5fc848e"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-delayed.trace.gz",
+      "raw_bytes": 1870,
+      "raw_sha256": "31171c1789ace6bb40a9b293f2d206f9dd6fdfd6b285cd0c88d8fc3cbbd344f4",
+      "archive_sha256": "ee0774739aefa9a546a2b70b3a5d96097f14fd0ed3749f175569f21ebfc34da9"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-resolve-20261115T214224255261Z.log.gz",
+      "raw_bytes": 782,
+      "raw_sha256": "3facc811feb53c72c0de0ae6d910133ee5c771b0cfb5d74d53eea2e691b4f047",
+      "archive_sha256": "2f67701045943df5670d96280ba8dcf0aebecbc8b59ee89077b2975069af8e67"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-remove-sequence-guard-resolve.trace.gz",
+      "raw_bytes": 1846,
+      "raw_sha256": "31cf9b53b8ddb9c8c0117491636aa5bff5e65b4fd027ae6bd7eef8dc0b9bee13",
+      "archive_sha256": "e3a53ccffb7598aadbe4330b2d1f5cb90b693387461495545d1a7e6ad9e86604"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-build-20261115T214229981187Z.log.gz",
+      "raw_bytes": 454620,
+      "raw_sha256": "5ce46b0a4eb226ea47aacc07fe7b0b1d9ca12b8adb4832500632554ae34371e5",
+      "archive_sha256": "91b6c7c6b0938a0cf5100efc77896b384fa4a84253b8e1dbdb2eb16c361e10c9"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-delayed-20261115T214240597865Z.log.gz",
+      "raw_bytes": 737,
+      "raw_sha256": "3c88f3058a78bb6188c4ccc518f1ad39bacc0af8c309ddfcaba445efef467483",
+      "archive_sha256": "b7886032fb1cff8ea45550a91a1bdd6c30c5a7c4f6eca904ddd7f7780e8a2f17"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-delayed.trace.gz",
+      "raw_bytes": 1870,
+      "raw_sha256": "b309b81b3bfe4f0c8df15dcb6346cdb8fb9363a1b6133d6a8107a7504965f9c0",
+      "archive_sha256": "57831f7fa7408838ab137c308cfd1b352cf066bbd7f6811bf3a309882d6f4325"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-resolve-20261115T214235309359Z.log.gz",
+      "raw_bytes": 737,
+      "raw_sha256": "a25bd58fb128947fd37e7c148e164be963f9836a2f38eb52c2d242fcd3fa900b",
+      "archive_sha256": "908a4626254409952febb4a2a65e1e5764da589d5ee669dba2d8369586d36049"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__mutation-wrong-final-flags-resolve.trace.gz",
+      "raw_bytes": 1846,
+      "raw_sha256": "71a5d206cc63f70fac177b07d2cb088fd47dbcf36c2f2652fdfbd4581a0ff9a0",
+      "archive_sha256": "eea0a2d85c5389ca216c1c0409a77a7c82d97bae63d79ffab1ee50343281b590"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__review__runtime__fixed.log.gz",
+      "raw_bytes": 289,
+      "raw_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8",
+      "archive_sha256": "8e61881e2bc584c02a0a878e34b9df17b7cdd2acf039ae1d2e3b03e876fe02c6"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__review__runtime__fixed.trace.gz",
+      "raw_bytes": 1722,
+      "raw_sha256": "01b0bf6a0005f717d4043f45bfbf3153bff9b75d97f84cb65eccf86f6ed432f6",
+      "archive_sha256": "1e65e32a818d35c7e9ac4030f5a435e1f43f79c3efbb7e421d65f13a5b8a16f7"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__review__runtime__original.log.gz",
+      "raw_bytes": 782,
+      "raw_sha256": "600f81cfc46d1368b7322ed9e489ba4ae206bbaac3dadfa6e3801b6278fdf1f7",
+      "archive_sha256": "3fdf929cde9f607b64ede8c9c39384b1ebc462fe196b11339c6bd84d0c21fc3f"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__review__runtime__original.trace.gz",
+      "raw_bytes": 1722,
+      "raw_sha256": "7ae9138a5039733f4b73e57b18e6deffb2f6dc16e4e64fa33cf49f940061a55a",
+      "archive_sha256": "155d4db5f30b8551b5ce204f98cd1b0fd1023cbe48d5668b582800607514e891"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__thread-control.trace.gz",
+      "raw_bytes": 1698,
+      "raw_sha256": "87395b36cac6f395b4af3b8dc39a1dcb25a56611b5cbd27c28f7b2883f89f776",
+      "archive_sha256": "3d2bf108c24dcf3ae10acbce3f0a73381459486dc6e7e34255f691bcb007ab71"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__thread-delayed-deadline.trace.gz",
+      "raw_bytes": 1722,
+      "raw_sha256": "b391fd44223df98815269752cf4cbe65b2ab33c1b3d890bd33067979950b2075",
+      "archive_sha256": "6dc88ddbdea3266b530ca5e5268161862e6309ca781627d6b01a5fb1bec7b369"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__thread-delayed-original.trace.gz",
+      "raw_bytes": 1722,
+      "raw_sha256": "2e64fee9daa3e5e6d96bfddfea08e37ca168a285934a34ae8d396f3688170803",
+      "archive_sha256": "dfb1c8569952e473f3d476e551caf0d727b42e2db0ece45c28de162c20568044"
+    },
+    {
+      "file": "tauri-followup-tauri-cross-platform__coalescing__thread-fixed-control.trace.gz",
+      "raw_bytes": 1698,
+      "raw_sha256": "c7edeb2c425972d2ed1f4d4f1e7ffddb7a083061d3477fe54ad4caab4d7939d5",
+      "archive_sha256": "0c3cbc96b27483f4d52df00e2f2680e126aa99d8359d8cc798a96b2481cccd52"
+    },
+    {
       "file": "tauri-source-rust-dependencies__tauri-native-final-actionlint-20261115T205659612258Z.log.gz",
       "raw_bytes": 0,
       "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",

@@ -1,0 +1,16 @@
+diff --git a/rust/gui-spike/src/data.rs b/rust/gui-spike/src/data.rs
+index 09903a7d..5aa37d5b 100644
+--- a/rust/gui-spike/src/data.rs
++++ b/rust/gui-spike/src/data.rs
+@@ -5278,8 +5278,10 @@ pub fn connect_or_update_live_voice_ext(
+         let gid_for_timer = clean_gid.clone();
+         let cid_for_timer = clean_cid.clone();
+         let uid_for_timer = self_uid.clone();
++        // Anchor the window to the caller; a delayed worker must not restart it.
++        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(120);
+         std::thread::spawn(move || {
+-            std::thread::sleep(std::time::Duration::from_millis(120));
++            std::thread::sleep(deadline.saturating_duration_since(std::time::Instant::now()));
+             let should_send = {
+                 let mut guard = live_session()
+                     .lock()

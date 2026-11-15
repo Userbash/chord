@@ -1,0 +1,115 @@
+{
+  "reviewer": "/root/arm_review",
+  "reviewed_at_utc": "2026-11-15T21:46:07.694098+00:00",
+  "scope": "Addendum to approved Rust LF checkout fix: Cargo.lock checkout bytes only",
+  "verdict": "approve_cargo_lock_lf_checkout_extension",
+  "findings": [],
+  "contract_review": {
+    "rule": "Cargo.lock text eol=lf",
+    "rule_applies_by_basename_to_nested_lockfiles": true,
+    "actual_cargo_locks_not_changed": true,
+    "prior43_ci_and_rust_eol_assertions_retained": true,
+    "two_additional_strict_lock_assertions": true,
+    "hermetic_real_git_checkout_with_autocrlf_true_retained": true
+  },
+  "independent_execution": {
+    "targeted_tests": {
+      "tests": 17,
+      "suites": 2,
+      "pass": 17,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "global_attributes_and_inherited_git_environment_probe_passes": true,
+    "five_bad_lock_attribute_mutations_killed": [
+      "delete-lock-rule",
+      "force-lock-crlf",
+      "wrong-lock-basename",
+      "later-lock-crlf-override",
+      "reset-lock-eol"
+    ],
+    "strict_actual_lock_lf_assertion_killed_every_mutant": true
+  },
+  "artifact_provenance": {
+    "canonical_lock_sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+    "crlf_lock_sha256": "d2f42f25bf12a2da015526f35887742b18bbc12012aadd987718daa505d0746d",
+    "actual_windows_artifact_provenance_matches": true,
+    "archive": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/c0cbd53e-x86_64-pc-windows-msvc/artifact.zip",
+    "archive_sha256": "117871a3909092df89269bb56b90f36a5f2ca3662b7127a354e255d69d77ef29",
+    "artifact_source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e"
+  },
+  "provenance_limits": "Verified local ZIP hash and raw provenance.json, and exact LF-to-CRLF transform of Git source lock; did not execute native artifact or claim all platforms qualified",
+  "author_red_green_receipts_inspected": {
+    "red_exit": 1,
+    "green_exit": 0,
+    "all_three_lock_hashes_before_after_unchanged": true
+  },
+  "files": [
+    {
+      "path": "/root/projects/chord-modernization/.gitattributes",
+      "sha256": "dbc2b902a2f87e1e3ad249c13ff9b7815cae638c510d351d86929281ea97c721"
+    },
+    {
+      "path": "/root/projects/chord-modernization/tests/meta/tauri-native-ci-contract.test.mjs",
+      "sha256": "dc5c3871d1446aa0de90a1ccc2b2991b818e29aa65c45cd89ddad65bc43dc5bb"
+    },
+    {
+      "path": "/root/projects/chord-modernization/rust/gui-spike/Cargo.lock",
+      "sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-lock-eol-final-verification/receipt.json",
+      "sha256": "dcfcf7b7c28ad7f3fcda594822dd4326e4b2bd3ae2d8883c811e2ca67f260ada"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/windows-lock-checkout-provenance.json",
+      "sha256": "01696ef4b58811cec567e4ce2096aa257d41cac0e1d4316c61cabd1bdca4e0a3"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-lock-checkout-eol-red-20261115T213801069908Z.json",
+      "sha256": "c0c2acb1b562d9c66b0dadd9fb24d1f347cfc534147b38a18be6c5469f938172"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-lock-checkout-eol-red-20261115T213801069908Z.log",
+      "sha256": "fba01ad95cbf617b947bc5c1e77d455a424eb77bce5a6dd8508afb77e866b8d3"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-lock-checkout-eol-green-20261115T213801873587Z.json",
+      "sha256": "5978d6bdf91dda19bd1504c811b2c333bfdaf626537545ad0b1ffe289173a517"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-lock-checkout-eol-green-20261115T213801873587Z.log",
+      "sha256": "d5a8c02eada8713b63c63c9f8939a6d14fb745db63712f98fff2247d2fc5d843"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-lock-eol-final-verification/independent-green-17-hostile-environment.log",
+      "sha256": "3ecc25735a2d71a034a58fcb94a31bca1e1a1eabd70c5b0027e7f7d9d34f3247"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-lock-eol-final-verification/delete-lock-rule.log",
+      "sha256": "ca93e965fcf4702e67c2c3b3885e3562a4698da290e10f2df0be507a77794e68"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-lock-eol-final-verification/force-lock-crlf.log",
+      "sha256": "9546272a3302cf7bed7bcb3551074200bea0e72018891cea55937408d8845aa8"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-lock-eol-final-verification/wrong-lock-basename.log",
+      "sha256": "561e108ec0a7dfa90e2a710bbe427255a17b8b367d855e7f8d61e75bd38fabf4"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-lock-eol-final-verification/later-lock-crlf-override.log",
+      "sha256": "6d4d361bf3e5efb2ac70c6422e37de5d5194ff1b25b5e231b3547e0228f24b80"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-lock-eol-final-verification/reset-lock-eol.log",
+      "sha256": "e8908b917faab483faadbaa0e169a4812b56ffc3947888e38feb817ea09e80d2"
+    }
+  ],
+  "limits": [
+    "No Cargo/builds/main-tree or index writes by reviewer",
+    "Previous rust-checkout-eol-review.json preserved; this addendum accepts updated hashes only for listed checkout files"
+  ]
+}

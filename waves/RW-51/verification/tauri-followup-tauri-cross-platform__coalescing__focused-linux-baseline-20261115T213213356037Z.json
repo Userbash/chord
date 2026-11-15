@@ -1,0 +1,26 @@
+{
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "unshare",
+    "--net",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--test",
+    "server_join_and_subscriptions_contract",
+    "v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/focused-linux-baseline-20261115T213213356037Z.log",
+  "log_sha256": "f39dfcabeef27426cb635f8e1201ba722958d9afc06f9b1eff27e73df4fa36b2",
+  "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "source_sha256": "a9a065741f7a740439cb44ef987b173d3fc25fa43e9ef4358ebff17615980fe7",
+  "test_sha256": "86b6f9c678aa4fdf70281763afdc2f6a0b7b4aeb650e9cafdd33af8f900bbd2f"
+}

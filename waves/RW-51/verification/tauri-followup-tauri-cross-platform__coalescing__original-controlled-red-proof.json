@@ -1,0 +1,28 @@
+{
+  "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "files": [
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/original-server-contract-bin",
+      "sha256": "1142de083a5d85e7ce91eb3daa1e3524c4cc9cfed1a966c865009a8e9d9057ff"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/original-data.rs",
+      "sha256": "a9a065741f7a740439cb44ef987b173d3fc25fa43e9ef4358ebff17615980fe7"
+    },
+    {
+      "path": "/root/projects/chord-modernization/rust/gui-spike/tests/server_join_and_subscriptions_contract.rs",
+      "sha256": "86b6f9c678aa4fdf70281763afdc2f6a0b7b4aeb650e9cafdd33af8f900bbd2f"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v1.so",
+      "sha256": "c8f484c121db5b3918ed9adad492571aa5bd72c97151c95c17b27f1b67cf9073"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v1.c",
+      "sha256": "bbfe5811f8e15d4ebfb8b9fbc9ce66c649b410ac5473b30965f8fcabcca8e904"
+    }
+  ],
+  "delayed_callsite_offset": "0x4138e5",
+  "delay_ms": 80,
+  "actual_coalescer_children": 3
+}

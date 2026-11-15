@@ -1,0 +1,7 @@
+{
+  "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "canonical_GUI_lock_sha256": "b50af1eb9d4e852a4955ef6e306fa43c17188185243928bc71c0f20ce3dd5087",
+  "expected_CRLF_GUI_lock_sha256": "d2f42f25bf12a2da015526f35887742b18bbc12012aadd987718daa505d0746d",
+  "actual_Windows_artifact_lock_sha256": "d2f42f25bf12a2da015526f35887742b18bbc12012aadd987718daa505d0746d",
+  "exact_match": true
+}

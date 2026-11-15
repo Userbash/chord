@@ -1,0 +1,129 @@
+{
+  "reviewer": "/root/arm_review",
+  "reviewed_at_utc": "2026-11-15T21:36:33.966700+00:00",
+  "base_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "scope": [
+    ".gitattributes",
+    "tests/meta/tauri-native-ci-contract.test.mjs"
+  ],
+  "verdict": "approve_git_rust_lf_checkout_fix",
+  "findings": [],
+  "resolved_findings": [
+    {
+      "priority": "P2",
+      "issue": "Initial real-Git fixture inherited global attributes/config; legitimate global *.txt eol=lf made notes.txt assertion fail",
+      "red_probe": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-isolation-probe/receipt.json",
+      "resolution": "Final helper strips all case-insensitive GIT_* environment keys, disables system configuration/attributes and supplies fixture-local empty global/system config and explicit core.attributesFile",
+      "reproduced_final": "Independent full17 tests pass with same legitimate global attributes plus deliberately invalid inherited repository/index/template/config variables"
+    }
+  ],
+  "contract_review": {
+    "rust_source_tests_and_assertions_not_modified": true,
+    "existing_ci_assertion_lines_retained_in_order": 38,
+    "attributes_rule": "*.rs text eol=lf",
+    "prior_gitattributes_rules_preserved": true,
+    "real_git_init_add_checkout_used": true,
+    "core_autocrlf_true_explicit": true,
+    "complete_rust_source_equality_required": true,
+    "unrelated_notes_txt_requires_crlf": true,
+    "bounded_cleanup_checks_parent_temp_directory_and_generated_basename": true,
+    "no_nested_rust_attributes_override_found": true,
+    "tracked_rust_files_examined_by_path": 760,
+    "tracked_rs_in_protected_logs_functions_evidence_rust_dist": [],
+    "no_current_tracked_rust_source_diff": true
+  },
+  "independent_execution": {
+    "full_targeted_meta_summary": {
+      "tests": 17,
+      "suites": 2,
+      "pass": 17,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "hostile_git_environment_probe_green": true,
+    "sentinel_and_unrelated_main_files_unchanged": true,
+    "mutations_killed": 5,
+    "mutation_names": [
+      "delete-rust-rule",
+      "force-rust-crlf",
+      "wrong-c-extension",
+      "later-file-crlf-override",
+      "reset-eol-attribute"
+    ],
+    "all_mutants_fail_actual_lf_checkout_assertion": true,
+    "receipt": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/receipt.json"
+  },
+  "author_typecheck_evidence_inspected": {
+    "receipt": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-rust-checkout-eol-isolated-types-20261115T213459278690Z.json",
+    "exit_code": 0
+  },
+  "files": [
+    {
+      "path": "/root/projects/chord-modernization/.gitattributes",
+      "sha256": "912269d8923a4f82eb97ec9ce287140816f2776e8b9627671872082a95d23809"
+    },
+    {
+      "path": "/root/projects/chord-modernization/tests/meta/tauri-native-ci-contract.test.mjs",
+      "sha256": "c8fb2b9b636a6cc8a558745971c0f942fec6689e9060fa3dd3cf7e152ad1d1a0"
+    },
+    {
+      "path": "/root/projects/chord-modernization/rust/gui-spike/src/main.rs",
+      "sha256": "e6957c00faabfe127ef48d324ae784d9fc4163c072992d4b9e0bde18e2f84409"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/receipt.json",
+      "sha256": "59f2f2ff2a240fbf808f47572b9035f7ed635dd87597830938ace38f026f1058"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/final-reviewed.patch",
+      "sha256": "c538bb71ff9a8027546f2d69b7dc1e5a4c04bc79d03c8e4504abef8a9d5e3383"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-isolation-probe/receipt.json",
+      "sha256": "c8b46ff5b67e08c8772c43520c6f028f0bd1ba1e78cef7ba784e050c097c6e92"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-isolation-probe/probe.log",
+      "sha256": "c3c709ec971e81c9b9043dd3d20692400a52103029c9f562443e07b1a13375a1"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-rust-checkout-eol-isolated-types-20261115T213459278690Z.json",
+      "sha256": "c014b36003a080573c2bf9ac3ec9519ffaa11bad231f7b050ce3506909c3216d"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/rust-dependencies/tauri-rust-checkout-eol-isolated-types-20261115T213459278690Z.log",
+      "sha256": "c9abc238a72081f5b225a3bad84761e2ce20f02e786e51bb6ecc075747575b81"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/independent-green-17-hostile-environment.log",
+      "sha256": "e23c32a92c143af17c6b96778c81a38b0334cce44f00b6487b314ce0e6d8bb60"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/delete-rust-rule.log",
+      "sha256": "2978465ad82f350e4507c7f5c1336e5fe5fde11b28b2b4da1937ca5c95ca0ef1"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/force-rust-crlf.log",
+      "sha256": "8556f2d3748580876a0989be6949d18253d2880ca59da5f4f7e86fb3cc6a99e4"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/wrong-c-extension.log",
+      "sha256": "028ba0a9661ae27754656b4381aa90b0fc271f4ec491d52a9a471e8796de113c"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/later-file-crlf-override.log",
+      "sha256": "252add24396318efa38b7d58c8fcd7661552f8350ed78148482c44beb3da1cf7"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/rust-eol-final-verification/reset-eol-attribute.log",
+      "sha256": "f23e6356023638278aa448006bb782590eff27cc8c774e6782cd4d111b98a278"
+    }
+  ],
+  "limits": [
+    "Only read-only main-tree review plus external snapshot/mutation/report writes; no main/index/Cargo/build mutations by reviewer",
+    "Native Windows or ARM runtime not rerun or qualified by this source/checkout review",
+    "Native platform CI rerun remains coordinator responsibility"
+  ]
+}

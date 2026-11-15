@@ -1,0 +1,26 @@
+{
+  "command": [
+    "flock",
+    "/tmp/chord-cargo.lock",
+    "unshare",
+    "--net",
+    "python3",
+    "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/isolated_loopback.py",
+    "/root/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "rust/gui-spike/Cargo.toml",
+    "--test",
+    "server_join_and_subscriptions_contract",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/canonical-seven-contracts-20261115T214457197377Z.log",
+  "log_sha256": "238a7390ad7841453fc9ce1abab9b771bdafc46453b2948b786fd8a6e804fedf",
+  "source_commit": "c0cbd53eefcba0a89dffbb4a8dc3b813fc69cb8e",
+  "source_sha256": "9a524c32a1de609c0b7bb625a5aa4ccbceb6f51804046868a827a7726885b2d1",
+  "test_sha256": "86b6f9c678aa4fdf70281763afdc2f6a0b7b4aeb650e9cafdd33af8f900bbd2f"
+}

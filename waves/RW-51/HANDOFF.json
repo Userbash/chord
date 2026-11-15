@@ -11021,7 +11021,9 @@
         "waves/RW-51/ACCEPTED-SLICES.json",
         "waves/RW-51/TAURI-COMPILE-BATCH.json",
         ".github/workflows/tauri-native.yml",
-        "tests/meta/tauri-native-ci-contract.test.mjs"
+        "tests/meta/tauri-native-ci-contract.test.mjs",
+        ".gitattributes",
+        "rust/gui-spike/src/data.rs"
       ],
       "exclusive_resource": "qa-slice",
       "exclusive_resources": [
@@ -11029,7 +11031,9 @@
         "waves/RW-51/ACCEPTED-SLICES.json",
         "waves/RW-51/TAURI-COMPILE-BATCH.json",
         ".github/workflows/tauri-native.yml",
-        "tests/meta/tauri-native-ci-contract.test.mjs"
+        "tests/meta/tauri-native-ci-contract.test.mjs",
+        ".gitattributes",
+        "rust/gui-spike/src/data.rs"
       ],
       "integration_subtasks": [
         {
@@ -11042,6 +11046,18 @@
           ],
           "instruction": "Compile the actual transitional Tauri binary for six native OS/architecture targets, retain source/lock/artifact provenance and complete artifacts. Treat source checks, compiler metadata and native runtime qualification separately.",
           "status": "in_progress",
+          "evidence": "waves/RW-51/TAURI-COMPILE-BATCH.json"
+        },
+        {
+          "id": "LIB-QA-07.I2",
+          "owner": "RW-51 coordinator / named integrator",
+          "write_scope": [
+            ".gitattributes",
+            "tests/meta/tauri-native-ci-contract.test.mjs",
+            "rust/gui-spike/src/data.rs"
+          ],
+          "instruction": "Operator-directed native compile repairs: preserve canonical checkout source/lock bytes and caller-relative120ms coalescing, retain original assertions and native failures, then verify the exact candidate on all six native runners. Parent acceptance remains open.",
+          "status": "in_review",
           "evidence": "waves/RW-51/TAURI-COMPILE-BATCH.json"
         }
       ],
@@ -11096,7 +11112,7 @@
       "verification_checkpoints": [
         {
           "id": "TAURI-COMPILE-BATCH",
-          "state": "source_reviewed_linux_rebuilt_six_native_rebuilds_pending",
+          "state": "six_native_baseline_releases_compiled_reviewed_followup_rebuild_pending",
           "full_parent_completed": false,
           "record": "waves/RW-51/TAURI-COMPILE-BATCH.json"
         }
@@ -11137,7 +11153,7 @@
   "arm_audit_session": "af4a762f",
   "source_batch": "waves/RW-51/ARM-SOURCE-BATCH.json",
   "integration_base_commit": "4653bdec519bec8cd6719e92d9736e5299c38468",
-  "updated_at": "2026-11-15T21:04:27.836006+00:00",
+  "updated_at": "2026-11-15T21:50:32.512139+00:00",
   "sequential_progress": {
     "completed_step": 1,
     "current_step": 2,
@@ -11146,11 +11162,11 @@
     "unit_failures_remaining": 34,
     "record": "waves/RW-51/SEQUENTIAL-02-UNIT-REPAIRS.json",
     "build_prerequisite": "waves/RW-51/SEQUENTIAL-03-GPUI-BUILD.json",
-    "latest_worker_gate": "waves/RW-51/verification/tauri-source-worker-2026-11-15T21-02-19-285Z.json",
+    "latest_worker_gate": "waves/RW-51/verification/tauri-followup-worker-20261115T214627444Z.json",
     "remaining_js_unit_failures": 34,
     "cpu_instruction_contract": "waves/RW-51/CPU-ISA-CONTRACT.json",
     "cpu_isa_qualified": false,
     "tauri_compile_batch": "waves/RW-51/TAURI-COMPILE-BATCH.json",
-    "tauri_compile_status": "source_reviewed_linux_rebuilt_six_native_rebuilds_pending"
+    "tauri_compile_status": "six_native_baseline_releases_compiled_reviewed_followup_rebuild_pending"
   }
 }

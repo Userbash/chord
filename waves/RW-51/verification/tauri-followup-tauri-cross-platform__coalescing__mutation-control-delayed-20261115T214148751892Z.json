@@ -1,0 +1,20 @@
+{
+  "phase": "mutation-control-delayed",
+  "command": [
+    "unshare",
+    "--net",
+    "env",
+    "LD_PRELOAD=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/thread_start_probe-v2.so",
+    "CHORD_THREAD_TRACE=/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-control-delayed.trace",
+    "CHORD_DELAY_CALLSITE=0x3efb95",
+    "CHORD_DELAY_MS=80",
+    "CHORD_PARENT_PAUSE_MS=0",
+    "/root/projects/chord-modernization/rust/gui-spike/target/debug/build/chord-client/9fc044a2d0cc36ac/out/server_join_and_subscriptions_contract-9fc044a2d0cc36ac",
+    "--exact",
+    "v1_voice_phases_signaling_negotiating_connected_120ms_coalescing_and_15s_phantom_timeout",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/coalescing/mutation-control-delayed-20261115T214148751892Z.log",
+  "log_sha256": "7d198fd38750fd401f3bc3d566e28d90e3f798dcd83b63859ab9d273293d07b8"
+}

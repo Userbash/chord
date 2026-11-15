@@ -1,6 +1,9 @@
 // @ts-check
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { basename, dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 
 const workflow = () => readFileSync(new URL("../../.github/workflows/tauri-native.yml", import.meta.url), "utf8");
@@ -14,6 +17,46 @@ const targets = [
 ];
 
 describe("Tauri native compilation contract", () => {
+  it("keeps Rust source and lock bytes canonical when Git enables Windows CRLF conversion", () => {
+    const directory = mkdtempSync(join(tmpdir(), "chord-rust-eol-"));
+    const emptyAttributes = join(directory, "empty-global-attributes");
+    writeFileSync(emptyAttributes, "");
+    const environment = Object.fromEntries(Object.entries(process.env)
+      .filter(([name]) => !name.toUpperCase().startsWith("GIT_")));
+    /** @param {...string} args */
+    const git = (...args) => execFileSync("git", ["-c", `core.attributesFile=${emptyAttributes}`,
+      "-c", "core.autocrlf=true", "-c", "core.safecrlf=false", ...args], {
+      cwd: directory, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"],
+      env: { ...environment, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_SYSTEM: emptyAttributes,
+        GIT_CONFIG_GLOBAL: emptyAttributes, GIT_ATTR_NOSYSTEM: "1" },
+    });
+    try {
+      git("init", "--quiet");
+      const source = readFileSync(new URL("../../rust/gui-spike/src/main.rs", import.meta.url), "utf8").replaceAll("\r\n", "\n");
+      writeFileSync(join(directory, ".gitattributes"), readFileSync(new URL("../../.gitattributes", import.meta.url)));
+      writeFileSync(join(directory, "main.rs"), source);
+      const lock = readFileSync(new URL("../../rust/gui-spike/Cargo.lock", import.meta.url), "utf8").replaceAll("\r\n", "\n");
+      writeFileSync(join(directory, "Cargo.lock"), lock);
+      writeFileSync(join(directory, "notes.txt"), "unrelated file\n");
+      git("add", "--", ".gitattributes", "main.rs", "Cargo.lock", "notes.txt");
+      rmSync(join(directory, "main.rs"));
+      rmSync(join(directory, "Cargo.lock"));
+      rmSync(join(directory, "notes.txt"));
+      git("checkout", "--", "main.rs", "Cargo.lock", "notes.txt");
+      const checkedOut = readFileSync(join(directory, "main.rs"), "utf8");
+      assert.ok(!checkedOut.includes("\r"), "Rust source contracts require canonical LF bytes on Windows checkouts");
+      assert.ok(checkedOut === source, "Git must preserve the complete canonical Rust source");
+      const checkedOutLock = readFileSync(join(directory, "Cargo.lock"), "utf8");
+      assert.ok(!checkedOutLock.includes("\r"), "Dependency provenance requires canonical LF lock bytes on Windows");
+      assert.ok(checkedOutLock === lock, "Git must preserve every canonical lock byte");
+      assert.equal(readFileSync(join(directory, "notes.txt"), "utf8"), "unrelated file\r\n");
+    } finally {
+      assert.equal(dirname(resolve(directory)), resolve(tmpdir()));
+      assert.ok(basename(directory).startsWith("chord-rust-eol-"));
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
   it("requires the six OS/architecture combinations on matching native runners", () => {
     const text = workflow();
     for (const [runner, target] of targets) {
