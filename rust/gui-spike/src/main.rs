@@ -66,6 +66,7 @@ use chord_client::typing::{self, DiscordTyping, TypingCooldowns, TypingError};
 use chord_client::{
     parse_process_metrics, validate_bench_payload, validate_ui_snapshot, ProcessMetrics,
 };
+pub mod auth_plugin;
 pub mod gifts;
 use gifts::{
     CreateGiftCodeRequest, DiscordGifts, EntitlementQuery, EntitlementRecord, GiftCodeRecord,
@@ -78,8 +79,6 @@ use remote_auth::{
 };
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
-
-struct TauriAuthEmitter(tauri::AppHandle);
 
 /// Acquire a PipeWire node id via the XDG Desktop Portal ScreenCast API.
 /// Opens the system screen-picker dialog, and returns the first selected
@@ -155,19 +154,6 @@ async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
         chord_platform::screencast::start_pipewire_fd_server(fd);
     }
     Ok((node_id, fd))
-}
-
-impl auth::AuthStateEmitter for TauriAuthEmitter {
-    fn emit_state(&self, state: &AuthState) -> Result<(), String> {
-        self.0
-            .emit("auth://state", state)
-            .map_err(|error| format!("не удалось отправить auth://state: {error}"))
-    }
-}
-
-fn emit_auth_state(app: &tauri::AppHandle, state: &AuthState) -> Result<(), AuthError> {
-    auth::emit_auth_state(&TauriAuthEmitter(app.clone()), state)
-        .map_err(|message| AuthError::Internal { message })
 }
 
 // ---------------------------------------------------------------------------
@@ -1452,170 +1438,6 @@ where
         .map_err(|error| format!("блокирующая операция не завершилась: {error}"))
 }
 
-/// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
-#[tauri::command]
-async fn auth_status(
-    app: tauri::AppHandle,
-    backend: tauri::State<'_, Arc<AuthBackend>>,
-) -> Result<AuthState, AuthError> {
-    let backend = Arc::clone(backend.inner());
-    let state = blocking(move || backend.status())
-        .await
-        .map_err(|message| AuthError::Internal { message })?;
-    emit_auth_state(&app, &state)?;
-    Ok(state)
-}
-
-/// Импорт токена владельца: `GET /users/@me` → keyring. Токен не логируется
-/// и не возвращается во фронтенд (только `AuthState`).
-#[tauri::command]
-async fn auth_login_token(
-    app: tauri::AppHandle,
-    backend: tauri::State<'_, Arc<AuthBackend>>,
-    token: String,
-) -> Result<AuthState, AuthError> {
-    let backend = Arc::clone(backend.inner());
-    emit_auth_state(&app, &AuthState::validating())?;
-    let state = blocking(move || {
-        let st = backend.login(&token);
-        let tok = backend.token().ok().flatten();
-        data::set_live_session(tok, st.user.as_ref());
-        st
-    })
-    .await
-    .map_err(|message| AuthError::Internal { message })?;
-    emit_auth_state(&app, &state)?;
-    Ok(state)
-}
-
-/// Явное восстановление из keyring — единственный путь к сети при старте.
-#[tauri::command]
-async fn auth_restore(
-    app: tauri::AppHandle,
-    backend: tauri::State<'_, Arc<AuthBackend>>,
-) -> Result<AuthState, AuthError> {
-    let backend = Arc::clone(backend.inner());
-    let state = blocking(move || {
-        let st = backend.restore();
-        let tok = backend.token().ok().flatten();
-        data::set_live_session(tok, st.user.as_ref());
-        st
-    })
-    .await
-    .map_err(|message| AuthError::Internal { message })?;
-    emit_auth_state(&app, &state)?;
-    Ok(state)
-}
-
-/// Выход: keyring.clear + сброс сессии; повторный вызов идемпотентен.
-#[tauri::command]
-async fn auth_logout(
-    app: tauri::AppHandle,
-    backend: tauri::State<'_, Arc<AuthBackend>>,
-    net: tauri::State<'_, Arc<NetService>>,
-) -> Result<AuthState, AuthError> {
-    let backend = Arc::clone(backend.inner());
-    let net = Arc::clone(net.inner());
-    let state = blocking(move || {
-        let st = backend.logout_with_disconnect(|| {
-            net.disconnect()
-                .map(|_| ())
-                .map_err(|error| error.to_string())
-        });
-        data::set_live_session(None, None);
-        st
-    })
-    .await
-    .map_err(|message| AuthError::Internal { message })?;
-    emit_auth_state(&app, &state)?;
-    Ok(state)
-}
-
-// ---------------------------------------------------------------------------
-// RW-39/NET-F1: вход по логину/паролю (ADR-3). Пароль и 2FA-код приходят как
-// `String` (Tauri), живут только в памяти запроса и не возвращаются. Ошибки —
-// типизированные, без секретов; captcha/MFA/Ready — `LoginView` без токена.
-// ---------------------------------------------------------------------------
-
-/// Вход паролем: `POST /auth/login`; исход — MFA / captcha / Ready (токен в keyring).
-#[tauri::command]
-#[allow(clippy::too_many_arguments)]
-async fn auth_login_password(
-    app: tauri::AppHandle,
-    backend: tauri::State<'_, Arc<AuthBackend>>,
-    login: String,
-    password: String,
-    captcha_key: Option<String>,
-    captcha_rqtoken: Option<String>,
-    captcha_session_id: Option<String>,
-    captcha_rqdata: Option<String>,
-) -> Result<LoginView, AuthError> {
-    emit_auth_state(&app, &AuthState::validating())?;
-    let backend = Arc::clone(backend.inner());
-    let state_backend = Arc::clone(&backend);
-    let view = blocking(move || {
-        let outcome = backend.login_password(
-            &login,
-            password,
-            captcha_key.as_deref(),
-            captcha_rqtoken.as_deref(),
-            captcha_session_id.as_deref(),
-            captcha_rqdata.as_deref(),
-        );
-        let st = backend.status();
-        if st.user.is_some() {
-            let tok = backend.token().ok().flatten();
-            data::set_live_session(tok, st.user.as_ref());
-        }
-        LoginView::from_outcome(outcome, &st)
-    })
-    .await
-    .map_err(|message| AuthError::Internal { message })?;
-    emit_auth_state(&app, &state_backend.status())?;
-    view
-}
-
-/// Код 2FA: `POST /auth/mfa/{method}` (method — whitelist в `auth.rs`).
-#[tauri::command]
-async fn auth_mfa(
-    app: tauri::AppHandle,
-    backend: tauri::State<'_, Arc<AuthBackend>>,
-    method: String,
-    code: String,
-    ticket: String,
-    login_instance_id: Option<String>,
-) -> Result<LoginView, AuthError> {
-    emit_auth_state(&app, &AuthState::validating())?;
-    let backend = Arc::clone(backend.inner());
-    let state_backend = Arc::clone(&backend);
-    let view = blocking(move || {
-        let outcome = backend.submit_mfa(&method, code, &ticket, login_instance_id.as_deref());
-        let st = backend.status();
-        if st.user.is_some() {
-            let tok = backend.token().ok().flatten();
-            data::set_live_session(tok, st.user.as_ref());
-        }
-        LoginView::from_outcome(outcome, &st)
-    })
-    .await
-    .map_err(|message| AuthError::Internal { message })?;
-    emit_auth_state(&app, &state_backend.status())?;
-    view
-}
-
-/// Переотправка SMS-кода: `POST /auth/mfa/sms/send {ticket}` → маскированный `phone`.
-#[tauri::command]
-async fn auth_sms(
-    backend: tauri::State<'_, Arc<AuthBackend>>,
-    ticket: String,
-) -> Result<SmsChallenge, AuthError> {
-    let backend = Arc::clone(backend.inner());
-    let challenge = blocking(move || backend.request_sms(&ticket))
-        .await
-        .map_err(|message| AuthError::Internal { message })?;
-    challenge
-}
-
 #[tauri::command]
 async fn net_connect(net: tauri::State<'_, Arc<NetService>>) -> Result<String, String> {
     let net = Arc::clone(net.inner());
@@ -1630,6 +1452,93 @@ async fn net_connect(net: tauri::State<'_, Arc<NetService>>) -> Result<String, S
 #[tauri::command]
 fn net_status(net: tauri::State<'_, Arc<NetService>>) -> String {
     net.status().to_string()
+}
+
+/// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
+#[tauri::command]
+async fn auth_status(
+    app: tauri::AppHandle,
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+) -> Result<AuthState, AuthError> {
+    auth_plugin::auth_status(app, backend).await
+}
+
+/// Импорт токена владельца: `GET /users/@me` → keyring. Токен не логируется
+/// и не возвращается во фронтенд (только `AuthState`).
+#[tauri::command]
+async fn auth_login_token(
+    app: tauri::AppHandle,
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    token: String,
+) -> Result<AuthState, AuthError> {
+    auth_plugin::auth_login_token(app, backend, token).await
+}
+
+/// Явное восстановление из keyring — единственный путь к сети при старте.
+#[tauri::command]
+async fn auth_restore(
+    app: tauri::AppHandle,
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+) -> Result<AuthState, AuthError> {
+    auth_plugin::auth_restore(app, backend).await
+}
+
+/// Выход: keyring.clear + сброс сессии; повторный вызов идемпотентен.
+#[tauri::command]
+async fn auth_logout(
+    app: tauri::AppHandle,
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    net: tauri::State<'_, Arc<NetService>>,
+) -> Result<AuthState, AuthError> {
+    auth_plugin::auth_logout(app, backend, net).await
+}
+
+/// Вход паролем: `POST /auth/login`; исход — MFA / captcha / Ready (токен в keyring).
+#[tauri::command]
+#[allow(clippy::too_many_arguments)]
+async fn auth_login_password(
+    app: tauri::AppHandle,
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    login: String,
+    password: String,
+    captcha_key: Option<String>,
+    captcha_rqtoken: Option<String>,
+    captcha_session_id: Option<String>,
+    captcha_rqdata: Option<String>,
+) -> Result<LoginView, AuthError> {
+    auth_plugin::auth_login_password(
+        app,
+        backend,
+        login,
+        password,
+        captcha_key,
+        captcha_rqtoken,
+        captcha_session_id,
+        captcha_rqdata,
+    )
+    .await
+}
+
+/// Код 2FA: `POST /auth/mfa/{method}` (method — whitelist в `auth.rs`).
+#[tauri::command]
+async fn auth_mfa(
+    app: tauri::AppHandle,
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    method: String,
+    code: String,
+    ticket: String,
+    login_instance_id: Option<String>,
+) -> Result<LoginView, AuthError> {
+    auth_plugin::auth_mfa(app, backend, method, code, ticket, login_instance_id).await
+}
+
+/// Переотправка SMS-кода: `POST /auth/mfa/sms/send {ticket}` → маскированный `phone`.
+#[tauri::command]
+async fn auth_sms(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    ticket: String,
+) -> Result<SmsChallenge, AuthError> {
+    auth_plugin::auth_sms(backend, ticket).await
 }
 
 /// Счётчики L-02: что пришло, что ушло в UI, что отброшено и почему.
@@ -2425,6 +2334,7 @@ fn main() {
         std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
     }
     tauri::Builder::default()
+        .plugin(auth_plugin::init())
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 let minimize_to_tray = std::env::var_os("DISCORD_MINIMIZE_TO_TRAY").is_some();
