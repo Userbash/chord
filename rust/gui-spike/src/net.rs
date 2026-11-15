@@ -1187,7 +1187,16 @@ impl GatewayDriver for FakeGateway {
 // OP 3 (presence), OP 4 (voice state), OP 8 (request members), OP 37 (subscriptions)
 // ---------------------------------------------------------------------------
 
-/// Проверяет, что строка является валидной снежинкой Discord (1..20 десятичных цифр, влезает в u64).
+/// Validates that an identifier string is a decimal Discord Snowflake ID.
+///
+/// Ensures the string is non-empty, contains strictly ASCII decimal digits,
+/// and can be parsed into a 64-bit unsigned integer (`u64`).
+///
+/// # Arguments
+/// * `id` - Identifier string slice to validate.
+///
+/// # Returns
+/// `true` if valid 64-bit snowflake; otherwise `false`.
 pub fn is_snowflake(id: &str) -> bool {
     !id.is_empty() && id.bytes().all(|byte| byte.is_ascii_digit()) && id.parse::<u64>().is_ok()
 }

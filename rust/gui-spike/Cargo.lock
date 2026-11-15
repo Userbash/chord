@@ -425,6 +425,7 @@ dependencies = [
  "chord-updater",
  "chord-voice",
  "enumflags2",
+ "hex",
  "nix",
  "percent-encoding",
  "serde",

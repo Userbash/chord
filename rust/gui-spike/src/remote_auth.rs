@@ -677,10 +677,20 @@ fn invert_65537_mod(phi: &BigUint) -> Option<BigUint> {
     Some(d)
 }
 
-fn decode_hex_128(hex: &str) -> [u8; 128] {
+/// Decodes a 256-character hexadecimal string representing a 1024-bit prime factor into a 128-byte array.
+///
+/// Uses the audited `hex` crate for bounds-checked decoding, replacing the legacy
+/// per-byte slicing and parsing loop.
+///
+/// # Arguments
+/// * `hex_str` - 256-character ASCII hexadecimal string.
+///
+/// # Returns
+/// A 128-byte array containing the decoded big-endian prime number bytes.
+fn decode_hex_128(hex_str: &str) -> [u8; 128] {
     let mut out = [0u8; 128];
-    for (i, dst) in out.iter_mut().enumerate() {
-        *dst = u8::from_str_radix(&hex[i * 2..i * 2 + 2], 16).unwrap_or(0);
+    if hex::decode_to_slice(hex_str.trim(), &mut out).is_err() {
+        debug_assert!(false, "invalid 128-byte hex string provided for RSA prime");
     }
     out
 }

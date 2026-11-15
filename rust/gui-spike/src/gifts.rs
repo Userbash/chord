@@ -468,6 +468,16 @@ fn normalize_gift_code_segment(segment: &str) -> Result<String, GiftError> {
     Ok(normalized)
 }
 
+/// Validates that a string is a canonical positive 64-bit Discord Snowflake ID.
+///
+/// Ensures the input is non-empty, contains no leading zeros, and fits within `1..=u64::MAX`.
+///
+/// # Arguments
+/// * `value` - Candidate snowflake string slice.
+/// * `field` - Field identifier for error reporting.
+///
+/// # Returns
+/// `Ok(())` on success, or `Err(GiftError::InvalidSnowflake)` if malformed.
 fn validate_snowflake(value: &str, field: &'static str) -> Result<(), GiftError> {
     if value.is_empty() || value.starts_with('0') || !value.bytes().all(|b| b.is_ascii_digit()) {
         return Err(GiftError::InvalidSnowflake { field });

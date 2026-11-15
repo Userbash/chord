@@ -607,6 +607,16 @@ fn u64_val(value: Option<&serde_json::Value>) -> Option<u64> {
     }
 }
 
+/// Parses a Discord user JSON object into a strongly-typed [`ResolvedDmUser`].
+///
+/// Handles string and numeric IDs, defaults modern usernames without discriminator to `"0"`,
+/// and ignores ETF sentinel values (`"nil"`).
+///
+/// # Arguments
+/// * `obj` - Raw JSON object representing the user.
+///
+/// # Returns
+/// `Some(ResolvedDmUser)` if a valid user ID is present; otherwise `None`.
 fn parse_user_obj(obj: &serde_json::Value) -> Option<ResolvedDmUser> {
     let id = opt_str(obj.get("id"))?;
     let username = opt_str(obj.get("username")).unwrap_or_default();
@@ -624,6 +634,17 @@ fn parse_user_obj(obj: &serde_json::Value) -> Option<ResolvedDmUser> {
     })
 }
 
+/// Parses a private channel object (DM or Group DM) from Gateway READY or REST API responses.
+///
+/// Maps raw Discord channel types (`1` = DM, `3` = Group DM), parses recipient lists,
+/// and applies custom nicknames when available.
+///
+/// # Arguments
+/// * `obj` - Raw JSON value of the channel payload.
+/// * `users_by_id` - Lookup map of resolved users from the session.
+///
+/// # Returns
+/// `Ok(PrivateChannelRecord)` on valid channel structure, or `Err(DmFriendsError::InvalidResponse)`.
 fn parse_private_channel_obj(
     obj: &serde_json::Value,
     users_by_id: &BTreeMap<String, ResolvedDmUser>,

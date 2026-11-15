@@ -1207,8 +1207,17 @@ pub fn build_invite_resolve_route(
     ))
 }
 
-/// Проверяет, что строка является каноническим положительным `u64` Snowflake ID
-/// (`1..=u64::MAX`, только ASCII-цифры, без ведущих нулей).
+/// Validates that a string is a canonical positive 64-bit Discord Snowflake ID.
+///
+/// Follows Discord API v9 specification: 1..=20 decimal digits, no leading zeros,
+/// and strictly non-zero (`1..=u64::MAX`).
+///
+/// # Arguments
+/// * `field` - Identifier field name for error reporting context.
+/// * `value` - Candidate snowflake string slice.
+///
+/// # Returns
+/// `Ok(())` if valid, or `Err(String)` describing the validation failure.
 fn validate_canonical_snowflake(field: &str, value: &str) -> Result<(), String> {
     if value.is_empty() || value.starts_with('0') || !value.bytes().all(|b| b.is_ascii_digit()) {
         return Err(format!("некорректный Snowflake ID в поле {field}"));
