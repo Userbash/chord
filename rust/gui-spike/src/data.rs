@@ -11311,33 +11311,185 @@ fn snowflake_low56(id: &str) -> Option<u64> {
     }
 }
 
+/// Serde DTO for a Discord user's clan or primary guild identity tag.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawClanDto {
+    /// Clan tag string (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub tag: Option<String>,
+    /// Whether the clan identity badge is enabled for this user.
+    #[serde(deserialize_with = "deserialize_ready_opt_bool")]
+    pub identity_enabled: Option<bool>,
+}
+
+/// Serde deserializer for an optional [`RawClanDto`].
+fn deserialize_opt_clan_dto<'de, D>(deserializer: D) -> Result<Option<RawClanDto>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    if val.is_null() {
+        return Ok(None);
+    }
+    Ok(RawClanDto::deserialize(&val).ok())
+}
+
+/// Serde DTO for deserializing a nested Discord `user` object inside a guild member payload.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawUserDto {
+    /// User Snowflake ID (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Account username (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub username: Option<String>,
+    /// Global display name (`global_name`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub global_name: Option<String>,
+    /// Legacy/fallback display name (`display_name`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub display_name: Option<String>,
+    /// Optional user avatar hash.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub avatar: Option<String>,
+    /// Whether the user is a bot account.
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub bot: bool,
+    /// Optional `clan` badge metadata.
+    #[serde(deserialize_with = "deserialize_opt_clan_dto")]
+    pub clan: Option<RawClanDto>,
+    /// Fallback `primary_guild` badge metadata.
+    #[serde(deserialize_with = "deserialize_opt_clan_dto")]
+    pub primary_guild: Option<RawClanDto>,
+}
+
+impl RawUserDto {
+    /// Extracts the active clan or primary guild tag if `identity_enabled != Some(false)`.
+    #[inline]
+    #[must_use]
+    pub fn clan_tag(&self) -> Option<String> {
+        let clan = self.clan.as_ref().or(self.primary_guild.as_ref())?;
+        if clan.identity_enabled == Some(false) {
+            return None;
+        }
+        clan.tag.clone()
+    }
+}
+
+/// Serde deserializer for an optional [`RawUserDto`].
+fn deserialize_opt_user_dto<'de, D>(deserializer: D) -> Result<Option<RawUserDto>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    if val.is_null() {
+        return Ok(None);
+    }
+    Ok(RawUserDto::deserialize(&val).ok())
+}
+
+/// Serde DTO for a single Discord presence activity entry.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawActivityDto {
+    /// Numeric activity type (`4` = custom status).
+    #[serde(rename = "type", deserialize_with = "deserialize_ready_opt_u64")]
+    pub kind: Option<u64>,
+    /// Custom status text (`state`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub state: Option<String>,
+    /// Activity/game title (`name`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub name: Option<String>,
+}
+
+/// Serde deserializer for an array of [`RawActivityDto`] items.
+fn deserialize_opt_activities<'de, D>(deserializer: D) -> Result<Vec<RawActivityDto>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(val
+        .as_array()
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| RawActivityDto::deserialize(v).ok())
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
+/// Serde DTO for a member's embedded `presence` object.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawPresenceDto {
+    /// Online status string (`"online"`, `"idle"`, `"dnd"`, `"offline"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub status: Option<String>,
+    /// Active presence activities list.
+    #[serde(deserialize_with = "deserialize_opt_activities")]
+    pub activities: Vec<RawActivityDto>,
+}
+
+impl RawPresenceDto {
+    /// Extracts a human-readable activity label from the presence activities list.
+    #[inline]
+    #[must_use]
+    pub fn activity_label(&self) -> Option<String> {
+        for act in &self.activities {
+            let kind = act.kind.unwrap_or(0);
+            if kind == 4 {
+                if let Some(ref st) = act.state {
+                    return Some(st.clone());
+                }
+            } else if let Some(ref name) = act.name {
+                if name != "bg-capture" && name != "Custom Status" {
+                    return Some(format!("🎮 {name}"));
+                }
+            }
+        }
+        None
+    }
+}
+
+/// Serde deserializer for an optional [`RawPresenceDto`].
+fn deserialize_opt_presence_dto<'de, D>(deserializer: D) -> Result<Option<RawPresenceDto>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    if val.is_null() {
+        return Ok(None);
+    }
+    Ok(RawPresenceDto::deserialize(&val).ok())
+}
+
+/// Serde deserializer for a member's `roles` array of strings.
+fn deserialize_member_role_strs<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(val
+        .as_array()
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|role| role.as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
 fn extract_user_clan_tag(user: Option<&Value>) -> Option<String> {
     let u = user?;
-    let clan = u.get("clan").or_else(|| u.get("primary_guild"))?;
-    if clan
-        .get("identity_enabled")
-        .is_some_and(|v| v == &Value::Bool(false) || v.as_str() == Some("false"))
-    {
-        return None;
-    }
-    field_str(clan, "tag").map(str::to_string)
+    RawUserDto::deserialize(u).ok()?.clan_tag()
 }
 
 fn extract_presence_activity(presence: Option<&Value>) -> Option<String> {
     let p = presence?;
-    for act in array(p.get("activities")) {
-        let kind = field_u64(act, "type").unwrap_or(0);
-        if kind == 4 {
-            if let Some(st) = field_str(act, "state") {
-                return Some(st.to_string());
-            }
-        } else if let Some(name) = field_str(act, "name") {
-            if name != "bg-capture" && name != "Custom Status" {
-                return Some(format!("🎮 {name}"));
-            }
-        }
-    }
-    None
+    RawPresenceDto::deserialize(p).ok()?.activity_label()
 }
 
 fn resolve_role_color_hex(roles: &[String], guild: &GuildInfo) -> Option<String> {
@@ -11451,76 +11603,99 @@ fn status_group(status: &str) -> &'static str {
     }
 }
 
+/// Serde DTO for raw guild member item in `GUILD_MEMBER_LIST_UPDATE` ops (`TAURI-DATA-06`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawGuildMemberDto {
+    #[serde(deserialize_with = "deserialize_opt_user_dto")]
+    pub user: Option<RawUserDto>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub nick: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub avatar: Option<String>,
+    #[serde(deserialize_with = "deserialize_member_role_strs")]
+    pub roles: Vec<String>,
+    #[serde(deserialize_with = "deserialize_opt_presence_dto")]
+    pub presence: Option<RawPresenceDto>,
+}
+
+impl RawGuildMemberDto {
+    /// Converts deserialized DTO into a validated [`MemberRow`] according to guild roles and presences.
+    #[inline]
+    #[must_use]
+    fn into_member_row(self, guild: &GuildInfo) -> Option<MemberRow> {
+        let user = self.user?;
+        let id = user.id.clone()?;
+        let status = self
+            .presence
+            .as_ref()
+            .and_then(|p| p.status.as_deref())
+            .unwrap_or("offline");
+        let raw_username = user.username.as_deref().unwrap_or(&id);
+        let raw_display_name = self
+            .nick
+            .as_deref()
+            .or_else(|| user.global_name.as_deref())
+            .or_else(|| user.display_name.as_deref())
+            .unwrap_or(raw_username);
+        let is_snowflake = raw_display_name.len() >= 15
+            && raw_display_name.len() <= 22
+            && raw_display_name.bytes().all(|b| b.is_ascii_digit());
+        let display_name = if is_snowflake {
+            format!(
+                "Участник {}",
+                &raw_display_name[raw_display_name.len().saturating_sub(4)..]
+            )
+        } else {
+            raw_display_name.to_string()
+        };
+        let username = if is_snowflake {
+            format!(
+                "user_{}",
+                &raw_username[raw_username.len().saturating_sub(4)..]
+            )
+        } else {
+            raw_username.to_string()
+        };
+        let mut roles = self.roles;
+        roles.sort_by_key(|role| {
+            std::cmp::Reverse(
+                guild
+                    .roles
+                    .iter()
+                    .find(|info| &info.id == role)
+                    .map(|info| info.position)
+                    .unwrap_or(i64::MIN),
+            )
+        });
+        roles.dedup();
+        let role_name = roles
+            .first()
+            .and_then(|role| guild.roles.iter().find(|info| &info.id == role))
+            .map(|info| info.name.clone());
+        let role_color = resolve_role_color_hex(&roles, guild);
+        let clan_tag = user.clan_tag();
+        let activity = self.presence.as_ref().and_then(|p| p.activity_label());
+        Some(MemberRow {
+            id,
+            username,
+            display_name,
+            avatar: self.avatar.or(user.avatar),
+            status: status.to_string(),
+            bot: user.bot,
+            roles,
+            role_name,
+            role_color,
+            clan_tag,
+            activity,
+            group: status_group(status).to_string(),
+        })
+    }
+}
+
 fn parse_member(value: &Value, guild: &GuildInfo) -> Option<MemberRow> {
-    let user = value.get("user")?;
-    let id = field_str(user, "id")?;
-    let status = value
-        .get("presence")
-        .and_then(|presence| field_str(presence, "status"))
-        .unwrap_or("offline");
-    let raw_username = field_str(user, "username").unwrap_or(id);
-    let raw_display_name = field_str(value, "nick")
-        .or_else(|| field_str(user, "global_name"))
-        .or_else(|| field_str(user, "display_name"))
-        .unwrap_or(raw_username);
-    let is_snowflake = raw_display_name.len() >= 15
-        && raw_display_name.len() <= 22
-        && raw_display_name.bytes().all(|b| b.is_ascii_digit());
-    let display_name = if is_snowflake {
-        format!(
-            "Участник {}",
-            &raw_display_name[raw_display_name.len().saturating_sub(4)..]
-        )
-    } else {
-        raw_display_name.to_string()
-    };
-    let username = if is_snowflake {
-        format!(
-            "user_{}",
-            &raw_username[raw_username.len().saturating_sub(4)..]
-        )
-    } else {
-        raw_username.to_string()
-    };
-    let mut roles: Vec<String> = array(value.get("roles"))
-        .iter()
-        .filter_map(|role| role.as_str().map(str::to_string))
-        .collect();
-    // Старшая роль первой: позиция из READY, неизвестные роли — в конце.
-    roles.sort_by_key(|role| {
-        std::cmp::Reverse(
-            guild
-                .roles
-                .iter()
-                .find(|info| &info.id == role)
-                .map(|info| info.position)
-                .unwrap_or(i64::MIN),
-        )
-    });
-    roles.dedup();
-    let role_name = roles
-        .first()
-        .and_then(|role| guild.roles.iter().find(|info| &info.id == role))
-        .map(|info| info.name.clone());
-    let role_color = resolve_role_color_hex(&roles, guild);
-    let clan_tag = extract_user_clan_tag(Some(user));
-    let activity = extract_presence_activity(value.get("presence"));
-    Some(MemberRow {
-        id: id.to_string(),
-        username: username.to_string(),
-        display_name: display_name.to_string(),
-        avatar: field_str(value, "avatar")
-            .or_else(|| field_str(user, "avatar"))
-            .map(str::to_string),
-        status: status.to_string(),
-        bot: field_bool(user, "bot"),
-        roles,
-        role_name,
-        role_color,
-        clan_tag,
-        activity,
-        group: status_group(status).to_string(),
-    })
+    let dto = serde_json::from_value::<RawGuildMemberDto>(value.clone()).ok()?;
+    dto.into_member_row(guild)
 }
 
 /// Участники гильдии из всех `GUILD_MEMBER_LIST_UPDATE` + роли/имя/счётчик из READY.
