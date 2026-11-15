@@ -2751,15 +2751,15 @@ impl ChatView {
         block
     }
 
-    /// Отрисовка интерактивных компонентов сообщения (ряды кнопок ActionRow)
-    /// по эталону Discord API v9 и референсу из клиента `txtsd/kind`.
+    /// Renders interactive message components (ActionRow button grids)
+    /// conforming to Discord API v9 specification and reference `txtsd/kind`.
     ///
-    /// # Поддерживаемые стили кнопок:
-    /// * `Primary` (код 1) — фирменный акцентный стиль Blurple
-    /// * `Secondary` (код 2) — нейтральный серый фон
-    /// * `Success` (код 3) — зеленый стиль подтверждения
-    /// * `Danger` (код 4) — красный стиль предупреждения/отмены
-    /// * `Link` (код 5) — серый фон с иконкой перехода по ссылке
+    /// # Supported button styles:
+    /// * `Primary` (type 1) — Discord Blurple accent style
+    /// * `Secondary` (type 2) — Neutral dark gray background
+    /// * `Success` (type 3) — Green confirmation style
+    /// * `Danger` (type 4) — Red destructive/warning style
+    /// * `Link` (type 5) — Outbound hyperlink button with external icon
     pub fn render_interactive_components(
         components: &[crate::state::MessageComponentRow],
         msg_id: &str,

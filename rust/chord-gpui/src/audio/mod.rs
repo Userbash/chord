@@ -1351,23 +1351,23 @@ fn zeroize_slice(buf: &mut [u8]) {
 }
 
 // ============================================================================
-// БИБЛИОТЕЧНАЯ КРИПТОГРАФИЯ DAVE E2EE (FIPS 180-4 / RFC 2104 / RFC 5869)
+// DAVE E2EE CRYPTOGRAPHY (FIPS 180-4 / RFC 2104 / RFC 5869)
 // ============================================================================
-// Примечание: Самописные реализации `Sha256State` и ручные циклы HMAC заменены
-// на стандартные audited-библиотеки RustCrypto (`sha2`, `hmac`). Это обеспечивает:
-// 1. Аппаратное ускорение через инструкции CPU (Intel SHA Extensions / ARMv8 Crypto).
-// 2. Защиту от атак по времени (constant-time execution).
-// 3. Сокращение объема самописного кода и повышение надежности протокола DAVE MLS.
+// Note: Custom `Sha256State` implementations and manual HMAC loops were replaced
+// by standardized, audited RustCrypto crates (`sha2`, `hmac`). Benefits include:
+// 1. Hardware acceleration via CPU extensions (Intel SHA-NI / ARMv8 Crypto).
+// 2. Constant-time execution guarantees against side-channel attacks.
+// 3. Significant reduction in legacy custom code and enhanced DAVE MLS reliability.
 
-/// Хеш-функция FIPS 180-4 SHA-256 на базе проверенной библиотеки `sha2`.
+/// FIPS 180-4 SHA-256 hash function powered by audited `sha2` crate.
 ///
-/// # Поля и аргументы:
-/// * `data` — входной байтовый срез любой длины для хеширования.
+/// # Arguments:
+/// * `data` — Input byte slice of arbitrary length to hash.
 ///
-/// # Возвращает:
-/// * `[u8; 32]` — 256-битный дайджест сообщения.
+/// # Returns:
+/// * `[u8; 32]` — 256-bit message digest.
 ///
-/// Используется в протоколе Discord DAVE MLS 1.0 Ciphersuite `0x0001` (MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519).
+/// Used in Discord DAVE MLS 1.0 Ciphersuite `0x0001` (MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519).
 pub fn dave_sha256(data: &[u8]) -> [u8; 32] {
     let mut hasher = Sha256::new();
     hasher.update(data);
@@ -1376,14 +1376,14 @@ pub fn dave_sha256(data: &[u8]) -> [u8; 32] {
     out
 }
 
-/// Код аутентификации сообщений RFC 2104 HMAC-SHA256 на базе проверенной библиотеки `hmac`.
+/// RFC 2104 HMAC-SHA256 message authentication code powered by audited `hmac` crate.
 ///
-/// # Поля и аргументы:
-/// * `key` — секретный ключ аутентификации. Если ключ длиннее 64 байт, он предварительно хешируется через SHA-256 по спецификации RFC 2104.
-/// * `data` — данные сообщения для вычисления имитовставки.
+/// # Arguments:
+/// * `key` — Authentication secret key. If longer than 64 bytes, it is pre-hashed with SHA-256 per RFC 2104.
+/// * `data` — Message payload for MAC computation.
 ///
-/// # Возвращает:
-/// * `[u8; 32]` — 32-байтовое значение MAC.
+/// # Returns:
+/// * `[u8; 32]` — 32-byte Message Authentication Code.
 pub fn dave_hmac_sha256(key: &[u8], data: &[u8]) -> [u8; 32] {
     let mut mac = if key.len() > 64 {
         let hashed = dave_sha256(key);
@@ -1400,21 +1400,22 @@ pub fn dave_hmac_sha256(key: &[u8], data: &[u8]) -> [u8; 32] {
     out
 }
 
-/// Фаза извлечения псевдослучайного ключа RFC 5869 §2.2 `HKDF-Extract(salt, IKM)`.
+/// Pseudorandom key extraction phase: RFC 5869 §2.2 `HKDF-Extract(salt, IKM)`.
 ///
-/// # Поля и аргументы:
-/// * `salt` — соль (опциональная; если пустая, берется массив из 32 нулевых байт).
-/// * `ikm` — исходный ключевой материал (Input Keying Material).
+/// # Arguments:
+/// * `salt` — Optional salt; if empty, defaults to 32 zero bytes per spec.
+/// * `ikm` — Input Keying Material.
 ///
-/// # Возвращает:
-/// * `[u8; 32]` — извлеченный псевдослучайный ключ (PRK).
+/// # Returns:
+/// * `[u8; 32]` — Extracted pseudorandom key (PRK).
 pub fn dave_hkdf_extract_sha256(salt: &[u8], ikm: &[u8]) -> [u8; 32] {
     let zero_salt = [0u8; 32];
     let effective_salt = if salt.is_empty() { &zero_salt } else { salt };
     dave_hmac_sha256(effective_salt, ikm)
 }
 
-/// Фаза расширения RFC 5869 §2.3 `HKDF-Expand(PRK, info, L)` / `mlspp::hkdf_expand` (поддерживает 16B и 32B PRK).
+/// Pseudorandom key expansion phase: RFC 5869 §2.3 `HKDF-Expand(PRK, info, L)` / `mlspp::hkdf_expand`.
+/// Supports both 16-byte and 32-byte PRKs.
 pub fn dave_hkdf_expand_sha256(
     prk: &[u8],
     info: &[u8],

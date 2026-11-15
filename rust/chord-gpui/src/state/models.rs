@@ -204,19 +204,19 @@ pub struct Message {
     pub message_kind: MessageKind,
 }
 
-/// Стиль оформления интерактивной кнопки Discord API v9
+/// Discord API v9 Button style enumeration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(from = "u8", into = "u8")]
 pub enum ButtonStyle {
-    /// 1 = Primary (Blurple, акцентный стиль)
+    /// 1 = Primary (Discord Blurple accent style)
     Primary,
-    /// 2 = Secondary (Серый, нейтральный стиль)
+    /// 2 = Secondary (Neutral gray style)
     Secondary,
-    /// 3 = Success (Зелёный, подтверждение)
+    /// 3 = Success (Green confirmation style)
     Success,
-    /// 4 = Danger (Красный, деструктивное действие)
+    /// 4 = Danger (Red destructive action style)
     Danger,
-    /// 5 = Link (Ссылка, переход по внешнему URL)
+    /// 5 = Link (Hyperlink redirecting to external URL)
     Link,
 }
 
@@ -245,27 +245,27 @@ impl From<ButtonStyle> for u8 {
     }
 }
 
-/// Описание одной интерактивной кнопки сообщения (Discord Component Type 2: Button)
+/// Interactive message button (Discord Component Type 2: Button).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct InteractiveButtonComponent {
-    /// Тип компонента (для кнопок всегда равен 2)
+    /// Component type (always 2 for buttons).
     #[serde(default = "default_button_type")]
     pub component_type: u8,
-    /// Стиль кнопки: Primary, Secondary, Success, Danger, Link
+    /// Button visual style: Primary, Secondary, Success, Danger, Link.
     pub style: ButtonStyle,
-    /// Отображаемый текст надписи на кнопке
+    /// Human-readable label displayed on the button.
     #[serde(default)]
     pub label: Option<String>,
-    /// Идентификатор действия для обратного вызова бота (custom_id)
+    /// Unique action identifier for bot interaction callbacks (`custom_id`).
     #[serde(default)]
     pub custom_id: Option<String>,
-    /// Целевой URL (только для кнопок со стилем Link)
+    /// Target external URL (only valid for `ButtonStyle::Link`).
     #[serde(default)]
     pub url: Option<String>,
-    /// Заблокирована ли кнопка для нажатия
+    /// Whether the button is disabled / non-interactive.
     #[serde(default)]
     pub disabled: bool,
-    /// Название эмодзи или символ (опционально)
+    /// Optional emoji character or custom name.
     #[serde(default)]
     pub emoji_name: Option<String>,
 }
@@ -274,13 +274,13 @@ fn default_button_type() -> u8 {
     2
 }
 
-/// Ряд интерактивных компонентов сообщения (Discord Component Type 1: ActionRow)
+/// Interactive message component row (Discord Component Type 1: ActionRow).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MessageComponentRow {
-    /// Тип компонента (для рядов всегда равен 1)
+    /// Component type (always 1 for ActionRow).
     #[serde(default = "default_action_row_type")]
     pub component_type: u8,
-    /// Список компонентов внутри ряда (до 5 кнопок)
+    /// List of child components within the row (up to 5 buttons).
     #[serde(default)]
     pub components: Vec<InteractiveButtonComponent>,
 }
@@ -289,36 +289,36 @@ fn default_action_row_type() -> u8 {
     1
 }
 
-/// Полезная нагрузка обратного вызова при нажатии кнопки (`POST /api/v9/interactions`)
+/// Interaction callback payload sent upon clicking an interactive button (`POST /api/v9/interactions`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct InteractionCallbackPayload {
-    /// Тип взаимодействия: 3 = MESSAGE_COMPONENT
+    /// Interaction type: 3 = MESSAGE_COMPONENT.
     #[serde(rename = "type")]
     pub interaction_type: u8,
-    /// Идентификатор бота/приложения
+    /// Application ID owning the interaction.
     pub application_id: String,
-    /// Идентификатор гильдии (если применимо)
+    /// Guild ID where the interaction took place (if applicable).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub guild_id: Option<String>,
-    /// Идентификатор текстового канала
+    /// Target channel ID.
     pub channel_id: String,
-    /// Идентификатор сообщения, содержащего кнопку
+    /// ID of the message hosting the clicked button.
     pub message_id: String,
-    /// Текущий идентификатор сессии шлюза
+    /// Active gateway session ID.
     pub session_id: String,
-    /// Данные нажатого компонента
+    /// Clicked component data payload.
     pub data: InteractionComponentData,
-    /// Клиентский nonce для дедупликации
+    /// Client nonce for idempotency and deduplication.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nonce: Option<String>,
 }
 
-/// Вложенные данные компонента при взаимодействии
+/// Nested component data inside an interaction payload.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct InteractionComponentData {
-    /// Тип компонента (2 = Button)
+    /// Component type (2 = Button).
     pub component_type: u8,
-    /// Идентификатор `custom_id` нажатой кнопки
+    /// The button's `custom_id`.
     pub custom_id: String,
 }
 

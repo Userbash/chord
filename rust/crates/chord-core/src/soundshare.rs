@@ -107,11 +107,10 @@ pub fn parse_source_outputs(text: &str, child_pid: u32) -> Vec<SourceOutputInfo>
         } else if trim.starts_with("Volume: ") {
             if let Some(pct_idx) = trim.find('%') {
                 let prefix = &trim[..pct_idx];
-                if let Some(space_idx) = prefix.rfind([' ', '/']) {
-                    if let Ok(v) = prefix[space_idx + 1..].trim().parse::<u32>() {
+                if let Some(space_idx) = prefix.rfind([' ', '/'])
+                    && let Ok(v) = prefix[space_idx + 1..].trim().parse::<u32>() {
                         cur_vol_pct = v;
                     }
-                }
             }
         } else if trim.contains("lab.discord.stream.audio")
             || trim.contains(&pid_marker)
@@ -154,19 +153,16 @@ pub fn resolve_sink_name_by_id(sink_id: &str) -> Option<String> {
         .stdin(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .output()
-    {
-        if out.status.success() {
+        && out.status.success() {
             let text = String::from_utf8_lossy(&out.stdout);
             for line in text.lines() {
                 let cols: Vec<&str> = line.split_whitespace().collect();
-                if cols.first().copied() == Some(sink_id) {
-                    if let Some(&name) = cols.get(1) {
+                if cols.first().copied() == Some(sink_id)
+                    && let Some(&name) = cols.get(1) {
                         return Some(name.to_string());
                     }
-                }
             }
         }
-    }
     None
 }
 
@@ -184,19 +180,16 @@ pub fn resolve_optimal_stream_soundshare_source() -> String {
         .stdin(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .output()
-    {
-        if out.status.success() {
+        && out.status.success() {
             let text = String::from_utf8_lossy(&out.stdout);
             for line in text.lines() {
                 let cols: Vec<&str> = line.split_whitespace().collect();
-                if let Some(&name) = cols.get(1) {
-                    if name == "easyeffects_sink" {
+                if let Some(&name) = cols.get(1)
+                    && name == "easyeffects_sink" {
                         return "easyeffects_sink.monitor".to_string();
                     }
-                }
             }
         }
-    }
 
     // 2. Приоритет: проверяем pactl list sink-inputs, куда играют звук активные приложения (игры, плееры, браузер)
     if let Ok(out) = std::process::Command::new("pactl")
@@ -204,8 +197,7 @@ pub fn resolve_optimal_stream_soundshare_source() -> String {
         .stdin(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .output()
-    {
-        if out.status.success() {
+        && out.status.success() {
             let text = String::from_utf8_lossy(&out.stdout);
             let mut active_sink_num: Option<String> = None;
             let mut is_excluded_app = false;
@@ -225,18 +217,14 @@ pub fn resolve_optimal_stream_soundshare_source() -> String {
                     || trim.contains("media.name = \"Discord-SFX\"")
                 {
                     is_excluded_app = true;
-                } else if trim.starts_with("Corked: no") && !is_excluded_app {
-                    if let Some(ref snum) = active_sink_num {
-                        if let Some(sname) = resolve_sink_name_by_id(snum) {
-                            if !sname.contains("auto_null") {
+                } else if trim.starts_with("Corked: no") && !is_excluded_app
+                    && let Some(ref snum) = active_sink_num
+                        && let Some(sname) = resolve_sink_name_by_id(snum)
+                            && !sname.contains("auto_null") {
                                 return format!("{sname}.monitor");
                             }
-                        }
-                    }
-                }
             }
         }
-    }
 
     // 3. Приоритет: монитор выбранного пользователем устройства вывода
     let (_, out_d) = crate::ws::get_selected_voice_devices();
@@ -250,14 +238,12 @@ pub fn resolve_optimal_stream_soundshare_source() -> String {
         .stdin(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .output()
-    {
-        if out.status.success() {
+        && out.status.success() {
             let sink = String::from_utf8_lossy(&out.stdout).trim().to_string();
             if !sink.is_empty() && !sink.contains("auto_null") {
                 return format!("{sink}.monitor");
             }
         }
-    }
 
     "default".to_string()
 }
@@ -344,8 +330,7 @@ pub fn spawn_stream_soundshare_enforcer(
                     .stdin(std::process::Stdio::null())
                     .stderr(std::process::Stdio::null())
                     .output()
-                {
-                    if out.status.success() {
+                    && out.status.success() {
                         let text = String::from_utf8_lossy(&out.stdout);
                         let outputs = parse_source_outputs(&text, child_pid);
 
@@ -369,7 +354,6 @@ pub fn spawn_stream_soundshare_enforcer(
                             attached = false;
                         }
                     }
-                }
             }
         })
         .ok();

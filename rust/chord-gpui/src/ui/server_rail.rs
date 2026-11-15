@@ -97,7 +97,7 @@ impl ServerRail {
                     .items_center()
                     .gap(px(8.))
                     .children(if state.guild_folders.is_empty() {
-                        // Обычный плоский список, если папки не заданы
+                        // Standard flat list when no guild folders are configured
                         guilds
                             .into_iter()
                             .map(|guild| {
@@ -106,14 +106,19 @@ impl ServerRail {
                             })
                             .collect::<Vec<AnyElement>>()
                     } else {
-                        // Иерархический список с группировкой по guild_folders
+                        // Hierarchical guild layout grouped by guild_folders (diamondburned/dissent pattern)
+                        // Index guilds into an O(1) lookup map to avoid nested O(N) searches
+                        let guild_map: std::collections::HashMap<&str, &crate::state::Guild> =
+                            guilds.iter().map(|g| (g.id.as_str(), g)).collect();
+
                         let mut folder_elements: Vec<AnyElement> = Vec::new();
+
                         for folder in &state.guild_folders {
                             if let Some(folder_id) = folder.id {
                                 let is_expanded = state.is_folder_expanded(folder_id);
                                 let fid = folder_id;
 
-                                // Иконка папки серверов
+                                // Folder accordion icon
                                 let folder_btn = div()
                                     .id(SharedString::from(format!("folder-icon-{}", fid)))
                                     .relative()
@@ -149,31 +154,25 @@ impl ServerRail {
                                     );
                                 folder_elements.push(folder_btn.into_any_element());
 
-                                // Если папка раскрыта — отображаем серверы внутри папки
+                                // When folder is expanded, render enclosed guilds
                                 if is_expanded {
-                                    for gid in &folder.guild_ids {
-                                        if let Some(guild) = guilds.iter().find(|g| &g.id == gid) {
-                                            let is_selected =
-                                                selected_guild_id.as_deref() == Some(&guild.id);
-                                            folder_elements.push(
-                                                Self::render_guild_icon(guild, is_selected, cx)
-                                                    .into_any_element(),
-                                            );
-                                        }
-                                    }
+                                    Self::push_guild_icons(
+                                        &folder.guild_ids,
+                                        &guild_map,
+                                        selected_guild_id.as_deref(),
+                                        &mut folder_elements,
+                                        cx,
+                                    );
                                 }
                             } else {
-                                // Серверы верхнего уровня без папки
-                                for gid in &folder.guild_ids {
-                                    if let Some(guild) = guilds.iter().find(|g| &g.id == gid) {
-                                        let is_selected =
-                                            selected_guild_id.as_deref() == Some(&guild.id);
-                                        folder_elements.push(
-                                            Self::render_guild_icon(guild, is_selected, cx)
-                                                .into_any_element(),
-                                        );
-                                    }
-                                }
+                                // Top-level ungrouped guilds
+                                Self::push_guild_icons(
+                                    &folder.guild_ids,
+                                    &guild_map,
+                                    selected_guild_id.as_deref(),
+                                    &mut folder_elements,
+                                    cx,
+                                );
                             }
                         }
                         folder_elements
@@ -239,7 +238,23 @@ impl ServerRail {
             )
     }
 
-    /// Отрисовка отдельной иконки сервера в боковой панели
+    /// Helper method to batch-render guild icons from an indexed map into the target element buffer.
+    fn push_guild_icons(
+        gids: &[String],
+        guild_map: &std::collections::HashMap<&str, &crate::state::Guild>,
+        selected_guild_id: Option<&str>,
+        target: &mut Vec<AnyElement>,
+        cx: &mut Context<AppLayout>,
+    ) {
+        for gid in gids {
+            if let Some(guild) = guild_map.get(gid.as_str()) {
+                let is_selected = selected_guild_id == Some(&guild.id);
+                target.push(Self::render_guild_icon(guild, is_selected, cx).into_any_element());
+            }
+        }
+    }
+
+    /// Renders a single guild icon in the server navigation rail with unread pill indicators.
     fn render_guild_icon(
         guild: &crate::state::Guild,
         is_selected: bool,

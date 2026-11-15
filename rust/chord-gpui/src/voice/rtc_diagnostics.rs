@@ -348,7 +348,7 @@ impl Default for RtcpMetricsRingBuffer {
 impl RtcpMetricsRingBuffer {
     #[must_use]
     pub fn new(capacity: usize) -> Self {
-        let cap = capacity.max(1).min(RTC_METRICS_RING_CAPACITY);
+        let cap = capacity.clamp(1, RTC_METRICS_RING_CAPACITY);
         Self {
             capacity: cap,
             samples: VecDeque::with_capacity(cap),
@@ -365,6 +365,11 @@ impl RtcpMetricsRingBuffer {
     #[must_use]
     pub fn len(&self) -> usize {
         self.samples.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.samples.is_empty()
     }
 }
 

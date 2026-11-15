@@ -1406,47 +1406,53 @@ impl DiscordRpcListener {
         Ok(owned)
     }
 
-    /// Активирует эмуляцию сокета `/tmp/discord-ipc-<slot>` по референсу `arrpc` (из Vesktop).
+    /// Enables `/tmp/discord-ipc-<slot>` socket emulation following the `arrpc` (Vesktop) reference.
     ///
-    /// Многие игры и библиотеки Discord RPC (включая запущенные через Wine / Proton / Steam Flatpak)
-    /// жестко закодированы на поиск сокета `/tmp/discord-ipc-0`, игнорируя `$XDG_RUNTIME_DIR`.
-    /// Если основной слушатель открыт не в `/tmp`, этот метод создает символическую ссылку
-    /// `/tmp/discord-ipc-<slot> -> <primary_socket_path>`.
+    /// Many native games and libraries (including those running under Wine, Proton, or Steam Flatpak)
+    /// hardcode the path `/tmp/discord-ipc-0` rather than honoring `$XDG_RUNTIME_DIR`.
+    /// When the primary socket listener is bound elsewhere, this method creates a symbolic link
+    /// from `/tmp/discord-ipc-<slot>` to the primary socket file.
     ///
-    /// # Параметры и возвращаемое значение:
-    /// * `Ok(Some(path))` — ссылка успешно создана в `/tmp` и готова для приема подключений игр.
-    /// * `Ok(None)` — сокет уже находится в `/tmp`, либо целевой путь занят другим процессом.
-    /// * `Err(RpcIpcError)` — ошибка прав доступа каталога или создания симлинка.
+    /// # Safety and invariants:
+    /// * Checks `/tmp` directory permissions and verifies the sticky-bit (`0o1000`).
+    /// * Safely cleans up stale sockets or dead symlinks owned by the current UID.
+    /// * Guarantees removal of the symlink upon `Drop`.
+    ///
+    /// # Returns:
+    /// * `Ok(Some(path))` — symlink successfully created in `/tmp`.
+    /// * `Ok(None)` — already in `/tmp`, or slot in `/tmp` is active by another process.
+    /// * `Err(RpcIpcError)` — permission or I/O failure.
     pub fn enable_tmp_socket_emulation(&mut self) -> Result<Option<PathBuf>, RpcIpcError> {
         let Some(slot) = self.slot else {
             return Ok(None);
         };
         let tmp_dir = Path::new("/tmp");
-        if let (Ok(canon_self), Ok(canon_tmp)) = (self.path.canonicalize(), tmp_dir.canonicalize()) {
-            if canon_self.starts_with(&canon_tmp) {
-                // Слушатель уже находится в /tmp, дополнительная ссылка не требуется
-                return Ok(None);
-            }
+
+        // If the primary socket is already inside /tmp, no emulation symlink is needed
+        if let (Ok(canon_self), Ok(canon_tmp)) = (self.path.canonicalize(), tmp_dir.canonicalize())
+            && canon_self.starts_with(&canon_tmp)
+        {
+            return Ok(None);
         }
 
         validate_ipc_dir_permissions(tmp_dir, self.uid)?;
         let tmp_socket_path = tmp_dir.join(format!("{UNIX_SOCKET_PREFIX}{slot}"));
 
-        // Если в /tmp уже существует сокет или симлинк:
+        // Check if an existing socket or symlink already occupies the slot in /tmp
         if let Ok(meta) = fs::symlink_metadata(&tmp_socket_path) {
             if meta.file_type().is_symlink() {
-                if let Ok(target) = fs::read_link(&tmp_socket_path) {
-                    if target == self.path {
-                        self.emulated_tmp_symlink = Some(tmp_socket_path.clone());
-                        return Ok(Some(tmp_socket_path));
-                    }
+                if let Ok(target) = fs::read_link(&tmp_socket_path)
+                    && target == self.path
+                {
+                    self.emulated_tmp_symlink = Some(tmp_socket_path.clone());
+                    return Ok(Some(tmp_socket_path));
                 }
-                // Чужой или устаревший симлинк нашего пользователя удаляем
+                // Remove obsolete symlink owned by current user
                 if meta.uid() == self.uid {
                     let _ = fs::remove_file(&tmp_socket_path);
                 }
             } else if meta.file_type().is_socket() && !remove_stale_socket(&tmp_socket_path, self.uid) {
-                // Сокет занят живым процессом Discord / другого клиента
+                // Socket is currently occupied by an active process
                 return Ok(None);
             }
         }
@@ -1535,14 +1541,16 @@ impl DiscordRpcListener {
 
 impl Drop for DiscordRpcListener {
     fn drop(&mut self) {
-        // Очищаем эмулированную символическую ссылку в /tmp, если она была создана
-        if let Some(ref symlink_path) = self.emulated_tmp_symlink {
-            if let Ok(meta) = fs::symlink_metadata(symlink_path) {
-                if meta.file_type().is_symlink() && meta.uid() == self.uid {
-                    let _ = fs::remove_file(symlink_path);
-                }
-            }
+        // Clean up emulated `/tmp/discord-ipc-<slot>` symlink if it was created and belongs to us
+        if let Some(ref symlink_path) = self.emulated_tmp_symlink
+            && let Ok(meta) = fs::symlink_metadata(symlink_path)
+            && meta.file_type().is_symlink()
+            && meta.uid() == self.uid
+        {
+            let _ = fs::remove_file(symlink_path);
         }
+
+        // Clean up primary socket file if dev and inode match our created instance
         if let Ok(meta) = fs::symlink_metadata(&self.path)
             && meta.file_type().is_socket()
             && meta.dev() == self.device

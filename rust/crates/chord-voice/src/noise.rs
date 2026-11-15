@@ -499,53 +499,60 @@ impl NoiseSuppressionPipeline {
         self.config.vad_threshold_db
     }
 
-    /// Плавающий уровень фонового шума в дБ полной шкалы (Noise Floor)
+    /// Floating background noise floor level in dBFS (Decibels relative to Full Scale).
     #[must_use]
     pub const fn noise_floor_dbfs(&self) -> f32 {
         self.noise_floor_dbfs
     }
 
-    /// Включение/отключение адаптивного плавающего порога шума
+    /// Enable or disable adaptive floating noise floor calculation.
     pub fn set_adaptive_noise_floor_enabled(&mut self, enabled: bool) {
         self.adaptive_noise_floor_enabled = enabled;
     }
 
+    /// Whether adaptive floating noise floor is currently active.
     #[must_use]
     pub const fn is_adaptive_noise_floor_enabled(&self) -> bool {
         self.adaptive_noise_floor_enabled
     }
 
-    /// Запас отношения сигнал/шум (SNR margin в дБ) над уровнем шума
+    /// Signal-to-noise ratio margin (SNR margin in dB) required above the noise floor.
     pub fn set_snr_margin_db(&mut self, margin_db: f32) {
         self.snr_margin_db = margin_db.clamp(0.0, 30.0);
     }
 
+    /// Current SNR margin in dB.
     #[must_use]
     pub const fn snr_margin_db(&self) -> f32 {
         self.snr_margin_db
     }
 
-    /// Запас гистерезиса удержания окончания слов (дБ)
+    /// Hysteresis hold margin in dB preventing speech tail truncation on whisper.
     pub fn set_hysteresis_margin_db(&mut self, margin_db: f32) {
         self.hysteresis_margin_db = margin_db.clamp(0.0, 20.0);
     }
 
+    /// Current hysteresis hold margin in dB.
     #[must_use]
     pub const fn hysteresis_margin_db(&self) -> f32 {
         self.hysteresis_margin_db
     }
 
-    /// Обновление плавающего уровня фонового шума по экспоненциальному сглаживанию (EMA)
-    /// по эталону `uowuo/abaddon` (`audio.cpp`).
+    /// Updates the floating background noise floor via Exponential Moving Average (EMA)
+    /// following the `uowuo/abaddon` (`audio.cpp`) reference oracle.
+    ///
+    /// * Rapid adaptation downward when ambient level drops (5% weight).
+    /// * Slow tracking upward only when gate is closed to prevent adapting to continuous speech (0.2% weight).
+    /// * Clamped within safe bounds `[-100.0, -20.0]` dBFS.
     pub fn update_adaptive_noise_floor(&mut self, current_dbfs: f32) {
         if !current_dbfs.is_finite() {
             return;
         }
         if current_dbfs < self.noise_floor_dbfs {
-            // Быстрое падение до нового уровня тишины (5% шаг)
+            // Rapid fall towards lower ambient noise level
             self.noise_floor_dbfs = self.noise_floor_dbfs * 0.95 + current_dbfs * 0.05;
         } else if !self.gate_open {
-            // Очень медленный дрейф вверх при отсутствии активной речи (0.2% шаг)
+            // Very slow upward drift when no active speech is present
             self.noise_floor_dbfs = self.noise_floor_dbfs * 0.998 + current_dbfs * 0.002;
         }
         self.noise_floor_dbfs = self.noise_floor_dbfs.clamp(-100.0, -20.0);

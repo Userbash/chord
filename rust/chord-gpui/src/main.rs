@@ -183,7 +183,7 @@ fn main() {
                     .timer(std::time::Duration::from_millis(ms))
                     .await;
                 shutdown_for_timer.request_shutdown(session::runtime::ShutdownReason::AppQuit);
-                let _ = cx.update(|cx| cx.quit());
+                cx.update(|cx| cx.quit());
             })
             .detach();
         }

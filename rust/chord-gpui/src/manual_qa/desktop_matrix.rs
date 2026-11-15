@@ -40,8 +40,8 @@ use crate::manual_qa::{ManualQaError, ScreenShareChecklistValidator, VoiceCheckl
 use crate::state::{AppState, ScreenSource};
 use crate::ui::screen_share_modal::{ScreenShareFps, ScreenShareResolution, ScreenShareTab};
 use crate::video::{
-    DRM_FORMAT_MOD_INVALID, DRM_FORMAT_MOD_LINEAR, DRM_FOURCC_NV12, GpuVideoPipeline,
-    PipeWireDmaBufConnector, VideoPixelFormat,
+    DRM_FORMAT_MOD_LINEAR, DRM_FOURCC_NV12, GpuVideoPipeline, PipeWireDmaBufConnector,
+    VideoPixelFormat,
 };
 
 pub const MIN_WINDOW_WIDTH: u32 = 900;
