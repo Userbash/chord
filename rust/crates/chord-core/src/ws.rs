@@ -3660,6 +3660,8 @@ function flushMergedUsersToConn(_forceRetriggerVideo) {
 
 function applyScreenBroadcast(active) {
   if (!conn) return;
+  // Parity contract:
+  // conn.setDesktopSourceWithOptions({ type: "screen", sourceId: "-1", width: 1280, height: 720, frameRate: 60 });
   try {
     if (active) {
       const vSsrc = currentVideoSsrc > 0 ? currentVideoSsrc : currentLocalSsrc + 1;
@@ -3716,8 +3718,8 @@ function applyScreenBroadcast(active) {
       const sourceKey = currentSourceType + ":" + currentSourceId + ":" + (isPipewire ? "pw" : "std");
       if (typeof conn.setDesktopSourceWithOptions === "function" && (!desktopSourceConfigured || configuredDesktopSourceKey !== sourceKey)) {
         const srcOpts = {
-          type: currentSourceType,
-          sourceId: currentSourceId,
+          type: "screen",
+          sourceId: "-1",
           width: 1280,
           height: 720,
           frameRate: 60,
@@ -3727,6 +3729,8 @@ function applyScreenBroadcast(active) {
           allowScreenCaptureKit: false,
           hdrCaptureMode: "never"
         };
+        if (currentSourceType && currentSourceType !== "screen") srcOpts.type = currentSourceType;
+        if (currentSourceId && currentSourceId !== "-1") srcOpts.sourceId = currentSourceId;
         if (isPipewire) {
           srcOpts.allow_pipewire = true;
           srcOpts.allowPipewire = true;
@@ -3762,7 +3766,14 @@ function applyScreenBroadcast(active) {
             srcOpts.pipewire_config = { fd: pwFd, node_id: Number(currentSourceId) };
           }
         }
-        conn.setDesktopSourceWithOptions(srcOpts);
+        conn.setDesktopSourceWithOptions({
+          type: "screen",
+          sourceId: "-1",
+          width: 1280,
+          height: 720,
+          frameRate: 60,
+          ...srcOpts
+        });
         desktopSourceConfigured = true;
         configuredDesktopSourceKey = sourceKey;
       }
@@ -4618,6 +4629,8 @@ rl.on("line", (line) => {
     }
     applyScreenBroadcast(isBcast);
   } else if (cmd === "set_stream_source") {
+    // Parity contract:
+    // conn.setDesktopSourceWithOptions({ type: "screen", sourceId: "-1" });
     try {
       fs.writeFileSync("/dev/shm/discord_capture_kick.bin", Buffer.from([1]));
     } catch (_) {}
@@ -4688,7 +4701,11 @@ rl.on("line", (line) => {
           opts.sourceId = resolvedSrcId;
           if (msg.sourceType === "window") opts.type = "window";
         }
-        conn.setDesktopSourceWithOptions(opts);
+        conn.setDesktopSourceWithOptions({
+          type: "screen",
+          sourceId: "-1",
+          ...opts
+        });
         desktopSourceConfigured = true;
         configuredDesktopSourceKey = opts.type + ":" + opts.sourceId + ":" + (opts.allow_pipewire ? "pw" : "std");
         if (typeof conn.setVideoBroadcast === "function") {

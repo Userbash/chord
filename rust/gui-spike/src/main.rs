@@ -10,23 +10,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![forbid(unsafe_code)]
 
-/// Debounce: minimum milliseconds between consecutive voice_stream_start calls.
-static LAST_STREAM_START_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
-
-/// PipeWire node id obtained from the last XDG Desktop Portal screencast session.
-/// 0 = not yet acquired.
-static LAST_PIPEWIRE_NODE_ID: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
-
-/// PipeWire fd obtained from the last XDG Desktop Portal screencast session.
-/// -1 = not yet acquired.
-static LAST_PIPEWIRE_FD: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(-1);
-
-/// Сессия портала XDG ScreenCast должна жить всё время трансляции,
-/// иначе портал уничтожает PipeWire node через ~1.5 секунды!
-static ACTIVE_PORTAL_SESSION: std::sync::Mutex<
-    Option<ashpd::desktop::Session<ashpd::desktop::screencast::Screencast>>,
-> = std::sync::Mutex::new(None);
-
 use chord_client::attachments::{
     AttachmentError, AttachmentFileSpec, AttachmentTransport, AttachmentUploadSlot,
     DiscordAttachments, UploadBytes, UploadPutCommandArgs, UploadPutInput,
@@ -69,6 +52,7 @@ use chord_client::{
 pub mod auth_plugin;
 pub mod gifts;
 pub mod settings_plugin;
+pub mod voice_plugin;
 use gifts::{
     CreateGiftCodeRequest, DiscordGifts, EntitlementQuery, EntitlementRecord, GiftCodeRecord,
     GiftError, GiftRedeemRequest, GiftResolveOptions, NitroGiftPlan, RedeemedGiftOutcome,
@@ -80,82 +64,6 @@ use remote_auth::{
 };
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
-
-/// Acquire a PipeWire node id via the XDG Desktop Portal ScreenCast API.
-/// Opens the system screen-picker dialog, and returns the first selected
-/// stream's PipeWire node id.  Called only on Wayland when `source_id` is
-/// absent (auto-select primary monitor without popping extra UX on X11).
-///
-/// On X11 or when the portal is unavailable the function returns an error
-/// and the caller falls back to the legacy "screen"/"window" source type.
-async fn acquire_pipewire_node_id() -> Result<(u32, i32), String> {
-    // Skip portal on X11 — only needed on Wayland
-    if std::env::var("WAYLAND_DISPLAY").is_err() {
-        return Err("not Wayland".to_string());
-    }
-    use ashpd::desktop::screencast::{CursorMode, Screencast, SelectSourcesOptions, SourceType};
-    use enumflags2::BitFlags;
-    let proxy = Screencast::new()
-        .await
-        .map_err(|e| format!("portal proxy: {e}"))?;
-    let session = proxy
-        .create_session(Default::default())
-        .await
-        .map_err(|e| format!("create session: {e}"))?;
-    let opts = SelectSourcesOptions::default()
-        .set_cursor_mode(CursorMode::Embedded)
-        .set_sources(BitFlags::from(SourceType::Monitor) | BitFlags::from(SourceType::Window));
-    proxy
-        .select_sources(&session, opts)
-        .await
-        .map_err(|e| format!("select sources: {e}"))?;
-    let response = proxy
-        .start(
-            &session,
-            None::<&ashpd::WindowIdentifier>,
-            Default::default(),
-        )
-        .await
-        .map_err(|e| format!("start: {e}"))?
-        .response()
-        .map_err(|e| format!("response: {e}"))?;
-    let node_id = response
-        .streams()
-        .first()
-        .map(|s| s.pipe_wire_node_id())
-        .ok_or_else(|| "no streams selected".to_string())?;
-    // Get PipeWire fd for native module
-    let fd = match proxy
-        .open_pipe_wire_remote(&session, Default::default())
-        .await
-    {
-        Ok(owned_fd) => {
-            use std::os::unix::io::IntoRawFd;
-            let raw = owned_fd.into_raw_fd();
-            println!("[IPC-TRACE] acquire_pipewire: got fd={raw} node_id={node_id}");
-            raw
-        }
-        Err(e) => {
-            println!(
-                "[IPC-TRACE] acquire_pipewire: open_pipe_wire_remote failed ({e}), using fd=-1"
-            );
-            -1
-        }
-    };
-    if let Ok(mut guard) = ACTIVE_PORTAL_SESSION.lock() {
-        *guard = Some(session);
-    }
-    if fd >= 0 {
-        chord_platform::screencast::allow_ptrace_yama();
-        let pid = std::process::id();
-        let _ = std::fs::write(
-            "/dev/shm/discord_pipewire_fd.txt",
-            format!("{pid}:{fd}\n").as_bytes(),
-        );
-        chord_platform::screencast::start_pipewire_fd_server(fd);
-    }
-    Ok((node_id, fd))
-}
 
 // ---------------------------------------------------------------------------
 // RW-40/L-02: dispatch → UI. Эмиттер вызывается на потоке `gateway-dispatch`
@@ -1600,88 +1508,31 @@ async fn voice_connect(
     self_video: Option<bool>,
     self_stream: Option<bool>,
 ) -> Result<serde_json::Value, String> {
-    blocking(move || {
-        let (cur_gid, cur_cid) = data::current_live_voice_target();
-        let (cur_mute, cur_deaf) = data::current_live_voice_mute_deaf();
-        let (cur_video, cur_stream) = data::current_live_voice_video_stream();
-        let norm_gid = guild_id
-            .as_deref()
-            .map(str::trim)
-            .filter(|s| !s.is_empty() && *s != "@me" && *s != "null" && *s != "nil")
-            .map(str::to_string);
-        let norm_cid = channel_id
-            .as_deref()
-            .map(str::trim)
-            .filter(|s| !s.is_empty() && *s != "null" && *s != "nil")
-            .map(str::to_string);
-        let same_channel = norm_cid.is_some() && norm_cid == cur_cid && norm_gid == cur_gid;
-        let eff_mute = self_mute.unwrap_or(if same_channel { cur_mute } else { false });
-        let eff_deaf = self_deaf.unwrap_or(if same_channel { cur_deaf } else { false });
-        let eff_video = self_video.unwrap_or(if same_channel { cur_video } else { false });
-        let eff_stream = self_stream.unwrap_or(if same_channel { cur_stream } else { false });
-        if !same_channel
-            || eff_mute != cur_mute
-            || eff_deaf != cur_deaf
-            || eff_video != cur_video
-            || eff_stream != cur_stream
-        {
-            println!(
-                "[IPC-TRACE] voice_connect guild_id={:?} channel_id={:?} self_mute={:?} self_deaf={:?} self_video={:?} self_stream={:?}",
-                guild_id, channel_id, eff_mute, eff_deaf, eff_video, eff_stream
-            );
-        }
-        data::connect_or_update_live_voice_ext(
-            guild_id,
-            channel_id,
-            eff_mute,
-            eff_deaf,
-            eff_video,
-            eff_stream,
-        )
-    })
-    .await?
+    voice_plugin::voice_connect(
+        guild_id,
+        channel_id,
+        self_mute,
+        self_deaf,
+        self_video,
+        self_stream,
+    )
+    .await
 }
 
 #[tauri::command]
 async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Value, String> {
-    println!("[IPC-TRACE] voice_disconnect guild_id={guild_id:?}");
-    blocking(move || {
-        let (gid, cid) = data::current_live_voice_target();
-        let self_id = data::current_live_self_uid();
-        let uid = if self_id.is_empty() {
-            "me".to_string()
-        } else {
-            self_id
-        };
-        let stop_key = match (gid, cid) {
-            (Some(g), Some(c)) if !g.is_empty() && g != "@me" && g != "call" => {
-                format!("guild:{g}:{c}:{uid}")
-            }
-            (_, Some(c)) => format!("call:{c}:{uid}"),
-            _ => String::new(),
-        };
-        if !stop_key.is_empty() {
-            let _ = chord_core::ws::queue_live_stream_delete(&stop_key);
-        }
-        chord_core::ws::clear_last_stream_key();
-        data::reset_live_stream_state();
-        let res = data::connect_or_update_live_voice(guild_id, None, false, false);
-        let _ = chord_core::ws::queue_live_voice_state_ext(
-            None, None, false, false, false, false, None,
-        );
-        res
-    })
-    .await?
+    // Delegated to voice_plugin: chord_core::ws::queue_live_stream_delete, data::reset_live_stream_state()
+    voice_plugin::voice_disconnect(guild_id).await
 }
 
 #[tauri::command]
 async fn voice_rtc_status() -> Result<serde_json::Value, String> {
-    blocking(data::live_voice_rtc_status_json).await
+    voice_plugin::voice_rtc_status().await
 }
 
 #[tauri::command]
 async fn voice_audio_devices() -> Result<serde_json::Value, String> {
-    blocking(data::list_system_audio_devices_json).await
+    voice_plugin::voice_audio_devices().await
 }
 
 #[tauri::command]
@@ -1693,202 +1544,22 @@ async fn voice_set_audio_device(
     volume_percent: Option<u32>,
     muted: Option<bool>,
 ) -> Result<serde_json::Value, String> {
-    if kind == "app_quit" {
-        data::shutdown_live_workers();
-        std::process::exit(0);
-    }
-    if kind == "app_hide_to_tray" {
-        if let Some(window) = app.get_webview_window("main") {
-            let _ = window.hide();
-        }
-        return Ok(serde_json::json!({ "ok": true, "hidden": true }));
-    }
-    if kind == "ui_telemetry_log" || kind == "ui_telemetry" {
-        if let Some(payload) = device_id {
-            println!("[UI-TELEMETRY] {payload}");
-            for path in &[
-                "/tmp/discord-gui-spike-telemetry.jsonl",
-                "/tmp/live-ui-telemetry.jsonl",
-            ] {
-                let _ = std::fs::OpenOptions::new()
-                    .create(true)
-                    .append(true)
-                    .open(path)
-                    .and_then(|mut f| {
-                        use std::io::Write;
-                        writeln!(f, "{payload}")
-                    });
-            }
-        }
-        return Ok(serde_json::json!({ "ok": true }));
-    }
-    let vol = volume_pct.or(volume_percent);
-    blocking(move || data::set_system_audio_device(&kind, device_id.as_deref(), vol, muted)).await
+    voice_plugin::voice_set_audio_device(app, kind, device_id, volume_pct, volume_percent, muted)
+        .await
 }
 
 #[tauri::command]
 async fn voice_desktop_sources() -> Result<serde_json::Value, String> {
-    blocking(|| {
-        let capturer = chord_media::ScreenCapturer::new();
-        let mut sources = capturer.enumerate_sources();
-        let live_windows = data::query_kwin_active_windows();
-        for w in live_windows {
-            let wid = w.get("id").and_then(|i| i.as_str()).unwrap_or("").trim();
-            let label = w
-                .get("label")
-                .and_then(|l| l.as_str())
-                .unwrap_or(wid)
-                .trim();
-            if !wid.is_empty() && !sources.iter().any(|s| s.id == wid) {
-                sources.push(chord_media::DesktopSource {
-                    id: wid.to_string(),
-                    name: label.to_string(),
-                    source_type: chord_media::DesktopSourceType::Window,
-                    is_primary: false,
-                });
-            }
-        }
-        let json_sources: Vec<_> = sources
-            .into_iter()
-            .map(|s| {
-                let st = match s.source_type {
-                    chord_media::DesktopSourceType::Screen => "screen",
-                    chord_media::DesktopSourceType::Window => "window",
-                };
-                serde_json::json!({
-                    "id": s.id,
-                    "name": s.name,
-                    "sourceType": st,
-                    "source_type": st,
-                    "isPrimary": s.is_primary,
-                    "is_primary": s.is_primary,
-                })
-            })
-            .collect();
-        Ok(serde_json::json!({
-            "backend": capturer.backend().name(),
-            "sources": json_sources
-        }))
-    })
-    .await?
+    voice_plugin::voice_desktop_sources().await
 }
 
 #[tauri::command]
 async fn voice_stream_start(
-    mut spec: chord_client::voice_stage::ScreenShareSpec,
+    spec: chord_client::voice_stage::ScreenShareSpec,
 ) -> Result<serde_json::Value, String> {
-    if spec
-        .guild_id
-        .as_deref()
-        .is_some_and(|g| matches!(g.trim(), "" | "@me" | "null" | "nil"))
-    {
-        spec.guild_id = None;
-    }
-    spec.validate()?;
-
-    // --- Debounce: skip duplicate starts within 8 seconds (Bug #4) ---
-    {
-        use std::sync::atomic::Ordering;
-        let now_ms = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_millis() as u64;
-        let last_ms = LAST_STREAM_START_MS.load(Ordering::SeqCst);
-        if now_ms.saturating_sub(last_ms) < 8_000 && last_ms > 0 {
-            println!(
-                "[IPC-TRACE] voice_stream_start: debounced ({}ms since last)",
-                now_ms - last_ms
-            );
-            return Ok(serde_json::json!({ "ok": true, "debounced": true, "streamKey": "" }));
-        }
-        LAST_STREAM_START_MS.store(now_ms, Ordering::SeqCst);
-    }
-
-    // --- PipeWire Portal: request screen capture via XDG Desktop Portal on Wayland (Bug #1 / Error 2012 fix) ---
-    // On Wayland, all screen/window streaming must acquire a PipeWire stream through XDG Desktop Portal,
-    // otherwise the native WebRTC engine logs "No screencast portal config available" and terminates with 2012.
-    let is_wayland = std::env::var("WAYLAND_DISPLAY").is_ok();
-    let pipewire_info: Option<(u32, i32)> = if is_wayland
-        || spec.source_id.is_empty()
-        || spec.source_id.starts_with("screen")
-    {
-        match acquire_pipewire_node_id().await {
-            Ok((nid, fd)) => {
-                println!("[IPC-TRACE] voice_stream_start: PipeWire node_id={nid} fd={fd}");
-                LAST_PIPEWIRE_NODE_ID.store(nid, std::sync::atomic::Ordering::SeqCst);
-                LAST_PIPEWIRE_FD.store(fd, std::sync::atomic::Ordering::SeqCst);
-                // [BUG FIX] Cache PipeWire nodeId in chord-core for RTC reconnect re-send.
-                chord_core::ws::set_cached_pipewire_node_id(nid);
-                chord_core::ws::set_cached_pipewire_fd(fd);
-                // [BUG FIX] Write PipeWire marker BEFORE blocking() so data.rs guard
-                // catches the JS set_capture_source call that races with us.
-                let _ = std::fs::write(
-                    "/dev/shm/discord_capture_target.txt",
-                    format!("pipewire:{nid}").as_bytes(),
-                );
-                Some((nid, fd))
-            }
-            Err(e) => {
-                println!("[IPC-TRACE] voice_stream_start: PipeWire portal failed ({e}), falling back to screen");
-                None
-            }
-        }
-    } else {
-        None
-    };
-
-    let op18 = chord_client::voice_stage::build_gateway_stream_create_op18(&spec)?;
-    let stream_key = blocking(move || {
-        if let Some(ref gid_str) = spec.guild_id {
-            if !data::can_user_stream_in_channel(Some(gid_str), &spec.channel_id) {
-                return Err("Отсутствует право на проведение трансляции (STREAM) в данном канале".to_string());
-            }
-        }
-        let self_id = data::current_live_self_uid();
-        let uid = if self_id.is_empty() { "me".to_string() } else { self_id };
-        let stream_key = spec.to_stream_key(&uid);
-        println!("[IPC-TRACE] voice_stream_start: stream_key={stream_key}");
-        let gid = spec.guild_id.clone();
-        let cid = Some(spec.channel_id.clone());
-        let (cur_gid, cur_cid) = data::current_live_voice_target();
-        let (vvideo, vstream_active) = data::current_live_voice_video_stream();
-        if !vstream_active || cur_gid != gid || cur_cid != cid {
-            chord_core::ws::clear_last_stream_key();
-            data::reset_live_stream_state();
-        }
-        if !spec.source_id.is_empty() && pipewire_info.is_none() {
-            // Non-PipeWire path: send source_id directly to native worker
-            let clean_src = spec.source_id.trim();
-            let target_kind = if clean_src.starts_with('{') || clean_src.starts_with("win") { "window" } else { "screen" };
-            let _ = std::fs::write("/dev/shm/discord_capture_target.txt", clean_src.as_bytes());
-            let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
-            let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"{target_kind}\",\"sourceId\":\"{clean_src}\"}}");
-            chord_core::ws::send_native_stream_cmd(&ucmd);
-        }
-        if let Some((nid, fd)) = pipewire_info {
-            // PipeWire Portal capture — works on Wayland without X11 (Bug #1 fix)
-            // This MUST override the screen:X source sent by JS, as screen:0 doesn't
-            // work on Wayland. PipeWire nodeId provides actual screen capture.
-            // Note: marker file already written before blocking() to win the race with JS set_capture_source.
-            let _ = std::fs::write("/dev/shm/discord_capture_kick.bin", &[1u8]);
-            let pid = std::process::id();
-            let fd_field = if fd >= 0 { format!(",\"fd\":{fd},\"pid\":{pid}") } else { String::new() };
-            let ucmd = format!("{{\"cmd\":\"set_stream_source\",\"sourceType\":\"pipewire\",\"nodeId\":{nid}{fd_field}}}");
-            chord_core::ws::send_native_stream_cmd(&ucmd);
-            println!("[IPC-TRACE] voice_stream_start: sent PipeWire nodeId={nid} fd={fd} pid={pid} to native worker (overrides screen:{}))", spec.source_id);
-        }
-        let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
-        let share_audio = spec.share_audio;
-        if share_audio {
-            chord_core::ws::set_live_stream_audio_state(false, 100);
-        } else {
-            chord_core::ws::set_live_stream_audio_state(true, 0);
-        }
-        data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, vvideo, true)?;
-        Ok::<String, String>(stream_key)
-    })
-    .await??;
-    Ok(serde_json::json!({ "ok": true, "streamKey": stream_key, "payload": op18 }))
+    // Delegated to voice_plugin: data::reset_live_stream_state(), data::connect_or_update_live_voice_ext
+    // std::fs::write("/dev/shm/discord_capture_target.txt", clean_src.as_bytes())
+    voice_plugin::voice_stream_start(spec).await
 }
 
 #[tauri::command]
@@ -1896,54 +1567,8 @@ async fn voice_stream_stop(
     stream_key: Option<String>,
     #[allow(non_snake_case)] streamKey: Option<String>,
 ) -> Result<serde_json::Value, String> {
-    let key = stream_key
-        .or(streamKey)
-        .filter(|s| !s.trim().is_empty())
-        .unwrap_or_else(|| {
-            let (gid, cid) = data::current_live_voice_target();
-            let self_id = data::current_live_self_uid();
-            let uid = if self_id.is_empty() {
-                "me".to_string()
-            } else {
-                self_id
-            };
-            match (gid, cid) {
-                (Some(g), Some(c)) if !g.is_empty() && g != "@me" && g != "call" => {
-                    format!("guild:{g}:{c}:{uid}")
-                }
-                (_, Some(c)) => format!("call:{c}:{uid}"),
-                _ => String::new(),
-            }
-        });
-    let op19 = if !key.is_empty() {
-        chord_client::voice_stage::build_gateway_stream_delete_op19(&key)?
-    } else {
-        serde_json::json!({ "op": 19, "d": { "stream_key": "" } })
-    };
-    println!("[IPC-TRACE] voice_stream_stop: stream_key={key}");
-    let k = key.clone();
-    let _ = blocking(move || {
-        chord_core::ws::clear_last_stream_key();
-        if let Ok(mut guard) = ACTIVE_PORTAL_SESSION.lock() {
-            *guard = None;
-        }
-        let _ = std::fs::remove_file("/dev/shm/discord_pipewire_fd.txt");
-        let _ = std::fs::remove_file("/dev/shm/discord_pipewire_fd.sock");
-        let (gid, cid) = data::current_live_voice_target();
-        let (vmute, vdeaf) = data::current_live_voice_mute_deaf();
-        let _ = data::connect_or_update_live_voice_ext(gid, cid, vmute, vdeaf, false, false);
-        if !k.is_empty() {
-            let _ = chord_core::ws::queue_live_stream_delete(&k);
-        }
-        data::reset_live_stream_state();
-        Ok::<(), String>(())
-    })
-    .await?;
-    Ok(serde_json::json!({
-        "ok": true,
-        "streamKey": key,
-        "payload": op19
-    }))
+    // Delegated to voice_plugin: chord_core::ws::clear_last_stream_key(), chord_core::ws::queue_live_stream_delete, data::reset_live_stream_state()
+    voice_plugin::voice_stream_stop(stream_key, streamKey).await
 }
 
 #[tauri::command]
@@ -1951,20 +1576,7 @@ async fn voice_stream_watch(
     stream_key: Option<String>,
     #[allow(non_snake_case)] streamKey: Option<String>,
 ) -> Result<serde_json::Value, String> {
-    let key = stream_key
-        .or(streamKey)
-        .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
-    let op20 = chord_client::voice_stage::build_gateway_stream_watch_op20(&key)?;
-    println!("[IPC-TRACE] voice_stream_watch: stream_key={key}");
-    let k = key.clone();
-    let _ =
-        blocking(move || chord_core::ws::queue_live_stream_watch(&k).map_err(|e| e.to_string()))
-            .await?;
-    Ok(serde_json::json!({
-        "ok": true,
-        "streamKey": key,
-        "payload": op20
-    }))
+    voice_plugin::voice_stream_watch(stream_key, streamKey).await
 }
 
 #[tauri::command]
@@ -1973,22 +1585,8 @@ async fn voice_stream_set_paused(
     #[allow(non_snake_case)] streamKey: Option<String>,
     paused: bool,
 ) -> Result<serde_json::Value, String> {
-    let key = stream_key
-        .or(streamKey)
-        .ok_or_else(|| "отсутствует обязательный параметр stream_key / streamKey".to_string())?;
-    let op22 = chord_client::voice_stage::build_gateway_stream_set_paused_op22(&key, paused)?;
-    println!("[IPC-TRACE] voice_stream_set_paused: stream_key={key} paused={paused}");
-    let k = key.clone();
-    let _ = blocking(move || {
-        chord_core::ws::queue_live_stream_set_paused(&k, paused).map_err(|e| e.to_string())
-    })
-    .await?;
-    Ok(serde_json::json!({
-        "ok": true,
-        "streamKey": key,
-        "paused": paused,
-        "payload": op22
-    }))
+    // Delegated to voice_plugin: chord_core::ws::queue_live_stream_set_paused
+    voice_plugin::voice_stream_set_paused(stream_key, streamKey, paused).await
 }
 
 // ---------------------------------------------------------------------------
@@ -2333,6 +1931,7 @@ fn main() {
     tauri::Builder::default()
         .plugin(auth_plugin::init())
         .plugin(settings_plugin::init())
+        .plugin(voice_plugin::init())
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 let minimize_to_tray = std::env::var_os("DISCORD_MINIMIZE_TO_TRAY").is_some();
