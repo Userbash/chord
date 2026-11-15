@@ -37,9 +37,15 @@ const DEFAULT_REPO = 'Userbash/chord';
 
 function execJson(cmd) {
   try {
-    const out = execSync(cmd, { cwd: PROJECT_ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+    const out = execSync(cmd, { cwd: PROJECT_ROOT, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] });
+    const jsonStart = out.indexOf('{');
+    const jsonEnd = out.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1) {
+      return JSON.parse(out.slice(jsonStart, jsonEnd + 1));
+    }
     return JSON.parse(out);
   } catch (err) {
+    console.error(`execJson failed on: ${cmd}\nError: ${err.message}`);
     return null;
   }
 }
@@ -110,10 +116,21 @@ export function auditPr(prDetails) {
   // 5. Read-Only Golden Paths Guard (AGENTS.md §6: logs/, functions/, evidence/ are read-only)
   const touchedGolden = files.filter((f) => /^(logs|functions|evidence)\//.test(f.path));
   if (touchedGolden.length > 0) {
-    blockers.push(`Modifications detected in read-only golden artifacts: ${touchedGolden.map((f) => f.path).join(', ')} (AGENTS.md §6).`);
+    blockers.push(`Modifications detected in read-only golden artifacts: ${touchedGolden.map((f) => f.path).join(', ')} (AGENTS.md §6 / AMCP §3).`);
     score -= 40;
   } else {
     findings.push(`Golden paths protected: No edits to logs/, functions/, or evidence/.`);
+  }
+
+  // 5b. Shared Files & Lockfile Protection (AMCP §3.1 / §6.1)
+  const restrictedSharedFiles = files.filter((f) =>
+    /^(Cargo\.lock|package-lock\.json|AGENTS\.md|PROCESS\.md|TEAM\.md|ecc2\.toml)$/.test(f.path)
+  );
+  if (restrictedSharedFiles.length > 0) {
+    warnings.push(`PR modifies shared lockfiles/governance files: ${restrictedSharedFiles.map((f) => f.path).join(', ')} (Requires Team Lead sign-off, AMCP §3.1).`);
+    score -= 15;
+  } else {
+    findings.push(`Shared governance and lockfiles preserved.`);
   }
 
   // 6. Rust & Tauri Safety Check
@@ -243,6 +260,25 @@ export function generateDualReviewTemplate(prNumber, taskSlug = 'pr-review') {
   return { acceptMd, reviewMd };
 }
 
+export async function cherryPickPrFiles(prNumber, targetPaths, repo = DEFAULT_REPO) {
+  console.log(`\n🍒 [PR-CHERRY-PICK] Selectively importing ${targetPaths.length} file(s) from PR #${prNumber}...`);
+  const prRef = `pr-${prNumber}-src`;
+  execSync(`git fetch public pull/${prNumber}/head:${prRef}`, { cwd: PROJECT_ROOT, stdio: 'inherit' });
+
+  for (const p of targetPaths) {
+    console.log(`   Checking out: ${p}`);
+    execSync(`git checkout ${prRef} -- "${p}"`, { cwd: PROJECT_ROOT, stdio: 'inherit' });
+  }
+
+  console.log(`✅ Files checked out from PR #${prNumber}. Running smart verification on imported files...`);
+  try {
+    const { runTests } = await import('./test-runner-smart.mjs');
+    runTests(targetPaths);
+  } catch {}
+
+  console.log(`🎉 Selective import complete and verified!`);
+}
+
 // CLI handler
 async function main() {
   const args = process.argv.slice(2);
@@ -251,6 +287,16 @@ async function main() {
   const repo = args.find((a, i) => args[i - 1] === '--repo') || DEFAULT_REPO;
 
   try {
+    if (cmd === 'cherry-pick') {
+      const filesToPick = args.slice(2).filter((a) => !a.startsWith('--'));
+      if (filesToPick.length === 0) {
+        console.error('Specify files to cherry-pick: pr-ops cherry-pick <PR> <path1> [path2...]');
+        process.exit(1);
+      }
+      await cherryPickPrFiles(prNumber, filesToPick, repo);
+      return;
+    }
+
     const prDetails = fetchPrDetails(prNumber, repo);
 
     switch (cmd) {
