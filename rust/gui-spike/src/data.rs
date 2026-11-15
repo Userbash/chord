@@ -8406,6 +8406,18 @@ pub struct ReadyPayload {
     pub read_state: Value,
 }
 
+/// Untagged Serde scalar representation for tolerant Gateway/REST field deserialization.
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum RawScalarDto {
+    Bool(bool),
+    Unsigned(u64),
+    Signed(i64),
+    Text(String),
+    #[allow(dead_code)]
+    Other(Value),
+}
+
 /// Serde deserializer for an optional Discord string field, filtering out empty strings and `"nil"` sentinels.
 fn deserialize_ready_opt_str<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -8420,22 +8432,7 @@ fn deserialize_ready_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    let val = Value::deserialize(deserializer)?;
-    let flag = match &val {
-        Value::Bool(flag) => Some(*flag),
-        Value::String(text) => match text.as_str() {
-            "true" => Some(true),
-            "false" => Some(false),
-            _ => None,
-        },
-        Value::Number(number) => match number.as_u64() {
-            Some(1) => Some(true),
-            Some(0) => Some(false),
-            _ => None,
-        },
-        _ => None,
-    };
-    Ok(flag.unwrap_or(false))
+    Ok(deserialize_ready_opt_bool(deserializer)?.unwrap_or(false))
 }
 
 /// Serde deserializer for an optional Discord `u8` field accepting numbers or numeric strings, clamped to `u8::MAX`.
@@ -8443,13 +8440,7 @@ fn deserialize_ready_opt_u8<'de, D>(deserializer: D) -> Result<Option<u8>, D::Er
 where
     D: serde::Deserializer<'de>,
 {
-    let val = Value::deserialize(deserializer)?;
-    let num = match &val {
-        Value::Number(number) => number.as_u64(),
-        Value::String(text) => text.parse::<u64>().ok(),
-        _ => None,
-    };
-    Ok(num.map(|n| n.min(u8::MAX as u64) as u8))
+    Ok(deserialize_ready_opt_u64(deserializer)?.map(|n| n.min(u8::MAX as u64) as u8))
 }
 
 /// Data Transfer Object (DTO) for deserializing `READY.user` payloads via Serde.
@@ -8553,20 +8544,16 @@ fn deserialize_ready_opt_bool<'de, D>(deserializer: D) -> Result<Option<bool>, D
 where
     D: serde::Deserializer<'de>,
 {
-    let val = Value::deserialize(deserializer)?;
-    let flag = match &val {
-        Value::Bool(flag) => Some(*flag),
-        Value::String(text) => match text.as_str() {
+    let flag = match RawScalarDto::deserialize(deserializer)? {
+        RawScalarDto::Bool(flag) => Some(flag),
+        RawScalarDto::Text(text) => match text.as_str() {
             "true" => Some(true),
             "false" => Some(false),
             _ => None,
         },
-        Value::Number(number) => match number.as_u64() {
-            Some(1) => Some(true),
-            Some(0) => Some(false),
-            _ => None,
-        },
-        _ => None,
+        RawScalarDto::Unsigned(1) | RawScalarDto::Signed(1) => Some(true),
+        RawScalarDto::Unsigned(0) | RawScalarDto::Signed(0) => Some(false),
+        RawScalarDto::Unsigned(_) | RawScalarDto::Signed(_) | RawScalarDto::Other(_) => None,
     };
     Ok(flag)
 }
@@ -8576,11 +8563,24 @@ fn deserialize_ready_opt_u64<'de, D>(deserializer: D) -> Result<Option<u64>, D::
 where
     D: serde::Deserializer<'de>,
 {
-    let val = Value::deserialize(deserializer)?;
-    let num = match &val {
-        Value::Number(number) => number.as_u64(),
-        Value::String(text) => text.parse::<u64>().ok(),
-        _ => None,
+    let num = match RawScalarDto::deserialize(deserializer)? {
+        RawScalarDto::Unsigned(n) => Some(n),
+        RawScalarDto::Text(text) => text.parse::<u64>().ok(),
+        RawScalarDto::Bool(_) | RawScalarDto::Signed(_) | RawScalarDto::Other(_) => None,
+    };
+    Ok(num)
+}
+
+/// Serde deserializer for an optional Discord `i64` field accepting signed integers or numeric strings.
+fn deserialize_ready_opt_i64<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let num = match RawScalarDto::deserialize(deserializer)? {
+        RawScalarDto::Signed(n) => Some(n),
+        RawScalarDto::Unsigned(n) => i64::try_from(n).ok(),
+        RawScalarDto::Text(text) => text.parse::<i64>().ok(),
+        RawScalarDto::Bool(_) | RawScalarDto::Other(_) => None,
     };
     Ok(num)
 }
@@ -9461,29 +9461,135 @@ fn ready_array<'a>(data: &'a Value, key: &str, path: &Path) -> Result<&'a [Value
     }
 }
 
-/// Канал READY: `id` и `type` обязательны (без типа UI не решит, открывать ли
-/// чат), остальные поля — как в фикстуре, `nil` — отсутствие значения.
+/// Data Transfer Object (DTO) for deserializing a guild or private channel entry from Gateway READY via Serde.
+///
+/// Eliminates manual `opt_str`/`as_u64` extraction while preserving ETF `"nil"` sentinel filtering,
+/// numeric/string `type`, `position`, and `user_limit` coercion, and `permission_overwrites` arrays.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct RawGuildChannelDto {
+    /// Required channel Snowflake ID (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Optional channel display name (`None` for DM channels or `"nil"` sentinel).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub name: Option<String>,
+    /// Numeric Discord channel type (`0` = text, `2` = voice, `4` = category, `5` = announcement, `15` = forum, `1` = DM).
+    #[serde(rename = "type", deserialize_with = "deserialize_ready_opt_u64")]
+    pub kind: Option<u64>,
+    /// Optional parent category Snowflake ID (`None` if top-level or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub parent_id: Option<String>,
+    /// Optional sorting position within the guild.
+    #[serde(deserialize_with = "deserialize_ready_opt_i64")]
+    pub position: Option<i64>,
+    /// Raw permission overwrites array (`permission_overwrites`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub permission_overwrites: Vec<Value>,
+    /// Optional voice channel user limit (`> 0`).
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub user_limit: Option<u64>,
+}
+
+impl RawGuildChannelDto {
+    /// Converts the deserialized DTO into a validated [`ChannelRow`].
+    ///
+    /// # Arguments
+    /// * `guild_id` - Owning guild Snowflake ID (`None` for private/DM channels).
+    /// * `path` - Source fixture or cache path for error context.
+    /// * `at` - JSON location descriptor (e.g. `"READY.guilds[0].channels[1]"`).
+    ///
+    /// # Returns
+    /// `Ok(ChannelRow)` if `id` and `type` are valid, or `Err(DataError)` on schema violation.
+    #[inline]
+    #[must_use = "returns the validated ChannelRow result"]
+    pub fn into_channel_row(
+        self,
+        guild_id: Option<&str>,
+        path: &Path,
+        at: &str,
+    ) -> Result<ChannelRow, DataError> {
+        let id = self
+            .id
+            .ok_or_else(|| DataError::parse(path, format!("{at}: нет строкового id")))?;
+        let kind = self.kind.ok_or_else(|| {
+            DataError::parse(path, format!("{at} (канал {id}): нет числового type"))
+        })?;
+        Ok(ChannelRow {
+            id,
+            guild_id: guild_id.map(str::to_string),
+            name: self.name,
+            kind,
+            parent_id: self.parent_id,
+            position: self.position,
+            permission_overwrites: self.permission_overwrites,
+            user_limit: self.user_limit.filter(|&lim| lim > 0),
+            is_afk: None,
+        })
+    }
+}
+
+/// Parses a single Gateway READY channel JSON value into a [`ChannelRow`] via [`RawGuildChannelDto`].
+///
+/// # Arguments
+/// * `channel` - Raw JSON value representing a guild or private channel.
+/// * `guild_id` - Owning guild Snowflake ID (`None` for private/DM channels).
+/// * `path` - Source file path used for [`DataError`] reporting.
+/// * `at` - JSON location descriptor for error diagnostics.
+///
+/// # Returns
+/// `Ok(ChannelRow)` on valid schema, or `Err(DataError)` if `id` or `type` is missing/invalid.
+#[inline]
 fn parse_channel(
     channel: &Value,
     guild_id: Option<&str>,
     path: &Path,
     at: &str,
 ) -> Result<ChannelRow, DataError> {
-    let id = field_str(channel, "id")
-        .ok_or_else(|| DataError::parse(path, format!("{at}: нет строкового id")))?;
-    let kind = field_u64(channel, "type")
-        .ok_or_else(|| DataError::parse(path, format!("{at} (канал {id}): нет числового type")))?;
-    Ok(ChannelRow {
-        id: id.to_string(),
-        guild_id: guild_id.map(str::to_string),
-        name: field_str(channel, "name").map(str::to_string),
-        kind,
-        parent_id: field_str(channel, "parent_id").map(str::to_string),
-        position: field_i64(channel, "position"),
-        permission_overwrites: array(channel.get("permission_overwrites")).to_vec(),
-        user_limit: field_u64(channel, "user_limit").filter(|&lim| lim > 0),
-        is_afk: None,
-    })
+    RawGuildChannelDto::deserialize(channel)
+        .unwrap_or_default()
+        .into_channel_row(guild_id, path, at)
+}
+
+/// Parses all channels of a single Gateway `READY.guilds[]` object into `(guild_index, ChannelRow)` tuples.
+///
+/// Uses [`GuildSummaryDto`] to resolve `properties.afk_channel_id` / `afk_channel_id` and
+/// [`RawGuildChannelDto`] to deserialize each channel entry and mark AFK voice channels.
+///
+/// # Arguments
+/// * `guild` - Raw JSON value representing the guild in `READY.guilds[]`.
+/// * `guild_index` - Position of the guild in `READY.guilds[]` for deterministic sorting.
+/// * `guild_id` - Validated guild Snowflake ID.
+/// * `path` - Source fixture path for [`DataError`] diagnostics.
+///
+/// # Returns
+/// `Ok(Vec<(usize, ChannelRow)>)` for all channels in the guild, or `Err(DataError)` on malformed channel entries.
+#[inline]
+fn parse_guild_channels(
+    guild: &Value,
+    guild_index: usize,
+    guild_id: &str,
+    path: &Path,
+) -> Result<Vec<(usize, ChannelRow)>, DataError> {
+    let guild_dto = GuildSummaryDto::deserialize(guild).unwrap_or_default();
+    let afk_cid = guild_dto
+        .properties
+        .afk_channel_id
+        .or(guild_dto.afk_channel_id);
+    let mut guild_rows = Vec::with_capacity(guild_dto.channels.len());
+    for (channel_index, channel) in guild_dto.channels.iter().enumerate() {
+        let mut row = parse_channel(
+            channel,
+            Some(guild_id),
+            path,
+            &format!("READY.guilds[{guild_index}].channels[{channel_index}]"),
+        )?;
+        if afk_cid.as_deref().is_some_and(|afk_id| afk_id == row.id) {
+            row.is_afk = Some(true);
+        }
+        guild_rows.push((guild_index, row));
+    }
+    Ok(guild_rows)
 }
 
 /// Каналы из READY: гильдейские `guilds[].channels[]` и ЛС `private_channels[]`.
@@ -9675,22 +9781,7 @@ pub fn channels(root: &Path, guild_id: Option<&str>) -> Result<Vec<ChannelRow>, 
         if guild_filter.is_some_and(|filter| filter != id) {
             continue;
         }
-        let afk_cid = guild
-            .get("properties")
-            .and_then(|p| field_str(p, "afk_channel_id"))
-            .or_else(|| field_str(guild, "afk_channel_id"));
-        for (channel_index, channel) in array(guild.get("channels")).iter().enumerate() {
-            let mut row = parse_channel(
-                channel,
-                Some(id),
-                &path,
-                &format!("READY.guilds[{guild_index}].channels[{channel_index}]"),
-            )?;
-            if afk_cid.is_some_and(|afk_id| afk_id == row.id) {
-                row.is_afk = Some(true);
-            }
-            rows.push((guild_index, row));
-        }
+        rows.extend(parse_guild_channels(guild, guild_index, id, &path)?);
     }
     if guild_filter.is_none() {
         for (index, channel) in private.iter().enumerate() {
