@@ -3249,7 +3249,7 @@ function boot() {
   let micTestTimer = null;
   /** @type {ReturnType<typeof createTauriEventListener> | ReturnType<typeof setInterval> | null} */
   let voiceSyncTimer = null;
-  /** @type {ReturnType<typeof setTimeout> | ReturnType<typeof setInterval> | null} */
+  /** @type {any} */
   let audioDeviceLevelsTimer = null;
   let audioDeviceLevelsInFlight = false;
   let lastAudioDeviceSyncAtMs = 0;
@@ -4315,43 +4315,47 @@ function boot() {
 
   function startAudioDeviceLevelsPolling() {
     if (audioDeviceLevelsTimer) return;
-    const scheduleNext = () => {
-      const settingsEl = typeof document !== "undefined" ? document.getElementById("settings") : null;
-      const screenSettingsEl = typeof document !== "undefined" ? document.getElementById("screen-settings") : null;
-      const isSettingsScreenVisible = !screenSettingsEl
-        ? Boolean(settingsEl && !settingsEl.hidden && !settingsEl.hasAttribute?.("hidden"))
-        : !screenSettingsEl.hidden &&
-          !screenSettingsEl.hasAttribute?.("hidden") &&
-          screenSettingsEl.getAttribute?.("aria-hidden") !== "true";
-      const isVoiceSettingsOpen = Boolean(
-        isSettingsScreenVisible &&
-          settingsEl &&
-          !settingsEl.hidden &&
-          !settingsEl.hasAttribute?.("hidden") &&
-          settingsEl.getAttribute?.("aria-hidden") !== "true" &&
-          (settingsEl.dataset?.activePane === "voice" ||
-            settingsEl.getAttribute?.("data-active-pane") === "voice")
-      );
-      if (!activeVoiceConnection && !isVoiceSettingsOpen) {
-        stopAudioDeviceLevelsPolling();
-        return;
-      }
-      const intervalMs = isVoiceSettingsOpen ? 500 : 10000;
-      audioDeviceLevelsTimer = setTimeout(() => {
-        void pollAudioDeviceLevels(false).finally(() => {
-          if (audioDeviceLevelsTimer) {
-            scheduleNext();
-          }
-        });
-      }, intervalMs);
-    };
-    scheduleNext();
+    const settingsEl = typeof document !== "undefined" ? document.getElementById("settings") : null;
+    const screenSettingsEl = typeof document !== "undefined" ? document.getElementById("screen-settings") : null;
+    const isSettingsScreenVisible = !screenSettingsEl
+      ? Boolean(settingsEl && !settingsEl.hidden && !settingsEl.hasAttribute?.("hidden"))
+      : !screenSettingsEl.hidden &&
+        !screenSettingsEl.hasAttribute?.("hidden") &&
+        screenSettingsEl.getAttribute?.("aria-hidden") !== "true";
+    const isVoiceSettingsOpen = Boolean(
+      isSettingsScreenVisible &&
+        settingsEl &&
+        !settingsEl.hidden &&
+        !settingsEl.hasAttribute?.("hidden") &&
+        settingsEl.getAttribute?.("aria-hidden") !== "true" &&
+        (settingsEl.dataset?.activePane === "voice" ||
+          settingsEl.getAttribute?.("data-active-pane") === "voice")
+    );
+    if (!activeVoiceConnection && !isVoiceSettingsOpen) {
+      stopAudioDeviceLevelsPolling();
+      return;
+    }
+    const intervalMs = isVoiceSettingsOpen ? 500 : 10000;
+
+    audioDeviceLevelsTimer = createTauriEventListener({
+      event: "voice-audio-device-levels",
+      initialFetch: () => pollAudioDeviceLevels(false),
+      onEvent: () => {
+        void pollAudioDeviceLevels(false);
+      },
+      autoStart: true,
+    });
   }
 
   function stopAudioDeviceLevelsPolling() {
     if (audioDeviceLevelsTimer) {
-      clearTimeout(audioDeviceLevelsTimer);
-      clearInterval(audioDeviceLevelsTimer);
+      const activeTimer = /** @type {any} */ (audioDeviceLevelsTimer);
+      if (typeof activeTimer.stop === "function") {
+        void activeTimer.stop();
+      } else {
+        clearTimeout(activeTimer);
+        clearInterval(activeTimer);
+      }
       audioDeviceLevelsTimer = null;
     }
   }
