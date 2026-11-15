@@ -24,8 +24,10 @@ from verify import (EnvironmentFailure, IntegrityError, artifact_names, check_pi
 ROOT = Path(__file__).resolve().parents[2]
 TARGET = "aarch64-unknown-linux-gnu"
 CPUS = {"generic": "generic", "rpi5": "cortex-a76", "asahi": "apple-m1"}
-C_ARCH = {"generic": "-march=armv8-a+simd+crc+crypto",
-          "rpi5": "-mcpu=cortex-a76+crc+crypto", "asahi": "-mcpu=apple-m1"}
+# Generic ARMv8-A does not guarantee optional CRC or crypto instructions.
+# Optimized builds inherit features from their explicitly selected CPU model.
+C_ARCH = {"generic": "-march=armv8-a",
+          "rpi5": "-mcpu=cortex-a76", "asahi": "-mcpu=apple-m1"}
 PACKAGES = ["alsa", "fontconfig", "wayland-client", "xkbcommon", "xkbcommon-x11", "xcb",
             "gtk+-3.0", "webkit2gtk-4.1", "glib-2.0", "gio-2.0", "gobject-2.0",
             "libsoup-3.0", "libsecret-1", "libpipewire-0.3", "enchant-2", "hunspell", "openssl"]
@@ -166,7 +168,7 @@ def cargo_configuration(args, tools, values, flags):
                  "-Wl,-z,relro,-z,now,-z,noexecstack",
                  "-Wl,-z,max-page-size=16384,-z,common-page-size=16384"]:
         rustflags.extend(["-C", f"link-arg={flag}"])
-    rustflags.extend(["-C", "target-feature=+neon,+crc,+aes,+sha2", "-C", f"target-cpu={CPUS[args.profile]}"])
+    rustflags.extend(["-C", f"target-cpu={CPUS[args.profile]}"])
     lines = ["# Generated for an actual locked Chord GUI build.", "[build]", f"target = {json.dumps(TARGET)}",
              f"[target.{TARGET}]", f"linker = {json.dumps(tools['clang'])}",
              f"rustflags = {json.dumps(rustflags)}", "[env]"]

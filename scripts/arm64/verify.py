@@ -45,16 +45,45 @@ def elf_headers(path):
             raise IntegrityError(f"invalid or truncated ELF64 LSB: {path}")
         if struct.unpack_from("<HH", header, 16) not in ((2, 183), (3, 183)):
             raise IntegrityError(f"ELF must use EM_AARCH64=183: {path}")
+        if struct.unpack_from("<I", header, 20)[0] != 1 or struct.unpack_from("<H", header, 52)[0] != 64:
+            raise IntegrityError(f"invalid ELF header version/size: {path}")
         offset = struct.unpack_from("<Q", header, 32)[0]
         width, count = struct.unpack_from("<HH", header, 54)
         size = os.fstat(stream.fileno()).st_size
-        if width != 56 or not count or offset + width * count > size:
+        if width != 56 or not count or offset < 64 or offset + width * count > size:
             raise IntegrityError(f"invalid ELF program headers: {path}")
         stream.seek(offset)
         segments = [struct.unpack("<IIQQQQQQ", stream.read(56)) for _ in range(count)]
-        if any(segment[2] + segment[5] > size for segment in segments):
+        if any(segment[0] != 0 and segment[2] + segment[5] > size for segment in segments):
             raise IntegrityError(f"truncated ELF segment: {path}")
+        validate_load_segments(segments)
         return segments
+
+
+def validate_load_segments(segments):
+    """Check gABI load ranges for both the GUI and the official runtime."""
+    previous = -1
+    for kind, _, offset, address, _, file_size, memory_size, alignment in segments:
+        if kind != 1:
+            continue
+        if file_size > memory_size:
+            raise IntegrityError("ELF PT_LOAD file size exceeds memory size")
+        if memory_size > (1 << 64) - 1 - address:
+            raise IntegrityError("ELF PT_LOAD address range overflows ELF64")
+        # Linux ARM64 base pages are multiples of 4 KiB, even when p_align is 0/1.
+        # This is a minimum loader constraint, not a measured native page size.
+        if (address - offset) % 4096:
+            raise IntegrityError("ELF PT_LOAD address and offset must be congruent to 4 KiB")
+        if alignment > 1:
+            if alignment & (alignment - 1):
+                raise IntegrityError("ELF PT_LOAD alignment must be a power of two")
+            if (address - offset) % alignment:
+                raise IntegrityError("ELF PT_LOAD address and offset must be congruent")
+        if address < previous:
+            raise IntegrityError("ELF PT_LOAD addresses must be in ascending order")
+        previous = address
+    if previous == -1:
+        raise IntegrityError("ELF executable requires a PT_LOAD segment")
 
 
 def validate_elf(path, gui=True):
@@ -69,9 +98,11 @@ def validate_elf(path, gui=True):
         raise IntegrityError("ELF must contain one PT_INTERP")
     with open(path, "rb") as stream:
         stream.seek(interpreters[0][2])
-        interpreter = stream.read(interpreters[0][5]).rstrip(b"\0").decode("ascii")
-    if interpreter != "/lib/ld-linux-aarch64.so.1":
-        raise IntegrityError(f"unexpected ELF interpreter: {interpreter}")
+        interpreter = stream.read(interpreters[0][5])
+    if interpreter != b"/lib/ld-linux-aarch64.so.1\0":
+        raise IntegrityError(f"unexpected ELF interpreter: {interpreter!r}")
+    if segments.index(interpreters[0]) > next(index for index, segment in enumerate(segments) if segment[0] == 1):
+        raise IntegrityError("ELF PT_INTERP must precede PT_LOAD segments")
     stack = [segment for segment in segments if segment[0] == 0x6474E551]
     relro = any(segment[0] == 0x6474E552 and segment[6] for segment in segments)
     if not relro or len(stack) != 1 or stack[0][1] & 1:
@@ -80,7 +111,8 @@ def validate_elf(path, gui=True):
     if not re.search(r"BIND_NOW|FLAGS[^\n]*NOW", details) or "Build ID:" not in details:
         raise IntegrityError("ELF requires BIND_NOW and a linker Build ID")
     return {"elf_class": "ELF64", "elf_machine": "EM_AARCH64", "elf_machine_id": 183,
-            "interpreter": interpreter, "page_size_bytes": min(loads), "full_relro": True}
+            "interpreter": interpreter[:-1].decode("ascii"), "load_segment_alignment_bytes": min(loads),
+            "kernel_page_size_bytes": None, "full_relro": True}
 
 
 def md5_section(runtime):

@@ -227,10 +227,17 @@ describe("TASK-990: Кросс-компиляция и пакеты для Linux
       assert.match(flagsJoined, /--target=aarch64-unknown-linux-gnu/);
       assert.match(flagsJoined, /-fuse-ld=lld/);
       assert.match(flagsJoined, /max-page-size=16384/);
-      assert.match(flagsJoined, /\+neon/);
-      assert.match(flagsJoined, /\+crc/);
-      assert.match(flagsJoined, /\+aes/);
-      assert.match(flagsJoined, /\+sha2/);
+      // ARM-ABI-DECISION.md in waves/RW-51 separates the immutable historical
+      // dist config from the current source's portable generic CPU contract.
+      if (cfgPath === CARGO_CONFIG_DIST_PATH) {
+        assert.match(flagsJoined, /\+neon/);
+        assert.match(flagsJoined, /\+crc/);
+        assert.match(flagsJoined, /\+aes/);
+        assert.match(flagsJoined, /\+sha2/);
+      } else {
+        assert.ok(targetCfg.rustflags.includes("target-cpu=generic"));
+        assert.doesNotMatch(flagsJoined, /\+(?:crc|aes|sha2|crypto)(?:,|\s|$)/);
+      }
 
       const envCfg = parsed.env;
       assert.ok(envCfg && typeof envCfg === "object", "Должна присутствовать секция [env]");
@@ -239,6 +246,12 @@ describe("TASK-990: Кросс-компиляция и пакеты для Linux
       assert.equal(envCfg.AR_aarch64_unknown_linux_gnu, "llvm-ar");
       assert.equal(envCfg.PKG_CONFIG_ALLOW_CROSS, "1");
       assert.equal(envCfg.PKG_CONFIG_SYSROOT_DIR, "/usr/aarch64-linux-gnu");
+      if (cfgPath === CARGO_CONFIG_PKG_PATH) {
+        assert.equal(envCfg.CFLAGS_aarch64_unknown_linux_gnu,
+          "--target=aarch64-unknown-linux-gnu -march=armv8-a -O2 -fPIC");
+        assert.equal(envCfg.CXXFLAGS_aarch64_unknown_linux_gnu,
+          envCfg.CFLAGS_aarch64_unknown_linux_gnu);
+      }
     }
   });
 

@@ -408,6 +408,9 @@ npm run check                            # Unified typecheck and full test pass
 
 | `tests/meta/fixture-e2e-selection.test.mjs` | `scripts/gate.mjs` | `fixtureE2eFiles` |
 | `tests/unit/arm64-build-integrity.test.mjs` | `scripts/build-arm64.sh` | — |
+| `tests/unit/arm64-cpu-abi-contract.test.mjs` | `scripts/arm64/build.py`, `packaging/arm64/cargo-config.toml` | Portable generic compiler inputs, explicit CPU profiles, retained hardening and honest dry-run state |
+| `tests/unit/arm64-elf-abi-contract.test.mjs` | `scripts/arm64/verify.py` | Linker-produced ELF bounds, load alignment/congruence, interpreter, runtime split and truthful page metadata |
+| `tests/unit/signals.test.mjs` | `rust/gui-spike/ui/state/signals.js` | Upstream reactive signal, computed state, effects, batching and disposal contracts |
 
 
 | `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |

@@ -137,7 +137,9 @@ test('Kanban stdio reads and filters only the relocated board', async t => {
 test('Kanban tool schema advertises planning annotations and extensible metadata', async t => {
   const fixture = await checkout(t);
   const [response] = fixture.rpc([{ jsonrpc: '2.0', id: 1, method: 'tools/list' }]);
-  const tool = response.result.tools.find(item => item.name === 'kanban_create_card');
+  /** @type {Array<{name: string, inputSchema: {properties: Record<string, unknown>, additionalProperties: boolean}}>} */
+  const tools = response.result.tools;
+  const tool = tools.find(item => item.name === 'kanban_create_card');
   assert.ok(tool);
   for (const key of ['dependencies', 'coding_instructions', 'write_scope', 'dispatch_status', 'dispatch']) {
     assert.ok(tool.inputSchema.properties[key], `Missing schema field: ${key}`);

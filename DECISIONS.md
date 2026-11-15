@@ -113,3 +113,23 @@ within a finite budget after shutdown; persistent conflicts remain failures.
 Xvfb lifecycle checks derive the first free display from an independent
 read-only occupancy snapshot, so an outer test display does not invalidate
 the fixture. Real X11 sockets and locks are never modified by these checks.
+
+## CP-009 — ARM source portability and truthful ELF metadata (2026-11-15)
+
+Owner/coordinator: RW-51. Scope: LIB-ARM-02, LIB-ARM-08 source slices and
+LIB-ARM-06.I1 source-configuration test reconciliation. Full parent acceptance
+and native release qualification remain open.
+
+| Old contract | New contract | Independent basis |
+| --- | --- | --- |
+| Generic source flags globally enable CRC/AES/SHA2 and C crypto. | ARMv8-A generic inputs; optimized profiles select an explicit CPU without blanket extension overrides. | Rust target-feature safety contract and actual compiler configuration inputs; see `waves/RW-51/ARM-ABI-DECISION.md`. |
+| SUB-990-1 requires optional instruction flags in historical DIST and current SOURCE alike. | Historical DIST retains all four original positive feature assertions. Current SOURCE requires the portable generic CPU, rejects optional extensions and checks exact matching C/C++ flags. | Historical DIST is immutable provenance; current source follows the reviewed CPU contract. Five isolated mutants of the new source expectation are rejected. |
+| ELF segment alignment is reported as a numeric kernel page size. | Report `load_segment_alignment_bytes` and unknown `kernel_page_size_bytes`; validate loader ranges and congruence separately. | System V gABI, independent readelf and linker-produced format fixtures; see `waves/RW-51/ARM-ELF-ABI-CONTRACT.md`. |
+
+No golden artifact or remaining package/runtime assertion is changed. The full
+ARM06 legacy-build contract is still pending genuine build/package evidence;
+this decision does not approve a fake output, missing SDK, test skip or release.
+Raw red/green/mutation logs and independent review records are referenced in
+`waves/RW-51/ARM-SOURCE-BATCH.md`. The full worker gate remains separately
+reported; a focused source result cannot replace it. Reverting a source slice
+does not authorize distributing an unqualified ARM artifact.

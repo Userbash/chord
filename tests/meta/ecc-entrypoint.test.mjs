@@ -14,7 +14,10 @@ const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../scripts/e
 const posixOnly = process.platform === 'win32'
   ? 'Run POSIX entrypoint contracts in WSL, Linux or macOS.' : false;
 
-/** Create a relocated checkout without requiring an installed ECC or provider. */
+/**
+ * Create a relocated checkout without requiring an installed ECC or provider.
+ * @param {import('node:test').TestContext} t
+ */
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'ecc-entrypoint-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -33,7 +36,11 @@ function fixture(t) {
   return { root, scripts, cwd, home, launcher };
 }
 
-/** A local process oracle prints its identity and exact argument bytes. */
+/**
+ * A local process oracle prints its identity and exact argument bytes.
+ * @param {string} directory
+ * @param {string} tag
+ */
 function backend(directory, tag, code = 0) {
   mkdirSync(directory, { recursive: true });
   const executable = join(directory, 'ecc');
@@ -42,6 +49,11 @@ function backend(directory, tag, code = 0) {
   return executable;
 }
 
+/**
+ * @param {ReturnType<typeof fixture>} f
+ * @param {string[]} args
+ * @param {NodeJS.ProcessEnv} [overrides]
+ */
 function invoke(f, args, overrides = {}) {
   return spawnSync(f.launcher, args, {
     cwd: f.cwd,
@@ -51,6 +63,11 @@ function invoke(f, args, overrides = {}) {
   });
 }
 
+/**
+ * @param {ReturnType<typeof invoke>} result
+ * @param {string} tag
+ * @param {string[]} args
+ */
 function assertBackend(result, tag, args, code = 0) {
   assert.equal(result.error, undefined, result.error?.message);
   assert.equal(result.signal, null);
