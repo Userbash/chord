@@ -30,13 +30,28 @@ export {
   createRtcQualityStatusBar,
 } from './rtc-quality-status-bar.js';
 
-/** Допустимые разрешения демонстрации экрана. */
-export const SCREEN_SHARE_RESOLUTIONS = Object.freeze(
-  /** @type {const} */ (['720p', '1080p', '1440p']),
-);
+import {
+  SCREEN_SHARE_RESOLUTIONS,
+  SCREEN_SHARE_FPS_OPTIONS,
+} from './screen-share-dialog.js';
 
-/** Допустимые значения частоты кадров демонстрации экрана. */
-export const SCREEN_SHARE_FPS_OPTIONS = Object.freeze(/** @type {const} */ ([30, 60]));
+export {
+  SCREEN_SHARE_RESOLUTIONS,
+  SCREEN_SHARE_FPS_OPTIONS,
+  DEFAULT_SCREEN_SHARE_CONFIG,
+  SCREEN_SHARE_DIALOG_TOKENS,
+  normalizeResolution,
+  normalizeFps,
+  filterSourcesByCategory,
+  formatSourceItem,
+  createScreenShareDialogController,
+  openScreenShareDialog,
+  openScreenSharePicker,
+} from './screen-share-dialog.js';
+
+import {
+  createScreenShareDialogController,
+} from './screen-share-dialog.js';
 
 /**
  * @typedef {import('./voice-grid.js').VoiceParticipant} VoiceParticipant
@@ -68,6 +83,7 @@ export const SCREEN_SHARE_FPS_OPTIONS = Object.freeze(/** @type {const} */ ([30,
  *   defaultFps?: ScreenShareFps | number,
  *   defaultShareAudio?: boolean,
  *   defaultCategory?: 'all' | 'screens' | 'windows' | string,
+ *   onStartStream?: (payload: StartStreamPayload) => void,
  * }} ScreenSharePickerOptions
  *
  * @typedef {{
@@ -136,32 +152,6 @@ function setButtonDisabled(buttonEl, isDisabled) {
   }
 }
 
-/**
- * Нормализует разрешение демонстрации экрана к допустимому значению.
- *
- * @param {unknown} value
- * @returns {ScreenShareResolution}
- */
-function normalizeResolution(value) {
-  if (value === '720p' || value === '1080p' || value === '1440p') {
-    return value;
-  }
-  return '1080p';
-}
-
-/**
- * Нормализует частоту кадров демонстрации экрана к `30` или `60`.
- *
- * @param {unknown} value
- * @returns {ScreenShareFps}
- */
-function normalizeFps(value) {
-  const num = Number(value);
-  if (num === 30 || num === 60) {
-    return num;
-  }
-  return 60;
-}
 
 /**
  * Создаёт контроллер голосовой сцены и диалога демонстрации экрана.
@@ -316,280 +306,30 @@ export function createVoiceStageController(containerEl, options = {}) {
   function openScreenSharePicker(pickerOptions = {}) {
     if (activeDialogEl && typeof activeDialogEl.remove === 'function') {
       activeDialogEl.remove();
+      activeDialogEl = null;
     }
 
-    const rawSources = Array.isArray(pickerOptions.sources) ? [...pickerOptions.sources] : [];
-    let sources = rawSources.filter((s) => s && typeof s.id === 'string' && s.id.length > 0);
-
-    let selectedSourceId = sources[0]?.id ?? '';
-    /** @type {ScreenShareResolution} */
-    let selectedResolution = normalizeResolution(pickerOptions.defaultResolution ?? '1080p');
-    /** @type {ScreenShareFps} */
-    let selectedFps = normalizeFps(pickerOptions.defaultFps ?? 60);
-    let shareAudio = Boolean(pickerOptions.defaultShareAudio ?? false);
-    /** @type {'all' | 'screens' | 'windows'} */
-    let activeCategory =
-      pickerOptions.defaultCategory === 'screens' || pickerOptions.defaultCategory === 'windows'
-        ? pickerOptions.defaultCategory
-        : 'all';
-
-    const dialog = doc.createElement('div');
-    dialog.setAttribute('role', 'dialog');
-    dialog.setAttribute('aria-modal', 'true');
-    dialog.setAttribute('aria-label', 'Демонстрация экрана');
-    dialog.setAttribute('data-screen-share-dialog', 'true');
-
-    const titleEl = doc.createElement('h2');
-    titleEl.setAttribute('data-dialog-title', '');
-    titleEl.textContent = 'Демонстрация экрана';
-    dialog.appendChild(titleEl);
-
-    // Вкладки категорий: Все, Экраны, Окна
-    const categoryGroup = doc.createElement('div');
-    categoryGroup.setAttribute('data-category-tabs', '');
-    /** @type {Map<'all' | 'screens' | 'windows', any>} */
-    const categoryButtons = new Map();
-
-    const categories = [
-      { id: /** @type {const} */ ('all'), label: 'Все' },
-      { id: /** @type {const} */ ('screens'), label: 'Экраны' },
-      { id: /** @type {const} */ ('windows'), label: 'Окна' },
-    ];
-
-    for (const cat of categories) {
-      const btn = doc.createElement('button');
-      btn.setAttribute('type', 'button');
-      btn.setAttribute('data-category-tab', cat.id);
-      btn.textContent = cat.label;
-      btn.addEventListener('click', () => {
-        activeCategory = cat.id;
-        renderSourcesList();
-        syncPickerState();
-      });
-      categoryButtons.set(cat.id, btn);
-      categoryGroup.appendChild(btn);
-    }
-    dialog.appendChild(categoryGroup);
-
-    const sourcesGroup = doc.createElement('div');
-    sourcesGroup.setAttribute('data-sources-list', '');
-    dialog.appendChild(sourcesGroup);
-
-    /** @type {Map<string, any>} */
-    const sourceButtons = new Map();
-
-    function renderSourcesList() {
-      sourceButtons.clear();
-      const filteredSources = sources.filter((s) => {
-        if (activeCategory === 'all') return true;
-        const kind = String(s.kind || s.source_type || '').toLowerCase();
-        const isScreen = kind === 'screen' || kind === 'screens' || s.id.startsWith('screen:');
-        return activeCategory === 'screens' ? isScreen : !isScreen;
-      });
-
-      const buttons = [];
-      for (const source of filteredSources) {
-        const btn = doc.createElement('button');
-        btn.setAttribute('type', 'button');
-        btn.setAttribute('data-source-id', source.id);
-        btn.textContent = source.name ?? source.title ?? source.id;
-        btn.addEventListener('click', () => {
-          selectedSourceId = source.id;
-          syncPickerState();
-        });
-        sourceButtons.set(source.id, btn);
-        buttons.push(btn);
-      }
-      replaceElementChildren(sourcesGroup, buttons);
-    }
-
-    renderSourcesList();
-
-    const resolutionGroup = doc.createElement('div');
-    resolutionGroup.setAttribute('data-resolution-group', '');
-    /** @type {Map<ScreenShareResolution, any>} */
-    const resolutionButtons = new Map();
-
-    for (const res of SCREEN_SHARE_RESOLUTIONS) {
-      const btn = doc.createElement('button');
-      btn.setAttribute('type', 'button');
-      btn.setAttribute('role', 'radio');
-      btn.setAttribute('data-resolution', res);
-      btn.textContent = res;
-      btn.addEventListener('click', () => {
-        selectedResolution = res;
-        syncPickerState();
-      });
-      resolutionButtons.set(res, btn);
-      resolutionGroup.appendChild(btn);
-    }
-    dialog.appendChild(resolutionGroup);
-
-    const fpsGroup = doc.createElement('div');
-    fpsGroup.setAttribute('data-fps-group', '');
-    /** @type {Map<ScreenShareFps, any>} */
-    const fpsButtons = new Map();
-
-    for (const fps of SCREEN_SHARE_FPS_OPTIONS) {
-      const btn = doc.createElement('button');
-      btn.setAttribute('type', 'button');
-      btn.setAttribute('role', 'radio');
-      btn.setAttribute('data-fps', String(fps));
-      btn.textContent = `${fps} FPS`;
-      btn.addEventListener('click', () => {
-        selectedFps = fps;
-        syncPickerState();
-      });
-      fpsButtons.set(fps, btn);
-      fpsGroup.appendChild(btn);
-    }
-    dialog.appendChild(fpsGroup);
-
-    const audioLabel = doc.createElement('label');
-    audioLabel.setAttribute('data-share-audio-label', '');
-
-    const audioCheckbox = doc.createElement('input');
-    audioCheckbox.setAttribute('type', 'checkbox');
-    audioCheckbox.setAttribute('data-share-audio', 'true');
-
-    const audioText = doc.createElement('span');
-    audioText.textContent = 'Транслировать звук системы';
-
-    const toggleAudio = () => {
-      shareAudio = !shareAudio;
-      syncPickerState();
-    };
-    audioCheckbox.addEventListener('click', (/** @type {any} */ event) => {
-      if (event && typeof event.stopPropagation === 'function') {
-        event.stopPropagation();
-      }
-      toggleAudio();
-    });
-    audioCheckbox.addEventListener('change', () => {
-      if (typeof audioCheckbox.checked === 'boolean') {
-        shareAudio = audioCheckbox.checked;
-        syncPickerState();
-      }
-    });
-
-    audioLabel.appendChild(audioCheckbox);
-    audioLabel.appendChild(audioText);
-    dialog.appendChild(audioLabel);
-
-    const submitBtn = doc.createElement('button');
-    submitBtn.setAttribute('type', 'button');
-    submitBtn.setAttribute('data-action', 'start-stream');
-    submitBtn.setAttribute('data-submit-stream', 'true');
-    submitBtn.textContent = 'Начать трансляцию';
-
-    submitBtn.addEventListener('click', () => {
-      if (!selectedSourceId) return;
-      if (typeof options.onStartStream === 'function') {
-        options.onStartStream({
-          sourceId: selectedSourceId,
-          resolution: selectedResolution,
-          fps: selectedFps,
-          shareAudio,
-        });
-      }
-    });
-    dialog.appendChild(submitBtn);
-
-    function syncPickerState() {
-      for (const [cat, btn] of categoryButtons.entries()) {
-        const isSelected = cat === activeCategory;
-        btn.setAttribute('data-selected', isSelected ? 'true' : 'false');
-        btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
-      }
-      for (const [id, btn] of sourceButtons.entries()) {
-        const isSelected = id === selectedSourceId;
-        btn.setAttribute('data-selected', isSelected ? 'true' : 'false');
-        btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-      }
-      for (const [res, btn] of resolutionButtons.entries()) {
-        const isSelected = res === selectedResolution;
-        btn.setAttribute('data-selected', isSelected ? 'true' : 'false');
-        btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
-      }
-      for (const [fps, btn] of fpsButtons.entries()) {
-        const isSelected = fps === selectedFps;
-        btn.setAttribute('data-selected', isSelected ? 'true' : 'false');
-        btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
-      }
-      audioCheckbox.checked = shareAudio;
-      audioCheckbox.setAttribute('data-checked', shareAudio ? 'true' : 'false');
-      audioCheckbox.setAttribute('aria-checked', shareAudio ? 'true' : 'false');
-      setButtonDisabled(submitBtn, !selectedSourceId);
-    }
-
-    /** @type {Promise<any> | null} */
-    let loadPromise = null;
-    if (typeof pickerOptions.loadSources === 'function') {
-      loadPromise = pickerOptions
-        .loadSources()
-        .then((loaded) => {
-          if (Array.isArray(loaded)) {
-            sources = loaded.filter((s) => s && typeof s.id === 'string' && s.id.length > 0);
-            if (!selectedSourceId && sources.length > 0) {
-              selectedSourceId = sources[0].id;
-            }
-            renderSourcesList();
-            syncPickerState();
-          }
-          return loaded;
-        })
-        .catch(() => []);
-    } else if (!pickerOptions.sources && typeof globalThis !== 'undefined') {
-      const tauri = /** @type {any} */ (globalThis).__TAURI__;
-      const tauriInvoke = tauri?.core?.invoke ?? tauri?.invoke;
-      if (typeof tauriInvoke === 'function') {
-        loadPromise = tauriInvoke('voice_desktop_sources')
-          .then((/** @type {any} */ res) => {
-            if (res && Array.isArray(res.sources)) {
-              sources = res.sources.map((/** @type {any} */ s) => ({
-                id: String(s.id),
-                name: String(s.name || s.id),
-                kind: s.source_type,
-                source_type: s.source_type,
-                is_primary: Boolean(s.is_primary),
-              }));
-              if (!selectedSourceId && sources.length > 0) {
-                selectedSourceId = sources[0].id;
-              }
-              renderSourcesList();
-              syncPickerState();
-            }
-            return sources;
-          })
-          .catch(() => []);
-      }
-    }
-
-    syncPickerState();
-    containerEl.appendChild(dialog);
-    activeDialogEl = dialog;
-
-    return {
-      element: dialog,
-      loadPromise,
-      /** @returns {StartStreamPayload} */
-      getState() {
-        return {
-          sourceId: selectedSourceId,
-          resolution: selectedResolution,
-          fps: selectedFps,
-          shareAudio,
-        };
-      },
-      close() {
-        if (activeDialogEl === dialog) {
-          activeDialogEl = null;
-        }
-        if (typeof dialog.remove === 'function') {
-          dialog.remove();
+    const controller = createScreenShareDialogController(containerEl, {
+      ...pickerOptions,
+      onStartStream: (payload) => {
+        if (typeof pickerOptions.onStartStream === 'function') {
+          pickerOptions.onStartStream(payload);
+        } else if (typeof options.onStartStream === 'function') {
+          options.onStartStream(payload);
         }
       },
+    });
+
+    activeDialogEl = controller.element;
+    const origClose = controller.close;
+    controller.close = () => {
+      if (activeDialogEl === controller.element) {
+        activeDialogEl = null;
+      }
+      origClose();
     };
+
+    return controller;
   }
 
   renderStage();
