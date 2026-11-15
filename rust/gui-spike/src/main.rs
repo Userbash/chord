@@ -61,13 +61,14 @@ use chord_client::reactions::{
 use chord_client::search::{
     DiscordSearch, RemoteSearch, SearchError, SearchParams, SearchResponse,
 };
-use chord_client::settings_store::{SettingsError, SettingsStore, UiSettings};
+use chord_client::settings_store::{SettingsError, UiSettings};
 use chord_client::typing::{self, DiscordTyping, TypingCooldowns, TypingError};
 use chord_client::{
     parse_process_metrics, validate_bench_payload, validate_ui_snapshot, ProcessMetrics,
 };
 pub mod auth_plugin;
 pub mod gifts;
+pub mod settings_plugin;
 use gifts::{
     CreateGiftCodeRequest, DiscordGifts, EntitlementQuery, EntitlementRecord, GiftCodeRecord,
     GiftError, GiftRedeemRequest, GiftResolveOptions, NitroGiftPlan, RedeemedGiftOutcome,
@@ -1570,17 +1571,13 @@ async fn net_disconnect(net: tauri::State<'_, Arc<NetService>>) -> Result<String
 /// Настройки с диска; нет файла → дефолты отгруженного UI (cozy/dark/ru).
 #[tauri::command]
 async fn settings_load() -> Result<UiSettings, SettingsError> {
-    blocking(|| SettingsStore::from_env().load())
-        .await
-        .map_err(|message| SettingsError::invalid("internal", message))?
+    settings_plugin::settings_load().await
 }
 
 /// Сохранение: валидация значений, лимит 256 KiB, атомарная запись tmp+rename.
 #[tauri::command]
 async fn settings_save(settings: UiSettings) -> Result<(), SettingsError> {
-    blocking(move || SettingsStore::from_env().save(&settings))
-        .await
-        .map_err(|message| SettingsError::invalid("internal", message))?
+    settings_plugin::settings_save(settings).await
 }
 
 /// Единый Tauri IPC-роутер для доменов BFF (`bff_domains_router`):
@@ -2335,6 +2332,7 @@ fn main() {
     }
     tauri::Builder::default()
         .plugin(auth_plugin::init())
+        .plugin(settings_plugin::init())
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 let minimize_to_tray = std::env::var_os("DISCORD_MINIMIZE_TO_TRAY").is_some();
