@@ -3245,7 +3245,7 @@ function boot() {
   /** @type {ReturnType<typeof createTauriEventListener> | ReturnType<typeof setInterval> | null} */
   let rtcPollTimer = null;
   let rtcPollInFlight = false;
-  /** @type {ReturnType<typeof setInterval> | null} */
+  /** @type {ReturnType<typeof createTauriEventListener> | ReturnType<typeof setInterval> | null} */
   let micTestTimer = null;
   /** @type {ReturnType<typeof setInterval> | null} */
   let voiceSyncTimer = null;
@@ -4039,7 +4039,8 @@ function boot() {
    */
   function closeLiveVoicePopouts(includeModals = false) {
     if (micTestTimer) {
-      clearInterval(micTestTimer);
+      if (typeof micTestTimer.stop === "function") void micTestTimer.stop();
+      else clearInterval(micTestTimer);
       micTestTimer = null;
       if (isLiveSession()) {
         void invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, {
@@ -8380,7 +8381,8 @@ function boot() {
     const existing = document.getElementById("live-krisp-popout");
     if (existing) {
       if (micTestTimer) {
-        clearInterval(micTestTimer);
+        if (typeof micTestTimer.stop === "function") void micTestTimer.stop();
+        else clearInterval(micTestTimer);
         micTestTimer = null;
       }
       if (isLiveSession()) {
