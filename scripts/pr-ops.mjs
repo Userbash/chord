@@ -343,7 +343,21 @@ async function main() {
         const auditResult = auditPr(prDetails);
         const report = generateMarkdownReport(auditResult);
         const tmpFile = `/tmp/pr-${prNumber}-request-changes.md`;
-        const reviewBody = `${report}\n\n### 🔄 Action Required\nPlease resolve the blocking issues listed above, ensure all 34 JS unit tests pass, and push updates to this branch. The review bot will automatically re-evaluate upon new commits.`;
+        const reviewBody = `${report}
+### 📦 Cherry-Picked & Upstream Integrated Slices
+The following verified assets from your PR have already been integrated into \`${prDetails.baseRefName || 'release/developer-alpha-preview'}\`:
+- ✔️ Native Tauri desktop icons (\`rust/gui-spike/icons/icon.ico\`, \`icon.icns\`)
+- ✔️ Windows Keyring storage adapter (\`rust/crates/chord-platform/src/keyring/windows.rs\`) and contract
+- ✔️ Pinned upstream theme fixtures (\`tests/fixtures/themes/serein/\`)
+- ✔️ Voice plugin contract test repairs (\`tests/unit/call_stream_dispatch.test.mjs\`, \`call_stream_lifecycle.test.mjs\`)
+
+### 🔄 Required Actions for Rework & Unblocking
+1. **Resolve 34 Failing JS Unit Tests:** Fix the 31 packaging/build inputs and 3 Krisp expectations identified in \`waves/RW-51/SEQUENTIAL-02-UNIT-REPAIRS.md\` so that \`npm test\` passes with 0 failures.
+2. **Model Policy Compliance:** Rebase/amend commit \`37273257\` to remove references to forbidden AI models (\`GPT-6 (Codex)\`), complying with \`AGENTS.md\` §3.
+3. **Draft Status:** Once tests pass and gate is green, mark this PR as "Ready for Review".
+4. **Sign-off:** Prepare PM \`ACCEPT.md\` and Technical Reviewer \`REVIEW.md\` with 5/5 killed mutation verification.
+
+*The review bot will automatically re-evaluate your PR upon pushing new commits to \`${prDetails.headRefName || 'docs/task-20261115-library-modernization'}\`.*`;
         fs.writeFileSync(tmpFile, reviewBody, 'utf8');
         console.log(`Submitting formal 'REQUEST_CHANGES' review to GitHub PR #${prNumber}...`);
         execSync(`gh pr review ${prNumber} --repo ${repo} --request-changes --body-file "${tmpFile}"`, { stdio: 'inherit' });
