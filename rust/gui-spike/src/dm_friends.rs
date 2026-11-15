@@ -942,6 +942,251 @@ fn parse_relationship_obj(
     })
 }
 
+/// Запись состояния прочтения канала (`READY.read_state.entries[]`).
+pub type ReadStateRow = crate::data::ReadStateEntry;
+
+/// Serde deserializer for an optional ETF string/numeric field, returning `Result<Option<String>, String>`
+/// so invalid non-scalar types (`bool`, `array`, `object`) are caught instead of silently ignored.
+fn deserialize_read_state_opt_str<'de, D>(
+    deserializer: D,
+) -> Result<Result<Option<String>, &'static str>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<serde_json::Value>::deserialize(deserializer)?;
+    match val {
+        None | Some(serde_json::Value::Null) => Ok(Ok(None)),
+        Some(serde_json::Value::String(s)) if s == "nil" || s == "null" || s.trim().is_empty() => {
+            Ok(Ok(None))
+        }
+        Some(serde_json::Value::String(s)) => Ok(Ok(Some(s))),
+        Some(serde_json::Value::Number(n)) if n.is_u64() || n.is_i64() => {
+            Ok(Ok(Some(n.to_string())))
+        }
+        Some(_) => Ok(Err("должно быть строкой или null")),
+    }
+}
+
+/// Serde deserializer for an optional ETF `u64` field, returning `Result<Option<u64>, &'static str>`.
+fn deserialize_read_state_opt_u64<'de, D>(
+    deserializer: D,
+) -> Result<Result<Option<u64>, &'static str>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<serde_json::Value>::deserialize(deserializer)?;
+    match val {
+        None | Some(serde_json::Value::Null) => Ok(Ok(None)),
+        Some(serde_json::Value::String(s)) if s == "nil" || s == "null" || s.trim().is_empty() => {
+            Ok(Ok(None))
+        }
+        Some(serde_json::Value::String(s)) => s
+            .trim()
+            .parse::<u64>()
+            .ok()
+            .or_else(|| s.trim().parse::<i64>().ok().map(|v| v.max(0) as u64))
+            .map(|v| Ok(Some(v)))
+            .ok_or(())
+            .or(Ok(Err("должно быть числом u64"))),
+        Some(serde_json::Value::Number(n)) => n
+            .as_u64()
+            .or_else(|| n.as_i64().map(|v| v.max(0) as u64))
+            .map(|v| Ok(Some(v)))
+            .ok_or(())
+            .or(Ok(Err("должно быть числом u64"))),
+        Some(_) => Ok(Err("должно быть числом u64")),
+    }
+}
+
+/// Serde deserializer for an optional ETF `i64` field, returning `Result<Option<i64>, &'static str>`.
+fn deserialize_read_state_opt_i64<'de, D>(
+    deserializer: D,
+) -> Result<Result<Option<i64>, &'static str>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<serde_json::Value>::deserialize(deserializer)?;
+    match val {
+        None | Some(serde_json::Value::Null) => Ok(Ok(None)),
+        Some(serde_json::Value::String(s)) if s == "nil" || s == "null" || s.trim().is_empty() => {
+            Ok(Ok(None))
+        }
+        Some(serde_json::Value::String(s)) => s
+            .trim()
+            .parse::<i64>()
+            .map(|v| Ok(Some(v)))
+            .or(Ok(Err("должно быть числом i64"))),
+        Some(serde_json::Value::Number(n)) => n
+            .as_i64()
+            .map(|v| Ok(Some(v)))
+            .ok_or(())
+            .or(Ok(Err("должно быть числом i64"))),
+        Some(_) => Ok(Err("должно быть числом i64")),
+    }
+}
+
+fn default_ok_none<T>() -> Result<Option<T>, &'static str> {
+    Ok(None)
+}
+
+/// Data Transfer Object (DTO) for deserializing a `READY.read_state.entries[]` record via Serde (`TAURI-DTO-04`).
+///
+/// Eliminates manual `as_u64` / `as_str` field extraction while preserving ETF `"nil"` sentinel
+/// filtering, `snake_case` and `camelCase` field aliases, and strict schema validation.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(default)]
+pub struct RawReadStateDto {
+    /// Target channel or resource Snowflake ID (`id` or `channel_id` / `channelId`).
+    #[serde(
+        alias = "channel_id",
+        alias = "channelId",
+        deserialize_with = "deserialize_read_state_opt_str",
+        default = "default_ok_none"
+    )]
+    pub id: Result<Option<String>, &'static str>,
+    /// Optional read-state bitflags (`flags`).
+    #[serde(
+        deserialize_with = "deserialize_read_state_opt_u64",
+        default = "default_ok_none"
+    )]
+    pub flags: Result<Option<u64>, &'static str>,
+    /// Optional last acknowledged message Snowflake ID (`last_message_id` / `lastMessageId`).
+    #[serde(
+        alias = "lastMessageId",
+        deserialize_with = "deserialize_read_state_opt_str",
+        default = "default_ok_none"
+    )]
+    pub last_message_id: Result<Option<String>, &'static str>,
+    /// Optional ISO-8601 timestamp of the last pinned message (`last_pin_timestamp` / `lastPinTimestamp`).
+    #[serde(
+        alias = "lastPinTimestamp",
+        deserialize_with = "deserialize_read_state_opt_str",
+        default = "default_ok_none"
+    )]
+    pub last_pin_timestamp: Result<Option<String>, &'static str>,
+    /// Optional read-state view counter (`last_viewed` / `lastViewed`).
+    #[serde(
+        alias = "lastViewed",
+        deserialize_with = "deserialize_read_state_opt_u64",
+        default = "default_ok_none"
+    )]
+    pub last_viewed: Result<Option<u64>, &'static str>,
+    /// Optional unread mention counter (`mention_count` / `mentionCount`).
+    #[serde(
+        alias = "mentionCount",
+        deserialize_with = "deserialize_read_state_opt_u64",
+        default = "default_ok_none"
+    )]
+    pub mention_count: Result<Option<u64>, &'static str>,
+    /// Optional badge counter for non-channel read states (`badge_count` / `badgeCount`).
+    #[serde(
+        alias = "badgeCount",
+        deserialize_with = "deserialize_read_state_opt_i64",
+        default = "default_ok_none"
+    )]
+    pub badge_count: Result<Option<i64>, &'static str>,
+    /// Optional last acknowledged entity Snowflake ID for badge read states (`last_acked_id` / `lastAckedId`).
+    #[serde(
+        alias = "lastAckedId",
+        deserialize_with = "deserialize_read_state_opt_str",
+        default = "default_ok_none"
+    )]
+    pub last_acked_id: Result<Option<String>, &'static str>,
+    /// Optional numeric read-state type (`read_state_type` / `readStateType`).
+    #[serde(
+        alias = "readStateType",
+        deserialize_with = "deserialize_read_state_opt_i64",
+        default = "default_ok_none"
+    )]
+    pub read_state_type: Result<Option<i64>, &'static str>,
+}
+
+impl Default for RawReadStateDto {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            id: Ok(None),
+            flags: Ok(None),
+            last_message_id: Ok(None),
+            last_pin_timestamp: Ok(None),
+            last_viewed: Ok(None),
+            mention_count: Ok(None),
+            badge_count: Ok(None),
+            last_acked_id: Ok(None),
+            read_state_type: Ok(None),
+        }
+    }
+}
+
+impl RawReadStateDto {
+    /// Converts the deserialized DTO into a validated [`ReadStateRow`] ([`crate::data::ReadStateEntry`]).
+    ///
+    /// # Errors
+    /// Returns [`crate::data::DataError::Parse`] if `id` is missing/empty or if any field has an invalid type.
+    #[inline]
+    pub fn into_read_state(self) -> Result<ReadStateRow, crate::data::DataError> {
+        self.into_read_state_at(Path::new("002-READY.json"), "READY.read_state.entries[0]")
+    }
+
+    /// Converts the deserialized DTO into a validated [`ReadStateRow`] with explicit fixture path and location context.
+    ///
+    /// # Arguments
+    /// * `path` - Source fixture path for [`crate::data::DataError`] diagnostics.
+    /// * `at` - JSON location descriptor (e.g. `"READY.read_state.entries[0]"`).
+    ///
+    /// # Errors
+    /// Returns [`crate::data::DataError::Parse`] if `id` is missing/empty or if any field has an invalid type.
+    #[inline]
+    pub fn into_read_state_at(
+        self,
+        path: &Path,
+        at: &str,
+    ) -> Result<ReadStateRow, crate::data::DataError> {
+        let channel_id = self
+            .id
+            .map_err(|_| crate::data::DataError::parse(path, format!("{at}: нет строкового id")))?
+            .ok_or_else(|| {
+                crate::data::DataError::parse(path, format!("{at}: нет строкового id"))
+            })?;
+        let flags = self.flags.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле flags {msg}"))
+        })?;
+        let last_message_id = self.last_message_id.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле last_message_id {msg}"))
+        })?;
+        let last_pin_timestamp = self.last_pin_timestamp.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле last_pin_timestamp {msg}"))
+        })?;
+        let last_viewed = self.last_viewed.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле last_viewed {msg}"))
+        })?;
+        let mention_count = self.mention_count.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле mention_count {msg}"))
+        })?;
+        let badge_count = self.badge_count.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле badge_count {msg}"))
+        })?;
+        let last_acked_id = self.last_acked_id.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле last_acked_id {msg}"))
+        })?;
+        let read_state_type = self.read_state_type.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле read_state_type {msg}"))
+        })?;
+
+        Ok(ReadStateRow {
+            channel_id,
+            flags,
+            last_message_id,
+            last_pin_timestamp,
+            last_viewed,
+            mention_count,
+            badge_count,
+            last_acked_id,
+            read_state_type,
+        })
+    }
+}
+
 /// Разбирает `READY` JSON (`d.users`, `d.private_channels`, `d.relationships`) без единого сетевого вызова.
 pub fn parse_ready_dm_friends(
     ready_json: &serde_json::Value,
