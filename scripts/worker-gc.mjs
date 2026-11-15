@@ -47,7 +47,7 @@ export function runGC(dryRun = false) {
 
     const lines = listOut.split('\n');
     for (const l of lines) {
-      if (l.includes('terminal=reclaimable') || (l.includes('terminalState=retained') && (l.includes('state=succeeded') || l.includes('state=stopped')))) {
+      if (l.includes('terminal=reclaimable') || (l.includes('terminalState=retained') && (l.includes('state=succeeded') || l.includes('state=stopped') || l.includes('state=failed')))) {
         const m = l.match(/dispatchId=([^\s]+)/);
         if (m && m[1]) {
           const dispatchId = m[1];

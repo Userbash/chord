@@ -153,7 +153,7 @@ export function harvestSettledWorkers() {
 
   // Check reclaimable terminals
   for (const w of workers) {
-    if (w.terminalState === 'retained' && (w.state === 'succeeded' || w.state === 'stopped')) {
+    if (w.terminalState === 'retained' && (w.state === 'succeeded' || w.state === 'stopped' || w.state === 'failed')) {
       console.log(`♻️  Releasing settled terminal for dispatch ${w.dispatchId}...`);
       try {
         execSync(`${ORCA_BIN} orchestration worker-release --dispatch ${w.dispatchId}`, {
