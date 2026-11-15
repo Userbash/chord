@@ -38,33 +38,49 @@
  */
 /** @typedef {InlineToken | CodeBlockToken | QuoteToken} Token */
 
+import {
+  BROADCAST_RE,
+  DEFAULT_MENTION_FALLBACKS,
+  MAX_MENTION_ID,
+  MENTION_RE,
+  createMentionElement,
+  extractMentions,
+  formatMentionLabel,
+  normalizeMentionContext,
+  readAnyMention,
+  readBroadcast,
+  readMention,
+  toMentionRecord,
+} from "./mentions.js";
+
+export {
+  BROADCAST_RE,
+  DEFAULT_MENTION_FALLBACKS,
+  MAX_MENTION_ID,
+  MENTION_RE,
+  createMentionElement,
+  extractMentions,
+  formatMentionLabel,
+  normalizeMentionContext,
+  readAnyMention,
+  readBroadcast,
+  readMention,
+  toMentionRecord,
+};
+
 /**
  * Справочники имён для упоминаний. Значения — произвольные строки из Discord,
  * поэтому считаются недоверенными (только текст).
- * @typedef {{
- *   users?: Record<string, string> | Map<string, string>,
- *   channels?: Record<string, string> | Map<string, string>,
- *   roles?: Record<string, string> | Map<string, string>,
- * }} MentionContext
+ * @typedef {import("./mentions.js").MentionContext} MentionContext
  */
 
-/** @typedef {{ users: Record<string, string>, channels: Record<string, string>, roles: Record<string, string> }} NormalizedContext */
+/** @typedef {import("./mentions.js").NormalizedMentionContext} NormalizedContext */
 
 /** Только эти схемы допустимы в `href` (M-08, P0). */
 const SAFE_PROTOCOLS = Object.freeze(["http:", "https:"]);
 
 /** Предел вложенности инлайн-форматирования: защита от патологического ввода. */
 const MAX_INLINE_DEPTH = 8;
-
-/** Максимальная длина id упоминания (Discord snowflake — 64 бита). */
-const MAX_MENTION_ID = 32;
-
-/** Роль раньше пользователя: `<@&789>` не должно распознаться как `<@…>`. */
-const MENTION_RE = new RegExp(
-  `^(?:<@&(\\d{1,${MAX_MENTION_ID}})>|<@!?(\\d{1,${MAX_MENTION_ID}})>|<#(\\d{1,${MAX_MENTION_ID}})>)`,
-);
-
-const BROADCAST_RE = /^@(everyone|here)\b/;
 
 /** Открывающая строка блока кода: ``` или ```js. */
 const FENCE_RE = /^\s*```([A-Za-z0-9_+-]*)\s*$/;
@@ -84,23 +100,6 @@ const MARKERS = [
 ];
 
 /**
- * @param {Record<string, string> | Map<string, string> | undefined} source
- * @returns {Record<string, string>}
- */
-function toRecord(source) {
-  if (!source) return {};
-  if (source instanceof Map) {
-    /** @type {Record<string, string>} */
-    const record = {};
-    for (const [key, value] of source) {
-      if (typeof value === "string") record[key] = value;
-    }
-    return record;
-  }
-  return source;
-}
-
-/**
  * Безопасный `href`: только абсолютный http(s). Всё прочее — `null`.
  * @param {string} value
  * @returns {string | null}
@@ -118,18 +117,6 @@ function safeHref(value) {
     return null;
   }
   return SAFE_PROTOCOLS.includes(url.protocol) ? url.href : null;
-}
-
-/**
- * @param {Record<string, string>} source
- * @param {string} id
- * @param {string} prefix
- * @param {string} fallback
- * @returns {string}
- */
-function mentionLabel(source, id, prefix, fallback) {
-  const name = source[id];
-  return typeof name === "string" && name !== "" ? `${prefix}${name}` : fallback;
 }
 
 /**
@@ -154,66 +141,6 @@ function readCodeSpan(text, start) {
     cursor += run;
   }
   return null;
-}
-
-/**
- * @param {string} text
- * @param {number} start
- * @param {NormalizedContext} context
- * @returns {{ token: InlineToken, end: number } | null}
- */
-function readMention(text, start, context) {
-  const match = MENTION_RE.exec(text.slice(start));
-  if (!match) return null;
-  const end = start + match[0].length;
-  const roleId = match[1];
-  const userId = match[2];
-  const channelId = match[3];
-  if (roleId) {
-    return {
-      token: { type: "role_mention", id: roleId, label: mentionLabel(context.roles, roleId, "@", "@роль") },
-      end,
-    };
-  }
-  if (userId) {
-    return {
-      token: {
-        type: "user_mention",
-        id: userId,
-        label: mentionLabel(context.users, userId, "@", "@пользователь"),
-      },
-      end,
-    };
-  }
-  if (channelId) {
-    return {
-      token: {
-        type: "channel_mention",
-        id: channelId,
-        label: mentionLabel(context.channels, channelId, "#", "#канал"),
-      },
-      end,
-    };
-  }
-  return null;
-}
-
-/**
- * `@everyone`/`@here` — только целым словом: `почта@everyone.com` и `@everyoneX`
- * остаются текстом.
- * @param {string} text
- * @param {number} start
- * @returns {{ token: BroadcastToken, end: number } | null}
- */
-function readBroadcast(text, start) {
-  // Граница слова с Unicode: «почта@everyone.com» не содержит упоминания,
-  // хотя кириллическая «а» не входит в ASCII-класс \w.
-  if (start > 0 && /[\p{L}\p{N}_@#]/u.test(text.charAt(start - 1))) return null;
-  const match = BROADCAST_RE.exec(text.slice(start));
-  if (!match) return null;
-  const name = match[1];
-  if (name !== "everyone" && name !== "here") return null;
-  return { token: { type: name, label: `@${name}` }, end: start + match[0].length };
 }
 
 /**
@@ -308,21 +235,12 @@ function parseInline(text, context, depth) {
         continue;
       }
     }
-    if (char === "<") {
-      const mention = readMention(text, index, context);
+    if (char === "<" || char === "@") {
+      const mention = readAnyMention(text, index, context);
       if (mention) {
         flush();
         tokens.push(mention.token);
         index = mention.end;
-        continue;
-      }
-    }
-    if (char === "@") {
-      const broadcast = readBroadcast(text, index);
-      if (broadcast) {
-        flush();
-        tokens.push(broadcast.token);
-        index = broadcast.end;
         continue;
       }
     }
@@ -426,11 +344,7 @@ export function parseMessageMarkdown(text, context = {}) {
   if (typeof text !== "string") {
     throw new TypeError("parseMessageMarkdown: text должен быть строкой");
   }
-  return parseBlocks(text, {
-    users: toRecord(context?.users),
-    channels: toRecord(context?.channels),
-    roles: toRecord(context?.roles),
-  });
+  return parseBlocks(text, normalizeMentionContext(context));
 }
 
 /**
@@ -442,20 +356,6 @@ export function parseMessageMarkdown(text, context = {}) {
 function element(doc, tagName, className) {
   const node = doc.createElement(tagName);
   node.className = className;
-  return node;
-}
-
-/**
- * @param {Document} doc
- * @param {"user" | "channel" | "role"} kind
- * @param {string} id
- * @param {string} label
- * @returns {HTMLElement}
- */
-function mentionNode(doc, kind, id, label) {
-  const node = element(doc, "span", `mention mention--${kind}`);
-  node.setAttribute(`data-${kind}-id`, id);
-  node.textContent = label;
   return node;
 }
 
@@ -563,22 +463,12 @@ function renderToken(doc, token, parent) {
       return;
     }
     case "user_mention":
-      parent.append(mentionNode(doc, "user", token.id, token.label));
-      return;
     case "channel_mention":
-      parent.append(mentionNode(doc, "channel", token.id, token.label));
-      return;
     case "role_mention":
-      parent.append(mentionNode(doc, "role", token.id, token.label));
-      return;
     case "everyone":
-    case "here": {
-      const node = element(doc, "span", `mention mention--${token.type}`);
-      node.setAttribute("data-mention", token.type);
-      node.textContent = token.label;
-      parent.append(node);
+    case "here":
+      parent.append(createMentionElement(doc, token));
       return;
-    }
   }
 }
 
