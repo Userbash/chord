@@ -1130,56 +1130,57 @@ fn parse_429_retry_after_ms(headers: &[(String, String)], body: &[u8]) -> Option
     None
 }
 
-fn parse_hit_message_value(value: &Value) -> Option<SearchHitMessage> {
-    let obj = value.as_object()?;
-    let id = obj.get("id")?.as_str()?.to_string();
-    let channel_id = obj
-        .get("channel_id")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let author_obj = obj.get("author").and_then(Value::as_object);
-    let author_id = author_obj
-        .and_then(|a| a.get("id"))
-        .and_then(Value::as_str)
-        .map(str::to_string);
-    let author_username = author_obj
-        .and_then(|a| a.get("username"))
-        .and_then(Value::as_str)
-        .map(str::to_string);
-    let content = obj
-        .get("content")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let timestamp = obj
-        .get("timestamp")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let hit = obj.get("hit").and_then(Value::as_bool).unwrap_or(false);
-    let pinned = obj.get("pinned").and_then(Value::as_bool).unwrap_or(false);
-    let attachments_count = obj
-        .get("attachments")
-        .and_then(Value::as_array)
-        .map_or(0, Vec::len);
-    let embeds_count = obj
-        .get("embeds")
-        .and_then(Value::as_array)
-        .map_or(0, Vec::len);
+/// Serde DTO for author of a search hit message (`TAURI-DTO-05`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawSearchHitAuthorDto {
+    pub id: Option<String>,
+    pub username: Option<String>,
+}
 
-    Some(SearchHitMessage {
-        id,
-        channel_id,
-        author_id,
-        author_username,
-        content,
-        timestamp,
-        hit,
-        pinned,
-        attachments_count,
-        embeds_count,
-    })
+/// Serde DTO for raw search hit message item inside Discord search response (`TAURI-DTO-05`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawSearchHitMessageDto {
+    pub id: Option<String>,
+    pub channel_id: Option<String>,
+    pub author: Option<RawSearchHitAuthorDto>,
+    pub content: Option<String>,
+    pub timestamp: Option<String>,
+    pub hit: Option<bool>,
+    pub pinned: Option<bool>,
+    pub attachments: Vec<Value>,
+    pub embeds: Vec<Value>,
+}
+
+impl RawSearchHitMessageDto {
+    /// Converts deserialized DTO into [`SearchHitMessage`].
+    #[inline]
+    #[must_use]
+    pub fn into_search_hit_message(self) -> Option<SearchHitMessage> {
+        let id = self.id?;
+        let (author_id, author_username) = match self.author {
+            Some(a) => (a.id, a.username),
+            None => (None, None),
+        };
+        Some(SearchHitMessage {
+            id,
+            channel_id: self.channel_id.unwrap_or_default(),
+            author_id,
+            author_username,
+            content: self.content.unwrap_or_default(),
+            timestamp: self.timestamp.unwrap_or_default(),
+            hit: self.hit.unwrap_or(false),
+            pinned: self.pinned.unwrap_or(false),
+            attachments_count: self.attachments.len(),
+            embeds_count: self.embeds.len(),
+        })
+    }
+}
+
+fn parse_hit_message_value(value: &Value) -> Option<SearchHitMessage> {
+    let dto = serde_json::from_value::<RawSearchHitMessageDto>(value.clone()).ok()?;
+    dto.into_search_hit_message()
 }
 
 fn split_csv_owned(raw: Option<&str>) -> Vec<String> {
