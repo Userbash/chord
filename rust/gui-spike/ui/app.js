@@ -46,6 +46,7 @@ import { createAuthGate } from "./features/auth.js";
 import { createComposer, evaluateClientChannelPolicy } from "./features/composer.js";
 import { createSearchOverlay, SEARCH_SECTIONS, selectedGuildId } from "./features/search-overlay.js";
 import { createQuickSwitcher } from "./features/quick-switcher.js";
+import { createTauriEventListener } from "./features/shell-bridge.js";
 import { createVoicePanel, createVoiceStore } from "./features/voice.js";
 import { createJoinServer } from "./features/join-server.js";
 import { createCreateGuildController } from "./features/create-guild.js";
@@ -3241,7 +3242,7 @@ function boot() {
   let membersRef = null;
   /** @type {ReturnType<typeof initSettingsConsole> | null} */
   let settingsRef = null;
-  /** @type {ReturnType<typeof setInterval> | null} */
+  /** @type {ReturnType<typeof createTauriEventListener> | ReturnType<typeof setInterval> | null} */
   let rtcPollTimer = null;
   let rtcPollInFlight = false;
   /** @type {ReturnType<typeof setInterval> | null} */
@@ -4506,63 +4507,85 @@ function boot() {
   }
 
   /**
-   * Опрашивает `voice_rtc_status` при активном голосовом соединении
+   * Подписывается на события `voice-state-update` при активном голосовом соединении
    * для живой индикации зелёного кольца вокруг аватарки говорящего, таймера и контроля качества связи.
-   * Переподключение выполняется только при реальном падении транспорта (`state === "error"`) или критическом
-   * пинге `> 1200 мс` более 45 тактов подряд (~15 секунд), с защитным интервалом 30 секунд.
+   * Заменяет CPU-опрос setInterval событийно-ориентированным слушателем (TAURI-EVT-02).
    */
   function startRtcStatusPolling() {
     ensureUserActivityTracking();
     lastUserActivityAtMs = Date.now();
     if (rtcPollTimer) return;
     let pollTick = 0;
+
+    /** @param {any} res */
+    const handleRtcUpdate = (res) => {
+      if (!activeVoiceConnection || !res || typeof res !== "object") return;
+      liveRtcStatus = res;
+      updateLiveRtcDomInPlace();
+      if (res.localMicSpeaking) {
+        lastUserActivityAtMs = Date.now();
+      }
+      const pingVal = typeof res.lastPingMs === "number" ? res.lastPingMs : 0;
+      const st = String(res.state || "connected");
+      if (st === "error" || pingVal > 1200) {
+        highPingStrikes += 1;
+      } else if (pingVal > 0 && pingVal <= 800) {
+        highPingStrikes = 0;
+      }
+      const nowMs = Date.now();
+      if (
+        highPingStrikes >= 45 &&
+        nowMs - lastAutoReconnectMs > 30_000 &&
+        activeVoiceConnection
+      ) {
+        highPingStrikes = 0;
+        lastAutoReconnectMs = nowMs;
+        syncVoiceMuteStateWithBackend();
+      }
+      pollTick += 1;
+      if (pollTick % 20 === 0) {
+        checkServerVoiceAfkTimeout();
+      }
+    };
+
     const pollOnce = async () => {
-      if (!activeVoiceConnection || !isLiveSession() || rtcPollInFlight) return;
+      if (!activeVoiceConnection || !isLiveSession() || rtcPollInFlight) return null;
       rtcPollInFlight = true;
       try {
         const res = await invoke(VOICE_RTC_STATUS_IPC_CMD);
         if (res && typeof res === "object") {
-          liveRtcStatus = res;
-          updateLiveRtcDomInPlace();
-          if (res.localMicSpeaking) {
-            lastUserActivityAtMs = Date.now();
-          }
-          const pingVal = typeof res.lastPingMs === "number" ? res.lastPingMs : 0;
-          const st = String(res.state || "connected");
-          if (st === "error" || pingVal > 1200) {
-            highPingStrikes += 1;
-          } else if (pingVal > 0 && pingVal <= 800) {
-            highPingStrikes = 0;
-          }
-          const nowMs = Date.now();
-          if (
-            highPingStrikes >= 45 &&
-            nowMs - lastAutoReconnectMs > 30_000 &&
-            activeVoiceConnection
-          ) {
-            highPingStrikes = 0;
-            lastAutoReconnectMs = nowMs;
-            syncVoiceMuteStateWithBackend();
-          }
-          pollTick += 1;
-          if (pollTick % 20 === 0) {
-            checkServerVoiceAfkTimeout();
-          }
+          handleRtcUpdate(res);
+          return res;
         }
       } catch {
       } finally {
         rtcPollInFlight = false;
       }
+      return null;
     };
-    void pollOnce();
-    rtcPollTimer = setInterval(() => {
-      void pollOnce();
-    }, 260);
+
+    rtcPollTimer = createTauriEventListener({
+      event: "voice-state-update",
+      initialFetch: pollOnce,
+      onEvent: (payload) => {
+        if (payload && typeof payload === "object") {
+          handleRtcUpdate(payload);
+        } else {
+          void pollOnce();
+        }
+      },
+      autoStart: true,
+    });
   }
 
   function stopRtcStatusPolling() {
     if (rtcPollTimer) {
-      clearInterval(rtcPollTimer);
+      const activeTimer = /** @type {any} */ (rtcPollTimer);
+      if (typeof activeTimer.stop === "function") {
+        void activeTimer.stop();
+      } else {
+        clearInterval(activeTimer);
+      }
       rtcPollTimer = null;
     }
   }
