@@ -783,7 +783,26 @@ async fn accept_invite(
         )
         .await
     };
-    invites_plugin::finalize_accept_invite(&api, &token, &code, outcome).await
+    match outcome {
+        Ok(accepted) => {
+            // S3 / TASK-810: Автоматическое подтверждение правил сервера (Rules Screening):
+            // связываем guilds::accept_invite_and_join_guild и guilds::apply_guild_join_outcome
+            data::auto_accept_guild_rules_if_available(&code, &accepted.guild_id);
+            let join_transport =
+                guilds::LiveGuildJoinTransport::with_accepted_guild(&token, &accepted.guild_id);
+            let self_uid = join_transport.current_user_id();
+            if let Ok(join_outcome) = guilds::accept_invite_and_join_guild(
+                &join_transport,
+                &code,
+                &accepted.guild_id,
+                &self_uid,
+            ) {
+                guilds::apply_guild_join_outcome(&join_outcome);
+            }
+            Ok(accepted)
+        }
+        Err(err) => invites_plugin::finalize_accept_invite(&api, &token, &code, Err(err)).await,
+    }
 }
 
 /// Создать приглашение для канала: `POST /channels/{channel_id}/invites`.
