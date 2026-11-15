@@ -59,6 +59,8 @@ use serde::{Deserialize, Serialize, Serializer};
 use serde_json::{json, Value};
 use base64::Engine;
 
+pub use crate::permissions::{PermissionOverwriteDef, RawPermissionOverwriteDto};
+
 #[derive(Default)]
 pub struct LiveSession {
     active: bool,
@@ -9574,6 +9576,15 @@ pub struct ChannelRow {
     pub is_afk: Option<bool>,
 }
 
+impl ChannelRow {
+    /// Deserializes and validates all permission overwrites in this channel row into [`PermissionOverwriteDef`] items.
+    #[inline]
+    #[must_use]
+    pub fn parsed_permission_overwrites(&self) -> Vec<crate::permissions::PermissionOverwriteDef> {
+        crate::permissions::parse_overwrites_from_json(Some(&Value::Array(self.permission_overwrites.clone())))
+    }
+}
+
 /// Массив из объекта READY: отсутствие/`null` — пустой набор, другой тип —
 /// `Parse`. Иначе опечатка в фикстуре давала бы «каналов нет» вместо ошибки.
 fn ready_array<'a>(data: &'a Value, key: &str, path: &Path) -> Result<&'a [Value], DataError> {
@@ -9652,6 +9663,13 @@ impl RawGuildChannelDto {
             user_limit: self.user_limit.filter(|&lim| lim > 0),
             is_afk: None,
         })
+    }
+
+    /// Deserializes and validates all raw permission overwrites in this DTO into [`PermissionOverwriteDef`] items.
+    #[inline]
+    #[must_use]
+    pub fn parsed_permission_overwrites(&self) -> Vec<crate::permissions::PermissionOverwriteDef> {
+        crate::permissions::parse_overwrites_from_json(Some(&Value::Array(self.permission_overwrites.clone())))
     }
 }
 
@@ -14190,5 +14208,45 @@ mod dm_voice_stream_tests {
             serde_json::from_str(r#"{"id":"123456","action_type":999999}"#).unwrap();
         assert_eq!(missing_action.action_type, None);
         assert!(missing_action.validate(Path::new("audit.json")).is_err());
+    }
+
+    #[test]
+    fn channel_row_and_dto_parsed_permission_overwrites_harmonize_with_permissions_dto() {
+        let raw_channel_json = serde_json::json!({
+            "id": "1173958353802776576",
+            "name": "secret-lounge",
+            "type": 0,
+            "permission_overwrites": [
+                {
+                    "id": "1014537851418980372",
+                    "type": 0,
+                    "allow": "1024",
+                    "deny": "2048"
+                },
+                {
+                    "id": 479659568322969611u64,
+                    "type": "member",
+                    "allow": 8,
+                    "deny": 0
+                }
+            ]
+        });
+
+        let dto: RawGuildChannelDto = serde_json::from_value(raw_channel_json).expect("deserialize channel dto");
+        let parsed_dto = dto.parsed_permission_overwrites();
+        assert_eq!(parsed_dto.len(), 2);
+        assert_eq!(parsed_dto[0].id, "1014537851418980372");
+        assert_eq!(parsed_dto[0].kind, crate::permissions::OverwriteKind::Role);
+        assert_eq!(parsed_dto[0].allow, 1024);
+        assert_eq!(parsed_dto[0].deny, 2048);
+        assert_eq!(parsed_dto[1].id, "479659568322969611");
+        assert_eq!(parsed_dto[1].kind, crate::permissions::OverwriteKind::Member);
+        assert_eq!(parsed_dto[1].allow, 8);
+        assert_eq!(parsed_dto[1].deny, 0);
+
+        let row = dto.into_channel_row(Some("1014537851418980372"), Path::new("fixture.json"), "channels[0]")
+            .expect("valid channel row");
+        let parsed_row = row.parsed_permission_overwrites();
+        assert_eq!(parsed_row, parsed_dto);
     }
 }
