@@ -33,9 +33,6 @@ import {
   createSearchPopoverController,
 } from "../../rust/gui-spike/ui/features/search-popover.js";
 
-const SEARCH_POPOVER_STYLES_PATH = fileURLToPath(
-  new URL("../../rust/gui-spike/ui/styles/search-popover.css", import.meta.url),
-);
 const SEARCH_POPOVER_COMPONENTS_CSS_PATH = fileURLToPath(
   new URL("../../rust/gui-spike/ui/components/search-popover.css", import.meta.url),
 );
@@ -721,13 +718,12 @@ describe("search-popover-ui: 4. Граничные значения, ошибк�
 
 describe("search-popover-ui: 5. Таблица стилей search-popover.css", () => {
   it("содержит все селекторы поискового попапа и использует исключительно токены из tokens.css", () => {
-    assert.ok(existsSync(SEARCH_POPOVER_STYLES_PATH), "styles/search-popover.css должен существовать");
     assert.ok(
       existsSync(SEARCH_POPOVER_COMPONENTS_CSS_PATH),
       "components/search-popover.css должен существовать",
     );
 
-    const css = readFileSync(SEARCH_POPOVER_STYLES_PATH, "utf8");
+    const css = readFileSync(SEARCH_POPOVER_COMPONENTS_CSS_PATH, "utf8");
     const tokensCss = readFileSync(TOKENS_CSS_PATH, "utf8");
 
     const requiredSelectors = [
