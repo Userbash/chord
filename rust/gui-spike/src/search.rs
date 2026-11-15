@@ -8,7 +8,6 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use chord_core::rest::identity::SystemSources;
 use chord_core::rest::routes::{self, HttpMethod};
 use chord_core::rest::search::compute_429_exponential_backoff_ms;
 use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
@@ -42,40 +41,35 @@ pub const MAX_SEARCH_CACHE_ENTRIES: usize = 64;
 /// Задержка повтора при HTTP 202 по умолчанию (`SEARCH-202-NSFW-RE.md` §5.2: 5000 мс).
 pub const DEFAULT_SEARCH_202_RETRY_AFTER_MS: u64 = 5000;
 
-/// Генерирует новый UUID v4 (RFC 4122).
+/// Generates a new random RFC 4122 UUID v4 string.
+///
+/// # Returns
+/// A canonical 36-character hyphenated lowercase UUID v4 string.
+#[inline]
 #[must_use]
 pub fn generate_uuid_v4() -> String {
-    chord_core::rest::identity::uuid_v4(&SystemSources)
+    uuid::Uuid::new_v4().to_string()
 }
 
-/// Детерминированный генератор UUID v4 для воспроизводимых тестов.
+/// Generates a deterministic RFC 4122 UUID v4 string from a 64-bit seed for reproducible tests.
+///
+/// # Arguments
+/// * `seed` - Deterministic 64-bit seed value.
+///
+/// # Returns
+/// A canonical 36-character hyphenated lowercase UUID v4 string derived from `seed`.
+#[inline]
 #[must_use]
 pub fn deterministic_uuid_v4(seed: u64) -> String {
-    struct SeedSources(u64);
-    impl chord_core::rest::identity::IdentitySources for SeedSources {
-        fn env_var(&self, _: &str) -> Option<String> {
-            None
-        }
-        fn read_text(&self, _: &str) -> Option<String> {
-            None
-        }
-        fn random_bytes(&self, out: &mut [u8]) {
-            let mut state = self.0;
-            for byte in out.iter_mut() {
-                state = state
-                    .wrapping_mul(6364136223846793005)
-                    .wrapping_add(1442695040888963407);
-                *byte = (state >> 33) as u8;
-            }
-        }
-        fn os(&self) -> &'static str {
-            "linux"
-        }
-        fn arch(&self) -> &'static str {
-            "x86_64"
-        }
-    }
-    chord_core::rest::identity::uuid_v4(&SeedSources(seed))
+    let le: [u8; 8] = seed.to_le_bytes();
+    let be: [u8; 8] = seed.to_be_bytes();
+    let bytes: [u8; 16] = [
+        le[0], le[1], le[2], le[3], le[4], le[5], le[6], le[7], be[0], be[1], be[2], be[3], be[4],
+        be[5], be[6], be[7],
+    ];
+    uuid::Builder::from_random_bytes(bytes)
+        .into_uuid()
+        .to_string()
 }
 
 /// Сессия поиска сообщений: держит `session_id`, обновляет `query_id` на новый запрос
