@@ -1,7 +1,8 @@
-//! Modular Tauri v2 plugin (`search`) encapsulating local fixture search and remote guild message search IPC commands.
+//! Modular Tauri v2 plugin (`search`) encapsulating local fixture search, remote guild message search, and BFF search IPC commands.
 //!
-//! Provides `search_page`, `search_remote_with_api`, `search_remote_with_token`, and
-//! `search_remote` via `tauri::plugin::Builder::new("search")`.
+//! Provides `search_page`, `search_remote_with_api`, `search_remote_with_token`,
+//! `search_remote`, `search_bff_with_client`, `search_bff_cached_with_client`,
+//! and `parse_search_query` via `tauri::plugin::Builder::new("search")`.
 
 use std::sync::Arc;
 
@@ -9,6 +10,9 @@ use chord_client::auth::{AuthBackend, AuthError};
 use chord_client::data::{self, DataError, SearchFilters, SearchPage};
 use chord_client::search::{
     DiscordSearch, RemoteSearch, SearchError, SearchParams, SearchResponse,
+};
+use chord_client::search_bff::{
+    self, SearchBffClient, SearchBffError, SearchBffQuery, SearchBffResponse, SearchBffScope,
 };
 
 async fn token_or_search<F>(work: F) -> Result<String, SearchError>
@@ -92,6 +96,45 @@ pub async fn search_remote(
     search_remote_with_token(&token, &guild_id, params).await
 }
 
+/// Parses and validates a raw inline search query string into a normalized [`SearchBffQuery`].
+///
+/// # Errors
+/// Returns [`SearchBffError`] if any inline token (`from:`, `mentions:`, `has:`, `pinned:`, `in:`,
+/// `before:`, `after:`, `author_type:`) is invalid or the query is empty.
+#[allow(dead_code)]
+#[inline]
+pub fn parse_search_query(raw_query: &str) -> Result<SearchBffQuery, SearchBffError> {
+    search_bff::parse_search_query(raw_query)
+}
+
+/// Executes a full-text BFF search with 202 indexing polling and 429 exponential backoff using an initialized [`SearchBffClient`].
+///
+/// # Errors
+/// Returns [`SearchBffError`] if scope/query validation fails or the REST request fails.
+#[allow(dead_code)]
+#[inline]
+pub async fn search_bff_with_client(
+    client: &SearchBffClient,
+    scope: &SearchBffScope,
+    query: &SearchBffQuery,
+) -> Result<SearchBffResponse, SearchBffError> {
+    client.execute_with_retry(scope, query).await
+}
+
+/// Executes a cached full-text BFF search (`MAX_SEARCH_CACHE_ENTRIES = 64`) using an initialized [`SearchBffClient`].
+///
+/// # Errors
+/// Returns [`SearchBffError`] if scope/query validation fails or the REST request fails.
+#[allow(dead_code)]
+#[inline]
+pub async fn search_bff_cached_with_client(
+    client: &SearchBffClient,
+    scope: &SearchBffScope,
+    query: &SearchBffQuery,
+) -> Result<SearchBffResponse, SearchBffError> {
+    client.search_cached(scope, query).await
+}
+
 /// Initializes the modular Tauri v2 `"search"` plugin.
 #[inline]
 #[must_use]
@@ -163,6 +206,7 @@ mod tests {
             total_results: 1,
             doing_deep_historical_index: false,
             documents_indexed: 0,
+            indexing: false,
             retry_after_ms: None,
         };
         let api = FakeRemoteSearch::ok(expected.clone());
@@ -200,11 +244,7 @@ mod tests {
 
         for empty in ["", "   "] {
             let err = runtime
-                .block_on(search_remote_with_token(
-                    empty,
-                    "123456789012345678",
-                    None,
-                ))
+                .block_on(search_remote_with_token(empty, "123456789012345678", None))
                 .expect_err("empty token must fail");
             assert_eq!(err, SearchError::MissingToken);
         }
@@ -237,5 +277,15 @@ mod tests {
             })),
             Err(SearchError::Storage)
         );
+    }
+
+    #[test]
+    fn parse_search_query_delegates_to_search_bff() {
+        let query = parse_search_query("from:123456789012345678 has:image hello")
+            .expect("valid inline query");
+        assert_eq!(query.from, vec!["123456789012345678".to_string()]);
+        assert_eq!(query.has, vec!["image".to_string()]);
+        assert_eq!(query.content.as_deref(), Some("hello"));
+        assert_eq!(parse_search_query("   "), Err(SearchBffError::EmptyQuery));
     }
 }

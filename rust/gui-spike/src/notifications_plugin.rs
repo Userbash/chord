@@ -274,8 +274,7 @@ mod tests {
     use std::sync::Mutex;
 
     use chord_client::notifications::{
-        MentionKind, MessageNotificationLevel, MESSAGE_NOTIFICATIONS_NO_MESSAGES,
-        MESSAGE_NOTIFICATIONS_ONLY_MENTIONS,
+        MentionKind, MESSAGE_NOTIFICATIONS_NO_MESSAGES, MESSAGE_NOTIFICATIONS_ONLY_MENTIONS,
     };
     use chord_core::rest::transport::HttpResponse;
 
@@ -465,8 +464,9 @@ mod tests {
     #[test]
     fn resolve_effective_notifications_delegates_to_core_policy_resolver() {
         let guild = GuildNotificationPolicyInput {
+            guild_id: None,
             default_message_notifications: MESSAGE_NOTIFICATIONS_ONLY_MENTIONS,
-            message_notifications: Some(MESSAGE_NOTIFICATIONS_ONLY_MENTIONS),
+            message_notifications: MESSAGE_NOTIFICATIONS_ONLY_MENTIONS,
             muted: false,
             mute_config: None,
             suppress_everyone: true,
@@ -474,10 +474,11 @@ mod tests {
             mobile_push: true,
             mute_scheduled_events: false,
             notify_highlights: 0,
+            hide_muted_channels: false,
             flags: 0,
         };
         let policy = resolve_effective_notifications(&guild, None, None, 1_793_386_800);
-        assert_eq!(policy.effective_level, MessageNotificationLevel::OnlyMentions);
+        assert_eq!(policy.effective_level, MESSAGE_NOTIFICATIONS_ONLY_MENTIONS);
         assert!(policy.should_alert_mention(MentionKind::User));
         assert!(!policy.should_alert_mention(MentionKind::Everyone));
     }
