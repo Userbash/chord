@@ -3247,7 +3247,7 @@ function boot() {
   let rtcPollInFlight = false;
   /** @type {any} */
   let micTestTimer = null;
-  /** @type {ReturnType<typeof setInterval> | null} */
+  /** @type {ReturnType<typeof createTauriEventListener> | ReturnType<typeof setInterval> | null} */
   let voiceSyncTimer = null;
   /** @type {ReturnType<typeof setTimeout> | ReturnType<typeof setInterval> | null} */
   let audioDeviceLevelsTimer = null;
@@ -4591,6 +4591,18 @@ function boot() {
     }
   }
 
+  function stopVoiceSync() {
+    if (voiceSyncTimer) {
+      const activeTimer = /** @type {any} */ (voiceSyncTimer);
+      if (typeof activeTimer.stop === "function") {
+        void activeTimer.stop();
+      } else {
+        clearInterval(activeTimer);
+      }
+      voiceSyncTimer = null;
+    }
+  }
+
   function retryActiveVoiceConnection() {
     if (!activeVoiceConnection) return;
     lastVoiceConnectState = {
@@ -4913,6 +4925,7 @@ function boot() {
     activeVoiceConnection = null;
     stopRtcStatusPolling();
     stopAudioDeviceLevelsPolling();
+    stopVoiceSync();
     lastAudioDeviceInputConfig = { deviceId: "", volume: -1, muted: null };
     lastAudioDeviceOutputConfig = { deviceId: "", volume: -1, muted: null };
     lastVoiceConnectState = {
@@ -14319,11 +14332,20 @@ function boot() {
           void refreshLiveReadyVoiceAndUsers();
         }, 4200);
         if (!voiceSyncTimer) {
-          voiceSyncTimer = setInterval(() => {
-            if (!document.getElementById("live-voice-user-context-menu")) {
-              void refreshLiveReadyVoiceAndUsers();
-            }
-          }, 8000);
+          voiceSyncTimer = createTauriEventListener({
+            event: "voice-participants-sync",
+            initialFetch: async () => {
+              if (!document.getElementById("live-voice-user-context-menu")) {
+                void refreshLiveReadyVoiceAndUsers();
+              }
+            },
+            onEvent: () => {
+              if (!document.getElementById("live-voice-user-context-menu")) {
+                void refreshLiveReadyVoiceAndUsers();
+              }
+            },
+            autoStart: true,
+          });
         }
         if (!(/** @type {any} */ (globalThis).__QA__)) {
           net.stop();
@@ -17842,6 +17864,7 @@ function boot() {
   const cleanupLiveVoiceTimersAndAudio = () => {
     stopRtcStatusPolling();
     stopAudioDeviceLevelsPolling();
+    stopVoiceSync();
     lastAudioDeviceInputConfig = { deviceId: "", volume: -1, muted: null };
     lastAudioDeviceOutputConfig = { deviceId: "", volume: -1, muted: null };
     lastVoiceConnectState = {
@@ -17852,10 +17875,7 @@ function boot() {
       selfVideo: null,
       selfStream: null,
     };
-    if (voiceSyncTimer) {
-      clearInterval(voiceSyncTimer);
-      voiceSyncTimer = null;
-    }
+    stopVoiceSync();
     if (micTestTimer) {
       if (typeof micTestTimer.stop === "function") void micTestTimer.stop();
       else clearInterval(micTestTimer);
