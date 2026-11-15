@@ -12417,6 +12417,15 @@ function boot() {
     if (!start) return;
     playVoiceUiSound("outgoing_call");
     ringingAudioLoopTimer = setInterval(() => {
+      const overlay = document.getElementById("incoming-call-overlay");
+      const dmStage = document.getElementById("live-dm-call-stage");
+      if (!overlay && !dmStage) {
+        if (ringingAudioLoopTimer) {
+          clearInterval(ringingAudioLoopTimer);
+          ringingAudioLoopTimer = null;
+        }
+        return;
+      }
       playVoiceUiSound("outgoing_call");
     }, 2800);
   }
@@ -15314,6 +15323,10 @@ function boot() {
           await invoke(VOICE_SET_AUDIO_DEVICE_IPC_CMD, { kind: "voice_msg_record_start" }).catch(() => {});
           recTimer = setInterval(() => {
             recSec++;
+            if (recSec >= 1200) {
+              voiceMsgBtn.click();
+              return;
+            }
             const m = Math.floor(recSec / 60);
             const s = String(recSec % 60).padStart(2, "0");
             voiceMsgBtn.textContent = `⏹ ${m}:${s}`;
