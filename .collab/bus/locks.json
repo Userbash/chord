@@ -1,22 +1,3 @@
 {
-  "activeLocks": [
-    {
-      "file": "rust/gui-spike/src/voice_plugin.rs",
-      "worker": "g5_voice_plugin",
-      "task": "RW51-EPIC1-T4",
-      "acquiredAt": "2026-11-15T21:52:26.609Z"
-    },
-    {
-      "file": "rust/gui-spike/src/main.rs",
-      "worker": "g5_voice_plugin",
-      "task": "RW51-EPIC1-T4",
-      "acquiredAt": "2026-11-15T21:52:26.628Z"
-    },
-    {
-      "file": "rust/gui-spike/tests/voice_plugin_contract.rs",
-      "worker": "g5_voice_plugin",
-      "task": "RW51-EPIC1-T4",
-      "acquiredAt": "2026-11-15T21:52:26.648Z"
-    }
-  ]
+  "activeLocks": []
 }

@@ -215,16 +215,16 @@ fn rtc_status_dto_extraction_normalizes_camel_and_snake_case_payloads() {
     assert_eq!(snake_dto.tx_packets, 15);
     assert_eq!(snake_dto.rx_packets, 30);
     assert_eq!(snake_dto.rtt_ms, Some(45));
-    assert_eq!(
-        snake_dto.last_error.as_deref(),
-        Some("UDP socket timeout")
-    );
+    assert_eq!(snake_dto.last_error.as_deref(), Some("UDP socket timeout"));
 }
 
 #[test]
 fn live_voice_rtc_status_and_dto_commands_succeed() {
     let raw = run_async(voice_plugin::voice_rtc_status()).expect("voice_rtc_status JSON");
-    assert!(raw.is_object(), "voice_rtc_status must return a JSON object");
+    assert!(
+        raw.is_object(),
+        "voice_rtc_status must return a JSON object"
+    );
 
     let deserialized: VoiceRtcStatusDto = serde_json::from_value(raw.clone())
         .expect("voice_rtc_status payload must deserialize cleanly into VoiceRtcStatusDto");
@@ -361,7 +361,7 @@ fn main_rs_wires_voice_plugin_and_voice_plugin_is_strictly_english() {
 
     let has_cyrillic = plugin_src
         .chars()
-        .any(| ch| ('\u{0400}'..='\u{04FF}').contains(&ch));
+        .any(|ch| ('\u{0400}'..='\u{04FF}').contains(&ch));
     assert!(
         !has_cyrillic,
         "voice_plugin.rs must contain strictly English code, comments, and error messages"

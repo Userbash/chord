@@ -21,11 +21,7 @@ use tauri::Manager;
 /// and that microphone transmission is suppressed while deafened.
 #[allow(unused_parens)]
 #[must_use]
-pub fn verify_voice_protocol_gate(
-    version: u16,
-    speaking_requested: bool,
-    self_deaf: bool,
-) -> bool {
+pub fn verify_voice_protocol_gate(version: u16, speaking_requested: bool, self_deaf: bool) -> bool {
     if (version != 1) {
         return false;
     }
