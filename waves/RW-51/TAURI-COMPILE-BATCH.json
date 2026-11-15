@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "updated_at": "2026-11-15T20:15:49.001036+00:00",
+  "status": "native_matrix_ready_platform_ports_open",
+  "source_baseline": "ed130d722102b6043644111dad9fe6dd946a8145",
+  "rust_tree": "2765c050e3d37b71a581f8a4c92e2408b0d07bda",
+  "workflow": ".github/workflows/tauri-native.yml",
+  "targets": [
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "runner": "ubuntu-24.04",
+      "native_runtime_qualified": false,
+      "compile_status": "local_linux_release_passed"
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "runner": "ubuntu-24.04-arm",
+      "native_runtime_qualified": false,
+      "compile_status": "awaiting_native_ci"
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "runner": "windows-2025",
+      "native_runtime_qualified": false,
+      "compile_status": "awaiting_native_ci"
+    },
+    {
+      "target": "aarch64-pc-windows-msvc",
+      "runner": "windows-11-arm",
+      "native_runtime_qualified": false,
+      "compile_status": "awaiting_native_ci"
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "runner": "macos-15-intel",
+      "native_runtime_qualified": false,
+      "compile_status": "awaiting_native_ci"
+    },
+    {
+      "target": "aarch64-apple-darwin",
+      "runner": "macos-15",
+      "native_runtime_qualified": false,
+      "compile_status": "awaiting_native_ci"
+    }
+  ],
+  "linux_release": {
+    "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/artifacts/local-x86_64-unknown-linux-gnu/chord-client",
+    "bytes": 30948608,
+    "sha256": "48a5f50797cc30f23dc1601afdb747896b7353471e0712b2cf0521c07a6c5717",
+    "features": [
+      "tauri/custom-protocol"
+    ],
+    "build_exit": 0,
+    "source_changed": false,
+    "lockfiles_changed": false,
+    "native_gui_tested": false
+  },
+  "windows_baseline_check": {
+    "target": "x86_64-pc-windows-gnu",
+    "status": "failed",
+    "errors": 72,
+    "kind": "source_type_check_only_not_native_MSCV_build",
+    "log": "verification/tauri-compile-tauri-platform-windows-red-20261115T200134052653Z.log.gz"
+  },
+  "tests": {
+    "ci_contracts": {
+      "pass": 13,
+      "fail": 0,
+      "skip": 0
+    },
+    "full_meta": {
+      "pass": 216,
+      "fail": 0,
+      "skip": 0
+    },
+    "initial_source_contract_mutants_detected": 5,
+    "partial_artifact_regression": "red_then_green",
+    "actionlint_default_checks": "passed",
+    "full_worker_gate": "failed",
+    "remaining_unit_failures": 34
+  },
+  "independent_review": "reports/TAURI-CI-INDEPENDENT-REVIEW.json",
+  "source_audit": "reports/TAURI-PLATFORM-AUDIT.json",
+  "gitleaks_false_positives": {
+    "scope": "exactly two immutable public-source SHA256 fingerprints in .gitleaksignore",
+    "files": [
+      "rust/gui-spike/ui/features/token-map.js",
+      "rust/gui-spike/ui/tokens.css"
+    ],
+    "native_scanner_rerun": "pending_GitHub_CI"
+  },
+  "all_six_targets_compiled": false,
+  "all_native_features_qualified": false,
+  "next": "Port the Windows Unix/credential boundary, then build all six actual Tauri targets and retain failures honestly.",
+  "evidence": [
+    "waves/RW-51/verification/tauri-compile-tauri-linux-release-red-20261115T195554035183Z.json",
+    "waves/RW-51/verification/tauri-compile-tauri-linux-embedded-release-20261115T200652498643Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-linux-release-red-20261115T195554035183Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-native-ci-contract-red-20261115T200520351282Z.json",
+    "waves/RW-51/verification/tauri-compile-tauri-platform-windows-red-20261115T200134052653Z.json",
+    "waves/RW-51/verification/tauri-compile-tauri-ci-partial-artifact-red-20261115T201014313327Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-ci-partial-artifact-green-20261115T201014794591Z.json",
+    "waves/RW-51/verification/tauri-compile-tauri-linux-embedded-release-20261115T200652498643Z.json",
+    "waves/RW-51/verification/tauri-compile-tauri-ci-worker-gate-20261115T200803059065Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-platform-windows-red-20261115T200134052653Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-ci-partial-artifact-green-20261115T201014794591Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-ci-worker-gate-20261115T200803059065Z.json",
+    "waves/RW-51/verification/tauri-compile-tauri-native-ci-contract-green-20261115T200612563033Z.json",
+    "waves/RW-51/verification/tauri-compile-tauri-native-ci-contract-green-20261115T200612563033Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-ci-partial-artifact-red-20261115T201014313327Z.json",
+    "waves/RW-51/verification/tauri-compile-tauri-native-ci-contract-red-20261115T200520351282Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-ci-meta-final-20261115T201153852582Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-tauri-ci-meta-final-20261115T201153852582Z.json",
+    "waves/RW-51/verification/tauri-compile-actionlint-20261115T200735476608Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-hide-build-failure-20261115T200735476608Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-ignore-missing-artifact-20261115T200735476608Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-control-20261115T200735476608Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-replace-release-build-with-check-20261115T200735476608Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-ci-tooling-20261115T200735476608Z.json",
+    "waves/RW-51/verification/tauri-compile-force-host-cpu-instruction-set-20261115T200735476608Z.log.gz",
+    "waves/RW-51/verification/tauri-compile-drop-native-arm-runner-20261115T200735476608Z.log.gz"
+  ]
+}

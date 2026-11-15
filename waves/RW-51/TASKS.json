@@ -12844,7 +12844,10 @@
         "waves/RW-51/FEATURE-PARITY.md"
       ],
       "write_scope": [
-        "waves/RW-51/ACCEPTED-SLICES.json"
+        "waves/RW-51/ACCEPTED-SLICES.json",
+        "waves/RW-51/TAURI-COMPILE-BATCH.json",
+        ".github/workflows/tauri-native.yml",
+        "tests/meta/tauri-native-ci-contract.test.mjs"
       ],
       "integration_owner": "RW-51 coordinator",
       "exclusive_resource": "qa-slice",
@@ -12891,11 +12894,27 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-qa-07",
-      "updated_at": "2026-11-15T19:29:48.418794+00:00",
-      "integration_subtasks": [],
+      "updated_at": "2026-11-15T20:15:49.001036+00:00",
+      "integration_subtasks": [
+        {
+          "id": "LIB-QA-07.I1",
+          "owner": "RW-51 coordinator / named integrator",
+          "write_scope": [
+            "waves/RW-51/TAURI-COMPILE-BATCH.json",
+            ".github/workflows/tauri-native.yml",
+            "tests/meta/tauri-native-ci-contract.test.mjs"
+          ],
+          "instruction": "Compile the actual transitional Tauri binary for six native OS/architecture targets, retain source/lock/artifact provenance and complete artifacts. Treat source checks, compiler metadata and native runtime qualification separately.",
+          "status": "in_progress",
+          "evidence": "waves/RW-51/TAURI-COMPILE-BATCH.json"
+        }
+      ],
       "exclusive_resources": [
         "qa-slice",
-        "waves/RW-51/ACCEPTED-SLICES.json"
+        "waves/RW-51/ACCEPTED-SLICES.json",
+        "waves/RW-51/TAURI-COMPILE-BATCH.json",
+        ".github/workflows/tauri-native.yml",
+        "tests/meta/tauri-native-ci-contract.test.mjs"
       ],
       "runtime_resolution": {
         "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
@@ -12905,11 +12924,19 @@
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
       },
-      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json",
+      "verification_checkpoints": [
+        {
+          "id": "TAURI-COMPILE-BATCH",
+          "state": "linux_release_compiled_native_matrix_config_reviewed_other_targets_pending",
+          "full_parent_completed": false,
+          "record": "waves/RW-51/TAURI-COMPILE-BATCH.json"
+        }
+      ]
     }
   ],
   "execution_receipts": "waves/RW-51/DISPATCH-RECEIPTS.json",
-  "updated_at": "2026-11-15T19:29:48.418794+00:00",
+  "updated_at": "2026-11-15T20:15:49.001036+00:00",
   "platform_blockers": [
     "ARM64_RELEASE_NOT_QUALIFIED"
   ],
@@ -12925,6 +12952,7 @@
     "latest_worker_gate": "waves/RW-51/verification/sequential-worker-gpui-enabled-20261115T164751333Z.json",
     "remaining_js_unit_failures": 34,
     "cpu_instruction_contract": "waves/RW-51/CPU-ISA-CONTRACT.json",
-    "cpu_isa_qualified": false
+    "cpu_isa_qualified": false,
+    "tauri_compile_batch": "waves/RW-51/TAURI-COMPILE-BATCH.json"
   }
 }

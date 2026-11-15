@@ -393,6 +393,7 @@ npm run check                            # Unified typecheck and full test pass
 
 
 | `tests/meta/cross-platform-ci-contract.test.mjs` | `.github/workflows/cross-platform.yml` | — |
+| `tests/meta/tauri-native-ci-contract.test.mjs` | `.github/workflows/tauri-native.yml` | — |
 | `tests/meta/gpui-bootstrap-contract.test.mjs` | `scripts/bootstrap-gpui.mjs` | `bootstrapGpui` |
 | `tests/unit/gate-command-portability-regression.test.mjs` | `scripts/gate.mjs` | `runCommand` |
 | `tests/unit/gate-platform-portability.test.mjs` | `scripts/gate-platform.mjs` | `commandInvocation` |

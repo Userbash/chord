@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-11-15T20:07:37.182691+00:00",
+  "actionlint_version": "1.7.12\ninstalled by downloading from release page\nbuilt with go1.26.1 compiler for linux/amd64",
+  "download_url": "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz",
+  "archive_sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+  "lint": {
+    "command": [
+      "/root/.local/bin/actionlint",
+      "-color",
+      "-shellcheck=",
+      "-pyflakes=",
+      ".github/workflows/tauri-native.yml"
+    ],
+    "exit_code": 0
+  },
+  "contract_mutations": [
+    {
+      "case": "control",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/control-20261115T200735476608Z.log"
+    },
+    {
+      "case": "drop-native-arm-runner",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/drop-native-arm-runner-20261115T200735476608Z.log"
+    },
+    {
+      "case": "replace-release-build-with-check",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/replace-release-build-with-check-20261115T200735476608Z.log"
+    },
+    {
+      "case": "ignore-missing-artifact",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/ignore-missing-artifact-20261115T200735476608Z.log"
+    },
+    {
+      "case": "force-host-cpu-instruction-set",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/force-host-cpu-instruction-set-20261115T200735476608Z.log"
+    },
+    {
+      "case": "hide-build-failure",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/hide-build-failure-20261115T200735476608Z.log"
+    }
+  ],
+  "mutants_detected": 5,
+  "native_builds_executed_by_this_check": false
+}

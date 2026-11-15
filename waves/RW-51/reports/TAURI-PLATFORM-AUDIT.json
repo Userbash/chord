@@ -1,0 +1,445 @@
+{
+  "schema_version": 1,
+  "baseline_head": "ed130d722102b6043644111dad9fe6dd946a8145",
+  "created_at_utc": "2026-11-15T20:02:52.916521+00:00",
+  "repo": "/root/projects/chord-modernization",
+  "mode": "read-only source/dependency audit",
+  "repository_writes": false,
+  "cargo_or_tests_run": false,
+  "native_hardware_qualification": false,
+  "parent_supplied_baseline_evidence": {
+    "linux_tauri_release_build": "cargo build --locked --offline succeeded in 2m04s; all three lockfiles unchanged",
+    "macos_core": "PR16 macos-15 core compiled with Homebrew hunspell/sqlite/glib/libsecret; later media latency test failure is separate",
+    "macos_tauri": "not established by that core build"
+  },
+  "existing_adapters": [
+    {
+      "path": "rust/gui-spike/src/main.rs",
+      "line": 1841,
+      "description": "Tauri owns cross-platform window/tray/plugin registration; retain this path."
+    },
+    {
+      "path": "rust/gui-spike/src/auth.rs",
+      "line": 1106,
+      "description": "TokenStore and ThreadedStore provide a real provider seam."
+    },
+    {
+      "path": "rust/chord-gpui/src/process_rss.rs",
+      "line": 96,
+      "description": "Existing Linux/macOS/Windows RSS providers; RSS only, not all Tauri metrics."
+    },
+    {
+      "path": "rust/chord-gpui/src/audio/mod.rs",
+      "line": 7,
+      "description": "Actual CPAL device discovery exists in GPUI; chord-voice Cpal*Buffer names alone are pure buffers, not OS capture adapters."
+    },
+    {
+      "path": "rust/crates/chord-platform/src/rpc_ipc.rs",
+      "line": 1600,
+      "description": "Linux/Android and Darwin/BSD peer credentials are implemented; Windows pipe entries are configurations only."
+    },
+    {
+      "path": "rust/crates/chord-platform/src/dbus/fd.rs",
+      "line": 47,
+      "description": "Native libc Unix FD transport with Linux atomic CLOEXEC and POSIX fallback already exists."
+    },
+    {
+      "path": "rust/crates/chord-core/src/soundshare.rs",
+      "line": 277,
+      "description": "Existing Linux /proc versus non-Linux kill -0 process check; the latter is not a Windows native provider."
+    }
+  ],
+  "target_assessment": [
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "source_build_assessment": "Parent reports actual Tauri release build success; native feature qualification remains separate."
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "source_build_assessment": "Not built in this audit; target-native WebKit/GTK/FFI libraries and linker required; Linux64 runtime codec assumption remains."
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "source_build_assessment": "Statically blocked by TAURI-01/02; applies to GNU Windows targets too."
+    },
+    {
+      "target": "aarch64-pc-windows-msvc",
+      "source_build_assessment": "Same source blockers; existing vcpkg provisioning is x64-only."
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "source_build_assessment": "No inherent Unix/libsecret compile prohibition; Tauri target build/link still needs native SDK/libraries and actual verification."
+    },
+    {
+      "target": "aarch64-apple-darwin",
+      "source_build_assessment": "Same; parent macOS core success is not evidence of Tauri binary compilation or native feature parity."
+    }
+  ],
+  "findings": [
+    {
+      "id": "TAURI-01",
+      "priority": "P0",
+      "kind": "windows_source_compile",
+      "targets": [
+        "windows-x86_64",
+        "windows-arm64"
+      ],
+      "summary": "The default dependency graph and active voice plugin unconditionally require Unix file descriptors and ashpd screencast; Windows cannot type-check these APIs.",
+      "references": [
+        {
+          "path": "rust/gui-spike/Cargo.toml",
+          "line": 46
+        },
+        {
+          "path": "rust/gui-spike/src/voice_plugin.rs",
+          "line": 26
+        },
+        {
+          "path": "rust/gui-spike/src/voice_plugin.rs",
+          "line": 43
+        },
+        {
+          "path": "rust/gui-spike/src/voice_plugin.rs",
+          "line": 79
+        },
+        {
+          "path": "rust/crates/chord-platform/src/lib.rs",
+          "line": 10
+        },
+        {
+          "path": "rust/crates/chord-platform/src/dbus/mod.rs",
+          "line": 29
+        },
+        {
+          "path": "rust/crates/chord-platform/src/dbus/fd.rs",
+          "line": 24
+        },
+        {
+          "path": "rust/crates/chord-platform/src/rpc_ipc.rs",
+          "line": 14
+        },
+        {
+          "path": "rust/crates/chord-platform/src/power.rs",
+          "line": 23
+        },
+        {
+          "path": "rust/crates/chord-platform/src/screencast.rs",
+          "line": 10
+        }
+      ],
+      "minimal_strategy": "Make ashpd and its session/FD ownership Linux-specific. Keep Tauri IPC registration and portable models intact; route capture through an explicit target capability/provider. Separate platform Unix transports from native credentials and portable policy modules. Do not add fake FD aliases or successful empty implementations.",
+      "targeted_checks": [
+        "Record Windows x86_64/ARM64 cargo check --locked --manifest-path rust/gui-spike/Cargo.toml --all-targets errors before changes; rerun unchanged targets after each adapter slice.",
+        "Compile the real chord-client binary, not only the library; check voice IPC registrations remain present."
+      ]
+    },
+    {
+      "id": "TAURI-02",
+      "priority": "P0",
+      "kind": "windows_native_link_provider",
+      "targets": [
+        "windows-x86_64",
+        "windows-arm64"
+      ],
+      "summary": "chord-platform links Secret Service/GLib and Hunspell unconditionally. libsecret has no Windows provider in the current CI setup. Tauri auth directly uses this Keyring. This is not an inherent macOS blocker: the existing macOS core job compiles with Homebrew libraries.",
+      "references": [
+        {
+          "path": "rust/crates/chord-platform/src/lib.rs",
+          "line": 20
+        },
+        {
+          "path": "rust/crates/chord-platform/src/ffi_secret.rs",
+          "line": 66
+        },
+        {
+          "path": "rust/crates/chord-platform/src/ffi_secret.rs",
+          "line": 100
+        },
+        {
+          "path": "rust/crates/chord-platform/src/ffi_hunspell.rs",
+          "line": 31
+        },
+        {
+          "path": "rust/gui-spike/src/auth.rs",
+          "line": 1204
+        },
+        {
+          "path": "rust/gui-spike/src/auth.rs",
+          "line": 1308
+        },
+        {
+          "path": ".github/workflows/cross-platform.yml",
+          "line": 91
+        }
+      ],
+      "minimal_strategy": "Preserve the Keyring/TokenStore API with a real Windows credential provider; retain the working Unix libsecret implementation and its native dependency provisioning. Gate unused spellchecking/native desktop providers deliberately and verify Windows Hunspell import-library names and matching target architecture. Provision sqlite3 for chord-store too.",
+      "targeted_checks": [
+        "Targeted keyring store/load/overwrite/delete/missing-entry/error-redaction contracts on native Windows with synthetic secrets.",
+        "Perform real native executable links on each OS/architecture; cargo check alone does not validate FFI libraries."
+      ]
+    },
+    {
+      "id": "TAURI-03",
+      "priority": "P1",
+      "kind": "runtime_metrics",
+      "targets": [
+        "windows-x86_64",
+        "windows-arm64",
+        "macos-x86_64",
+        "macos-arm64"
+      ],
+      "summary": "The active process_metrics IPC command always reads /proc/self/status. It therefore returns an error on ordinary Windows/macOS installations even if the app builds.",
+      "references": [
+        {
+          "path": "rust/gui-spike/src/main.rs",
+          "line": 91
+        },
+        {
+          "path": "rust/gui-spike/src/main.rs",
+          "line": 95
+        },
+        {
+          "path": "rust/gui-spike/src/lib.rs",
+          "line": 89
+        },
+        {
+          "path": "rust/chord-gpui/src/process_rss.rs",
+          "line": 96
+        },
+        {
+          "path": "rust/chord-gpui/src/process_rss.rs",
+          "line": 101
+        },
+        {
+          "path": "rust/chord-gpui/src/process_rss.rs",
+          "line": 111
+        }
+      ],
+      "minimal_strategy": "Reuse/extract the existing GPUI native RSS adapter boundary and extend it to the complete RSS/peak/thread ProcessMetrics contract. Retain errors for unavailable or malformed measurements; never substitute zero.",
+      "targeted_checks": [
+        "Preserve ipc_contract parser/threshold assertions.",
+        "Test process_metrics against native OS process data for all three fields, including units and unavailable-provider errors."
+      ]
+    },
+    {
+      "id": "TAURI-04",
+      "priority": "P1",
+      "kind": "runtime_audio_capture_capability",
+      "targets": [
+        "all-targets"
+      ],
+      "summary": "Live audio and capture are currently Linux/PulseAudio/KWin based. Missing pactl becomes synthetic default devices, and failed KWin queries become hardcoded Orca/browser/Chord windows; these do not demonstrate native Windows/macOS support.",
+      "references": [
+        {
+          "path": "rust/gui-spike/src/data.rs",
+          "line": 5450
+        },
+        {
+          "path": "rust/gui-spike/src/data.rs",
+          "line": 5486
+        },
+        {
+          "path": "rust/gui-spike/src/data.rs",
+          "line": 5778
+        },
+        {
+          "path": "rust/gui-spike/src/data.rs",
+          "line": 6412
+        },
+        {
+          "path": "rust/gui-spike/src/data.rs",
+          "line": 6483
+        },
+        {
+          "path": "rust/gui-spike/src/data.rs",
+          "line": 6608
+        },
+        {
+          "path": "rust/gui-spike/src/data.rs",
+          "line": 6748
+        },
+        {
+          "path": "rust/gui-spike/src/voice_plugin.rs",
+          "line": 241
+        },
+        {
+          "path": "rust/gui-spike/src/voice_plugin.rs",
+          "line": 317
+        }
+      ],
+      "minimal_strategy": "For the requested compilation phase, isolate Linux-specific providers and document unqualified capabilities explicitly. For native functionality, extract the existing real CPAL discovery from GPUI into a shared provider and use actual native capture providers; preserve current Linux behavior and avoid invented sources or successful no-op streams.",
+      "targeted_checks": [
+        "Preserve existing voice_devices/voice_stage/voice_stream contracts and numeric limits.",
+        "Add provider-unavailable cases that produce explicit capability/errors rather than fake devices/windows.",
+        "Qualify real audio/capture only on native hardware with consent; compilation is not qualification."
+      ]
+    },
+    {
+      "id": "TAURI-05",
+      "priority": "P1",
+      "kind": "runtime_native_bridge",
+      "targets": [
+        "all-targets",
+        "linux-arm64"
+      ],
+      "summary": "The native voice bridge is discovered under a fixed /home/sanya Discord installation and compiles a Linux C shim at runtime with gcc, GNU/POSIX headers, .so libraries and /dev/shm IPC. The configured OpenH264 asset explicitly names linux64. These are runtime/architecture assumptions, not Rust source compile errors.",
+      "references": [
+        {
+          "path": "rust/crates/chord-core/src/ws.rs",
+          "line": 2237
+        },
+        {
+          "path": "rust/crates/chord-core/src/ws.rs",
+          "line": 3087
+        },
+        {
+          "path": "rust/crates/chord-core/src/ws.rs",
+          "line": 4742
+        },
+        {
+          "path": "rust/crates/chord-core/src/ws.rs",
+          "line": 4806
+        },
+        {
+          "path": "rust/crates/chord-core/src/ws.rs",
+          "line": 4842
+        },
+        {
+          "path": "rust/crates/chord-core/src/ws.rs",
+          "line": 6115
+        },
+        {
+          "path": "rust/crates/chord-core/src/ws.rs",
+          "line": 6121
+        },
+        {
+          "path": "rust/crates/chord-platform/src/screencast.rs",
+          "line": 1884
+        }
+      ],
+      "minimal_strategy": "Keep the Linux bridge as an explicit provider with validated prerequisites and target-matched artifacts. Use standard temp/app-data paths and env::split_paths/join_paths. Do not treat a stale .node file or a missing worker as success; separate architecture-specific native qualification from the compile matrix.",
+      "targeted_checks": [
+        "Unit-test provider/path selection for all six target tuples and both PATH separators.",
+        "Test missing/wrong-architecture bridge assets and failed child startup as explicit errors; do not launch live Discord during build verification."
+      ]
+    },
+    {
+      "id": "TAURI-06",
+      "priority": "P1",
+      "kind": "windows_identity_entropy",
+      "targets": [
+        "windows-x86_64",
+        "windows-arm64"
+      ],
+      "summary": "SystemSources reads randomness only from /dev/urandom and ignores failure. uuid_v4 starts with a zeroed array, so the Windows default path generates constant launch/session UUIDs.",
+      "references": [
+        {
+          "path": "rust/crates/chord-core/src/rest/identity.rs",
+          "line": 48
+        },
+        {
+          "path": "rust/crates/chord-core/src/rest/identity.rs",
+          "line": 307
+        },
+        {
+          "path": "rust/crates/chord-core/src/rest/identity.rs",
+          "line": 309
+        }
+      ],
+      "minimal_strategy": "Use an OS-backed randomness library/provider and propagate entropy failure instead of silently retaining zeroes. Preserve UUID version/variant formatting and injected deterministic-source contracts.",
+      "targeted_checks": [
+        "Red test for unavailable/failed OS entropy; retain the existing three-UUID order and formatting tests.",
+        "Native Windows check that repeated generated identities differ and error paths never yield the all-zero-derived UUID."
+      ]
+    },
+    {
+      "id": "TAURI-07",
+      "priority": "P1",
+      "kind": "windows_paths_credentials",
+      "targets": [
+        "windows-x86_64",
+        "windows-arm64"
+      ],
+      "summary": "Session/cache paths use only XDG variables or HOME. Session persistence writes plaintext token and backup files, with permission hardening compiled only for Unix; a new Windows credential adapter must not silently preserve this as its security model.",
+      "references": [
+        {
+          "path": "rust/gui-spike/src/auth.rs",
+          "line": 1115
+        },
+        {
+          "path": "rust/gui-spike/src/auth.rs",
+          "line": 1164
+        },
+        {
+          "path": "rust/gui-spike/src/auth.rs",
+          "line": 1173
+        },
+        {
+          "path": "rust/gui-spike/src/auth.rs",
+          "line": 1226
+        },
+        {
+          "path": "rust/gui-spike/src/data.rs",
+          "line": 1693
+        }
+      ],
+      "minimal_strategy": "Use the existing TokenStore/ThreadedStore seam for native credentials and Tauri/native application-directory resolution. Preserve legacy migration deliberately; do not rely on HOME or Unix chmod for Windows token confidentiality.",
+      "targeted_checks": [
+        "Native credential persistence/restore/delete contracts with synthetic tokens and redacted errors.",
+        "Path-provider tests for absent HOME/XDG and native Windows app-data directories."
+      ]
+    },
+    {
+      "id": "TAURI-08",
+      "priority": "P1",
+      "kind": "coverage_gap",
+      "targets": [
+        "all-six-targets"
+      ],
+      "summary": "Current cross-platform CI has core and GPUI suites, not gui-spike. It does not explicitly build both architectures. The existing Tauri launch test treats absence of DISPLAY/WAYLAND_DISPLAY as a skip on every OS, so Windows/macOS GUI testing would falsely appear headless.",
+      "references": [
+        {
+          "path": ".github/workflows/cross-platform.yml",
+          "line": 29
+        },
+        {
+          "path": ".github/workflows/cross-platform.yml",
+          "line": 54
+        },
+        {
+          "path": ".github/workflows/cross-platform.yml",
+          "line": 124
+        },
+        {
+          "path": "rust/gui-spike/tests/launch.rs",
+          "line": 82
+        },
+        {
+          "path": "rust/gui-spike/tests/launch.rs",
+          "line": 100
+        },
+        {
+          "path": "rust/gui-spike/tests/launch.rs",
+          "line": 110
+        },
+        {
+          "path": "rust/gui-spike/tauri.conf.json",
+          "line": 25
+        }
+      ],
+      "minimal_strategy": "Add a separate six-target Tauri lane without weakening existing core/GPUI jobs. Use matching native linkers/SDKs and target-native dependency prefixes. Keep compilation/link status separate from UI/native feature qualification; make the launch environment check OS-specific before claiming native smoke coverage.",
+      "targeted_checks": [
+        "cargo check/build --locked --manifest-path rust/gui-spike/Cargo.toml for each explicit target.",
+        "Targeted --lib IPC/auth/data tests and binary/plugin compilation; OS-specific offline launch smoke where a native desktop is available.",
+        "Retain all snapshot, liveness, timeout, count and payload assertions."
+      ]
+    }
+  ],
+  "recommended_sequence": [
+    "Add the independent six-target Tauri compile/link lane.",
+    "Fix Windows dependency and native credential/provider boundaries without changing Unix defaults.",
+    "Verify each native binary links; preserve current IPC/command interfaces and tests.",
+    "Fix OS entropy and metrics/path adapters as separate targeted red/green slices.",
+    "Document unqualified audio/capture/native bridge capabilities; qualify them separately instead of adding silent no-ops."
+  ]
+}

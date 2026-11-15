@@ -783,6 +783,102 @@
       "archive_sha256": "dfb875f09328a03af6f8be45c2003470d41b747cd8701957a7602666c64fc019"
     },
     {
+      "file": "tauri-compile-actionlint-20261115T200735476608Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "tauri-compile-control-20261115T200735476608Z.log.gz",
+      "raw_bytes": 689,
+      "raw_sha256": "90d4931dce4230ccf66259223b660a7d1c0dba4e1c45d98ea08fa312369abd6f",
+      "archive_sha256": "c824682171969c7485ccbe2f78baf5a2a39215f568edfa4569316058ce82b44b"
+    },
+    {
+      "file": "tauri-compile-drop-native-arm-runner-20261115T200735476608Z.log.gz",
+      "raw_bytes": 1678,
+      "raw_sha256": "60f06ff325c2d3cdf9a579b07743295130533769f53d2e796d8083c3f05b81e5",
+      "archive_sha256": "7c90ad5e959ae21200934369ec6a66299753e74e20abe57698a2d77c1fe5ae82"
+    },
+    {
+      "file": "tauri-compile-force-host-cpu-instruction-set-20261115T200735476608Z.log.gz",
+      "raw_bytes": 19321,
+      "raw_sha256": "cd492c22d512a5e180b20dbcc1b5ca956c93f49cea345d0c2f2d53e97ad5d227",
+      "archive_sha256": "124ac9f705bb7fa8e7917a6e5798525b95b1b6d657f9e9b34caa530d3818fe44"
+    },
+    {
+      "file": "tauri-compile-hide-build-failure-20261115T200735476608Z.log.gz",
+      "raw_bytes": 37865,
+      "raw_sha256": "8cbfeef5a8aba833a12f70542f594099be71e11a2ec92b772ece75fa1a8dfeb6",
+      "archive_sha256": "62bb10a5ff7d83f2b8994f1531d04701c747d2c987159a8a5f1ae39f108ba188"
+    },
+    {
+      "file": "tauri-compile-ignore-missing-artifact-20261115T200735476608Z.log.gz",
+      "raw_bytes": 19118,
+      "raw_sha256": "48ca8ab6afd21de7ce5b8cd436290553a13abeae68de6156a5772711218b5148",
+      "archive_sha256": "f6b2336c76fb91e9f057cca278718047017e328bfe17070bdaf3e0a523a4ad24"
+    },
+    {
+      "file": "tauri-compile-replace-release-build-with-check-20261115T200735476608Z.log.gz",
+      "raw_bytes": 19330,
+      "raw_sha256": "c09a4907b6e3ca785c869b8676fc7ac060da897d87c8e194d01e07cae4018594",
+      "archive_sha256": "68d76a459d39fd6eaf0edf0e16af29a09be32dd585695d0c83ac9326645df635"
+    },
+    {
+      "file": "tauri-compile-tauri-ci-meta-final-20261115T201153852582Z.log.gz",
+      "raw_bytes": 29543,
+      "raw_sha256": "b59c61dc3beef1bc2e521770e569c8aaedc24388b591a9583ce64c2fd028b8c9",
+      "archive_sha256": "b8f8632210d54da40e679a804b322885fdd2d45efb2c2e9e1b2e05912b39eab8"
+    },
+    {
+      "file": "tauri-compile-tauri-ci-partial-artifact-green-20261115T201014794591Z.log.gz",
+      "raw_bytes": 1473,
+      "raw_sha256": "82d56fe00f70293b35ce0265861b0132eb345eb0fe58c808c0bba089b9c4cc48",
+      "archive_sha256": "bcb49a6d9b76737d183d0d4b01a4784ea7a2dce8cef7d48a819901df649fe29d"
+    },
+    {
+      "file": "tauri-compile-tauri-ci-partial-artifact-red-20261115T201014313327Z.log.gz",
+      "raw_bytes": 6563,
+      "raw_sha256": "108f10415949c288075592340fd201d7018ab4263dc536a9fe85e278eabdd754",
+      "archive_sha256": "d9d5c94eff905e0c83d5ac25585db6b5a028e34f416e9df1ef2d17f2abb11e91"
+    },
+    {
+      "file": "tauri-compile-tauri-ci-worker-gate-20261115T200803059065Z.log.gz",
+      "raw_bytes": 4336,
+      "raw_sha256": "0634dabf82c50db73690f663f86cc0e25d34a46c51ca323885f3828f391fc0a2",
+      "archive_sha256": "a042619d51e3c8d723e4b2ae9918a94bd101d77114f30e96895a7769678ff164"
+    },
+    {
+      "file": "tauri-compile-tauri-linux-embedded-release-20261115T200652498643Z.log.gz",
+      "raw_bytes": 606,
+      "raw_sha256": "6b3b8ca8b4ef958c4a26bb1baa6ed4cf09e679492b5137f0c90447edc2864679",
+      "archive_sha256": "703e958a5ad73fefe820686923e3c771b43143277bd1cae7f2efe5635a9301a2"
+    },
+    {
+      "file": "tauri-compile-tauri-linux-release-red-20261115T195554035183Z.log.gz",
+      "raw_bytes": 12140,
+      "raw_sha256": "68b1c356389d34f81a63e129422ceec57342c3a17624fc3b3132ae65bfd9644e",
+      "archive_sha256": "b3ad1920a2699f0f97b108d2bcc844b89d1049bdc4498080ccad97a3c65d6a46"
+    },
+    {
+      "file": "tauri-compile-tauri-native-ci-contract-green-20261115T200612563033Z.log.gz",
+      "raw_bytes": 1372,
+      "raw_sha256": "cd0930cf59eff302bba66e8e7db0897a90b44a1cca44d53caa904d5c81689fcd",
+      "archive_sha256": "63774044d7481ee514f5827a95be14da0c5348a3da2ada9c9a2ed226f6998765"
+    },
+    {
+      "file": "tauri-compile-tauri-native-ci-contract-red-20261115T200520351282Z.log.gz",
+      "raw_bytes": 6197,
+      "raw_sha256": "901eaf883fa4486498a5980fc384652c7f1457c724105c43c6211e5d26e16d72",
+      "archive_sha256": "884f675f332180571b40c1eb1ce9ad2aeacb5487a71995f0a2474bb4e43009cd"
+    },
+    {
+      "file": "tauri-compile-tauri-platform-windows-red-20261115T200134052653Z.log.gz",
+      "raw_bytes": 24066,
+      "raw_sha256": "03202702db26d5539021ff5bada5181af636a0a1192bafaa3a8dc1214d52e189",
+      "archive_sha256": "f8be07f16af4bbdea4fb8ff1d5492ae020e1151fdd1aeb7b5d710e03c78c85f2"
+    },
+    {
       "file": "theme-oracle-independent-worktree-20261115T161432022512Z.log.gz",
       "raw_bytes": 122,
       "raw_sha256": "711a1df2d1ea79e3deb2ecf369f808d02e99d53caebdfb9cedca9c94b014fe2c",

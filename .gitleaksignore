@@ -1,0 +1,4 @@
+# Public source SHA256 digests, not credentials: token-map.js and tokens.css.
+# Scope is limited to the two exact findings in the immutable review receipt.
+ed130d722102b6043644111dad9fe6dd946a8145:waves/RW-51/verification/theme-oracle-independent-review.json:generic-api-key:51
+ed130d722102b6043644111dad9fe6dd946a8145:waves/RW-51/verification/theme-oracle-independent-review.json:generic-api-key:52

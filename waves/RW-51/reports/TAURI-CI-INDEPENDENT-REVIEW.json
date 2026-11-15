@@ -1,0 +1,120 @@
+{
+  "reviewer": "/root/arm_review",
+  "phase": "Tauri_native_CI_configuration_review",
+  "reviewed_at": "2026-11-15T20:14:19.506249+00:00",
+  "source_HEAD": "ed130d722102b6043644111dad9fe6dd946a8145",
+  "verdict": "approve_CI_configuration_and_exact_public_digest_exceptions_only",
+  "findings": [],
+  "reviewed_files_sha256": {
+    ".github/workflows/tauri-native.yml": "f7d7bc321e756fb2a1052f064641193586e8e5127ed520269df2e80e75516d26",
+    "tests/meta/tauri-native-ci-contract.test.mjs": "f89a91c986b82051aaa65fcd9ddf6a781273f82475683cc7a790f977390372c4",
+    "TDD-PLAN.md": "7063e8b656a73ef7a23fcece9c72165a1396b97b48f62fb0a4369e22ee6dc525",
+    ".gitleaksignore": "6284e3b8aa2757a33024768ebc510c9c22948046a336c954315e5dcefc0cb4ba"
+  },
+  "resolved_findings": [
+    {
+      "severity": "P2",
+      "title": "Upload could publish a partially staged binary without provenance",
+      "resolution": "Staging now has id tauri_artifact; upload requires its success and !cancelled(), retaining complete artifacts after independent test failure while rejecting partial staging.",
+      "regression_test_added": true
+    }
+  ],
+  "independent_checks": [
+    {
+      "label": "ci-contracts",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/meta/tauri-native-ci-contract.test.mjs",
+        "tests/meta/cross-platform-ci-contract.test.mjs"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/ci-contracts-20261115T201201310193Z.log",
+      "log_sha256": "c191b530e88c0b5d15cc8a45666d0f7b627c25f8049affd602e5893807185ad2"
+    },
+    {
+      "label": "actionlint",
+      "command": [
+        "/root/.local/bin/actionlint",
+        ".github/workflows/tauri-native.yml"
+      ],
+      "cwd": "/root/projects/chord-modernization",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/actionlint-20261115T201201310193Z.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "independent_contract_totals": {
+    "tests": 13,
+    "pass": 13,
+    "fail": 0,
+    "skipped": 0
+  },
+  "actionlint_used_without_disabling_flags": true,
+  "matrix_review": {
+    "six_native_runner_target_pairs": true,
+    "Node_architecture_checked": true,
+    "locked_release_build": "rust/gui-spike/Cargo.toml --features tauri/custom-protocol",
+    "tests_separate_from_compilation": true,
+    "all_six_native_builds_verified_by_reviewer": false
+  },
+  "SDK_review": {
+    "Linux": "Tauri WebKitGTK4.1/AppIndicator and shared native development packages are explicitly installed.",
+    "macOS": "Xcode/clang discovery and native Homebrew lib paths cover the declared native dependencies; no CPU instruction override is introduced.",
+    "Windows": "vcpkg x64-windows and arm64-windows match the target triples. LIB and DLL/PATH staging use the same installed-triplet prefix; vcpkg failure is preserved. Runner inventory documents VCPKG_INSTALLATION_ROOT and native MSVC SDKs.",
+    "limit": "This verifies configuration, not successful SDK/link/runtime execution on the other native runners. Existing platform source-port blockers remain separate."
+  },
+  "cache_review": {
+    "configured_workspace": "rust/gui-spike -> ../../target/tauri-native",
+    "resolved_directory": "/root/projects/chord-modernization/target/tauri-native",
+    "CARGO_TARGET_DIR_matches": true,
+    "primary_action_source": "https://github.com/Swatinem/rust-cache/blob/v2/src/config.ts"
+  },
+  "artifact_review": {
+    "actual_executable_name_matches_Cargo_package": true,
+    "target_subdirectory_matches_explicit_Cargo_target": true,
+    "Windows_native_DLLs_copied_from_triplet": true,
+    "source_Rust_toolchain_Cargo_lock_and_file_hash_manifest": true,
+    "partial_staging_blocks_upload": true,
+    "test_failure_does_not_erase_completed_build_artifact": true,
+    "native_runtime_qualified_field": false
+  },
+  "security_review": {
+    "contents_read_only": true,
+    "checkout_credentials_not_persisted": true,
+    "no_pull_request_target_or_secret_reference": true,
+    "existing_core_GPUI_workflow_unchanged": true,
+    "gitleaks_exceptions": {
+      "file": ".gitleaksignore",
+      "exact_fingerprints": [
+        "ed130d722102b6043644111dad9fe6dd946a8145:waves/RW-51/verification/theme-oracle-independent-review.json:generic-api-key:51",
+        "ed130d722102b6043644111dad9fe6dd946a8145:waves/RW-51/verification/theme-oracle-independent-review.json:generic-api-key:52"
+      ],
+      "public_source_SHA256_independently_verified": {
+        "rust/gui-spike/ui/features/token-map.js": "269a8a95a6c24a27afda19e30b4342de4a052cc6833cc4b55496ca1635504a0e",
+        "rust/gui-spike/ui/tokens.css": "24e94411e2ccc173f3a69ec1571d61e7fcc0fbf2261185296f740e6ddccfc485"
+      },
+      "immutable_report_matches_commit": true,
+      "wildcards_or_path_wide_suppression": false,
+      "other_findings_affected": false,
+      "scanner_independently_rerun_by_reviewer": false
+    }
+  },
+  "primary_sources": [
+    "https://docs.github.com/en/actions/reference/runners/github-hosted-runners",
+    "https://github.com/actions/runner-images/blob/main/images/windows/Windows11-VS2026-Arm64-Readme.md",
+    "https://github.com/Swatinem/rust-cache/blob/v2/src/config.ts",
+    "https://github.com/gitleaks/gitleaks#additional-configuration"
+  ],
+  "native_GUI_or_ISA_qualification": false,
+  "native_ARM_qualification": false,
+  "whole_cross_platform_task_complete": false,
+  "full_gate_run_by_reviewer": false,
+  "ECC_session_started": false,
+  "limits": [
+    "Approval is for the first transitional CI configuration and the two exact verified false-positive fingerprints; it does not certify six successful native builds.",
+    "Platform-specific source ports, complete SDK/runtime qualification, GUI/media behavior and CPU/ABI gates remain open.",
+    "Artifact is a compiled executable/DLL bundle, not an installed, signed or runtime-qualified application package."
+  ]
+}

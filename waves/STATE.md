@@ -1,5 +1,10 @@
 # STATE — System Status and Wave Checkpoint
 
+- Tauri transition compile batch, 2026-11-15: actual Linux release compiled
+  with embedded frontend; six-target native CI configuration reviewed.
+  Windows source has72baseline errors; native jobs/ports and runtime
+  qualification remain open. See [Tauri compile batch](RW-51/TAURI-COMPILE-BATCH.md).
+
 - CPU clarification, 2026-11-15: the user screenshot x86 ISA families are
   included in dependency/native acceptance. Rust defaults were measured for
   six targets. A masked-feature headless run passed, but the emulator did
