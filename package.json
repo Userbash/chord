@@ -21,7 +21,12 @@
     "gate:worker": "node scripts/gate.mjs --scope worker",
     "gate:release": "node scripts/gate.mjs --scope release",
     "gate:qualify": "node scripts/gate.mjs --scope qualify",
-    "golden:freeze": "node scripts/gate.mjs --freeze-golden"
+    "golden:freeze": "node scripts/gate.mjs --freeze-golden",
+    "auto:status": "bash scripts/auto-loop.sh --status",
+    "auto:step": "bash scripts/auto-loop.sh --step",
+    "auto:watch": "bash scripts/auto-loop.sh --watch",
+    "kanban:status": "bash scripts/auto-loop.sh --kanban status",
+    "kanban:list": "bash scripts/auto-loop.sh --kanban list"
   },
   "files": [
     "bin/",
