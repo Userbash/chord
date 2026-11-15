@@ -1,22 +1,3 @@
 {
-  "activeLocks": [
-    {
-      "file": "rust/crates/chord-platform/Cargo.toml",
-      "worker": "g5_voice_audio",
-      "task": "RW51-EPIC4-T1",
-      "acquiredAt": "2026-11-15T21:10:28.677Z"
-    },
-    {
-      "file": "rust/crates/chord-platform/src/audio_engine.rs",
-      "worker": "g5_voice_audio",
-      "task": "RW51-EPIC4-T1",
-      "acquiredAt": "2026-11-15T21:10:28.692Z"
-    },
-    {
-      "file": "rust/gui-spike/src/data.rs",
-      "worker": "g5_voice_audio",
-      "task": "RW51-EPIC4-T1",
-      "acquiredAt": "2026-11-15T21:10:28.706Z"
-    }
-  ]
+  "activeLocks": []
 }

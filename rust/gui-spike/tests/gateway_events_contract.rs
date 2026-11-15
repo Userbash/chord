@@ -67,8 +67,8 @@ fn test_rw51_epic3_t1_message_and_guild_events_via_twilight() {
     });
     data::ingest_live_dispatch("VOICE_STATE_UPDATE", &voice_payload);
 
-    let r_voice = data::ready(&root).expect("ready after VOICE_STATE_UPDATE");
-    let vs = &r_voice.guilds[0].raw["voice_states"];
+    let voice_sync = data::set_system_audio_device("voice_states_sync", None, None, None);
+    let vs = &voice_sync["voiceStates"]["888000111222333444"];
     assert!(vs.is_array());
     assert_eq!(vs.as_array().unwrap().len(), 1);
     assert_eq!(vs.as_array().unwrap()[0]["user_id"], "777000");
