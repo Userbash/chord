@@ -83,11 +83,10 @@ fn chord_voice_core_and_chord_platform_audio_engine_bindings_are_active() {
     );
 
     let inventory = voice_plugin::native_audio_inventory();
-    assert!(!inventory.backend.is_empty());
     assert!(!inventory.inputs.is_empty());
     assert!(!inventory.outputs.is_empty());
-    assert!(inventory.default_input_id.is_some());
-    assert!(inventory.default_output_id.is_some());
+    assert!(!inventory.default_input.is_empty());
+    assert!(!inventory.default_output.is_empty());
 
     // Playing valid and invalid sound cues through chord_platform::audio_engine
     assert!(voice_plugin::play_voice_sound_cue("mute").is_ok());
