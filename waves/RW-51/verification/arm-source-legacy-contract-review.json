@@ -1,0 +1,75 @@
+{
+  "reviewer": "/root/arm_review",
+  "task_id": "LIB-ARM-06.I1",
+  "phase": "independent_legacy_cpu_contract_review",
+  "reviewed_at": "2026-11-15T15:41:52.579042+00:00",
+  "verdict": "approve_bounded_source_cpu_contract_change",
+  "findings": [],
+  "legacy_test_sha256": "ed7c1931193588d6a1d36c5c4cc6455a27715dd0ad3a8a719d20d6020ff189cf",
+  "source_cpu_config_sha256": "11f36decc8349964f3d677e6b29434b9296f0fd04f4fbef36f3b12447106878b",
+  "historical_dist_sha256": "458f43a5116e115455cf7090b48c3a6768da14d13194328969f95386f5e0966a",
+  "historical_dist_matches_upstream_baseline": true,
+  "outside_SUB990_1_byte_equivalent_to_upstream": true,
+  "contract_decision": "ARM-ABI-DECISION.md plus coordinator DECISIONS CP009; source config must be portable while immutable historical DIST oracle retains the original four feature assertions.",
+  "old_to_new": {
+    "old": "Current SOURCE and historical DIST both required explicit +neon/+crc/+aes/+sha2.",
+    "new": "Historical DIST retains all four assertions. Current SOURCE requires target-cpu=generic, rejects optional +crc/+aes/+sha2/+crypto, and exactly checks ARMv8-A C flags plus identical C++ flags.",
+    "justification": "Explicit global optional features contradict portable generic ARMv8-A. Retaining the erroneous source expectation would reintroduce the source hazard; independent contract change preserves stronger source portability checks and the immutable historical oracle."
+  },
+  "other_contracts_preserved": [
+    "target triple",
+    "Cargo config shape and file presence",
+    "linker/ar",
+    "lld",
+    "16KiB linker layout",
+    "pkg-config and target build environment",
+    "all other SDK/package/native assertions"
+  ],
+  "independent_focus": {
+    "command": [
+      "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+      "--test",
+      "--test-name-pattern=SUB-990-1",
+      "tests/unit/arm64-packaging-990.test.mjs"
+    ],
+    "cwd": "/root/projects/chord-modernization",
+    "exit_code": 0,
+    "pass": 1,
+    "fail": 0,
+    "skipped": 0,
+    "log": "/root/projects/chord-modernization-verification/arm-review/legacy-focused-20261115T154152478054Z.log",
+    "log_sha256": "9ff6d813afa9aa37c1b5fb4074a5586887fde0029aed59eb66a65f5d8b7e9e2e"
+  },
+  "mutation_evidence_verified": {
+    "receipt": "/root/projects/chord-modernization-verification/legacy-cpu-contract/mutation-receipt.json",
+    "sha256": "18aa4f42ede8b4c5cf6b256ba1bf09d9f777cde87ad1ba0a8e71acaaa9435317",
+    "control_passed": true,
+    "killed": 5,
+    "total": 5,
+    "log_hashes_and_assertion_failures_verified": true,
+    "independently_rerun_mutants": false
+  },
+  "meta_type_supplement": {
+    "verdict": "approve_type_and_presence_guards",
+    "files_sha256": {
+      "tests/meta/ecc-entrypoint.test.mjs": "0809868955001e183b37eb2e4d5ec1b77ab833de119f607bd099be3307fece52",
+      "tests/meta/kanban-portability.test.mjs": "862455d45329b3cf5b8ae2ed9b38923fab71131d970da4a9e9b5beff88443943",
+      "tests/meta/modernization-plan.test.mjs": "faa5583b0bc327051755734f2331eccac08003b88f0a323faa883093823a7d01"
+    },
+    "observations": [
+      "ecc-entrypoint adds parameter JSDoc only.",
+      "kanban-portability names and types the tools list; original find and schema assertions remain.",
+      "modernization-plan adds local structural types and requiredCard assertion guards, preserves original assertions, and strengthens runner/admission presence checks."
+    ],
+    "assertions_removed": false,
+    "type_suppressions_added": false
+  },
+  "native_qualified": false,
+  "whole_parent_cards_complete": false,
+  "full_gate_approved": false,
+  "limits": [
+    "Review approves only this source-config expectation change and the listed type fixes.",
+    "Historical DIST checks do not qualify the current source release.",
+    "Full JS-unit/gate rerun remains the coordinator responsibility; other SDK/package/native failures are untouched."
+  ]
+}

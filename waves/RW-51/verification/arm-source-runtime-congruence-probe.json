@@ -1,0 +1,31 @@
+{
+  "oracle": "gABI7.1: p_vaddr and p_offset congruent modulo page size even if p_align is0/1",
+  "command": [
+    "clang",
+    "--target=aarch64-unknown-linux-gnu",
+    "-fuse-ld=lld",
+    "-nostdlib",
+    "-pie",
+    "-Wl,--dynamic-linker=/lib/ld-linux-aarch64.so.1",
+    "-Wl,--build-id=sha1",
+    "-Wl,-z,relro,-z,now,-z,noexecstack",
+    "-Wl,-z,max-page-size=4096",
+    "/root/projects/chord-modernization-verification/arm-review/runtime-congruence.s",
+    "-o",
+    "/root/projects/chord-modernization-verification/arm-review/runtime-congruence.elf"
+  ],
+  "control": {
+    "elf_class": "ELF64",
+    "elf_machine_id": 183
+  },
+  "mutated_result": {
+    "elf_class": "ELF64",
+    "elf_machine_id": 183
+  },
+  "runtime_validator_accepted": true,
+  "native_execution": false,
+  "p_align": 1,
+  "p_offset": 0,
+  "p_vaddr": 1,
+  "modulo4096": 1
+}

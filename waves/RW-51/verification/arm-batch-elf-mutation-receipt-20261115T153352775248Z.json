@@ -1,0 +1,92 @@
+{
+  "source_sha256": "30068708fc163d13c3d985b926f11f6467210b7168542cb902b8203107945170",
+  "control_passed": true,
+  "mutants_killed": 6,
+  "mutants_total": 6,
+  "runs": [
+    {
+      "id": "control",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 0,
+      "expected_failed_contract": null,
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-control-20261115T153352775248Z.log",
+      "mutated_source_sha256": "30068708fc163d13c3d985b926f11f6467210b7168542cb902b8203107945170"
+    },
+    {
+      "id": "filesz-exceeds-memsz",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "ELF rejects load bytes larger than the memory image",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-filesz-exceeds-memsz-20261115T153352775248Z.log",
+      "mutated_source_sha256": "18486defe589b2b72d2d93c0a7895e0d8fe6b9d94a5a3a541f51f5fba6b2fc1d"
+    },
+    {
+      "id": "non-power-two-alignment",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "ELF rejects non-power-of-two load alignment",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-non-power-two-alignment-20261115T153352775248Z.log",
+      "mutated_source_sha256": "ac4d90e833c68c4da7d2013a4cf7323194d2755c986b6253577fb61399478d31"
+    },
+    {
+      "id": "incongruent-load-address",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "ELF rejects 4 KiB congruence that violates the declared 16 KiB alignment",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-incongruent-load-address-20261115T153352775248Z.log",
+      "mutated_source_sha256": "c577ee5682deab02ff65b398b73759add5c0ee2799e11fa14e179dc58bdbf64b"
+    },
+    {
+      "id": "virtual-address-overflow",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "ELF rejects virtual memory ranges overflowing",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-virtual-address-overflow-20261115T153352775248Z.log",
+      "mutated_source_sha256": "133e5342aa0800c50034ec924133dec9128f5f30e877891a6be7800833d7f3bf"
+    },
+    {
+      "id": "invented-kernel-page-size",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "a genuine linked ARM ELF reports segment alignment",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-invented-kernel-page-size-20261115T153352775248Z.log",
+      "mutated_source_sha256": "39f28d438373058198c037b684e05081a1ad2a9fc72f5535a9d8b477ce80831d"
+    },
+    {
+      "id": "minimum-page-congruence",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "runtime LOAD address and offset remain congruent",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-minimum-page-congruence-20261115T153352775248Z.log",
+      "mutated_source_sha256": "a74187dd20ff6efa4c0515130f0b8ba82aa4231c9270d31bdb55fbdc20d50658"
+    }
+  ]
+}

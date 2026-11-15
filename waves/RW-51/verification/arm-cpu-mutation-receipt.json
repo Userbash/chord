@@ -1,0 +1,83 @@
+{
+  "task_id": "LIB-ARM-02",
+  "scope": "source_configuration_only",
+  "observed_at": "2026-11-15T15:27:56.472710+00:00",
+  "control_passed": true,
+  "mutations_killed": 5,
+  "mutations_total": 5,
+  "runs": [
+    {
+      "name": "control",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs"
+      ],
+      "cwd": "/tmp/chord-cpu-mutants-1bhki0ve/control",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/cpu-slice/mutation-control.log",
+      "log_sha256": "11d1e5718d690b32fe2d78a4459a6b23a0d78d313c279ba6fb3cb9bb9258107c"
+    },
+    {
+      "name": "restore-global-rust-crc",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs"
+      ],
+      "cwd": "/tmp/chord-cpu-mutants-1bhki0ve/restore-global-rust-crc",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/cpu-slice/mutation-restore-global-rust-crc.log",
+      "log_sha256": "faa84d8a21da27aaac14c899d7b8f5fef3d44efb4a80b89fdd107d3deb5fd610"
+    },
+    {
+      "name": "restore-generic-c-crypto",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs"
+      ],
+      "cwd": "/tmp/chord-cpu-mutants-1bhki0ve/restore-generic-c-crypto",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/cpu-slice/mutation-restore-generic-c-crypto.log",
+      "log_sha256": "c5344d8c07798c9bc56688518ed4eee946b790ccdf35f1e8302629f119d9f841"
+    },
+    {
+      "name": "misroute-rpi-cpu",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs"
+      ],
+      "cwd": "/tmp/chord-cpu-mutants-1bhki0ve/misroute-rpi-cpu",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/cpu-slice/mutation-misroute-rpi-cpu.log",
+      "log_sha256": "dbf8b39fdab4551a475b7c8ef15e81512bde01f4ec345a79c71efa98e7c7487e"
+    },
+    {
+      "name": "restore-static-rust-aes",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs"
+      ],
+      "cwd": "/tmp/chord-cpu-mutants-1bhki0ve/restore-static-rust-aes",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/cpu-slice/mutation-restore-static-rust-aes.log",
+      "log_sha256": "53a3c7c2d395469ba47486a88acceec9ff8059b90288ebcfc22129ec4ac62735"
+    },
+    {
+      "name": "restore-static-cxx-crypto",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs"
+      ],
+      "cwd": "/tmp/chord-cpu-mutants-1bhki0ve/restore-static-cxx-crypto",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/cpu-slice/mutation-restore-static-cxx-crypto.log",
+      "log_sha256": "4e41906227da32873d225262df5bcd7268b458248a52fb9cd985005175412e81"
+    }
+  ],
+  "native_validation": "not_run"
+}

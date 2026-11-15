@@ -6,6 +6,10 @@ and [Kanban](waves/kanban-board.html) retain dependencies, exact file leases and
 Execution/acceptance is recorded separately in [ECC receipts](waves/RW-51/DISPATCH-RECEIPTS.json);
 this planning entry does not mark application migrations complete.
 
+Execution update 2026-11-15: ARM CPU and ELF source slices (`LIB-ARM-02`, `LIB-ARM-08`)
+have implementation and independent review evidence in [ARM source batch](waves/RW-51/ARM-SOURCE-BATCH.md).
+Both parent cards await product/full-gate/native qualification; ARM release remains blocked.
+
 Updated: 2026-10-18 (waves W1–W4 closed and accepted: M1 and M2 completed — 176 tests,
 172 pass / 0 fail / 4 e2e-skip; coverage 99.3/90.5/97.6; post-W4 audit is in the backlog below).
 Updated: 2026-10-19 (waves R7/RC: specification `docs/re/`, Rust client plan `docs/rust-client/`,

@@ -1,0 +1,48 @@
+{
+  "reviewer": "/root/arm_review",
+  "task_ids": ["LIB-ARM-02", "LIB-ARM-08"],
+  "phase": "independent_source_review",
+  "source_snapshot": "/root/projects/chord-modernization-verification/arm-review/source",
+  "packet_receipt": "/root/projects/chord-modernization-verification/arm-review/receipt.json",
+  "verdict": "request_changes_for_ELF_runtime_congruence",
+  "findings": [
+    {
+      "severity": "P2",
+      "path": "scripts/arm64/verify.py",
+      "line": 73,
+      "title": "Runtime validation skips page congruence for p_align0/1",
+      "explanation": "The new generic load checker checks offset/address congruence only when p_align>1. gABI7.1 independently requires p_offset and p_vaddr congruent modulo page size. A linker-produced ARM64 fixture modified to first LOAD p_align=1,p_offset=0,p_vaddr=1 is accepted by validate_elf(gui=False), although it is incongruent for4/16/64KiB Linux pages. This is a remaining validation gap, not a newly introduced rejection regression or an observed native crash.",
+      "oracle": "https://gabi.xinuos.com/elf/07-pheader.html",
+      "reproduction": "/root/projects/chord-modernization-verification/arm-review/probe-runtime-congruence.py",
+      "evidence": "/root/projects/chord-modernization-verification/arm-review/runtime-congruence-probe.json",
+      "required_change": "Test and reject incompatible runtime LOAD address/file-offset mapping even for p_align0/1 (a conservative4KiB Linux ARM minimum can be documented independently of measured kernel size), while preserving the valid low-alignment runtime cases and stricter GUI16KiB policy. Alternatively explicitly narrow the supported verifier claim and keep this source slice open."
+    }
+  ],
+  "independent_tests": {
+    "tests": 37,
+    "pass": 37,
+    "fail": 0,
+    "skipped": 0,
+    "log": "/root/projects/chord-modernization-verification/arm-review/independent-tests-20261115T153101094733Z.log",
+    "source": "copied immutable source packet, with original unchanged toolchain pin support file"
+  },
+  "existing_test_assertions_weakened": false,
+  "ecc_review": {
+    "session_id": "4d808efd",
+    "actual_model": "gpt-6.1-sol",
+    "actual_effort": "medium",
+    "sandbox": "read-only",
+    "state": "completed",
+    "verdict": "approve_source_slice",
+    "findings": 0,
+    "actual_model_commands": 0,
+    "report": "/root/projects/chord-modernization-verification/arm-review/report.json"
+  },
+  "native_qualified": false,
+  "whole_cards_complete": false,
+  "limitations": [
+    "No application build or native ARM execution performed.",
+    "SDK, CPU availability, native page-size/loader, GUI/media qualification and full gate acceptance remain separate.",
+    "ECC approval applies to its exact source packet and does not override this independent reviewer finding."
+  ]
+}

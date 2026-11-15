@@ -1,0 +1,224 @@
+{
+  "schema": 1,
+  "tool": "discord-lab gate",
+  "scope": "worker",
+  "startedAt": "2026-11-15T15:41:10.760Z",
+  "finishedAt": "2026-11-15T15:41:33.383Z",
+  "git": {
+    "commit": "0bfb34b9c48bf1172788b98f64d96a8ddcdb184d",
+    "branch": "docs/task-20261115-library-modernization",
+    "dirty": true
+  },
+  "gitCommit": "0bfb34b9c48bf1172788b98f64d96a8ddcdb184d",
+  "package": {
+    "name": "chord-desktop",
+    "version": "0.1.0"
+  },
+  "verdict": "failed",
+  "e2e": null,
+  "acceptance": null,
+  "ignored": [
+    {
+      "phase": "workspace-rust",
+      "skipped": 12
+    }
+  ],
+  "totalSkipped": 15,
+  "warnings": [
+    "workspace-rust: ignored 12 — ожидаемый ignored-набор (live-кейсы гоняет отдельная фаза), не e2e-skip",
+    "smoke: пропущено 3 тестов — пропуск прохождением не считается"
+  ],
+  "phases": [
+    {
+      "name": "typecheck",
+      "ok": true,
+      "unmet": false,
+      "skipKind": null,
+      "ms": 802,
+      "counts": null,
+      "note": null,
+      "extra": null,
+      "attempts": [
+        {
+          "attempt": 1,
+          "ok": true,
+          "status": 0,
+          "ms": 802,
+          "counts": null,
+          "reasons": [],
+          "tail": "\n> chord-desktop@0.1.0 typecheck\n> tsc -p tsconfig.json && tsc -p tsconfig.agent.json\n\n"
+        }
+      ]
+    },
+    {
+      "name": "ui-tsc",
+      "ok": true,
+      "unmet": false,
+      "skipKind": null,
+      "ms": 412,
+      "counts": null,
+      "note": null,
+      "extra": null,
+      "attempts": [
+        {
+          "attempt": 1,
+          "ok": true,
+          "status": 0,
+          "ms": 412,
+          "counts": null,
+          "reasons": [],
+          "tail": ""
+        }
+      ]
+    },
+    {
+      "name": "meta",
+      "ok": true,
+      "unmet": false,
+      "skipKind": null,
+      "ms": 952,
+      "counts": {
+        "tests": 210,
+        "pass": 210,
+        "fail": 0,
+        "skipped": 0
+      },
+      "note": null,
+      "extra": null,
+      "attempts": [
+        {
+          "attempt": 1,
+          "ok": true,
+          "status": 0,
+          "ms": 952,
+          "counts": {
+            "tests": 210,
+            "pass": 210,
+            "fail": 0,
+            "skipped": 0
+          },
+          "reasons": [],
+          "tail": "  ✔ статус e2e считается по counts: pass 0 / skip 4 ⇒ unmet (0.191543ms)\n  ✔ приёмка запрещена без fixture-доказательства и без live в qualify (0.159505ms)\n  ✔ fixture-набор e2e исключает live и объявлен с failOnSkips (0.186454ms)\n  ✔ live-фаза отдельная и только в qualify (0.245143ms)\n  ✔ оба результата повтора сохраняются в attempts[] (0.185792ms)\n✔ QA-M2-01: e2e-skip не является прохождением (3.428179ms)\n▶ waves-sync: журнал волн восстановим\n  ✔ README.md, STATE.md и db.jsonl на месте (3.731823ms)\n  ✔ каждая строка db.jsonl — событие схемы v1, evidence существует (26.280574ms)\n  ✔ принятые волны имеют папки с артефактами, STATE ссылается на журнал (3.388531ms)\n✔ waves-sync: журнал волн восстановим (34.534721ms)\nℹ tests 210\nℹ suites 31\nℹ pass 210\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 929.269238\n"
+        }
+      ]
+    },
+    {
+      "name": "unit",
+      "ok": false,
+      "unmet": false,
+      "skipKind": null,
+      "ms": 10870,
+      "counts": {
+        "tests": 2648,
+        "pass": 2609,
+        "fail": 39,
+        "skipped": 0
+      },
+      "note": "код выхода ≠ 0",
+      "extra": null,
+      "attempts": [
+        {
+          "attempt": 1,
+          "ok": false,
+          "status": 1,
+          "ms": 10870,
+          "counts": {
+            "tests": 2648,
+            "pass": 2609,
+            "fail": 39,
+            "skipped": 0
+          },
+          "reasons": [
+            "код выхода ≠ 0"
+          ],
+          "tail": "    errno: -2,\n    code: 'ENOENT',\n    syscall: 'open',\n    path: '/root/projects/chord-modernization/rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz'\n  }\n\ntest at tests/unit/update-checker-965.test.mjs:351:3\n✖ SUB-965-4: выполняет сквозной цикл проверки обновлений через локальный HTTP-стенд GitHub Releases API v3 (200 -> 304 ETag -> 429 Rate-Limit -> CLI) (1.534376ms)\n  Error: ENOENT: no such file or directory, open '/root/projects/chord-modernization/rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz'\n      at Object.openSync (node:fs:621:18)\n      at readFileSync (node:fs:487:35)\n      at TestContext.<anonymous> (file:///root/projects/chord-modernization/tests/unit/update-checker-965.test.mjs:360:26)\n      at async Test.run (node:internal/test_runner/test:1409:7)\n      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {\n    errno: -2,\n    code: 'ENOENT',\n    syscall: 'open',\n    path: '/root/projects/chord-modernization/rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz'\n  }\n"
+        }
+      ]
+    },
+    {
+      "name": "spike-rust",
+      "ok": false,
+      "unmet": false,
+      "skipKind": "ignored",
+      "ms": 51,
+      "counts": null,
+      "note": "код выхода ≠ 0",
+      "extra": null,
+      "attempts": [
+        {
+          "attempt": 1,
+          "ok": false,
+          "status": 101,
+          "ms": 51,
+          "counts": null,
+          "reasons": [
+            "код выхода ≠ 0"
+          ],
+          "tail": "error: failed to select a version for the requirement `jiff = \"^0.2.0\"` (locked to 0.2.44)\ncandidate versions found which didn't match: 0.2.38\nlocation searched: crates.io index\nrequired by package `serde_with v3.24.0`\n    ... which satisfies dependency `serde_with = \"^3\"` (locked to 3.24.0) of package `tauri-utils v2.10.2`\n    ... which satisfies dependency `tauri-utils = \"~2.10.2\"` (locked to 2.10.2) of package `tauri v2.12.5`\n    ... which satisfies dependency `tauri = \"^2\"` (locked to 2.12.5) of package `chord-client v0.1.0 (/root/projects/chord-modernization/rust/gui-spike)`\nnote: offline mode (via `--offline`) can sometimes cause surprising resolution failures\nhelp: if this error is too confusing you may wish to retry without `--offline`\n"
+        }
+      ]
+    },
+    {
+      "name": "workspace-rust",
+      "ok": true,
+      "unmet": false,
+      "skipKind": "ignored",
+      "ms": 8557,
+      "counts": {
+        "tests": 1502,
+        "pass": 1490,
+        "fail": 0,
+        "skipped": 12
+      },
+      "note": null,
+      "extra": null,
+      "attempts": [
+        {
+          "attempt": 1,
+          "ok": true,
+          "status": 0,
+          "ms": 8557,
+          "counts": {
+            "tests": 1502,
+            "pass": 1490,
+            "fail": 0,
+            "skipped": 12
+          },
+          "reasons": [],
+          "tail": "     Running tests/rtp_video_contract.rs (target/debug/build/chord-voice/4baaab6ca26de098/out/rtp_video_contract-4baaab6ca26de098)\n     Running tests/signaling.rs (target/debug/build/chord-voice/7f82e30f87f94182/out/signaling-7f82e30f87f94182)\n     Running tests/srtp_contract.rs (target/debug/build/chord-voice/255376b0eabd4064/out/srtp_contract-255376b0eabd4064)\n     Running tests/stats_contract.rs (target/debug/build/chord-voice/b5e77fc0de876b3b/out/stats_contract-b5e77fc0de876b3b)\n     Running tests/udp.rs (target/debug/build/chord-voice/09ac3c821a37d8ec/out/udp-09ac3c821a37d8ec)\n     Running tests/voice_call_state_machine_contract.rs (target/debug/build/chord-voice/8f9748d985ee57f5/out/voice_call_state_machine_contract-8f9748d985ee57f5)\n     Running tests/voice_session_init_contract.rs (target/debug/build/chord-voice/66e64bb22da90135/out/voice_session_init_contract-66e64bb22da90135)\n   Doc-tests chord_codec\n   Doc-tests chord_conformance\n   Doc-tests chord_core\n   Doc-tests chord_i18n\n   Doc-tests chord_json\n   Doc-tests chord_media\n   Doc-tests chord_perf\n   Doc-tests chord_platform\n   Doc-tests chord_store\n   Doc-tests chord_ui\n   Doc-tests chord_updater\n   Doc-tests chord_voice\n"
+        }
+      ]
+    },
+    {
+      "name": "smoke",
+      "ok": true,
+      "unmet": false,
+      "skipKind": null,
+      "ms": 974,
+      "counts": {
+        "tests": 22,
+        "pass": 19,
+        "fail": 0,
+        "skipped": 3
+      },
+      "note": null,
+      "extra": null,
+      "attempts": [
+        {
+          "attempt": 1,
+          "ok": true,
+          "status": 0,
+          "ms": 974,
+          "counts": {
+            "tests": 22,
+            "pass": 19,
+            "fail": 0,
+            "skipped": 3
+          },
+          "reasons": [],
+          "tail": "▶ discord-lab inventory\n  ✔ неизвестный pid → код 2 из-за недоступной Frida или пропущенной цели (39.349744ms)\n✔ discord-lab inventory (40.274135ms)\n▶ discord-lab pids\n  ✔ pids --all перечисляет процессы в формате '<pid>\\t<name>' (44.678982ms)\n✔ discord-lab pids (45.551554ms)\n▶ discord-lab summarize\n  ✔ пишет <лог>.by-function.csv и печатает сводку (29.727537ms)\n  ✔ без аргументов и без logs/calls-*.jsonl (cwd) → код 1 с подсказкой (23.956245ms)\n  ﹣ полный реальный voice-лог: stdout и CSV совпадают с независимым оракулом (0.921872ms) # отсутствует logs/calls-voice-28170.jsonl\n✔ discord-lab summarize (55.900147ms)\nℹ tests 22\nℹ suites 8\nℹ pass 19\nℹ fail 0\nℹ cancelled 0\nℹ skipped 3\nℹ todo 0\nℹ duration_ms 953.312017\n"
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Validation and practical limits
 
-Application baseline: `2b7cfb52024be0453e3b9333aba292b2372e610e`. This change introduces the plan/board records, a portable real ECC launcher and lossless Kanban handling; it does not change Rust application behavior or application dependency locks.
+Measured application baseline: `2b7cfb52024be0453e3b9333aba292b2372e610e`. The current branch includes upstream release `4653bdec519bec8cd6719e92d9736e5299c38468` and bounded ARM builder/verifier source fixes. Rust application and dependency changes from upstream were retained; the ARM slice changes no dependency lock. Current execution and gate evidence supersede earlier planning-only observations below: see [ARM-SOURCE-BATCH.md](ARM-SOURCE-BATCH.md).
 
 | Check | Observed result | Scope |
 | --- | --- | --- |

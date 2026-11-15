@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "tests/unit/arm64-elf-abi-contract.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/arm-batch/elf-red-20261115T152740564866Z.log"
+}

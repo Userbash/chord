@@ -1,0 +1,55 @@
+{
+  "task_id": "LIB-ARM-02",
+  "phase": "source_configuration_implementation",
+  "worktree": "/root/projects/chord-arm-cpu",
+  "branch": "bugfix/task-lib-arm-02-portable-cpu",
+  "base_commit": "6796d11a247895b37d9ffeadb158d983914c6ab6",
+  "migration_completed": false,
+  "native_validation": "not_run",
+  "red": {
+    "exit_code": 1,
+    "log": "/root/projects/chord-modernization-verification/cpu-slice/red.log",
+    "expected_failures": 4
+  },
+  "green": {
+    "command": [
+      "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+      "--test",
+      "tests/unit/arm64-cpu-abi-contract.test.mjs",
+      "tests/unit/arm64-build-integrity.test.mjs"
+    ],
+    "exit_code": 0,
+    "tests": 18,
+    "pass": 18,
+    "skip": 0,
+    "log": "/root/projects/chord-modernization-verification/cpu-slice/green-final.log"
+  },
+  "mutations": {
+    "killed": 5,
+    "total": 5,
+    "receipt": "/root/projects/chord-modernization-verification/cpu-slice/mutation-receipt.json"
+  },
+  "batch_gate": "coordinator integration lane, not run by source worker",
+  "files": [
+    {
+      "path": "scripts/arm64/build.py",
+      "sha256": "1a00cd344054bcc0a8e09aa07abb22983fc110efb07c9a2a91e6860970cf5b9b",
+      "md5": "3f799dba11dfb4a814ada516aae21661"
+    },
+    {
+      "path": "packaging/arm64/cargo-config.toml",
+      "sha256": "11f36decc8349964f3d677e6b29434b9296f0fd04f4fbef36f3b12447106878b",
+      "md5": "32e3a64f8669ddb0f6321dbcaf6b18cc"
+    },
+    {
+      "path": "tests/unit/arm64-cpu-abi-contract.test.mjs",
+      "sha256": "b3df7fced99bf8ecbd134c08821240297916e630cfecad740bdb6c256b8ed3f0",
+      "md5": "d616e420640bbce288e8887a0cbb6089"
+    }
+  ],
+  "risks": [
+    "Native ARM CPU/ABI and loader/GUI/media qualification not performed.",
+    "Dependency assembly/build-script/runtime dispatch and exact minimum CPU audit remain required.",
+    "Current 16KiB linker alignment retained; this slice does not establish page-size compatibility."
+  ]
+}

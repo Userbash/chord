@@ -4,6 +4,7 @@
 
 - [Plan and execution strategy](PLAN.md)
 - [ARM blocker, CPU/ELF/SDK and native qualification](ARM-BLOCKERS.md)
+- [ARM source implementation batch and remaining gates](ARM-SOURCE-BATCH.md), [machine receipt](ARM-SOURCE-BATCH.json)
 - [Library decisions and rejection gates](LIBRARY-MATRIX.md)
 - [Human task breakdown](TASKS.md), [full machine-readable tasks](TASKS.json)
 - [Worker instructions](WORKER-RULES.md)
@@ -14,4 +15,4 @@
 - ARM follow-up: [source audit](reports/LIB-ARM-01.json), [failure ledger](ARM-FAILURE-LEDGER.json)
 - Combined [interactive Kanban](../kanban-board.html)
 
-The first three genuine ECC planning sessions completed 34 findings. Their reports explicitly state that no application tests/builds or migrations ran. Application changes remain gated by independent contracts, dependency decisions, TDD and native qualification. The current code changes are limited to making the Kanban and ECC entrypoint usable and preserving detailed task metadata.
+The first three genuine ECC planning sessions completed 34 findings; a fourth ARM audit followed. These planning reports state their source-only limits. Two further genuine ECC sessions reviewed the bounded ARM source implementation. Generic compiler inputs and ELF checks/metadata now have code changes and executable regression tests. Parent cards and application library migrations remain gated by product review, the full batch gate, real target artifacts and native qualification.

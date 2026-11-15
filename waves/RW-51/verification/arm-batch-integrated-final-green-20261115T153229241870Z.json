@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "tests/unit/arm64-cpu-abi-contract.test.mjs",
+    "tests/unit/arm64-elf-abi-contract.test.mjs",
+    "tests/unit/arm64-build-integrity.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/arm-batch/integrated-final-green-20261115T153229241870Z.log"
+}

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "scripts/gate.mjs",
+    "--scope",
+    "worker"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/arm-batch/worker-gate-20261115T153011639583Z.log"
+}

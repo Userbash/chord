@@ -1,0 +1,9 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 0
+}

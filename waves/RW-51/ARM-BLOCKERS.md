@@ -4,6 +4,8 @@ Operator instruction: account for the ARM bug. Added 2026-11-15 to the current l
 
 Scope assumption: the already known Linux ARM64 build/packaging gap, plus concrete CPU/ABI/test risks found in the current source. macOS Apple Silicon and any Windows ARM64 support are tracked separately. No specific native crash trace or device was supplied; an actual SIGILL is **not** claimed as reproduced.
 
+Current execution update: the CPU-flag and ELF source defects below now have bounded fixes and independent review in [ARM-SOURCE-BATCH.md](ARM-SOURCE-BATCH.md). The table records their original pinned-baseline findings. Full batch acceptance, genuine builds and native ARM release qualification remain open.
+
 ## Confirmed state and limits
 
 | Finding | Evidence | Classification |
@@ -48,4 +50,4 @@ The fix is accepted only when a compatible real application artifact launches an
 
 A genuine additional ECC Codex audit completed as session `af4a762f`, gpt-6.1-sol/medium/read-only. Its seven findings use a pinned, hash-checked packet of seven ARM source files; it ran no tools/builds or native program. The report is [reports/LIB-ARM-01.json](reports/LIB-ARM-01.json); the actual session receipt is in `DISPATCH-RECEIPTS.json`.
 
-The coordinator incorporated those findings into the eight cards. The [failure ledger](ARM-FAILURE-LEDGER.json) separates observed environment state from portability hypotheses. Runtime crash reproduction, code fixes, real SDK/build and native acceptance remain outstanding.
+The coordinator incorporated those findings into the eight cards. The [failure ledger](ARM-FAILURE-LEDGER.json) separates observed environment state from portability hypotheses. CPU/ELF source fixes now have a separate implementation batch. Runtime crash reproduction, remaining integration/package fixes, real SDK/build and native acceptance remain outstanding.

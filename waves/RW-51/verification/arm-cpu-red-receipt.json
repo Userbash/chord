@@ -1,0 +1,8 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "tests/unit/arm64-cpu-abi-contract.test.mjs"
+  ],
+  "exit_code": 1
+}

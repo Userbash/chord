@@ -1,0 +1,95 @@
+{
+  "task_id": "LIB-ARM-02+08-REVIEW",
+  "phase": "source_review",
+  "session_id": "4d808efd",
+  "harness": "codex",
+  "actual_model": "gpt-6.1-sol",
+  "actual_effort": "medium",
+  "sandbox": "read-only",
+  "source_commit": "0bfb34b9c48bf1172788b98f64d96a8ddcdb184d",
+  "source": "/root/projects/chord-modernization-verification/arm-review/source",
+  "source_packet_files": {
+    "scripts/arm64/build.py": "1a00cd344054bcc0a8e09aa07abb22983fc110efb07c9a2a91e6860970cf5b9b",
+    "scripts/arm64/verify.py": "7d486828825bf6d0a2b6935bd26e0a57b505e1f8692ef4b9eef6b3c275f8640e",
+    "scripts/build-arm64.sh": "1180790f65317bc0deda3fcda43f973898b409f7550398876de075ce381674d0",
+    "packaging/arm64/cargo-config.toml": "11f36decc8349964f3d677e6b29434b9296f0fd04f4fbef36f3b12447106878b",
+    "tests/unit/arm64-cpu-abi-contract.test.mjs": "b3df7fced99bf8ecbd134c08821240297916e630cfecad740bdb6c256b8ed3f0",
+    "tests/unit/arm64-elf-abi-contract.test.mjs": "0e3070f9d0cf027fea59b6e82a8cf0fd6d6f1433cb049c73f46b9c4e3be662e8",
+    "tests/unit/arm64-build-integrity.test.mjs": "8276862ff9effe778bd01fefca5825567f27786c57f500755160680667badc70",
+    "AGENTS.md": "bc1e7ff7d33416e1725808f29ad3174ff056f2e1931b4a1ed8442fc73ad7d0df",
+    "TEST-POLICY.md": "5acae467494e7c4c7b85ae5ceb5cf8269e24aac2f9c068a0cda895351b8aa73e"
+  },
+  "native_program": "/mnt/c/Program Files/WindowsApps/OpenAI.Codex_26.1111.2228.0_x64__2p2nqsd0c76g0/app/resources/codex",
+  "native_args": [
+    "exec",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "read-only",
+    "--json",
+    "--ephemeral",
+    "--cd",
+    "/root/projects/chord-modernization-verification/arm-review/source",
+    "--config",
+    "model_reasoning_effort=\"medium\"",
+    "--config",
+    "approval_policy=\"never\"",
+    "--output-schema",
+    "/root/projects/chord-modernization-verification/arm-review/report.schema.json",
+    "--config",
+    "mcp_servers.node_repl.enabled=false"
+  ],
+  "db_path": "/root/projects/chord-modernization-verification/arm-review/state.db",
+  "ecc_binary_sha256": "137ec2cdca23ed28639eed50886f2393c63d647658f7dc7108100ed4fe9b0296",
+  "started_at": "2026-11-15T15:30:03.789873+00:00",
+  "previous": {
+    "sessions": [
+      [
+        "051d71c3",
+        "completed",
+        "2026-11-15T14:49:51.538490139+00:00"
+      ],
+      [
+        "2dc1d8ea",
+        "completed",
+        "2026-11-15T14:49:57.181817873+00:00"
+      ],
+      [
+        "8aa61e7a",
+        "completed",
+        "2026-11-15T14:50:29.214644826+00:00"
+      ],
+      [
+        "af4a762f",
+        "completed",
+        "2026-11-15T15:14:43.250749100+00:00"
+      ]
+    ],
+    "reports": {
+      "/root/projects/chord-modernization-ecc-runtime/reports/LIB-GOV-01.json": "c0da6c97ba6a17c72fed1c9bf942679d959730b2bac4f18aadf948b93abf3cc6",
+      "/root/projects/chord-modernization-ecc-runtime/reports/LIB-GOV-02.json": "9d910f4ce8fddfbcd502a730297a9c47cb2562bd003ebb8a93b7c1738ac34ff3",
+      "/root/projects/chord-modernization-ecc-runtime/reports/LIB-RSA-01.json": "9da7213256e407b5129127f6315b89dd7901472a1de4521c73fe919fa11c62f2",
+      "/root/projects/chord-modernization-ecc-runtime/reports/LIB-ARM-01.json": "460dcbede5ec19f53289ce91dbb8f043837a58a387e2d886c9b4a9a7a349cab6"
+    }
+  },
+  "native_qualified": false,
+  "stage": "completed_source_review_only",
+  "latest_session": {
+    "id": "4d808efd",
+    "state": "completed",
+    "pid": null,
+    "created_at": "2026-11-15T15:30:04.254297912+00:00",
+    "updated_at": "2026-11-15T15:30:23.279309945+00:00",
+    "last_heartbeat_at": "2026-11-15T15:30:23.279309945+00:00"
+  },
+  "actual_model_command_count": 0,
+  "thread_ids": [
+    "01a1dfd4-75b0-7d32-939a-820df447a49a"
+  ],
+  "agent_message_count": 1,
+  "previous_records_unchanged": true,
+  "source_packet_hashes_match": true,
+  "observed_at": "2026-11-15T15:31:11.918932+00:00",
+  "report_sha256": "83f97b69bc1383bfd6e9578ac36bf68da49580ecd7589f542ad550bf4e592d72",
+  "verdict": "approve_source_slice",
+  "finding_count": 0
+}

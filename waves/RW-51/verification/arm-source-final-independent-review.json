@@ -1,0 +1,83 @@
+{
+  "reviewer": "/root/arm_review",
+  "task_ids": [
+    "LIB-ARM-02",
+    "LIB-ARM-08"
+  ],
+  "phase": "final_independent_source_review",
+  "reviewed_at": "2026-11-15T15:34:53.138396+00:00",
+  "source_commit": "0bfb34b9c48bf1172788b98f64d96a8ddcdb184d",
+  "source_snapshot": "/root/projects/chord-modernization-verification/arm-review/final-delta/source",
+  "source_packet_files": {
+    "scripts/arm64/build.py": "1a00cd344054bcc0a8e09aa07abb22983fc110efb07c9a2a91e6860970cf5b9b",
+    "scripts/arm64/verify.py": "30068708fc163d13c3d985b926f11f6467210b7168542cb902b8203107945170",
+    "scripts/build-arm64.sh": "1180790f65317bc0deda3fcda43f973898b409f7550398876de075ce381674d0",
+    "packaging/arm64/cargo-config.toml": "11f36decc8349964f3d677e6b29434b9296f0fd04f4fbef36f3b12447106878b",
+    "tests/unit/arm64-cpu-abi-contract.test.mjs": "b3df7fced99bf8ecbd134c08821240297916e630cfecad740bdb6c256b8ed3f0",
+    "tests/unit/arm64-elf-abi-contract.test.mjs": "db4a974a3ad197c5b320f19c6801dc476428bf4a3de0fdcbb8aadea71f924788",
+    "tests/unit/arm64-build-integrity.test.mjs": "8276862ff9effe778bd01fefca5825567f27786c57f500755160680667badc70",
+    "AGENTS.md": "bc1e7ff7d33416e1725808f29ad3174ff056f2e1931b4a1ed8442fc73ad7d0df",
+    "TEST-POLICY.md": "5acae467494e7c4c7b85ae5ceb5cf8269e24aac2f9c068a0cda895351b8aa73e",
+    "waves/RW-51/ARM-ABI-DECISION.md": "068d8624b2373333a985c96405950ad183711b9b423b1e52fe28be6387a3d889",
+    "waves/RW-51/ARM-ELF-ABI-CONTRACT.md": "bd660f4b47f24003237466f9dd7a929aff8f8431bb222c3fb96bba7df62fdc7d"
+  },
+  "main_candidate_hashes_match_reviewed_packet": true,
+  "prior_review_artifacts_unchanged": true,
+  "verdict": "approve_source_slice",
+  "findings": [],
+  "resolved_findings": [
+    {
+      "severity": "P2",
+      "prior_review": "/root/projects/chord-modernization-verification/arm-review/independent-review.json",
+      "title": "Runtime p_align0/1 page congruence",
+      "resolution": "4096 minimum congruence independent of p_align; original stricter alignment congruence retained.",
+      "independent_reproduction": "/root/projects/chord-modernization-verification/arm-review/final-delta/prior-negative-rejected.json",
+      "runtime_negative_now_rejected": true
+    }
+  ],
+  "independent_tests": {
+    "tests": 39,
+    "pass": 39,
+    "fail": 0,
+    "skipped": 0,
+    "command": [
+      "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+      "--test",
+      "tests/unit/arm64-cpu-abi-contract.test.mjs",
+      "tests/unit/arm64-elf-abi-contract.test.mjs",
+      "tests/unit/arm64-build-integrity.test.mjs"
+    ],
+    "cwd": "/root/projects/chord-modernization-verification/arm-review/final-delta/source",
+    "exit_code": 0,
+    "log": "/root/projects/chord-modernization-verification/arm-review/final-delta/independent-tests-20261115T153413320337Z.log",
+    "log_sha256": "f3fb796945f6540ab40e7fbe13000138d77e74c52b2ece3584e3cede73a91c07"
+  },
+  "existing_test_assertions_weakened": false,
+  "ecc_review": {
+    "session_id": "d4137071",
+    "state": "completed",
+    "harness": "codex",
+    "actual_model": "gpt-6.1-sol",
+    "actual_effort": "medium",
+    "sandbox": "read-only",
+    "actual_model_command_count": 0,
+    "verdict": "approve_source_slice",
+    "findings": 0,
+    "receipt": "/root/projects/chord-modernization-verification/arm-review/final-delta/receipt.json",
+    "report": "/root/projects/chord-modernization-verification/arm-review/final-delta/report.json",
+    "report_sha256": "d1b9cb06e39cab6356419525abb8e9a1bd02532f80c97f1372f1b22b1000b4f4"
+  },
+  "approval_scope": [
+    "portable compiler configuration source",
+    "ELF structural validation and truthful metadata source",
+    "new CPU/ELF behavioral tests against the exact packet hashes"
+  ],
+  "native_qualified": false,
+  "whole_cards_complete": false,
+  "release_approved": false,
+  "limitations": [
+    "No Chord application build or native ARM execution performed.",
+    "Full worker/release gate acceptance is not asserted by this source review.",
+    "SDK, actual CPU/loader/page-size and native GUI/media/package qualification remain open."
+  ]
+}

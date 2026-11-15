@@ -1,5 +1,11 @@
 # STATE — System Status and Wave Checkpoint
 
+- RW-51 local source batch, 2026-11-15: `LIB-ARM-02` and `LIB-ARM-08` source slices
+  implemented and independently reviewed; parent cards are ready for product review.
+  Generic compiler inputs and ELF integrity/metadata were corrected. Full batch and
+  native ARM qualification remain open. See [ARM-SOURCE-BATCH.md](RW-51/ARM-SOURCE-BATCH.md).
+  This entry does not change historical accepted-wave claims below.
+
 - Updated: **2026-11-15 17:45**. **Wave RW-50 / Tauri Framework Adoption & Anti-Reinvention Modernization (ACTIVE)**:
   - Active Orchestration Run: `run_31999544da31` managed via ECC Control Plane (`pm_review`, `orchestrator_argon`).
   - Sprint Target: Radical reduction of legacy/hand-rolled code in `rust/gui-spike` through adoption of standard framework crates (`uuid`, `serde`, `ring`, `tauri::plugin`).

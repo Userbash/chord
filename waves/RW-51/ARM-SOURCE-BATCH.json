@@ -1,0 +1,183 @@
+{
+  "id": "ARM-SOURCE-20261115",
+  "task_ids": [
+    "LIB-ARM-02",
+    "LIB-ARM-08"
+  ],
+  "recorded_at": "2026-11-15T15:43:09.025618+00:00",
+  "phase": "bounded_source_implementation_and_review",
+  "status": "ready_for_product_review",
+  "upstream_commit": "4653bdec519bec8cd6719e92d9736e5299c38468",
+  "implementation_base_commit": "0bfb34b9c48bf1172788b98f64d96a8ddcdb184d",
+  "source_files_sha256": {
+    "scripts/arm64/build.py": "1a00cd344054bcc0a8e09aa07abb22983fc110efb07c9a2a91e6860970cf5b9b",
+    "packaging/arm64/cargo-config.toml": "11f36decc8349964f3d677e6b29434b9296f0fd04f4fbef36f3b12447106878b",
+    "scripts/arm64/verify.py": "30068708fc163d13c3d985b926f11f6467210b7168542cb902b8203107945170",
+    "tests/unit/arm64-cpu-abi-contract.test.mjs": "e4ae5e53e666a7223cb3618ccfb18e2824b18cb28c679ebdc0d49dbaed19d224",
+    "tests/unit/arm64-elf-abi-contract.test.mjs": "db4a974a3ad197c5b320f19c6801dc476428bf4a3de0fdcbb8aadea71f924788",
+    "tests/unit/arm64-packaging-990.test.mjs": "ed7c1931193588d6a1d36c5c4cc6455a27715dd0ad3a8a719d20d6020ff189cf"
+  },
+  "implementation_workers": [
+    {
+      "task_id": "LIB-ARM-02",
+      "identity": "/root/arm_cpu_slice",
+      "harness": "Codex collaboration",
+      "model": "Inherited parent model; exact identifier is not exposed by the collaboration API.",
+      "worktree": "/root/projects/chord-arm-cpu",
+      "write_scope": [
+        "scripts/arm64/build.py",
+        "packaging/arm64/cargo-config.toml",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs"
+      ],
+      "report": "waves/RW-51/verification/arm-cpu-worker-report.json"
+    },
+    {
+      "task_id": "LIB-ARM-08",
+      "identity": "/root",
+      "harness": "Codex coordinator",
+      "worktree": "/root/projects/chord-modernization",
+      "write_scope": [
+        "scripts/arm64/verify.py",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ]
+    }
+  ],
+  "lease_policy": "Private source file scopes are disjoint. Coordinator owns shared metadata, dependency integration and the serialized ARM release-qualification resource. No worker can clear that release lease.",
+  "prerequisite_decision": "Existing ARM-01 source/environment audit permits a bounded CPU source slice. The CPU input contract permits bounded ELF source checks. Full parent/native acceptance and production library admission are not waived.",
+  "ecc_review_sessions": [
+    "4d808efd",
+    "d4137071"
+  ],
+  "independent_review": "waves/RW-51/verification/arm-source-final-independent-review.json",
+  "type_only_supplement": "waves/RW-51/verification/arm-source-type-only-supplement.json",
+  "tests": {
+    "focused": {
+      "pass": 39,
+      "fail": 0,
+      "skipped": 0
+    },
+    "cpu_mutations": {
+      "killed": 5,
+      "total": 5
+    },
+    "elf_mutations": {
+      "killed": 6,
+      "total": 6
+    },
+    "legacy_cpu_contract": {
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "mutants_killed": 5,
+      "mutants_total": 5
+    },
+    "typecheck": "passed after strict typing fixes; see immutable types-slice logs",
+    "meta": {
+      "pass": 210,
+      "fail": 0,
+      "skipped": 0
+    },
+    "full_worker_gate": "failed; earlier and dependency-restored attempts preserved",
+    "full_js_unit_observed": {
+      "tests": 2648,
+      "pass": 2609,
+      "fail": 39,
+      "skipped": 0
+    },
+    "final_gate_receipt": "waves/RW-51/verification/arm-source-final-worker-gate.json",
+    "baseline_comparison": "waves/RW-51/verification/arm-source-final-baseline-comparison.json",
+    "workspace_rust": {
+      "pass": 1490,
+      "fail": 0,
+      "ignored_live_tests": 12
+    },
+    "smoke": {
+      "pass": 19,
+      "fail": 0,
+      "skipped": 3
+    }
+  },
+  "native_validation": "not_run",
+  "parent_cards_completed": false,
+  "release_qualified": false,
+  "published_to_github": false,
+  "remaining": [
+    "Independent product/full-card acceptance",
+    "Unit baseline failures and offline GUI Rust dependency cache",
+    "Real ARM SDK/application/package build and native CPU/loader/GUI/media proof",
+    "LIB-ARM-06 legacy test reconciliation and host-independent wrong-architecture fixture"
+  ],
+  "evidence": [
+    "waves/RW-51/verification/arm-batch-elf-green-20261115T152841293062Z.json",
+    "waves/RW-51/verification/arm-batch-elf-green-20261115T152841293062Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-control-20261115T153022416106Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-control-20261115T153254785276Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-control-20261115T153352775248Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-filesz-exceeds-memsz-20261115T153022416106Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-filesz-exceeds-memsz-20261115T153254785276Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-filesz-exceeds-memsz-20261115T153352775248Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-incongruent-load-address-20261115T153022416106Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-incongruent-load-address-20261115T153254785276Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-incongruent-load-address-20261115T153352775248Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-invented-kernel-page-size-20261115T153022416106Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-invented-kernel-page-size-20261115T153352775248Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-minimum-page-congruence-20261115T153352775248Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-non-power-two-alignment-20261115T153022416106Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-non-power-two-alignment-20261115T153254785276Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-non-power-two-alignment-20261115T153352775248Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-receipt-20261115T153022416106Z.json",
+    "waves/RW-51/verification/arm-batch-elf-mutation-receipt-20261115T153352775248Z.json",
+    "waves/RW-51/verification/arm-batch-elf-mutation-virtual-address-overflow-20261115T153022416106Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-mutation-virtual-address-overflow-20261115T153352775248Z.log.gz",
+    "waves/RW-51/verification/arm-batch-elf-red-20261115T152740564866Z.json",
+    "waves/RW-51/verification/arm-batch-elf-red-20261115T152740564866Z.log.gz",
+    "waves/RW-51/verification/arm-batch-integrated-final-green-20261115T153229241870Z.json",
+    "waves/RW-51/verification/arm-batch-integrated-final-green-20261115T153229241870Z.log.gz",
+    "waves/RW-51/verification/arm-batch-integrated-green-20261115T152930797573Z.json",
+    "waves/RW-51/verification/arm-batch-integrated-green-20261115T152930797573Z.log.gz",
+    "waves/RW-51/verification/arm-batch-runtime-alignment-red-20261115T153218393986Z.json",
+    "waves/RW-51/verification/arm-batch-runtime-alignment-red-20261115T153218393986Z.log.gz",
+    "waves/RW-51/verification/arm-batch-unit-full-final-20261115T153547691323Z.json",
+    "waves/RW-51/verification/arm-batch-unit-full-final-20261115T153547691323Z.log.gz",
+    "waves/RW-51/verification/arm-batch-unit-post-legacy-20261115T154201464874Z.json",
+    "waves/RW-51/verification/arm-batch-unit-post-legacy-20261115T154201464874Z.log.gz",
+    "waves/RW-51/verification/arm-batch-worker-gate-20261115T153011639583Z.json",
+    "waves/RW-51/verification/arm-batch-worker-gate-20261115T153011639583Z.log.gz",
+    "waves/RW-51/verification/arm-batch-worker-gate-deps-20261115T153335761480Z.json",
+    "waves/RW-51/verification/arm-batch-worker-gate-deps-20261115T153335761480Z.log.gz",
+    "waves/RW-51/verification/arm-batch-worker-gate-final-20261115T154110740208Z.json",
+    "waves/RW-51/verification/arm-batch-worker-gate-final-20261115T154110740208Z.log.gz",
+    "waves/RW-51/verification/arm-cpu-green-final.log.gz",
+    "waves/RW-51/verification/arm-cpu-green-receipt.json",
+    "waves/RW-51/verification/arm-cpu-green.log.gz",
+    "waves/RW-51/verification/arm-cpu-mutation-control.log.gz",
+    "waves/RW-51/verification/arm-cpu-mutation-misroute-rpi-cpu.log.gz",
+    "waves/RW-51/verification/arm-cpu-mutation-receipt.json",
+    "waves/RW-51/verification/arm-cpu-mutation-restore-generic-c-crypto.log.gz",
+    "waves/RW-51/verification/arm-cpu-mutation-restore-global-rust-crc.log.gz",
+    "waves/RW-51/verification/arm-cpu-mutation-restore-static-cxx-crypto.log.gz",
+    "waves/RW-51/verification/arm-cpu-mutation-restore-static-rust-aes.log.gz",
+    "waves/RW-51/verification/arm-cpu-red-receipt.json",
+    "waves/RW-51/verification/arm-cpu-red.log.gz",
+    "waves/RW-51/verification/arm-cpu-worker-report.json",
+    "waves/RW-51/verification/arm-types-targeted-20261115T153640Z.json",
+    "waves/RW-51/verification/arm-types-targeted-20261115T153640Z.log.gz",
+    "waves/RW-51/verification/arm-types-typecheck-20261115T153632Z.json",
+    "waves/RW-51/verification/arm-types-typecheck-20261115T153632Z.log.gz",
+    "waves/RW-51/verification/arm-legacy-cpu-green-20261115T154009Z.json",
+    "waves/RW-51/verification/arm-legacy-cpu-green-20261115T154009Z.log.gz",
+    "waves/RW-51/verification/arm-legacy-cpu-mutation-c-crypto.log.gz",
+    "waves/RW-51/verification/arm-legacy-cpu-mutation-control.log.gz",
+    "waves/RW-51/verification/arm-legacy-cpu-mutation-cxx-crypto.log.gz",
+    "waves/RW-51/verification/arm-legacy-cpu-mutation-receipt.json",
+    "waves/RW-51/verification/arm-legacy-cpu-mutation-rust-aes.log.gz",
+    "waves/RW-51/verification/arm-legacy-cpu-mutation-rust-crc.log.gz",
+    "waves/RW-51/verification/arm-legacy-cpu-mutation-rust-sha2.log.gz",
+    "waves/RW-51/verification/arm-legacy-cpu-red-20261115T153944Z.json",
+    "waves/RW-51/verification/arm-legacy-cpu-red-20261115T153944Z.log.gz",
+    "waves/RW-51/verification/arm-batch-meta-final-records-20261115T154342885304Z.json",
+    "waves/RW-51/verification/arm-batch-meta-final-records-20261115T154342885304Z.log.gz",
+    "waves/RW-51/verification/arm-source-upstream-unit-baseline.log.gz"
+  ],
+  "source_commit": "503484d1818c3fe627939c591579c3e2a1c48ada"
+}

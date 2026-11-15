@@ -1,0 +1,93 @@
+{
+  "task_id": "LIB-ARM-06.I1",
+  "scope": "source_cpu_configuration_contract_only",
+  "observed_at": "2026-11-15T15:40:37.303047+00:00",
+  "control_passed": true,
+  "mutations_killed": 5,
+  "mutations_total": 5,
+  "runs": [
+    {
+      "name": "control",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=SUB-990-1",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "cwd": "/tmp/legacy-cpu-contract-vre9bb5g/control",
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/legacy-cpu-contract/mutation-control.log",
+      "log_sha256": "6d9876e1c496aa855db89ee30a701745b75a2d441079284a8ff672ef80c5a354"
+    },
+    {
+      "name": "rust-crc",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=SUB-990-1",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "cwd": "/tmp/legacy-cpu-contract-vre9bb5g/rust-crc",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/legacy-cpu-contract/mutation-rust-crc.log",
+      "log_sha256": "a8c63709209291ce91333609cba68e0a578e0e9251d77ebb788ad325fb2eb270"
+    },
+    {
+      "name": "rust-aes",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=SUB-990-1",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "cwd": "/tmp/legacy-cpu-contract-vre9bb5g/rust-aes",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/legacy-cpu-contract/mutation-rust-aes.log",
+      "log_sha256": "460598ec2634813572b231cc35b72d5cb5c0e498f950917de2bf0f607b121728"
+    },
+    {
+      "name": "rust-sha2",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=SUB-990-1",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "cwd": "/tmp/legacy-cpu-contract-vre9bb5g/rust-sha2",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/legacy-cpu-contract/mutation-rust-sha2.log",
+      "log_sha256": "ecf00a878be498b246b6a15312d73aca4a356d557c6a1d260b4355da135aa534"
+    },
+    {
+      "name": "c-crypto",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=SUB-990-1",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "cwd": "/tmp/legacy-cpu-contract-vre9bb5g/c-crypto",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/legacy-cpu-contract/mutation-c-crypto.log",
+      "log_sha256": "863b69c958af9b7657b0452cc974f5840016b8b18cc200cfb02082c1215faa21"
+    },
+    {
+      "name": "cxx-crypto",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "--test-name-pattern=SUB-990-1",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "cwd": "/tmp/legacy-cpu-contract-vre9bb5g/cxx-crypto",
+      "exit_code": 1,
+      "log": "/root/projects/chord-modernization-verification/legacy-cpu-contract/mutation-cxx-crypto.log",
+      "log_sha256": "c678332e086b9011013604de8a968642add85cc45f73abb52aadab3cf572d924"
+    }
+  ],
+  "native_validation": "not_run",
+  "historical_dist_unchanged_sha256": "458f43a5116e115455cf7090b48c3a6768da14d13194328969f95386f5e0966a",
+  "test_sha256": "ed7c1931193588d6a1d36c5c4cc6455a27715dd0ad3a8a719d20d6020ff189cf",
+  "test_md5": "0a01dd3ecc7c81e0945ae1cf69be3bef",
+  "diff_sha256": "38aae5dbb50e273d42d69f6305867175e1c2a86a3fc69364abf6470dfbb91049"
+}

@@ -3991,6 +3991,8 @@ Acceptance:
 - Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
 ### LIB-ARM-02
 
+Source slice: **Ready for Product Review**; full card/native qualification remains open. Evidence: [ARM-SOURCE-BATCH.md](ARM-SOURCE-BATCH.md).
+
 **Define and enforce portable ARM CPU features and page-size ABI** — P1, implementation.
 
 Prerequisites: LIB-ARM-01.
@@ -4141,6 +4143,8 @@ Acceptance:
 - Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
 
 ### LIB-ARM-08
+
+Source slice: **Ready for Product Review**; full card/native qualification remains open. Evidence: [ARM-SOURCE-BATCH.md](ARM-SOURCE-BATCH.md).
 
 **Verify actual ELF loader constraints without inventing a kernel page size** — P1, implementation.
 

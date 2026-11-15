@@ -1,0 +1,80 @@
+{
+  "source_sha256": "7d486828825bf6d0a2b6935bd26e0a57b505e1f8692ef4b9eef6b3c275f8640e",
+  "control_passed": true,
+  "mutants_killed": 5,
+  "mutants_total": 5,
+  "runs": [
+    {
+      "id": "control",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 0,
+      "expected_failed_contract": null,
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-control-20261115T153022416106Z.log",
+      "mutated_source_sha256": "7d486828825bf6d0a2b6935bd26e0a57b505e1f8692ef4b9eef6b3c275f8640e"
+    },
+    {
+      "id": "filesz-exceeds-memsz",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "ELF rejects load bytes larger than the memory image",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-filesz-exceeds-memsz-20261115T153022416106Z.log",
+      "mutated_source_sha256": "3d0df5ff6d187b657d0f66f06ec74c9c2190381d5540e73c52c5027a4092d83e"
+    },
+    {
+      "id": "non-power-two-alignment",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "ELF rejects non-power-of-two load alignment",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-non-power-two-alignment-20261115T153022416106Z.log",
+      "mutated_source_sha256": "97597693a3a16f09af7840dd05a8201168af4e9b088af2ab19f50770ffd5fa4f"
+    },
+    {
+      "id": "incongruent-load-address",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "ELF rejects incongruent file offsets and virtual addresses",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-incongruent-load-address-20261115T153022416106Z.log",
+      "mutated_source_sha256": "c82ce50277f549b9582401e8ea0126085378ebd54bf1f854b211a35bd53069da"
+    },
+    {
+      "id": "virtual-address-overflow",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "ELF rejects virtual memory ranges overflowing",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-virtual-address-overflow-20261115T153022416106Z.log",
+      "mutated_source_sha256": "35de47cd0f4dfd384b88a70242b9b748744ba9317b2e1a5200180dc42a54c33d"
+    },
+    {
+      "id": "invented-kernel-page-size",
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/arm64-elf-abi-contract.test.mjs"
+      ],
+      "exit_code": 1,
+      "expected_failed_contract": "a genuine linked ARM ELF reports segment alignment",
+      "log": "/root/projects/chord-modernization-verification/arm-batch/elf-mutation-invented-kernel-page-size-20261115T153022416106Z.log",
+      "mutated_source_sha256": "d9927015481cbc710b65330d8ba62b3709323f5b777ec9cb7879b488fdfd3244"
+    }
+  ]
+}

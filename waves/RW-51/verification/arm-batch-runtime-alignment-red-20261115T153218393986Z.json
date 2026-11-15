@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "--test-name-pattern=runtime.LOAD",
+    "tests/unit/arm64-elf-abi-contract.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/arm-batch/runtime-alignment-red-20261115T153218393986Z.log"
+}

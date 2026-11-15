@@ -33,5 +33,13 @@
     "LIB-ARM-07",
     "LIB-ARM-08"
   ],
-  "resolution_requires": "Compatible real SDK/Cargo GUI artifacts and native CPU/loader/package/GUI qualification bound to accepted source/dependency hashes."
+  "resolution_requires": "Compatible real SDK/Cargo GUI artifacts and native CPU/loader/package/GUI qualification bound to accepted source/dependency hashes.",
+  "source_slice_update": {
+    "batch": "ARM-SOURCE-20261115",
+    "recorded_at": "2026-11-15T15:43:09.025618+00:00",
+    "cpu_flags_and_elf_source_checks": "implemented and source-reviewed",
+    "native_runtime": "not_run",
+    "release_qualified": false,
+    "record": "waves/RW-51/ARM-SOURCE-BATCH.json"
+  }
 }

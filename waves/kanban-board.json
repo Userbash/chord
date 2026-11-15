@@ -1,7 +1,7 @@
 {
   "project": "Chord — Rust core, Tauri and GPUI",
   "wave": "RW-51: Library-first Rust modernization",
-  "updated_at": "2026-11-15T15:18:13.071465+00:00",
+  "updated_at": "2026-11-15T15:43:09.025618+00:00",
   "columns": [
     {
       "id": "backlog",
@@ -151,8 +151,8 @@
       "wave": "RW-51",
       "epic_id": "LIB-ARM",
       "title": "Define and enforce portable ARM CPU features and page-size ABI",
-      "status": "backlog",
-      "lifecycle_status": "Backlog",
+      "status": "in_review",
+      "lifecycle_status": "Ready for Product Review",
       "priority": "P1",
       "department": "DevOps / Integration",
       "kind": "implementation",
@@ -198,7 +198,7 @@
         "Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.",
         "Original behavior, strict tests and independent review are retained; rollback and affected targets documented."
       ],
-      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Qualify generic/rpi5/asahi CPU and ABI contracts, including optional extension dispatch and claimed Linux page-size compatibility.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.\nCurrent generic flags force +crc,+aes,+sha2 and C +crypto. Assess potential SIGILL on incompatible CPUs; this is a source risk, not a measured crash. Prefer vetted library runtime dispatch or a documented minimum CPU. Test generic and hardware-specific profiles separately and evaluate 4K/16K/64K only when claimed; never substitute Apple macOS ABI for Asahi Linux.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "coding_instructions": "Source slice implemented and independently reviewed; parent/native qualification remains open. See waves/RW-51/ARM-SOURCE-BATCH.md.\nOperator ARM follow-up; release blocker. Outcome: Qualify generic/rpi5/asahi CPU and ABI contracts, including optional extension dispatch and claimed Linux page-size compatibility.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.\nBaseline generic flags forced +crc,+aes,+sha2 and C +crypto. Assess potential SIGILL on incompatible CPUs; this is a source risk, not a measured crash. Prefer vetted library runtime dispatch or a documented minimum CPU. Test generic and hardware-specific profiles separately and evaluate 4K/16K/64K only when claimed; never substitute Apple macOS ABI for Asahi Linux.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
       "tests": {
         "targeted_command": "node --test tests/unit/arm64-cpu-abi-contract.test.mjs",
         "independent_oracle": "Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.",
@@ -227,9 +227,10 @@
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
       },
-      "dispatch_status": "queued_not_dispatched",
+      "dispatch_status": "source_slice_implemented_and_reviewed_parent_qualification_open",
       "blocked_by": [
-        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+        "FULL_BATCH_ACCEPTANCE_REQUIRED",
+        "NATIVE_TARGET_EVIDENCE_REQUIRED"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -239,7 +240,15 @@
       "plan_reference": "waves/RW-51/TASKS.md#lib-arm-02",
       "release_blocker": true,
       "runtime_crash_observed": false,
-      "updated_at": "2026-11-15T15:17:06.424050+00:00"
+      "updated_at": "2026-11-15T15:43:09.025618+00:00",
+      "source_slice": {
+        "batch": "ARM-SOURCE-20261115",
+        "state": "implemented_source_review_approved",
+        "report": "waves/RW-51/ARM-SOURCE-BATCH.md",
+        "receipt": "waves/RW-51/ARM-SOURCE-BATCH.json",
+        "full_card_completed": false,
+        "native_validation": "not_run"
+      }
     },
     {
       "id": "LIB-ARM-03",
@@ -530,7 +539,19 @@
         "tests/unit/arm64-packaging-990.test.mjs",
         "waves/RW-51/ARM-TEST-CONTRACT-DECISION.md"
       ],
-      "integration_subtasks": [],
+      "integration_subtasks": [
+        {
+          "id": "LIB-ARM-06.I1",
+          "owner": "RW-51 coordinator / named integrator",
+          "executor": "/root/arm_cpu_slice",
+          "write_scope": [
+            "tests/unit/arm64-packaging-990.test.mjs"
+          ],
+          "instruction": "Reconcile only the current SOURCE CPU configuration expectation under CP-009; retain all historical DIST and other package/runtime assertions.",
+          "status": "in_review",
+          "evidence": "waves/RW-51/verification/arm-source-legacy-contract-review.json"
+        }
+      ],
       "acceptance_criteria": [
         "Replace only the obsolete expectation of successful fake artifacts without a toolchain through an independently justified old/new contract and mandatory real-build integration coverage.",
         "Approved real Cargo artifact/provenance and pinned package bytes; no test may become green by checking a marker, dry-run or renamed unrelated binary.",
@@ -580,7 +601,8 @@
       "plan_reference": "waves/RW-51/TASKS.md#lib-arm-06",
       "release_blocker": true,
       "runtime_crash_observed": false,
-      "updated_at": "2026-11-15T15:17:06.424050+00:00"
+      "updated_at": "2026-11-15T15:17:06.424050+00:00",
+      "source_subtask_update": "LIB-ARM-06.I1 source CPU contract reconciled and reviewed; full ARM06 prerequisites/build/native acceptance remain open."
     },
     {
       "id": "LIB-ARM-07",
@@ -682,8 +704,8 @@
       "wave": "RW-51",
       "epic_id": "LIB-ARM",
       "title": "Verify actual ELF loader constraints without inventing a kernel page size",
-      "status": "backlog",
-      "lifecycle_status": "Backlog",
+      "status": "in_review",
+      "lifecycle_status": "Ready for Product Review",
       "priority": "P1",
       "department": "DevOps / Integration",
       "kind": "implementation",
@@ -716,7 +738,7 @@
         "Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.",
         "Original behavior, strict tests and independent review are retained; rollback and affected targets documented."
       ],
-      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Validate every load segment with independent ELF ABI rules and report segment alignment separately from a measured native kernel page size.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: ELF program-header specification plus independent readelf/native loader evidence; malformed bounds/alignment/congruence fixtures must be rejected.\nCurrent page_size_bytes=min(PT_LOAD p_align) describes segment alignment, not kernel page size. Cover p_filesz<=p_memsz, offset/address congruence, power-of-two alignment, integer/file bounds and GUI versus AppImage runtime ABI. Reuse a qualified existing parser/tool where appropriate; no large replacement parser. Native loader proof is still required for each claimed page-size/OS combination.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "coding_instructions": "Source slice implemented and independently reviewed; parent/native qualification remains open. See waves/RW-51/ARM-SOURCE-BATCH.md.\nOperator ARM follow-up; release blocker. Outcome: Validate every load segment with independent ELF ABI rules and report segment alignment separately from a measured native kernel page size.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: ELF program-header specification plus independent readelf/native loader evidence; malformed bounds/alignment/congruence fixtures must be rejected.\nThe baseline page_size_bytes=min(PT_LOAD p_align) described segment alignment, not kernel page size. Cover p_filesz<=p_memsz, offset/address congruence, power-of-two alignment, integer/file bounds and GUI versus AppImage runtime ABI. Reuse a qualified existing parser/tool where appropriate; no large replacement parser. Native loader proof is still required for each claimed page-size/OS combination.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
       "tests": {
         "targeted_command": "node --test tests/unit/arm64-elf-abi-contract.test.mjs",
         "independent_oracle": "ELF program-header specification plus independent readelf/native loader evidence; malformed bounds/alignment/congruence fixtures must be rejected.",
@@ -745,9 +767,10 @@
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
       },
-      "dispatch_status": "queued_not_dispatched",
+      "dispatch_status": "source_slice_implemented_and_reviewed_parent_qualification_open",
       "blocked_by": [
-        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+        "FULL_BATCH_ACCEPTANCE_REQUIRED",
+        "NATIVE_TARGET_EVIDENCE_REQUIRED"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -757,7 +780,15 @@
       "plan_reference": "waves/RW-51/TASKS.md#lib-arm-08",
       "release_blocker": true,
       "runtime_crash_observed": false,
-      "updated_at": "2026-11-15T15:17:06.424050+00:00"
+      "updated_at": "2026-11-15T15:43:09.025618+00:00",
+      "source_slice": {
+        "batch": "ARM-SOURCE-20261115",
+        "state": "implemented_source_review_approved",
+        "report": "waves/RW-51/ARM-SOURCE-BATCH.md",
+        "receipt": "waves/RW-51/ARM-SOURCE-BATCH.json",
+        "full_card_completed": false,
+        "native_validation": "not_run"
+      }
     },
     {
       "id": "LIB-GOV-01",
@@ -20739,11 +20770,13 @@
       "wave": "RW-42: Native GPUI Migration & Design Parity",
       "updated_at": "2026-11-11T13:23:04.791Z"
     },
-    "status": "plan_loaded_first_ecc_planning_batch_completed_application_migrations_pending",
+    "status": "arm_source_slices_in_product_review_native_qualification_open",
     "runtime_blocker": null,
     "completed_planning_sessions": 4,
     "receipt_manifest": "waves/RW-51/DISPATCH-RECEIPTS.json",
     "arm_release_blocked": true,
-    "arm_plan": "waves/RW-51/ARM-BLOCKERS.md"
+    "arm_plan": "waves/RW-51/ARM-BLOCKERS.md",
+    "completed_source_review_sessions": 2,
+    "source_batch": "waves/RW-51/ARM-SOURCE-BATCH.json"
   }
 }

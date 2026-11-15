@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "--test-name-pattern=SUB-990-1",
+    "tests/unit/arm64-packaging-990.test.mjs"
+  ],
+  "exit_code": 0,
+  "test_source_sha256": "ed7c1931193588d6a1d36c5c4cc6455a27715dd0ad3a8a719d20d6020ff189cf",
+  "immutable_dist_sha256": "458f43a5116e115455cf7090b48c3a6768da14d13194328969f95386f5e0966a",
+  "source_config_sha256": "11f36decc8349964f3d677e6b29434b9296f0fd04f4fbef36f3b12447106878b"
+}

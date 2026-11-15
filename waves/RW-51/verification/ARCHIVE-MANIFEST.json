@@ -3,10 +3,280 @@
   "encoding": "Lossless gzip of original evidence bytes; raw source logs retained in the external verification directory.",
   "archives": [
     {
+      "file": "arm-batch-elf-green-20261115T152841293062Z.log.gz",
+      "raw_bytes": 2302,
+      "raw_sha256": "4c3e7dbba3dc6222035fa42bd188781f03fbad5b1f672d0e581c1af0ad59f5e7",
+      "archive_sha256": "11a4722ee3c4baf4a8ca6cc4e484137b36cb4f8c0536bbb0ba4dc78d31156858"
+    },
+    {
+      "file": "arm-batch-elf-mutation-control-20261115T153022416106Z.log.gz",
+      "raw_bytes": 1711,
+      "raw_sha256": "12644e923ab8ad9c51201dfbeb4baa1c048cc05a7ba6b97fd1dd4c13fa3711f0",
+      "archive_sha256": "c3f3040140ffd80ddaad1d9ab6e6ae3adecbb701b2142cce7d1190c33b54fd66"
+    },
+    {
+      "file": "arm-batch-elf-mutation-control-20261115T153254785276Z.log.gz",
+      "raw_bytes": 1907,
+      "raw_sha256": "28cff86bb54b1874a044a27e65ba7bfed4b4f5dfb69f2abe25738554d4213a6c",
+      "archive_sha256": "b873d27d2d45943717c40d4fac53751bc2d6b50302ffdc533fb1b67f036071ea"
+    },
+    {
+      "file": "arm-batch-elf-mutation-control-20261115T153352775248Z.log.gz",
+      "raw_bytes": 1907,
+      "raw_sha256": "0c3ceca1ad83761ea41ac64dfbdd975e1dbdee878d38d07bb5987575528d671a",
+      "archive_sha256": "3a45270fa9f6930337279f056f6aa6741adb4ced3f8be1031c54ca2807a228f2"
+    },
+    {
+      "file": "arm-batch-elf-mutation-filesz-exceeds-memsz-20261115T153022416106Z.log.gz",
+      "raw_bytes": 2724,
+      "raw_sha256": "fc48b316d82a25bf43ec4c03cdbf8acc40e78992812325b3b36b53cd790d4c45",
+      "archive_sha256": "410442d5050079989e8e9e14d85e96b7e0d5a04bc97c78fce77de95250efeea8"
+    },
+    {
+      "file": "arm-batch-elf-mutation-filesz-exceeds-memsz-20261115T153254785276Z.log.gz",
+      "raw_bytes": 2916,
+      "raw_sha256": "e747528921f29861d5c8fa1f997544d22884f2cfbc6ed2a9fa74e1e5c1b414af",
+      "archive_sha256": "da24c6a2e9de593945cc5b3f71acfc87a395bb2edbf3ac3e68e348335cf91d55"
+    },
+    {
+      "file": "arm-batch-elf-mutation-filesz-exceeds-memsz-20261115T153352775248Z.log.gz",
+      "raw_bytes": 2916,
+      "raw_sha256": "976bc021a32951808eeefead2daf2e595da7a4aeb0da23b34938b1afcdc56de1",
+      "archive_sha256": "93d66b0d40fb5393acfc8827c984da09b38256b407f5b34467baf42a9a35eb8d"
+    },
+    {
+      "file": "arm-batch-elf-mutation-incongruent-load-address-20261115T153022416106Z.log.gz",
+      "raw_bytes": 2702,
+      "raw_sha256": "a06d14f856f977556bf0c3c185164565a161921c52a83e7943e8e7c72b7caf2d",
+      "archive_sha256": "c7253aada79fe982db2aee0ce2deb193081c01078c883f9f619e2e9e65c96d5e"
+    },
+    {
+      "file": "arm-batch-elf-mutation-incongruent-load-address-20261115T153254785276Z.log.gz",
+      "raw_bytes": 2916,
+      "raw_sha256": "1f72b2def8d3526aedfde37aee926a4cdf4add225178bb5b6b1697fb37dd9efb",
+      "archive_sha256": "3e948cac21798308ebda243d7ec602e31e9c22b2b6c06545c00a599cf0118577"
+    },
+    {
+      "file": "arm-batch-elf-mutation-incongruent-load-address-20261115T153352775248Z.log.gz",
+      "raw_bytes": 2913,
+      "raw_sha256": "82c4b2e119113c4797fcb3dd32340015c3391eae72cfec9f7e172ad9a4324fde",
+      "archive_sha256": "ad5d1a71b5bafca70ccfa8f8ffc8d8ec6b0b417fa4ccb5506eb01a9766d60483"
+    },
+    {
+      "file": "arm-batch-elf-mutation-invented-kernel-page-size-20261115T153022416106Z.log.gz",
+      "raw_bytes": 3458,
+      "raw_sha256": "38b06c8716044964603df9da22baf63e4390485f8e1653dd29d84bd394c51d07",
+      "archive_sha256": "dfbc06c0b8c84d07d793c841772a98691b45cdf9ba70f6393249506d0beeeed1"
+    },
+    {
+      "file": "arm-batch-elf-mutation-invented-kernel-page-size-20261115T153352775248Z.log.gz",
+      "raw_bytes": 3650,
+      "raw_sha256": "6897d3968ba2baac26dc257327744a5d386b4510587454cc9c75651019b636e2",
+      "archive_sha256": "b73d3ddfe9627205902f5f556b28d55ec34896b3d8941b97ccaa229841f933eb"
+    },
+    {
+      "file": "arm-batch-elf-mutation-minimum-page-congruence-20261115T153352775248Z.log.gz",
+      "raw_bytes": 2925,
+      "raw_sha256": "b788963b3f2523d1231c4a9bd99fc15d687d6710c5c2535518ce7a1f6998a1fc",
+      "archive_sha256": "7282ce9075212e7fa4034cefbe3611ac10be8b0906bebd60e8c2987dbfbf185c"
+    },
+    {
+      "file": "arm-batch-elf-mutation-non-power-two-alignment-20261115T153022416106Z.log.gz",
+      "raw_bytes": 2720,
+      "raw_sha256": "8526396e92c8c40d3cdfdf880751b00fdef59b6544fb4cfc0239b45d61dcb453",
+      "archive_sha256": "d0204246415f126ba210cc01d4f69b73f5247dd517126d158556181c52d2b5d5"
+    },
+    {
+      "file": "arm-batch-elf-mutation-non-power-two-alignment-20261115T153254785276Z.log.gz",
+      "raw_bytes": 2915,
+      "raw_sha256": "301f834bccdcb6474ec55ea2017d33161cf3945ded1c0b6101c26ae65bdd1301",
+      "archive_sha256": "8fa1136caef44465ee1ea49d760bd7c2f87cdb99f89d3f8e024e7c10c9eaec82"
+    },
+    {
+      "file": "arm-batch-elf-mutation-non-power-two-alignment-20261115T153352775248Z.log.gz",
+      "raw_bytes": 2912,
+      "raw_sha256": "81e10ed1f60ff75c75457b01a448c4f9bce49beac5ef887220b37d086366a5a8",
+      "archive_sha256": "af40a452028b740fbf67b63a5eef0df7b14f950019465d1ab6fef6df90aec945"
+    },
+    {
+      "file": "arm-batch-elf-mutation-virtual-address-overflow-20261115T153022416106Z.log.gz",
+      "raw_bytes": 4105,
+      "raw_sha256": "617a2958f6bf6c9be35d0a3c82df66ecbd9ba7298d548cb2cb3b4f59c6bc999e",
+      "archive_sha256": "ae8013364545ce9b8e1f3f75cfa780e75451399a90c94bfd7c6f68dafd8fd7d1"
+    },
+    {
+      "file": "arm-batch-elf-mutation-virtual-address-overflow-20261115T153352775248Z.log.gz",
+      "raw_bytes": 4333,
+      "raw_sha256": "bfc149e5a6b8ca0991b1153b5a18a0825b745c5e56147156ea4830df4fda1892",
+      "archive_sha256": "acd9266385549e4ddeb665a2d93935bb3f1849193b03d9a81bb973b1fbf05d3b"
+    },
+    {
+      "file": "arm-batch-elf-red-20261115T152740564866Z.log.gz",
+      "raw_bytes": 11917,
+      "raw_sha256": "251efbf9bd09c0922ad1c96df43992c57c55ed1ef88b2dd7f9687d445630a164",
+      "archive_sha256": "8a8ae2364a995ea4885e8c17bc16ffef987754f157821de35124e7b71655211d"
+    },
+    {
+      "file": "arm-batch-integrated-final-green-20261115T153229241870Z.log.gz",
+      "raw_bytes": 3446,
+      "raw_sha256": "09bf58f08d1e224de85da687a7cbcf0d9a8130b70ae54c4f738b5681ebe86ce2",
+      "archive_sha256": "255b2219000c1ca6600c9c0e5ff756dbd7ff83348c2930ff13c6dc10b83b7562"
+    },
+    {
+      "file": "arm-batch-integrated-green-20261115T152930797573Z.log.gz",
+      "raw_bytes": 3341,
+      "raw_sha256": "eb427bb4ee7accd1f83aa0862746647a9c9201a3f2127106b18f5f953c1946e4",
+      "archive_sha256": "269da12eb8cf1e545bf62aa43cbcea19752403a7c5f1c5f2eb8cc8de4ff3d9ef"
+    },
+    {
+      "file": "arm-batch-meta-final-records-20261115T154342885304Z.log.gz",
+      "raw_bytes": 28864,
+      "raw_sha256": "3c69424a5e1ea49ba2385f51fe7cb8cd6a7c5e281fa27d3cade9984f673e869f",
+      "archive_sha256": "0f4a37ba0043bb60417f707b3850d671cbcd6bd10da885ee60669fbd16a00b22"
+    },
+    {
+      "file": "arm-batch-runtime-alignment-red-20261115T153218393986Z.log.gz",
+      "raw_bytes": 1098,
+      "raw_sha256": "53d655136f95f3ae45ddcb4f36acd0caaee58328ea666b80d4d9ffd64a40a978",
+      "archive_sha256": "28cc3851ab6a1ca7d8798f332e6e979a77c22e7f2ce001ae8161f9ad2f3d9f3d"
+    },
+    {
+      "file": "arm-batch-unit-full-final-20261115T153547691323Z.log.gz",
+      "raw_bytes": 1334805,
+      "raw_sha256": "6dda0aa4113149a747c14ca53609e157ed4e88dfbe9ac447e7d70b7925e0d802",
+      "archive_sha256": "497d2a9426804f9ba4bcda1d18da9017cf045740a098b97cd45a077fe90c86af"
+    },
+    {
+      "file": "arm-batch-unit-post-legacy-20261115T154201464874Z.log.gz",
+      "raw_bytes": 1333281,
+      "raw_sha256": "96e7fc3b99e8907edeb96299078f4cdf99c7e25fef75256a960c02850e942fac",
+      "archive_sha256": "d2373687a86851f896bfbfa05cad8a1f1e3b722b6cca8e678586a46927ccc604"
+    },
+    {
+      "file": "arm-batch-worker-gate-20261115T153011639583Z.log.gz",
+      "raw_bytes": 13604,
+      "raw_sha256": "4193c1a1791ec4aed188b5faf19ddda461b2cdf509e7735e2ed4830a5aa94e08",
+      "archive_sha256": "0f57d28c4cc563ccabda2d15e099612ff61978c66e1337ab08be642080427bb9"
+    },
+    {
+      "file": "arm-batch-worker-gate-deps-20261115T153335761480Z.log.gz",
+      "raw_bytes": 7974,
+      "raw_sha256": "8961c80887adfaf223517ccd89660598692c658a8ceddbac39f1f787b64577c1",
+      "archive_sha256": "91ce7ad64b2133d5154bdbf9d2851031ef28ecd334f7f67e530baebf47b33abe"
+    },
+    {
+      "file": "arm-batch-worker-gate-final-20261115T154110740208Z.log.gz",
+      "raw_bytes": 4989,
+      "raw_sha256": "7a09383d21bf90b12b8fd02205c87c2f7f41314915b168901a536526c0bceca0",
+      "archive_sha256": "b2c6085b29c89566700ea273846c4b36d31355bb769758875494ca7b61d673a5"
+    },
+    {
+      "file": "arm-cpu-green-final.log.gz",
+      "raw_bytes": 1747,
+      "raw_sha256": "bc25af23cb60c606a612731b8eac10e7562c82dd7a8fcf7111cbcf54719aa6d6",
+      "archive_sha256": "52cc58be511821b526bf961e717482d92a1c494f72090931c41900af571fadde"
+    },
+    {
+      "file": "arm-cpu-green.log.gz",
+      "raw_bytes": 1745,
+      "raw_sha256": "04514f9869384ae0091f90102acd18c39d67f109d3ea262e10460b04df1adc9b",
+      "archive_sha256": "43dcf58d2251050cfa7bdc0adcd6d35c82c386a23a45a10c27be6aebca1c5fde"
+    },
+    {
+      "file": "arm-cpu-mutation-control.log.gz",
+      "raw_bytes": 655,
+      "raw_sha256": "11d1e5718d690b32fe2d78a4459a6b23a0d78d313c279ba6fb3cb9bb9258107c",
+      "archive_sha256": "66608d0de9322015f3caff9427f425476021a120de0a2bdfb212643b771ba612"
+    },
+    {
+      "file": "arm-cpu-mutation-misroute-rpi-cpu.log.gz",
+      "raw_bytes": 1642,
+      "raw_sha256": "dbf8b39fdab4551a475b7c8ef15e81512bde01f4ec345a79c71efa98e7c7487e",
+      "archive_sha256": "3a5f22d04782a2fe6f4c1cc41c936fc8cc3c70995316997e9491b45333dd6aed"
+    },
+    {
+      "file": "arm-cpu-mutation-restore-generic-c-crypto.log.gz",
+      "raw_bytes": 1578,
+      "raw_sha256": "c5344d8c07798c9bc56688518ed4eee946b790ccdf35f1e8302629f119d9f841",
+      "archive_sha256": "031c66875c9a756af1116d51a29daf5528a5646b7d332f6461750def56222bcb"
+    },
+    {
+      "file": "arm-cpu-mutation-restore-global-rust-crc.log.gz",
+      "raw_bytes": 4117,
+      "raw_sha256": "faa84d8a21da27aaac14c899d7b8f5fef3d44efb4a80b89fdd107d3deb5fd610",
+      "archive_sha256": "fd645d2671a41f6596848c38cc9a7842721667064ca1c9153a6ae379e8d50368"
+    },
+    {
+      "file": "arm-cpu-mutation-restore-static-cxx-crypto.log.gz",
+      "raw_bytes": 1798,
+      "raw_sha256": "4e41906227da32873d225262df5bcd7268b458248a52fb9cd985005175412e81",
+      "archive_sha256": "d834cf6cdda0ee3ad3fe3e50a77df6215a0fb026d1a3f56237f7843137b7a384"
+    },
+    {
+      "file": "arm-cpu-mutation-restore-static-rust-aes.log.gz",
+      "raw_bytes": 1875,
+      "raw_sha256": "53a3c7c2d395469ba47486a88acceec9ff8059b90288ebcfc22129ec4ac62735",
+      "archive_sha256": "716aec644d4e2e46b031564ebe05f4ece9adbfd9ba80d2adb441b69684aba2a0"
+    },
+    {
+      "file": "arm-cpu-red.log.gz",
+      "raw_bytes": 5241,
+      "raw_sha256": "f02b27b7ff297d0aa668a0d9186e8e5ace6bb6376d1262c4f63cc560cb47425a",
+      "archive_sha256": "8b81a356d696503c4f2ecb7b732dab19b171746b891afe396ade6f40e38869a7"
+    },
+    {
       "file": "arm-integrity-20261115T151326Z.log.gz",
       "raw_bytes": 1208,
       "raw_sha256": "f6cc32ccab028deb32bad831c69d68ee11ca8edab79029f2376f20bdf7478fba",
       "archive_sha256": "78c14692af56553a9a83d3deeacc55e9c600263ac2ab91247366d87cb46766a9"
+    },
+    {
+      "file": "arm-legacy-cpu-green-20261115T154009Z.log.gz",
+      "raw_bytes": 569,
+      "raw_sha256": "25a56eea3163b6b2914f02df7eb395c8bcdf4389d3fd0f1c10652b0e69d4e2f6",
+      "archive_sha256": "eeeeef30ffe63923e9fdf0b92cc51dc9e0142b92d4c341a62169df90f7b8fe0f"
+    },
+    {
+      "file": "arm-legacy-cpu-mutation-c-crypto.log.gz",
+      "raw_bytes": 1964,
+      "raw_sha256": "863b69c958af9b7657b0452cc974f5840016b8b18cc200cfb02082c1215faa21",
+      "archive_sha256": "0af0949e4f70aa0ae497b9f40384a72cee68f4a0869999af9dfbcfd6cd492b23"
+    },
+    {
+      "file": "arm-legacy-cpu-mutation-control.log.gz",
+      "raw_bytes": 569,
+      "raw_sha256": "6d9876e1c496aa855db89ee30a701745b75a2d441079284a8ff672ef80c5a354",
+      "archive_sha256": "1b86f425c6bb495a4029bff5a16e215aaa8f38f3dd9e6b099273b38bef4b41d4"
+    },
+    {
+      "file": "arm-legacy-cpu-mutation-cxx-crypto.log.gz",
+      "raw_bytes": 1966,
+      "raw_sha256": "c678332e086b9011013604de8a968642add85cc45f73abb52aadab3cf572d924",
+      "archive_sha256": "a23a111dd4476c66ec1647152cb86374b4f2cb93c65fcb807ce4ddcdac99b46e"
+    },
+    {
+      "file": "arm-legacy-cpu-mutation-rust-aes.log.gz",
+      "raw_bytes": 2306,
+      "raw_sha256": "460598ec2634813572b231cc35b72d5cb5c0e498f950917de2bf0f607b121728",
+      "archive_sha256": "efbc57a54f548f9047cbc07c031601e1ea176d830a1ba2f9a9e64dd7e4551604"
+    },
+    {
+      "file": "arm-legacy-cpu-mutation-rust-crc.log.gz",
+      "raw_bytes": 2304,
+      "raw_sha256": "a8c63709209291ce91333609cba68e0a578e0e9251d77ebb788ad325fb2eb270",
+      "archive_sha256": "4da0d9acac4cb8d4036e01d59d5078fb4b6d593734c24fdc896ddf34934bc4a0"
+    },
+    {
+      "file": "arm-legacy-cpu-mutation-rust-sha2.log.gz",
+      "raw_bytes": 2309,
+      "raw_sha256": "ecf00a878be498b246b6a15312d73aca4a356d557c6a1d260b4355da135aa534",
+      "archive_sha256": "e35f2204fdda3f2e6b4afefa325110fe219de604fb62abbf83b801ef0985b4dc"
+    },
+    {
+      "file": "arm-legacy-cpu-red-20261115T153944Z.log.gz",
+      "raw_bytes": 2174,
+      "raw_sha256": "38f31ef9b583be4376dc37e021369dd3307f97559521d943d2221d7800341f95",
+      "archive_sha256": "46c8687dd14768e4fc97fb76c9b7afaa77493a5a9eee7c8955c55afb478e5f32"
     },
     {
       "file": "arm-plan-guard-green.log.gz",
@@ -19,6 +289,24 @@
       "raw_bytes": 4251,
       "raw_sha256": "ba0e89353f4b0d4d3eec7357a0340580da78f092bc57ecafb340898de4e3304c",
       "archive_sha256": "4a27ab8ec3453197a71b8cc7a4f4193ca6bf0bbb08e06916208ca948d9c56bbc"
+    },
+    {
+      "file": "arm-source-upstream-unit-baseline.log.gz",
+      "raw_bytes": 1327539,
+      "raw_sha256": "3f2a060e4e8e66421a96ff0f1b04b3aae1ec4e739c2ff1b0a5b490ec080e0f3c",
+      "archive_sha256": "d08903f8b8ff88ce815a28e7eaba1840b573d9638acbb6879fb71a36a133ee7e"
+    },
+    {
+      "file": "arm-types-targeted-20261115T153640Z.log.gz",
+      "raw_bytes": 3437,
+      "raw_sha256": "b8f69b45be5cb0d52ac176cf99fd2ffae23d27472323619d50448af0b59f912e",
+      "archive_sha256": "3e2e429deeee5f73d84c8ed0e2c599ef692cf94ee33fcf600e03206e80d09e77"
+    },
+    {
+      "file": "arm-types-typecheck-20261115T153632Z.log.gz",
+      "raw_bytes": 87,
+      "raw_sha256": "c9abc238a72081f5b225a3bad84761e2ce20f02e786e51bb6ecc075747575b81",
+      "archive_sha256": "f56c45603463facf714d3b7f789f04d1be4d40e8c7b4dd758013e0f86eb718ce"
     },
     {
       "file": "ecc-entrypoint-green-20261115T144411Z.log.gz",

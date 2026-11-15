@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "tests/meta/ecc-entrypoint.test.mjs",
+    "tests/meta/kanban-portability.test.mjs",
+    "tests/meta/modernization-plan.test.mjs",
+    "tests/unit/arm64-cpu-abi-contract.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 0,
+  "files": [
+    {
+      "path": "tests/meta/ecc-entrypoint.test.mjs",
+      "sha256": "0809868955001e183b37eb2e4d5ec1b77ab833de119f607bd099be3307fece52"
+    },
+    {
+      "path": "tests/meta/kanban-portability.test.mjs",
+      "sha256": "862455d45329b3cf5b8ae2ed9b38923fab71131d970da4a9e9b5beff88443943"
+    },
+    {
+      "path": "tests/meta/modernization-plan.test.mjs",
+      "sha256": "faa5583b0bc327051755734f2331eccac08003b88f0a323faa883093823a7d01"
+    },
+    {
+      "path": "tests/unit/arm64-cpu-abi-contract.test.mjs",
+      "sha256": "e4ae5e53e666a7223cb3618ccfb18e2824b18cb28c679ebdc0d49dbaed19d224"
+    }
+  ]
+}

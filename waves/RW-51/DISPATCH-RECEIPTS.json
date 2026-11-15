@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "wave": "RW-51",
-  "status": "four_real_planning_phases_completed",
-  "observed_at": "2026-11-15T15:18:13.071465+00:00",
+  "status": "four_planning_phases_and_two_source_reviews_completed",
+  "observed_at": "2026-11-15T15:43:09.025618+00:00",
   "application_migrations_completed": false,
   "receipts": [
     {
@@ -129,6 +129,88 @@
       "report": "waves/RW-51/reports/LIB-ARM-01.json",
       "report_sha256": "460dcbede5ec19f53289ce91dbb8f043837a58a387e2d886c9b4a9a7a349cab6",
       "coordinator_review": "ARM source findings incorporated; no native runtime or code fix claimed."
+    },
+    {
+      "task_id": "LIB-ARM-02+08-REVIEW",
+      "task_ids": [
+        "LIB-ARM-02",
+        "LIB-ARM-08"
+      ],
+      "session_id": "4d808efd",
+      "phase": "source_review",
+      "phase_state": "completed",
+      "migration_completed": false,
+      "harness": "codex",
+      "actual_model": "gpt-6.1-sol",
+      "actual_effort": "medium",
+      "sandbox": "read-only",
+      "worktree": "/root/projects/chord-modernization-verification/arm-review/source",
+      "base_commit": "0bfb34b9c48bf1172788b98f64d96a8ddcdb184d",
+      "pid_or_remote_worker_identity": "ecc:4d808efd",
+      "process_state": "exited",
+      "heartbeat_at": "2026-11-15T15:30:23.279309945+00:00",
+      "completed_at": "2026-11-15T15:30:23.279309945+00:00",
+      "observed_at": "2026-11-15T15:31:11.918932+00:00",
+      "model_generated_commands": 0,
+      "findings": 0,
+      "verdict": "approve_source_slice",
+      "report": "waves/RW-51/reports/LIB-ARM-SOURCE-REVIEW-INITIAL.json",
+      "report_sha256": "83f97b69bc1383bfd6e9578ac36bf68da49580ecd7589f542ad550bf4e592d72",
+      "raw_receipt": "waves/RW-51/verification/arm-source-ecc-initial-receipt.json",
+      "source_packet_files": {
+        "scripts/arm64/build.py": "1a00cd344054bcc0a8e09aa07abb22983fc110efb07c9a2a91e6860970cf5b9b",
+        "scripts/arm64/verify.py": "7d486828825bf6d0a2b6935bd26e0a57b505e1f8692ef4b9eef6b3c275f8640e",
+        "scripts/build-arm64.sh": "1180790f65317bc0deda3fcda43f973898b409f7550398876de075ce381674d0",
+        "packaging/arm64/cargo-config.toml": "11f36decc8349964f3d677e6b29434b9296f0fd04f4fbef36f3b12447106878b",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs": "b3df7fced99bf8ecbd134c08821240297916e630cfecad740bdb6c256b8ed3f0",
+        "tests/unit/arm64-elf-abi-contract.test.mjs": "0e3070f9d0cf027fea59b6e82a8cf0fd6d6f1433cb049c73f46b9c4e3be662e8",
+        "tests/unit/arm64-build-integrity.test.mjs": "8276862ff9effe778bd01fefca5825567f27786c57f500755160680667badc70",
+        "AGENTS.md": "bc1e7ff7d33416e1725808f29ad3174ff056f2e1931b4a1ed8442fc73ad7d0df",
+        "TEST-POLICY.md": "5acae467494e7c4c7b85ae5ceb5cf8269e24aac2f9c068a0cda895351b8aa73e"
+      },
+      "limitations": "Source review only; immutable initial and final snapshots differ. Final CPU test has a separately reviewed type-only supplement. No native qualification or whole-card acceptance."
+    },
+    {
+      "task_id": "LIB-ARM-02+08-FINAL-DELTA-REVIEW",
+      "task_ids": [
+        "LIB-ARM-02",
+        "LIB-ARM-08"
+      ],
+      "session_id": "d4137071",
+      "phase": "source_review",
+      "phase_state": "completed",
+      "migration_completed": false,
+      "harness": "codex",
+      "actual_model": "gpt-6.1-sol",
+      "actual_effort": "medium",
+      "sandbox": "read-only",
+      "worktree": "/root/projects/chord-modernization-verification/arm-review/final-delta/source",
+      "base_commit": "0bfb34b9c48bf1172788b98f64d96a8ddcdb184d",
+      "pid_or_remote_worker_identity": "ecc:d4137071",
+      "process_state": "exited",
+      "heartbeat_at": "2026-11-15T15:34:15.708226242+00:00",
+      "completed_at": "2026-11-15T15:34:15.708226242+00:00",
+      "observed_at": "2026-11-15T15:34:26.444617+00:00",
+      "model_generated_commands": 0,
+      "findings": 0,
+      "verdict": "approve_source_slice",
+      "report": "waves/RW-51/reports/LIB-ARM-SOURCE-REVIEW-FINAL.json",
+      "report_sha256": "d1b9cb06e39cab6356419525abb8e9a1bd02532f80c97f1372f1b22b1000b4f4",
+      "raw_receipt": "waves/RW-51/verification/arm-source-ecc-final-receipt.json",
+      "source_packet_files": {
+        "scripts/arm64/build.py": "1a00cd344054bcc0a8e09aa07abb22983fc110efb07c9a2a91e6860970cf5b9b",
+        "scripts/arm64/verify.py": "30068708fc163d13c3d985b926f11f6467210b7168542cb902b8203107945170",
+        "scripts/build-arm64.sh": "1180790f65317bc0deda3fcda43f973898b409f7550398876de075ce381674d0",
+        "packaging/arm64/cargo-config.toml": "11f36decc8349964f3d677e6b29434b9296f0fd04f4fbef36f3b12447106878b",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs": "b3df7fced99bf8ecbd134c08821240297916e630cfecad740bdb6c256b8ed3f0",
+        "tests/unit/arm64-elf-abi-contract.test.mjs": "db4a974a3ad197c5b320f19c6801dc476428bf4a3de0fdcbb8aadea71f924788",
+        "tests/unit/arm64-build-integrity.test.mjs": "8276862ff9effe778bd01fefca5825567f27786c57f500755160680667badc70",
+        "AGENTS.md": "bc1e7ff7d33416e1725808f29ad3174ff056f2e1931b4a1ed8442fc73ad7d0df",
+        "TEST-POLICY.md": "5acae467494e7c4c7b85ae5ceb5cf8269e24aac2f9c068a0cda895351b8aa73e",
+        "waves/RW-51/ARM-ABI-DECISION.md": "068d8624b2373333a985c96405950ad183711b9b423b1e52fe28be6387a3d889",
+        "waves/RW-51/ARM-ELF-ABI-CONTRACT.md": "bd660f4b47f24003237466f9dd7a929aff8f8431bb222c3fb96bba7df62fdc7d"
+      },
+      "limitations": "Source review only; immutable initial and final snapshots differ. Final CPU test has a separately reviewed type-only supplement. No native qualification or whole-card acceptance."
     }
   ]
 }

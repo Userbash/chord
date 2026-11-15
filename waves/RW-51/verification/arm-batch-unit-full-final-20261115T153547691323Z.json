@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "--test-reporter=tap",
+    "tests/unit/**/*.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/arm-batch/unit-full-final-20261115T153547691323Z.log"
+}
