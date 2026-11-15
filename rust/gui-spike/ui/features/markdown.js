@@ -33,8 +33,11 @@
 /** @typedef {{ type: "channel_mention", id: string, label: string }} ChannelMentionToken */
 /** @typedef {{ type: "role_mention", id: string, label: string }} RoleMentionToken */
 /** @typedef {{ type: "everyone" | "here", label: string }} BroadcastToken */
+/** @typedef {import("./emojis.js").CustomEmojiToken} CustomEmojiToken */
+/** @typedef {import("./emojis.js").UnicodeEmojiToken} UnicodeEmojiToken */
+/** @typedef {import("./emojis.js").EmojiToken} EmojiToken */
 /**
- * @typedef {TextToken | CodeToken | MarkToken | LinkToken | UserMentionToken | ChannelMentionToken | RoleMentionToken | BroadcastToken} InlineToken
+ * @typedef {TextToken | CodeToken | MarkToken | LinkToken | UserMentionToken | ChannelMentionToken | RoleMentionToken | BroadcastToken | CustomEmojiToken | UnicodeEmojiToken} InlineToken
  */
 /** @typedef {InlineToken | CodeBlockToken | QuoteToken} Token */
 
@@ -53,18 +56,49 @@ import {
   toMentionRecord,
 } from "./mentions.js";
 
+import {
+  CUSTOM_EMOJI_RE,
+  DISCORD_EMOJI_CDN_BASE,
+  DISCORD_SHORTCODE_EMOJIS,
+  MAX_EMOJI_ID,
+  MAX_EMOJI_NAME,
+  MIN_EMOJI_NAME,
+  SHORTCODE_EMOJI_RE,
+  buildCustomEmojiUrl,
+  createEmojiElement,
+  extractEmojis,
+  readCustomEmoji,
+  readEmoji,
+  readShortcodeEmoji,
+  replaceEmojiShortcodes,
+} from "./emojis.js";
+
 export {
   BROADCAST_RE,
+  CUSTOM_EMOJI_RE,
   DEFAULT_MENTION_FALLBACKS,
+  DISCORD_EMOJI_CDN_BASE,
+  DISCORD_SHORTCODE_EMOJIS,
+  MAX_EMOJI_ID,
+  MAX_EMOJI_NAME,
   MAX_MENTION_ID,
   MENTION_RE,
+  MIN_EMOJI_NAME,
+  SHORTCODE_EMOJI_RE,
+  buildCustomEmojiUrl,
+  createEmojiElement,
   createMentionElement,
+  extractEmojis,
   extractMentions,
   formatMentionLabel,
   normalizeMentionContext,
   readAnyMention,
   readBroadcast,
+  readCustomEmoji,
+  readEmoji,
   readMention,
+  readShortcodeEmoji,
+  replaceEmojiShortcodes,
   toMentionRecord,
 };
 
@@ -241,6 +275,15 @@ function parseInline(text, context, depth) {
         flush();
         tokens.push(mention.token);
         index = mention.end;
+        continue;
+      }
+    }
+    if (char === "<" || char === ":") {
+      const emoji = readEmoji(text, index);
+      if (emoji) {
+        flush();
+        tokens.push(emoji.token);
+        index = emoji.end;
         continue;
       }
     }
@@ -468,6 +511,10 @@ function renderToken(doc, token, parent) {
     case "everyone":
     case "here":
       parent.append(createMentionElement(doc, token));
+      return;
+    case "custom_emoji":
+    case "unicode_emoji":
+      parent.append(createEmojiElement(doc, token));
       return;
   }
 }
