@@ -51,6 +51,7 @@ use chord_client::{
 };
 pub mod auth_plugin;
 pub mod gifts;
+pub mod net_plugin;
 pub mod settings_plugin;
 pub mod voice_plugin;
 use gifts::{
@@ -1349,18 +1350,12 @@ where
 
 #[tauri::command]
 async fn net_connect(net: tauri::State<'_, Arc<NetService>>) -> Result<String, String> {
-    let net = Arc::clone(net.inner());
-    blocking(move || {
-        net.connect()
-            .map(|status| status.to_string())
-            .map_err(|error| error.to_string())
-    })
-    .await?
+    net_plugin::net_connect(net).await
 }
 
 #[tauri::command]
 fn net_status(net: tauri::State<'_, Arc<NetService>>) -> String {
-    net.status().to_string()
+    net_plugin::net_status(net)
 }
 
 /// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
@@ -1461,13 +1456,7 @@ fn net_dispatch_stats(net: tauri::State<'_, Arc<NetService>>) -> DispatchStats {
 
 #[tauri::command]
 async fn net_disconnect(net: tauri::State<'_, Arc<NetService>>) -> Result<String, String> {
-    let net = Arc::clone(net.inner());
-    blocking(move || {
-        net.disconnect()
-            .map(|status| status.to_string())
-            .map_err(|error| error.to_string())
-    })
-    .await?
+    net_plugin::net_disconnect(net).await
 }
 
 // ---------------------------------------------------------------------------
@@ -1930,6 +1919,7 @@ fn main() {
     }
     tauri::Builder::default()
         .plugin(auth_plugin::init())
+        .plugin(net_plugin::init())
         .plugin(settings_plugin::init())
         .plugin(voice_plugin::init())
         .on_window_event(|window, event| match event {
