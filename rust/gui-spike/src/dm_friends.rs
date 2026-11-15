@@ -707,10 +707,100 @@ fn parse_user_obj(obj: &serde_json::Value) -> Option<ResolvedDmUser> {
     ResolvedDmUser::try_from(dto).ok()
 }
 
+/// Serde deserializer for an optional Discord `i64` field accepting numbers or numeric strings.
+fn deserialize_opt_etf_i64<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(i64_val(Some(&val)))
+}
+
+/// Serde deserializer for a Discord `u64` field accepting numbers or numeric strings, defaulting to `0`.
+fn deserialize_etf_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(u64_val(Some(&val)).unwrap_or(0))
+}
+
+/// Serde deserializer for a `nicks` map, filtering out null or `"nil"` sentinel values.
+fn deserialize_etf_nicks<'de, D>(deserializer: D) -> Result<BTreeMap<String, String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    let mut nicks = BTreeMap::new();
+    if let Some(obj) = val.as_object() {
+        for (uid, nick_val) in obj {
+            if let Some(nick_str) = opt_str(Some(nick_val)) {
+                nicks.insert(uid.clone(), nick_str);
+            }
+        }
+    }
+    Ok(nicks)
+}
+
+/// Serde deserializer for an optional JSON array, returning an empty `Vec` on `null` or non-array values.
+fn deserialize_opt_vec<'de, D>(deserializer: D) -> Result<Vec<serde_json::Value>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(val.as_array().cloned().unwrap_or_default())
+}
+
+/// Raw Serde DTO for deserializing a Discord private channel (DM or Group DM) payload.
+#[derive(Debug, Deserialize, Default)]
+#[serde(default)]
+struct RawPrivateChannelDto {
+    /// Channel snowflake ID (string or numeric in ETF).
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    id: Option<String>,
+    /// Numeric Discord channel type (`1` = DM, `3` = Group DM).
+    #[serde(rename = "type", deserialize_with = "deserialize_opt_etf_i64")]
+    channel_type: Option<i64>,
+    /// Channel bitflags (`1 << 1` = pinned).
+    #[serde(deserialize_with = "deserialize_etf_u64")]
+    flags: u64,
+    /// Optional snowflake ID of the last message.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    last_message_id: Option<String>,
+    /// Optional Group DM name.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    name: Option<String>,
+    /// Optional Group DM icon hash.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    icon: Option<String>,
+    /// Optional Group DM owner user ID.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    owner_id: Option<String>,
+    /// Whether the channel is flagged as a message request.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    is_message_request: bool,
+    /// Optional timestamp of the message request.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    is_message_request_timestamp: Option<String>,
+    /// Whether the channel is flagged as spam.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    is_spam: bool,
+    /// Per-recipient custom nicknames keyed by user ID.
+    #[serde(deserialize_with = "deserialize_etf_nicks")]
+    nicks: BTreeMap<String, String>,
+    /// Embedded recipient user objects or IDs.
+    #[serde(deserialize_with = "deserialize_opt_vec")]
+    recipients: Vec<serde_json::Value>,
+    /// Recipient user IDs when `recipients` is omitted.
+    #[serde(deserialize_with = "deserialize_opt_vec")]
+    recipient_ids: Vec<serde_json::Value>,
+}
+
 /// Parses a private channel object (DM or Group DM) from Gateway READY or REST API responses.
 ///
-/// Maps raw Discord channel types (`1` = DM, `3` = Group DM), parses recipient lists,
-/// and applies custom nicknames when available.
+/// Uses Serde deserialization via [`RawPrivateChannelDto`], maps raw Discord channel types
+/// (`1` = DM, `3` = Group DM), resolves recipient lists against `users_by_id`, and applies
+/// custom nicknames when available.
 ///
 /// # Arguments
 /// * `obj` - Raw JSON value of the channel payload.
@@ -722,36 +812,28 @@ fn parse_private_channel_obj(
     obj: &serde_json::Value,
     users_by_id: &BTreeMap<String, ResolvedDmUser>,
 ) -> Result<PrivateChannelRecord, DmFriendsError> {
-    let id = opt_str(obj.get("id")).ok_or(DmFriendsError::InvalidResponse)?;
-    let raw_type = i64_val(obj.get("type")).unwrap_or(CHANNEL_TYPE_DM);
-    let channel_type = PrivateChannelType::from_i64(raw_type);
-    let flags = u64_val(obj.get("flags")).unwrap_or(0);
-    let last_message_id = opt_str(obj.get("last_message_id"));
-    let name = opt_str(obj.get("name"));
-    let icon = opt_str(obj.get("icon"));
-    let owner_id = opt_str(obj.get("owner_id"));
-    let is_message_request = bool_val(obj.get("is_message_request"));
-    let is_message_request_timestamp = opt_str(obj.get("is_message_request_timestamp"));
-    let is_spam = bool_val(obj.get("is_spam"));
-
-    let mut nicks = BTreeMap::new();
-    if let Some(nicks_obj) = obj.get("nicks").and_then(serde_json::Value::as_object) {
-        for (uid, nick_val) in nicks_obj {
-            if let Some(nick_str) = opt_str(Some(nick_val)) {
-                nicks.insert(uid.clone(), nick_str);
-            }
-        }
-    }
+    let dto = RawPrivateChannelDto::deserialize(obj).map_err(|_| DmFriendsError::InvalidResponse)?;
+    let id = dto.id.ok_or(DmFriendsError::InvalidResponse)?;
+    let channel_type = PrivateChannelType::from_i64(dto.channel_type.unwrap_or(CHANNEL_TYPE_DM));
 
     let mut recipient_ids = Vec::new();
     let mut recipients = Vec::new();
 
-    if let Some(rec_objs) = obj.get("recipients").and_then(serde_json::Value::as_array) {
-        for rec_val in rec_objs {
-            if let Some(user) = parse_user_obj(rec_val) {
-                recipient_ids.push(user.id.clone());
-                recipients.push(user);
-            } else if let Some(uid) = opt_str(Some(rec_val)) {
+    for rec_val in &dto.recipients {
+        if let Some(user) = parse_user_obj(rec_val) {
+            recipient_ids.push(user.id.clone());
+            recipients.push(user);
+        } else if let Some(uid) = opt_str(Some(rec_val)) {
+            if let Some(user) = users_by_id.get(&uid) {
+                recipients.push(user.clone());
+            }
+            recipient_ids.push(uid);
+        }
+    }
+
+    if recipient_ids.is_empty() {
+        for uid_val in &dto.recipient_ids {
+            if let Some(uid) = opt_str(Some(uid_val)) {
                 if let Some(user) = users_by_id.get(&uid) {
                     recipients.push(user.clone());
                 }
@@ -760,36 +842,20 @@ fn parse_private_channel_obj(
         }
     }
 
-    if let Some(id_list) = obj
-        .get("recipient_ids")
-        .and_then(serde_json::Value::as_array)
-    {
-        if recipient_ids.is_empty() {
-            for uid_val in id_list {
-                if let Some(uid) = opt_str(Some(uid_val)) {
-                    if let Some(user) = users_by_id.get(&uid) {
-                        recipients.push(user.clone());
-                    }
-                    recipient_ids.push(uid);
-                }
-            }
-        }
-    }
-
     Ok(PrivateChannelRecord {
         id,
         channel_type,
-        flags,
-        last_message_id,
+        flags: dto.flags,
+        last_message_id: dto.last_message_id,
         recipient_ids,
         recipients,
-        name,
-        icon,
-        owner_id,
-        nicks,
-        is_message_request,
-        is_message_request_timestamp,
-        is_spam,
+        name: dto.name,
+        icon: dto.icon,
+        owner_id: dto.owner_id,
+        nicks: dto.nicks,
+        is_message_request: dto.is_message_request,
+        is_message_request_timestamp: dto.is_message_request_timestamp,
+        is_spam: dto.is_spam,
     })
 }
 

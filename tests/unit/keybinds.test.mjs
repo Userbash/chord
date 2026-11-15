@@ -131,6 +131,7 @@ describe("handleKeybind (TAURI-BOOT-01)", () => {
     let qsLayerOpened = false;
     const appBridge = {
       shellBridge: {
+        /** @param {string} layerId */
         openLayer(layerId) {
           if (layerId === "quick-switcher") qsLayerOpened = true;
         },
@@ -153,6 +154,7 @@ describe("handleKeybind (TAURI-BOOT-01)", () => {
     let searchLayerOpened = false;
     const appBridge = {
       shellBridge: {
+        /** @param {string} layerId */
         openLayer(layerId) {
           if (layerId === "search-panel") searchLayerOpened = true;
         },
@@ -187,7 +189,7 @@ describe("handleKeybind (TAURI-BOOT-01)", () => {
   it("обрабатывает кастомные горячие клавиши, зарегистрированные в app", () => {
     let customExecuted = false;
     const customKeybinds = new Map();
-    customKeybinds.set("Ctrl+P", (appContext, combo) => {
+    customKeybinds.set("Ctrl+P", (/** @type {any} */ _appContext, /** @type {string} */ combo) => {
       assert.equal(combo, "Ctrl+P");
       customExecuted = true;
     });
@@ -223,14 +225,17 @@ describe("initKeybinds (TAURI-BOOT-01)", () => {
     const listeners = {};
     return {
       listeners,
+      /** @param {string} type @param {(event: any) => void} fn */
       addEventListener(type, fn) {
         listeners[type] = listeners[type] || [];
         listeners[type].push(fn);
       },
+      /** @param {string} type @param {(event: any) => void} fn */
       removeEventListener(type, fn) {
         if (!listeners[type]) return;
         listeners[type] = listeners[type].filter((cb) => cb !== fn);
       },
+      /** @param {string} type @param {any} event */
       dispatch(type, event) {
         for (const fn of listeners[type] || []) {
           fn(event);
