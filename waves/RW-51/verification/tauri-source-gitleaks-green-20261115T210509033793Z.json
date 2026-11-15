@@ -1,0 +1,6 @@
+{
+  "version": "8.30.1",
+  "exit_code": 0,
+  "report": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/security/gitleaks-20261115T210509033793Z.json",
+  "findings": []
+}

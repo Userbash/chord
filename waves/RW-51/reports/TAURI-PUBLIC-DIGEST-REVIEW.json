@@ -1,0 +1,84 @@
+{
+  "reviewer": "/root/arm_review",
+  "reviewed_at_utc": "2026-11-15T21:06:04.789356+00:00",
+  "scope": "Exactly two additional Gitleaks fingerprints for duplicate public source SHA256 values in immutable archived CI review",
+  "verdict": "approve_exact_two_fingerprint_follow_up",
+  "findings": [],
+  "source_commit": "fcf9b61b56eab752d9eb0304d12a8b77d6f59ad5",
+  "independent_checks": {
+    "prior_five_entries_retained_exactly": true,
+    "total_exact_fingerprints": 7,
+    "new_fingerprints": 2,
+    "no_wildcards_path_wide_or_rule_wide_exclusions": true,
+    "archived_review_byte_identical_to_frozen_original_and_immutable_commit": true,
+    "verification_record_agrees_with_recomputed_source_bytes_and_archive_lines": true
+  },
+  "public_digest_checks": [
+    {
+      "path": "rust/gui-spike/ui/features/token-map.js",
+      "sha256": "269a8a95a6c24a27afda19e30b4342de4a052cc6833cc4b55496ca1635504a0e",
+      "fingerprint": "fcf9b61b56eab752d9eb0304d12a8b77d6f59ad5:waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__independent-review.json:generic-api-key:95",
+      "archive_line": 95,
+      "current_bytes_equal_immutable_source_commit": true
+    },
+    {
+      "path": "rust/gui-spike/ui/tokens.css",
+      "sha256": "24e94411e2ccc173f3a69ec1571d61e7fcc0fbf2261185296f740e6ddccfc485",
+      "fingerprint": "fcf9b61b56eab752d9eb0304d12a8b77d6f59ad5:waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__independent-review.json:generic-api-key:96",
+      "archive_line": 96,
+      "current_bytes_equal_immutable_source_commit": true
+    }
+  ],
+  "author_scanner_evidence_inspected": {
+    "version": "8.30.1",
+    "red_exit_code": 1,
+    "red_exact_findings": 2,
+    "green_exit_code": 0,
+    "green_findings": 0,
+    "scanned_commits": 9,
+    "scope_commit_count_independently_matches": "4653bdec519bec8cd6719e92d9736e5299c38468..fcf9b61b56eab752d9eb0304d12a8b77d6f59ad5"
+  },
+  "files": [
+    {
+      "path": "/root/projects/chord-modernization/.gitleaksignore",
+      "sha256": "56a44c098acfb8ab042bc4d891e65857ae3eb01f36e6a441d4bfd70e1cbf1a55"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/security/duplicate-public-digest-verification.json",
+      "sha256": "c12d73fd6ff70662a3d06ba0bc6ea6cf7ca9babdc1d269301b9f40141ecdf1e5"
+    },
+    {
+      "path": "/root/projects/chord-modernization/waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__independent-review.json",
+      "sha256": "4896fd1527dfa5a39cf11375e759e5025d789a8353fe4e3db3ebd436e7091864"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/review/independent-review.json",
+      "sha256": "4896fd1527dfa5a39cf11375e759e5025d789a8353fe4e3db3ebd436e7091864"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/security/summary-20261115T210444284140Z.json",
+      "sha256": "ba1f3c1ee4e37c69b0cff14260e462b12f6b061dda0499c1428d4f544f425a38"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/security/gitleaks-20261115T210444284140Z.json",
+      "sha256": "889b1add8b387612e359e5a579a5b434dae7edee493bb4427537067c92db7efa"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/security/summary-20261115T210509033793Z.json",
+      "sha256": "e815c35d5db90e4c4d40234a4febdaf15e570beccab4d22ccce5fe97f3b09b21"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/security/gitleaks-20261115T210509033793Z.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "/root/projects/chord-modernization-verification/tauri-cross-platform/ci/security/gitleaks-20261115T210509033793Z.log",
+      "sha256": "70311767efc6d36b6afdd47b828a1b5456e119c09202af8a9f8130f310bdd28a"
+    }
+  ],
+  "limits": [
+    "Read-only source/git/hash review; only this external JSON report written",
+    "Scanner executions belong to coordinator; reviewer inspected raw reports/log rather than rerunning",
+    "Approval covers exact two fingerprints only; no broader security or native-runtime qualification"
+  ]
+}

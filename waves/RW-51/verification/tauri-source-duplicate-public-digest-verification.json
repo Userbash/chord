@@ -1,0 +1,19 @@
+{
+  "findings_verified": 2,
+  "original_report_retained_unchanged": true,
+  "scope": "Exact fingerprints only, each digest recomputed from the public source bytes",
+  "verifications": [
+    {
+      "fingerprint": "fcf9b61b56eab752d9eb0304d12a8b77d6f59ad5:waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__independent-review.json:generic-api-key:95",
+      "line": 95,
+      "public_source": "rust/gui-spike/ui/features/token-map.js",
+      "public_digest": "269a8a95a6c24a27afda19e30b4342de4a052cc6833cc4b55496ca1635504a0e"
+    },
+    {
+      "fingerprint": "fcf9b61b56eab752d9eb0304d12a8b77d6f59ad5:waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__independent-review.json:generic-api-key:96",
+      "line": 96,
+      "public_source": "rust/gui-spike/ui/tokens.css",
+      "public_digest": "24e94411e2ccc173f3a69ec1571d61e7fcc0fbf2261185296f740e6ddccfc485"
+    }
+  ]
+}

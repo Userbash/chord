@@ -82,12 +82,12 @@
   "independent_review": "reports/TAURI-CI-INDEPENDENT-REVIEW.json",
   "source_audit": "reports/TAURI-PLATFORM-AUDIT.json",
   "gitleaks_false_positives": {
-    "scope": "Five exact immutable public-source/library-pattern fingerprints, no broad exclusion",
+    "scope": "Seven exact immutable public-source/library-pattern fingerprints, including two duplicate archived public digests; no broad exclusion",
     "files": [
       "rust/gui-spike/ui/features/token-map.js",
       "rust/gui-spike/ui/tokens.css"
     ],
-    "native_scanner_rerun": "Local actual baseline-to-HEAD scanner passed with exact exceptions; new commit scan follows staging"
+    "native_scanner_rerun": "Actual Gitleaks8.30.1 baseline-to-fcf9b61b scan: exit0, zero findings with independently verified exact7exceptions; source follow-up scan runs before push"
   },
   "all_six_targets_compiled": false,
   "all_native_features_qualified": false,
@@ -139,7 +139,7 @@
     },
     {
       "path": ".gitleaksignore",
-      "sha256": "e5a51676edcc7116b933d8c334ba8d37a9852f6d1768b648b2a17bc5bc2da67d"
+      "sha256": "56a44c098acfb8ab042bc4d891e65857ae3eb01f36e6a441d4bfd70e1cbf1a55"
     },
     {
       "path": "rust/Cargo.lock",
@@ -307,7 +307,8 @@
     "waves/RW-51/reports/TAURI-ENTROPY-INDEPENDENT-REVIEW.json",
     "waves/RW-51/reports/TAURI-CI-FINAL-REVIEW.json",
     "waves/RW-51/reports/TAURI-SBOM-INDEPENDENT-REVIEW.json",
-    "waves/RW-51/reports/TAURI-HELPER-TYPES-REVIEW.json"
+    "waves/RW-51/reports/TAURI-HELPER-TYPES-REVIEW.json",
+    "waves/RW-51/reports/TAURI-PUBLIC-DIGEST-REVIEW.json"
   ],
   "source_boundaries": {
     "windows_source_errors_before": 72,

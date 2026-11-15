@@ -5,3 +5,7 @@ ed130d722102b6043644111dad9fe6dd946a8145:waves/RW-51/verification/theme-oracle-i
 3c4be0c2787856df38e6da8703cb3461b82c0470:tests/meta/tauri-native-ci-contract.test.mjs:generic-api-key:37
 3c4be0c2787856df38e6da8703cb3461b82c0470:waves/RW-51/reports/TAURI-CI-INDEPENDENT-REVIEW.json:generic-api-key:95
 3c4be0c2787856df38e6da8703cb3461b82c0470:waves/RW-51/reports/TAURI-CI-INDEPENDENT-REVIEW.json:generic-api-key:96
+
+# Repeated public-source SHA256 values in the immutable archived CI review.
+fcf9b61b56eab752d9eb0304d12a8b77d6f59ad5:waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__independent-review.json:generic-api-key:95
+fcf9b61b56eab752d9eb0304d12a8b77d6f59ad5:waves/RW-51/verification/tauri-source-tauri-cross-platform__ci__review__independent-review.json:generic-api-key:96
