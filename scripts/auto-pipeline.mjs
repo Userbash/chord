@@ -270,6 +270,7 @@ export function dispatchNextTask() {
 
   console.log(`🎯 Next task found: ${nextTask.taskId} (${nextTask.worker}) - ${nextTask.title || nextTask.scope}`);
 
+  const sanitizedTaskText = (nextTask.annotation || nextTask.title || nextTask.scope).replace(/[`"'\\]/g, '');
   const bridgeCmd = [
     'bash',
     'scripts/ecc-orca-bridge.sh',
@@ -280,7 +281,7 @@ export function dispatchNextTask() {
     '--effort',
     `"${nextTask.effort || 'medium'}"`,
     '--task',
-    `"Implement ${nextTask.taskId}: ${nextTask.annotation || nextTask.title || nextTask.scope}. Strictly follow AGENTS.md conventions with English code and documentation."`,
+    `"Implement ${nextTask.taskId}: ${sanitizedTaskText}. Strictly follow AGENTS.md conventions with English code and documentation."`,
   ].join(' ');
 
   console.log(`▶ Executing: ${bridgeCmd}`);
