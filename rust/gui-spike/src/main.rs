@@ -51,6 +51,7 @@ use chord_client::{
 };
 pub mod auth_plugin;
 pub mod gifts;
+pub mod media_plugin;
 pub mod net_plugin;
 pub mod settings_plugin;
 pub mod voice_plugin;
@@ -1919,6 +1920,7 @@ fn main() {
     }
     tauri::Builder::default()
         .plugin(auth_plugin::init())
+        .plugin(media_plugin::init())
         .plugin(net_plugin::init())
         .plugin(settings_plugin::init())
         .plugin(voice_plugin::init())
