@@ -1,11 +1,9 @@
-//! P0-01: спайк UI-оболочки Tauri.
+//! Tauri desktop UI shell and IPC dispatcher (`chord-client`).
 //!
-//! Минимальное окно + IPC-команды для честного замера памяти процесса и
-//! проверяемого UI-снимка. Сети нет; BFF фазы 3 читает только локальные
-//! `fixtures/` (`DL_FIXTURES`, по умолчанию — `fixtures/` репозитория).
-//! Чистая логика вынесена в `chord_client::lib`/`chord_client::data`
-//! и покрыта `tests/ipc_contract.rs` + `tests/data_contract.rs`, живой запуск —
-//! `tests/launch.rs`.
+//! Provides the desktop window lifecycle, system tray integration, and Tauri v2
+//! IPC commands for both offline fixture inspection and live Discord gateway/REST sessions.
+//! Pure logic is encapsulated in `chord_client::lib`/`chord_client::data` and covered by
+//! comprehensive integration suites (`tests/*_contract.rs`). Live binary launch is verified in `tests/launch.rs`.
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![forbid(unsafe_code)]
@@ -72,11 +70,11 @@ use std::sync::Arc;
 use tauri::{Emitter, Manager};
 
 // ---------------------------------------------------------------------------
-// RW-40/L-02: dispatch → UI. Эмиттер вызывается на потоке `gateway-dispatch`
-// (очередь `DispatchChannel`), поэтому окно/UI не блокируют шлюз. В событие
-// уходит только конверт `{kind, data}`: токены и session-возможности READY
-// вырезаны в `net::map_dispatch`. Ошибка эмита возвращается наверх и попадает
-// в счётчики `net_dispatch_stats`, а не в лог (payload не печатается).
+// RW-40/L-02: dispatch -> UI event emission.
+// Emits gateway dispatch events from a background thread (`DispatchChannel`),
+// ensuring the window and UI rendering thread are never blocked by gateway ingress.
+// Only the `{kind, data}` envelope is sent; tokens and sensitive credentials are
+// scrubbed in `net::map_dispatch`. Emission errors increment `net_dispatch_stats`.
 // ---------------------------------------------------------------------------
 
 struct TauriDispatchEmitter(tauri::AppHandle);
@@ -89,6 +87,7 @@ impl DispatchEmitter for TauriDispatchEmitter {
     }
 }
 
+/// Gathers process memory and thread metrics from `/proc/self/status`.
 #[tauri::command]
 async fn process_metrics() -> Result<ProcessMetrics, String> {
     blocking(|| {
@@ -99,6 +98,7 @@ async fn process_metrics() -> Result<ProcessMetrics, String> {
     .await?
 }
 
+/// Returns spike runtime configuration flags (e.g. autobench status).
 #[tauri::command]
 fn spike_config() -> serde_json::Value {
     serde_json::json!({
@@ -106,9 +106,8 @@ fn spike_config() -> serde_json::Value {
     })
 }
 
-/// Печатает результат автозамера в stdout — харнесс читает его из app.log.
-/// Payload валидируется как JSON с объектами chat/members: иначе перевод строки
-/// внутри строки подделал бы маркер `BENCH`/`UI_SNAPSHOT` в логе.
+/// Prints benchmark measurements to stdout for test harness log ingestion.
+/// Validates that payload contains valid chat/members objects to prevent log injection.
 #[tauri::command]
 fn report_bench(payload: String) -> Result<(), String> {
     let value = validate_bench_payload(&payload)?;
@@ -116,6 +115,7 @@ fn report_bench(payload: String) -> Result<(), String> {
     Ok(())
 }
 
+/// Validates and records a UI DOM snapshot metric for regression testing.
 #[tauri::command]
 fn report_ui_snapshot(payload: String) -> Result<(), String> {
     match validate_ui_snapshot(&payload) {
@@ -131,12 +131,12 @@ fn report_ui_snapshot(payload: String) -> Result<(), String> {
 }
 
 // ---------------------------------------------------------------------------
-// BFF фазы 3 (W39e): только локальные `fixtures/`, без сети.
-// Корень — `DL_FIXTURES` или `fixtures/` репозитория; ошибки типизированы
-// `DataError` и уходят во фронтенд как `{kind, message, path?/resource?}`.
+// BFF Phase 3 (W39e): local `fixtures/` inspection without network.
+// Root is configured via `DL_FIXTURES` or falls back to repository `fixtures/`.
+// Errors are typed via `DataError` and serialized as `{kind, message, path?/resource?}`.
 // ---------------------------------------------------------------------------
 
-/// READY: пользователь, гильдии и счётчики первого экрана.
+/// READY: initial user profile, guilds list, and first-screen counters.
 #[tauri::command]
 async fn ready() -> Result<ReadyPayload, DataError> {
     blocking(|| {
@@ -147,8 +147,7 @@ async fn ready() -> Result<ReadyPayload, DataError> {
     .map_err(DataError::invalid_arg)?
 }
 
-/// Записи `READY.read_state`: `lastViewed` (курсор ack), `flags`,
-/// `mentionCount`. Локальная READY-проекция: токен не читается и не логируется.
+/// Channel read states from `READY.read_state`: `lastViewed` cursor, `flags`, `mentionCount`.
 #[tauri::command]
 async fn read_state() -> Result<Vec<ReadStateEntry>, DataError> {
     blocking(|| {
@@ -159,8 +158,7 @@ async fn read_state() -> Result<Vec<ReadStateEntry>, DataError> {
     .map_err(DataError::invalid_arg)?
 }
 
-/// Дерево каналов из READY: `guildId` — необязательный фильтр, `None` — все
-/// каналы и ЛС. Локальная проекция: токен не читается и не логируется.
+/// Channel hierarchy tree from READY: `guild_id` is an optional filter (`None` returns all channels and DMs).
 #[tauri::command]
 async fn channels(guild_id: Option<String>) -> Result<Vec<ChannelRow>, DataError> {
     blocking(move || {
@@ -171,10 +169,8 @@ async fn channels(guild_id: Option<String>) -> Result<Vec<ChannelRow>, DataError
     .map_err(DataError::invalid_arg)?
 }
 
-/// Страница сообщений канала. `cursor` — forward (id последней строки
-/// предыдущей страницы), `before` — older (id первой строки окна: вернуть
-/// строки старше), `position` — `"start"` (по умолчанию) или `"latest"`.
-/// Курсоры взаимоисключающие; семантика — в `data::messages_page_request`.
+/// Channel messages pagination window. `cursor` is forward (last row ID of previous page),
+/// `before` is older (first row ID of current window), `position` is `"start"` or `"latest"`.
 #[tauri::command]
 async fn messages_page(
     channel_id: String,
@@ -201,7 +197,7 @@ async fn messages_page(
     .map_err(DataError::invalid_arg)?
 }
 
-/// Страница участников гильдии; онлайн-участники идут первыми.
+/// Paginated list of guild members; online members ordered first.
 #[tauri::command]
 async fn members_page(
     guild_id: String,
@@ -216,7 +212,7 @@ async fn members_page(
     .map_err(DataError::invalid_arg)?
 }
 
-/// Настройки из READY: все секции или одна по `section`.
+/// User settings from READY: all sections or single section by `section`.
 #[tauri::command]
 async fn settings(section: Option<String>) -> Result<SettingsPayload, DataError> {
     blocking(move || {
@@ -231,11 +227,7 @@ async fn settings(section: Option<String>) -> Result<SettingsPayload, DataError>
 ///
 /// Канонический `data::SearchFilters` десериализуется сам (`#[derive(Deserialize)]`,
 /// `rename_all = "camelCase"`, отсутствующие ключи — `None`), поэтому зеркала в
-/// слое команд нет: обрезка строк, проверка длин/даты и семантика фильтров
-/// остаются в `data.rs`.
-///
-/// Страница поиска по фикстурам: 7 фильтров R-10, `cursor` — id последнего
-/// результата предыдущей страницы.
+/// Local fixture message search page with 7 filters and forward pagination cursor.
 #[tauri::command]
 fn search_page(
     query: String,
@@ -248,16 +240,11 @@ fn search_page(
     data::search_page(&root, &query, &filters, cursor.as_deref(), limit)
 }
 
-/// Единственная точка чтения токена для сетевых команд (G1-02).
+/// Unified token resolution helper for authenticated network commands (G1-02).
 ///
-/// `spawn_blocking` и оба отказа (незавершившийся blocking-вызов и ошибка
-/// keyring) сведены сюда, поэтому новая команда не копирует этот блок.
-/// Коды не унифицируются — их задаёт домен: `storage` (SEC-02) для keyring/
-/// blocking (отказ хранилища не выдаётся за сеть), `missing` для «токена нет»
-/// (`Unauthorized` у сообщений/реакций, `MissingToken` у поиска/guild-команд).
-/// Причина keyring в доменную ошибку не копируется: наружу уходит только
-/// типизированный `kind`, поэтому токен и текст ошибки хранилища не логируются
-/// и не попадают в `Debug`/`Display`.
+/// Loads token from Keyring or live session fallback. Returns typed domain errors
+/// (`storage` on Keyring/blocking failure, `missing` if unauthorized) without leaking
+/// secret token strings into logs or `Display` representations.
 async fn token_or<E, F>(load: F, storage: fn() -> E, missing: fn() -> E) -> Result<String, E>
 where
     F: FnOnce() -> Result<Option<String>, AuthError> + Send + 'static,
@@ -278,7 +265,7 @@ where
         .ok_or_else(missing)
 }
 
-/// Серверный поиск сообщений гильдии; токен читается исключительно из backend/keyring.
+/// Remote full-text search across guild messages via REST v9 API.
 #[tauri::command]
 async fn search_remote(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -296,7 +283,7 @@ async fn search_remote(
     search.search(&guild_id, &params.unwrap_or_default()).await
 }
 
-/// Отправка сообщения: токен читается исключительно из backend/keyring.
+/// Sends a new message to a channel with optional pre-uploaded attachment metadata.
 #[tauri::command]
 async fn send_message(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -376,9 +363,9 @@ async fn reply_message(
 }
 
 // ---------------------------------------------------------------------------
-// RW-40/M-07: read state / ack. Bearer — только из backend/keyring; `token`
-// в аргументах команды — nullable read-state токен тела (`{token,last_viewed}`),
-// не auth. Ничего не логируется.
+// RW-40/M-07: read state / ack. Bearer is read strictly from backend/keyring;
+// `token` in command arguments is an optional read-state token in the payload
+// (`{token, last_viewed}`), not the authorization token. Nothing sensitive is logged.
 // ---------------------------------------------------------------------------
 
 #[tauri::command]
@@ -401,13 +388,12 @@ async fn ack_message(
 }
 
 // ---------------------------------------------------------------------------
-// RW-40/G-03a: вход в сервер из preview/lurker. Токен — только из backend/keyring
-// (никогда из аргументов фронтенда) и не попадает в логи/ошибки.
-// Q-01: одна операция — одна IPC-команда `join_guild` (UI-глагол). Второго
-// Tauri-command'а нет; `guilds::enter_guild` — модульный alias той же операции.
+// RW-40/G-03a: Join guild from preview/lurker mode. Token is retrieved solely
+// from backend/keyring (never from frontend arguments) and never leaked to logs.
+// Q-01: Single IPC command `join_guild` (UI action verb).
 // ---------------------------------------------------------------------------
 
-/// Войти в сервер из preview: `PUT /guilds/{id}/members/@me?lurker=true`, тело `{}`.
+/// Joins a guild from preview mode: `PUT /guilds/{id}/members/@me?lurker=true`, body `{}`.
 #[tauri::command]
 async fn join_guild(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -424,7 +410,7 @@ async fn join_guild(
     guilds::join_guild(&api, &guild_id).await
 }
 
-/// Подтверждение согласия с правилами сервера (Rules Screening / Member Verification Gate):
+/// Server Rules Screening / Member Verification Gate:
 /// `GET /guilds/{id}/member-verification` -> `PUT /guilds/{id}/requests/@me`.
 #[tauri::command]
 async fn confirm_member_rules(
@@ -434,12 +420,12 @@ async fn confirm_member_rules(
 ) -> Result<serde_json::Value, String> {
     let gid = guild_id
         .or(guildId)
-        .ok_or_else(|| "Отсутствует guildId".to_string())?;
+        .ok_or_else(|| "Missing guildId parameter".to_string())?;
     let backend = Arc::clone(backend.inner());
     let token = token_or::<String, _>(
         move || backend.token(),
-        || "Ошибка хранилища токена".to_string(),
-        || "Токен не найден".to_string(),
+        || "Token storage error".to_string(),
+        || "Token not found".to_string(),
     )
     .await?;
 
@@ -451,7 +437,7 @@ async fn confirm_member_rules(
         &identity.locale,
         &identity.timezone,
     )
-    .map_err(|e| format!("Ошибка авторизации: {e}"))?;
+    .map_err(|e| format!("Authorization error: {e}"))?;
 
     let client = chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
         base: chord_core::API_V9_BASE.to_string(),
@@ -459,9 +445,9 @@ async fn confirm_member_rules(
         http: chord_core::rest::transport::HttpClientConfig::default(),
         retry: chord_core::rest::client::ApiRetryPolicy::default(),
     })
-    .map_err(|e| format!("Ошибка клиента API: {e}"))?;
+    .map_err(|e| format!("API client creation error: {e}"))?;
 
-    // 1. Быстрая проверка: возможно, пользователь уже является полноправным участником сервера
+    // 1. Fast path: check if user is already a verified member with roles or pending=false
     let me_path = format!("/guilds/{gid}/members/@me");
     if let Ok(me_resp) = client.get(&me_path).await {
         if (200..300).contains(&me_resp.status) {
@@ -492,7 +478,7 @@ async fn confirm_member_rules(
         }
     }
 
-    // 2. Получение формы верификации GET /guilds/{gid}/member-verification
+    // 2. Fetch verification form: GET /guilds/{gid}/member-verification
     let ver_path = format!("/guilds/{gid}/member-verification");
     let ver_res = client.get(&ver_path).await;
 
@@ -540,9 +526,9 @@ async fn confirm_member_rules(
         Ok(_) => serde_json::json!({ "version": serde_json::Value::Null, "form_fields": [] }),
     };
 
-    // 3. Отправка подтверждения правил PUT /guilds/{gid}/requests/@me
+    // 3. Submit rule acceptance: PUT /guilds/{gid}/requests/@me
     let body_bytes =
-        serde_json::to_vec(&accept_body).map_err(|e| format!("Ошибка сериализации формы: {e}"))?;
+        serde_json::to_vec(&accept_body).map_err(|e| format!("Form serialization error: {e}"))?;
 
     let req_path = format!("/guilds/{gid}/requests/@me");
     let put_res = client.put(&req_path, &body_bytes).await;
@@ -576,7 +562,7 @@ async fn confirm_member_rules(
                 }))
             } else {
                 Err(format!(
-                    "Сервер отклонил подтверждение правил (HTTP {}): {err_text}",
+                    "Server rejected rules confirmation (HTTP {}): {err_text}",
                     put_resp.status
                 ))
             }
@@ -597,7 +583,6 @@ async fn confirm_member_rules(
         }
         Err(e) => {
             println!("[GUILD-VERIFY] confirm_member_rules put error: {e}");
-            // При ошибке проверяем членство ещё раз
             crate::data::mark_live_guild_verified(&gid);
             Ok(serde_json::json!({
                 "ok": true,
@@ -608,7 +593,7 @@ async fn confirm_member_rules(
     }
 }
 
-/// Создать новый сервер: `POST /guilds` (STUB-03).
+/// Creates a new guild: `POST /guilds` (STUB-03).
 #[tauri::command]
 async fn create_guild(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -633,10 +618,9 @@ async fn create_guild(
     guilds::create_guild(&api, payload).await
 }
 
-/// Выйти с сервера: `DELETE /users/@me/guilds/{id}` с телом `{lurking}`.
+/// Leaves a guild: `DELETE /users/@me/guilds/{id}` with `{lurking}` body.
 ///
-/// `lurking` — явный bool от caller'а (UI: `isLurking || isGuest`); команда его не
-/// вычисляет. Ответ не читается: успех — 2xx.
+/// `lurking` is an explicit boolean from caller (`isLurking || isGuest`).
 #[tauri::command]
 async fn leave_guild(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -654,7 +638,7 @@ async fn leave_guild(
     guilds::leave_guild(&api, &guild_id, lurking).await
 }
 
-/// Поставить или снять реакцию; токен читается исключительно из backend/keyring.
+/// Toggles a message reaction; token is loaded securely from backend/keyring.
 #[tauri::command]
 async fn toggle_reaction(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -674,7 +658,7 @@ async fn toggle_reaction(
     send_reaction(&api, &channel_id, &message_id, &emoji, active).await
 }
 
-/// Поставить реакцию (алиас для toggle_reaction с active=true).
+/// Adds a reaction (alias for `toggle_reaction` with `active = true`).
 #[tauri::command]
 async fn add_reaction(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -686,12 +670,13 @@ async fn add_reaction(
 }
 
 // ---------------------------------------------------------------------------
-// RW-40/P-03 (D-108): исходящий typing. POST без тела, успех 200; ответ —
-// опциональные кулдауны slowmode, пустое тело допустимо. TTL/троттлинг делает
-// UI, не backend. Bearer — только из backend/keyring, ничего не логируется.
+// RW-40/P-03 (D-108): Outgoing typing indicator.
+// POST request with empty body, success HTTP 200. Response contains optional
+// slowmode cooldowns. Throttling and TTL are handled by the UI layer.
+// Bearer is strictly from backend/keyring, no tokens are leaked to logs.
 // ---------------------------------------------------------------------------
 
-/// Сообщить серверу, что пользователь печатает; `None` — кулдаунов в ответе нет.
+/// Notifies the server that the local user is typing; returns optional slowmode cooldowns.
 #[tauri::command]
 async fn send_typing(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -709,12 +694,13 @@ async fn send_typing(
 }
 
 // ---------------------------------------------------------------------------
-// RW-40/G-03: вход по приглашению. Bearer — только из backend/keyring (никогда из
-// аргументов фронтенда) и не попадает в логи/ошибки. resolve — GET с
-// with_counts/with_expiration; accept — POST с тремя nullable-полями тела.
+// RW-40/G-03: Invite resolution and acceptance.
+// Bearer is strictly from backend/keyring and never leaked into errors/logs.
+// `resolve` performs GET with with_counts/with_expiration.
+// `accept` performs POST with nullable session / captcha tracking fields.
 // ---------------------------------------------------------------------------
 
-/// Превью приглашения: `GET /invites/{code}?with_counts=true&with_expiration=true`.
+/// Resolves invite preview: `GET /invites/{code}?with_counts=true&with_expiration=true`.
 #[tauri::command]
 async fn resolve_invite(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -734,10 +720,9 @@ async fn resolve_invite(
     invites_plugin::resolve_invite_with_api(api, code).await
 }
 
-/// Вступить по приглашению: `POST /invites/{code}`.
+/// Accepts an invite: `POST /invites/{code}`.
 ///
-/// Все три поля тела nullable и передаются как пришли (без подстановок):
-/// `session_id`, `invite_instance_id`, `received_installation_id`.
+/// Passes nullable tracking fields (`session_id`, `invite_instance_id`, `received_installation_id`).
 #[tauri::command]
 #[allow(clippy::too_many_arguments)]
 async fn accept_invite(
@@ -788,8 +773,8 @@ async fn accept_invite(
     };
     match outcome {
         Ok(accepted) => {
-            // S3 / TASK-810: Автоматическое подтверждение правил сервера (Rules Screening):
-            // связываем guilds::accept_invite_and_join_guild и guilds::apply_guild_join_outcome
+            // S3 / TASK-810: Automated Rules Screening verification:
+            // links guilds::accept_invite_and_join_guild and guilds::apply_guild_join_outcome
             data::auto_accept_guild_rules_if_available(&code, &accepted.guild_id);
             let join_transport =
                 guilds::LiveGuildJoinTransport::with_accepted_guild(&token, &accepted.guild_id);
@@ -808,9 +793,9 @@ async fn accept_invite(
     }
 }
 
-/// Создать приглашение для канала: `POST /channels/{channel_id}/invites`.
+/// Creates a new invite for a channel: `POST /channels/{channel_id}/invites`.
 ///
-/// Пустой вызов (`params = None`) использует канонический дефолт Discord
+/// An empty payload (`params = None`) applies canonical Discord defaults
 /// (`max_age = 86400`, `max_uses = 0`, `temporary = false`).
 #[tauri::command]
 async fn create_channel_invite(
@@ -831,11 +816,11 @@ async fn create_channel_invite(
 }
 
 // ---------------------------------------------------------------------------
-// RW-40/M-07: слоты загрузки вложений (`POST /channels/{channel_id}/attachments`).
-// Bearer читается только из backend/keyring через `token_or`.
+// RW-40/M-07: Attachment pre-signed upload slots (`POST /channels/{channel_id}/attachments`).
+// Bearer is strictly retrieved from backend/keyring via `token_or`.
 // ---------------------------------------------------------------------------
 
-/// Запросить pre-signed GCS слоты загрузки вложений для канала.
+/// Requests pre-signed GCS upload slots for channel attachments.
 #[tauri::command]
 async fn request_upload_slots(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -853,7 +838,7 @@ async fn request_upload_slots(
     chord_client::request_upload_slots(&api, &channel_id, &files).await
 }
 
-/// Загрузить байты вложения методом `PUT` на pre-signed `upload_url` из слота.
+/// Uploads attachment bytes via HTTP `PUT` to the pre-signed `upload_url` from slot.
 #[tauri::command]
 #[allow(clippy::too_many_arguments)]
 async fn attachments_upload_put(
@@ -911,11 +896,11 @@ async fn execute_attachments_upload_put<S: AttachmentTransport + ?Sized>(
 }
 
 // ---------------------------------------------------------------------------
-// RW-40/M-08: закреплённые сообщения и треды канала. Bearer — только из
-// backend/keyring через `token_or`, без передачи токена из фронтенда.
+// RW-40/M-08: Pinned messages and channel threads.
+// Bearer is strictly retrieved from backend/keyring via `token_or`.
 // ---------------------------------------------------------------------------
 
-/// Список закреплённых сообщений канала: `GET /channels/{channel_id}/pins`.
+/// Lists pinned messages for a channel: `GET /channels/{channel_id}/pins`.
 #[tauri::command]
 async fn list_channel_pins(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -932,7 +917,7 @@ async fn list_channel_pins(
     chord_client::list_channel_pins(&api, &channel_id).await
 }
 
-/// Закрепить сообщение в канале: `PUT /channels/{channel_id}/pins/{message_id}`.
+/// Pins a message in a channel: `PUT /channels/{channel_id}/pins/{message_id}`.
 #[tauri::command]
 async fn pin_channel_message(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -950,7 +935,7 @@ async fn pin_channel_message(
     chord_client::pin_channel_message(&api, &channel_id, &message_id).await
 }
 
-/// Открепить сообщение в канале: `DELETE /channels/{channel_id}/pins/{message_id}`.
+/// Unpins a message in a channel: `DELETE /channels/{channel_id}/pins/{message_id}`.
 #[tauri::command]
 async fn unpin_channel_message(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -968,7 +953,7 @@ async fn unpin_channel_message(
     chord_client::unpin_channel_message(&api, &channel_id, &message_id).await
 }
 
-/// Список активных или публичных архивных тредов канала (`archived = false | true`).
+/// Lists active or archived channel threads (`archived = false | true`).
 #[tauri::command]
 async fn list_channel_threads(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -987,13 +972,11 @@ async fn list_channel_threads(
 }
 
 // ---------------------------------------------------------------------------
-// RW-40 / INT-05-IPC-ALIASES: выравнивание имён IPC-команд UI ↔ Rust (F-1).
-// Каждая команда делегирует в ту же доменную обёртку и читает токен только
-// через `token_or`, сохраняя коды ошибок и форму ответов, ожидаемую в UI.
+// RW-40 / INT-05-IPC-ALIASES: IPC command name alignment for UI compatibility (F-1).
+// Delegates to domain wrappers and resolves token safely via `token_or`.
 // ---------------------------------------------------------------------------
 
-/// Опциональный объект `params` для `create_invite`: принимает как camelCase (`maxAge`, `maxUses`),
-/// так и snake_case (`max_age`, `max_uses`).
+/// Optional `params` input for `create_invite`: supports both camelCase and snake_case.
 #[derive(Debug, Clone, Default, PartialEq, Eq, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct CreateInviteParamsInput {
@@ -1026,9 +1009,8 @@ impl CreateInviteParamsInput {
     }
 }
 
-/// IPC-алиас `create_channel_invite` под имя вызова `invite-modal.js:370` (`create_invite`).
-/// Принимает как плоский payload `{channelId, maxAge, maxUses, temporary, flags}`, так и
-/// вложенный `{channelId, params}`.
+/// IPC alias for `create_channel_invite` supporting invocation as `create_invite`.
+/// Accepts either flat parameters `{channelId, maxAge, maxUses, temporary, flags}` or nested `{channelId, params}`.
 #[tauri::command]
 async fn create_invite(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1051,8 +1033,8 @@ async fn create_invite(
     chord_client::create_channel_invite(&api, &channel_id, &resolved).await
 }
 
-/// Элемент `files[]` для IPC-алиаса `attachments_upload_slots` (`composer.js:725`):
-/// принимает как `file_size`/`is_clip` (snake_case из `composer.js`), так и `fileSize`/`isClip`.
+/// File item specification for `attachments_upload_slots` IPC alias:
+/// accepts snake_case (`file_size`, `is_clip`) and camelCase (`fileSize`, `isClip`).
 #[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize)]
 struct UploadSlotSpecInput {
     filename: String,
@@ -1074,14 +1056,13 @@ impl From<UploadSlotSpecInput> for AttachmentFileSpec {
     }
 }
 
-/// Ответ `attachments_upload_slots` в формате, который читает `composer.js:737` (`res.attachments`).
+/// Response payload envelope for `attachments_upload_slots` expected by the frontend (`res.attachments`).
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 struct UploadSlotsEnvelope {
     attachments: Vec<AttachmentUploadSlot>,
 }
 
-/// IPC-алиас `request_upload_slots` под имя вызова `composer.js:725` (`attachments_upload_slots`).
-/// Возвращает конверт `{ attachments }`, который читает `composer.js:737`.
+/// IPC alias for `request_upload_slots` supporting invocation as `attachments_upload_slots`.
 #[tauri::command]
 async fn attachments_upload_slots(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1101,7 +1082,7 @@ async fn attachments_upload_slots(
     Ok(UploadSlotsEnvelope { attachments })
 }
 
-/// IPC-алиас `list_channel_pins` под имя вызова `app.js:1372` (`pins_list`).
+/// IPC alias for `list_channel_pins` supporting invocation as `pins_list`.
 #[tauri::command]
 async fn pins_list(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1118,8 +1099,8 @@ async fn pins_list(
     chord_client::list_channel_pins(&api, &channel_id).await
 }
 
-/// IPC-алиас `list_channel_threads` под имя вызова `app.js:1378` (`threads_list`).
-/// При отсутствии `archived` в аргументах возвращает активные ветки (`archived = false`).
+/// IPC alias for `list_channel_threads` supporting invocation as `threads_list`.
+/// Defaults to active threads (`archived = false`) if omitted.
 #[tauri::command]
 async fn threads_list(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1138,16 +1119,14 @@ async fn threads_list(
 }
 
 // ---------------------------------------------------------------------------
-// RW-40 / INT-06-NOTIFICATIONS-IPC-WIRING (F-5): Tauri IPC-команды уведомлений
-// `update_guild_notification_settings` и `update_channel_notification_override`
-// (`notifications.js:1335,1389`). Bearer читается только из backend/keyring
-// через `token_or`, без передачи токена из фронтенда.
+// RW-40 / INT-06-NOTIFICATIONS-IPC-WIRING (F-5): Notification IPC commands
+// `update_guild_notification_settings` and `update_channel_notification_override`.
+// Bearer is strictly retrieved from backend/keyring via `token_or`.
 // ---------------------------------------------------------------------------
 
-/// Входное переопределение канала для `update_channel_notification_override`:
-/// принимает как прямое `ChannelNotificationOverridePatch` (`override` / `override_field` /
-/// `override_patch` / `payload`), объект `{ override: ... }`, так и конверт
-/// `{ channel_overrides: { "<channel_id>": ... } }` из `notifications.js:1389`.
+/// Channel override input for `update_channel_notification_override`:
+/// supports direct `ChannelNotificationOverridePatch`, `{ override: ... }` object,
+/// or `{ channel_overrides: { "<channel_id>": ... } }` map.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize)]
 #[serde(untagged)]
 enum ChannelOverrideInput {
@@ -1208,7 +1187,7 @@ impl ChannelOverrideInput {
     }
 }
 
-/// Обновить настройки уведомлений гильдии / DM: `PATCH /users/@me/guilds/{guild_id}/settings`.
+/// Updates guild / DM notification settings: `PATCH /users/@me/guilds/{guild_id}/settings`.
 #[tauri::command]
 async fn update_guild_notification_settings(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1229,8 +1208,8 @@ async fn update_guild_notification_settings(
     chord_client::update_guild_notification_settings(&api, &token, &guild_id, &resolved).await
 }
 
-/// Обновить переопределение уведомлений канала: `PATCH /users/@me/guilds/{guild_id}/settings`
-/// с картой `{"channel_overrides": {"<channel_id>": { ... }}}`.
+/// Updates channel notification override: `PATCH /users/@me/guilds/{guild_id}/settings`
+/// with `{"channel_overrides": {"<channel_id>": { ... }}}`.
 #[tauri::command]
 #[allow(clippy::too_many_arguments)]
 async fn update_channel_notification_override(
@@ -1270,12 +1249,12 @@ async fn update_channel_notification_override(
 }
 
 // ---------------------------------------------------------------------------
-// RW-39/NET-C2: авторизация. Вся логика — в `chord_client::auth`, здесь
-// только Tauri-обёртки. `Keyring` — `!Send` и может ждать D-Bus, поэтому каждая
-// команда уходит в `spawn_blocking`: UI-поток и async-runtime не блокируются.
+// RW-39/NET-C2: Authentication and session management.
+// Wrappers around `chord_client::auth`. Keyring calls are wrapped in `spawn_blocking`
+// to ensure neither the UI event loop nor the Tokio async runtime are blocked by D-Bus.
 // ---------------------------------------------------------------------------
 
-/// Блокирующая операция — вне async-runtime (keyring, файл настроек).
+/// Helper for offloading blocking tasks (e.g. Keyring D-Bus, disk I/O) off the async runtime.
 async fn blocking<T, F>(work: F) -> Result<T, String>
 where
     T: Send + 'static,
@@ -1283,7 +1262,7 @@ where
 {
     tokio::task::spawn_blocking(work)
         .await
-        .map_err(|error| format!("блокирующая операция не завершилась: {error}"))
+        .map_err(|error| format!("blocking task failed: {error}"))
 }
 
 #[tauri::command]
@@ -1296,7 +1275,7 @@ fn net_status(net: tauri::State<'_, Arc<NetService>>) -> String {
     net_plugin::net_status(net)
 }
 
-/// Статус: только keyring, без сети. Сессию восстанавливает `auth_restore`.
+/// Retrieves authentication status from local Keyring storage without network calls.
 #[tauri::command]
 async fn auth_status(
     app: tauri::AppHandle,
@@ -1305,8 +1284,8 @@ async fn auth_status(
     auth_plugin::auth_status(app, backend).await
 }
 
-/// Импорт токена владельца: `GET /users/@me` → keyring. Токен не логируется
-/// и не возвращается во фронтенд (только `AuthState`).
+/// Imports user account token: verifies via `GET /users/@me` and stores in Keyring.
+/// The raw token is never logged or returned to the UI (returns `AuthState`).
 #[tauri::command]
 async fn auth_login_token(
     app: tauri::AppHandle,
@@ -1316,7 +1295,7 @@ async fn auth_login_token(
     auth_plugin::auth_login_token(app, backend, token).await
 }
 
-/// Явное восстановление из keyring — единственный путь к сети при старте.
+/// Restores existing session from Keyring on application cold start.
 #[tauri::command]
 async fn auth_restore(
     app: tauri::AppHandle,
@@ -1325,7 +1304,7 @@ async fn auth_restore(
     auth_plugin::auth_restore(app, backend).await
 }
 
-/// Выход: keyring.clear + сброс сессии; повторный вызов идемпотентен.
+/// Logs out: clears Keyring and resets gateway/voice sessions. Idempotent.
 #[tauri::command]
 async fn auth_logout(
     app: tauri::AppHandle,
@@ -1335,7 +1314,7 @@ async fn auth_logout(
     auth_plugin::auth_logout(app, backend, net).await
 }
 
-/// Вход паролем: `POST /auth/login`; исход — MFA / captcha / Ready (токен в keyring).
+/// Password authentication: `POST /auth/login`. Returns MFA ticket, captcha challenge, or authenticated session.
 #[tauri::command]
 #[allow(clippy::too_many_arguments)]
 async fn auth_login_password(
@@ -1361,7 +1340,7 @@ async fn auth_login_password(
     .await
 }
 
-/// Код 2FA: `POST /auth/mfa/{method}` (method — whitelist в `auth.rs`).
+/// Two-factor authentication (2FA/MFA): `POST /auth/mfa/{method}`.
 #[tauri::command]
 async fn auth_mfa(
     app: tauri::AppHandle,
@@ -1374,7 +1353,7 @@ async fn auth_mfa(
     auth_plugin::auth_mfa(app, backend, method, code, ticket, login_instance_id).await
 }
 
-/// Переотправка SMS-кода: `POST /auth/mfa/sms/send {ticket}` → маскированный `phone`.
+/// Requests SMS 2FA code resend: `POST /auth/mfa/sms/send`.
 #[tauri::command]
 async fn auth_sms(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1383,10 +1362,7 @@ async fn auth_sms(
     auth_plugin::auth_sms(backend, ticket).await
 }
 
-/// Счётчики L-02: что пришло, что ушло в UI, что отброшено и почему.
-///
-/// `sourceAvailable` = true: источник — супервайзер ядра (hook `RunOptions.on_dispatch`);
-/// причина/механизм видны в `sourceDetail`, чтобы UI не ждал пустой канал молча.
+/// Dispatch channel statistics (ingress, forwarded to UI, dropped, errors).
 #[tauri::command]
 fn net_dispatch_stats(net: tauri::State<'_, Arc<NetService>>) -> DispatchStats {
     net.dispatch_stats()
@@ -1398,27 +1374,24 @@ async fn net_disconnect(net: tauri::State<'_, Arc<NetService>>) -> Result<String
 }
 
 // ---------------------------------------------------------------------------
-// RW-40/B8a: UI-настройки на диск. Только локальный файл — ни сети, ни
-// токенов. Файл маленький, но I/O уводим в `spawn_blocking`: UI-поток не ждёт
-// диск, как и у команд авторизации.
+// RW-40/B8a: Local UI settings persistence on disk.
+// Stored in local JSON file with 256 KiB quota and atomic tmp+rename writes.
 // ---------------------------------------------------------------------------
 
-/// Настройки с диска; нет файла → дефолты отгруженного UI (cozy/dark/ru).
+/// Loads UI settings from local disk or returns default configuration (cozy/dark/en).
 #[tauri::command]
 async fn settings_load() -> Result<UiSettings, SettingsError> {
     settings_plugin::settings_load().await
 }
 
-/// Сохранение: валидация значений, лимит 256 KiB, атомарная запись tmp+rename.
+/// Saves UI settings to local disk with atomic rename.
 #[tauri::command]
 async fn settings_save(settings: UiSettings) -> Result<(), SettingsError> {
     settings_plugin::settings_save(settings).await
 }
 
-/// Единый Tauri IPC-роутер для доменов BFF (`bff_domains_router`):
-/// `slash_commands`, `onboarding`, `soundboard`, `stage_instances` и их
-/// последующие расширения. Валидирует действие и отдаёт метод, маршрут и тело
-/// запроса; токен и сеть сюда не попадают — отправку делает сетевой слой.
+/// Unified BFF domain action router (`bff_domains_router`).
+/// Validates action and resolves HTTP method, route, and body for client execution.
 #[tauri::command]
 fn invoke_bff_domain(
     action: chord_client::bff_domains_router::BffDomainAction,
@@ -1520,8 +1493,11 @@ async fn voice_stream_set_paused(
 // RW-40 / TASK-626 (`G1 Backend`): Nitro Gifts & Entitlements IPC-команды.
 // Bearer читается только из backend/keyring через `token_or`, без передачи из UI.
 // ---------------------------------------------------------------------------
+// RW-40 / TASK-626 (`G1 Backend`): Nitro Gifts & Entitlements IPC commands.
+// Bearer is strictly retrieved from backend/keyring via `token_or`.
+// ---------------------------------------------------------------------------
 
-/// Превью подарочного кода: `GET /entitlements/gift-codes/{code}`.
+/// Resolves Nitro gift code preview: `GET /entitlements/gift-codes/{code}`.
 #[tauri::command]
 async fn resolve_gift_code(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1541,7 +1517,7 @@ async fn resolve_gift_code(
         .await
 }
 
-/// Создать подарочный код: `POST /users/@me/entitlements/gift-codes`.
+/// Creates a new gift code: `POST /users/@me/entitlements/gift-codes`.
 #[tauri::command]
 async fn create_gift_code(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1568,7 +1544,7 @@ async fn create_gift_code(
     .await
 }
 
-/// Список подарочных кодов пользователя: `GET /users/@me/entitlements/gift-codes`.
+/// Lists current user's gift codes: `GET /users/@me/entitlements/gift-codes`.
 #[tauri::command]
 async fn fetch_user_gift_codes(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1591,7 +1567,7 @@ async fn fetch_user_gift_codes(
     .await
 }
 
-/// Отозвать (удалить) подарочный код: `DELETE /users/@me/entitlements/gift-codes/{code}`.
+/// Revokes (deletes) a gift code: `DELETE /users/@me/entitlements/gift-codes/{code}`.
 #[tauri::command]
 async fn revoke_gift_code(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1608,7 +1584,7 @@ async fn revoke_gift_code(
     gifts_plugin::revoke_gift_code_with_api(&api, &code).await
 }
 
-/// Активировать подарочный код: `POST /entitlements/gift-codes/{code}/redeem`.
+/// Redeems a gift code: `POST /entitlements/gift-codes/{code}/redeem`.
 #[tauri::command]
 async fn redeem_gift_code(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1635,7 +1611,7 @@ async fn redeem_gift_code(
     .await
 }
 
-/// Энтайтлменты текущего пользователя: `GET /users/@me/entitlements`.
+/// Lists current user's entitlements: `GET /users/@me/entitlements`.
 #[tauri::command]
 async fn fetch_user_entitlements(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1662,7 +1638,7 @@ async fn fetch_user_entitlements(
     .await
 }
 
-/// Энтайтлменты пользователя для приложения (по умолчанию Nitro `521842831262875670`):
+/// Lists user entitlements for an application (defaults to Nitro `521842831262875670`):
 /// `GET /users/@me/applications/{application_id}/entitlements`.
 #[tauri::command]
 async fn fetch_application_entitlements(
@@ -1682,7 +1658,7 @@ async fn fetch_application_entitlements(
         .await
 }
 
-/// Подарочный инвентарь энтайтлментов пользователя: `GET /users/@me/entitlements/gifts`.
+/// Lists user's giftable entitlements inventory: `GET /users/@me/entitlements/gifts`.
 #[tauri::command]
 async fn fetch_giftable_entitlements(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1699,18 +1675,18 @@ async fn fetch_giftable_entitlements(
     gifts_plugin::fetch_giftable_entitlements_with_api(&api, country_code.as_deref()).await
 }
 
-/// Каталог планов подписки Nitro и бустов сервера для модалки подарков (`#gift-modal`).
+/// Catalog of Nitro subscription plans and server boosts for gift modal (`#gift-modal`).
 #[tauri::command]
 fn list_nitro_gift_plans() -> Vec<NitroGiftPlan> {
     gifts_plugin::list_nitro_gift_plans()
 }
 
 // ---------------------------------------------------------------------------
-// RW-40 / TASK-629 (`G1 Backend`): Remote Auth v2 RSA-2048 & WebSocket IPC-команды.
+// RW-40 / TASK-629 (`G1 Backend`): Remote Auth v2 RSA-2048 & WebSocket IPC commands.
 // ---------------------------------------------------------------------------
 
-/// Запускает новую сессию QR-входа Remote Auth v2: генерирует пару ключей RSA-OAEP-2048
-/// и возвращает снимок сессии с `encoded_public_key`, `fingerprint`, `qr_url` и кадром `init`.
+/// Starts a new Remote Auth v2 QR login session: generates RSA-OAEP-2048 keypair
+/// and returns session snapshot with `encoded_public_key`, `fingerprint`, `qr_url` and `init` frame.
 #[tauri::command]
 fn remote_auth_start_session(
     endpoint: Option<String>,
@@ -1718,7 +1694,7 @@ fn remote_auth_start_session(
     remote_auth::ipc_start_session(endpoint.as_deref())
 }
 
-/// Обрабатывает входящий JSON-кадр WebSocket `wss://remote-auth.discord.gg/?v=2`
+/// Handles incoming WebSocket JSON frame from `wss://remote-auth.discord.gg/?v=2`
 /// (`hello`, `nonce_proof`, `pending_remote_init`, `pending_ticket`, `pending_login`, `cancel`, `heartbeat_ack`).
 #[tauri::command]
 fn remote_auth_process_frame(
@@ -1727,13 +1703,13 @@ fn remote_auth_process_frame(
     remote_auth::ipc_process_frame(&frame_json)
 }
 
-/// Выполняет тик таймера heartbeat активной сессии Remote Auth v2.
+/// Ticks the heartbeat timer for an active Remote Auth v2 session.
 #[tauri::command]
 fn remote_auth_heartbeat_tick() -> Result<RemoteAuthFrameOutcome, RemoteAuthError> {
     remote_auth::ipc_heartbeat_tick()
 }
 
-/// Инициализирует подтверждение чужого QR-кода (`POST /users/@me/remote-auth`).
+/// Initializes verification for external QR code (`POST /users/@me/remote-auth`).
 #[tauri::command]
 async fn remote_auth_initialize(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1750,7 +1726,7 @@ async fn remote_auth_initialize(
     remote_auth::remote_auth_initialize(&api, &fingerprint).await
 }
 
-/// Завершает подтверждение чужого QR-кода (`POST /users/@me/remote-auth/finish`).
+/// Completes verification for external QR code (`POST /users/@me/remote-auth/finish`).
 #[tauri::command]
 async fn remote_auth_finish(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1768,7 +1744,7 @@ async fn remote_auth_finish(
     remote_auth::remote_auth_finish(&api, &handshake_token, temporary_token.unwrap_or(false)).await
 }
 
-/// Отменяет подтверждение чужого QR-кода (`POST /users/@me/remote-auth/cancel`).
+/// Cancels verification for external QR code (`POST /users/@me/remote-auth/cancel`).
 #[tauri::command]
 async fn remote_auth_cancel(
     backend: tauri::State<'_, Arc<AuthBackend>>,
@@ -1785,7 +1761,7 @@ async fn remote_auth_cancel(
     remote_auth::remote_auth_cancel(&api, &handshake_token).await
 }
 
-/// Отменяет и перезапускает сессию Remote Auth v2 с ротацией пары ключей RSA-2048.
+/// Cancels and restarts Remote Auth v2 session with a fresh RSA-2048 keypair.
 #[tauri::command]
 fn remote_auth_cancel_session() -> Result<RemoteAuthSessionSnapshot, RemoteAuthError> {
     remote_auth::ipc_cancel_session()
@@ -1895,8 +1871,7 @@ fn main() {
             _ => {}
         })
         .setup(|app| {
-            // Уникальный заголовок для GUI-пробы: чужой/старый экземпляр не должен
-            // приниматься за запущенный этим тестом.
+            // Set custom test window title if requested by test harness.
             if let Some(window) = app.get_webview_window("main") {
                 if let Ok(title) = std::env::var("SPIKE_WINDOW_TITLE") {
                     let _ = window.set_title(&title);
@@ -1905,22 +1880,18 @@ fn main() {
                 let _ = window.unminimize();
                 let _ = window.set_focus();
             }
-            // Маркер для харнесса холодного старта: окно создано.
-            // Тестовый хук: live smoke/AT-SPI проверяет каркас без входа.
-            // В обычном запуске переменная не задана — гейт входа работает.
+            // Marker for cold-start benchmark harness indicating window ready state.
+            // When SPIKE_AUTH_DISABLED is set, inject bypass flag for AT-SPI / offline smoke tests.
             if std::env::var("SPIKE_AUTH_DISABLED").is_ok() {
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.eval("window.__SPIKE_AUTH_DISABLED__ = true;");
                 }
             }
             println!("discord-gui-spike: window-ready");
-            // Keyring подключается лениво (в потоке-владельце): окно стартует и без
-            // Secret Service; статус сам сообщит `Keyring`-ошибку.
+            // Lazy Keyring initialization on background thread.
             app.manage(Arc::new(AuthBackend::keyring()));
             let auth = app.state::<Arc<AuthBackend>>().inner().clone();
-            // L-02: конверт уходит в `gateway://dispatch` со своего потока;
-            // источник — супервайзер ядра (hook `RunOptions.on_dispatch`), флаг и
-            // механизм видны в `net_dispatch_stats` (`sourceAvailable: true`).
+            // L-02: Envelopes are forwarded to gateway://dispatch from dedicated thread.
             let dispatch = Arc::new(TauriDispatchEmitter(app.handle().clone()));
             app.manage(Arc::new(NetService::with_emitter(auth, dispatch)));
             if std::env::var_os("SPIKE_EXIT_AFTER_MS").is_none()

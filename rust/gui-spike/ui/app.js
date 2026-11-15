@@ -1446,28 +1446,28 @@ function createChannelTree(options) {
   }
 
   /**
+   * Activates or opens the selected channel, voice room, forum, or category toggle.
+   *
    * @param {TreeChannel} channel
    * @param {ChannelKind} kind
    * @param {HTMLElement} button
    */
   function activate(channel, kind, button) {
+    const name = channel.name || channel.id;
     if (!kind.openable) {
       if (isLiveSession() && kind.key === "voice" && typeof options.onSelectVoice === "function") {
         selectItem(button);
-        const name = channel.name || channel.id;
         note.textContent = `Голосовой канал «${name}» подключён`;
         options.onSelectVoice(channel, button);
         return;
       }
       if (isLiveSession() && kind.key === "forum") {
         selectItem(button);
-        const name = channel.name || channel.id;
         note.textContent = `Открыт форум «${name}»`;
         options.onOpen?.({ id: channel.id, name });
         return;
       }
       if (isLiveSession() && kind.key === "category") {
-        const name = channel.name || channel.id;
         note.textContent = `Категория «${name}»`;
         const parentLi = button.parentElement;
         if (parentLi) {
@@ -1501,13 +1501,12 @@ function createChannelTree(options) {
         }
         return;
       }
-      // Видимая причина: атрибут на плитке + общий live-регион дерева.
+      // Visible denial reason: attribute on tile + announce via tree live-region.
       button.setAttribute("data-denied", "true");
       note.textContent = kind.reason;
       return;
     }
     selectItem(button);
-    const name = channel.name || channel.id;
     note.textContent = `Открыт канал «${name}»`;
     options.onOpen?.({ id: channel.id, name });
   }
@@ -11728,7 +11727,8 @@ function boot() {
     const uSettings = /** @type {HTMLElement | null} */ (
       document.querySelector('#user-bar [data-action="settings"]')
     );
-    if (uSettings) {
+    if (uSettings && !uSettings.dataset.uBarBound) {
+      uSettings.dataset.uBarBound = "1";
       uSettings.style.cssText =
         "width:32px;min-width:32px;height:32px;border-radius:4px;padding:0;border:none;display:inline-flex;align-items:center;justify-content:center;color:#b5bac1;background:transparent;cursor:pointer;transition:background 100ms ease,color 100ms ease;";
       uSettings.onmouseenter = () => {
@@ -11781,26 +11781,32 @@ function boot() {
         "aria-label",
         muted ? "Включить микрофон" : "Отключить только микрофон",
       );
-      uMute.onmouseenter = () => {
-        uMute.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
-        uMute.style.color = selfVoicePrefs.muted ? "#f23f43" : "#dbdee1";
-      };
-      uMute.onmouseleave = () => {
-        uMute.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.18)" : "transparent";
-        uMute.style.color = selfVoicePrefs.muted ? "#f23f43" : "#b5bac1";
-      };
+      if (!uMute.dataset.uBarBound) {
+        uMute.dataset.uBarBound = "1";
+        uMute.onmouseenter = () => {
+          uMute.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
+          uMute.style.color = selfVoicePrefs.muted ? "#f23f43" : "#dbdee1";
+        };
+        uMute.onmouseleave = () => {
+          uMute.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.18)" : "transparent";
+          uMute.style.color = selfVoicePrefs.muted ? "#f23f43" : "#b5bac1";
+        };
+      }
     }
     if (uMuteChevron) {
       uMuteChevron.style.cssText =
         `width:16px;min-width:16px;height:32px;padding:0;margin-left:0;margin-right:2px;border:none;border-radius:0 4px 4px 0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${muted ? "#f23f43" : "#b5bac1"};background:${muted ? "rgba(242, 63, 67, 0.18)" : "transparent"};transition:background 100ms ease,color 100ms ease;`;
-      uMuteChevron.onmouseenter = () => {
-        uMuteChevron.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
-        uMuteChevron.style.color = selfVoicePrefs.muted ? "#f23f43" : "#dbdee1";
-      };
-      uMuteChevron.onmouseleave = () => {
-        uMuteChevron.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.18)" : "transparent";
-        uMuteChevron.style.color = selfVoicePrefs.muted ? "#f23f43" : "#b5bac1";
-      };
+      if (!uMuteChevron.dataset.uBarBound) {
+        uMuteChevron.dataset.uBarBound = "1";
+        uMuteChevron.onmouseenter = () => {
+          uMuteChevron.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
+          uMuteChevron.style.color = selfVoicePrefs.muted ? "#f23f43" : "#dbdee1";
+        };
+        uMuteChevron.onmouseleave = () => {
+          uMuteChevron.style.background = selfVoicePrefs.muted ? "rgba(242, 63, 67, 0.18)" : "transparent";
+          uMuteChevron.style.color = selfVoicePrefs.muted ? "#f23f43" : "#b5bac1";
+        };
+      }
     }
     if (uDeaf) {
       uDeaf.setAttribute("data-pressed", deafened ? "true" : "false");
@@ -11814,26 +11820,32 @@ function boot() {
         "aria-label",
         deafened ? "Включить звук" : "Отключить звук и микрофон",
       );
-      uDeaf.onmouseenter = () => {
-        uDeaf.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
-        uDeaf.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#dbdee1";
-      };
-      uDeaf.onmouseleave = () => {
-        uDeaf.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.18)" : "transparent";
-        uDeaf.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#b5bac1";
-      };
+      if (!uDeaf.dataset.uBarBound) {
+        uDeaf.dataset.uBarBound = "1";
+        uDeaf.onmouseenter = () => {
+          uDeaf.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
+          uDeaf.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#dbdee1";
+        };
+        uDeaf.onmouseleave = () => {
+          uDeaf.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.18)" : "transparent";
+          uDeaf.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#b5bac1";
+        };
+      }
     }
     if (uDeafChevron) {
       uDeafChevron.style.cssText =
         `width:16px;min-width:16px;height:32px;padding:0;margin-left:0;margin-right:2px;border:none;border-radius:0 4px 4px 0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:${deafened ? "#f23f43" : "#b5bac1"};background:${deafened ? "rgba(242, 63, 67, 0.18)" : "transparent"};transition:background 100ms ease,color 100ms ease;`;
-      uDeafChevron.onmouseenter = () => {
-        uDeafChevron.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
-        uDeafChevron.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#dbdee1";
-      };
-      uDeafChevron.onmouseleave = () => {
-        uDeafChevron.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.18)" : "transparent";
-        uDeafChevron.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#b5bac1";
-      };
+      if (!uDeafChevron.dataset.uBarBound) {
+        uDeafChevron.dataset.uBarBound = "1";
+        uDeafChevron.onmouseenter = () => {
+          uDeafChevron.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.28)" : "rgba(255, 255, 255, 0.08)";
+          uDeafChevron.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#dbdee1";
+        };
+        uDeafChevron.onmouseleave = () => {
+          uDeafChevron.style.background = selfVoicePrefs.deafened ? "rgba(242, 63, 67, 0.18)" : "transparent";
+          uDeafChevron.style.color = selfVoicePrefs.deafened ? "#f23f43" : "#b5bac1";
+        };
+      }
     }
 
     // Обновляем кружок статуса на аватарке в `#user-bar` (`В сети` / `Неактивен` / `Не беспокоить` / `Невидимый`)
@@ -14263,8 +14275,14 @@ function boot() {
 
   /** @type {ReturnType<typeof createDmFriendsController> | null} */
   let dmFriendsController = null;
-  /** @type {(payload: any) => void} */
-  let hydrateDmFriendsFromReady = () => {};
+  /**
+   * Hydrates DM recipient and friends list from the Gateway READY payload.
+   * Hoisted function declaration ensures immediate availability during early bootstrap.
+   * @param {any} payload
+   */
+  const hydrateDmFriendsFromReady = (payload) => {
+    mountDmFriends(payload);
+  };
   /** @type {ReturnType<typeof createNotificationsController> | null} */
   let notificationsRef = null;
   /** @type {ReturnType<typeof createCreateGuildController> | null} */
@@ -15510,6 +15528,23 @@ function boot() {
       true,
     );
   }
+    const settingsHead = document.querySelector("#screen-settings .settings-head");
+    if (settingsHead && !document.getElementById("settings-close-esc-btn")) {
+      const closeEscBtn = document.createElement("button");
+      closeEscBtn.type = "button";
+      closeEscBtn.id = "settings-close-esc-btn";
+      closeEscBtn.setAttribute("aria-label", "Close settings (ESC)");
+      closeEscBtn.title = "Close settings (ESC)";
+      closeEscBtn.style.cssText =
+        "display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border-subtle, #4e5058);border-radius:18px;background:transparent;color:var(--text-normal, #dbdee1);font-size:12px;font-weight:700;cursor:pointer;";
+      closeEscBtn.textContent = "✕ ESC";
+      closeEscBtn.addEventListener("click", () => {
+        router.switchScreen("chat");
+      });
+      settingsHead.append(closeEscBtn);
+    }
+
+    // Unified global keydown handler for live shortcuts (Alt+2/3, Ctrl+E, ESC popout dismiss)
     document.addEventListener?.(
       "keydown",
       (ev) => {
@@ -15521,39 +15556,26 @@ function boot() {
         if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "e") {
           ev.preventDefault();
           ev.stopImmediatePropagation();
-          if (document.getElementById("live-emoji-picker-popout")) {
-            document.getElementById("live-emoji-picker-popout")?.remove();
+          const popout = document.getElementById("live-emoji-picker-popout");
+          if (popout) {
+            popout.remove();
           } else {
             openLiveComposerEmojiPicker(composerEmojiBtn);
+          }
+          return;
+        }
+        if (ev.key === "Escape") {
+          if (router.current === "settings") {
+            router.switchScreen("chat");
+          }
+          const popout = document.getElementById("live-emoji-picker-popout");
+          if (popout) {
+            popout.remove();
           }
         }
       },
       true,
     );
-
-    const settingsHead = document.querySelector("#screen-settings .settings-head");
-    if (settingsHead && !document.getElementById("settings-close-esc-btn")) {
-      const closeEscBtn = document.createElement("button");
-      closeEscBtn.type = "button";
-      closeEscBtn.id = "settings-close-esc-btn";
-      closeEscBtn.setAttribute("aria-label", "Закрыть настройки (ESC)");
-      closeEscBtn.title = "Закрыть настройки (ESC)";
-      closeEscBtn.style.cssText =
-        "display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #4e5058;border-radius:18px;background:transparent;color:#dbdee1;font-size:12px;font-weight:700;cursor:pointer;";
-      closeEscBtn.textContent = "✕ ESC";
-      closeEscBtn.addEventListener("click", () => {
-        router.switchScreen("chat");
-      });
-      settingsHead.append(closeEscBtn);
-    }
-    document.addEventListener?.("keydown", (ev) => {
-      if (ev.key === "Escape" && router.current === "settings") {
-        router.switchScreen("chat");
-      }
-      if (ev.key === "Escape" && document.getElementById("live-emoji-picker-popout")) {
-        document.getElementById("live-emoji-picker-popout")?.remove();
-      }
-    });
   }
   let lastManualDmSyncAt = 0;
   document.body?.addEventListener?.("click", (ev) => {
@@ -17744,9 +17766,6 @@ function boot() {
     }
   }
 
-  hydrateDmFriendsFromReady = (payload) => {
-    mountDmFriends(payload);
-  };
   mountDmFriends(null);
 
   const dmFriendsApi = new Proxy(
