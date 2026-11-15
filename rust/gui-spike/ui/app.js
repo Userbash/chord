@@ -700,6 +700,7 @@ function readLastGuildId(raw) {
  */
 function createGuildRail(options) {
   const { invoke } = options;
+  const commands = createTypedCommands(invoke);
   const onSelect = options.onSelect ?? (() => {});
   const onChoose = options.onChoose ?? (() => {});
   const resolvePreferred = options.resolvePreferred ?? (() => "");
@@ -1120,7 +1121,7 @@ function createGuildRail(options) {
       list.append(skeleton);
     }
     try {
-      const payload = await invoke(READY_COMMAND);
+      const payload = await commands.ready();
       if (disposed) return;
       const bag = /** @type {{ guilds?: unknown }} */ (payload ?? {});
       if (!Array.isArray(bag.guilds)) throw new UIError("IPC_FAILED", "ready: в ответе нет guilds[]");

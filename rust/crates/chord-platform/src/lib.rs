@@ -6,6 +6,7 @@
 //! Спека: `docs/re/backend-ipc.md` (168 корневых каналов; мост DiscordNative — 35 записей).
 //! План: P6 (UI/интеграция); тесты: T-SYS-*.
 
+pub mod audio_engine;
 pub mod autostart;
 pub mod dbus;
 pub mod deep_link;

@@ -48,6 +48,7 @@ use chord_client::{
     parse_process_metrics, validate_bench_payload, validate_ui_snapshot, ProcessMetrics,
 };
 pub mod auth_plugin;
+pub mod bindings;
 pub mod chat_plugin;
 pub mod dm_plugin;
 pub mod gifts;

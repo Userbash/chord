@@ -665,10 +665,10 @@ export declare const ALL_PERMISSIONS_MASK: bigint;
 
 export declare function parsePermissionBits(raw: unknown): bigint;
 export declare function normalizeGuildDto(
-  raw: Record<string, unknown> | null | undefined,
+  raw: GuildSyncSummaryDto | Record<string, unknown> | null | undefined,
 ): GuildSyncSummaryDto | null;
 export declare function evaluateChannelAccessDto(params: {
-  guild: Record<string, unknown> | null | undefined;
+  guild: GuildSyncSummaryDto | Record<string, unknown> | null | undefined;
   channel: Record<string, unknown> | null | undefined;
   parentCategory?: Record<string, unknown> | null | undefined;
   currentUserId?: string | null;
@@ -727,11 +727,12 @@ export function parsePermissionBits(raw) {
 /**
  * Normalizes a raw guild payload from READY / REST / cache into a strict `GuildSyncSummaryDto`.
  *
- * @param {Record<string, unknown> | null | undefined} raw
+ * @param {import("./bindings.d.ts").GuildSyncSummaryDto | Record<string, unknown> | null | undefined} rawInput
  * @returns {import("./bindings.d.ts").GuildSyncSummaryDto | null}
  */
-export function normalizeGuildDto(raw) {
-  if (!raw || typeof raw !== "object") return null;
+export function normalizeGuildDto(rawInput) {
+  if (!rawInput || typeof rawInput !== "object") return null;
+  const raw = /** @type {Record<string, unknown>} */ (rawInput);
   const props =
     raw.properties && typeof raw.properties === "object"
       ? /** @type {Record<string, unknown>} */ (raw.properties)
@@ -787,7 +788,7 @@ export function normalizeGuildDto(raw) {
  * Computes effective channel permissions (`twilight-util::permission_calculator` + `lurkerPermissionsMask`).
  *
  * @param {{
- *   guild: Record<string, unknown> | null | undefined,
+ *   guild: import("./bindings.d.ts").GuildSyncSummaryDto | Record<string, unknown> | null | undefined,
  *   channel: Record<string, unknown> | null | undefined,
  *   parentCategory?: Record<string, unknown> | null | undefined,
  *   currentUserId?: string | null
@@ -796,6 +797,8 @@ export function normalizeGuildDto(raw) {
  */
 export function evaluateChannelAccessDto({ guild, channel, parentCategory, currentUserId }) {
   const dto = normalizeGuildDto(guild);
+  const guildRecord =
+    guild && typeof guild === "object" ? /** @type {Record<string, unknown>} */ (guild) : null;
   const chType = Number(channel?.type ?? 0);
   const isVoice = chType === 2 || chType === 13 || channel?.kind === "voice";
   if (!dto) {
@@ -822,8 +825,8 @@ export function evaluateChannelAccessDto({ guild, channel, parentCategory, curre
 
   if (!isOwner && dto.roles.length > 0) {
     const memberRoleSet = new Set(dto.myRoles);
-    if (!dto.lurker && uid && Array.isArray(guild?.members)) {
-      const members = /** @type {Array<Record<string, unknown>>} */ (guild.members);
+    if (!dto.lurker && uid && Array.isArray(guildRecord?.members)) {
+      const members = /** @type {Array<Record<string, unknown>>} */ (guildRecord.members);
       const me = members.find((m) => {
         const userObj =
           m && typeof m.user === "object" && m.user !== null

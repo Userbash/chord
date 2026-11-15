@@ -53,6 +53,15 @@ hex = "0.4"
 subtle = "2.6"
 uuid = { version = "1", features = ["v4"] }
 
+# RW51-EPIC1-T1: `specta` and `tauri-specta` E2E TypeScript/JSDoc contract generation metadata.
+# Offline-safe configuration (`--offline`) exported via `src/bindings.rs::generate_specta_builder()`.
+[package.metadata.specta]
+engine = "specta"
+adapter = "tauri-specta"
+bindings_js = "ui/bindings.js"
+bindings_dts = "ui/bindings.d.ts"
+strict_no_any = true
+
 [profile.dev]
 debug = 1
 
