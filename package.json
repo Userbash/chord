@@ -25,6 +25,9 @@
     "auto:status": "bash scripts/auto-loop.sh --status",
     "auto:step": "bash scripts/auto-loop.sh --step",
     "auto:watch": "bash scripts/auto-loop.sh --watch",
+    "ops": "node scripts/chord-ops.mjs",
+    "gc": "node scripts/worker-gc.mjs",
+    "inspect:monolith": "node scripts/monolith-inspector.mjs",
     "kanban:status": "bash scripts/auto-loop.sh --kanban status",
     "kanban:list": "bash scripts/auto-loop.sh --kanban list"
   },
