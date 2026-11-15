@@ -3245,7 +3245,7 @@ function boot() {
   /** @type {ReturnType<typeof createTauriEventListener> | ReturnType<typeof setInterval> | null} */
   let rtcPollTimer = null;
   let rtcPollInFlight = false;
-  /** @type {ReturnType<typeof createTauriEventListener> | ReturnType<typeof setInterval> | null} */
+  /** @type {any} */
   let micTestTimer = null;
   /** @type {ReturnType<typeof setInterval> | null} */
   let voiceSyncTimer = null;
@@ -8480,7 +8480,8 @@ function boot() {
       testBtn.textContent = testing ? "Стоп" : "Проверка";
       testBtn.style.background = testing ? "#da373c" : "#2b2d31";
       if (micTestTimer) {
-        clearInterval(micTestTimer);
+        if (typeof micTestTimer.stop === "function") void micTestTimer.stop();
+        else clearInterval(micTestTimer);
         micTestTimer = null;
       }
       if (isLiveSession()) {
@@ -8497,19 +8498,16 @@ function boot() {
         } else {
           document.getElementById("live-mic-muted-warning-badge")?.remove();
         }
-        micTestTimer = setInterval(async () => {
+
+        /** @param {any} [levelData] */
+        const updateMicBars = (levelData) => {
           if (selfVoicePrefs.muted) {
             showMutedMicFloatingWarning();
           } else {
             document.getElementById("live-mic-muted-warning-badge")?.remove();
           }
-          if (isLiveSession()) {
-            try {
-              const st = await invoke(VOICE_RTC_STATUS_IPC_CMD);
-              if (st && typeof st === "object") {
-                liveRtcStatus = st;
-              }
-            } catch {}
+          if (levelData && typeof levelData === "object" && typeof levelData.localMicLevelDb === "number") {
+            liveRtcStatus = { ...liveRtcStatus, ...levelData };
           }
           const db = typeof liveRtcStatus?.localMicLevelDb === "number" ? liveRtcStatus.localMicLevelDb : -100;
           const effVad = typeof liveRtcStatus?.effectiveVadDb === "number" ? liveRtcStatus.effectiveVadDb : -45;
@@ -8519,7 +8517,29 @@ function boot() {
             b.style.background =
               idx < activeCount ? (db >= effVad ? "#23a55a" : "#f0b232") : "#35373c";
           });
-        }, 95);
+        };
+
+        const initialFetch = async () => {
+          if (isLiveSession()) {
+            try {
+              const st = await invoke(VOICE_RTC_STATUS_IPC_CMD);
+              if (st && typeof st === "object") {
+                liveRtcStatus = st;
+              }
+            } catch {}
+          }
+          updateMicBars(liveRtcStatus);
+          return liveRtcStatus;
+        };
+
+        micTestTimer = createTauriEventListener({
+          event: "voice-mic-level-update",
+          initialFetch,
+          onEvent: (payload) => {
+            updateMicBars(payload);
+          },
+          autoStart: true,
+        });
       } else {
         document.getElementById("live-mic-muted-warning-badge")?.remove();
         bars.forEach((b) => {
@@ -17837,7 +17857,8 @@ function boot() {
       voiceSyncTimer = null;
     }
     if (micTestTimer) {
-      clearInterval(micTestTimer);
+      if (typeof micTestTimer.stop === "function") void micTestTimer.stop();
+      else clearInterval(micTestTimer);
       micTestTimer = null;
     }
     closeLiveVoicePopouts();
