@@ -1832,3 +1832,45 @@ impl DiscordDmFriends {
         send_friend_request(self.transport.as_ref(), &self.token, input).await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn raw_read_state_dto_deserializes_and_converts_into_read_state_row() {
+        let raw = serde_json::json!({
+            "id": "123456789012345678",
+            "flags": 2,
+            "last_message_id": "987654321098765432",
+            "last_pin_timestamp": "nil",
+            "last_viewed": "4310",
+            "mention_count": 3,
+            "badge_count": 0,
+            "last_acked_id": 1294268550826950656_u64,
+            "read_state_type": 2
+        });
+
+        let dto = RawReadStateDto::deserialize(&raw).expect("valid RawReadStateDto");
+        let row = dto.into_read_state().expect("into_read_state");
+        assert_eq!(row.channel_id, "123456789012345678");
+        assert_eq!(row.flags, Some(2));
+        assert_eq!(row.last_message_id.as_deref(), Some("987654321098765432"));
+        assert_eq!(row.last_pin_timestamp, None);
+        assert_eq!(row.last_viewed, Some(4310));
+        assert_eq!(row.mention_count, Some(3));
+        assert_eq!(row.badge_count, Some(0));
+        assert_eq!(row.last_acked_id.as_deref(), Some("1294268550826950656"));
+        assert_eq!(row.read_state_type, Some(2));
+
+        // Missing or nil id returns DataError::Parse
+        let missing_id = serde_json::json!({ "id": "nil", "mention_count": 1 });
+        let err_dto = RawReadStateDto::deserialize(&missing_id).expect("deserialize");
+        assert!(err_dto.into_read_state().is_err());
+
+        // Invalid field type returns DataError::Parse
+        let bad_flags = serde_json::json!({ "id": "123", "flags": "not-a-number" });
+        let bad_dto = RawReadStateDto::deserialize(&bad_flags).expect("deserialize");
+        assert!(bad_dto.into_read_state().is_err());
+    }
+}
