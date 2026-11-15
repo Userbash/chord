@@ -311,6 +311,9 @@ export function createShellFeatureBridge({ onDispatchIpc, onNavigate } = {}) {
  *   Optional error handler for listen setup or event processing failures.
  * @property {boolean} [autoStart]
  *   Whether to start listening immediately upon creation (default: false).
+ * @property {number} [intervalMs]
+ *   Optional periodic poll interval in milliseconds as a fallback / sync timer
+ *   when backend push events are unavailable or infrequent (e.g. 500-1000ms).
  */
 
 /**
@@ -376,6 +379,7 @@ export function createTauriEventListener(options) {
     initialFetch,
     onError,
     autoStart = false,
+    intervalMs = 0,
   } = options;
 
   if (typeof eventName !== "string" || eventName.trim() === "") {
@@ -393,6 +397,8 @@ export function createTauriEventListener(options) {
   let unlistenFn = null;
   /** @type {Promise<void> | null} */
   let pendingSubscription = null;
+  /** @type {ReturnType<typeof setInterval> | null} */
+  let pollIntervalTimer = null;
   let active = false;
   let disposed = false;
 
@@ -423,6 +429,26 @@ export function createTauriEventListener(options) {
 
     if (!active || disposed) {
       return false;
+    }
+
+    // Start periodic polling fallback if intervalMs is specified
+    if (typeof intervalMs === "number" && intervalMs > 0 && typeof initialFetch === "function") {
+      if (pollIntervalTimer) {
+        clearInterval(pollIntervalTimer);
+      }
+      pollIntervalTimer = setInterval(async () => {
+        if (!active || disposed) return;
+        try {
+          const val = await initialFetch();
+          if (active && !disposed && val !== null && val !== undefined) {
+            onEvent(unwrapTauriPayload(val), val);
+          }
+        } catch (pollErr) {
+          if (typeof onError === "function") {
+            onError(pollErr);
+          }
+        }
+      }, intervalMs);
     }
 
     const listen = resolveListenFn();
@@ -476,6 +502,10 @@ export function createTauriEventListener(options) {
    */
   async function stop() {
     active = false;
+    if (pollIntervalTimer) {
+      clearInterval(pollIntervalTimer);
+      pollIntervalTimer = null;
+    }
     if (pendingSubscription) {
       try {
         await pendingSubscription;

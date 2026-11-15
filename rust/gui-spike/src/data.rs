@@ -4706,9 +4706,8 @@ pub fn confirm_live_rtc_op4_session_description(data: Option<&Value>) {
     let _ = data;
     guard.voice_got_rtc_op4 = true;
     guard.voice_last_error = None;
-    if guard.voice_got_state_update && guard.voice_got_server_update {
-        guard.voice_phase = "connected".to_string();
-    }
+    guard.voice_phase = "connected".to_string();
+    guard.voice_connect_started_at = None;
 }
 
 /// Проверяет таймаут (15s) рукопожатия голосовой сессии (`signaling`/`negotiating` без `connected`)
@@ -4726,6 +4725,8 @@ pub fn check_voice_handshake_timeout_with_elapsed(elapsed: std::time::Duration) 
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());
         let is_connected = guard.voice_phase == "connected"
+            || guard.voice_got_rtc_op4
+            || chord_core::ws::is_live_rtc_connected()
             || (guard.voice_got_state_update
                 && guard.voice_got_server_update
                 && (guard.voice_got_rtc_op4 || chord_core::ws::is_live_rtc_connected()));
@@ -6212,7 +6213,14 @@ pub fn live_voice_rtc_status_json() -> Value {
             let guard = live_session()
                 .lock()
                 .unwrap_or_else(|poison| poison.into_inner());
-            guard.voice_connect_started_at.map(|t| t.elapsed())
+            let is_already_connected = guard.voice_phase == "connected"
+                || guard.voice_got_rtc_op4
+                || chord_core::ws::is_live_rtc_connected();
+            if is_already_connected {
+                None
+            } else {
+                guard.voice_connect_started_at.map(|t| t.elapsed())
+            }
         };
         if let Some(el) = maybe_elapsed {
             if el >= std::time::Duration::from_secs(15) {
@@ -6253,11 +6261,15 @@ pub fn live_voice_rtc_status_json() -> Value {
                 voice_error = Some(err.clone());
                 voice_timed_out = true;
             }
-        } else if guard.voice_got_state_update
-            && guard.voice_got_server_update
-            && (guard.voice_got_rtc_op4 || snap.state == "connected")
+        } else if snap.state == "connected"
+            || guard.voice_got_rtc_op4
+            || (guard.voice_got_state_update
+                && guard.voice_got_server_update
+                && chord_core::ws::is_live_rtc_connected())
         {
             guard.voice_phase = "connected".to_string();
+            guard.voice_got_rtc_op4 = true;
+            guard.voice_connect_started_at = None;
             guard.voice_last_error = None;
             effective_state = "connected".to_string();
         } else if guard.voice_got_state_update && guard.voice_got_server_update {

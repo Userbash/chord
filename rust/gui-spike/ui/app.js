@@ -4375,6 +4375,7 @@ function boot() {
 
     audioDeviceLevelsTimer = createTauriEventListener({
       event: "voice-audio-device-levels",
+      intervalMs,
       initialFetch: () => pollAudioDeviceLevels(false),
       onEvent: () => {
         void pollAudioDeviceLevels(false);
@@ -4607,6 +4608,7 @@ function boot() {
 
     rtcPollTimer = createTauriEventListener({
       event: "voice-state-update",
+      intervalMs: 1000,
       initialFetch: pollOnce,
       onEvent: (payload) => {
         if (payload && typeof payload === "object") {
@@ -8584,6 +8586,7 @@ function boot() {
 
         micTestTimer = createTauriEventListener({
           event: "voice-mic-level-update",
+          intervalMs: 150,
           initialFetch,
           onEvent: (payload) => {
             updateMicBars(payload);
