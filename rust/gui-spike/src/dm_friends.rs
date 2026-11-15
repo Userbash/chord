@@ -859,6 +859,89 @@ fn parse_private_channel_obj(
     })
 }
 
+/// Serde deserializer for an optional embedded user object, returning `None` on null or invalid payloads.
+fn deserialize_opt_dm_user<'de, D>(deserializer: D) -> Result<Option<ResolvedDmUser>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(parse_user_obj(&val))
+}
+
+/// Raw Serde DTO for deserializing a Discord relationship entry from Gateway READY payloads.
+#[derive(Debug, Deserialize, Default)]
+#[serde(default)]
+struct RawRelationshipDto {
+    /// Relationship snowflake ID (string or numeric in ETF).
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    id: Option<String>,
+    /// Target user snowflake ID, if explicitly provided.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    user_id: Option<String>,
+    /// Numeric Discord relationship type (`1..=4`).
+    #[serde(rename = "type", deserialize_with = "deserialize_opt_etf_i64")]
+    relationship_type: Option<i64>,
+    /// Optional custom friend nickname.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    nickname: Option<String>,
+    /// Optional ISO-8601 timestamp when the relationship was established.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    since: Option<String>,
+    /// Whether an incoming friend request is flagged as spam.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    is_spam_request: bool,
+    /// Whether the target user is currently ignored.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    user_ignored: bool,
+    /// Optional inline user object embedded in the relationship entry.
+    #[serde(deserialize_with = "deserialize_opt_dm_user")]
+    user: Option<ResolvedDmUser>,
+}
+
+/// Parses a relationship entry from Gateway READY into a [`RelationshipRecord`].
+///
+/// Uses Serde deserialization via [`RawRelationshipDto`], resolves `id` and `user_id`
+/// fallbacks, and attaches either the inline user or a matching entry from `users_by_id`.
+///
+/// # Arguments
+/// * `rel_val` - Raw JSON value of the relationship entry.
+/// * `users_by_id` - Lookup map of resolved users from the session.
+///
+/// # Returns
+/// `Ok(RelationshipRecord)` on valid relationship data, or `Err(DmFriendsError::InvalidResponse)`.
+fn parse_relationship_obj(
+    rel_val: &serde_json::Value,
+    users_by_id: &BTreeMap<String, ResolvedDmUser>,
+) -> Result<RelationshipRecord, DmFriendsError> {
+    let dto = RawRelationshipDto::deserialize(rel_val).map_err(|_| DmFriendsError::InvalidResponse)?;
+    let inline_user = dto.user;
+    let id = dto
+        .id
+        .or_else(|| dto.user_id.clone())
+        .or_else(|| inline_user.as_ref().map(|u| u.id.clone()))
+        .ok_or(DmFriendsError::InvalidResponse)?;
+    let user_id = dto
+        .user_id
+        .or_else(|| inline_user.as_ref().map(|u| u.id.clone()))
+        .unwrap_or_else(|| id.clone());
+    let raw_type = dto
+        .relationship_type
+        .ok_or(DmFriendsError::InvalidResponse)?;
+    let relationship_type = RelationshipType::from_i64(raw_type);
+    let user = inline_user.or_else(|| users_by_id.get(&user_id).cloned());
+
+    Ok(RelationshipRecord {
+        id,
+        user_id,
+        relationship_type,
+        nickname: dto.nickname,
+        since: dto.since,
+        is_spam_request: dto.is_spam_request,
+        user_ignored: dto.user_ignored,
+        user,
+    })
+}
+
 /// Разбирает `READY` JSON (`d.users`, `d.private_channels`, `d.relationships`) без единого сетевого вызова.
 pub fn parse_ready_dm_friends(
     ready_json: &serde_json::Value,
@@ -892,32 +975,7 @@ pub fn parse_ready_dm_friends(
     let mut relationships = Vec::new();
     if let Some(rel_arr) = d.get("relationships").and_then(serde_json::Value::as_array) {
         for rel_val in rel_arr {
-            let inline_user = rel_val.get("user").and_then(parse_user_obj);
-            let id = opt_str(rel_val.get("id"))
-                .or_else(|| opt_str(rel_val.get("user_id")))
-                .or_else(|| inline_user.as_ref().map(|u| u.id.clone()))
-                .ok_or(DmFriendsError::InvalidResponse)?;
-            let user_id = opt_str(rel_val.get("user_id"))
-                .or_else(|| inline_user.as_ref().map(|u| u.id.clone()))
-                .unwrap_or_else(|| id.clone());
-            let raw_type = i64_val(rel_val.get("type")).ok_or(DmFriendsError::InvalidResponse)?;
-            let relationship_type = RelationshipType::from_i64(raw_type);
-            let nickname = opt_str(rel_val.get("nickname"));
-            let since = opt_str(rel_val.get("since"));
-            let is_spam_request = bool_val(rel_val.get("is_spam_request"));
-            let user_ignored = bool_val(rel_val.get("user_ignored"));
-            let user = inline_user.or_else(|| users.get(&user_id).cloned());
-
-            relationships.push(RelationshipRecord {
-                id,
-                user_id,
-                relationship_type,
-                nickname,
-                since,
-                is_spam_request,
-                user_ignored,
-                user,
-            });
+            relationships.push(parse_relationship_obj(rel_val, &users)?);
         }
     }
 

@@ -8406,26 +8406,146 @@ pub struct ReadyPayload {
     pub read_state: Value,
 }
 
+/// Serde deserializer for an optional Discord string field, filtering out empty strings and `"nil"` sentinels.
+fn deserialize_ready_opt_str<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(as_non_nil_str(&val).map(str::to_string))
+}
+
+/// Serde deserializer for a Discord boolean field accepting booleans, `"true"`/`"false"`, or `1`/`0`.
+fn deserialize_ready_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    let flag = match &val {
+        Value::Bool(flag) => Some(*flag),
+        Value::String(text) => match text.as_str() {
+            "true" => Some(true),
+            "false" => Some(false),
+            _ => None,
+        },
+        Value::Number(number) => match number.as_u64() {
+            Some(1) => Some(true),
+            Some(0) => Some(false),
+            _ => None,
+        },
+        _ => None,
+    };
+    Ok(flag.unwrap_or(false))
+}
+
+/// Serde deserializer for an optional Discord `u8` field accepting numbers or numeric strings, clamped to `u8::MAX`.
+fn deserialize_ready_opt_u8<'de, D>(deserializer: D) -> Result<Option<u8>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    let num = match &val {
+        Value::Number(number) => number.as_u64(),
+        Value::String(text) => text.parse::<u64>().ok(),
+        _ => None,
+    };
+    Ok(num.map(|n| n.min(u8::MAX as u64) as u8))
+}
+
+/// Data Transfer Object (DTO) for deserializing `READY.user` payloads via Serde.
+///
+/// Supports both `snake_case` Gateway fields and `camelCase` BFF/cache fallbacks
+/// (`global_name`/`globalName`, `mfa_enabled`/`mfaEnabled`, `premium_type`/`premiumType`)
+/// without failing when both variants appear in the same JSON object.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct ReadyUserDto {
+    /// Required user Snowflake ID (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Required account username (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub username: Option<String>,
+    /// Primary `snake_case` global display name.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub global_name: Option<String>,
+    /// Fallback `camelCase` global display name.
+    #[serde(rename = "globalName", deserialize_with = "deserialize_ready_opt_str")]
+    pub global_name_camel: Option<String>,
+    /// Optional avatar hash.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub avatar: Option<String>,
+    /// Optional (redacted/sanitized) email address.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub email: Option<String>,
+    /// Optional user profile bio.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub bio: Option<String>,
+    /// Explicit Nitro subscription flag.
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub premium: bool,
+    /// Primary `snake_case` Nitro tier (`0` = none, `1` = Classic, `2` = Full, `3` = Basic).
+    #[serde(deserialize_with = "deserialize_ready_opt_u8")]
+    pub premium_type: Option<u8>,
+    /// Fallback `camelCase` Nitro tier.
+    #[serde(rename = "premiumType", deserialize_with = "deserialize_ready_opt_u8")]
+    pub premium_type_camel: Option<u8>,
+    /// Primary `snake_case` MFA status flag.
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub mfa_enabled: bool,
+    /// Fallback `camelCase` MFA status flag.
+    #[serde(rename = "mfaEnabled", deserialize_with = "deserialize_ready_bool")]
+    pub mfa_enabled_camel: bool,
+}
+
+impl ReadyUserDto {
+    /// Converts the deserialized DTO into a validated [`ReadyUser`].
+    ///
+    /// # Arguments
+    /// * `path` - Source fixture or cache path for error reporting context.
+    ///
+    /// # Returns
+    /// `Ok(ReadyUser)` if `id` and `username` are valid non-empty strings, or `Err(DataError)`.
+    #[inline]
+    pub fn into_ready_user(self, path: &Path) -> Result<ReadyUser, DataError> {
+        let id = self
+            .id
+            .ok_or_else(|| DataError::parse(path, "READY.user без строкового id"))?;
+        let username = self
+            .username
+            .ok_or_else(|| DataError::parse(path, "READY.user без строкового username"))?;
+        let premium_type = self.premium_type.or(self.premium_type_camel).unwrap_or(0);
+        let premium = self.premium || premium_type > 0;
+        Ok(ReadyUser {
+            id,
+            username,
+            global_name: self.global_name.or(self.global_name_camel),
+            avatar: self.avatar,
+            email: self.email,
+            bio: self.bio,
+            premium,
+            premium_type,
+            mfa_enabled: self.mfa_enabled || self.mfa_enabled_camel,
+        })
+    }
+}
+
+/// Parses a `READY.user` JSON value into a strongly-typed [`ReadyUser`] using Serde ([`ReadyUserDto`]).
+///
+/// Preserves all field fallbacks (`global_name`/`globalName`, `mfa_enabled`/`mfaEnabled`,
+/// `premium_type`/`premiumType`) and ETF `"nil"` sentinel filtering.
+///
+/// # Arguments
+/// * `value` - Raw JSON value representing `READY.user`.
+/// * `path` - Source file path used for [`DataError`] context on validation failure.
+///
+/// # Returns
+/// `Ok(ReadyUser)` on success, or `Err(DataError)` if required fields (`id`, `username`) are missing.
+#[inline]
 fn parse_ready_user(value: &Value, path: &Path) -> Result<ReadyUser, DataError> {
-    let id = field_str(value, "id")
-        .ok_or_else(|| DataError::parse(path, "READY.user без строкового id"))?;
-    let username = field_str(value, "username")
-        .ok_or_else(|| DataError::parse(path, "READY.user без строкового username"))?;
-    let premium_type = parse_user_premium_type(value);
-    let premium = field_bool(value, "premium") || premium_type > 0;
-    Ok(ReadyUser {
-        id: id.to_string(),
-        username: username.to_string(),
-        global_name: field_str(value, "global_name")
-            .or_else(|| field_str(value, "globalName"))
-            .map(str::to_string),
-        avatar: field_str(value, "avatar").map(str::to_string),
-        email: field_str(value, "email").map(str::to_string),
-        bio: field_str(value, "bio").map(str::to_string),
-        premium,
-        premium_type,
-        mfa_enabled: field_bool(value, "mfa_enabled") || field_bool(value, "mfaEnabled"),
-    })
+    let dto = ReadyUserDto::deserialize(value)
+        .map_err(|_| DataError::parse(path, "READY.user без строкового id"))?;
+    dto.into_ready_user(path)
 }
 
 fn parse_guild(value: &Value) -> GuildSummary {
