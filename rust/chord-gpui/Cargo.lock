@@ -1048,10 +1048,13 @@ dependencies = [
  "gpui-kit",
  "gpui-pre",
  "gpui-webview",
+ "hkdf",
+ "hmac",
  "image",
  "rusqlite",
  "serde",
  "serde_json",
+ "sha2 0.10.9",
  "tokio",
 ]
 

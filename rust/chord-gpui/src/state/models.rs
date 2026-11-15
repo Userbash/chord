@@ -80,6 +80,22 @@ impl Default for CurrentUser {
     }
 }
 
+/// Папка серверов из пакета READY по спецификации Discord API v9 и референсу `diamondburned/dissent`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct GuildFolder {
+    /// Уникальный Snowflake ID папки (`None` для серверов без группировки)
+    pub id: Option<u64>,
+    /// Пользовательское наименование папки (опционально)
+    #[serde(default)]
+    pub name: Option<String>,
+    /// Числовой цвет акцента папки в формате RGB (например `0x5865F2`)
+    #[serde(default)]
+    pub color: Option<u32>,
+    /// Список идентификаторов гильдий, входящих в данную папку
+    #[serde(default)]
+    pub guild_ids: Vec<String>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum ChannelType {
     #[default]
@@ -186,6 +202,124 @@ pub struct Message {
     pub is_pinned: bool,
     #[serde(default)]
     pub message_kind: MessageKind,
+}
+
+/// Стиль оформления интерактивной кнопки Discord API v9
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(from = "u8", into = "u8")]
+pub enum ButtonStyle {
+    /// 1 = Primary (Blurple, акцентный стиль)
+    Primary,
+    /// 2 = Secondary (Серый, нейтральный стиль)
+    Secondary,
+    /// 3 = Success (Зелёный, подтверждение)
+    Success,
+    /// 4 = Danger (Красный, деструктивное действие)
+    Danger,
+    /// 5 = Link (Ссылка, переход по внешнему URL)
+    Link,
+}
+
+impl From<u8> for ButtonStyle {
+    fn from(val: u8) -> Self {
+        match val {
+            1 => Self::Primary,
+            2 => Self::Secondary,
+            3 => Self::Success,
+            4 => Self::Danger,
+            5 => Self::Link,
+            _ => Self::Secondary,
+        }
+    }
+}
+
+impl From<ButtonStyle> for u8 {
+    fn from(style: ButtonStyle) -> Self {
+        match style {
+            ButtonStyle::Primary => 1,
+            ButtonStyle::Secondary => 2,
+            ButtonStyle::Success => 3,
+            ButtonStyle::Danger => 4,
+            ButtonStyle::Link => 5,
+        }
+    }
+}
+
+/// Описание одной интерактивной кнопки сообщения (Discord Component Type 2: Button)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InteractiveButtonComponent {
+    /// Тип компонента (для кнопок всегда равен 2)
+    #[serde(default = "default_button_type")]
+    pub component_type: u8,
+    /// Стиль кнопки: Primary, Secondary, Success, Danger, Link
+    pub style: ButtonStyle,
+    /// Отображаемый текст надписи на кнопке
+    #[serde(default)]
+    pub label: Option<String>,
+    /// Идентификатор действия для обратного вызова бота (custom_id)
+    #[serde(default)]
+    pub custom_id: Option<String>,
+    /// Целевой URL (только для кнопок со стилем Link)
+    #[serde(default)]
+    pub url: Option<String>,
+    /// Заблокирована ли кнопка для нажатия
+    #[serde(default)]
+    pub disabled: bool,
+    /// Название эмодзи или символ (опционально)
+    #[serde(default)]
+    pub emoji_name: Option<String>,
+}
+
+fn default_button_type() -> u8 {
+    2
+}
+
+/// Ряд интерактивных компонентов сообщения (Discord Component Type 1: ActionRow)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MessageComponentRow {
+    /// Тип компонента (для рядов всегда равен 1)
+    #[serde(default = "default_action_row_type")]
+    pub component_type: u8,
+    /// Список компонентов внутри ряда (до 5 кнопок)
+    #[serde(default)]
+    pub components: Vec<InteractiveButtonComponent>,
+}
+
+fn default_action_row_type() -> u8 {
+    1
+}
+
+/// Полезная нагрузка обратного вызова при нажатии кнопки (`POST /api/v9/interactions`)
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InteractionCallbackPayload {
+    /// Тип взаимодействия: 3 = MESSAGE_COMPONENT
+    #[serde(rename = "type")]
+    pub interaction_type: u8,
+    /// Идентификатор бота/приложения
+    pub application_id: String,
+    /// Идентификатор гильдии (если применимо)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guild_id: Option<String>,
+    /// Идентификатор текстового канала
+    pub channel_id: String,
+    /// Идентификатор сообщения, содержащего кнопку
+    pub message_id: String,
+    /// Текущий идентификатор сессии шлюза
+    pub session_id: String,
+    /// Данные нажатого компонента
+    pub data: InteractionComponentData,
+    /// Клиентский nonce для дедупликации
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nonce: Option<String>,
+}
+
+/// Вложенные данные компонента при взаимодействии
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InteractionComponentData {
+    /// Тип компонента (2 = Button)
+    pub component_type: u8,
+    /// Идентификатор `custom_id` нажатой кнопки
+    pub custom_id: String,
 }
 
 /// Состояние голосового/видео вызова в личном сообщении (Direct Call)

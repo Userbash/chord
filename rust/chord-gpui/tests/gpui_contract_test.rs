@@ -3806,3 +3806,50 @@ fn test_dynamic_message_pagination_contract() {
         "При достижении верха истории новые запросы отправляться не должны"
     );
 }
+
+#[test]
+fn test_guild_folders_hierarchy_and_expansion_contract() {
+    use state::GuildFolder;
+
+    // 1. Десериализация guild_folders из типичного пакета Discord READY
+    let ready_folders_json = r#"[
+        {
+            "id": null,
+            "guild_ids": ["111111111111111111"]
+        },
+        {
+            "id": 1001,
+            "name": "Rust Dev Hub",
+            "color": 5793266,
+            "guild_ids": ["222222222222222222", "333333333333333333"]
+        }
+    ]"#;
+
+    let folders: Vec<GuildFolder> =
+        serde_json::from_str(ready_folders_json).expect("deserialize ready guild_folders");
+    assert_eq!(folders.len(), 2);
+    assert_eq!(folders[0].id, None);
+    assert_eq!(folders[0].guild_ids, vec!["111111111111111111"]);
+
+    assert_eq!(folders[1].id, Some(1001));
+    assert_eq!(folders[1].name.as_deref(), Some("Rust Dev Hub"));
+    assert_eq!(folders[1].color, Some(5793266));
+    assert_eq!(
+        folders[1].guild_ids,
+        vec!["222222222222222222", "333333333333333333"]
+    );
+
+    // 2. Интеграция с AppState и проверка аккордеона раскрытия папок (референс diamondburned/dissent)
+    let mut state = AppState::new();
+    state.guild_folders = folders;
+
+    assert!(!state.is_folder_expanded(1001));
+
+    // Раскрытие папки
+    state.toggle_folder_expanded(1001);
+    assert!(state.is_folder_expanded(1001));
+
+    // Сворачивание папки
+    state.toggle_folder_expanded(1001);
+    assert!(!state.is_folder_expanded(1001));
+}

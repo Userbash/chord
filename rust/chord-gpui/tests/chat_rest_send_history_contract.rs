@@ -1323,3 +1323,98 @@ async fn t11_chat_view_optimistic_send_failure_preserves_state_and_retries_with_
     assert!(body1.contains("\"nonce\":\"nonce-retry-555\""));
     assert!(body2.contains("\"nonce\":\"nonce-retry-555\""));
 }
+
+#[test]
+fn test_interactive_buttons_and_interaction_callback_contract() {
+    use state::{
+        ButtonStyle, InteractionCallbackPayload, InteractionComponentData,
+        InteractiveButtonComponent, MessageComponentRow,
+    };
+
+    // 1. Проверка маппинга стилей кнопок Discord API v9
+    assert_eq!(u8::from(ButtonStyle::Primary), 1);
+    assert_eq!(u8::from(ButtonStyle::Secondary), 2);
+    assert_eq!(u8::from(ButtonStyle::Success), 3);
+    assert_eq!(u8::from(ButtonStyle::Danger), 4);
+    assert_eq!(u8::from(ButtonStyle::Link), 5);
+
+    assert_eq!(ButtonStyle::from(1), ButtonStyle::Primary);
+    assert_eq!(ButtonStyle::from(2), ButtonStyle::Secondary);
+    assert_eq!(ButtonStyle::from(3), ButtonStyle::Success);
+    assert_eq!(ButtonStyle::from(4), ButtonStyle::Danger);
+    assert_eq!(ButtonStyle::from(5), ButtonStyle::Link);
+    assert_eq!(ButtonStyle::from(99), ButtonStyle::Secondary); // fallback
+
+    // 2. Сериализация и десериализация InteractiveButtonComponent
+    let btn_primary = InteractiveButtonComponent {
+        component_type: 2,
+        style: ButtonStyle::Primary,
+        label: Some("Подтвердить".to_string()),
+        custom_id: Some("action_confirm_btn".to_string()),
+        url: None,
+        disabled: false,
+        emoji_name: Some("✅".to_string()),
+    };
+    let btn_json = serde_json::to_string(&btn_primary).expect("serialize button");
+    assert!(btn_json.contains("\"style\":1"));
+    assert!(btn_json.contains("\"custom_id\":\"action_confirm_btn\""));
+    assert!(btn_json.contains("\"label\":\"Подтвердить\""));
+
+    let decoded_btn: InteractiveButtonComponent =
+        serde_json::from_str(&btn_json).expect("deserialize button");
+    assert_eq!(decoded_btn.style, ButtonStyle::Primary);
+    assert_eq!(decoded_btn.custom_id.as_deref(), Some("action_confirm_btn"));
+
+    // 3. Сериализация ActionRow (компонент тип 1)
+    let row = MessageComponentRow {
+        component_type: 1,
+        components: vec![
+            btn_primary,
+            InteractiveButtonComponent {
+                component_type: 2,
+                style: ButtonStyle::Danger,
+                label: Some("Отклонить".to_string()),
+                custom_id: Some("action_cancel_btn".to_string()),
+                url: None,
+                disabled: false,
+                emoji_name: Some("❌".to_string()),
+            },
+            InteractiveButtonComponent {
+                component_type: 2,
+                style: ButtonStyle::Link,
+                label: Some("Документация".to_string()),
+                custom_id: None,
+                url: Some("https://discord.com".to_string()),
+                disabled: false,
+                emoji_name: None,
+            },
+        ],
+    };
+    assert_eq!(row.components.len(), 3);
+
+    // 4. Сериализация полезной нагрузки InteractionCallback (POST /api/v9/interactions)
+    let callback = InteractionCallbackPayload {
+        interaction_type: 3, // MESSAGE_COMPONENT
+        application_id: "109876543210987654".to_string(),
+        guild_id: Some("987654321098765432".to_string()),
+        channel_id: "876543210987654321".to_string(),
+        message_id: "765432109876543210".to_string(),
+        session_id: "session_token_xyz_99".to_string(),
+        data: InteractionComponentData {
+            component_type: 2,
+            custom_id: "action_confirm_btn".to_string(),
+        },
+        nonce: Some("nonce_interact_123".to_string()),
+    };
+
+    let cb_json = serde_json::to_string(&callback).expect("serialize interaction callback");
+    assert!(cb_json.contains("\"type\":3"));
+    assert!(cb_json.contains("\"application_id\":\"109876543210987654\""));
+    assert!(cb_json.contains("\"custom_id\":\"action_confirm_btn\""));
+    assert!(cb_json.contains("\"nonce\":\"nonce_interact_123\""));
+
+    let decoded_cb: InteractionCallbackPayload =
+        serde_json::from_str(&cb_json).expect("deserialize interaction callback");
+    assert_eq!(decoded_cb.interaction_type, 3);
+    assert_eq!(decoded_cb.data.custom_id, "action_confirm_btn");
+}

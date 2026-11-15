@@ -423,6 +423,15 @@ pub struct NoiseSuppressionPipeline {
     cpu_overuse_streak: u32,
     stats_enabled: bool,
     stats: NoiseCancellationStats,
+    /// Плавающий уровень фонового шума в дБ полной шкалы (Noise Floor).
+    /// Расчёт по эталону `uowuo/abaddon` (`audio.cpp`) исключает обрывы окончаний слов при шепоте.
+    noise_floor_dbfs: f32,
+    /// Включена ли адаптивная подстройка порога VAD к шуму помещения
+    adaptive_noise_floor_enabled: bool,
+    /// Запас отношения сигнал/шум (SNR Margin) над уровнем шума (дБ)
+    snr_margin_db: f32,
+    /// Запас гистерезиса порога закрытия гейта (дБ) для предотвращения щелчков и затуханий шепота
+    hysteresis_margin_db: f32,
 }
 
 impl NoiseSuppressionPipeline {
@@ -445,6 +454,10 @@ impl NoiseSuppressionPipeline {
             cpu_overuse_streak: 0,
             stats_enabled: true,
             stats: NoiseCancellationStats::default(),
+            noise_floor_dbfs: -65.0,
+            adaptive_noise_floor_enabled: true,
+            snr_margin_db: 6.0,
+            hysteresis_margin_db: 4.0,
         }
     }
 
@@ -484,6 +497,58 @@ impl NoiseSuppressionPipeline {
     #[must_use]
     pub const fn vad_threshold_db(&self) -> i8 {
         self.config.vad_threshold_db
+    }
+
+    /// Плавающий уровень фонового шума в дБ полной шкалы (Noise Floor)
+    #[must_use]
+    pub const fn noise_floor_dbfs(&self) -> f32 {
+        self.noise_floor_dbfs
+    }
+
+    /// Включение/отключение адаптивного плавающего порога шума
+    pub fn set_adaptive_noise_floor_enabled(&mut self, enabled: bool) {
+        self.adaptive_noise_floor_enabled = enabled;
+    }
+
+    #[must_use]
+    pub const fn is_adaptive_noise_floor_enabled(&self) -> bool {
+        self.adaptive_noise_floor_enabled
+    }
+
+    /// Запас отношения сигнал/шум (SNR margin в дБ) над уровнем шума
+    pub fn set_snr_margin_db(&mut self, margin_db: f32) {
+        self.snr_margin_db = margin_db.clamp(0.0, 30.0);
+    }
+
+    #[must_use]
+    pub const fn snr_margin_db(&self) -> f32 {
+        self.snr_margin_db
+    }
+
+    /// Запас гистерезиса удержания окончания слов (дБ)
+    pub fn set_hysteresis_margin_db(&mut self, margin_db: f32) {
+        self.hysteresis_margin_db = margin_db.clamp(0.0, 20.0);
+    }
+
+    #[must_use]
+    pub const fn hysteresis_margin_db(&self) -> f32 {
+        self.hysteresis_margin_db
+    }
+
+    /// Обновление плавающего уровня фонового шума по экспоненциальному сглаживанию (EMA)
+    /// по эталону `uowuo/abaddon` (`audio.cpp`).
+    pub fn update_adaptive_noise_floor(&mut self, current_dbfs: f32) {
+        if !current_dbfs.is_finite() {
+            return;
+        }
+        if current_dbfs < self.noise_floor_dbfs {
+            // Быстрое падение до нового уровня тишины (5% шаг)
+            self.noise_floor_dbfs = self.noise_floor_dbfs * 0.95 + current_dbfs * 0.05;
+        } else if !self.gate_open {
+            // Очень медленный дрейф вверх при отсутствии активной речи (0.2% шаг)
+            self.noise_floor_dbfs = self.noise_floor_dbfs * 0.998 + current_dbfs * 0.002;
+        }
+        self.noise_floor_dbfs = self.noise_floor_dbfs.clamp(-100.0, -20.0);
     }
 
     #[must_use]
@@ -667,8 +732,29 @@ impl NoiseSuppressionPipeline {
             }
         }
 
+        // Обновляем плавающий порог фонового шума по эталону uowuo/abaddon (audio.cpp)
+        if self.adaptive_noise_floor_enabled {
+            self.update_adaptive_noise_floor(input_dbfs);
+        }
+
         // Детектирование речи по порогу dBFS + порогу уверенности модели Krisp VAD.
-        let db_above_threshold = input_dbfs >= f32::from(self.config.vad_threshold_db);
+        // Используется гистерезис: для уже открытого гейта порог удержания на `hysteresis_margin_db`
+        // ниже базового порога открытия, что исключает обрывы окончаний слов при шепоте.
+        let base_threshold_db = f32::from(self.config.vad_threshold_db);
+        let effective_threshold_db = if self.adaptive_noise_floor_enabled {
+            let adaptive_open_db = base_threshold_db.max(self.noise_floor_dbfs + self.snr_margin_db);
+            if self.gate_open {
+                adaptive_open_db - self.hysteresis_margin_db
+            } else {
+                adaptive_open_db
+            }
+        } else if self.gate_open {
+            base_threshold_db - self.hysteresis_margin_db
+        } else {
+            base_threshold_db
+        };
+
+        let db_above_threshold = input_dbfs >= effective_threshold_db;
         let krisp_above_threshold = !self.config.vad_use_krisp
             || self.active_backend != SuppressionBackend::Krisp
             || clamped_confidence >= self.config.vad_krisp_activation_threshold;
@@ -746,5 +832,47 @@ impl NoiseSuppressionPipeline {
             active_backend: self.active_backend,
             skipped_because_muted: false,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_adaptive_vad_floor_and_whisper_hysteresis() {
+        let mut pipeline = NoiseSuppressionPipeline::new(NoiseSuppressionConfig {
+            backend: SuppressionBackend::StandardWebRtc,
+            vad_threshold_db: -50,
+            vad_leading_frames: 1,
+            vad_trailing_frames: 3,
+            ..NoiseSuppressionConfig::default_krisp()
+        });
+        pipeline.initialize(true).unwrap();
+        pipeline.setup(48_000, 1, 20).unwrap();
+
+        assert!(pipeline.is_adaptive_noise_floor_enabled());
+        assert_eq!(pipeline.snr_margin_db(), 6.0);
+        assert_eq!(pipeline.hysteresis_margin_db(), 4.0);
+
+        // Симулируем тихий фон (-75 dBFS)
+        pipeline.update_adaptive_noise_floor(-75.0);
+        assert!(pipeline.noise_floor_dbfs() < -65.0);
+
+        // Создаем кадр тихого шепота (~ -48 dBFS, амплитуда около 130 из 32767)
+        let mut whisper_frame = vec![130i16; 960];
+        let res1 = pipeline
+            .process_frame(&mut whisper_frame, false, -70.0, 0.9, 1000)
+            .unwrap();
+        assert!(res1.raw_voice_detected, "Шепот должен определяться при адаптивном пороге");
+        assert!(res1.gate_open);
+
+        // Кадр окончания слова (~ -53 dBFS, амплитуда около 70)
+        let mut tail_frame = vec![70i16; 960];
+        let res2 = pipeline
+            .process_frame(&mut tail_frame, false, -70.0, 0.9, 1000)
+            .unwrap();
+        // Благодаря гистерезису и плавающему порогу, окончание слова не обрывается
+        assert!(res2.gate_open, "Гистерезис удерживает гейт открытым на окончаниях слов");
     }
 }

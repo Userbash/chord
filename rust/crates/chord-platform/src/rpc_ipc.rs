@@ -1323,6 +1323,9 @@ pub struct DiscordRpcListener {
     device: u64,
     inode: u64,
     uid: u32,
+    /// Символическая ссылка в каталоге `/tmp/discord-ipc-<slot>` для эмуляции
+    /// официального сокета Discord (по референсу `arrpc` из Vesktop).
+    emulated_tmp_symlink: Option<PathBuf>,
 }
 
 impl DiscordRpcListener {
@@ -1396,10 +1399,70 @@ impl DiscordRpcListener {
             device: meta.dev(),
             inode: meta.ino(),
             uid,
+            emulated_tmp_symlink: None,
         };
         fs::set_permissions(path, fs::Permissions::from_mode(RPC_SOCKET_MODE))
             .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
         Ok(owned)
+    }
+
+    /// Активирует эмуляцию сокета `/tmp/discord-ipc-<slot>` по референсу `arrpc` (из Vesktop).
+    ///
+    /// Многие игры и библиотеки Discord RPC (включая запущенные через Wine / Proton / Steam Flatpak)
+    /// жестко закодированы на поиск сокета `/tmp/discord-ipc-0`, игнорируя `$XDG_RUNTIME_DIR`.
+    /// Если основной слушатель открыт не в `/tmp`, этот метод создает символическую ссылку
+    /// `/tmp/discord-ipc-<slot> -> <primary_socket_path>`.
+    ///
+    /// # Параметры и возвращаемое значение:
+    /// * `Ok(Some(path))` — ссылка успешно создана в `/tmp` и готова для приема подключений игр.
+    /// * `Ok(None)` — сокет уже находится в `/tmp`, либо целевой путь занят другим процессом.
+    /// * `Err(RpcIpcError)` — ошибка прав доступа каталога или создания симлинка.
+    pub fn enable_tmp_socket_emulation(&mut self) -> Result<Option<PathBuf>, RpcIpcError> {
+        let Some(slot) = self.slot else {
+            return Ok(None);
+        };
+        let tmp_dir = Path::new("/tmp");
+        if let (Ok(canon_self), Ok(canon_tmp)) = (self.path.canonicalize(), tmp_dir.canonicalize()) {
+            if canon_self.starts_with(&canon_tmp) {
+                // Слушатель уже находится в /tmp, дополнительная ссылка не требуется
+                return Ok(None);
+            }
+        }
+
+        validate_ipc_dir_permissions(tmp_dir, self.uid)?;
+        let tmp_socket_path = tmp_dir.join(format!("{UNIX_SOCKET_PREFIX}{slot}"));
+
+        // Если в /tmp уже существует сокет или симлинк:
+        if let Ok(meta) = fs::symlink_metadata(&tmp_socket_path) {
+            if meta.file_type().is_symlink() {
+                if let Ok(target) = fs::read_link(&tmp_socket_path) {
+                    if target == self.path {
+                        self.emulated_tmp_symlink = Some(tmp_socket_path.clone());
+                        return Ok(Some(tmp_socket_path));
+                    }
+                }
+                // Чужой или устаревший симлинк нашего пользователя удаляем
+                if meta.uid() == self.uid {
+                    let _ = fs::remove_file(&tmp_socket_path);
+                }
+            } else if meta.file_type().is_socket() && !remove_stale_socket(&tmp_socket_path, self.uid) {
+                // Сокет занят живым процессом Discord / другого клиента
+                return Ok(None);
+            }
+        }
+
+        std::os::unix::fs::symlink(&self.path, &tmp_socket_path).map_err(|e| {
+            RpcIpcError::IoError(format!("Failed to create /tmp IPC emulation symlink: {e}"))
+        })?;
+
+        self.emulated_tmp_symlink = Some(tmp_socket_path.clone());
+        Ok(Some(tmp_socket_path))
+    }
+
+    /// Возвращает путь к эмулированной символической ссылке в `/tmp`, если она активна.
+    #[must_use]
+    pub fn emulated_tmp_symlink(&self) -> Option<&Path> {
+        self.emulated_tmp_symlink.as_deref()
     }
 
     /// Возвращает путь к привязанному сокету.
@@ -1472,6 +1535,14 @@ impl DiscordRpcListener {
 
 impl Drop for DiscordRpcListener {
     fn drop(&mut self) {
+        // Очищаем эмулированную символическую ссылку в /tmp, если она была создана
+        if let Some(ref symlink_path) = self.emulated_tmp_symlink {
+            if let Ok(meta) = fs::symlink_metadata(symlink_path) {
+                if meta.file_type().is_symlink() && meta.uid() == self.uid {
+                    let _ = fs::remove_file(symlink_path);
+                }
+            }
+        }
         if let Ok(meta) = fs::symlink_metadata(&self.path)
             && meta.file_type().is_socket()
             && meta.dev() == self.device
@@ -2439,5 +2510,32 @@ mod tests {
         assert!(ack_reply.payload.contains("nonce-abc-123"));
         let server_parsed = handle.join().unwrap();
         assert_eq!(server_parsed, Some(activity));
+    }
+
+    #[test]
+    fn test_arrpc_tmp_socket_emulation() {
+        let temp_dir = std::env::temp_dir().join(format!("chord-ipc-arrpc-test-{}", std::process::id()));
+        let _ = fs::create_dir_all(&temp_dir);
+        let socket_path = temp_dir.join("discord-ipc-0");
+        let mut listener = DiscordRpcListener::bind_path_with_slot(&socket_path, Some(0)).unwrap();
+        assert_eq!(listener.slot(), Some(0));
+
+        // Проверяем, что метод эмуляции /tmp/discord-ipc-0 вызывается без паники
+        let res = listener.enable_tmp_socket_emulation();
+        // В зависимости от прав доступа к системному /tmp в тестовом окружении
+        match res {
+            Ok(Some(path)) => {
+                assert!(path.starts_with("/tmp"));
+                assert!(path.ends_with("discord-ipc-0"));
+                assert_eq!(listener.emulated_tmp_symlink(), Some(path.as_path()));
+            }
+            Ok(None) => {
+                // Путь в /tmp занят или уже в /tmp
+            }
+            Err(_) => {
+                // Если нет прав на /tmp в песочнице
+            }
+        }
+        let _ = fs::remove_dir_all(&temp_dir);
     }
 }

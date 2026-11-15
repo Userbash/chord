@@ -254,6 +254,12 @@ pub struct AppState {
     pub active_rpc_pid: Option<u32>,
     pub last_rpc_nonce: Option<String>,
     pub rpc_activity_telemetry: RpcActivityTelemetry,
+    /// Интерактивные компоненты сообщений (ряды кнопок ActionRow по эталону Discord API v9)
+    pub message_components: HashMap<String, Vec<MessageComponentRow>>,
+    /// Папки серверов из пакета READY по референсу `diamondburned/dissent`
+    pub guild_folders: Vec<GuildFolder>,
+    /// Набор идентификаторов развернутых папок серверов
+    pub expanded_folders: HashSet<u64>,
 }
 
 /// Обёртка над ScrollHandle GPUI с отслеживанием целевого индекса скролла
@@ -434,6 +440,9 @@ impl AppState {
             active_rpc_pid: None,
             last_rpc_nonce: None,
             rpc_activity_telemetry: RpcActivityTelemetry::default(),
+            message_components: HashMap::new(),
+            guild_folders: Vec::new(),
+            expanded_folders: HashSet::new(),
         }
     }
 
@@ -487,6 +496,37 @@ impl AppState {
         // Инициализация доступных видеокамер
         self.available_cameras = crate::audio::AudioEngine::probe_video_cameras();
         self.selected_camera_id = self.available_cameras.first().map(|c| c.id.clone());
+    }
+
+    /// Получить интерактивные компоненты сообщения (ряды кнопок ActionRow)
+    pub fn get_message_components(&self, message_id: &str) -> &[MessageComponentRow] {
+        self.message_components
+            .get(message_id)
+            .map(|rows| rows.as_slice())
+            .unwrap_or(&[])
+    }
+
+    /// Сохранить интерактивные компоненты для сообщения
+    pub fn set_message_components(
+        &mut self,
+        message_id: impl Into<String>,
+        rows: Vec<MessageComponentRow>,
+    ) {
+        self.message_components.insert(message_id.into(), rows);
+    }
+
+    /// Переключить состояние раскрытия папки серверов (expanded/collapsed)
+    pub fn toggle_folder_expanded(&mut self, folder_id: u64) {
+        if self.expanded_folders.contains(&folder_id) {
+            self.expanded_folders.remove(&folder_id);
+        } else {
+            self.expanded_folders.insert(folder_id);
+        }
+    }
+
+    /// Проверить, развернута ли папка серверов в текущий момент
+    pub fn is_folder_expanded(&self, folder_id: u64) -> bool {
+        self.expanded_folders.contains(&folder_id)
     }
 
     /// Чистое начальное состояние без фиктивных мок-данных

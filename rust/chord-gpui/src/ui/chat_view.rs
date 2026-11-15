@@ -1938,10 +1938,13 @@ impl ChatView {
                                     .hover(|s| s.bg(DISCORD_THEME.bg_hover))
                                     .on_mouse_down(
                                         MouseButton::Right,
-                                        cx.listener(move |this, _, _, cx| {
-                                            this.state.open_context_menu(&msg_id);
-                                            cx.notify();
-                                        }),
+                                        {
+                                            let menu_msg_id = msg_id.clone();
+                                            cx.listener(move |this, _, _, cx| {
+                                                this.state.open_context_menu(&menu_msg_id);
+                                                cx.notify();
+                                            })
+                                        },
                                     )
                                     // Аватар автора
                                     .child(
@@ -2091,6 +2094,11 @@ impl ChatView {
                                                                 .child(reaction.count.to_string()),
                                                         )
                                                 }),
+                                            ))
+                                            // Интерактивные кнопки сообщения (Interactive Buttons по референсу txtsd/kind)
+                                            .child(Self::render_interactive_components(
+                                                state.get_message_components(&msg_id),
+                                                &msg_id,
                                             )),
                                     )
                                     // Плавающий бар быстрых действий над сообщением (Floating Action Bar on Hover)
@@ -2741,5 +2749,111 @@ impl ChatView {
             }
         }
         block
+    }
+
+    /// Отрисовка интерактивных компонентов сообщения (ряды кнопок ActionRow)
+    /// по эталону Discord API v9 и референсу из клиента `txtsd/kind`.
+    ///
+    /// # Поддерживаемые стили кнопок:
+    /// * `Primary` (код 1) — фирменный акцентный стиль Blurple
+    /// * `Secondary` (код 2) — нейтральный серый фон
+    /// * `Success` (код 3) — зеленый стиль подтверждения
+    /// * `Danger` (код 4) — красный стиль предупреждения/отмены
+    /// * `Link` (код 5) — серый фон с иконкой перехода по ссылке
+    pub fn render_interactive_components(
+        components: &[crate::state::MessageComponentRow],
+        msg_id: &str,
+    ) -> impl IntoElement {
+        if components.is_empty() {
+            return div().into_any_element();
+        }
+
+        div()
+            .v_flex()
+            .gap(px(6.))
+            .pt(px(4.))
+            .children(components.iter().enumerate().map(|(row_idx, row)| {
+                div()
+                    .flex()
+                    .flex_wrap()
+                    .gap(px(8.))
+                    .children(row.components.iter().enumerate().map(|(btn_idx, btn)| {
+                        let is_disabled = btn.disabled;
+                        let (bg_color, hover_bg, text_color) = match btn.style {
+                            crate::state::ButtonStyle::Primary => (
+                                DISCORD_THEME.blurple,
+                                DISCORD_THEME.blurple_hover,
+                                DISCORD_THEME.text_header,
+                            ),
+                            crate::state::ButtonStyle::Secondary => (
+                                DISCORD_THEME.bg_secondary,
+                                DISCORD_THEME.bg_hover,
+                                DISCORD_THEME.text_normal,
+                            ),
+                            crate::state::ButtonStyle::Success => (
+                                DISCORD_THEME.status_online,
+                                DISCORD_THEME.status_online,
+                                DISCORD_THEME.text_header,
+                            ),
+                            crate::state::ButtonStyle::Danger => (
+                                DISCORD_THEME.status_dnd,
+                                DISCORD_THEME.status_dnd,
+                                DISCORD_THEME.text_header,
+                            ),
+                            crate::state::ButtonStyle::Link => (
+                                DISCORD_THEME.bg_secondary,
+                                DISCORD_THEME.bg_hover,
+                                DISCORD_THEME.text_normal,
+                            ),
+                        };
+
+                        let mut button_div = div()
+                            .id(format!("msg-{msg_id}-btn-{row_idx}-{btn_idx}"))
+                            .h(px(32.))
+                            .px(px(12.))
+                            .rounded(px(4.))
+                            .bg(if is_disabled {
+                                DISCORD_THEME.bg_secondary
+                            } else {
+                                bg_color
+                            })
+                            .flex()
+                            .items_center()
+                            .justify_center()
+                            .gap(px(6.))
+                            .text_size(px(13.))
+                            .font_weight(FontWeight::BOLD)
+                            .text_color(if is_disabled {
+                                DISCORD_THEME.text_muted
+                            } else {
+                                text_color
+                            });
+
+                        if !is_disabled {
+                            button_div = button_div
+                                .cursor_pointer()
+                                .hover(move |s| s.bg(hover_bg));
+                        }
+
+                        if let Some(ref emoji) = btn.emoji_name {
+                            button_div = button_div.child(
+                                div().text_size(px(14.)).child(emoji.clone()),
+                            );
+                        }
+
+                        if let Some(ref label) = btn.label {
+                            button_div = button_div.child(label.clone());
+                        }
+
+                        if btn.style == crate::state::ButtonStyle::Link {
+                            button_div = button_div.child(
+                                div().text_size(px(11.)).text_color(DISCORD_THEME.text_muted).child("↗"),
+                            );
+                        }
+
+                        button_div
+                    }))
+            }))
+            .into_any_element()
     }
 }
