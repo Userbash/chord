@@ -51,13 +51,14 @@ use chord_client::{
 };
 pub mod auth_plugin;
 pub mod gifts;
+pub mod gifts_plugin;
+pub mod invites_plugin;
 pub mod media_plugin;
 pub mod net_plugin;
 pub mod settings_plugin;
 pub mod voice_plugin;
 use gifts::{
-    CreateGiftCodeRequest, DiscordGifts, EntitlementQuery, EntitlementRecord, GiftCodeRecord,
-    GiftError, GiftRedeemRequest, GiftResolveOptions, NitroGiftPlan, RedeemedGiftOutcome,
+    DiscordGifts, EntitlementRecord, GiftCodeRecord, GiftError, NitroGiftPlan, RedeemedGiftOutcome,
 };
 pub mod remote_auth;
 use remote_auth::{
@@ -727,7 +728,7 @@ async fn resolve_invite(
         Ok(token) => DiscordInvites::new(&token)?,
         Err(_) => DiscordInvites::anonymous()?,
     };
-    invites::resolve_invite(&api, &code).await
+    invites_plugin::resolve_invite_with_api(api, code).await
 }
 
 /// Вступить по приглашению: `POST /invites/{code}`.
@@ -782,93 +783,7 @@ async fn accept_invite(
         )
         .await
     };
-
-    match outcome {
-        Ok(accepted) => {
-            // S3 / TASK-810: Автоматическое подтверждение правил сервера (Rules Screening):
-            // связываем guilds::accept_invite_and_join_guild и guilds::apply_guild_join_outcome
-            data::auto_accept_guild_rules_if_available(&code, &accepted.guild_id);
-            let join_transport =
-                guilds::LiveGuildJoinTransport::with_accepted_guild(&token, &accepted.guild_id);
-            let self_uid = join_transport.current_user_id();
-            if let Ok(join_outcome) = guilds::accept_invite_and_join_guild(
-                &join_transport,
-                &code,
-                &accepted.guild_id,
-                &self_uid,
-            ) {
-                guilds::apply_guild_join_outcome(&join_outcome);
-            }
-            Ok(accepted)
-        }
-        Err(InviteError::CaptchaRequired {
-            code: err_code,
-            captcha_service,
-            captcha_sitekey,
-            captcha_rqdata,
-            captcha_rqtoken,
-            captcha_session_id,
-        }) => {
-            // Исключить показ модалки капчи, если сервер можно верифицировать через requests/@me
-            if let Ok(preview) = invites::resolve_invite(&api, &code).await {
-                let gid = preview.guild_id.clone();
-                let identity = crate::auth::IdentityContext::detect();
-                if let Ok(auth) = chord_core::rest::client::ApiAuth::from_token_with_scheme(
-                    &token,
-                    chord_core::rest::client::AuthScheme::User,
-                    &identity.super_properties,
-                    &identity.locale,
-                    &identity.timezone,
-                ) {
-                    if let Ok(client) = chord_core::rest::client::ApiClient::new(
-                        chord_core::rest::client::ApiConfig {
-                            base: chord_core::API_V9_BASE.to_string(),
-                            auth,
-                            http: chord_core::rest::transport::HttpClientConfig::default(),
-                            retry: chord_core::rest::client::ApiRetryPolicy::default(),
-                        },
-                    ) {
-                        let ver_path = format!("/guilds/{gid}/member-verification");
-                        if let Ok(ver_resp) = client.get(&ver_path).await {
-                            if (200..300).contains(&ver_resp.status) {
-                                if let Ok(ver_json) =
-                                    serde_json::from_slice::<serde_json::Value>(&ver_resp.body)
-                                {
-                                    let accept_body =
-                                        crate::guilds::build_member_verification_accept_body(
-                                            &ver_json,
-                                        );
-                                    if let Ok(body_bytes) = serde_json::to_vec(&accept_body) {
-                                        let req_path = format!("/guilds/{gid}/requests/@me");
-                                        if let Ok(put_resp) =
-                                            client.put(&req_path, &body_bytes).await
-                                        {
-                                            if (200..300).contains(&put_resp.status) {
-                                                return Ok(AcceptedInvite {
-                                                    guild_id: gid,
-                                                    target_channel_id: preview.channel_id,
-                                                    target_message_id: None,
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Err(InviteError::CaptchaRequired {
-                code: err_code,
-                captcha_service,
-                captcha_sitekey,
-                captcha_rqdata,
-                captcha_rqtoken,
-                captcha_session_id,
-            })
-        }
-        Err(other) => Err(other),
-    }
+    invites_plugin::finalize_accept_invite(&api, &token, &code, outcome).await
 }
 
 /// Создать приглашение для канала: `POST /channels/{channel_id}/invites`.
@@ -1600,11 +1515,8 @@ async fn resolve_gift_code(
     )
     .await?;
     let api = DiscordGifts::new(&token)?;
-    let opts = GiftResolveOptions {
-        with_application: with_application.unwrap_or(true),
-        with_subscription_plan: with_subscription_plan.unwrap_or(true),
-    };
-    gifts::resolve_gift_code(&api, &code, opts).await
+    gifts_plugin::resolve_gift_code_with_api(&api, &code, with_application, with_subscription_plan)
+        .await
 }
 
 /// Создать подарочный код: `POST /users/@me/entitlements/gift-codes`.
@@ -1624,13 +1536,14 @@ async fn create_gift_code(
     )
     .await?;
     let api = DiscordGifts::new(&token)?;
-    let req = CreateGiftCodeRequest {
+    gifts_plugin::create_gift_code_with_api(
+        &api,
         sku_id,
         subscription_plan_id,
         gift_style,
         custom_message,
-    };
-    gifts::create_gift_code(&api, &req).await
+    )
+    .await
 }
 
 /// Список подарочных кодов пользователя: `GET /users/@me/entitlements/gift-codes`.
@@ -1648,7 +1561,12 @@ async fn fetch_user_gift_codes(
     )
     .await?;
     let api = DiscordGifts::new(&token)?;
-    gifts::fetch_user_gift_codes(&api, sku_id.as_deref(), subscription_plan_id.as_deref()).await
+    gifts_plugin::fetch_user_gift_codes_with_api(
+        &api,
+        sku_id.as_deref(),
+        subscription_plan_id.as_deref(),
+    )
+    .await
 }
 
 /// Отозвать (удалить) подарочный код: `DELETE /users/@me/entitlements/gift-codes/{code}`.
@@ -1665,7 +1583,7 @@ async fn revoke_gift_code(
     )
     .await?;
     let api = DiscordGifts::new(&token)?;
-    gifts::revoke_gift_code(&api, &code).await
+    gifts_plugin::revoke_gift_code_with_api(&api, &code).await
 }
 
 /// Активировать подарочный код: `POST /entitlements/gift-codes/{code}/redeem`.
@@ -1685,12 +1603,14 @@ async fn redeem_gift_code(
     )
     .await?;
     let api = DiscordGifts::new(&token)?;
-    let req = GiftRedeemRequest {
+    gifts_plugin::redeem_gift_code_with_api(
+        &api,
+        &code,
         channel_id,
         payment_source_id,
         gateway_checkout_context,
-    };
-    gifts::redeem_gift_code(&api, &code, &req).await
+    )
+    .await
 }
 
 /// Энтайтлменты текущего пользователя: `GET /users/@me/entitlements`.
@@ -1710,13 +1630,14 @@ async fn fetch_user_entitlements(
     )
     .await?;
     let api = DiscordGifts::new(&token)?;
-    let query = EntitlementQuery {
-        with_sku: with_sku.unwrap_or(false),
-        with_application: with_application.unwrap_or(false),
+    gifts_plugin::fetch_user_entitlements_with_api(
+        &api,
+        with_sku,
+        with_application,
         entitlement_type,
-        exclude_ended: exclude_ended.unwrap_or(true),
-    };
-    gifts::fetch_user_entitlements(&api, &query).await
+        exclude_ended,
+    )
+    .await
 }
 
 /// Энтайтлменты пользователя для приложения (по умолчанию Nitro `521842831262875670`):
@@ -1735,8 +1656,8 @@ async fn fetch_application_entitlements(
     )
     .await?;
     let api = DiscordGifts::new(&token)?;
-    let app_id = application_id.unwrap_or_else(|| gifts::NITRO_APPLICATION_ID.to_string());
-    gifts::fetch_application_entitlements(&api, &app_id, exclude_consumed.unwrap_or(true)).await
+    gifts_plugin::fetch_application_entitlements_with_api(&api, application_id, exclude_consumed)
+        .await
 }
 
 /// Подарочный инвентарь энтайтлментов пользователя: `GET /users/@me/entitlements/gifts`.
@@ -1753,13 +1674,13 @@ async fn fetch_giftable_entitlements(
     )
     .await?;
     let api = DiscordGifts::new(&token)?;
-    gifts::fetch_giftable_entitlements(&api, country_code.as_deref()).await
+    gifts_plugin::fetch_giftable_entitlements_with_api(&api, country_code.as_deref()).await
 }
 
 /// Каталог планов подписки Nitro и бустов сервера для модалки подарков (`#gift-modal`).
 #[tauri::command]
 fn list_nitro_gift_plans() -> Vec<NitroGiftPlan> {
-    gifts::list_nitro_gift_plans()
+    gifts_plugin::list_nitro_gift_plans()
 }
 
 // ---------------------------------------------------------------------------
@@ -1920,6 +1841,8 @@ fn main() {
     }
     tauri::Builder::default()
         .plugin(auth_plugin::init())
+        .plugin(gifts_plugin::init())
+        .plugin(invites_plugin::init())
         .plugin(media_plugin::init())
         .plugin(net_plugin::init())
         .plugin(settings_plugin::init())
