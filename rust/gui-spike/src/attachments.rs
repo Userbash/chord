@@ -82,26 +82,68 @@ fn parse_uri_list_first_file(uri_list: &str) -> Option<(String, Vec<u8>)> {
     None
 }
 
-/// Attempts to read an image or file attachment from the host system clipboard.
+/// Safe abstraction over system clipboard file or image extraction.
 ///
-/// Probes Wayland (`wl-paste`) or X11 (`xclip`) interfaces for `image/png` or `text/uri-list`.
-///
-/// # Returns:
-/// * `Some((filename, data))` — The clipboard image or file binary contents.
-/// * `None` — If clipboard does not contain supported media or tools are unavailable.
-fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
-    // 1. Try Wayland clipboard via wl-paste
-    if std::env::var_os("WAYLAND_DISPLAY").is_some() {
-        if let Ok(out) = std::process::Command::new("wl-paste")
-            .args(["--type", "image/png", "--no-newline"])
+/// Enables deterministic headless and CI testing without invoking external X11/Wayland utilities.
+pub trait ClipboardReader: Send + Sync {
+    /// Reads an image or file attachment from the clipboard if available.
+    ///
+    /// # Returns:
+    /// * `Some((filename, bytes))` — Extracted clipboard file name and non-empty binary payload.
+    /// * `None` — If the clipboard is empty, holds unsupported data, or is unavailable.
+    #[must_use]
+    fn read_file_or_image(&self) -> Option<(String, Vec<u8>)>;
+}
+
+/// Default production [`ClipboardReader`] backed by Wayland (`wl-paste`) and X11 (`xclip`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SystemClipboardReader;
+
+impl SystemClipboardReader {
+    /// Creates a new [`SystemClipboardReader`] instance.
+    #[inline]
+    #[must_use]
+    pub const fn new() -> Self {
+        Self
+    }
+}
+
+impl ClipboardReader for SystemClipboardReader {
+    fn read_file_or_image(&self) -> Option<(String, Vec<u8>)> {
+        // 1. Try Wayland clipboard via wl-paste
+        if std::env::var_os("WAYLAND_DISPLAY").is_some() {
+            if let Ok(out) = std::process::Command::new("wl-paste")
+                .args(["--type", "image/png", "--no-newline"])
+                .output()
+            {
+                if out.status.success() && !out.stdout.is_empty() {
+                    return Some(("clipboard.png".to_string(), out.stdout));
+                }
+            }
+            if let Ok(out) = std::process::Command::new("wl-paste")
+                .args(["--type", "text/uri-list"])
+                .output()
+            {
+                if out.status.success() && !out.stdout.is_empty() {
+                    let s = String::from_utf8_lossy(&out.stdout);
+                    if let Some(res) = parse_uri_list_first_file(&s) {
+                        return Some(res);
+                    }
+                }
+            }
+        }
+        // 2. Try X11 clipboard via xclip
+        if let Ok(out) = std::process::Command::new("xclip")
+            .args(["-selection", "clipboard", "-t", "image/png", "-o"])
             .output()
         {
             if out.status.success() && !out.stdout.is_empty() {
                 return Some(("clipboard.png".to_string(), out.stdout));
             }
         }
-        if let Ok(out) = std::process::Command::new("wl-paste")
-            .args(["--type", "text/uri-list"])
+        // 3. Try xclip target text/uri-list
+        if let Ok(out) = std::process::Command::new("xclip")
+            .args(["-selection", "clipboard", "-t", "text/uri-list", "-o"])
             .output()
         {
             if out.status.success() && !out.stdout.is_empty() {
@@ -111,32 +153,71 @@ fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
                 }
             }
         }
+        None
     }
-    // 2. Try X11 clipboard via xclip
-    if let Ok(out) = std::process::Command::new("xclip")
-        .args(["-selection", "clipboard", "-t", "image/png", "-o"])
-        .output()
-    {
-        if out.status.success() && !out.stdout.is_empty() {
-            return Some(("clipboard.png".to_string(), out.stdout));
-        }
+}
+
+/// Mockable in-memory [`ClipboardReader`] for headless and CI test environments.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct MockClipboardReader {
+    entry: Option<(String, Vec<u8>)>,
+}
+
+impl MockClipboardReader {
+    /// Creates an empty [`MockClipboardReader`] that always returns `None`.
+    #[inline]
+    #[must_use]
+    pub const fn empty() -> Self {
+        Self { entry: None }
     }
-    // 3. Try xclip target text/uri-list
-    if let Ok(out) = std::process::Command::new("xclip")
-        .args(["-selection", "clipboard", "-t", "text/uri-list", "-o"])
-        .output()
-    {
-        if out.status.success() && !out.stdout.is_empty() {
-            let s = String::from_utf8_lossy(&out.stdout);
-            if let Some(res) = parse_uri_list_first_file(&s) {
-                return Some(res);
+
+    /// Creates a [`MockClipboardReader`] seeded with a fixed filename and byte payload.
+    ///
+    /// # Arguments:
+    /// * `filename` — Logical attachment filename to return.
+    /// * `bytes` — Binary payload; if empty, `read_file_or_image` returns `None`.
+    #[must_use]
+    pub fn with_file(filename: impl Into<String>, bytes: Vec<u8>) -> Self {
+        let filename = filename.into();
+        if filename.trim().is_empty() || bytes.is_empty() {
+            Self { entry: None }
+        } else {
+            Self {
+                entry: Some((filename, bytes)),
             }
         }
     }
-    None
 }
 
-fn resolve_clipboard_or_uri_files(files: &[AttachmentFileSpec]) -> Vec<AttachmentFileSpec> {
+impl ClipboardReader for MockClipboardReader {
+    fn read_file_or_image(&self) -> Option<(String, Vec<u8>)> {
+        self.entry.clone()
+    }
+}
+
+/// Attempts to read an image or file attachment from the host system clipboard
+/// using [`SystemClipboardReader`].
+///
+/// Probes Wayland (`wl-paste`) or X11 (`xclip`) interfaces for `image/png` or `text/uri-list`.
+///
+/// # Returns:
+/// * `Some((filename, data))` — The clipboard image or file binary contents.
+/// * `None` — If clipboard does not contain supported media or tools are unavailable.
+#[inline]
+#[must_use]
+pub fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
+    SystemClipboardReader.read_file_or_image()
+}
+
+/// Resolves clipboard or local `file://` URI attachment specs using the provided [`ClipboardReader`].
+///
+/// When a spec has `is_clip == true` and `file_size <= 1`, attempts to populate its real filename,
+/// byte size, and in-memory upload cache from a local `file://` path or the `clipboard` reader.
+#[must_use]
+pub fn resolve_clipboard_or_uri_files_with<R: ClipboardReader + ?Sized>(
+    files: &[AttachmentFileSpec],
+    clipboard: &R,
+) -> Vec<AttachmentFileSpec> {
     files
         .iter()
         .map(|spec| {
@@ -165,23 +246,30 @@ fn resolve_clipboard_or_uri_files(files: &[AttachmentFileSpec]) -> Vec<Attachmen
                         }
                     }
                 }
-                if let Some((name, bytes)) = read_system_clipboard_file_or_image() {
-                    let len = bytes.len() as u64;
-                    if let Ok(mut guard) = clipboard_bytes_cache().lock() {
-                        guard.insert(spec.id.clone(), bytes.clone());
-                        guard.insert("__latest__".to_string(), bytes);
+                if let Some((name, bytes)) = clipboard.read_file_or_image() {
+                    if !bytes.is_empty() {
+                        let len = bytes.len() as u64;
+                        if let Ok(mut guard) = clipboard_bytes_cache().lock() {
+                            guard.insert(spec.id.clone(), bytes.clone());
+                            guard.insert("__latest__".to_string(), bytes);
+                        }
+                        return AttachmentFileSpec {
+                            filename: name,
+                            file_size: len,
+                            id: spec.id.clone(),
+                            is_clip: true,
+                        };
                     }
-                    return AttachmentFileSpec {
-                        filename: name,
-                        file_size: len,
-                        id: spec.id.clone(),
-                        is_clip: true,
-                    };
                 }
             }
             spec.clone()
         })
         .collect()
+}
+
+#[must_use]
+fn resolve_clipboard_or_uri_files(files: &[AttachmentFileSpec]) -> Vec<AttachmentFileSpec> {
+    resolve_clipboard_or_uri_files_with(files, &SystemClipboardReader)
 }
 
 /// §1.5 (`RE-DEEP-REA.md:122-125`): базовый лимит на файл по формуле
@@ -1318,5 +1406,47 @@ mod tests {
         assert!(!entity_too_large_code(br#"{"code":50035}"#));
         assert!(!entity_too_large_code(b""));
         assert!(!entity_too_large_code(b"[]"));
+    }
+
+    #[test]
+    fn mock_clipboard_reader_resolves_clip_specs_in_headless_env() {
+        let empty = MockClipboardReader::empty();
+        assert_eq!(empty.read_file_or_image(), None);
+        assert_eq!(MockClipboardReader::with_file("", vec![1, 2]).read_file_or_image(), None);
+        assert_eq!(MockClipboardReader::with_file("a.png", Vec::new()).read_file_or_image(), None);
+
+        let reader = MockClipboardReader::with_file("pasted.png", vec![0x89, 0x50, 0x4E, 0x47]);
+        assert_eq!(
+            reader.read_file_or_image(),
+            Some(("pasted.png".to_string(), vec![0x89, 0x50, 0x4E, 0x47]))
+        );
+
+        let specs = vec![
+            AttachmentFileSpec {
+                filename: "placeholder.png".to_string(),
+                file_size: 1,
+                id: "clip-test-1".to_string(),
+                is_clip: true,
+            },
+            AttachmentFileSpec {
+                filename: "regular.txt".to_string(),
+                file_size: 1,
+                id: "reg-test-2".to_string(),
+                is_clip: false,
+            },
+        ];
+
+        let resolved = resolve_clipboard_or_uri_files_with(&specs, &reader);
+        assert_eq!(resolved.len(), 2);
+        assert_eq!(
+            resolved[0],
+            AttachmentFileSpec {
+                filename: "pasted.png".to_string(),
+                file_size: 4,
+                id: "clip-test-1".to_string(),
+                is_clip: true,
+            }
+        );
+        assert_eq!(resolved[1], specs[1]);
     }
 }

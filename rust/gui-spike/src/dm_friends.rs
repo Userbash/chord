@@ -633,31 +633,78 @@ fn u64_val(value: Option<&serde_json::Value>) -> Option<u64> {
     }
 }
 
+/// Serde deserializer for an optional Discord string/numeric field, ignoring empty and `"nil"` sentinels.
+fn deserialize_opt_etf_str<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(opt_str(Some(&val)))
+}
+
+/// Serde deserializer for a Discord boolean field accepting bools, `"true"`/`"1"`, or `1`.
+fn deserialize_etf_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(bool_val(Some(&val)))
+}
+
+/// Raw Serde DTO for deserializing a Discord user payload from Gateway READY or REST responses.
+#[derive(Debug, Deserialize, Default)]
+#[serde(default)]
+struct RawDmUserDto {
+    /// Snowflake ID (string or numeric in ETF), `None` if missing, empty, or `"nil"`.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    id: Option<String>,
+    /// Account username, defaulting to empty if absent or `"nil"`.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    username: Option<String>,
+    /// Optional global display name.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    global_name: Option<String>,
+    /// Legacy 4-digit discriminator or `"0"` for Pomelo accounts.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    discriminator: Option<String>,
+    /// Optional avatar hash.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    avatar: Option<String>,
+    /// Whether the user is a bot account.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    bot: bool,
+}
+
+impl TryFrom<RawDmUserDto> for ResolvedDmUser {
+    type Error = ();
+
+    fn try_from(dto: RawDmUserDto) -> Result<Self, Self::Error> {
+        let id = dto.id.ok_or(())?;
+        Ok(Self {
+            id,
+            username: dto.username.unwrap_or_default(),
+            global_name: dto.global_name,
+            discriminator: dto.discriminator.unwrap_or_else(|| "0".to_string()),
+            avatar: dto.avatar,
+            bot: dto.bot,
+        })
+    }
+}
+
 /// Parses a Discord user JSON object into a strongly-typed [`ResolvedDmUser`].
 ///
-/// Handles string and numeric IDs, defaults modern usernames without discriminator to `"0"`,
-/// and ignores ETF sentinel values (`"nil"`).
+/// Uses Serde deserialization via [`RawDmUserDto`] to handle string and numeric IDs,
+/// default modern usernames without discriminator to `"0"`, and ignore ETF sentinel values (`"nil"`).
 ///
 /// # Arguments
 /// * `obj` - Raw JSON object representing the user.
 ///
 /// # Returns
 /// `Some(ResolvedDmUser)` if a valid user ID is present; otherwise `None`.
+#[inline]
 fn parse_user_obj(obj: &serde_json::Value) -> Option<ResolvedDmUser> {
-    let id = opt_str(obj.get("id"))?;
-    let username = opt_str(obj.get("username")).unwrap_or_default();
-    let global_name = opt_str(obj.get("global_name"));
-    let discriminator = opt_str(obj.get("discriminator")).unwrap_or_else(|| "0".to_string());
-    let avatar = opt_str(obj.get("avatar"));
-    let bot = bool_val(obj.get("bot"));
-    Some(ResolvedDmUser {
-        id,
-        username,
-        global_name,
-        discriminator,
-        avatar,
-        bot,
-    })
+    let dto = RawDmUserDto::deserialize(obj).ok()?;
+    ResolvedDmUser::try_from(dto).ok()
 }
 
 /// Parses a private channel object (DM or Group DM) from Gateway READY or REST API responses.
