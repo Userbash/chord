@@ -4,7 +4,7 @@ Application baseline: `2b7cfb52024be0453e3b9333aba292b2372e610e`. This change in
 
 | Check | Observed result | Scope |
 | --- | --- | --- |
-| Full `node --test --test-concurrency=1 tests/meta/**/*.test.mjs` | **207 passed, 0 failed, 0 skipped** | Includes plan/DAG/receipt guards, board and launcher process tests, registry/journal checks. |
+| Full `node --test --test-concurrency=1 tests/meta/**/*.test.mjs` | **210 passed, 0 failed, 0 skipped** | Includes explicit ARM blocker/intake/CPU-ABI guards in addition to the original plan/DAG/receipt, board and launcher checks. |
 | Kanban process contracts | **8/8 Linux; 8/8 native Windows** | Relocated checkout, literal metadata round trips, update compatibility and truthful header progress. |
 | ECC launcher process contracts | **8/8 Linux** | Real exec/PID/exit/argument propagation, explicit override, PATH recursion/alias handling, user-local fallback and exit2. |
 | Original Kanban portability/metadata mutations | **5/5 detected** | Original path/metadata/criteria/default preservation changes; original immutable evidence retained. |
@@ -24,3 +24,5 @@ The first full meta run exposed an existing registry gap for six recently added 
 The native Windows transport had failed/stopped configuration attempts before the successful Linux Codex transport. Those are retained in the session history. The read-only sandbox stayed enabled and authentication secrets were not copied into the project.
 
 This result does not qualify whole-application functionality, native Windows/macOS/ARM GUI behavior, live Discord/media behavior or actual library migrations. Those have explicit independent-contract, integration and native tasks in the plan. Static board exports report their recorded observation time; live ECC status is available from the documented runtime directory.
+
+ARM follow-up: the unchanged integrity suite passes12/12 on x86_64 WSL, while actual Linux ARM64 Rust std is absent. A fourth real ECC source audit produced7 findings (no tools/build/native execution). Its records are in `reports/LIB-ARM-01.json` and `verification/arm-audit-receipt.json`. The newly added three meta guards were RED before the explicit ARM tasks/admission/release rules existed, then passed; no ARM code fix or native runtime success is inferred.

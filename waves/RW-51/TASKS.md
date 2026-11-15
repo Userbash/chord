@@ -1,6 +1,6 @@
 # RW-51 atomic work items
 
-Base: `2b7cfb52024be0453e3b9333aba292b2372e610e`. 124 leaves are planned. Three initial ECC source-audit phases completed; application migrations and next-phase acceptance remain pending. See DISPATCH-RECEIPTS.json.
+Base: `2b7cfb52024be0453e3b9333aba292b2372e610e`. 132 leaves are planned. Three initial ECC source-audit phases completed; application migrations and next-phase acceptance remain pending. See DISPATCH-RECEIPTS.json.
 
 Read `PLAN.md`, `LIBRARY-MATRIX.md`, `WORKER-RULES.md` and the exact leaf before implementation.
 
@@ -3960,3 +3960,207 @@ Follow the shared [worker rules](WORKER-RULES.md); complete standalone instructi
 - Before/after net owned production code and performance measurements attached; rollback documented.
 
 Dispatch/phase and admission state: see the corresponding TASKS.json card and DISPATCH-RECEIPTS.json; queued work is not automatically executable.
+
+## ARM: explicit release blocker
+
+See [ARM-BLOCKERS.md](ARM-BLOCKERS.md). All eight leaves are required before native ARM release acceptance.
+
+### LIB-ARM-01
+
+**Record the ARM failure and a reproducible environment/architecture ledger** — P1, baseline.
+
+Prerequisites: none.
+
+Write scope: `waves/RW-51/ARM-FAILURE-LEDGER.json`.
+
+Operator ARM follow-up; release blocker. Outcome: Separate confirmed missing Linux ARM64 std/sysroot and stale build-test expectations from CPU/ABI risks and unobserved native crashes.
+Pinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.
+Independent oracle: Actual rustup/rustc target inspection, immutable previous failure evidence and any operator-provided native stderr/CPU/page-size/OS details.
+The current machine lacks aarch64-unknown-linux-gnu std; no native ARM crash was observed here. Capture real SIGILL/loader logs if supplied rather than claiming a reproduced crash from flags alone.
+Write and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.
+Use existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.
+Differentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.
+Coordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.
+
+Acceptance:
+
+- Separate confirmed missing Linux ARM64 std/sysroot and stale build-test expectations from CPU/ABI risks and unobserved native crashes.
+- Actual rustup/rustc target inspection, immutable previous failure evidence and any operator-provided native stderr/CPU/page-size/OS details.
+- No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.
+- Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.
+- Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
+### LIB-ARM-02
+
+**Define and enforce portable ARM CPU features and page-size ABI** — P1, implementation.
+
+Prerequisites: LIB-ARM-01.
+
+Write scope: `scripts/arm64/build.py`; `packaging/arm64/cargo-config.toml`; `tests/unit/arm64-cpu-abi-contract.test.mjs`; `waves/RW-51/ARM-ABI-DECISION.md`.
+
+Operator ARM follow-up; release blocker. Outcome: Qualify generic/rpi5/asahi CPU and ABI contracts, including optional extension dispatch and claimed Linux page-size compatibility.
+Pinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.
+Independent oracle: Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.
+Current generic flags force +crc,+aes,+sha2 and C +crypto. Assess potential SIGILL on incompatible CPUs; this is a source risk, not a measured crash. Prefer vetted library runtime dispatch or a documented minimum CPU. Test generic and hardware-specific profiles separately and evaluate 4K/16K/64K only when claimed; never substitute Apple macOS ABI for Asahi Linux.
+Write and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.
+Use existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.
+Differentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.
+Coordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.
+
+Acceptance:
+
+- Qualify generic/rpi5/asahi CPU and ABI contracts, including optional extension dispatch and claimed Linux page-size compatibility.
+- Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.
+- No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.
+- Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.
+- Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
+
+### LIB-ARM-03
+
+**Gate library intake on explicit ARM target/CPU/ABI evidence** — P1, qualification.
+
+Prerequisites: LIB-ARM-02, LIB-GOV-02.
+
+Write scope: `waves/RW-51/ARM-DEPENDENCY-MATRIX.json`; `tests/meta/arm-dependency-admission.test.mjs`.
+
+Operator ARM follow-up; release blocker. Outcome: Require every proposed crate/framework to declare supported ARM triples/features, native SDK requirements and qualification evidence before production adoption.
+Pinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.
+Independent oracle: Pinned crate source/official documentation and exact target-feature/link graphs; unknown target support stays unqualified.
+Distinguish Linux aarch64-unknown-linux-gnu, macOS aarch64-apple-darwin and Windows aarch64-pc-windows-msvc if claimed. Check optional crypto/SIMD backends, C/assembly/build.rs, atomics, FFI layout and dependency features. Source checks can admit an isolated spike; they cannot approve native runtime. Do not block unrelated security fixes from investigation, and do not label ARM production-ready without the later native gates.
+Write and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.
+Use existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.
+Differentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.
+Coordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.
+
+Acceptance:
+
+- Require every proposed crate/framework to declare supported ARM triples/features, native SDK requirements and qualification evidence before production adoption.
+- Pinned crate source/official documentation and exact target-feature/link graphs; unknown target support stays unqualified.
+- No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.
+- Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.
+- Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
+
+### LIB-ARM-04
+
+**Provision and verify a real ARM64 Rust/C/C++ sysroot** — P1, integration.
+
+Prerequisites: LIB-ARM-01, LIB-GOV-02.
+
+Write scope: `scripts/arm64/build.py`; `packaging/arm64/sdk-manifest.json`; `tests/unit/arm64-sdk-contract.test.mjs`; `waves/RW-51/ARM-SDK-PROVENANCE.json`.
+
+Operator ARM follow-up; release blocker. Outcome: Provide the declared ARM Rust std, target compiler/linker and complete development sysroot with isolated target pkg-config resolution and pinned provenance.
+Pinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.
+Independent oracle: Real target std and C++ link probe plus ELF architecture; x86 host headers/libraries and empty sysroots must be rejected.
+Use authentic documented SDK/distribution sources and explicit versions/checksums/license records. Keep host and target pkg-config separate; preserve the existing no-floating-download/release-pin policy and never fake environment readiness.
+Write and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.
+Use existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.
+Differentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.
+Coordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.
+
+Acceptance:
+
+- Provide the declared ARM Rust std, target compiler/linker and complete development sysroot with isolated target pkg-config resolution and pinned provenance.
+- Real target std and C++ link probe plus ELF architecture; x86 host headers/libraries and empty sysroots must be rejected.
+- No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.
+- Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.
+- Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
+
+### LIB-ARM-05
+
+**Build and verify the actual ARM GUI and package payloads** — P1, qualification.
+
+Prerequisites: LIB-ARM-02, LIB-ARM-04, LIB-ARM-08.
+
+Write scope: `scripts/arm64/verify.py`; `tests/unit/arm64-build-integrity.test.mjs`; `waves/RW-51/ARM-ARTIFACT-EVIDENCE.json`.
+
+Operator ARM follow-up; release blocker. Outcome: Require real locked Cargo chord-gpui output and prove architecture, loader/hardening/ABI, exact tar/deb/AppImage payloads and preserved checksums.
+Pinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.
+Independent oracle: Cargo compiler-artifact identity plus independent readelf/ar/tar/SquashFS/sha256 verification and pinned official runtime/tool bytes.
+The unit integrity suite is a prerequisite, not a substitute for an actual full build. No stale executable may be reused after a zero-exit build without compiler-artifact evidence. Real build/verify commands must supply a fresh output directory and qualified SDK/tools, never overwrite rust/dist or historical goldens.
+Write and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.
+Use existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.
+Differentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.
+Coordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.
+
+Acceptance:
+
+- Require real locked Cargo chord-gpui output and prove architecture, loader/hardening/ABI, exact tar/deb/AppImage payloads and preserved checksums.
+- Cargo compiler-artifact identity plus independent readelf/ar/tar/SquashFS/sha256 verification and pinned official runtime/tool bytes.
+- No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.
+- Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.
+- Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
+
+### LIB-ARM-06
+
+**Reconcile the legacy ARM build contract without weakening coverage** — P1, contract.
+
+Prerequisites: LIB-ARM-01, LIB-ARM-02, LIB-ARM-05.
+
+Write scope: `tests/unit/arm64-packaging-990.test.mjs`; `tests/unit/arm64-build-integrity.test.mjs`; `waves/RW-51/ARM-TEST-CONTRACT-DECISION.md`.
+
+Operator ARM follow-up; release blocker. Outcome: Replace only the obsolete expectation of successful fake artifacts without a toolchain through an independently justified old/new contract and mandatory real-build integration coverage.
+Pinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.
+Independent oracle: Approved real Cargo artifact/provenance and pinned package bytes; no test may become green by checking a marker, dry-run or renamed unrelated binary.
+Map every existing positive/boundary/corruption assertion to equivalent or stricter evidence. Missing SDK remains explicit EnvFail2/unmet in qualification. Separate isolated always-runnable negatives from required native positive build jobs; never silently skip/demote/delete a release requirement.
+Write and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.
+Use existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.
+Differentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.
+Coordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.
+Replace the /bin/true wrong-architecture assumption with an explicitly x86_64/non-AArch64 independent fixture; /bin/true itself is AArch64 on a native ARM runner. Keep real strict integrity and corruption assertions.
+
+Acceptance:
+
+- Replace only the obsolete expectation of successful fake artifacts without a toolchain through an independently justified old/new contract and mandatory real-build integration coverage.
+- Approved real Cargo artifact/provenance and pinned package bytes; no test may become green by checking a marker, dry-run or renamed unrelated binary.
+- No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.
+- Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.
+- Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
+
+### LIB-ARM-07
+
+**Require genuine native ARM CI and runtime qualification** — P1, qualification.
+
+Prerequisites: LIB-ARM-02, LIB-ARM-03, LIB-ARM-04.
+
+Write scope: `.github/workflows/cross-platform.yml`; `tests/meta/arm-native-ci-contract.test.mjs`; `waves/RW-51/ARM-NATIVE-RUNNER-CONTRACT.json`.
+
+Operator ARM follow-up; release blocker. Outcome: Provision an actual ARM64 runner and bind package/GUI/voice/capture smoke to exact accepted source and dependency hashes.
+Pinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.
+Independent oracle: Actual uname/CPU/page-size/triple/PID/window/package evidence; x86 cross-compile, QEMU-only boot or a workflow declaration cannot prove native GUI/GPU performance.
+Use a verified native runner label or explicitly provisioned aarch64 host. Test generic and qualified hardware profiles, install/run the real packages and preserve native media/resource/error/recovery scenarios. macOS Apple Silicon and any Windows ARM claim require separate native evidence, not Linux AppImage tests. Required unavailable CI is blocked, not green.
+Write and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.
+Use existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.
+Differentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.
+Coordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.
+
+Acceptance:
+
+- Provision an actual ARM64 runner and bind package/GUI/voice/capture smoke to exact accepted source and dependency hashes.
+- Actual uname/CPU/page-size/triple/PID/window/package evidence; x86 cross-compile, QEMU-only boot or a workflow declaration cannot prove native GUI/GPU performance.
+- No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.
+- Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.
+- Original behavior, strict tests and independent review are retained; rollback and affected targets documented.
+
+### LIB-ARM-08
+
+**Verify actual ELF loader constraints without inventing a kernel page size** — P1, implementation.
+
+Prerequisites: LIB-ARM-02.
+
+Write scope: `scripts/arm64/verify.py`; `tests/unit/arm64-elf-abi-contract.test.mjs`; `waves/RW-51/ARM-ELF-ABI-CONTRACT.md`.
+
+Operator ARM follow-up; release blocker. Outcome: Validate every load segment with independent ELF ABI rules and report segment alignment separately from a measured native kernel page size.
+Pinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.
+Independent oracle: ELF program-header specification plus independent readelf/native loader evidence; malformed bounds/alignment/congruence fixtures must be rejected.
+Current page_size_bytes=min(PT_LOAD p_align) describes segment alignment, not kernel page size. Cover p_filesz<=p_memsz, offset/address congruence, power-of-two alignment, integer/file bounds and GUI versus AppImage runtime ABI. Reuse a qualified existing parser/tool where appropriate; no large replacement parser. Native loader proof is still required for each claimed page-size/OS combination.
+Write and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.
+Use existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.
+Differentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.
+Coordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.
+
+Acceptance:
+
+- Validate every load segment with independent ELF ABI rules and report segment alignment separately from a measured native kernel page size.
+- ELF program-header specification plus independent readelf/native loader evidence; malformed bounds/alignment/congruence fixtures must be rejected.
+- No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.
+- Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.
+- Original behavior, strict tests and independent review are retained; rollback and affected targets documented.

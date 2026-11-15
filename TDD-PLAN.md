@@ -418,7 +418,7 @@ RW-51 control-plane and planning contracts:
 | --- | --- | --- |
 | `tests/meta/kanban-portability.test.mjs` | `scripts/mcp-kanban-board.mjs` | Relocated checkout, lossless metadata, compatible create/update/export |
 | `tests/meta/ecc-entrypoint.test.mjs` | `scripts/ecc` | Real CLI exec resolution, literal arguments, no recursion, explicit environment failure |
-| `tests/meta/modernization-plan.test.mjs` | `waves/RW-51/TASKS.json`, `HANDOFF.json`, Kanban | Complete DAG, preserved historical cards, exact resource leases, native revision binding and truthful worker state |
+| `tests/meta/modernization-plan.test.mjs` | `waves/RW-51/TASKS.json`, `HANDOFF.json`, Kanban | Complete DAG, preserved cards, resource leases, revision binding, truthful workers and explicit ARM CPU/SDK/native release gates |
 | `tests/unit/context-menu-router.test.mjs` | `rust/gui-spike/ui/features/context-menu-router.js` | `initContextMenuRouter` |
 | `tests/unit/emojis.test.mjs` | `rust/gui-spike/ui/features/emojis.js` | `extractEmojis`, `createEmojiElement` |
 | `tests/unit/markdown-mentions.test.mjs` | `rust/gui-spike/ui/features/markdown.js` | `parseMessageMarkdown`, `renderMessageMarkdown` |

@@ -160,3 +160,36 @@ test('An imported queue never masquerades as running model workers', () => {
   assert.equal(handoff.resource_policy.max_active_worker_slots, 3);
   assert.equal(handoff.resource_policy.max_concurrent_cargo_in_shared_target, 1);
 });
+
+test('The operator ARM blocker has explicit scoped work before native release acceptance', () => {
+  assert.ok(plan.epics.some(epic => epic.id === 'LIB-ARM'));
+  for (const number of [1, 2, 3, 4, 5, 6, 7, 8]) {
+    const card = byId.get(`LIB-ARM-0${number}`);
+    assert.ok(card, `Missing ARM leaf ${number}`);
+    assert.equal(card.release_blocker, true);
+    assert.ok(ancestors('LIB-QA-06').has(card.id));
+  }
+  assert.ok(handoff.platform_blockers.some(blocker => blocker.id === 'ARM64_RELEASE_NOT_QUALIFIED' && blocker.resolved === false));
+});
+
+test('Library intake must consult the ARM target and CPU/ABI contract', () => {
+  for (const card of cards.filter(card => card.epic_id === 'LIB-DEP')) {
+    assert.ok(card.dependencies.includes('LIB-ARM-03'), `${card.id}: missing early ARM intake gate`);
+    assert.equal(card.arm_admission.requires_target_evidence, true);
+    assert.equal(card.arm_admission.cross_compile_alone_proves_runtime, false);
+  }
+  assert.ok(ancestors('LIB-ARM-03').has('LIB-ARM-02'));
+});
+
+test('ARM release evidence distinguishes genuine artifacts, CPU compatibility and native execution', () => {
+  const cpu = byId.get('LIB-ARM-02');
+  assert.ok(cpu);
+  assert.match(cpu.coding_instructions, /AES|aes/);
+  assert.match(cpu.coding_instructions, /CRC|crc/);
+  assert.match(cpu.coding_instructions, /SIGILL/);
+  assert.equal(cpu.runtime_crash_observed, false, 'Source risk must not masquerade as an observed native crash.');
+  for (const prerequisite of ['LIB-ARM-05', 'LIB-ARM-06', 'LIB-ARM-07']) {
+    assert.ok(byId.get('LIB-QA-05').dependencies.includes(prerequisite));
+  }
+  assert.ok(byId.get('LIB-ARM-06').write_scope.includes('tests/unit/arm64-packaging-990.test.mjs'));
+});

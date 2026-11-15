@@ -1,0 +1,109 @@
+{
+  "task_id": "LIB-ARM-01",
+  "session_id": "af4a762f",
+  "profile": "lib_arm_01_source_audit",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "sandbox": "read-only",
+  "phase": "planning_audit",
+  "migration_completed": false,
+  "source_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+  "source": "/root/projects/chord-modernization-ecc-runtime/source/lib-arm-01",
+  "control": "/root/projects/chord-modernization-ecc-runtime/control/lib-arm-01",
+  "source_packet_files": {
+    "scripts/arm64/build.py": "e937297de168cef9ead2703bbc3c643428886a7892b2c2860c80929f42572822",
+    "scripts/arm64/verify.py": "3e77107c059d4582558604c8f152cf031b4f50be1d862c1b8a0c32524f22b3e7",
+    "packaging/arm64/cargo-config.toml": "9ab96b23fe936f8552599fa548ff2b897d6549ea229e26232a4bf004511d423a",
+    "packaging/arm64/toolchain-pins.json": "a7faa798e98f3df5f325c920441d25e7e90e31bf96ec3fa0b590ed9422f72c11",
+    "tests/unit/arm64-build-integrity.test.mjs": "8276862ff9effe778bd01fefca5825567f27786c57f500755160680667badc70",
+    "tests/unit/arm64-packaging-990.test.mjs": "b42d9428b3ad2d616213ff118e3b4b765b3fc796466bbf9edd49b1f5c718b1de",
+    ".github/workflows/cross-platform.yml": "3e31b2f74d51b55489fda1b7430718773798c0953c73ed78c41208f4a0795fda"
+  },
+  "source_files_supplied": 7,
+  "source_files_including_auto_context": 8,
+  "tool_call_limit": 15,
+  "requested_tool_calls": 0,
+  "native_program": "/mnt/c/Program Files/WindowsApps/OpenAI.Codex_26.1111.2228.0_x64__2p2nqsd0c76g0/app/resources/codex",
+  "native_args": [
+    "exec",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "read-only",
+    "--json",
+    "--ephemeral",
+    "--cd",
+    "/root/projects/chord-modernization-ecc-runtime/source/lib-arm-01",
+    "--config",
+    "model_reasoning_effort=\"medium\"",
+    "--config",
+    "approval_policy=\"never\"",
+    "--output-schema",
+    "/root/projects/chord-modernization-ecc-runtime/control/lib-arm-01/report.schema.json",
+    "--config",
+    "mcp_servers.node_repl.enabled=false"
+  ],
+  "report": "/root/projects/chord-modernization-ecc-runtime/reports/LIB-ARM-01.json",
+  "created_receipt_utc": "2026-11-15T15:13:57.418060+00:00",
+  "prior_sessions_snapshot": [
+    [
+      "051d71c3",
+      "completed",
+      "2026-11-15T14:49:51.538490139+00:00"
+    ],
+    [
+      "2dc1d8ea",
+      "completed",
+      "2026-11-15T14:49:57.181817873+00:00"
+    ],
+    [
+      "8aa61e7a",
+      "completed",
+      "2026-11-15T14:50:29.214644826+00:00"
+    ]
+  ],
+  "prior_report_sha256": {
+    "/root/projects/chord-modernization-ecc-runtime/reports/LIB-GOV-01.json": "c0da6c97ba6a17c72fed1c9bf942679d959730b2bac4f18aadf948b93abf3cc6",
+    "/root/projects/chord-modernization-ecc-runtime/reports/LIB-GOV-02.json": "9d910f4ce8fddfbcd502a730297a9c47cb2562bd003ebb8a93b7c1738ac34ff3",
+    "/root/projects/chord-modernization-ecc-runtime/reports/LIB-RSA-01.json": "9da7213256e407b5129127f6315b89dd7901472a1de4521c73fe919fa11c62f2"
+  },
+  "stage": "planning_audit_completed_pending_review",
+  "latest_session": {
+    "id": "af4a762f",
+    "state": "completed",
+    "pid": null,
+    "created_at": "2026-11-15T15:13:57.363264642+00:00",
+    "updated_at": "2026-11-15T15:14:43.250749100+00:00",
+    "last_heartbeat_at": "2026-11-15T15:14:43.250749100+00:00"
+  },
+  "actual_process": {
+    "pid": 37057,
+    "model": "gpt-6.1-sol",
+    "sandbox": "read-only",
+    "cwd": "/root/projects/chord-modernization-ecc-runtime/source/lib-arm-01",
+    "effort": [
+      "model_reasoning_effort=\"medium\""
+    ]
+  },
+  "thread_ids": [
+    "01a1dfc5-b4ea-7411-b0b1-4ee8eb97cf33"
+  ],
+  "actual_tool_commands": 0,
+  "agent_message_count": 1,
+  "usage": [
+    {
+      "input_tokens": 44874,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 2193,
+      "reasoning_output_tokens": 93
+    }
+  ],
+  "updated_receipt_utc": "2026-11-15T15:14:48.485884+00:00",
+  "source_clean": true,
+  "source_packet_hashes_match": true,
+  "previous_sessions_and_reports_unchanged": true,
+  "report_available": true,
+  "finding_count": 7,
+  "source_reference_count": 19,
+  "coordinator_review_required": true
+}

@@ -1,5 +1,8 @@
 # Mechanism-to-library decisions
 
+ARM follow-up: [ARM-BLOCKERS.md](ARM-BLOCKERS.md) is an explicit early intake and release gate.
+Every dependency integration consults `LIB-ARM-03`; unknown ARM CPU/ABI/native support remains unqualified.
+
 Baseline: `2b7cfb52`; primary documentation checked on 2026-11-15. These are candidates and guarded decisions, not installed application dependencies. Exact dependency integration is coordinator-owned and requires `LIB-GOV-02`.
 
 | Area / source | Preferred existing solution | What stays owned | Qualification / rejection gate |

@@ -3,6 +3,24 @@
   "encoding": "Lossless gzip of original evidence bytes; raw source logs retained in the external verification directory.",
   "archives": [
     {
+      "file": "arm-integrity-20261115T151326Z.log.gz",
+      "raw_bytes": 1208,
+      "raw_sha256": "f6cc32ccab028deb32bad831c69d68ee11ca8edab79029f2376f20bdf7478fba",
+      "archive_sha256": "78c14692af56553a9a83d3deeacc55e9c600263ac2ab91247366d87cb46766a9"
+    },
+    {
+      "file": "arm-plan-guard-green.log.gz",
+      "raw_bytes": 1478,
+      "raw_sha256": "8a848f46d558ea24ade791efcadf711f42de3d01b60e1e965c96b7cd9be449da",
+      "archive_sha256": "95b62e521d4fabc01a3efa09d4f842d35a783e56f9ae6319e3480ea952f96821"
+    },
+    {
+      "file": "arm-plan-guard-red.log.gz",
+      "raw_bytes": 4251,
+      "raw_sha256": "ba0e89353f4b0d4d3eec7357a0340580da78f092bc57ecafb340898de4e3304c",
+      "archive_sha256": "4a27ab8ec3453197a71b8cc7a4f4193ca6bf0bbb08e06916208ca948d9c56bbc"
+    },
+    {
       "file": "ecc-entrypoint-green-20261115T144411Z.log.gz",
       "raw_bytes": 796,
       "raw_sha256": "f847b76105537a20241f9d6c3a6887a983506c3833a563c316b964396aeb4a0a",
@@ -85,6 +103,12 @@
       "raw_bytes": 8692,
       "raw_sha256": "f61ee3582295f1becd49f156259b252a06cb17e5b367116486af5d1e0c1a33d5",
       "archive_sha256": "4419799104dffbf15b7642242e3255feca6645e3da6bfe6614675f5d742e9aab"
+    },
+    {
+      "file": "meta-arm-20261115T151857Z.log.gz",
+      "raw_bytes": 28860,
+      "raw_sha256": "f5f1ab350f9edb09859ee12502cbd1a0ee4864ff323abddb0cf2bc7f55464df5",
+      "archive_sha256": "ab797585252f58e2e69de11688d3018da72feefefecb404470e7dd6c55171038"
     },
     {
       "file": "meta-final-20261115T145656Z.log.gz",

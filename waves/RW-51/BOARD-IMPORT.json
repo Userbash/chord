@@ -3,10 +3,18 @@
   "wave": "RW-51",
   "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
   "old_card_count": 220,
-  "new_leaf_count": 124,
-  "total_card_count": 344,
+  "new_leaf_count": 132,
+  "total_card_count": 352,
   "old_cards_sha256": "a7c3a68565727e9fc01339cef99d0facaf3e7a259f4a0f18f8fe09948b15d992",
   "imported_ids": [
+    "LIB-ARM-01",
+    "LIB-ARM-02",
+    "LIB-ARM-03",
+    "LIB-ARM-04",
+    "LIB-ARM-05",
+    "LIB-ARM-06",
+    "LIB-ARM-07",
+    "LIB-ARM-08",
     "LIB-ASSET-01",
     "LIB-ASSET-02",
     "LIB-AUDIO-01",
@@ -132,5 +140,16 @@
     "LIB-VIRT-01",
     "LIB-VIRT-02"
   ],
-  "dispatch_status": "not_dispatched"
+  "dispatch_status": "not_dispatched",
+  "arm_followup_added": [
+    "LIB-ARM-01",
+    "LIB-ARM-02",
+    "LIB-ARM-03",
+    "LIB-ARM-04",
+    "LIB-ARM-05",
+    "LIB-ARM-06",
+    "LIB-ARM-07",
+    "LIB-ARM-08"
+  ],
+  "updated_at": "2026-11-15T15:17:06.424050+00:00"
 }

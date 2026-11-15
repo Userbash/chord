@@ -1,0 +1,99 @@
+{
+  "task_id": "LIB-ARM-01",
+  "phase": "planning_audit",
+  "source_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+  "summary": "Attached-source audit identifies seven planning follow-ups. Global optional instruction flags, fixed page-alignment assumptions, stale fake-builder contracts, and missing platform qualification gates need review in the existing RW51 plan. Genuine ARM build, package loadability, and native runtime support remain unqualified; no observed SIGILL is established.",
+  "findings": [
+    {
+      "id": "LIB-ARM-01-F1",
+      "title": "Generic builds globally enable optional instructions",
+      "status": "source_risk_follow_up_required",
+      "source_refs": [
+        "scripts/arm64/build.py",
+        "packaging/arm64/cargo-config.toml"
+      ],
+      "notes": "build.py lines 25–28, 134–140 and 163–174 apply +crc,+aes,+sha2 to every Rust profile and armv8-a+simd+crc+crypto to generic C/C++. CRC32 and AES/SHA cryptographic extensions are optional relative to the ARMv8-A baseline; NEON/Advanced SIMD is a distinct feature. target-cpu=generic does not cancel explicit feature enables. Follow-up: define a conservative supported baseline across Rust and native dependencies; confine optional instructions to runtime-detected implementations with fallback, or separately labelled optimized artifacts with enforced CPU requirements. Acceptance: generated configurations and dependency policy preserve that baseline, and feature-negative execution exercises fallback without SIGILL. Limitation: flags permit instruction generation but do not prove which instructions exist or execute in an artifact; no ARM crash trace was supplied."
+    },
+    {
+      "id": "LIB-ARM-01-F2",
+      "title": "16 KiB segment alignment is reported as page size",
+      "status": "abi_qualification_required",
+      "source_refs": [
+        "scripts/arm64/build.py",
+        "scripts/arm64/verify.py",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "notes": "build.py lines 165–168 fixes linker maximum/common page sizes at 16384. verify.py lines 64–83 checks PT_LOAD p_align multiples of 16384 and reports their minimum as page_size_bytes; this is segment alignment, not a measured kernel page size. It does not explicitly check load-segment offset/address congruence or p_filesz <= p_memsz. Legacy test lines 305–310 matches one 0x4000 LOAD entry. Follow-up: distinguish ELF alignment metadata from kernel page size and define the supported kernel-page matrix. Acceptance: independent checks cover every load segment's alignment, congruence and bounds, followed by native loader evidence on each claimed 4/16/64 KiB configuration. Limitation: source/header checks alone cannot establish loadability."
+    },
+    {
+      "id": "LIB-ARM-01-F3",
+      "title": "Package integrity does not qualify the loader or host ABI",
+      "status": "native_packaging_gate_required",
+      "source_refs": [
+        "scripts/arm64/build.py",
+        "scripts/arm64/verify.py",
+        "packaging/arm64/toolchain-pins.json"
+      ],
+      "notes": "build.py lines 1–4, 262–273 and 287–297 disclose unbundled host libraries and record ELF dependencies. verify.py lines 67–74 requires the GNU interpreter; lines 110–124 and 181–205 verify pinned runtime bytes, containers and executable hashes while returning native_validation=not_run. AppImage runtime validation uses gui=False, bypassing GUI alignment/interpreter checks. Pins lines 5–34 identify supplied tool assets, not their target compatibility. Follow-up: qualify GUI, AppImage runtime, loader, shared-library versions and each package format together. Acceptance: clean supported ARM hosts install/extract and launch tar/deb/AppImage artifacts with recorded loader, dependency, kernel and graphics details; unsupported ABI combinations fail clearly. Limitation: hashes and EM_AARCH64 establish content identity/architecture, not executable compatibility or portability."
+    },
+    {
+      "id": "LIB-ARM-01-F4",
+      "title": "Legacy TASK-990 tests still require fake-builder behavior",
+      "status": "test_contract_reconciliation_required",
+      "source_refs": [
+        "tests/unit/arm64-packaging-990.test.mjs",
+        "tests/unit/arm64-build-integrity.test.mjs",
+        "scripts/arm64/build.py",
+        "scripts/arm64/verify.py"
+      ],
+      "notes": "Legacy lines 471–505 require AI2PAYLOAD plus a tar payload and bundled-deps marker, contradicting official-runtime/SquashFS verification. Lines 316–319 treat embedded strings as smoke evidence; lines 612–685 expect genuine builds without explicit SDK/tool inputs, and the variable asahiDry actually invokes a build. Lines 220–241 expect obsolete generated-config shape; lines 356–363 and 571 require outputs/report fields absent from the attached builder. Follow-up: replace fake-format expectations with genuine-toolchain contracts while preserving corruption rejection and required release-content decisions. Acceptance: hermetic preflight/config tests run separately from prerequisite-gated real builds, official AppImage extraction verifies payload identity, and smoke success requires execution. Also make integrity-test lines 102–107 architecture-aware: /bin/true is not necessarily wrong-architecture on ARM Linux. Limitation: these are static contract mismatches, not freshly observed test failures."
+    },
+    {
+      "id": "LIB-ARM-01-F5",
+      "title": "Missing SDK prerequisites need explicit negative gates",
+      "status": "environment_gate_expansion_required",
+      "source_refs": [
+        "scripts/arm64/build.py",
+        "tests/unit/arm64-build-integrity.test.mjs"
+      ],
+      "notes": "build.py lines 122–160 requires a cross sysroot, target libstd, pkg-config libraries and a C++ link probe; lines 345–376 build and publish only after these checks. Existing integrity tests lines 30–54 cover missing Cargo/runtime, but the packet does not show targeted missing-libstd, incomplete-sysroot or linker-probe cases. Follow-up: add prerequisite-negative contracts and provision a genuine complete ARM SDK lane. Acceptance: each missing prerequisite returns exit 2 without publishing or disturbing prior outputs; a provisioned lane produces a locked Cargo-reported GUI artifact and verifies packages. Limitation: the coordinator reports installed target std/sysroot unavailable; no fresh toolchain probe or build was performed."
+    },
+    {
+      "id": "LIB-ARM-01-F6",
+      "title": "Linux Asahi, macOS and Windows require separate qualification",
+      "status": "platform_matrix_required",
+      "source_refs": [
+        "scripts/arm64/build.py",
+        ".github/workflows/cross-platform.yml"
+      ],
+      "notes": "build.py lines 25–28 and 380–383 define Linux GNU builds, including an apple-m1 CPU profile; that profile is Asahi Linux, not macOS support. Workflow lines 28–37 select OS runners without explicit ARM targets; Windows lines 88–95 explicitly provision x64 tools/libraries. Follow-up: track Linux ARM64 GNU, separately qualified Asahi Linux, macOS aarch64-apple-darwin Mach-O and Windows aarch64-pc-windows-msvc PE/MSVC independently. Acceptance: each claimed platform records actual runner architecture, matching SDK/libraries, target artifact format, native launch and package results. Limitation: runner labels, x86_64 CI and Darwin type checking cannot establish native ARM package/runtime support."
+    },
+    {
+      "id": "LIB-ARM-01-F7",
+      "title": "Native CPU-negative and GUI/package runtime evidence is absent",
+      "status": "runtime_qualification_required",
+      "source_refs": [
+        ".github/workflows/cross-platform.yml",
+        "scripts/arm64/build.py",
+        "scripts/arm64/verify.py"
+      ],
+      "notes": "Workflow lines 124–132 build/test and run headless smoke for the host, without invoking the ARM release/package path or specifying feature-negative ARM execution. build.py lines 75–81, 292–297 and 397 and verify.py lines 201–205 explicitly retain native validation as not run. Follow-up: add native qualification gates linked to exact artifact hashes, including optional-feature-negative execution, supported graphics sessions, packaged launch and clean shutdown. Acceptance: results identify CPU features, OS/kernel/page size, artifact provenance and observable GUI outcomes; missing hardware remains explicitly unqualified. Limitation: headless smoke alone cannot qualify graphical operation, and no genuine ARM SIGILL reproduction is available."
+    }
+  ],
+  "risks": [
+    "Optional instructions may cause SIGILL on CPUs outside the declared feature contract; this is a source-level risk, not an observed crash.",
+    "Valid headers, pinned runtimes and matching package hashes can coexist with loader, library, graphics or kernel incompatibility.",
+    "Stale test contracts can encourage restoring simulated artifacts or overclaiming support."
+  ],
+  "next_actions": [
+    "Coordinator: incorporate F1–F7 and their acceptance conditions into the existing RW51 plan/board.",
+    "Keep build integrity, native runtime qualification and each platform's support status separately evidenced."
+  ],
+  "tests_executed": [],
+  "limitations": [
+    "Reviewed only the seven attached source texts and supplied AGENTS.md; no tools, commands, writes, network access or helpers were used.",
+    "Commit cleanliness, source hashes, fake-builder removal and missing installed ARM SDK are coordinator-provided facts, not independently verified results.",
+    "No dependency implementation, generated artifact, device trace or native runtime result was available."
+  ],
+  "migration_completed": false
+}

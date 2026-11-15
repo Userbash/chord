@@ -39,6 +39,545 @@
   "task_manifest": "waves/RW-51/TASKS.json",
   "mandates": [
     {
+      "id": "LIB-ARM-01",
+      "title": "Record the ARM failure and a reproducible environment/architecture ledger",
+      "priority": "P1",
+      "department": "G4 QA",
+      "dependencies": [],
+      "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "base_branch": "release/developer-alpha-preview",
+      "read_scope": [
+        "scripts/arm64/build.py",
+        "packaging/arm64/cargo-config.toml",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "write_scope": [
+        "waves/RW-51/ARM-FAILURE-LEDGER.json"
+      ],
+      "exclusive_resource": "arm64-release-qualification",
+      "exclusive_resources": [
+        "arm64-release-qualification",
+        "waves/RW-51/ARM-FAILURE-LEDGER.json"
+      ],
+      "integration_subtasks": [],
+      "profile": "g4_qa",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "coding_instructions": "Completed ECC source-audit phase af4a762f;7 source findings, no native build/runtime. Report: waves/RW-51/reports/LIB-ARM-01.json.\nOperator ARM follow-up; release blocker. Outcome: Separate confirmed missing Linux ARM64 std/sysroot and stale build-test expectations from CPU/ABI risks and unobserved native crashes.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Actual rustup/rustc target inspection, immutable previous failure evidence and any operator-provided native stderr/CPU/page-size/OS details.\nThe current machine lacks aarch64-unknown-linux-gnu std; no native ARM crash was observed here. Capture real SIGILL/loader logs if supplied rather than claiming a reproduced crash from flags alone.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "tests": {
+        "targeted_command": "rustup target list --installed",
+        "independent_oracle": "Actual rustup/rustc target inspection, immutable previous failure evidence and any operator-provided native stderr/CPU/page-size/OS details.",
+        "red_required": true,
+        "mutation_requirement": "Detect at least five behavior-changing CPU/SDK/artifact/qualification mutants for an implemented slice.",
+        "process_checks": [
+          {
+            "argv": [
+              "rustup",
+              "target",
+              "list",
+              "--installed"
+            ],
+            "target_status": "create_if_missing_then_execute"
+          }
+        ]
+      },
+      "dispatch_status": "planning_phase_completed",
+      "rollback": "Stop ARM promotion or use the last independently qualified compatible artifact; never restore the old placeholder/fake-success pipeline.",
+      "definition_of_ready": "Accepted prerequisites, exact ARM target/CPU/ABI and source revision, independent oracle and exclusive file leases.",
+      "plan_reference": "waves/RW-51/TASKS.md#lib-arm-01",
+      "blocked_by": [
+        "NATIVE_REPRODUCTION_AND_REVIEW_REQUIRED"
+      ],
+      "runtime_resolution": {
+        "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
+        "operator_exception": "waves/RW-51/OPERATOR-OVERRIDE.md",
+        "initial_phase_harness": "codex",
+        "initial_phase_model": "gpt-6.1-sol",
+        "initial_phase_effort": "medium",
+        "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
+      }
+    },
+    {
+      "id": "LIB-ARM-02",
+      "title": "Define and enforce portable ARM CPU features and page-size ABI",
+      "priority": "P1",
+      "department": "DevOps / Integration",
+      "dependencies": [
+        "LIB-ARM-01"
+      ],
+      "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "base_branch": "release/developer-alpha-preview",
+      "read_scope": [
+        "scripts/arm64/build.py",
+        "packaging/arm64/cargo-config.toml",
+        "scripts/arm64/verify.py"
+      ],
+      "write_scope": [
+        "scripts/arm64/build.py",
+        "packaging/arm64/cargo-config.toml",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs",
+        "waves/RW-51/ARM-ABI-DECISION.md"
+      ],
+      "exclusive_resource": "arm64-release-qualification",
+      "exclusive_resources": [
+        "arm64-release-qualification",
+        "packaging/arm64/cargo-config.toml",
+        "scripts/arm64/build.py",
+        "tests/unit/arm64-cpu-abi-contract.test.mjs",
+        "waves/RW-51/ARM-ABI-DECISION.md"
+      ],
+      "integration_subtasks": [
+        {
+          "id": "LIB-ARM-02.I1",
+          "owner": "RW-51 coordinator / named integrator",
+          "write_scope": [
+            "packaging/arm64/cargo-config.toml"
+          ],
+          "instruction": "Serialize the exact target/SDK/pin/CI integration and revalidate affected target contracts.",
+          "status": "backlog"
+        }
+      ],
+      "profile": "devops",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Qualify generic/rpi5/asahi CPU and ABI contracts, including optional extension dispatch and claimed Linux page-size compatibility.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.\nCurrent generic flags force +crc,+aes,+sha2 and C +crypto. Assess potential SIGILL on incompatible CPUs; this is a source risk, not a measured crash. Prefer vetted library runtime dispatch or a documented minimum CPU. Test generic and hardware-specific profiles separately and evaluate 4K/16K/64K only when claimed; never substitute Apple macOS ABI for Asahi Linux.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "tests": {
+        "targeted_command": "node --test tests/unit/arm64-cpu-abi-contract.test.mjs",
+        "independent_oracle": "Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.",
+        "red_required": true,
+        "mutation_requirement": "Detect at least five behavior-changing CPU/SDK/artifact/qualification mutants for an implemented slice.",
+        "process_checks": [
+          {
+            "argv": [
+              "node",
+              "--test",
+              "tests/unit/arm64-cpu-abi-contract.test.mjs"
+            ],
+            "target_status": "create_if_missing_then_execute"
+          }
+        ]
+      },
+      "dispatch_status": "queued_not_dispatched",
+      "rollback": "Stop ARM promotion or use the last independently qualified compatible artifact; never restore the old placeholder/fake-success pipeline.",
+      "definition_of_ready": "Accepted prerequisites, exact ARM target/CPU/ABI and source revision, independent oracle and exclusive file leases.",
+      "plan_reference": "waves/RW-51/TASKS.md#lib-arm-02",
+      "blocked_by": [
+        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+      ],
+      "runtime_resolution": {
+        "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
+        "operator_exception": "waves/RW-51/OPERATOR-OVERRIDE.md",
+        "initial_phase_harness": "codex",
+        "initial_phase_model": "gpt-6.1-sol",
+        "initial_phase_effort": "medium",
+        "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
+      }
+    },
+    {
+      "id": "LIB-ARM-03",
+      "title": "Gate library intake on explicit ARM target/CPU/ABI evidence",
+      "priority": "P1",
+      "department": "DevOps / Integration",
+      "dependencies": [
+        "LIB-ARM-02",
+        "LIB-GOV-02"
+      ],
+      "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "base_branch": "release/developer-alpha-preview",
+      "read_scope": [
+        "waves/RW-51/ARM-ABI-DECISION.md",
+        "waves/RW-51/DEPENDENCY-DECISIONS.md",
+        "rust/Cargo.toml",
+        "rust/chord-gpui/Cargo.toml",
+        "rust/gui-spike/Cargo.toml"
+      ],
+      "write_scope": [
+        "waves/RW-51/ARM-DEPENDENCY-MATRIX.json",
+        "tests/meta/arm-dependency-admission.test.mjs"
+      ],
+      "exclusive_resource": "arm64-release-qualification",
+      "exclusive_resources": [
+        "arm64-release-qualification",
+        "tests/meta/arm-dependency-admission.test.mjs",
+        "waves/RW-51/ARM-DEPENDENCY-MATRIX.json"
+      ],
+      "integration_subtasks": [],
+      "profile": "devops",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Require every proposed crate/framework to declare supported ARM triples/features, native SDK requirements and qualification evidence before production adoption.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Pinned crate source/official documentation and exact target-feature/link graphs; unknown target support stays unqualified.\nDistinguish Linux aarch64-unknown-linux-gnu, macOS aarch64-apple-darwin and Windows aarch64-pc-windows-msvc if claimed. Check optional crypto/SIMD backends, C/assembly/build.rs, atomics, FFI layout and dependency features. Source checks can admit an isolated spike; they cannot approve native runtime. Do not block unrelated security fixes from investigation, and do not label ARM production-ready without the later native gates.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "tests": {
+        "targeted_command": "node --test tests/meta/arm-dependency-admission.test.mjs",
+        "independent_oracle": "Pinned crate source/official documentation and exact target-feature/link graphs; unknown target support stays unqualified.",
+        "red_required": true,
+        "mutation_requirement": "Detect at least five behavior-changing CPU/SDK/artifact/qualification mutants for an implemented slice.",
+        "process_checks": [
+          {
+            "argv": [
+              "node",
+              "--test",
+              "tests/meta/arm-dependency-admission.test.mjs"
+            ],
+            "target_status": "create_if_missing_then_execute"
+          }
+        ]
+      },
+      "dispatch_status": "queued_not_dispatched",
+      "rollback": "Stop ARM promotion or use the last independently qualified compatible artifact; never restore the old placeholder/fake-success pipeline.",
+      "definition_of_ready": "Accepted prerequisites, exact ARM target/CPU/ABI and source revision, independent oracle and exclusive file leases.",
+      "plan_reference": "waves/RW-51/TASKS.md#lib-arm-03",
+      "blocked_by": [
+        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+      ],
+      "runtime_resolution": {
+        "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
+        "operator_exception": "waves/RW-51/OPERATOR-OVERRIDE.md",
+        "initial_phase_harness": "codex",
+        "initial_phase_model": "gpt-6.1-sol",
+        "initial_phase_effort": "medium",
+        "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
+      }
+    },
+    {
+      "id": "LIB-ARM-04",
+      "title": "Provision and verify a real ARM64 Rust/C/C++ sysroot",
+      "priority": "P1",
+      "department": "DevOps / Integration",
+      "dependencies": [
+        "LIB-ARM-01",
+        "LIB-GOV-02"
+      ],
+      "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "base_branch": "release/developer-alpha-preview",
+      "read_scope": [
+        "scripts/arm64/build.py",
+        "packaging/arm64/toolchain-pins.json"
+      ],
+      "write_scope": [
+        "scripts/arm64/build.py",
+        "packaging/arm64/sdk-manifest.json",
+        "tests/unit/arm64-sdk-contract.test.mjs",
+        "waves/RW-51/ARM-SDK-PROVENANCE.json"
+      ],
+      "exclusive_resource": "arm64-release-qualification",
+      "exclusive_resources": [
+        "arm64-release-qualification",
+        "packaging/arm64/sdk-manifest.json",
+        "scripts/arm64/build.py",
+        "tests/unit/arm64-sdk-contract.test.mjs",
+        "waves/RW-51/ARM-SDK-PROVENANCE.json"
+      ],
+      "integration_subtasks": [],
+      "profile": "devops",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Provide the declared ARM Rust std, target compiler/linker and complete development sysroot with isolated target pkg-config resolution and pinned provenance.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Real target std and C++ link probe plus ELF architecture; x86 host headers/libraries and empty sysroots must be rejected.\nUse authentic documented SDK/distribution sources and explicit versions/checksums/license records. Keep host and target pkg-config separate; preserve the existing no-floating-download/release-pin policy and never fake environment readiness.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "tests": {
+        "targeted_command": "node --test tests/unit/arm64-sdk-contract.test.mjs",
+        "independent_oracle": "Real target std and C++ link probe plus ELF architecture; x86 host headers/libraries and empty sysroots must be rejected.",
+        "red_required": true,
+        "mutation_requirement": "Detect at least five behavior-changing CPU/SDK/artifact/qualification mutants for an implemented slice.",
+        "process_checks": [
+          {
+            "argv": [
+              "node",
+              "--test",
+              "tests/unit/arm64-sdk-contract.test.mjs"
+            ],
+            "target_status": "create_if_missing_then_execute"
+          }
+        ]
+      },
+      "dispatch_status": "queued_not_dispatched",
+      "rollback": "Stop ARM promotion or use the last independently qualified compatible artifact; never restore the old placeholder/fake-success pipeline.",
+      "definition_of_ready": "Accepted prerequisites, exact ARM target/CPU/ABI and source revision, independent oracle and exclusive file leases.",
+      "plan_reference": "waves/RW-51/TASKS.md#lib-arm-04",
+      "blocked_by": [
+        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+      ],
+      "runtime_resolution": {
+        "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
+        "operator_exception": "waves/RW-51/OPERATOR-OVERRIDE.md",
+        "initial_phase_harness": "codex",
+        "initial_phase_model": "gpt-6.1-sol",
+        "initial_phase_effort": "medium",
+        "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
+      }
+    },
+    {
+      "id": "LIB-ARM-05",
+      "title": "Build and verify the actual ARM GUI and package payloads",
+      "priority": "P1",
+      "department": "DevOps / Integration",
+      "dependencies": [
+        "LIB-ARM-02",
+        "LIB-ARM-04",
+        "LIB-ARM-08"
+      ],
+      "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "base_branch": "release/developer-alpha-preview",
+      "read_scope": [
+        "scripts/build-arm64.sh",
+        "scripts/arm64/build.py",
+        "scripts/arm64/verify.py",
+        "packaging/arm64/toolchain-pins.json"
+      ],
+      "write_scope": [
+        "scripts/arm64/verify.py",
+        "tests/unit/arm64-build-integrity.test.mjs",
+        "waves/RW-51/ARM-ARTIFACT-EVIDENCE.json"
+      ],
+      "exclusive_resource": "arm64-release-qualification",
+      "exclusive_resources": [
+        "arm64-release-qualification",
+        "scripts/arm64/verify.py",
+        "tests/unit/arm64-build-integrity.test.mjs",
+        "waves/RW-51/ARM-ARTIFACT-EVIDENCE.json"
+      ],
+      "integration_subtasks": [],
+      "profile": "devops",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Require real locked Cargo chord-gpui output and prove architecture, loader/hardening/ABI, exact tar/deb/AppImage payloads and preserved checksums.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Cargo compiler-artifact identity plus independent readelf/ar/tar/SquashFS/sha256 verification and pinned official runtime/tool bytes.\nThe unit integrity suite is a prerequisite, not a substitute for an actual full build. No stale executable may be reused after a zero-exit build without compiler-artifact evidence. Real build/verify commands must supply a fresh output directory and qualified SDK/tools, never overwrite rust/dist or historical goldens.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "tests": {
+        "targeted_command": "node --test tests/unit/arm64-build-integrity.test.mjs",
+        "independent_oracle": "Cargo compiler-artifact identity plus independent readelf/ar/tar/SquashFS/sha256 verification and pinned official runtime/tool bytes.",
+        "red_required": true,
+        "mutation_requirement": "Detect at least five behavior-changing CPU/SDK/artifact/qualification mutants for an implemented slice.",
+        "process_checks": [
+          {
+            "argv": [
+              "node",
+              "--test",
+              "tests/unit/arm64-build-integrity.test.mjs"
+            ],
+            "target_status": "create_if_missing_then_execute"
+          }
+        ]
+      },
+      "dispatch_status": "queued_not_dispatched",
+      "rollback": "Stop ARM promotion or use the last independently qualified compatible artifact; never restore the old placeholder/fake-success pipeline.",
+      "definition_of_ready": "Accepted prerequisites, exact ARM target/CPU/ABI and source revision, independent oracle and exclusive file leases.",
+      "plan_reference": "waves/RW-51/TASKS.md#lib-arm-05",
+      "blocked_by": [
+        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+      ],
+      "runtime_resolution": {
+        "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
+        "operator_exception": "waves/RW-51/OPERATOR-OVERRIDE.md",
+        "initial_phase_harness": "codex",
+        "initial_phase_model": "gpt-6.1-sol",
+        "initial_phase_effort": "medium",
+        "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
+      }
+    },
+    {
+      "id": "LIB-ARM-06",
+      "title": "Reconcile the legacy ARM build contract without weakening coverage",
+      "priority": "P1",
+      "department": "G4 QA",
+      "dependencies": [
+        "LIB-ARM-01",
+        "LIB-ARM-02",
+        "LIB-ARM-05"
+      ],
+      "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "base_branch": "release/developer-alpha-preview",
+      "read_scope": [
+        "tests/unit/arm64-packaging-990.test.mjs",
+        "tests/unit/arm64-build-integrity.test.mjs",
+        "scripts/arm64/build.py"
+      ],
+      "write_scope": [
+        "tests/unit/arm64-packaging-990.test.mjs",
+        "tests/unit/arm64-build-integrity.test.mjs",
+        "waves/RW-51/ARM-TEST-CONTRACT-DECISION.md"
+      ],
+      "exclusive_resource": "arm64-release-qualification",
+      "exclusive_resources": [
+        "arm64-release-qualification",
+        "tests/unit/arm64-build-integrity.test.mjs",
+        "tests/unit/arm64-packaging-990.test.mjs",
+        "waves/RW-51/ARM-TEST-CONTRACT-DECISION.md"
+      ],
+      "integration_subtasks": [],
+      "profile": "g4_qa",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Replace only the obsolete expectation of successful fake artifacts without a toolchain through an independently justified old/new contract and mandatory real-build integration coverage.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Approved real Cargo artifact/provenance and pinned package bytes; no test may become green by checking a marker, dry-run or renamed unrelated binary.\nMap every existing positive/boundary/corruption assertion to equivalent or stricter evidence. Missing SDK remains explicit EnvFail2/unmet in qualification. Separate isolated always-runnable negatives from required native positive build jobs; never silently skip/demote/delete a release requirement.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.\nReplace the /bin/true wrong-architecture assumption with an explicitly x86_64/non-AArch64 independent fixture; /bin/true itself is AArch64 on a native ARM runner. Keep real strict integrity and corruption assertions.",
+      "tests": {
+        "targeted_command": "node --test tests/unit/arm64-packaging-990.test.mjs tests/unit/arm64-build-integrity.test.mjs",
+        "independent_oracle": "Approved real Cargo artifact/provenance and pinned package bytes; no test may become green by checking a marker, dry-run or renamed unrelated binary.",
+        "red_required": true,
+        "mutation_requirement": "Detect at least five behavior-changing CPU/SDK/artifact/qualification mutants for an implemented slice.",
+        "process_checks": [
+          {
+            "argv": [
+              "node",
+              "--test",
+              "tests/unit/arm64-packaging-990.test.mjs",
+              "tests/unit/arm64-build-integrity.test.mjs"
+            ],
+            "target_status": "create_if_missing_then_execute"
+          }
+        ]
+      },
+      "dispatch_status": "queued_not_dispatched",
+      "rollback": "Stop ARM promotion or use the last independently qualified compatible artifact; never restore the old placeholder/fake-success pipeline.",
+      "definition_of_ready": "Accepted prerequisites, exact ARM target/CPU/ABI and source revision, independent oracle and exclusive file leases.",
+      "plan_reference": "waves/RW-51/TASKS.md#lib-arm-06",
+      "blocked_by": [
+        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+      ],
+      "runtime_resolution": {
+        "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
+        "operator_exception": "waves/RW-51/OPERATOR-OVERRIDE.md",
+        "initial_phase_harness": "codex",
+        "initial_phase_model": "gpt-6.1-sol",
+        "initial_phase_effort": "medium",
+        "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
+      }
+    },
+    {
+      "id": "LIB-ARM-07",
+      "title": "Require genuine native ARM CI and runtime qualification",
+      "priority": "P1",
+      "department": "DevOps / Integration",
+      "dependencies": [
+        "LIB-ARM-02",
+        "LIB-ARM-03",
+        "LIB-ARM-04"
+      ],
+      "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "base_branch": "release/developer-alpha-preview",
+      "read_scope": [
+        ".github/workflows/cross-platform.yml",
+        "waves/RW-51/ARM-ABI-DECISION.md",
+        "waves/RW-51/ARM-DEPENDENCY-MATRIX.json"
+      ],
+      "write_scope": [
+        ".github/workflows/cross-platform.yml",
+        "tests/meta/arm-native-ci-contract.test.mjs",
+        "waves/RW-51/ARM-NATIVE-RUNNER-CONTRACT.json"
+      ],
+      "exclusive_resource": "arm64-release-qualification",
+      "exclusive_resources": [
+        ".github/workflows/cross-platform.yml",
+        "arm64-release-qualification",
+        "tests/meta/arm-native-ci-contract.test.mjs",
+        "waves/RW-51/ARM-NATIVE-RUNNER-CONTRACT.json"
+      ],
+      "integration_subtasks": [
+        {
+          "id": "LIB-ARM-07.I1",
+          "owner": "RW-51 coordinator / named integrator",
+          "write_scope": [
+            ".github/workflows/cross-platform.yml"
+          ],
+          "instruction": "Serialize the exact target/SDK/pin/CI integration and revalidate affected target contracts.",
+          "status": "backlog"
+        }
+      ],
+      "profile": "devops",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Provision an actual ARM64 runner and bind package/GUI/voice/capture smoke to exact accepted source and dependency hashes.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Actual uname/CPU/page-size/triple/PID/window/package evidence; x86 cross-compile, QEMU-only boot or a workflow declaration cannot prove native GUI/GPU performance.\nUse a verified native runner label or explicitly provisioned aarch64 host. Test generic and qualified hardware profiles, install/run the real packages and preserve native media/resource/error/recovery scenarios. macOS Apple Silicon and any Windows ARM claim require separate native evidence, not Linux AppImage tests. Required unavailable CI is blocked, not green.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "tests": {
+        "targeted_command": "node --test tests/meta/arm-native-ci-contract.test.mjs",
+        "independent_oracle": "Actual uname/CPU/page-size/triple/PID/window/package evidence; x86 cross-compile, QEMU-only boot or a workflow declaration cannot prove native GUI/GPU performance.",
+        "red_required": true,
+        "mutation_requirement": "Detect at least five behavior-changing CPU/SDK/artifact/qualification mutants for an implemented slice.",
+        "process_checks": [
+          {
+            "argv": [
+              "node",
+              "--test",
+              "tests/meta/arm-native-ci-contract.test.mjs"
+            ],
+            "target_status": "create_if_missing_then_execute"
+          }
+        ]
+      },
+      "dispatch_status": "queued_not_dispatched",
+      "rollback": "Stop ARM promotion or use the last independently qualified compatible artifact; never restore the old placeholder/fake-success pipeline.",
+      "definition_of_ready": "Accepted prerequisites, exact ARM target/CPU/ABI and source revision, independent oracle and exclusive file leases.",
+      "plan_reference": "waves/RW-51/TASKS.md#lib-arm-07",
+      "blocked_by": [
+        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+      ],
+      "runtime_resolution": {
+        "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
+        "operator_exception": "waves/RW-51/OPERATOR-OVERRIDE.md",
+        "initial_phase_harness": "codex",
+        "initial_phase_model": "gpt-6.1-sol",
+        "initial_phase_effort": "medium",
+        "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
+      }
+    },
+    {
+      "id": "LIB-ARM-08",
+      "title": "Verify actual ELF loader constraints without inventing a kernel page size",
+      "priority": "P1",
+      "department": "DevOps / Integration",
+      "dependencies": [
+        "LIB-ARM-02"
+      ],
+      "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "base_branch": "release/developer-alpha-preview",
+      "read_scope": [
+        "scripts/arm64/verify.py",
+        "tests/unit/arm64-packaging-990.test.mjs"
+      ],
+      "write_scope": [
+        "scripts/arm64/verify.py",
+        "tests/unit/arm64-elf-abi-contract.test.mjs",
+        "waves/RW-51/ARM-ELF-ABI-CONTRACT.md"
+      ],
+      "exclusive_resource": "arm64-release-qualification",
+      "exclusive_resources": [
+        "arm64-release-qualification",
+        "scripts/arm64/verify.py",
+        "tests/unit/arm64-elf-abi-contract.test.mjs",
+        "waves/RW-51/ARM-ELF-ABI-CONTRACT.md"
+      ],
+      "integration_subtasks": [],
+      "profile": "devops",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "coding_instructions": "Operator ARM follow-up; release blocker. Outcome: Validate every load segment with independent ELF ABI rules and report segment alignment separately from a measured native kernel page size.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: ELF program-header specification plus independent readelf/native loader evidence; malformed bounds/alignment/congruence fixtures must be rejected.\nCurrent page_size_bytes=min(PT_LOAD p_align) describes segment alignment, not kernel page size. Cover p_filesz<=p_memsz, offset/address congruence, power-of-two alignment, integer/file bounds and GUI versus AppImage runtime ABI. Reuse a qualified existing parser/tool where appropriate; no large replacement parser. Native loader proof is still required for each claimed page-size/OS combination.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
+      "tests": {
+        "targeted_command": "node --test tests/unit/arm64-elf-abi-contract.test.mjs",
+        "independent_oracle": "ELF program-header specification plus independent readelf/native loader evidence; malformed bounds/alignment/congruence fixtures must be rejected.",
+        "red_required": true,
+        "mutation_requirement": "Detect at least five behavior-changing CPU/SDK/artifact/qualification mutants for an implemented slice.",
+        "process_checks": [
+          {
+            "argv": [
+              "node",
+              "--test",
+              "tests/unit/arm64-elf-abi-contract.test.mjs"
+            ],
+            "target_status": "create_if_missing_then_execute"
+          }
+        ]
+      },
+      "dispatch_status": "queued_not_dispatched",
+      "rollback": "Stop ARM promotion or use the last independently qualified compatible artifact; never restore the old placeholder/fake-success pipeline.",
+      "definition_of_ready": "Accepted prerequisites, exact ARM target/CPU/ABI and source revision, independent oracle and exclusive file leases.",
+      "plan_reference": "waves/RW-51/TASKS.md#lib-arm-08",
+      "blocked_by": [
+        "PREREQUISITE_ACCEPTANCE_REQUIRED"
+      ],
+      "runtime_resolution": {
+        "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
+        "operator_exception": "waves/RW-51/OPERATOR-OVERRIDE.md",
+        "initial_phase_harness": "codex",
+        "initial_phase_model": "gpt-6.1-sol",
+        "initial_phase_effort": "medium",
+        "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
+      }
+    },
+    {
       "id": "LIB-GOV-01",
       "title": "Freeze the application feature and failure ledger",
       "priority": "P0",
@@ -6861,7 +7400,10 @@
       "priority": "P1",
       "department": "G4 QA",
       "dependencies": [
-        "LIB-QA-07"
+        "LIB-QA-07",
+        "LIB-ARM-05",
+        "LIB-ARM-06",
+        "LIB-ARM-07"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -6881,7 +7423,7 @@
       "profile": "g4_qa",
       "requested_model": "gemini-4-argon-medium",
       "requested_effort": "medium",
-      "coding_instructions": "One leaf outcome: Execute the accepted-slice matrix on real Linux ARM64 packages and runtime, including both renderers and relevant native resource lifecycle.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Run locked affected contracts, real fixture/WebView journeys, packaging smoke and relevant native integrations; preserve baseline reds.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nRun only against ACCEPTED-SLICES.json exact source/dependency hashes; record those hashes before/after. Any included code change invalidates this evidence. Native runner requirement: native aarch64 Linux host with real SDK/runtime.",
+      "coding_instructions": "One leaf outcome: Execute the accepted-slice matrix on real Linux ARM64 packages and runtime, including both renderers and relevant native resource lifecycle.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Run locked affected contracts, real fixture/WebView journeys, packaging smoke and relevant native integrations; preserve baseline reds.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nRun only against ACCEPTED-SLICES.json exact source/dependency hashes; record those hashes before/after. Any included code change invalidates this evidence. Native runner requirement: native aarch64 Linux host with real SDK/runtime.\nExplicit ARM release blocker: require the real SDK, portable CPU/ABI contract, genuine artifacts, reconciled strict tests and native runner evidence from LIB-ARM-01..07. Do not clear based on source-only audit or passing integrity fixtures.",
       "tests": {
         "targeted_command": "Run locked affected contracts, real fixture/WebView journeys, packaging smoke and relevant native integrations; preserve baseline reds.",
         "independent_oracle": "Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.",
@@ -7904,7 +8446,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-RSA-01"
+        "LIB-RSA-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -7956,7 +8499,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved RSA backend candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-01.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved RSA backend candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-01.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8002,7 +8545,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-CRYPTO-01"
+        "LIB-CRYPTO-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8054,7 +8598,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved voice AEAD and HKDF primitives candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-02.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved voice AEAD and HKDF primitives candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-02.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8100,7 +8644,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-COMP-01"
+        "LIB-COMP-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8152,7 +8697,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved bounded flate2 decoding candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-03.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved bounded flate2 decoding candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-03.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8198,7 +8743,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-STORE-01"
+        "LIB-STORE-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8250,7 +8796,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved rusqlite linkage candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-04.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved rusqlite linkage candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-04.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8296,7 +8842,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-HTTP-01"
+        "LIB-HTTP-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8348,7 +8895,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved reusable HTTP client candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-05.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved reusable HTTP client candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-05.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8394,7 +8941,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-PORTAL-01"
+        "LIB-PORTAL-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8446,7 +8994,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved Linux ashpd and zbus candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-06.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved Linux ashpd and zbus candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-06.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8492,7 +9040,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-SECRET-01"
+        "LIB-SECRET-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8544,7 +9093,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved explicit secure keyring stores candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-07.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved explicit secure keyring stores candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-07.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8590,7 +9139,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-JSON-01"
+        "LIB-JSON-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8645,7 +9195,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved strict Serde and shared DTOs candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-08.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved strict Serde and shared DTOs candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-08.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8691,7 +9241,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-IPC-01"
+        "LIB-IPC-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8724,7 +9275,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved exact-pinned IPC generator candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/gui-spike/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-09.I1 owns: rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved exact-pinned IPC generator candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/gui-spike/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-09.I1 owns: rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/gui-spike/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8770,7 +9321,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-ASSET-01"
+        "LIB-ASSET-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8803,7 +9355,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved local UI build and primitive packages candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: npm ci --ignore-scripts\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-10.I1 owns: package.json, package-lock.json. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved local UI build and primitive packages candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: npm ci --ignore-scripts\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-10.I1 owns: package.json, package-lock.json. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "npm ci --ignore-scripts",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8842,7 +9394,8 @@
       "priority": "P1",
       "department": "DevOps / Integration",
       "dependencies": [
-        "LIB-GOV-02"
+        "LIB-GOV-02",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8900,7 +9453,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved standard IDs and encodings candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-11.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved standard IDs and encodings candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-11.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -8946,7 +9499,8 @@
       "department": "DevOps / Integration",
       "dependencies": [
         "LIB-GOV-02",
-        "LIB-MARK-01"
+        "LIB-MARK-01",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -8998,7 +9552,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved shared Markdown parser candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-12.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved shared Markdown parser candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-12.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -9043,7 +9597,8 @@
       "priority": "P1",
       "department": "DevOps / Integration",
       "dependencies": [
-        "LIB-GOV-02"
+        "LIB-GOV-02",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -9095,7 +9650,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved qualified PCM queue candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-13.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved qualified PCM queue candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-13.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -9140,7 +9695,8 @@
       "priority": "P1",
       "department": "DevOps / Integration",
       "dependencies": [
-        "LIB-GOV-02"
+        "LIB-GOV-02",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -9173,7 +9729,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved native clipboard candidate candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/gui-spike/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-14.I1 owns: rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved native clipboard candidate candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/gui-spike/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-14.I1 owns: rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/gui-spike/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -9218,7 +9774,8 @@
       "priority": "P1",
       "department": "DevOps / Integration",
       "dependencies": [
-        "LIB-GOV-02"
+        "LIB-GOV-02",
+        "LIB-ARM-03"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -9273,7 +9830,7 @@
       "profile": "devops",
       "requested_model": "gemini-4-argon-low",
       "requested_effort": "low",
-      "coding_instructions": "One leaf outcome: Apply exactly the approved targeted ICU and tracing candidates candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-15.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.",
+      "coding_instructions": "One leaf outcome: Apply exactly the approved targeted ICU and tracing candidates candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-15.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
         "targeted_command": "flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml",
         "independent_oracle": "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
@@ -9345,7 +9902,10 @@
         "LIB-DEVX-02",
         "LIB-HTTP-06",
         "LIB-RSA-07",
-        "LIB-RSA-08"
+        "LIB-RSA-08",
+        "LIB-ARM-05",
+        "LIB-ARM-06",
+        "LIB-ARM-07"
       ],
       "base_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
       "base_branch": "release/developer-alpha-preview",
@@ -9408,5 +9968,31 @@
   "actual_model": "gpt-6.1-sol",
   "actual_effort": "medium",
   "receipt_manifest": "waves/RW-51/DISPATCH-RECEIPTS.json",
-  "observed_at": "2026-11-15T14:55:09.354410+00:00"
+  "observed_at": "2026-11-15T15:18:13.071465+00:00",
+  "platform_blockers": [
+    {
+      "id": "ARM64_RELEASE_NOT_QUALIFIED",
+      "resolved": false,
+      "scope": "Known Linux ARM64 build/toolchain gap; CPU/ABI risk, native behavior and separate ARM OS claims require evidence.",
+      "confirmed": [
+        "Linux ARM64 Rust std absent on current host",
+        "No real native ARM GUI/media/package qualification"
+      ],
+      "not_observed": [
+        "A reproduced native SIGILL or hardware crash"
+      ],
+      "tasks": [
+        "LIB-ARM-01",
+        "LIB-ARM-02",
+        "LIB-ARM-03",
+        "LIB-ARM-04",
+        "LIB-ARM-05",
+        "LIB-ARM-06",
+        "LIB-ARM-07",
+        "LIB-ARM-08"
+      ],
+      "evidence": "waves/RW-51/ARM-BLOCKERS.md"
+    }
+  ],
+  "arm_audit_session": "af4a762f"
 }

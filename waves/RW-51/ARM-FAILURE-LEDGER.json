@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "status": "ARM_RELEASE_BLOCKED",
+  "recorded_utc": "2026-11-15T15:18:57.163885+00:00",
+  "operator_request": "учти баг с arm",
+  "source_base": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+  "host_architecture": "x86_64",
+  "confirmed_environment": {
+    "linux_arm64_std_installed": false,
+    "native_arm_runtime_tested": false
+  },
+  "observed_native_SIGILL": false,
+  "source_findings": [
+    "Generic profile globally enables optional CRC/AES/SHA2 and native crypto flags",
+    "ELF segment alignment is mislabeled as kernel page size; loader/ABI constraints need independent qualification",
+    "Legacy fake-build expectations and /bin/true wrong-architecture assumption need reviewed test-contract reconciliation"
+  ],
+  "integrity_suite": {
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "Current x86_64 WSL integrity suite; not a native ARM build/runtime proof."
+  },
+  "worker_report": "waves/RW-51/reports/LIB-ARM-01.json",
+  "ecc_session": "af4a762f",
+  "required_cards": [
+    "LIB-ARM-01",
+    "LIB-ARM-02",
+    "LIB-ARM-03",
+    "LIB-ARM-04",
+    "LIB-ARM-05",
+    "LIB-ARM-06",
+    "LIB-ARM-07",
+    "LIB-ARM-08"
+  ],
+  "resolution_requires": "Compatible real SDK/Cargo GUI artifacts and native CPU/loader/package/GUI qualification bound to accepted source/dependency hashes."
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "tests/unit/arm64-build-integrity.test.mjs"
+  ],
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/arm-integrity-20261115T151326Z.log",
+  "arm64_linux_std_installed": false,
+  "target_libdir": "/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/aarch64-unknown-linux-gnu/lib",
+  "native_arm_runtime_tested": false
+}

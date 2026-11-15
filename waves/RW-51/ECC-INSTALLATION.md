@@ -54,3 +54,5 @@ Three isolated clean source worktrees at `2b7cfb52`:
 | LIB-RSA-01 | Independent RSA remote-auth contract specification | `2dc1d8ea` |
 
 This first phase is read-only analysis. The coordinator persists their structured results. It does not implement cryptography, install application dependencies, run a full parity gate or mark application migrations accepted. Subsequent implementation requires the exact card's readiness, leases, independent RED contracts and review.
+
+ARM follow-up: session `af4a762f` completed a fourth, bounded read-only audit for `LIB-ARM-01` using the same genuine Linux Codex route and unchanged source baseline. Its seven source findings are recorded separately; it does not claim an ARM build or native runtime result.

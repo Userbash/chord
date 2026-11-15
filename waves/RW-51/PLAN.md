@@ -1,5 +1,7 @@
 # RW-51: Library-first Rust modernization
 
+ARM follow-up: [eight scoped ARM blockers](ARM-BLOCKERS.md) now gate dependency intake and native release acceptance.
+
 Status: detailed plan and queue preparation; application migrations are not implemented by this document.
 
 Operator request: reduce hand-written infrastructure across the whole application using maintained libraries/framework APIs, improve typing and modularity, preserve or improve every feature, load annotated tasks on Kanban, and execute through ECC.
@@ -104,7 +106,7 @@ Dependency intake must establish source/maintainer provenance, exact versions/fe
 
 [TASKS.json](TASKS.json) is the machine-readable leaf manifest; [TASKS.md](TASKS.md) is the human-readable breakdown. Each card has a parent epic, priority, one outcome, dependencies, read/write scope, exclusive resource lease, independent oracle, targeted verification, English implementation instructions, requested ECC profile, rollback and dispatch state.
 
-The full plan has 25 workstreams and 124 leaf cards, including 15 explicit dependency-integration tasks. Each implementation leaf must fit one small reviewable feature/API boundary. A qualification leaf produces a bounded decision artifact. If its exact consumer set exceeds the stated boundary, the coordinator creates explicit children before opening the implementation lease.
+The full plan has 26 workstreams and 132 leaf cards, including 15 explicit dependency-integration tasks. Each implementation leaf must fit one small reviewable feature/API boundary. A qualification leaf produces a bounded decision artifact. If its exact consumer set exceeds the stated boundary, the coordinator creates explicit children before opening the implementation lease.
 
 Execution order:
 
@@ -170,7 +172,7 @@ This plan, board import, a successful ECC installation, a started session and a 
 
 Three genuine Codex-backed ECC planning sessions completed source audits: 34 findings with 173 existing source references. Their structured reports are in `reports/` and exact session/provenance records are in `DISPATCH-RECEIPTS.json`. They executed no application tests, builds, dependency changes or migrations.
 
-The plan now includes five additional explicit leaves prompted by that work: independent cross-frontend remote-auth wire adjudication, GPUI use of the shared secure cipher, secret redaction/session-activation errors, remaining GPUI HKDF mechanics, and standard MLS hash/HMAC primitives. The complete plan contains 124 leaves across 25 workstreams.
+The plan now includes five additional explicit leaves prompted by that work: independent cross-frontend remote-auth wire adjudication, GPUI use of the shared secure cipher, secret redaction/session-activation errors, remaining GPUI HKDF mechanics, and standard MLS hash/HMAC primitives. The complete plan contains 132 leaves across 26 workstreams.
 
 The source audit found that GPUI emits a hashed `proof` field where the checked-in clean-room remote-auth extract describes the raw decrypted bytes as the unpadded base64url `nonce` field. Resolve the independent contract and test provenance before changing either implementation or assertions. Preserve binary nonce bytes and distinguish caller-specific text/token rules.
 
