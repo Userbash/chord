@@ -1,0 +1,72 @@
+[
+  {
+    "mutation": "cwd-root",
+    "exit": 1,
+    "killed": true,
+    "summary": [
+      "\u2139 tests 7",
+      "\u2139 pass 1",
+      "\u2139 fail 6",
+      "\u2139 skipped 0",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7)"
+    ],
+    "log": "/root/projects/chord-modernization-verification/kanban-mutation-cwd-root.log"
+  },
+  {
+    "mutation": "drop-incoming-metadata",
+    "exit": 1,
+    "killed": true,
+    "summary": [
+      "\u2139 tests 7",
+      "\u2139 pass 5",
+      "\u2139 fail 2",
+      "\u2139 skipped 0",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {"
+    ],
+    "log": "/root/projects/chord-modernization-verification/kanban-mutation-drop-incoming-metadata.log"
+  },
+  {
+    "mutation": "drop-existing-metadata",
+    "exit": 1,
+    "killed": true,
+    "summary": [
+      "\u2139 tests 7",
+      "\u2139 pass 6",
+      "\u2139 fail 1",
+      "\u2139 skipped 0",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {"
+    ],
+    "log": "/root/projects/chord-modernization-verification/kanban-mutation-drop-existing-metadata.log"
+  },
+  {
+    "mutation": "erase-existing-criteria",
+    "exit": 1,
+    "killed": true,
+    "summary": [
+      "\u2139 tests 7",
+      "\u2139 pass 6",
+      "\u2139 fail 1",
+      "\u2139 skipped 0",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {"
+    ],
+    "log": "/root/projects/chord-modernization-verification/kanban-mutation-erase-existing-criteria.log"
+  },
+  {
+    "mutation": "lose-legacy-layout",
+    "exit": 1,
+    "killed": true,
+    "summary": [
+      "\u2139 tests 7",
+      "\u2139 pass 6",
+      "\u2139 fail 1",
+      "\u2139 skipped 0",
+      "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {"
+    ],
+    "log": "/root/projects/chord-modernization-verification/kanban-mutation-lose-legacy-layout.log"
+  }
+]

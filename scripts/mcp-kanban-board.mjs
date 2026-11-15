@@ -4,8 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
 import readline from 'node:readline';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = '/home/sanya/orca/project';
+// Resolve the owning checkout, regardless of the caller's working directory.
+const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const BOARD_FILE = path.join(ROOT, 'waves/kanban-board.json');
 const EXPORT_HTML_FILE = path.join(ROOT, 'waves/kanban-board.html');
 
@@ -31,6 +33,11 @@ const EXPORT_HTML_FILE = path.join(ROOT, 'waves/kanban-board.html');
  * @property {string} [design_tokens.border]
  * @property {Array<{ element: string, default: string, hover: string, active: string }>} [interactive_states]
  * @property {string[]} [acceptance_criteria]
+ * @property {string[]} [dependencies]
+ * @property {string | string[]} [coding_instructions]
+ * @property {string[]} [write_scope]
+ * @property {string} [dispatch_status]
+ * @property {Record<string, unknown>} [dispatch]
  * @property {string} [wireframe_preview]
  * @property {string} [updated_at]
  */
@@ -42,6 +49,7 @@ const EXPORT_HTML_FILE = path.join(ROOT, 'waves/kanban-board.html');
  * @property {string} updated_at
  * @property {Array<{ id: string, title: string, color: string }>} columns
  * @property {KanbanCard[]} cards
+ * @property {{ leaf_count: number, completed_planning_sessions?: number }} [modernization]
  */
 
 function defaultBoard() {
@@ -91,6 +99,10 @@ function saveBoard(board) {
  * @param {KanbanBoardData} board
  */
 function exportHtml(board) {
+  // Planning progress and executed test evidence are separate facts.
+  const progress = board.modernization && Number.isSafeInteger(board.modernization.leaf_count)
+    ? `План: ${board.modernization.leaf_count} задач · Аудитов ECC: ${Number.isSafeInteger(board.modernization.completed_planning_sessions) ? board.modernization.completed_planning_sessions : 0}`
+    : `Карточек: ${board.cards.length} · Результаты проверок — в отчётах`;
   /** @type {Record<string, string>} */
   const wireframes = {};
   const wfDir = path.join(ROOT, 'docs/specs/wireframes');
@@ -344,7 +356,7 @@ function exportHtml(board) {
       <h1>🚀 ${board.project}</h1>
       <p>${board.wave} • Обновлено: ${new Date(board.updated_at).toLocaleString('ru-RU')}</p>
     </div>
-    <div class="badge-wave">61/61 Контрактов Pass (100%)</div>
+    <div class="badge-wave">${progress}</div>
   </header>
 
   <main class="board-container">
@@ -499,7 +511,7 @@ function exportHtml(board) {
   </script>
 </body>
 </html>`;
-  fs.writeFileSync(EXPORT_HTML_FILE, html, 'utf-8');
+  fs.writeFileSync(EXPORT_HTML_FILE, html.replace(/[ \t]+$/gm, ''), 'utf-8');
 }
 
 /**
@@ -566,6 +578,7 @@ const TOOLS = {
     description: "Creates or updates a rich design-first task card on the visual Kanban board.",
     inputSchema: {
       type: "object",
+      additionalProperties: true,
       required: ["id", "title", "department", "priority", "status", "summary"],
       properties: {
         id: { type: "string", description: "Task ID (e.g. TASK-741)" },
@@ -609,24 +622,51 @@ const TOOLS = {
         acceptance_criteria: {
           type: "array",
           items: { type: "string" }
+        },
+        dependencies: {
+          type: "array",
+          items: { type: "string" },
+          description: "Task IDs whose accepted results are required before this task starts."
+        },
+        coding_instructions: {
+          anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }],
+          description: "Implementation instructions; legacy text and structured steps are supported."
+        },
+        write_scope: {
+          type: "array",
+          items: { type: "string" },
+          description: "Repository paths the assigned worker may modify."
+        },
+        dispatch_status: {
+          type: "string",
+          description: "Recorded handoff state; a queued card does not prove a running worker."
+        },
+        dispatch: {
+          type: "object",
+          additionalProperties: true,
+          description: "Worker handoff annotations and actual dispatch receipts, when available."
         }
       }
     },
     run: (args) => {
       const board = loadBoard();
       const existingIdx = board.cards.findIndex(c => c.id === args.id);
+      const previous = existingIdx >= 0 ? board.cards[existingIdx] : undefined;
       /** @type {KanbanCard} */
       const card = {
+        // Preserve annotations owned by other tools; explicit inputs replace them.
+        ...previous,
+        ...args,
         id: args.id,
         title: args.title,
         department: args.department,
         priority: args.priority,
         status: args.status,
         summary: args.summary,
-        layout: args.layout || { container: "Flex", dimensions: "auto", padding: "8px", spacing: "8px" },
-        design_tokens: args.design_tokens || { background: "#2b2d31", surface: "#313338", text_primary: "#ffffff", accent: "#5865f2" },
-        interactive_states: args.interactive_states || [],
-        acceptance_criteria: args.acceptance_criteria || [],
+        layout: args.layout || previous?.layout || { container: "Flex", dimensions: "auto", padding: "8px", spacing: "8px" },
+        design_tokens: args.design_tokens || previous?.design_tokens || { background: "#2b2d31", surface: "#313338", text_primary: "#ffffff", accent: "#5865f2" },
+        interactive_states: args.interactive_states || previous?.interactive_states || [],
+        acceptance_criteria: args.acceptance_criteria || previous?.acceptance_criteria || [],
         updated_at: new Date().toISOString()
       };
 

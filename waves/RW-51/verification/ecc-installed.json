@@ -1,0 +1,17 @@
+{
+  "repository": "https://github.com/affaan-m/ECC",
+  "license": "MIT",
+  "source_tag": "v2.2.3",
+  "source_commit": "c05b2d6614f62f6db0047669aa4eefb223d478f9",
+  "source_path": "/root/tools/ecc-v2.2.3-c05b2d66",
+  "manifest": "ecc2/Cargo.toml",
+  "toolchain": "1.96.0",
+  "build": "cargo build --locked --release",
+  "target_dir": "/root/tools/ecc-build-c05b2d66",
+  "binary": "/root/.local/bin/ecc",
+  "version": "ecc 0.1.0",
+  "binary_sha256": "137ec2cdca23ed28639eed50886f2393c63d647658f7dc7108100ed4fe9b0296",
+  "cargo_lock_sha256": "8d271eac473ddf767004f86762cfe0c94f5727d7342a6179b8663dd3bbcd9236",
+  "installed_utc": "2026-11-15T14:32:53.829092+00:00",
+  "runtime": "ECC 2.0 Rust alpha; not the Node skills installer"
+}

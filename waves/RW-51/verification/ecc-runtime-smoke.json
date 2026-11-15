@@ -1,0 +1,223 @@
+{
+  "version": "ecc 0.1.0",
+  "binary": "/root/.local/bin/ecc",
+  "runtime_dir": "/root/projects/chord-modernization-verification/ecc-runtime-smoke",
+  "session": {
+    "id": "3f453584",
+    "state": "completed",
+    "agent_type": "local_probe",
+    "task": "ECC_INSTALL_PROCESS_SMOKE_ONLY: native printf, no LLM or application modification.",
+    "pid": null,
+    "cost_usd": 0.0,
+    "tokens_used": 0
+  },
+  "queue_add_receipt": {
+    "id": 1,
+    "request_kind": "standard",
+    "target_session_id": null,
+    "task": "ECC_INSTALL_SMOKE_QUEUE_ONLY: local diagnostic request, not application work.",
+    "target_url": null,
+    "priority": "normal",
+    "agent_type": "local_probe",
+    "profile_name": null,
+    "working_dir": "/root/projects/chord-modernization-verification/ecc-runtime-smoke",
+    "project": "ecc-install-validation",
+    "task_group": "offline-process-smoke",
+    "use_worktree": false,
+    "source": "cli",
+    "requester": null,
+    "status": "pending",
+    "result_session_id": null,
+    "result_action": null,
+    "error": null,
+    "created_at": "2026-11-15T14:33:58.137393032Z",
+    "updated_at": "2026-11-15T14:33:58.137393032Z",
+    "dispatched_at": null
+  },
+  "queue_after": [
+    {
+      "id": 1,
+      "request_kind": "standard",
+      "target_session_id": null,
+      "task": "ECC_INSTALL_SMOKE_QUEUE_ONLY: local diagnostic request, not application work.",
+      "target_url": null,
+      "priority": "normal",
+      "agent_type": "local_probe",
+      "profile_name": null,
+      "working_dir": "/root/projects/chord-modernization-verification/ecc-runtime-smoke",
+      "project": "ecc-install-validation",
+      "task_group": "offline-process-smoke",
+      "use_worktree": false,
+      "source": "cli",
+      "requester": null,
+      "status": "pending",
+      "result_session_id": null,
+      "result_action": null,
+      "error": null,
+      "created_at": "2026-11-15T14:33:58.137393032Z",
+      "updated_at": "2026-11-15T14:33:58.137393032Z",
+      "dispatched_at": null
+    }
+  ],
+  "checks": [
+    {
+      "name": "version",
+      "command": [
+        "/root/.local/bin/ecc",
+        "--version"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-version.log"
+    },
+    {
+      "name": "help",
+      "command": [
+        "/root/.local/bin/ecc",
+        "--help"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-help.log"
+    },
+    {
+      "name": "start-help",
+      "command": [
+        "/root/.local/bin/ecc",
+        "start",
+        "--help"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-start-help.log"
+    },
+    {
+      "name": "daemon-help",
+      "command": [
+        "/root/.local/bin/ecc",
+        "daemon",
+        "--help"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-daemon-help.log"
+    },
+    {
+      "name": "remote-help",
+      "command": [
+        "/root/.local/bin/ecc",
+        "remote",
+        "--help"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-remote-help.log"
+    },
+    {
+      "name": "remote-add-help",
+      "command": [
+        "/root/.local/bin/ecc",
+        "remote",
+        "add",
+        "--help"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-remote-add-help.log"
+    },
+    {
+      "name": "empty-sessions",
+      "command": [
+        "/root/.local/bin/ecc",
+        "sessions"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-empty-sessions.log"
+    },
+    {
+      "name": "queue-add",
+      "command": [
+        "/root/.local/bin/ecc",
+        "remote",
+        "add",
+        "--task",
+        "ECC_INSTALL_SMOKE_QUEUE_ONLY: local diagnostic request, not application work.",
+        "--agent",
+        "local_probe",
+        "--no-worktree",
+        "--project",
+        "ecc-install-validation",
+        "--task-group",
+        "offline-process-smoke",
+        "--json"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-queue-add.log"
+    },
+    {
+      "name": "queue-list",
+      "command": [
+        "/root/.local/bin/ecc",
+        "remote",
+        "list",
+        "--all",
+        "--json"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-queue-list.log"
+    },
+    {
+      "name": "local-session-start",
+      "command": [
+        "/root/.local/bin/ecc",
+        "start",
+        "--agent",
+        "local_probe",
+        "--no-worktree",
+        "--task",
+        "ECC_INSTALL_PROCESS_SMOKE_ONLY: native printf, no LLM or application modification."
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-local-session-start.log"
+    },
+    {
+      "name": "local-session-status",
+      "command": [
+        "/root/.local/bin/ecc",
+        "status",
+        "3f453584"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-local-session-status.log"
+    },
+    {
+      "name": "sessions-after",
+      "command": [
+        "/root/.local/bin/ecc",
+        "sessions"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-sessions-after.log"
+    },
+    {
+      "name": "coordination-status",
+      "command": [
+        "/root/.local/bin/ecc",
+        "coordination-status",
+        "--json"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-coordination-status.log"
+    },
+    {
+      "name": "queue-list-after",
+      "command": [
+        "/root/.local/bin/ecc",
+        "remote",
+        "list",
+        "--all",
+        "--json"
+      ],
+      "exit": 0,
+      "log": "/root/projects/chord-modernization-verification/ecc-smoke-queue-list-after.log"
+    }
+  ],
+  "paid_api_calls": 0,
+  "production_workers_started": 0,
+  "description": "Real ECC alpha executed a native printf diagnostic and persisted its completed session. This is not an AI implementation worker.",
+  "daemon": "Help verified only; daemon not started because it drains remote queues automatically."
+}

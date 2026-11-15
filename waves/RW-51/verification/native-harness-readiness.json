@@ -1,0 +1,28 @@
+[
+  {
+    "command": [
+      "/mnt/c/Program Files/WindowsApps/OpenAI.Codex_26.1111.2228.0_x64__2p2nqsd0c76g0/app/resources/codex.exe",
+      "--version"
+    ],
+    "exit": 0,
+    "output": "codex-cli 0.169.0-alpha.11.1"
+  },
+  {
+    "command": [
+      "/mnt/c/Program Files/WindowsApps/OpenAI.Codex_26.1111.2228.0_x64__2p2nqsd0c76g0/app/resources/codex.exe",
+      "login",
+      "status"
+    ],
+    "exit": 0,
+    "output": "Logged in using ChatGPT"
+  },
+  {
+    "command": [
+      "/mnt/c/Program Files/nodejs/node.exe",
+      "C:/Users/smol/AppData/Roaming/npm/node_modules/@google/gemini-cli/bundle/gemini.js",
+      "--version"
+    ],
+    "exit": 0,
+    "output": "0.49.0\n\"\\\\wsl.localhost\\Ubuntu-24.04\\root\\projects\\chord-modernization-verification\\ecc-runtime-smoke\"\n\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd \ufffd\ufffd \ufffd\u1bee\ufffd\uc9ee\ufffd\ufffd\ufffd \ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\u1aa5 CMD.EXE \ufffd \ufffd\ufffd\ufffd\ufffd\u28a5 \u296a\ufffd\u9969 \ufffd\ufffd\ufffd\ufffd\ufffd.\nCMD.EXE \ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\u09a8\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd UNC. \ufffd\ufffd \u3b2e\ufffd\u782d\ufffd\ufffd \ufffd\ufffd\u082d\ufffd \ufffd\ufffd\u296c\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd Windows.\n\"\\\\wsl.localhost\\Ubuntu-24.04\\root\\projects\\chord-modernization-verification\\ecc-runtime-smoke\"\n\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd \ufffd\ufffd \ufffd\u1bee\ufffd\uc9ee\ufffd\ufffd\ufffd \ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\u1aa5 CMD.EXE \ufffd \ufffd\ufffd\ufffd\ufffd\u28a5 \u296a\ufffd\u9969 \ufffd\ufffd\ufffd\ufffd\ufffd.\nCMD.EXE \ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\u09a8\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd UNC. \ufffd\ufffd \u3b2e\ufffd\u782d\ufffd\ufffd \ufffd\ufffd\u082d\ufffd \ufffd\ufffd\u296c\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd Windows."
+  }
+]

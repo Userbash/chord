@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "encoding": "Lossless gzip of original evidence bytes; raw source logs retained in the external verification directory.",
+  "archives": [
+    {
+      "file": "ecc-entrypoint-green-20261115T144411Z.log.gz",
+      "raw_bytes": 796,
+      "raw_sha256": "f847b76105537a20241f9d6c3a6887a983506c3833a563c316b964396aeb4a0a",
+      "archive_sha256": "60549af838ea9e9efdf8a96c51d25a6a1d5cce6e986afeecf509870a30df1fe5"
+    },
+    {
+      "file": "ecc-entrypoint-native-20261115T144436Z.log.gz",
+      "raw_bytes": 10,
+      "raw_sha256": "3e489f4e7baff94f2f29f7a0d943832ac5471ea4b4dbb008ee66bbfcb927fd41",
+      "archive_sha256": "fd82b214787a073fc231b941028fe1a2c3ca3508d9a6afd291c457599fe29f55"
+    },
+    {
+      "file": "ecc-entrypoint-red-20261115T144343Z.log.gz",
+      "raw_bytes": 22646,
+      "raw_sha256": "d6c44a5acd26926fe3e5674a3cd0b87d0d1c6551d1e4523f3ebfabb1bda9ba9a",
+      "archive_sha256": "040fda4f18d8141be3f7761bc26ad6a0c0612ff1117aac747361a2a411bc2bb2"
+    },
+    {
+      "file": "gemini-model-catalog.json.gz",
+      "raw_bytes": 287,
+      "raw_sha256": "380e98944a5df0d1bee87efefd2a1f23b792c4fcf8617da7a78b446538f5449c",
+      "archive_sha256": "878d1f75208f47b208c43be0cc1d81e41cf338ee06ce1e2cf5b479e94b351994"
+    },
+    {
+      "file": "gemini-readiness-native-trusted.json.gz",
+      "raw_bytes": 2883,
+      "raw_sha256": "aed28aab965c049c3a775adcc3c9416cf6b566cf6b2a4902a13f670d61d762c4",
+      "archive_sha256": "3e2dacb5344f1dcd3bbb7daeed9ccfe6698f077b0fa11eb74555d27e12dd9ff1"
+    },
+    {
+      "file": "kanban-export-whitespace-green.log.gz",
+      "raw_bytes": 853,
+      "raw_sha256": "e8354333301c44da66f136bdf2afcbea76c53f36a2bc8763192bdedc95a808b3",
+      "archive_sha256": "be69badfa59bc26aba90922cc951e8c20365deb903837cdf90f3f8f9f418367f"
+    },
+    {
+      "file": "kanban-export-whitespace-red.log.gz",
+      "raw_bytes": 1511,
+      "raw_sha256": "e82bcf986bed08d688ac6e8cbd5e90478992b5854781166715d3c5afb85a2dc6",
+      "archive_sha256": "7406e111ec9e56bfb5d83c382f2b5e879aea803a0a8ace178fc22e5027be5eb0"
+    },
+    {
+      "file": "kanban-header-green.log.gz",
+      "raw_bytes": 854,
+      "raw_sha256": "15c66ffb94de01c69dab14f607025636ff4aba620ccc0bfce962da4490361f6d",
+      "archive_sha256": "b1ff64dbfb45f1037a87b989c3276d8d61724d652216f5962d779e3b5f9992d3"
+    },
+    {
+      "file": "kanban-header-red.log.gz",
+      "raw_bytes": 1509,
+      "raw_sha256": "a093dd43682a2aeb5e5a085373a979f027597424cbaae3887bad8079833b8088",
+      "archive_sha256": "8b079e1272b509485c69f2834ea952a4616fab050c99e4d9b1d0bdaded229acd"
+    },
+    {
+      "file": "kanban-metadata-red.log.gz",
+      "raw_bytes": 3639,
+      "raw_sha256": "87ea9b1d049c333bd52c117a8617e6b3da04aaef5f0d8930e57194f49ee7ab07",
+      "archive_sha256": "8f7f92572c59fe2f9049d9c2355bebd21082fc4f72d05f9ac6499f9e9eb1ac42"
+    },
+    {
+      "file": "kanban-native-windows-final.log.gz",
+      "raw_bytes": 858,
+      "raw_sha256": "ec6cabec8d2094c8d23155f9a9a9874f8758ae2fedafc1678f4b94dffe706411",
+      "archive_sha256": "59210855005a0097d6c45c8156ee66145b085b1f162872434b956bfb3245a357"
+    },
+    {
+      "file": "kanban-portability-green.log.gz",
+      "raw_bytes": 883,
+      "raw_sha256": "cc02491e69df040171ff4af273f3510767a65e7d440d516240a187453b7376bf",
+      "archive_sha256": "b82d494239ef7e897de88ef57c5e9617c79d370d6b3aee51f2ddeeda76055514"
+    },
+    {
+      "file": "kanban-portability-native-windows-local.log.gz",
+      "raw_bytes": 871,
+      "raw_sha256": "79b542cf4c04dde20bd6ea57f73f276984ddccd7d2f7b8ac3ea240353919febb",
+      "archive_sha256": "29587eadece384c92e1d405c4f8cd7cc35a5c5f1818f2a8e02a2d206ec4d9f23"
+    },
+    {
+      "file": "kanban-portability-red.log.gz",
+      "raw_bytes": 8692,
+      "raw_sha256": "f61ee3582295f1becd49f156259b252a06cb17e5b367116486af5d1e0c1a33d5",
+      "archive_sha256": "4419799104dffbf15b7642242e3255feca6645e3da6bfe6614675f5d742e9aab"
+    },
+    {
+      "file": "meta-final-20261115T145656Z.log.gz",
+      "raw_bytes": 28488,
+      "raw_sha256": "028f10bfceefbb908330c33510255db57d5e64a3a27ea5af5e741fda34d8ca6c",
+      "archive_sha256": "6914c39abbabde00682748e3a5f5fc648b47751e56f514b3ad752ec0be7fff5a"
+    },
+    {
+      "file": "meta-final-20261115T150039Z.log.gz",
+      "raw_bytes": 28575,
+      "raw_sha256": "b58d2a4d3249d2224a58c325c870afd16a26f712a89abaacc92fe662c23d7e9b",
+      "archive_sha256": "960ab370032956aca7b526a6a8a327c1372564a4c0525f2e5df2894150c33de5"
+    },
+    {
+      "file": "meta-final-20261115T150309Z.log.gz",
+      "raw_bytes": 28577,
+      "raw_sha256": "ff7835a6fc03defcd6dad2961f33d30721a6cef4f1891c205677400f291c800a",
+      "archive_sha256": "a1e1469c088721280b4ddb9a7c6283f2605831ded348b0cde03612740b32bdcc"
+    }
+  ]
+}

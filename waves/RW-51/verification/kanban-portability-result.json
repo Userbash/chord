@@ -1,0 +1,38 @@
+{
+  "files": {
+    "scripts/mcp-kanban-board.mjs": {
+      "sha256": "1d0f0530b6200cafbe5139a5c823adb811bdbc818fd9ebda5096ecb3fa6bd3ad",
+      "lines": 796
+    },
+    "tests/meta/kanban-portability.test.mjs": {
+      "sha256": "1f4eb338392eadf793447c90e3a18ce203616c65ff91d98ec2457bdcdca792a8",
+      "lines": 213
+    }
+  },
+  "linux": {
+    "node": "v24.22.3",
+    "tests": 7,
+    "pass": 7,
+    "fail": 0,
+    "skip": 0
+  },
+  "windows": {
+    "node": "v24.18.0",
+    "tests": 7,
+    "pass": 7,
+    "fail": 0,
+    "skip": 0,
+    "execution": "native verification checkout, not UNC test-runner input"
+  },
+  "red_stages": [
+    "kanban-portability-red.log",
+    "kanban-metadata-red.log"
+  ],
+  "mutations": {
+    "total": 5,
+    "killed": 5,
+    "manifest": "kanban-mutations.json"
+  },
+  "diff_check": 0,
+  "ecc_dispatch": "not performed"
+}

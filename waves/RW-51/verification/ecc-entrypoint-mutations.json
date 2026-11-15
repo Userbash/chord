@@ -1,0 +1,32 @@
+[
+  {
+    "mutation": "drop-literal-arguments",
+    "exit": 1,
+    "killed": true,
+    "log": "/root/projects/chord-modernization-verification/ecc-mutation-drop-literal-arguments-20261115T144504Z.log"
+  },
+  {
+    "mutation": "lose-exec-process-identity",
+    "exit": 1,
+    "killed": true,
+    "log": "/root/projects/chord-modernization-verification/ecc-mutation-lose-exec-process-identity-20261115T144504Z.log"
+  },
+  {
+    "mutation": "ignore-explicit-override",
+    "exit": 1,
+    "killed": true,
+    "log": "/root/projects/chord-modernization-verification/ecc-mutation-ignore-explicit-override-20261115T144504Z.log"
+  },
+  {
+    "mutation": "allow-self-recursion",
+    "exit": 1,
+    "killed": true,
+    "log": "/root/projects/chord-modernization-verification/ecc-mutation-allow-self-recursion-20261115T144504Z.log"
+  },
+  {
+    "mutation": "report-missing-as-success",
+    "exit": 1,
+    "killed": true,
+    "log": "/root/projects/chord-modernization-verification/ecc-mutation-report-missing-as-success-20261115T144517Z.log"
+  }
+]

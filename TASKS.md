@@ -1,5 +1,11 @@
 # TASKS.md — Micro-Decomposition of `discord-lab` Work
 
+Planning update 2026-11-15: [RW-51 library-first modernization](waves/RW-51/PLAN.md)
+contains 124 annotated leaf cards across 25 workstreams. The [task manifest](waves/RW-51/TASKS.json)
+and [Kanban](waves/kanban-board.html) retain dependencies, exact file leases and verification instructions.
+Execution/acceptance is recorded separately in [ECC receipts](waves/RW-51/DISPATCH-RECEIPTS.json);
+this planning entry does not mark application migrations complete.
+
 Updated: 2026-10-18 (waves W1–W4 closed and accepted: M1 and M2 completed — 176 tests,
 172 pass / 0 fail / 4 e2e-skip; coverage 99.3/90.5/97.6; post-W4 audit is in the backlog below).
 Updated: 2026-10-19 (waves R7/RC: specification `docs/re/`, Rust client plan `docs/rust-client/`,

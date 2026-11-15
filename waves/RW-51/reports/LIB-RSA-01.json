@@ -1,0 +1,139 @@
+{
+  "task_id": "LIB-RSA-01",
+  "phase": "planning_audit",
+  "source_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+  "summary": "Verified the requested commit, detached HEAD and clean worktree. Completed a read-only source audit and draft compatibility contract. Found a clean-room-supported nonce incompatibility in GPUI, insecure fixed-pool RSA key generation in Tauri, and incomplete independent verification. No files changed; migration approval remains gated.",
+  "findings": [
+    {
+      "id": "RSA-01",
+      "title": "Evidence-backed key and OAEP contract",
+      "status": "draft_contract_with_standard_acquisition_gate",
+      "source_refs": [
+        "rust/gui-spike/src/remote_auth.rs",
+        "waves/RW-39/NET/PM/netr2/05-qr-extract.log"
+      ],
+      "notes": "The clean-room extract lines 7–9 specifies RSA-OAEP, 2048-bit modulus, exponent bytes [1,0,1] = 65537, SHA-256, SPKI export and base64 transport. Production lines 315–332, 478–521 and 646–725 implement OAEP SHA-256, MGF1-SHA-256 with a big-endian 32-bit counter, and an empty label. The extract supplies no explicit label or separate MGF digest. Acquire authoritative WebCrypto default semantics and RFC 8017 before claiming those defaults independently verified. No fallback to SHA-1, PKCS#1 v1.5 or another label should be permitted."
+    },
+    {
+      "id": "RSA-02",
+      "title": "Key lifecycle must preserve session binding and replace fixed-pool generation",
+      "status": "blocking_security_finding",
+      "source_refs": [
+        "rust/gui-spike/src/remote_auth.rs",
+        "waves/RW-39/NET/PM/netr2/05-qr-extract.log"
+      ],
+      "notes": "Production lines 114–129 and 609–637 select from 12 embedded prime constants using a counter and clock jitter: at most 66 unordered key pairs, with publicly recoverable factors. This is not secure random key generation and cannot be a parity requirement. Contract: obtain a fresh unpredictable 2048-bit key from a cryptographic provider for each new session/restart; keep that same key through nonce, user payload and token decryption; rotate on cancellation/reset and prevent stale responses using replacement keys. Session creation/reset/global ownership appear at lines 1275–1300, 1406–1417 and 1877–1954. The clean-room extract lines 48–57 supports restart and generation on connection. Define disposal on completion, replacement and failure; current Clone implementations and lack of explicit zeroization require review."
+    },
+    {
+      "id": "RSA-03",
+      "title": "SPKI bytes, base64 and fingerprint representation",
+      "status": "draft_contract",
+      "source_refs": [
+        "rust/gui-spike/src/remote_auth.rs",
+        "waves/RW-39/NET/PM/netr2/05-qr-extract.log"
+      ],
+      "notes": "Contract: encoded_public_key is standard base64 of DER SubjectPublicKeyInfo, never bare PKCS#1 RSAPublicKey or PEM. Current exact profile is 294 bytes: rsaEncryption OID with NULL parameters, BIT STRING containing the positive modulus INTEGER and exponent 65537 (lines 101–109, 417–463). Standard encoding uses padding where needed; this 294-byte SPKI naturally has no '='. A 256-byte ciphertext encodes to 344 standard-base64 characters ending '=='. Fingerprint is unpadded base64url(SHA-256(exact SPKI DER)), a 43-character string, compared exactly before displaying https://discord.com/ra/{fingerprint}. Clean-room lines 7–9 and 36–39 independently support derivation. Decoder compatibility is separately broader: lines 247–271 trim outer whitespace and try standard padded, URL-safe unpadded and URL-safe padded engines. Do not silently narrow accepted forms during replacement."
+    },
+    {
+      "id": "RSA-04",
+      "title": "GPUI nonce response contradicts the clean-room contract",
+      "status": "blocking_parity_defect",
+      "source_refs": [
+        "rust/gui-spike/src/remote_auth.rs",
+        "rust/chord-gpui/src/auth/remote_auth.rs",
+        "rust/chord-gpui/tests/remote_auth_contract.rs",
+        "waves/RW-39/NET/PM/netr2/05-qr-extract.log"
+      ],
+      "notes": "Clean-room lines 8–9 and 34–35 establish response {\"op\":\"nonce_proof\",\"nonce\":base64url_unpadded(decrypted_nonce_bytes)}. Tauri lines 855–890 and 1445–1453 follow this; sha256_proof is diagnostic only. GPUI lines 191–195 and 575–590 instead hashes the nonce and emits a 'proof' field; its test lines 170–172 codify that behavior using the same helper. Preserve arbitrary binary nonce bytes without UTF-8 conversion; application-level empty nonce is rejected. Exact server nonce length is not established: do not require 32 bytes based on fixture names. Correcting GPUI needs an independently justified contract/test change, not blind preservation of existing assertions."
+    },
+    {
+      "id": "RSA-05",
+      "title": "Length limits and malformed-input behavior",
+      "status": "draft_contract_with_negative_vector_gate",
+      "source_refs": [
+        "rust/gui-spike/src/remote_auth.rs",
+        "rust/chord-gpui/src/auth/remote_auth.rs"
+      ],
+      "notes": "Production lines 77–88, 478–488 and 646–725 establish ciphertext length exactly 256 and OAEP plaintext maximum 190 bytes (256−2×32−2). Primitive encryption/decryption allows empty plaintext; nonce and token callers impose additional nonempty checks. Reject truncated/oversized ciphertext, zero and representatives >= n, wrong key, bad OAEP leading byte, label hash, padding or missing separator without partial plaintext. Current errors distinguish several padding causes; propose one sanitized decryption-failure category externally while preserving typed domain mappings. Public-key parsing rejects wrong DER length/header/exponent, non-2048-bit and even modulus (lines 383–448). GPUI constructor lines 482–486 only rejects empty SPKI and delegates decryption to a trait; it does not establish actual RSA validation."
+    },
+    {
+      "id": "RSA-06",
+      "title": "Text payload and token policies differ across callers",
+      "status": "compatibility_decision_required",
+      "source_refs": [
+        "rust/gui-spike/src/remote_auth.rs",
+        "rust/chord-gpui/src/auth/remote_auth.rs",
+        "waves/RW-39/NET/PM/netr2/05-qr-extract.log"
+      ],
+      "notes": "Tauri lines 728–734 strictly rejects invalid UTF-8; clean-room lines 7–8 uses TextDecoder without an explicit fatal option, requiring standards-based resolution of malformed-text behavior. Tauri user parsing lines 924–971 preserves colons in usernames, requires a nonzero u64 ID without leading zero, 1–4 decimal discriminator digits, and an alphanumeric/underscore avatar, mapping '0' to None. Token exchange lines 1787–1794 rejects whitespace-only tokens but retains original text and does not reject embedded controls. GPUI lines 327–337 trims and rejects NUL/CR/LF. Record these as caller-policy differences; cryptographic migration must not silently normalize plaintext or merge policies."
+    },
+    {
+      "id": "RSA-07",
+      "title": "Independent fixture coverage exists but provenance is incomplete",
+      "status": "partial_evidence_unexecuted",
+      "source_refs": [
+        "rust/gui-spike/tests/remote_auth_contract.rs",
+        "rust/chord-gpui/tests/remote_auth_contract.rs",
+        "rust/gui-spike/src/biguint.rs",
+        "docs/re/README.md",
+        "waves/RW-39/NET/LOGIN-UI-RE.md"
+      ],
+      "notes": "Tauri test lines 58–66 contain claimed WebCrypto SPKI/fingerprint and nonce/user/token ciphertext fixtures; lines 120–157 compare literal expectations. Their independent generation provenance was not authenticated. Boundary tests lines 191–201 use handwritten encryption/decryption round trips, which cannot independently validate OAEP. GPUI uses an XOR/tag mock (lines 17–61), so its state-machine tests prove no RSA interoperability. BigUint tests include algebraic consistency and comparison of its own exponentiation algorithms. docs/re has no remote-auth RSA contract found by search; LOGIN-UI-RE QR-05/QR-08 and the checked-in extract supply useful separate evidence. The referenced clean-room-oracle directory is absent."
+    },
+    {
+      "id": "RSA-08",
+      "title": "Secrets and error propagation need explicit adapter guarantees",
+      "status": "security_requirements_proposed",
+      "source_refs": [
+        "rust/gui-spike/src/remote_auth.rs",
+        "rust/gui-spike/src/biguint.rs",
+        "rust/chord-gpui/src/auth/remote_auth.rs"
+      ],
+      "notes": "Keypair Debug and login-result Debug redact private material/token (lines 548–553 and 1631–1636). However nonce proof Debug exposes the reversible nonce (788–793); derived Debug exposes tickets in snapshots/actions and handshake tokens (1190–1243, 1641–1645). These values must not enter logs or telemetry. No explicit zeroization/Drop was found in the inspected crypto files. BigUint mod_pow lines 379–409 branches and indexes by private exponent windows; subtle checks do not establish end-to-end constant-time behavior. Preserve typed key/nonce/encoding/state/storage/HTTP failures, never include plaintext or provider-sensitive diagnostics. ipc_start_session lines 1887–1890 silently ignores a poisoned lock; record separately for correction rather than treating success as reliable session activation."
+    },
+    {
+      "id": "RSA-09",
+      "title": "Typed boundaries and retained functionality",
+      "status": "proposed_adapter_contract",
+      "source_refs": [
+        "rust/gui-spike/src/main.rs",
+        "rust/gui-spike/src/remote_auth.rs",
+        "rust/gui-spike/ui/features/qr-auth-modal.js",
+        "rust/chord-gpui/src/auth/remote_auth.rs"
+      ],
+      "notes": "Propose an opaque session-owned private-key handle, validated SpkiDer2048 and Ciphertext256 types, raw secret plaintext bytes, and typed generate/export/decrypt errors. Fix SHA-256/MGF1/empty-label parameters inside the adapter; keep base64, nonce representation, text parsing and transport outside it. Implement GPUI RemoteAuthCipher through the same provider boundary with a matching validated public key. Retain seven IPC command names and serialized DTO/error shapes, init/heartbeat/ack/backoff/cancel/reset, fingerprint checks, QR URL, encrypted profile/token handling, ticket exchange and initialize/finish/cancel REST operations. main.rs lines 1688–1767 and UI lines 935–936, 1010–1012, 1052–1053 demonstrate callers. Preserve public encryption/import/export/test-injection capabilities until an explicit caller/API review authorizes retirement; production need not retain deterministic OAEP seeds or public prime construction."
+    },
+    {
+      "id": "RSA-10",
+      "title": "Platform compatibility remains an execution gate",
+      "status": "unverified_platform_expectations",
+      "source_refs": [
+        ".github/workflows/cross-platform.yml",
+        "rust/gui-spike/Cargo.toml",
+        "rust/chord-gpui/Cargo.toml",
+        "waves/STATE.md"
+      ],
+      "notes": "Workflow line 30 declares Ubuntu 24.04, Windows 2025 and macOS 15 runners; declaration is not runtime evidence. Require identical DER/wire bytes, error mapping, secure OS randomness and lifecycle behavior across approved native targets. Confirm supported architectures, MSRV/editions, provider features, native dependency requirements and GUI/headless integration before selection. Historical counts and completion claims in STATE, including TAURI-RSA-01, are unverified in this phase: actual biguint.rs still contains handwritten arithmetic."
+    }
+  ],
+  "risks": [
+    "Fixed public prime factors compromise confidentiality of keys generated by the current Tauri path.",
+    "Preserving GPUI's existing nonce tests unchanged would preserve a clean-room-demonstrated wire incompatibility.",
+    "Round trips, mocks and historical acceptance claims cannot establish independent cryptographic correctness."
+  ],
+  "next_actions": [
+    "Coordinator: review and accept this draft contract separately from migration approval; LIB-RSA-01 was not found in TASKS.md.",
+    "Acquire and archive authoritative RFC 8017, WebCrypto, DER/SPKI and RFC 4648 references plus authenticated fixture provenance.",
+    "Build an independent oracle matrix later using documented WebCrypto and a second maintained provider: exact SPKI/fingerprint, nonce/user/token ciphertext-to-plaintext fixtures, and lengths 0/1/32/189/190 with 191-byte rejection.",
+    "Acquire negative vectors for wrong key/hash/MGF/label, malformed OAEP components, ciphertext lengths 0/255/257, zero/n/n+1, DER truncation/OID/exponent/sign errors, and base64 alphabet/padding/whitespace cases. Do not derive expected outputs from handwritten code.",
+    "Add caller parity cases for raw binary nonce JSON, fingerprint mismatch, UTF-8/control/empty text, colon usernames, HTTP errors, reset/stale responses, RNG failure and secret redaction; resolve policy differences explicitly.",
+    "After separate implementation authorization, select the provider, execute strict red/green tests and five contract mutations, then platform and integration gates with independent review."
+  ],
+  "tests_executed": [],
+  "limitations": [
+    "Only filesystem inspection/search and read-only Git queries ran; no builds, tests, key/vector generation, services, network or connected MCP calls.",
+    "HEAD verification and initial/final status checks succeeded; status and diff-stat output were empty. No artifacts or Git state were intentionally changed.",
+    "Fixture provenance, official standard semantics, timing resistance, historical test counts and target/platform behavior remain unverified."
+  ],
+  "migration_completed": false
+}

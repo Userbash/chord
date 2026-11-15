@@ -412,6 +412,20 @@ npm run check                            # Unified typecheck and full test pass
 
 | `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |
 
+RW-51 control-plane and planning contracts:
+
+| Test | Module / artifact | Contract |
+| --- | --- | --- |
+| `tests/meta/kanban-portability.test.mjs` | `scripts/mcp-kanban-board.mjs` | Relocated checkout, lossless metadata, compatible create/update/export |
+| `tests/meta/ecc-entrypoint.test.mjs` | `scripts/ecc` | Real CLI exec resolution, literal arguments, no recursion, explicit environment failure |
+| `tests/meta/modernization-plan.test.mjs` | `waves/RW-51/TASKS.json`, `HANDOFF.json`, Kanban | Complete DAG, preserved historical cards, exact resource leases, native revision binding and truthful worker state |
+| `tests/unit/context-menu-router.test.mjs` | `rust/gui-spike/ui/features/context-menu-router.js` | `initContextMenuRouter` |
+| `tests/unit/emojis.test.mjs` | `rust/gui-spike/ui/features/emojis.js` | `extractEmojis`, `createEmojiElement` |
+| `tests/unit/markdown-mentions.test.mjs` | `rust/gui-spike/ui/features/markdown.js` | `parseMessageMarkdown`, `renderMessageMarkdown` |
+| `tests/unit/mentions.test.mjs` | `rust/gui-spike/ui/features/mentions.js` | `extractMentions`, `createMentionElement` |
+| `tests/unit/modal-router.test.mjs` | `rust/gui-spike/ui/features/modal-router.js` | `initModalRouter` |
+| `tests/unit/screen-share-dialog.test.mjs` | `rust/gui-spike/ui/features/screen-share-dialog.js` | `createScreenShareDialogController`, `createScreenSharePortalPicker` |
+
 ## 9. Risks and Limitations
 
 - **Browser Availability in Headless CI:** E2E CDP tests automatically skip when no Chromium binary is located; CI environments install pinned Chromium packages.

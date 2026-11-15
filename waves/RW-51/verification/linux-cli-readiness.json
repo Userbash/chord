@@ -1,0 +1,22 @@
+{
+  "credential_home_mechanism": "CODEX_HOME points at existing Windows Codex state; no credentials copied",
+  "checks": [
+    {
+      "command": [
+        "/mnt/c/Program Files/WindowsApps/OpenAI.Codex_26.1111.2228.0_x64__2p2nqsd0c76g0/app/resources/codex",
+        "--version"
+      ],
+      "exit": 0,
+      "output": "codex-cli 0.169.0-alpha.11.1"
+    },
+    {
+      "command": [
+        "/mnt/c/Program Files/WindowsApps/OpenAI.Codex_26.1111.2228.0_x64__2p2nqsd0c76g0/app/resources/codex",
+        "login",
+        "status"
+      ],
+      "exit": 0,
+      "output": "WARNING: failed to clean up stale arg0 temp dirs: Permission denied (os error 13)\nLogged in using ChatGPT"
+    }
+  ]
+}

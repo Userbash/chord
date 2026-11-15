@@ -1,1 +1,20 @@
-/home/sanya/.nvm/versions/node/v26.13.0/bin/ecc
+#!/bin/sh
+set -efu
+self=$0
+try_exec() {
+  candidate=$1; shift
+  if [ -f "$candidate" ] && [ -x "$candidate" ] && ! [ "$candidate" -ef "$self" ]; then exec "$candidate" "$@"; fi
+}
+if [ -n "${ECC_BIN:-}" ]; then
+  try_exec "$ECC_BIN" "$@"
+else
+  saved_ifs=$IFS; IFS=:
+  for directory in ${PATH:-}; do
+    IFS=$saved_ifs
+    try_exec "${directory:-.}/ecc" "$@"
+  done
+  IFS=$saved_ifs
+  [ -z "${HOME:-}" ] || try_exec "$HOME/.local/bin/ecc" "$@"
+fi
+printf '%s\n' 'ECC CLI unavailable: install ECC or set ECC_BIN to its executable.' >&2
+exit 2

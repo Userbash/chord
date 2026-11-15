@@ -1,0 +1,223 @@
+{
+  "task_id": "LIB-GOV-01",
+  "phase": "planning_audit",
+  "source_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+  "summary": "Read-only audit completed against the requested clean, detached commit. Fourteen feature-ledger findings map representative production paths to existing tests and identify behavior to preserve during library adoption. Tauri and GPUI coexist; documentation, model tests, and packaging specifications do not establish runtime parity. No known failure is marked fixed, and no migration is accepted.",
+  "findings": [
+    {
+      "id": "LIB-GOV-01-F01",
+      "title": "Tauri shell: navigate, open dialogs, receive updates",
+      "status": "source_inspected_runtime_unverified",
+      "source_refs": [
+        "rust/gui-spike/src/main.rs",
+        "rust/gui-spike/ui/features/shell-bridge.js",
+        "rust/gui-spike/tauri.conf.json",
+        "tests/unit/shell-bridge.test.mjs",
+        "rust/gui-spike/tests/ipc_wiring_contract.rs"
+      ],
+      "notes": "Preserve command registration, payload/error shapes, modal exclusivity, LIFO Escape handling, subscription cleanup and initial state delivery. main.rs:1841–1850 registers domain plugins. shell-bridge.js:374 onward retains optional polling fallback, qualifying the STATE zero-polling claim. Configuration exposes global Tauri and sets CSP null; framework adoption requires explicit capability/security review."
+    },
+    {
+      "id": "LIB-GOV-01-F02",
+      "title": "GPUI shell: receive live state and navigate",
+      "status": "source_inspected_test_scope_gap",
+      "source_refs": [
+        "rust/chord-gpui/src/main.rs",
+        "rust/chord-gpui/src/state/mod.rs",
+        "rust/chord-gpui/src/ui/mod.rs",
+        "rust/chord-gpui/tests/gpui_live_state_bridge_contract.rs",
+        "rust/chord-gpui/tests/gpui_e2e_contract.rs"
+      ],
+      "notes": "Preserve background-event reduction, channel lifecycle updates, selected-channel cleanup, current-user voice isolation and fatal-auth logout. The E2E harness directly mutates AppState through MockDiscordGateway; its historical 50-journey claim does not demonstrate real-window, network or GPU behavior."
+    },
+    {
+      "id": "LIB-GOV-01-F03",
+      "title": "Authentication: sign in, restore an account, log out",
+      "status": "source_inspected_native_backend_unverified",
+      "source_refs": [
+        "rust/gui-spike/src/auth.rs",
+        "rust/chord-gpui/src/auth/token_store.rs",
+        "rust/chord-gpui/src/state/auth_flow.rs",
+        "rust/chord-gpui/tests/token_store_contract.rs",
+        "rust/chord-gpui/tests/auth_flow_live_wiring_contract.rs",
+        "rust/gui-spike/tests/auth_contract.rs"
+      ],
+      "notes": "Preserve token validation/redaction, account-key identity, stale-login generation protection, missing/locked keyring errors, CAPTCHA challenge surfacing, TOTP transitions and logout cleanup. GPUI token_store.rs:21–24 defines active/per-account keys, distinct from Tauri's token key. Mock-backed auth tests do not qualify OS credential storage."
+    },
+    {
+      "id": "LIB-GOV-01-F04",
+      "title": "REST: perform actions without duplicate side effects",
+      "status": "source_inspected_contract_baseline",
+      "source_refs": [
+        "rust/crates/chord-core/src/rest/client.rs",
+        "rust/crates/chord-core/src/rest/retry.rs",
+        "rust/crates/chord-core/tests/rest_retry.rs",
+        "rust/gui-spike/tests/rest_failure_contract.rs",
+        "docs/re/rest-d02.md"
+      ],
+      "notes": "Preserve exact routes, headers, timeout bounds, typed 401/403/404/413/429/5xx errors, retry-after and redacted telemetry. client.rs:492–560 distinguishes idempotent transport retries from HTTP failure policy. Replacement must not blindly retry message-creation POSTs or replace measured wire contracts with library defaults."
+    },
+    {
+      "id": "LIB-GOV-01-F05",
+      "title": "Gateway: connect, recover and resume state",
+      "status": "source_inspected_contract_baseline",
+      "source_refs": [
+        "rust/crates/chord-core/src/gateway/supervisor.rs",
+        "rust/crates/chord-core/tests/gateway_supervisor.rs",
+        "rust/crates/chord-core/tests/resume_reconnect.rs",
+        "docs/re/gateway-protocol.md"
+      ],
+      "notes": "Preserve connection-scoped zstd context, ETF unsigned Snowflakes, heartbeat/ACK handling, sequence/session state, bounded backoff, IDENTIFY fallback and fatal close handling. Supervisor declares four failed RESUMEs before reset and a 180000ms resume TTL. Local socket tests are not Discord interoperability evidence; massive-guild OP37 tuning remains documented."
+    },
+    {
+      "id": "LIB-GOV-01-F06",
+      "title": "DMs and friends: open conversations and manage recipients",
+      "status": "conflicting_contract_evidence",
+      "source_refs": [
+        "rust/gui-spike/src/dm_channels.rs",
+        "rust/gui-spike/ui/features/dm-friends.js",
+        "rust/gui-spike/ui/app.js",
+        "rust/chord-gpui/src/ui/friends_view.rs",
+        "rust/gui-spike/tests/dm_channels_contract.rs",
+        "tests/unit/dm-friends-ui.test.mjs",
+        "docs/DEVELOPER_ALPHA_LIMITATIONS.md"
+      ],
+      "notes": "Preserve READY private-channel hydration, relationship tabs, stranger confirmation, recipient validation and nine-recipient group limit. dm_channels.rs:69–74 emits recipient_id for one recipient; the UI test provenance says POST always uses recipients. Resolve this discrepancy against independent evidence. Home/Friends code exists, but the documented missing-DM journey remains unverified."
+    },
+    {
+      "id": "LIB-GOV-01-F07",
+      "title": "Guilds: join, browse channels and enforce permissions",
+      "status": "source_inspected_known_gap_retained",
+      "source_refs": [
+        "rust/gui-spike/src/guilds.rs",
+        "rust/chord-gpui/src/state/mod.rs",
+        "rust/crates/chord-core/src/permissions.rs",
+        "rust/gui-spike/tests/guilds_contract.rs",
+        "rust/crates/chord-core/tests/permissions_resolution_contract.rs",
+        "docs/DEVELOPER_ALPHA_LIMITATIONS.md"
+      ],
+      "notes": "Preserve lurker join/leave payloads, 204 success, membership screening, category selection and 64-bit permission ordering: everyone, combined role overwrites, member overwrite, owner/admin bypass. Fixture contracts cover real permission data. Documented delayed/missing channels after partial READY or throttled fallback remain unresolved by this audit."
+    },
+    {
+      "id": "LIB-GOV-01-F08",
+      "title": "Text chat: read history, compose, attach and retry",
+      "status": "source_inspected_wiring_gap",
+      "source_refs": [
+        "rust/chord-gpui/src/ui/chat_view.rs",
+        "rust/chord-gpui/tests/chat_rest_send_history_contract.rs",
+        "rust/gui-spike/ui/features/composer-autocomplete.js",
+        "tests/unit/composer-autocomplete.test.mjs",
+        "docs/re/frontend-d03.md",
+        "docs/DEVELOPER_ALPHA_LIMITATIONS.md"
+      ],
+      "notes": "Preserve loading/empty/error states, before-cursor pagination, scroll position, optimistic nonce deduplication, failed-draft retry, replies and attachment limits. GPUI tests explicitly cover 2000-character boundaries and HTTP failures. Autocomplete has isolated DOM-shim tests; sampled application searches found no controller invocation. Mention/slash/editing limitations cannot be declared fixed."
+    },
+    {
+      "id": "LIB-GOV-01-F09",
+      "title": "Voice: join, mute, select devices and reconnect",
+      "status": "source_inspected_runtime_unverified",
+      "source_refs": [
+        "rust/crates/chord-voice/src/session.rs",
+        "rust/gui-spike/src/voice_devices.rs",
+        "rust/chord-gpui/src/ui/voice_panel.rs",
+        "rust/crates/chord-voice/tests/voice_session_init_contract.rs",
+        "rust/crates/chord-voice/tests/voice_call_state_machine_contract.rs",
+        "docs/re/voice-deep.md"
+      ],
+      "notes": "Preserve voice-state/server-update barrier, negotiation revision, confirmation only after session description, timeout leave cleanup, 74-byte discovery, encryption selection, mute/deafen and recovery telemetry. Tests include loopback UDP and state machines; physical audio, latency and device hotplug remain unverified. Wayland global PTT remains a documented gap."
+    },
+    {
+      "id": "LIB-GOV-01-F10",
+      "title": "DAVE: retain encrypted media across membership changes",
+      "status": "source_inspected_security_evidence_gap",
+      "source_refs": [
+        "rust/crates/chord-voice/src/dave_v1/session.rs",
+        "rust/crates/chord-voice/src/dave_v1/replay.rs",
+        "rust/crates/chord-voice/tests/voice_call_state_machine_contract.rs",
+        "rust/chord-gpui/tests/dave_fuzz_regressions.rs",
+        "docs/re/voice-deep.md"
+      ],
+      "notes": "Preserve MLS proposal/commit rejection, epoch transitions, truncated eight-byte tags, nonce/generation wrapping, retained epochs and duplicate/expired packet rejection. replay.rs:6 defines a 1024-packet window. Regression cases address arithmetic boundaries; they do not establish complete MLS conformance or sustained fuzz coverage. Simultaneous-join resynchronization delay remains documented."
+    },
+    {
+      "id": "LIB-GOV-01-F11",
+      "title": "Screen sharing: broadcast, switch sources and watch",
+      "status": "source_inspected_platform_and_recovery_gaps",
+      "source_refs": [
+        "rust/chord-gpui/src/pipewire_portal.rs",
+        "rust/chord-gpui/src/ui/screen_share_modal.rs",
+        "rust/gui-spike/ui/features/stream-viewer.js",
+        "rust/chord-gpui/tests/screen_share_e2e_pipeline_contract.rs",
+        "tests/unit/stream-viewer.test.mjs",
+        "docs/DEVELOPER_ALPHA_LIMITATIONS.md"
+      ],
+      "notes": "Preserve portal cancellation, FD ownership/CLOEXEC, pixel formats/stride, SHM fallback, source switching, pause/resume keyframes and OP18/19/22 signaling. Pipeline contracts use mock portal/local Unix sockets. They do not qualify desktop capture. Windows/macOS broadcast stubs, single-stream viewing and error-2007 recovery remain unverified known limitations; PLI-related code alone does not close them."
+    },
+    {
+      "id": "LIB-GOV-01-F12",
+      "title": "Storage: restart safely with cached and protected data",
+      "status": "source_inspected_integration_gap",
+      "source_refs": [
+        "rust/crates/chord-store/src/lib.rs",
+        "rust/chord-gpui/src/storage/mod.rs",
+        "rust/chord-gpui/src/encrypted_store.rs",
+        "rust/crates/chord-store/tests/store_contract.rs",
+        "tests/unit/sqlite-encrypted-store-984.test.mjs",
+        "rust/crates/chord-platform/tests/keyring_offline_contract.rs"
+      ],
+      "notes": "Preserve schema migration, WAL durability, keyset ordering, deduplication, parameter binding and authenticated corruption rejection. GPUI LocalDatabase opens ordinary rusqlite connections; encrypted_store's LinuxKeyringClient uses an in-memory map. Application-wide encryption wiring is not established. Independent Python SQLite and Node crypto oracles exist, but live keyring cases are separate and ignored by default."
+    },
+    {
+      "id": "LIB-GOV-01-F13",
+      "title": "Accessibility: navigate and operate without a pointer",
+      "status": "source_inspected_native_accessibility_unverified",
+      "source_refs": [
+        "rust/chord-gpui/src/a11y/driver.rs",
+        "rust/chord-gpui/tests/a11y_atspi_contract.rs",
+        "rust/gui-spike/ui/features/composer-autocomplete.js",
+        "tests/unit/composer-autocomplete.test.mjs",
+        "tests/unit/dm-friends-ui.test.mjs"
+      ],
+      "notes": "Preserve semantic roles, localized names, focus, disabled states, keyboard selection and ARIA listbox/tab semantics. AppDriver builds its tree from AppState and records D-Bus wire messages; this does not prove assistive-technology access to a real window. Linux AT-SPI evidence cannot qualify Windows UI Automation or macOS accessibility."
+    },
+    {
+      "id": "LIB-GOV-01-F14",
+      "title": "Desktop delivery: autostart, deep links and install packages",
+      "status": "source_inspected_delivery_unqualified",
+      "source_refs": [
+        "rust/crates/chord-platform/src/autostart.rs",
+        "rust/crates/chord-platform/src/deep_link.rs",
+        "rust/crates/chord-platform/tests/autostart_contract.rs",
+        "rust/crates/chord-platform/tests/deep_link_contract.rs",
+        "packaging/windows/wix.xml",
+        "packaging/macos/build-dmg.sh",
+        "scripts/arm64/build.py",
+        "tests/unit/cross-platform-packaging-1016.test.mjs",
+        "tests/unit/arm64-build-integrity.test.mjs",
+        "DECISIONS.md"
+      ],
+      "notes": "Preserve Exec escaping, disable-autostart behavior, queued deep links, secret redaction, portable data location and release identity. Autostart explicitly distinguishes generated text/badge models from integration. Packaging contracts do not establish installation, signing or native execution. CP-006 records a previously simulated ARM package and requires genuine Cargo/tool inputs; this audit validates no replacement artifact."
+    }
+  ],
+  "risks": [
+    "README, PROJECT-CONTEXT and waves/STATE counts, mutation results, parity percentages and old RAM/FPS/startup benchmarks are historical claims, unverified in this phase.",
+    "DECISIONS records initial 11 meta and 323 unit failures. Their current disposition requires execution evidence; none is reclassified here.",
+    "README reports Windows native compilation blocked by Unix APIs; macOS/ARM GUI runtime remains unqualified. These platform claims were not independently executed.",
+    "Legacy namespace and external oracle paths complicate traceability; library adoption could preserve a model while breaking the actual user journey."
+  ],
+  "next_actions": [
+    "Coordinator should reconcile the DM payload discrepancy and shell-specific limitations against checked-in clean-room evidence before defining replacement contracts.",
+    "Create scoped adoption cards recording current dependency, proposed library, exact wire/storage/UI invariants, independent oracle and affected tests for each journey.",
+    "In a separately authorized execution phase, reproduce the current failures first and preserve command, exit code, environment and logs before modifications.",
+    "Require native Linux, Windows, macOS and ARM qualification separately, including audio/capture, credentials, accessibility, installation and artifact provenance.",
+    "Trace encryption and autocomplete through actual application entry points; add missing integration contracts before claiming those journeys complete."
+  ],
+  "tests_executed": [],
+  "limitations": [
+    "Only filesystem inspection and read-only Git metadata queries were performed. HEAD, detached state and clean status were checked; no files were edited.",
+    "No builds, tests, applications, agents, services, network calls, credentials or connected MCP services were used.",
+    "Representative sampling is not the full parity gate. No LIB-GOV-01 row was found in TASKS.md; the supplied task specification governed scope.",
+    "The coordinator must review and persist this report; findings are not acceptance or migration completion."
+  ],
+  "migration_completed": false
+}

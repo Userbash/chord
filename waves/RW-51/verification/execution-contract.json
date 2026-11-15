@@ -1,0 +1,41 @@
+[
+  {
+    "id": "8aa61e7a",
+    "state": "running",
+    "pid": 27604,
+    "last_heartbeat_at": "2026-11-15T14:49:06.117450924+00:00",
+    "actual_model": "gpt-6.1-sol",
+    "actual_sandbox": "read-only",
+    "actual_cwd": "/root/projects/chord-modernization-ecc-runtime/source/lib-gov-01",
+    "effort_arguments": [
+      "model_reasoning_effort=\"medium\""
+    ],
+    "vmrss_kib": 283880
+  },
+  {
+    "id": "051d71c3",
+    "state": "running",
+    "pid": 27725,
+    "last_heartbeat_at": "2026-11-15T14:49:05.910293949+00:00",
+    "actual_model": "gpt-6.1-sol",
+    "actual_sandbox": "read-only",
+    "actual_cwd": "/root/projects/chord-modernization-ecc-runtime/source/lib-gov-02",
+    "effort_arguments": [
+      "model_reasoning_effort=\"medium\""
+    ],
+    "vmrss_kib": 207940
+  },
+  {
+    "id": "2dc1d8ea",
+    "state": "running",
+    "pid": 27853,
+    "last_heartbeat_at": "2026-11-15T14:49:05.939150253+00:00",
+    "actual_model": "gpt-6.1-sol",
+    "actual_sandbox": "read-only",
+    "actual_cwd": "/root/projects/chord-modernization-ecc-runtime/source/lib-rsa-01",
+    "effort_arguments": [
+      "model_reasoning_effort=\"medium\""
+    ],
+    "vmrss_kib": 205620
+  }
+]

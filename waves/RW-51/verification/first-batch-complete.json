@@ -1,0 +1,147 @@
+{
+  "all_settled": true,
+  "all_planning_reports_available": true,
+  "all_processes_completed": true,
+  "migration_completed": false,
+  "coordinator_review_required": true,
+  "recorded_utc": "2026-11-15T14:51:09.749161+00:00",
+  "attempt_history": {
+    "native_windows_attempt": "Two interop proxies produced no model output and were stopped via ECC. RSA failed at optional UNC last-message output guard: path contains a reparse point.",
+    "supported_transport_fix": "Official app-bundled Linux ELF, same CLI version and model. Existing ChatGPT auth accessed via CODEX_HOME; no secret copying; read-only sandbox retained.",
+    "resume": "Official ecc resume retained the same three session IDs."
+  },
+  "workers": [
+    {
+      "task_id": "LIB-GOV-01",
+      "session": {
+        "id": "8aa61e7a",
+        "state": "completed",
+        "pid": null,
+        "agent_type": "codex",
+        "working_dir": "/root/projects/chord-modernization-ecc-runtime/control/lib-gov-01",
+        "created_at": "2026-11-15T14:44:56.403299657+00:00",
+        "updated_at": "2026-11-15T14:50:29.214644826+00:00",
+        "last_heartbeat_at": "2026-11-15T14:50:29.214644826+00:00"
+      },
+      "profile": "lib_gov_01_audit",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "sandbox": "read-only",
+      "worker_pid_recorded_while_active": 27604,
+      "source_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "source": "/root/projects/chord-modernization-ecc-runtime/source/lib-gov-01",
+      "source_clean": true,
+      "event_count": 91,
+      "agent_message_count": 4,
+      "model_generated_commands": 42,
+      "thread_ids": [
+        "01a1dfae-00e9-7933-9203-4c98ec5e04e9"
+      ],
+      "usage": [
+        {
+          "input_tokens": 870923,
+          "cached_input_tokens": 735488,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 7716,
+          "reasoning_output_tokens": 351
+        }
+      ],
+      "validation": {
+        "report_available": true,
+        "report": "/root/projects/chord-modernization-ecc-runtime/reports/LIB-GOV-01.json",
+        "findings": 14,
+        "source_reference_count": 82,
+        "nonexistent_or_nonnative_refs": [],
+        "coordinator_review_required": true
+      }
+    },
+    {
+      "task_id": "LIB-GOV-02",
+      "session": {
+        "id": "051d71c3",
+        "state": "completed",
+        "pid": null,
+        "agent_type": "codex",
+        "working_dir": "/root/projects/chord-modernization-ecc-runtime/control/lib-gov-02",
+        "created_at": "2026-11-15T14:44:56.549135837+00:00",
+        "updated_at": "2026-11-15T14:49:51.538490139+00:00",
+        "last_heartbeat_at": "2026-11-15T14:49:51.538490139+00:00"
+      },
+      "profile": "lib_gov_02_intake",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "sandbox": "read-only",
+      "worker_pid_recorded_while_active": 27725,
+      "source_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "source": "/root/projects/chord-modernization-ecc-runtime/source/lib-gov-02",
+      "source_clean": true,
+      "event_count": 59,
+      "agent_message_count": 4,
+      "model_generated_commands": 26,
+      "thread_ids": [
+        "01a1dfae-00e9-7c92-9f77-5ffddca238da"
+      ],
+      "usage": [
+        {
+          "input_tokens": 400404,
+          "cached_input_tokens": 323072,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 5995,
+          "reasoning_output_tokens": 329
+        }
+      ],
+      "validation": {
+        "report_available": true,
+        "report": "/root/projects/chord-modernization-ecc-runtime/reports/LIB-GOV-02.json",
+        "findings": 10,
+        "source_reference_count": 60,
+        "nonexistent_or_nonnative_refs": [],
+        "coordinator_review_required": true
+      }
+    },
+    {
+      "task_id": "LIB-RSA-01",
+      "session": {
+        "id": "2dc1d8ea",
+        "state": "completed",
+        "pid": null,
+        "agent_type": "codex",
+        "working_dir": "/root/projects/chord-modernization-ecc-runtime/control/lib-rsa-01",
+        "created_at": "2026-11-15T14:44:56.787936622+00:00",
+        "updated_at": "2026-11-15T14:49:57.181817873+00:00",
+        "last_heartbeat_at": "2026-11-15T14:49:57.181817873+00:00"
+      },
+      "profile": "lib_rsa_01_contract",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "sandbox": "read-only",
+      "worker_pid_recorded_while_active": 27853,
+      "source_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+      "source": "/root/projects/chord-modernization-ecc-runtime/source/lib-rsa-01",
+      "source_clean": true,
+      "event_count": 47,
+      "agent_message_count": 4,
+      "model_generated_commands": 20,
+      "thread_ids": [
+        "01a1dfae-0103-72b0-a126-c5f15c16e711"
+      ],
+      "usage": [
+        {
+          "input_tokens": 802829,
+          "cached_input_tokens": 701184,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 5067,
+          "reasoning_output_tokens": 104
+        }
+      ],
+      "validation": {
+        "report_available": true,
+        "report": "/root/projects/chord-modernization-ecc-runtime/reports/LIB-RSA-01.json",
+        "findings": 10,
+        "source_reference_count": 31,
+        "nonexistent_or_nonnative_refs": [],
+        "coordinator_review_required": true
+      }
+    }
+  ]
+}

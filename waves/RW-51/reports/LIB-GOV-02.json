@@ -1,0 +1,169 @@
+{
+  "task_id": "LIB-GOV-02",
+  "phase": "planning_audit",
+  "source_commit": "2b7cfb52024be0453e3b9333aba292b2372e610e",
+  "summary": "Verified the requested HEAD, detached state and initially clean working tree. Inspected manifests and lockfiles for core, GPUI, Tauri and fuzz, plus relevant implementation sources. Ten findings below are ranked by proposed intake priority. Existing dependencies offer concrete reuse opportunities, but this report approves no dependencies or migrations. No files were edited and no tests, builds, services or network operations were run.",
+  "findings": [
+    {
+      "id": "LIB-GOV-02-01",
+      "title": "Rank 1: Replace best-effort handwritten UUID generation",
+      "status": "verified_candidate",
+      "source_refs": [
+        "rust/crates/chord-core/src/rest/identity.rs",
+        "rust/gui-spike/Cargo.toml",
+        "rust/gui-spike/src/search.rs",
+        "rust/gui-spike/Cargo.lock"
+      ],
+      "notes": "identity.rs:48–53 opens /dev/urandom and discards read_exact errors; uuid_v4 at line 307 formats injected bytes manually. Tauri already declares uuid with v4 (manifest line 54), locks 1.29.2 and calls Uuid::new_v4 in search.rs:51. Propose shared UUID infrastructure with explicit entropy-failure behavior and retained deterministic test injection. This is an identity utility change, not authorization to change cryptographic key generation."
+    },
+    {
+      "id": "LIB-GOV-02-02",
+      "title": "Rank 2: Reuse Base64 through a compatibility adapter",
+      "status": "verified_candidate",
+      "source_refs": [
+        "rust/crates/chord-core/src/rest/base64.rs",
+        "rust/gui-spike/Cargo.toml",
+        "rust/gui-spike/Cargo.lock",
+        "rust/gui-spike/src/remote_auth.rs",
+        "rust/gui-spike/src/reactions.rs"
+      ],
+      "notes": "Core has a handwritten encoder/decoder. Its documented contract accepts nonzero trailing bits, reports byte offsets and prioritizes padding/character errors before length errors (lines 7–10 and 86 onward). Tauri uses base64 directly and locks both 0.21.7 and 0.23.1. A default decoder swap could change behavior. Preserve that contract while selecting an explicit engine configuration. percent-encoding is also already declared and used for URL components; retain component-specific escaping sets."
+    },
+    {
+      "id": "LIB-GOV-02-03",
+      "title": "Rank 3: Consolidate SQLite bindings and decide library ownership",
+      "status": "verified_candidate",
+      "source_refs": [
+        "rust/crates/chord-store/Cargo.toml",
+        "rust/crates/chord-store/src/ffi.rs",
+        "rust/crates/chord-store/src/lib.rs",
+        "rust/chord-gpui/Cargo.toml",
+        "rust/chord-gpui/Cargo.lock",
+        "rust/chord-gpui/src/storage/mod.rs"
+      ],
+      "notes": "Core store manually links system sqlite3 (ffi.rs:53); GPUI declares rusqlite 0.40.2 with bundled and uses Connection in storage/mod.rs:7. Its lock includes libsqlite3-sys 0.38.2. These are separate binding and schema paths, with a potential bundled/system SQLite ownership conflict requiring later linkage verification. Prefer one binding policy while preserving core migrations, pagination, deletion and transaction behavior; GPUI's schema is not a drop-in replacement."
+    },
+    {
+      "id": "LIB-GOV-02-04",
+      "title": "Rank 4: Reuse crypto primitives under a separate security review",
+      "status": "verified_candidate_requires_crypto_review",
+      "source_refs": [
+        "rust/crates/chord-voice/src/dave_v1/mls.rs",
+        "rust/crates/chord-voice/src/crypto/kdf.rs",
+        "rust/crates/chord-voice/src/crypto/gcm.rs",
+        "rust/chord-gpui/src/audio/mod.rs",
+        "rust/chord-gpui/Cargo.toml",
+        "rust/crates/chord-updater/Cargo.toml"
+      ],
+      "notes": "Core implements SHA256/HMAC/HKDF manually; GPUI audio uses sha2, hmac, aes-gcm and chacha20poly1305. However, GPUI still manually expands HKDF at audio/mod.rs:1419 despite declaring hkdf. GPUI/Tauri declare sha2 0.10 while updater declares 0.11, producing duplicate digest families. Evaluate primitive replacement independently from protocol logic. Retain SHA1 versus SHA256 selection, MLS labels, truncation, nonces, AAD, replay windows, ratchets, zeroization and updater signature boundaries."
+    },
+    {
+      "id": "LIB-GOV-02-05",
+      "title": "Rank 5: Evaluate an HTTP client behind the existing REST contract",
+      "status": "verified_candidate",
+      "source_refs": [
+        "rust/crates/chord-core/src/rest/http1.rs",
+        "rust/crates/chord-core/src/rest/transport.rs",
+        "rust/Cargo.toml",
+        "rust/gui-spike/Cargo.lock",
+        "rust/chord-gpui/src/net/mod.rs"
+      ],
+      "notes": "Core manually handles HTTP framing, chunking and body decoding over tokio-rustls; transport.rs documents one connection per request. httparse is already a direct dependency. Tauri's lock contains reqwest 0.13.5 and hyper 1.12.0, but reqwest is not a direct application dependency. GPUI comments mentioning reqwest do not establish its use. A client intake must preserve header identity, redaction, TLS roots, framing rejection, body limits, timeouts and Discord retry/rate-limit policy."
+    },
+    {
+      "id": "LIB-GOV-02-06",
+      "title": "Rank 6: Expand Serde reuse without weakening strict JSON parsing",
+      "status": "verified_candidate",
+      "source_refs": [
+        "rust/crates/chord-json/src/lib.rs",
+        "rust/crates/chord-json/Cargo.toml",
+        "rust/crates/chord-perf/Cargo.toml",
+        "rust/crates/chord-updater/Cargo.toml",
+        "rust/chord-gpui/Cargo.toml",
+        "rust/gui-spike/Cargo.toml"
+      ],
+      "notes": "Serde/serde_json are already used across several packages, alongside dependency-free chord-json. chord-json's opening contract retains numeric lexemes, rejects duplicate keys, bounds depth/node count and avoids document contents in errors. Prefer typed DTO intake first; a parser replacement needs independent equivalence evidence. Preserve chord-perf's explicit serde_json float_roundtrip feature. GPUI locks serde_json 1.0.151 versus core/Tauri 1.0.154."
+    },
+    {
+      "id": "LIB-GOV-02-07",
+      "title": "Rank 7: Correct the zstd dependency baseline before further intake",
+      "status": "verified_manifest_source_discrepancy",
+      "source_refs": [
+        "rust/Cargo.toml",
+        "rust/crates/chord-codec/Cargo.toml",
+        "rust/crates/chord-codec/src/zstd.rs",
+        "rust/Cargo.lock",
+        "rust/gui-spike/Cargo.lock"
+      ],
+      "notes": "Root comments at lines 2–4 and 39 describe ruzstd production decoding and test-only zstd. Actual codec production code imports zstd::stream::raw and the codec manifest declares zstd normally. Core locks zstd 0.14.3; Tauri locks 0.14.4. zstd-sys brings cc/pkg-config. Retain continuous-frame incremental output, window/history, resource limits and terminal error behavior. Source explains the prior ruzstd buffering issue; dependency simplification must not reverse that contract."
+    },
+    {
+      "id": "LIB-GOV-02-08",
+      "title": "Rank 8: Reuse platform crates behind explicit target adapters",
+      "status": "verified_candidate_platform_validation_required",
+      "source_refs": [
+        "rust/crates/chord-platform/src/dbus/mod.rs",
+        "rust/crates/chord-platform/src/dbus/fd.rs",
+        "rust/crates/chord-platform/src/ffi_secret.rs",
+        "rust/crates/chord-platform/src/ffi_hunspell.rs",
+        "rust/gui-spike/Cargo.toml",
+        "rust/chord-gpui/Cargo.toml",
+        "rust/chord-gpui/src/audio/mod.rs"
+      ],
+      "notes": "Handwritten D-Bus coexists with zbus 5.19.0 in both GUI locks and Tauri's narrow ashpd configuration: defaults disabled, tokio+screencast. GPUI already calls cpal device APIs. Source imports Unix sockets directly; fd code distinguishes Linux/Android, and abstract sockets have Linux-specific handling. Manual FFI links secret-1, GLib/GObject/GIO and hunspell-1.7. Consider zbus/ashpd/cpal adapters while retaining descriptor ownership, deadlines, signal delivery and secret handling. No audited application manifest contains target dependency tables; OS support remains unverified."
+    },
+    {
+      "id": "LIB-GOV-02-09",
+      "title": "Rank 9: Govern features and lock drift across four independent workspaces",
+      "status": "verified_intake_governance_gap",
+      "source_refs": [
+        "rust/Cargo.toml",
+        "rust/Cargo.lock",
+        "rust/chord-gpui/Cargo.toml",
+        "rust/chord-gpui/Cargo.lock",
+        "rust/gui-spike/Cargo.toml",
+        "rust/gui-spike/Cargo.lock",
+        "rust/fuzz/Cargo.toml",
+        "rust/fuzz/Cargo.lock"
+      ],
+      "notes": "Parsed lock package entries: core 92, GPUI 971, Tauri 503, fuzz 82; these are not active build counts. Tokio resolves to 1.53.1 in GPUI versus 1.54.1 elsewhere. GPUI has four getrandom versions and two sha2 versions. Useful narrow declarations include ring-only rustls, reduced futures-util, PNG/JPEG-only image and signal-only nix. Tauri features=[] for tauri-build does not disable defaults. Preserve workspace separation; later inspect resolved features and reverse dependencies before deduplicating."
+    },
+    {
+      "id": "LIB-GOV-02-10",
+      "title": "Rank 10: Establish reproducible toolchain, native-build and fuzz intake gates",
+      "status": "verified_prerequisite_gap",
+      "source_refs": [
+        "rust/Cargo.toml",
+        "rust/crates/chord-json/Cargo.toml",
+        "rust/chord-gpui/Cargo.toml",
+        "rust/gui-spike/Cargo.toml",
+        "rust/gui-spike/build.rs",
+        "rust/fuzz/Cargo.toml",
+        "rust/fuzz/fuzz_targets/fuzz_aes128_gcm_truncated8.rs",
+        "rust/fuzz/fuzz_targets/fuzz_gateway_json_etf.rs"
+      ],
+      "notes": "Root declares Rust 1.87/edition 2024, but only chord-json explicitly inherits rust-version. GPUI/fuzz declare edition 2024, Tauri 2021; none declares rust-version. GPUI's three ../../gpui-kit path manifests are absent from this checkout. Native dependencies include ring/zstd C tooling, bundled SQLite, ALSA, GTK/WebKit and tauri-build; fuzz adds libfuzzer-sys/cc. Five fuzz targets already cover relevant protocol/crypto boundaries. Preserve them and later add independent differential checks; source presence proves no fuzz execution or coverage."
+    }
+  ],
+  "risks": [
+    "Cargo.lock records package resolution, not effective features, active target dependencies, licenses, MSRV compatibility, maintenance quality or OS/runtime support.",
+    "Generic infrastructure substitutions can silently change protocol validation, persistence behavior or cryptographic boundaries.",
+    "Existing documentation's historical test counts, performance figures and platform claims are unverified in this phase."
+  ],
+  "next_actions": [
+    "Coordinator should review these ranked candidates and assign bounded specifications with explicit compatibility contracts.",
+    "Begin with UUID entropy/error handling, then Base64 compatibility and SQLite ownership decisions.",
+    "In a separately authorized phase, validate exact-version licenses, MSRVs, maintenance/security status and platform prerequisites against official sources.",
+    "Restore or identify GPUI path dependencies before resolving its build graph; inspect target-specific feature graphs across all four workspaces.",
+    "Require independent vectors, protocol oracles and existing contract/fuzz preservation before accepting implementation changes; route crypto work through dedicated review."
+  ],
+  "tests_executed": [],
+  "limitations": [
+    "Only filesystem inspection, read-only Git queries and Python TOML parsing were performed. HEAD matched; git status was empty; symbolic-ref exited 1, consistent with detached HEAD.",
+    "The first TOML inspection attempt used unavailable python; it was rerun successfully with python3 -B.",
+    "LIB-GOV-02 was not found in TASKS.md; the supplied task specification governed this audit.",
+    "No cargo metadata, builds, tests, installs, lock changes, network calls, connected services or credentials were used.",
+    "All findings remain planning proposals; dependency approval, migration acceptance and runtime verification are pending."
+  ],
+  "migration_completed": false
+}
