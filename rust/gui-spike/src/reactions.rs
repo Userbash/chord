@@ -482,20 +482,23 @@ fn normalize_and_validate_emoji(emoji: &str) -> Result<&str, ReactionError> {
     }
 }
 
-/// Percent-encode every byte outside RFC 3986 unreserved characters.
+/// Percent-encodes an emoji descriptor adhering strictly to RFC 3986 unreserved rules.
+///
+/// Encodes every byte outside the RFC 3986 unreserved character set `[A-Za-z0-9-_.~]`.
+/// Replaces manual bitwise shift lookup tables with the standardized `percent-encoding` crate.
+///
+/// # Arguments
+/// * `value` - Candidate emoji name or representation (e.g. unicode symbol or `name:id`).
+///
+/// # Returns
+/// An RFC 3986 percent-encoded string.
 pub fn percent_encode_emoji(value: &str) -> String {
-    const HEX: &[u8; 16] = b"0123456789ABCDEF";
-    let mut encoded = String::with_capacity(value.len());
-    for byte in value.as_bytes() {
-        if byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'.' | b'_' | b'~') {
-            encoded.push(*byte as char);
-        } else {
-            encoded.push('%');
-            encoded.push(HEX[(byte >> 4) as usize] as char);
-            encoded.push(HEX[(byte & 0x0f) as usize] as char);
-        }
-    }
-    encoded
+    const RFC3986_UNRESERVED: &percent_encoding::AsciiSet = &percent_encoding::NON_ALPHANUMERIC
+        .remove(b'-')
+        .remove(b'_')
+        .remove(b'.')
+        .remove(b'~');
+    percent_encoding::utf8_percent_encode(value, RFC3986_UNRESERVED).to_string()
 }
 
 fn decode_response(response: HttpResponse) -> Result<(), ReactionError> {

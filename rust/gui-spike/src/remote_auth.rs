@@ -37,6 +37,7 @@ use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
 use chord_core::API_V9_BASE;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use subtle::ConstantTimeEq;
 
 // ---------------------------------------------------------------------------
 // Константы протокола Remote Auth v2 (`QR_CHUNK` 52423 и `4d2a64cb5df5fc4e_0`)
@@ -311,16 +312,20 @@ pub fn format_remote_auth_qr_url(fingerprint: &str) -> Result<String, RemoteAuth
     Ok(format!("{REMOTE_AUTH_QR_URL_PREFIX}{fp}"))
 }
 
-/// Функция генерации маски MGF1-SHA-256 (RFC 8017 §B.2.1).
+/// Mask Generation Function 1 (MGF1) using SHA-256 (RFC 8017 §B.2.1).
+///
+/// Deterministically expands the given seed into a pseudo-random byte stream of length `len`
+/// using iterative SHA-256 hashing.
 fn mgf1_sha256(seed: &[u8], len: usize) -> Vec<u8> {
+    use sha2::{Digest, Sha256};
     let mut out = Vec::with_capacity(len.div_ceil(32) * 32);
     let mut counter = 0u32;
-    let mut buf = Vec::with_capacity(seed.len() + 4);
     while out.len() < len {
-        buf.clear();
-        buf.extend_from_slice(seed);
-        buf.extend_from_slice(&counter.to_be_bytes());
-        out.extend_from_slice(&sha256_bytes(&buf));
+        let mut hasher = Sha256::new();
+        hasher.update(seed);
+        hasher.update(counter.to_be_bytes());
+        let hash = hasher.finalize();
+        out.extend_from_slice(&hash);
         counter += 1;
     }
     out.truncate(len);
@@ -1031,20 +1036,19 @@ impl Rsa2048KeyPair {
             db[i] = masked_db[i] ^ db_mask[i];
         }
 
-        // Константно-временная проверка `Y == 0` и `lHash' == SHA-256("")`:
+        // Constant-time validation of leading Y byte and lHash using subtle crate:
         let expected_lhash = sha256_bytes(b"");
-        let mut diff = y;
-        for i in 0..RSA_OAEP_HASH_LEN {
-            diff |= db[i] ^ expected_lhash[i];
-        }
+        let lhash_matches: bool = db[..RSA_OAEP_HASH_LEN].ct_eq(&expected_lhash).into();
+        let y_zero: bool = y.ct_eq(&0).into();
 
         let mut sep_idx: Option<usize> = None;
+        let mut malformed_padding = false;
         for (idx, &byte) in db.iter().enumerate().skip(RSA_OAEP_HASH_LEN) {
             if sep_idx.is_none() {
                 if byte == 0x01 {
                     sep_idx = Some(idx);
                 } else if byte != 0x00 {
-                    diff |= 1;
+                    malformed_padding = true;
                 }
             }
         }
@@ -1054,7 +1058,7 @@ impl Rsa2048KeyPair {
                 reason: "не найден разделитель 0x01 в блоке EME-OAEP".to_string(),
             });
         };
-        if diff != 0 {
+        if !lhash_matches || !y_zero || malformed_padding {
             return Err(RemoteAuthError::Crypto {
                 reason: "ошибка проверки метки EME-OAEP (SHA-256)".to_string(),
             });

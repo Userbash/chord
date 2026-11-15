@@ -978,7 +978,17 @@ fn leave_body(lurking: bool) -> Vec<u8> {
         .into_bytes()
 }
 
-/// Снежинка Discord: только цифры и влезает в `u64` (≤20 цифр).
+/// Validates whether the given string slice is a valid Discord 64-bit Snowflake ID.
+///
+/// Ensures the input string is non-empty, contains strictly ASCII decimal digits,
+/// and successfully parses into a 64-bit unsigned integer (`u64`).
+///
+/// # Arguments
+/// * `guild_id` - Guild identifier candidate string slice.
+///
+/// # Returns
+/// `true` if the string conforms to Discord Snowflake constraints; otherwise `false`.
+#[inline]
 fn is_snowflake(guild_id: &str) -> bool {
     !guild_id.is_empty()
         && guild_id.bytes().all(|byte| byte.is_ascii_digit())

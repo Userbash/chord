@@ -487,6 +487,11 @@ pub fn parse_overwrites_from_json(raw: Option<&Value>) -> Vec<PermissionOverwrit
     out
 }
 
+/// Parses a 64-bit permission bitfield from an optional JSON value (either numeric or decimal string).
+///
+/// Handles Discord REST/Gateway variations where permissions may arrive as stringified integers
+/// or native JSON numbers. Returns `0` if absent or malformed.
+#[inline]
 pub fn parse_perm_bits(val: Option<&Value>) -> u64 {
     match val {
         Some(Value::String(s)) => s.trim().parse::<u64>().unwrap_or(0),
@@ -495,6 +500,10 @@ pub fn parse_perm_bits(val: Option<&Value>) -> u64 {
     }
 }
 
+/// Evaluates high-level channel access flags according to Discord permission semantics.
+///
+/// Applies `lurkerPermissionsMask` when viewing servers without membership,
+/// or `TIMED_OUT_PERMISSIONS_MASK` for pending/quarantined members.
 pub fn evaluate_channel_access_policy(
     effective_perms: u64,
     is_voice_channel: bool,
