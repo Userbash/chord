@@ -96,6 +96,87 @@ pub struct LiveSession {
     resolved_invites: HashMap<String, Value>,
     local_preview_guilds: HashMap<String, Value>,
     deleted_message_ids: HashSet<(String, String)>,
+    /// Cached long-lived SQLite store handle binding for persisting message components (`TAURI-STORE-01`).
+    components_store: Option<std::sync::Arc<Mutex<LiveStoreHandle>>>,
+    /// File path associated with the cached `components_store` handle (`TAURI-STORE-01`).
+    components_store_path: Option<PathBuf>,
+}
+
+/// Thread-safe lifecycle descriptor for the cached [`chord_store::Store`] handle in [`LiveSession`] (`TAURI-STORE-01`).
+#[derive(Debug, Clone)]
+pub struct LiveStoreHandle {
+    /// Monotonic generation ID of this store binding.
+    pub generation: u64,
+    /// Bound SQLite file path.
+    pub sqlite_path: PathBuf,
+}
+
+static NEXT_STORE_GENERATION: std::sync::atomic::AtomicU64 =
+    std::sync::atomic::AtomicU64::new(1);
+
+thread_local! {
+    static THREAD_COMPONENTS_STORE: std::cell::RefCell<
+        Option<(u64, PathBuf, std::sync::Arc<Mutex<chord_store::Store>>)>,
+    > = const { std::cell::RefCell::new(None) };
+}
+
+impl LiveSession {
+    /// Returns the cached [`chord_store::Store`] handle (`Arc<Mutex<chord_store::Store>>`) for `sqlite_path`,
+    /// opening and caching a new connection only when the path or session generation changes (`TAURI-STORE-01`).
+    #[inline]
+    #[must_use]
+    pub fn cached_components_store(
+        &mut self,
+        sqlite_path: &Path,
+    ) -> Option<std::sync::Arc<Mutex<chord_store::Store>>> {
+        let generation = if self.components_store_path.as_deref() == Some(sqlite_path)
+            && sqlite_path.exists()
+        {
+            if let Some(ref handle) = self.components_store {
+                handle
+                    .lock()
+                    .unwrap_or_else(|poison| poison.into_inner())
+                    .generation
+            } else {
+                let gen_id = NEXT_STORE_GENERATION
+                    .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                let handle = std::sync::Arc::new(Mutex::new(LiveStoreHandle {
+                    generation: gen_id,
+                    sqlite_path: sqlite_path.to_path_buf(),
+                }));
+                self.components_store_path = Some(sqlite_path.to_path_buf());
+                self.components_store = Some(handle);
+                gen_id
+            }
+        } else {
+            let gen_id = NEXT_STORE_GENERATION
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            let handle = std::sync::Arc::new(Mutex::new(LiveStoreHandle {
+                generation: gen_id,
+                sqlite_path: sqlite_path.to_path_buf(),
+            }));
+            self.components_store_path = Some(sqlite_path.to_path_buf());
+            self.components_store = Some(handle);
+            gen_id
+        };
+
+        THREAD_COMPONENTS_STORE.with(|slot| {
+            let mut guard = slot.borrow_mut();
+            if let Some((cached_gen, ref cached_path, ref store_arc)) = *guard {
+                if cached_gen == generation && cached_path == sqlite_path && sqlite_path.exists() {
+                    return Some(std::sync::Arc::clone(store_arc));
+                }
+            }
+            let store = chord_store::Store::open(sqlite_path).ok()?;
+            let store_arc = std::sync::Arc::new(Mutex::new(store));
+            *guard = Some((
+                generation,
+                sqlite_path.to_path_buf(),
+                std::sync::Arc::clone(&store_arc),
+            ));
+            Some(store_arc)
+        })
+    }
 }
 
 fn live_session() -> &'static Mutex<LiveSession> {
@@ -1621,12 +1702,30 @@ fn live_components_sqlite_slot() -> &'static Mutex<Option<PathBuf>> {
     SLOT.get_or_init(|| Mutex::new(None))
 }
 
-/// Задаёт путь к SQLite-хранилищу (`chord_store::Store`) для сохранения компонентов сообщений.
+/// Sets the SQLite file path (`chord_store::Store`) used to persist message components,
+/// invalidating any previously cached store handle in [`LiveSession`] (`TAURI-STORE-01`).
 pub fn set_live_components_sqlite_path(path: Option<PathBuf>) {
-    let mut guard = live_components_sqlite_slot()
+    {
+        let mut guard = live_components_sqlite_slot()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        *guard = path;
+    }
+    let mut session = live_session()
         .lock()
         .unwrap_or_else(|poison| poison.into_inner());
-    *guard = path;
+    session.components_store = None;
+    session.components_store_path = None;
+}
+
+/// Returns the cached long-lived [`chord_store::Store`] handle from [`LiveSession`] for `sqlite_path` (`TAURI-STORE-01`).
+#[inline]
+#[must_use]
+fn live_components_store(sqlite_path: &Path) -> Option<std::sync::Arc<Mutex<chord_store::Store>>> {
+    let mut session = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    session.cached_components_store(sqlite_path)
 }
 
 /// Возвращает актуальный путь к SQLite-хранилищу компонентов сообщений.
@@ -1726,9 +1825,12 @@ fn persist_message_value_components_to_live_sqlite(msg_val: &Value) {
         return;
     };
     let sqlite_path = live_components_sqlite_path();
-    let Ok(mut store) = chord_store::Store::open(&sqlite_path) else {
+    let Some(store_handle) = live_components_store(&sqlite_path) else {
         return;
     };
+    let mut store = store_handle
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
     if let Ok(row) = parse_message(msg_val, Path::new("live://sqlite")) {
         let _ = save_message_components_to_sqlite(&mut store, &row);
     } else if store.migrate().is_ok() {
@@ -10376,20 +10478,109 @@ fn parse_message_author(value: &Value, path: &Path) -> Result<MessageAuthor, Dat
     dto.into_message_author(path)
 }
 
-/// Дата `YYYY-MM-DD` из ISO-подобного `timestamp`. Непарсящееся значение
-/// (санитизированное `nil`, пустая строка, чужой формат) — `None`, не фейк.
+fn parse_ascii_u32(s: &str, expected_len: usize) -> Option<u32> {
+    (s.len() == expected_len && s.chars().all(|c| c.is_ascii_digit()))
+        .then(|| s.parse().ok())
+        .flatten()
+}
+
+const fn is_valid_calendar_date(year: u32, month: u32, day: u32) -> bool {
+    if month < 1 || month > 12 || day == 0 {
+        return false;
+    }
+    let is_leap = (year.is_multiple_of(4) && !year.is_multiple_of(100)) || year.is_multiple_of(400);
+    let max_day = match month {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if is_leap => 29,
+        2 => 28,
+        _ => return false,
+    };
+    day <= max_day
+}
+
+fn is_valid_tz_offset(tz: &str) -> bool {
+    let Some(digits) = tz.strip_prefix(['+', '-']) else {
+        return false;
+    };
+    if let Some((hh, mm)) = digits.split_once(':') {
+        matches!(
+            (parse_ascii_u32(hh, 2), parse_ascii_u32(mm, 2)),
+            (Some(h), Some(m)) if h <= 23 && m <= 59
+        )
+    } else if digits.len() == 4 {
+        let (hh, mm) = digits.split_at(2);
+        matches!(
+            (parse_ascii_u32(hh, 2), parse_ascii_u32(mm, 2)),
+            (Some(h), Some(m)) if h <= 23 && m <= 59
+        )
+    } else {
+        matches!(parse_ascii_u32(digits, 2), Some(h) if h <= 23)
+    }
+}
+
+fn is_valid_iso8601_time_suffix(rest: &str) -> bool {
+    if rest.is_empty() {
+        return true;
+    }
+    let Some(time_part) = rest.strip_prefix(['T', 't', ' ']) else {
+        return false;
+    };
+    let hms = if let Some(hms) = time_part.strip_suffix(['Z', 'z']) {
+        hms
+    } else if let Some(pos) = time_part.rfind(['+', '-']) {
+        let (hms, tz) = time_part.split_at(pos);
+        if !is_valid_tz_offset(tz) {
+            return false;
+        }
+        hms
+    } else {
+        time_part
+    };
+
+    let hms_core = match hms.split_once('.') {
+        Some((core, frac)) => {
+            if frac.is_empty() || !frac.chars().all(|c| c.is_ascii_digit()) {
+                return false;
+            }
+            core
+        }
+        None => hms,
+    };
+
+    let mut parts = hms_core.split(':');
+    let Some(hh) = parts.next().and_then(|s| parse_ascii_u32(s, 2)) else {
+        return false;
+    };
+    let Some(mm) = parts.next().and_then(|s| parse_ascii_u32(s, 2)) else {
+        return false;
+    };
+    let ss = match parts.next() {
+        Some(s) => match parse_ascii_u32(s, 2) {
+            Some(sec) => sec,
+            None => return false,
+        },
+        None => 0,
+    };
+    parts.next().is_none() && hh <= 23 && mm <= 59 && ss <= 60
+}
+
+/// Дата `YYYY-MM-DD` из ISO-8601 `timestamp`. Непарсящееся или невалидное
+/// календарное значение (санитизированное `nil`, пустая строка, чужой формат) — `None`.
 fn day_of(timestamp: Option<&str>) -> Option<String> {
-    let text = timestamp?;
+    let text = timestamp?.trim();
     let date = text.get(..10)?;
-    let bytes = date.as_bytes();
-    let shape = bytes.len() == 10
-        && bytes[4] == b'-'
-        && bytes[7] == b'-'
-        && bytes
-            .iter()
-            .enumerate()
-            .all(|(index, byte)| index == 4 || index == 7 || byte.is_ascii_digit());
-    shape.then(|| date.to_string())
+    let rest = text.get(10..)?;
+
+    let mut parts = date.split('-');
+    let year = parse_ascii_u32(parts.next()?, 4)?;
+    let month = parse_ascii_u32(parts.next()?, 2)?;
+    let day = parse_ascii_u32(parts.next()?, 2)?;
+    if parts.next().is_some() || !is_valid_calendar_date(year, month, day) {
+        return None;
+    }
+
+    is_valid_iso8601_time_suffix(rest).then(|| date.to_string())
 }
 
 fn parse_mentions(data: &Value) -> Vec<String> {
@@ -13723,5 +13914,55 @@ mod dm_voice_stream_tests {
                 "broadcaster stream_token must not be wiped by duplicate voice_connect or self stream_watch"
             );
         }
+    }
+
+    #[test]
+    fn day_of_extracts_valid_iso8601_dates_and_rejects_invalid() {
+        // Valid ISO-8601 timestamps and date-only strings
+        assert_eq!(
+            day_of(Some("2026-10-19T12:34:56.789000+00:00")).as_deref(),
+            Some("2026-10-19")
+        );
+        assert_eq!(
+            day_of(Some("2026-04-19T12:00:00.000Z")).as_deref(),
+            Some("2026-04-19")
+        );
+        assert_eq!(
+            day_of(Some("2026-10-20t00:00:00z")).as_deref(),
+            Some("2026-10-20")
+        );
+        assert_eq!(
+            day_of(Some("2026-10-19T23:59:59-05:30")).as_deref(),
+            Some("2026-10-19")
+        );
+        assert_eq!(
+            day_of(Some("2026-10-19 08:30:00")).as_deref(),
+            Some("2026-10-19")
+        );
+        assert_eq!(day_of(Some("2026-10-19")).as_deref(), Some("2026-10-19"));
+        assert_eq!(day_of(Some(" 2026-10-19 ")).as_deref(), Some("2026-10-19"));
+        // Leap years: 2024 (div 4), 2000 (div 400)
+        assert_eq!(
+            day_of(Some("2024-02-29T00:00:00Z")).as_deref(),
+            Some("2024-02-29")
+        );
+        assert_eq!(day_of(Some("2000-02-29")).as_deref(), Some("2000-02-29"));
+
+        // Invalid inputs, calendar dates, and suffixes
+        assert_eq!(day_of(None), None);
+        assert_eq!(day_of(Some("")), None);
+        assert_eq!(day_of(Some("   ")), None);
+        assert_eq!(day_of(Some("nil")), None);
+        assert_eq!(day_of(Some("2026-00-10")), None);
+        assert_eq!(day_of(Some("2026-13-01T00:00:00Z")), None);
+        assert_eq!(day_of(Some("2026-04-31T00:00:00Z")), None);
+        assert_eq!(day_of(Some("2026-02-29T00:00:00Z")), None);
+        assert_eq!(day_of(Some("1900-02-29T00:00:00Z")), None);
+        assert_eq!(day_of(Some("+202-10-19T00:00:00Z")), None);
+        assert_eq!(day_of(Some("2026-10-19garbage")), None);
+        assert_eq!(day_of(Some("2026-10-19T25:00:00Z")), None);
+        assert_eq!(day_of(Some("2026-10-19T12:60:00Z")), None);
+        assert_eq!(day_of(Some("2026-10-19T12:00:00.")), None);
+        assert_eq!(day_of(Some("2026-10-19T12:00:00+25:00")), None);
     }
 }
