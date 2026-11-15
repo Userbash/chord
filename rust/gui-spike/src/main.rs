@@ -52,6 +52,7 @@ pub mod chat_plugin;
 pub mod dm_plugin;
 pub mod gifts;
 pub mod gifts_plugin;
+pub mod guilds_plugin;
 pub mod invites_plugin;
 pub mod media_plugin;
 pub mod net_plugin;
@@ -1843,6 +1844,7 @@ fn main() {
         .plugin(chat_plugin::init())
         .plugin(dm_plugin::init())
         .plugin(gifts_plugin::init())
+        .plugin(guilds_plugin::init())
         .plugin(invites_plugin::init())
         .plugin(media_plugin::init())
         .plugin(net_plugin::init())
