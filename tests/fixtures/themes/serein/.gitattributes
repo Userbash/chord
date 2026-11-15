@@ -1,0 +1,3 @@
+# Preserve upstream oracle/license hashes across platform line endings.
+midnight.serein-extension -text
+LICENSE-* -text

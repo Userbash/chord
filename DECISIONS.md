@@ -133,3 +133,42 @@ Raw red/green/mutation logs and independent review records are referenced in
 `waves/RW-51/ARM-SOURCE-BATCH.md`. The full worker gate remains separately
 reported; a focused source result cannot replace it. Reverting a source slice
 does not authorize distributing an unqualified ARM artifact.
+
+## CP-010 — Follow the extracted voice implementation in stream contracts (2026-11-15)
+
+Scope: sequential gate repair, three failing source assertions in
+`call_stream_dispatch.test.mjs` and `call_stream_lifecycle.test.mjs`.
+Upstream commit `1351e03f489ccb47890e406f91b84ec1b3b559bc` extracted the voice
+implementation into `voice_plugin.rs`; `main.rs` retains the public IPC wrappers.
+The old test location no longer describes where behavior is implemented.
+
+| Old check | Current check | Independent basis |
+| --- | --- | --- |
+| Read OP18/user-ID implementation from `main.rs`. | Require the wrapper to delegate to the plugin, then retain all existing voice/data/Gateway assertions against the actual plugin body. | The upstream extraction diff and executable Rust data/IPC contracts. |
+| Find stop-key derivation and STREAM permission somewhere in `main.rs`. | Check the scoped plugin functions, both stop-key aliases/fallback, and the permission guard before the voice-state request. | The extracted functions preserve these semantics; disconnected wrappers and disabled checks must fail. |
+
+Application code, argument names, permission semantics, wire opcodes and the
+remaining assertions are unchanged. The test repair does not change a voice
+runtime capability or restore disabled Krisp behavior. Five isolated source
+mutations exercise lost delegation, stream flag, actual user ID, permission
+guard and stop-key alias. Independent review and exact red/green evidence are
+required before accepting this test-only slice. Native live voice and ARM
+qualification remain separate.
+
+## CP-011 — Pin the independent theme oracle inside the test fixtures (2026-11-15)
+
+The theme suite depended on an ignored local Serein checkout that is absent
+from a clean clone. The missing file caused two failures. Restoring the exact
+upstream data made all six original tests pass without changing application
+palettes or assertions.
+
+| Old input | Pinned input | Independent basis |
+| --- | --- | --- |
+| Ignored `docs/reference-projects/sources/Serein/extensions/themes/midnight.serein-extension`. | Tracked `tests/fixtures/themes/serein/midnight.serein-extension`, with upstream metadata and license snapshots. | Official `ViceVerse-cz/Serein` commit `04f348092910a77cc317516b25577ad006cb708b`; Git blob `58d7e3b17bf440c0fa3d6435b8da5f8d8f2dc142`, SHA256 `f7ffb0acdb7269f1e2fdb235536870cef344f3fac761543174ddc091bb2aebb6`. |
+
+The data bytes and both upstream license files are unchanged. The test now
+checks commit and content hash in addition to the existing palette, hot-switch,
+contrast, injection and mutation checks. No Serein implementation is executed,
+linked or copied into application code. Updating this independent oracle
+requires fresh provenance and independent review, rather than fitting it to
+new palette values.

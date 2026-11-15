@@ -8,7 +8,7 @@
  * - SUB-985-1: Сверка с независимыми оракулами репозитория (`waves/kanban-board.json` карточка `TASK-985`,
  *   `rust/gui-spike/ui/tokens.css` 204 базовых токена, `waves/RW-40/theme-spec.json` 57 переопределений Light,
  *   `rust/gui-spike/ui/features/token-map.js` 25 канонических соответствий, `docs/re/frontend-d03.json`,
- *   `docs/reference-projects/sources/Serein/extensions/themes/midnight.serein-extension`).
+ *   pinned `tests/fixtures/themes/serein/midnight.serein-extension`).
  * - SUB-985-2: Горячее переключение тем (`dark`, `light`, `midnight`, `amoled` и пользовательских тем)
  *   без перезагрузки интерфейса (`reloaded === false`, `domReloadCount === 0`), динамическая инъекция
  *   CSS-переменных в `documentElement`, машина состояний `theme-preview` (`dark -> highlight theme -> applied`)
@@ -47,14 +47,13 @@ const THEME_SPEC_JSON_PATH = join(ROOT, "waves", "RW-40", "theme-spec.json");
 const FRONTEND_D03_JSON_PATH = join(ROOT, "docs", "re", "frontend-d03.json");
 const SEREIN_MIDNIGHT_PATH = join(
   ROOT,
-  "docs",
-  "reference-projects",
-  "sources",
-  "Serein",
-  "extensions",
+  "tests",
+  "fixtures",
   "themes",
+  "serein",
   "midnight.serein-extension",
 );
+const SEREIN_PROVENANCE_PATH = join(ROOT, "tests", "fixtures", "themes", "serein", "upstream.json");
 
 /** @type {string} */
 let workDir = "";
@@ -321,6 +320,11 @@ describe("TASK-985: Пользовательские темы оформлени
     assert.equal(BUILTIN_THEME_PALETTES.amoled.tokens["--bg-chat"], "#000000");
     assert.equal(BUILTIN_THEME_PALETTES.light.colorScheme, "light");
     assert.equal(BUILTIN_THEME_PALETTES.dark.colorScheme, "dark");
+
+    // Keep the independent palette tied to immutable upstream bytes, not an ignored local clone.
+    const provenance = JSON.parse(readFileSync(SEREIN_PROVENANCE_PATH, "utf8"));
+    assert.equal(provenance.commit, "04f348092910a77cc317516b25577ad006cb708b");
+    assert.equal(createHash("sha256").update(readFileSync(SEREIN_MIDNIGHT_PATH)).digest("hex"), provenance.sha256);
 
     // 3. Полная сверка с файлами оракулов репозитория
     const oracleReport = verifyCustomThemesOracleParity({

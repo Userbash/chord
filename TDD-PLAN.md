@@ -210,8 +210,8 @@ Historical Context: The initial module scaffolding in `src/` was generated direc
 | `tests/unit/automod-editor.test.mjs` | — | — |
 | `tests/unit/bindings-permissions.test.mjs` | — | — |
 | `tests/unit/captcha-modal.test.mjs` | `rust/gui-spike/ui/features/captcha-modal.js` | `createCaptchaModal`, `extractCaptchaChallenge`, `captcha-modal` |
-| `tests/unit/call_stream_dispatch.test.mjs` | — | — |
-| `tests/unit/call_stream_lifecycle.test.mjs` | — | — |
+| `tests/unit/call_stream_dispatch.test.mjs` | `rust/gui-spike/src/main.rs`, `voice_plugin.rs`, `data.rs`, `rust/crates/chord-core/src/ws.rs` | IPC forwarding, stream flag, actual user ID and Gateway OP18 contracts |
+| `tests/unit/call_stream_lifecycle.test.mjs` | `rust/gui-spike/src/main.rs`, `voice_plugin.rs`, `data.rs` | Both stop-key aliases/fallback, permission guard before stream request and guild safety |
 | `tests/unit/stream_restart_lifecycle.test.mjs` | — | — |
 | `tests/unit/screen_color_and_window_target.test.mjs` | — | — |
 | `tests/unit/stream_broadcaster_handshake_and_source.test.mjs` | — | — |
@@ -340,7 +340,7 @@ Historical Context: The initial module scaffolding in `src/` was generated direc
 | `tests/unit/autostart-xdg-1015.test.mjs` | — | — |
 | `tests/unit/cross-platform-packaging-1016.test.mjs` | — | — |
 | `tests/unit/custom-emojis-stickers-1005.test.mjs` | — | — |
-| `tests/unit/custom-themes-985.test.mjs` | — | — |
+| `tests/unit/custom-themes-985.test.mjs` | `rust/chord-gpui/src/custom_themes.rs`, `rust/gui-spike/ui/features/custom-themes.js`, `tests/fixtures/themes/serein` | Pinned upstream palette, hot-switch, contrast, injection and existing mutation contracts |
 | `tests/unit/emoji-cache-1005a.test.mjs` | — | — |
 | `tests/unit/emoji-picker-1005b.test.mjs` | — | — |
 | `tests/unit/forum-channels-1001.test.mjs` | — | — |

@@ -20,6 +20,10 @@ const MAIN_RS = readFileSync(
   new URL("../../rust/gui-spike/src/main.rs", import.meta.url),
   "utf8",
 );
+const VOICE_PLUGIN_RS = readFileSync(
+  new URL("../../rust/gui-spike/src/voice_plugin.rs", import.meta.url),
+  "utf8",
+);
 const APP_JS = readFileSync(
   new URL("../../rust/gui-spike/ui/app.js", import.meta.url),
   "utf8",
@@ -27,11 +31,21 @@ const APP_JS = readFileSync(
 
 describe("Call and Stream Lifecycle & Guild Safety Contracts", () => {
   it("L1: voice_stream_stop accepts stream_key and streamKey, auto-derives if None", () => {
+    const wrapper = MAIN_RS.indexOf("async fn voice_stream_stop(");
+    assert.ok(wrapper > 0, "voice_stream_stop IPC wrapper must exist");
+    const wrapperBody = MAIN_RS.slice(wrapper, MAIN_RS.indexOf("\n}", wrapper) + 2);
+    assert.match(wrapperBody, /voice_plugin::voice_stream_stop\(stream_key, streamKey\)\.await/,
+      "the public IPC wrapper must forward both supported argument aliases");
+    const start = VOICE_PLUGIN_RS.indexOf("pub async fn voice_stream_stop(");
+    assert.ok(start > 0, "voice plugin must implement voice_stream_stop");
+    const body = VOICE_PLUGIN_RS.slice(start, VOICE_PLUGIN_RS.indexOf("\n}", start) + 2);
     assert.match(
-      MAIN_RS,
-      /async fn voice_stream_stop[\s\S]*?current_live_voice_target/,
+      body,
+      /current_live_voice_target/,
       "voice_stream_stop must auto-derive stream key from current_live_voice_target if not provided",
     );
+    assert.match(body, /\.or\(streamKey\)/, "the plugin must accept the camelCase argument alias");
+    assert.match(body, /\.unwrap_or_else\(/, "an absent key must enter the derivation fallback");
   });
 
   it("L2: voice_stream_start checks STREAM permission before initiating stream", () => {
@@ -40,11 +54,17 @@ describe("Call and Stream Lifecycle & Guild Safety Contracts", () => {
       /pub fn can_user_stream_in_channel/,
       "data.rs must expose can_user_stream_in_channel",
     );
+    const start = VOICE_PLUGIN_RS.indexOf("pub async fn voice_stream_start(");
+    assert.ok(start > 0, "voice plugin must implement voice_stream_start");
+    const body = VOICE_PLUGIN_RS.slice(start, VOICE_PLUGIN_RS.indexOf("\n}", start) + 2);
     assert.match(
-      MAIN_RS,
-      /can_user_stream_in_channel/,
+      body,
+      /if\s+!data::can_user_stream_in_channel\(/,
       "voice_stream_start must check can_user_stream_in_channel",
     );
+    const permission = body.indexOf("data::can_user_stream_in_channel(");
+    const connect = body.indexOf("data::connect_or_update_live_voice_ext(");
+    assert.ok(connect > permission, "permission denial must be checked before requesting the stream");
   });
 
   it("L3: data.rs handles dm_rest_request in set_system_audio_device", () => {
