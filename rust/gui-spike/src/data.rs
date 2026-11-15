@@ -8545,6 +8545,30 @@ where
     Ok(deserialize_ready_opt_u64(deserializer)?.map(|n| n.min(u8::MAX as u64) as u8))
 }
 
+/// Serde deserializer for an optional Discord `u16` field accepting numbers or numeric strings.
+fn deserialize_ready_opt_u16<'de, D>(deserializer: D) -> Result<Option<u16>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Ok(deserialize_ready_opt_u64(deserializer)?.and_then(|n| u16::try_from(n).ok()))
+}
+
+/// Serde deserializer for a JSON array of DTO items, defaulting to an empty vector on `null` or non-arrays.
+fn deserialize_ready_vec_dto<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: serde::de::DeserializeOwned,
+{
+    let val = Value::deserialize(deserializer)?;
+    let Some(arr) = val.as_array() else {
+        return Ok(Vec::new());
+    };
+    Ok(arr
+        .iter()
+        .filter_map(|item| serde_json::from_value::<T>(item.clone()).ok())
+        .collect())
+}
+
 /// Data Transfer Object (DTO) for deserializing `READY.user` payloads via Serde.
 ///
 /// Supports both `snake_case` Gateway fields and `camelCase` BFF/cache fallbacks
@@ -11959,6 +11983,104 @@ impl RawGuildMemberDto {
     }
 }
 
+/// Serde DTO for a single property diff inside a Discord guild audit log entry (`TAURI-DATA-08`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct AuditLogChangeDto {
+    /// Changed property key (e.g. `"name"`, `"nick"`, `"$add"`, `"token"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub key: Option<String>,
+    /// Previous property value before the action, if present.
+    pub old_value: Option<Value>,
+    /// New property value after the action, if present.
+    pub new_value: Option<Value>,
+}
+
+/// Serde DTO for a single entry in `GET /guilds/{guild_id}/audit-logs` (`TAURI-DATA-08`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct AuditLogEntryDto {
+    /// Audit log entry Snowflake ID (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Numeric Discord `AuditLogActionType` code (e.g. `1` = GuildUpdate, `22` = MemberBanAdd).
+    #[serde(deserialize_with = "deserialize_ready_opt_u16")]
+    pub action_type: Option<u16>,
+    /// Snowflake ID of the user or app that performed the action (`None` if system/unknown).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub user_id: Option<String>,
+    /// Snowflake ID of the affected target entity (`None` if not applicable).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub target_id: Option<String>,
+    /// Optional moderator reason (`1..=512` chars).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub reason: Option<String>,
+    /// List of property changes (`changes[]`) recorded in this entry.
+    #[serde(deserialize_with = "deserialize_ready_vec_dto")]
+    pub changes: Vec<AuditLogChangeDto>,
+    /// Optional action-specific metadata (`options`), preserved as raw JSON value.
+    pub options: Option<Value>,
+}
+
+impl AuditLogEntryDto {
+    /// Validates that the audit log entry contains a non-empty `id` and `action_type`.
+    ///
+    /// # Errors
+    /// Returns [`DataError::Parse`] if `id` or `action_type` is missing or invalid.
+    #[inline]
+    pub fn validate(&self, path: &Path) -> Result<(&str, u16), DataError> {
+        let id = self
+            .id
+            .as_deref()
+            .ok_or_else(|| DataError::parse(path, "audit_log_entry без строкового id"))?;
+        let action_type = self.action_type.ok_or_else(|| {
+            DataError::parse(path, format!("audit_log_entry {id} без числового action_type"))
+        })?;
+        Ok((id, action_type))
+    }
+}
+
+/// Serde DTO for the top-level `GET /guilds/{guild_id}/audit-logs` payload (`TAURI-DATA-08`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawGuildAuditLogDto {
+    /// Audit log entries ordered newest-first (`audit_log_entries`).
+    #[serde(deserialize_with = "deserialize_ready_vec_dto")]
+    pub audit_log_entries: Vec<AuditLogEntryDto>,
+    /// Users referenced by `user_id` or `target_id` in `audit_log_entries` (`users`).
+    #[serde(deserialize_with = "deserialize_ready_vec_dto")]
+    pub users: Vec<RawUserDto>,
+    /// Webhooks referenced in the audit log (`webhooks`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub webhooks: Vec<Value>,
+    /// Guild scheduled events referenced in the audit log (`guild_scheduled_events`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub guild_scheduled_events: Vec<Value>,
+    /// Partial integration objects referenced in the audit log (`integrations`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub integrations: Vec<Value>,
+    /// Threads referenced in the audit log (`threads`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub threads: Vec<Value>,
+    /// Application commands referenced in the audit log (`application_commands`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub application_commands: Vec<Value>,
+    /// Auto moderation rules referenced in the audit log (`auto_moderation_rules`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub auto_moderation_rules: Vec<Value>,
+}
+
+impl RawGuildAuditLogDto {
+    /// Looks up a referenced user by Snowflake ID in `self.users`.
+    #[inline]
+    #[must_use]
+    pub fn find_user(&self, user_id: &str) -> Option<&RawUserDto> {
+        self.users
+            .iter()
+            .find(|u| u.id.as_deref() == Some(user_id))
+    }
+}
+
 /// Deserializes a raw guild member JSON value via [`RawGuildMemberDto`] into a [`MemberRow`].
 ///
 /// # Errors
@@ -13964,5 +14086,109 @@ mod dm_voice_stream_tests {
         assert_eq!(day_of(Some("2026-10-19T12:60:00Z")), None);
         assert_eq!(day_of(Some("2026-10-19T12:00:00.")), None);
         assert_eq!(day_of(Some("2026-10-19T12:00:00+25:00")), None);
+    }
+
+    #[test]
+    fn raw_guild_audit_log_dto_parses_entries_users_and_changes() {
+        let json = r#"{
+            "audit_log_entries": [
+                {
+                    "id": "1558237752917758108",
+                    "action_type": 22,
+                    "user_id": "479659568322969611",
+                    "target_id": "999888777666555444",
+                    "reason": "Spamming invites",
+                    "changes": [
+                        {
+                            "key": "nick",
+                            "old_value": "old_nick",
+                            "new_value": "new_nick"
+                        }
+                    ],
+                    "options": {
+                        "delete_member_days": "7"
+                    }
+                },
+                {
+                    "id": "1558237752917758109",
+                    "action_type": "20",
+                    "user_id": "nil",
+                    "target_id": null,
+                    "reason": "",
+                    "changes": null
+                }
+            ],
+            "users": [
+                {
+                    "id": "479659568322969611",
+                    "username": "moderator_one",
+                    "global_name": "Moderator One",
+                    "bot": false
+                }
+            ],
+            "webhooks": [{"id": "1"}],
+            "threads": null
+        }"#;
+
+        let dto: RawGuildAuditLogDto =
+            serde_json::from_str(json).expect("RawGuildAuditLogDto must deserialize");
+        assert_eq!(dto.audit_log_entries.len(), 2);
+        assert_eq!(dto.users.len(), 1);
+        assert_eq!(dto.webhooks.len(), 1);
+        assert!(dto.threads.is_empty());
+
+        let first = &dto.audit_log_entries[0];
+        assert_eq!(first.id.as_deref(), Some("1558237752917758108"));
+        assert_eq!(first.action_type, Some(22));
+        assert_eq!(first.user_id.as_deref(), Some("479659568322969611"));
+        assert_eq!(first.target_id.as_deref(), Some("999888777666555444"));
+        assert_eq!(first.reason.as_deref(), Some("Spamming invites"));
+        assert_eq!(first.changes.len(), 1);
+        assert_eq!(first.changes[0].key.as_deref(), Some("nick"));
+        assert_eq!(
+            first.changes[0].old_value.as_ref().and_then(|v| v.as_str()),
+            Some("old_nick")
+        );
+        assert_eq!(
+            first.changes[0].new_value.as_ref().and_then(|v| v.as_str()),
+            Some("new_nick")
+        );
+        assert_eq!(
+            first
+                .options
+                .as_ref()
+                .and_then(|o| o.get("delete_member_days"))
+                .and_then(|v| v.as_str()),
+            Some("7")
+        );
+        assert_eq!(
+            first.validate(Path::new("audit.json")).unwrap(),
+            ("1558237752917758108", 22)
+        );
+
+        let second = &dto.audit_log_entries[1];
+        assert_eq!(second.action_type, Some(20));
+        assert_eq!(second.user_id, None);
+        assert_eq!(second.target_id, None);
+        assert_eq!(second.reason, None);
+        assert!(second.changes.is_empty());
+
+        let actor = dto
+            .find_user("479659568322969611")
+            .expect("actor user must resolve");
+        assert_eq!(actor.username.as_deref(), Some("moderator_one"));
+        assert!(dto.find_user("000").is_none());
+    }
+
+    #[test]
+    fn audit_log_entry_dto_rejects_missing_id_or_action_type_on_validate() {
+        let missing_id: AuditLogEntryDto =
+            serde_json::from_str(r#"{"id":"nil","action_type":22}"#).unwrap();
+        assert!(missing_id.validate(Path::new("audit.json")).is_err());
+
+        let missing_action: AuditLogEntryDto =
+            serde_json::from_str(r#"{"id":"123456","action_type":999999}"#).unwrap();
+        assert_eq!(missing_action.action_type, None);
+        assert!(missing_action.validate(Path::new("audit.json")).is_err());
     }
 }
