@@ -1635,4 +1635,48 @@ mod tests {
         );
         assert_eq!(resolved[1], specs[1]);
     }
+
+    #[test]
+    fn clipboard_reader_timeout_prevents_blocking_ui_thread() {
+        use std::time::Duration;
+
+        let sys_default = SystemClipboardReader::default();
+        assert_eq!(sys_default.timeout_ms(), DEFAULT_CLIPBOARD_TIMEOUT_MS);
+        let sys_zero = SystemClipboardReader::with_timeout_ms(0);
+        assert_eq!(sys_zero.read_file_or_image(), None);
+
+        // Zero timeout on command runner returns immediately without spawning or blocking
+        assert_eq!(
+            run_clipboard_command_with_timeout("sleep", &["5"], Duration::ZERO),
+            None
+        );
+
+        // Stalled child process ("sleep 5") is terminated and reaped within the short timeout
+        let start = std::time::Instant::now();
+        assert_eq!(
+            run_clipboard_command_with_timeout("sleep", &["5"], Duration::from_millis(20)),
+            None
+        );
+        assert!(start.elapsed() < Duration::from_secs(1));
+
+        // Slow MockClipboardReader exceeding timeout yields None without stalling
+        let slow_reader = MockClipboardReader::with_file("slow.png", vec![1, 2, 3])
+            .with_simulated_delay(Duration::from_secs(2));
+        assert_eq!(
+            slow_reader.read_file_or_image_with_timeout(Duration::from_millis(10)),
+            None
+        );
+
+        let wrapped_slow = TimeoutClipboardReader::new(slow_reader, Duration::from_millis(15));
+        assert_eq!(wrapped_slow.timeout(), Duration::from_millis(15));
+        assert_eq!(wrapped_slow.read_file_or_image(), None);
+
+        // Fast reader within timeout succeeds via TimeoutClipboardReader
+        let fast_reader = MockClipboardReader::with_file("fast.png", vec![9, 8, 7]);
+        let wrapped_fast = TimeoutClipboardReader::new(fast_reader, Duration::from_millis(100));
+        assert_eq!(
+            wrapped_fast.read_file_or_image(),
+            Some(("fast.png".to_string(), vec![9, 8, 7]))
+        );
+    }
 }
