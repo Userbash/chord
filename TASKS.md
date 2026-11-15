@@ -13,6 +13,9 @@ Both parent cards await product/full-gate/native qualification; ARM release rema
 Sequential step 1 is complete: [locked GUI dependency cache restored](waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.md),
 748 offline Rust tests pass. Step 2 is the remaining 39 JS unit failures.
 
+Step 2 checkpoint: [five failures resolved; 34 remain](waves/RW-51/SEQUENTIAL-02-UNIT-REPAIRS.md).
+Independent stream contracts and the pinned theme oracle are in review; native release gates remain open.
+
 Updated: 2026-10-18 (waves W1–W4 closed and accepted: M1 and M2 completed — 176 tests,
 172 pass / 0 fail / 4 e2e-skip; coverage 99.3/90.5/97.6; post-W4 audit is in the backlog below).
 Updated: 2026-10-19 (waves R7/RC: specification `docs/re/`, Rust client plan `docs/rust-client/`,
@@ -977,3 +980,5 @@ Queue: transportnaya volna (reshenie A), zatem P1-09 (rate-limit/errors).
  | ↳ **TASK-829.2** | `P0` | **G4 QA** | JS Unit tests tests/unit/afk-voice-status.test.mjs and invite-input.test.mjs | `[x]` accepted | 
 
 
+
+RW-51 CPU instruction clarification: [CPU contract](waves/RW-51/CPU-ISA-CONTRACT.md). Screenshot instruction families are explicit dependency/native acceptance criteria; no native ISA qualification is claimed.

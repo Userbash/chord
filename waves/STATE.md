@@ -1,5 +1,22 @@
 # STATE — System Status and Wave Checkpoint
 
+- CPU clarification, 2026-11-15: the user screenshot x86 ISA families are
+  included in dependency/native acceptance. Rust defaults were measured for
+  six targets. A masked-feature headless run passed, but the emulator did
+  not reject an intentional AVX2 control; ISA/native acceptance remains open.
+  See [CPU contract](RW-51/CPU-ISA-CONTRACT.md).
+
+- GPUI build prerequisite, 2026-11-15: real locked x86_64 release ELF built;
+  headless startup passed on host and Ubuntu 22.04 / GLIBC 2.35. GPUI E2E
+  contracts 55/55 and visual contracts 10/10 pass. The full worker gate
+  still fails 34 JS unit cases. Native window, packages and ARM are open.
+  See [build checkpoint](RW-51/SEQUENTIAL-03-GPUI-BUILD.md).
+
+- Sequential step 2 checkpoint, 2026-11-15: five JS unit failures resolved;
+  2614 pass / 34 fail / 0 skip. Stream implementation contracts and a pinned
+  independent theme fixture are reviewed. Release/package prerequisites and
+  three Krisp cases remain open. See [unit repair checkpoint](RW-51/SEQUENTIAL-02-UNIT-REPAIRS.md).
+
 - Sequential step 1 completed, 2026-11-15: locked Linux GUI dependency cache restored;
   748 offline Rust tests pass and the lockfile is unchanged. The full worker gate now
   passes `spike-rust`; 39 JS unit failures remain for step 2. Native ARM remains

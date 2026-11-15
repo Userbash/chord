@@ -1,0 +1,22 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Action completed."
+    }
+  ],
+  "structuredContent": {
+    "content": "{\n  \"manifest\": {\n    \"api_version\": 1,\n    \"id\": \"serein-midnight\",\n    \"name\": \"Midnight\",\n    \"version\": \"1.0.0\",\n    \"author\": \"Serein contributors\",\n    \"license\": \"MIT OR Apache-2.0\",\n    \"source\": \"https://github.com/ViceVerse-cz/Serein\",\n    \"kind\": \"theme\"\n  },\n  \"theme\": {\n    \"dark\": {\n      \"colors\": {\n        \"base\": \"#11131F\",\n        \"sidebar\": \"#171A2B\",\n        \"chat\": \"#202438\",\n        \"raised\": \"#292E46\",\n        \"hover\": \"#333A55\",\n        \"selected\": \"#414B6D\",\n        \"border\": \"#4A5576\",\n        \"text_strong\": \"#F2F3FF\",\n        \"text\": \"#D8DDF1\",\n        \"muted\": \"#A8B2D0\",\n        \"accent\": \"#A8B8FF\",\n        \"accent_text\": \"#171C36\",\n        \"link\": \"#BAC7FF\",\n        \"mention_bg\": \"#35416B\",\n        \"mention_text\": \"#E0E6FF\",\n        \"positive\": \"#80D2A0\",\n        \"warning\": \"#F0C674\",\n        \"danger\": \"#FF9797\"\n      }\n    },\n    \"light\": {\n      \"colors\": {\n        \"base\": \"#DFE4F4\",\n        \"sidebar\": \"#E9EDF8\",\n        \"chat\": \"#F5F7FF\",\n        \"raised\": \"#FFFFFF\",\n        \"hover\": \"#E1E7F6\",\n        \"selected\": \"#CFD9F0\",\n        \"border\": \"#B4C0DB\",\n        \"text_strong\": \"#202943\",\n        \"text\": \"#36425F\",\n        \"muted\": \"#596782\",\n        \"accent\": \"#4C5CB8\",\n        \"accent_text\": \"#FFFFFF\",\n        \"link\": \"#4052AE\",\n        \"mention_bg\": \"#DCE3FF\",\n        \"mention_text\": \"#35478D\",\n        \"positive\": \"#237C48\",\n        \"warning\": \"#966500\",\n        \"danger\": \"#B83039\"\n      }\n    }\n  }\n}\n",
+    "title": "midnight.serein-extension",
+    "modified_date": "2026-10-19T12:02:17Z",
+    "url": "https://github.com/ViceVerse-cz/Serein/blob/04f348092910a77cc317516b25577ad006cb708b/extensions/themes/midnight.serein-extension",
+    "display_url": "https://github.com/ViceVerse-cz/Serein/blob/04f348092910a77cc317516b25577ad006cb708b/extensions/themes/midnight.serein-extension",
+    "display_title": "midnight.serein-extension",
+    "structuredContent": {
+      "title": "midnight.serein-extension",
+      "content": "{\n  \"manifest\": {\n    \"api_version\": 1,\n    \"id\": \"serein-midnight\",\n    \"name\": \"Midnight\",\n    \"version\": \"1.0.0\",\n    \"author\": \"Serein contributors\",\n    \"license\": \"MIT OR Apache-2.0\",\n    \"source\": \"https://github.com/ViceVerse-cz/Serein\",\n    \"kind\": \"theme\"\n  },\n  \"theme\": {\n    \"dark\": {\n      \"colors\": {\n        \"base\": \"#11131F\",\n        \"sidebar\": \"#171A2B\",\n        \"chat\": \"#202438\",\n        \"raised\": \"#292E46\",\n        \"hover\": \"#333A55\",\n        \"selected\": \"#414B6D\",\n        \"border\": \"#4A5576\",\n        \"text_strong\": \"#F2F3FF\",\n        \"text\": \"#D8DDF1\",\n        \"muted\": \"#A8B2D0\",\n        \"accent\": \"#A8B8FF\",\n        \"accent_text\": \"#171C36\",\n        \"link\": \"#BAC7FF\",\n        \"mention_bg\": \"#35416B\",\n        \"mention_text\": \"#E0E6FF\",\n        \"positive\": \"#80D2A0\",\n        \"warning\": \"#F0C674\",\n        \"danger\": \"#FF9797\"\n      }\n    },\n    \"light\": {\n      \"colors\": {\n        \"base\": \"#DFE4F4\",\n        \"sidebar\": \"#E9EDF8\",\n        \"chat\": \"#F5F7FF\",\n        \"raised\": \"#FFFFFF\",\n        \"hover\": \"#E1E7F6\",\n        \"selected\": \"#CFD9F0\",\n        \"border\": \"#B4C0DB\",\n        \"text_strong\": \"#202943\",\n        \"text\": \"#36425F\",\n        \"muted\": \"#596782\",\n        \"accent\": \"#4C5CB8\",\n        \"accent_text\": \"#FFFFFF\",\n        \"link\": \"#4052AE\",\n        \"mention_bg\": \"#DCE3FF\",\n        \"mention_text\": \"#35478D\",\n        \"positive\": \"#237C48\",\n        \"warning\": \"#966500\",\n        \"danger\": \"#B83039\"\n      }\n    }\n  }\n}\n",
+      "display_url": "https://github.com/ViceVerse-cz/Serein/blob/04f348092910a77cc317516b25577ad006cb708b/extensions/themes/midnight.serein-extension"
+    }
+  },
+  "isError": false
+}

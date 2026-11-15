@@ -1,0 +1,10 @@
+{
+  "simulated_checkout": "core.autocrlf=true, core.eol=crlf",
+  "files": {
+    "midnight.serein-extension": "f7ffb0acdb7269f1e2fdb235536870cef344f3fac761543174ddc091bb2aebb6",
+    "LICENSE-APACHE": "e3ba223bb1423f0aad8c3dfce0fe3148db48926d41e6fbc3afbbf5ff9e1c89cb",
+    "LICENSE-MIT": "33901c362268dade203b4031d247ef378220c0264103ca710bf51729cc447db3"
+  },
+  "all_upstream_bytes_preserved": true,
+  "checkout": "/tmp/chord-oracle-crlf-gl1oc1ct"
+}

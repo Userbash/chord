@@ -1,0 +1,370 @@
+{
+  "schema": 1,
+  "wave": "RW-51",
+  "updated_at": "2026-11-15T19:29:48.418794+00:00",
+  "status": "requirements_recorded_runtime_qualification_open",
+  "request": "Account for the x86 instruction families in the user screenshot, while retaining the separately requested ARM compatibility work.",
+  "requested_instruction_groups": [
+    {
+      "name": "x86-64",
+      "meaning": "Target architecture and platform ABI, not an optional acceleration switch",
+      "rust_features": []
+    },
+    {
+      "name": "MMX / MMX+",
+      "rust_features": [
+        "mmx"
+      ],
+      "note": "MMX+ is not a Rust std detection argument. Do not invent its presence or add handwritten legacy MMX dispatch."
+    },
+    {
+      "name": "SSE family",
+      "rust_features": [
+        "sse",
+        "sse2",
+        "sse3",
+        "ssse3",
+        "sse4.1",
+        "sse4.2",
+        "sse4a"
+      ],
+      "note": "SSE4a is a distinct optional extension; it is not SSE4.1 or SSE4.2."
+    },
+    {
+      "name": "AES",
+      "rust_features": [
+        "aes"
+      ],
+      "note": "Use vetted crypto library dispatch and known-answer tests; preserve software fallback beyond the platform baseline."
+    },
+    {
+      "name": "AVX / AVX2",
+      "rust_features": [
+        "avx",
+        "avx2"
+      ],
+      "note": "Require CPU and OS register-state support; never enable globally for the portable release."
+    },
+    {
+      "name": "AVX-VNNI",
+      "rust_features": [
+        "avxvnni"
+      ],
+      "note": "Detect separately from AVX2 and AVX512-VNNI."
+    },
+    {
+      "name": "AVX-512 family",
+      "rust_features": [
+        "avx512f",
+        "avx512cd",
+        "avx512er",
+        "avx512pf",
+        "avx512bw",
+        "avx512dq",
+        "avx512vl",
+        "avx512ifma",
+        "avx512vbmi",
+        "avx512vbmi2",
+        "avx512vpopcntdq",
+        "avx512vnni",
+        "avx512bitalg",
+        "avx512bf16",
+        "avx512vp2intersect",
+        "avx512fp16"
+      ],
+      "note": "Each library path must check its exact required subset and OS state; AVX512F alone is not the entire family."
+    },
+    {
+      "name": "FMA3",
+      "rust_features": [
+        "fma"
+      ],
+      "note": "Separate requirement; do not infer FMA3 from AVX2 or confuse it with FMA4."
+    },
+    {
+      "name": "SHA",
+      "rust_features": [
+        "sha"
+      ],
+      "note": "x86 SHA instruction support is separate from the ARM SHA extensions."
+    }
+  ],
+  "rules": [
+    "Preserve each OS/target ABI baseline. Do not copy Linux x86 or ARM baseline flags blindly onto Windows or Apple targets.",
+    "Portable release builds must not use target-cpu=native, -march=native, -mcpu=native or globally force optional SIMD/crypto features beyond the declared target baseline.",
+    "Delegate instruction selection to existing vetted Rust/native libraries and standard OS-aware CPU detection. Do not add a custom CPUID, assembler or SIMD wrapper layer.",
+    "Global compiler feature flags can make Rust runtime feature macros constant true; a runtime-looking check cannot repair an already raised binary baseline.",
+    "Inventory Rust, C/C++, build scripts, inherited environment, compiler builtins, native SDKs, transitive dependencies and bundled libraries before qualification.",
+    "Optimized target-specific builds must declare their CPU profile and must not be presented as universal architecture packages.",
+    "Qualify both supported acceleration and feature-absent fallback against the same independent functional/crypto/media oracles. Require no SIGILL and no behavior regression.",
+    "Do not claim compatibility from a disassembly mnemonic scan, compiler cfg, CPUID masking or headless startup alone. Verify the instruction-enforcement control and representative actual hardware.",
+    "Keep ARM64 feature names, platform baselines, native CPU/page size and library intake requirements separate; x86 SIMD names do not map directly to ARM."
+  ],
+  "compiler_inventory": {
+    "source": "verification/cpu-isa-cpu-inventory-20261115T192250515182Z.json",
+    "scanned_tracked_files": 1682,
+    "targets": [
+      {
+        "cfg": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-unknown-linux-gnu-cfg.txt",
+        "default_target_features": [
+          "fxsr",
+          "sse",
+          "sse2"
+        ],
+        "target-cpus": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-unknown-linux-gnu-target-cpus.txt",
+        "default_cpu_lines": [
+          "x86-64                  - This is the default target CPU for the current build target (currently x86_64-unknown-linux-gnu)."
+        ],
+        "target-features": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-unknown-linux-gnu-target-features.txt",
+        "target": "x86_64-unknown-linux-gnu",
+        "compiled_application": false,
+        "native_qualified": false
+      },
+      {
+        "cfg": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-unknown-linux-gnu-cfg.txt",
+        "default_target_features": [
+          "neon"
+        ],
+        "target-cpus": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-unknown-linux-gnu-target-cpus.txt",
+        "default_cpu_lines": [
+          "generic         - This is the default target CPU for the current build target (currently aarch64-unknown-linux-gnu)."
+        ],
+        "target-features": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-unknown-linux-gnu-target-features.txt",
+        "target": "aarch64-unknown-linux-gnu",
+        "compiled_application": false,
+        "native_qualified": false
+      },
+      {
+        "cfg": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-pc-windows-msvc-cfg.txt",
+        "default_target_features": [
+          "cmpxchg16b",
+          "fxsr",
+          "sse",
+          "sse2",
+          "sse3"
+        ],
+        "target-cpus": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-pc-windows-msvc-target-cpus.txt",
+        "default_cpu_lines": [
+          "x86-64                  - This is the default target CPU for the current build target (currently x86_64-pc-windows-msvc)."
+        ],
+        "target-features": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-pc-windows-msvc-target-features.txt",
+        "target": "x86_64-pc-windows-msvc",
+        "compiled_application": false,
+        "native_qualified": false
+      },
+      {
+        "cfg": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-pc-windows-msvc-cfg.txt",
+        "default_target_features": [
+          "neon"
+        ],
+        "target-cpus": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-pc-windows-msvc-target-cpus.txt",
+        "default_cpu_lines": [
+          "generic         - This is the default target CPU for the current build target (currently aarch64-pc-windows-msvc)."
+        ],
+        "target-features": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-pc-windows-msvc-target-features.txt",
+        "target": "aarch64-pc-windows-msvc",
+        "compiled_application": false,
+        "native_qualified": false
+      },
+      {
+        "cfg": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-apple-darwin-cfg.txt",
+        "default_target_features": [
+          "cmpxchg16b",
+          "fxsr",
+          "sse",
+          "sse2",
+          "sse3",
+          "sse4.1",
+          "ssse3"
+        ],
+        "target-cpus": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-apple-darwin-target-cpus.txt",
+        "default_cpu_lines": [
+          "penryn                  - This is the default target CPU for the current build target (currently x86_64-apple-macosx)."
+        ],
+        "target-features": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-x86_64-apple-darwin-target-features.txt",
+        "target": "x86_64-apple-darwin",
+        "compiled_application": false,
+        "native_qualified": false
+      },
+      {
+        "cfg": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-apple-darwin-cfg.txt",
+        "default_target_features": [
+          "aes",
+          "crc",
+          "dit",
+          "dotprod",
+          "dpb",
+          "dpb2",
+          "fcma",
+          "fhm",
+          "flagm",
+          "fp16",
+          "frintts",
+          "jsconv",
+          "lor",
+          "lse",
+          "neon",
+          "paca",
+          "pacg",
+          "pan",
+          "pmuv3",
+          "ras",
+          "rcpc",
+          "rcpc2",
+          "rdm",
+          "sb",
+          "sha2",
+          "sha3",
+          "ssbs",
+          "vh"
+        ],
+        "target-cpus": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-apple-darwin-target-cpus.txt",
+        "default_cpu_lines": [],
+        "target-features": "/root/projects/chord-modernization-verification/cpu-isa/20261115T192250515182Z-aarch64-apple-darwin-target-features.txt",
+        "target": "aarch64-apple-darwin",
+        "compiled_application": false,
+        "native_qualified": false
+      }
+    ],
+    "scope": "Tracked build/application/SDK sources plus locked native/CPU candidate package names; does not inspect all downloaded dependency sources or certify their dispatch.",
+    "environment_override_keys_present": []
+  },
+  "host_detection": {
+    "source": "verification/cpu-isa-probe-20261115T192458286493Z.json",
+    "method": "Rust std::arch::is_x86_feature_detected!",
+    "features": {
+      "architecture": "x86_64",
+      "mmx": "true",
+      "sse": "true",
+      "sse2": "true",
+      "sse3": "true",
+      "ssse3": "true",
+      "sse4.1": "true",
+      "sse4.2": "true",
+      "sse4a": "true",
+      "aes": "true",
+      "avx": "true",
+      "avx2": "true",
+      "avxvnni": "true",
+      "fma": "true",
+      "sha": "true",
+      "avx512f": "true",
+      "avx512cd": "true",
+      "avx512er": "false",
+      "avx512pf": "false",
+      "avx512bw": "true",
+      "avx512dq": "true",
+      "avx512vl": "true",
+      "avx512ifma": "true",
+      "avx512vbmi": "true",
+      "avx512vbmi2": "true",
+      "avx512vpopcntdq": "true",
+      "avx512vnni": "true",
+      "avx512bitalg": "true",
+      "avx512bf16": "true",
+      "avx512vp2intersect": "true",
+      "avx512fp16": "false"
+    },
+    "accelerated_application_paths_executed_by_this_probe": false,
+    "screenshot_is_hardware_qualification": false
+  },
+  "emulated_fallback_observation": {
+    "source": "verification/cpu-isa-qemu-baseline-20261115T192629158949Z.json",
+    "model": "qemu64,-pni",
+    "application_sha256": "b0a642752c4e885f72c42733c0f768f065db4a27e0c7d14d1ab69e14af45e8d7",
+    "headless_exit_code": 0,
+    "optional_features_reported_absent": [
+      "sse3",
+      "ssse3",
+      "sse4.1",
+      "sse4.2",
+      "sse4a",
+      "aes",
+      "avx",
+      "avx2",
+      "avxvnni",
+      "fma",
+      "sha",
+      "avx512f",
+      "avx512cd",
+      "avx512er",
+      "avx512pf",
+      "avx512bw",
+      "avx512dq",
+      "avx512vl",
+      "avx512ifma",
+      "avx512vbmi",
+      "avx512vbmi2",
+      "avx512vpopcntdq",
+      "avx512vnni",
+      "avx512bitalg",
+      "avx512bf16",
+      "avx512vp2intersect",
+      "avx512fp16"
+    ],
+    "qualification": "limited feature-detection/headless observation only"
+  },
+  "instruction_enforcement_control": {
+    "source": "verification/cpu-isa-negative-control-20261115T192702761303Z.json",
+    "standalone_intentional_avx2_diagnostic": true,
+    "expected_exit_code": 132,
+    "actual_exit_code": 0,
+    "passed": false,
+    "meaning": "The baseline CPUID model did not reject the deliberately unguarded AVX2 instruction. The previous headless observation cannot certify an ISA floor."
+  },
+  "application_sources_changed": false,
+  "lockfiles_changed": false,
+  "native_old_x86_qualified": false,
+  "native_arm_qualified": false,
+  "all_instruction_paths_qualified": false,
+  "all_parent_cards_complete": false,
+  "primary_sources": [
+    "https://doc.rust-lang.org/std/arch/macro.is_x86_feature_detected.html",
+    "https://doc.rust-lang.org/std/arch/macro.is_aarch64_feature_detected.html",
+    "https://doc.rust-lang.org/std/arch/index.html",
+    "https://doc.rust-lang.org/rustc/codegen-options/index.html#target-cpu",
+    "https://www.qemu.org/docs/master/user/main.html"
+  ],
+  "evidence": [
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-cfg.txt.gz",
+    "waves/RW-51/verification/cpu-isa-negative-control-baseline-sigill-20261115T192702761303Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-target-features.txt.gz",
+    "waves/RW-51/verification/cpu-isa-qemu-version-20261115T192629158949Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-negative-control-image-20261115T192702761303Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-cfg.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-target-cpus.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-target-cpus.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-target-features.txt.gz",
+    "waves/RW-51/verification/cpu-isa-probe-build-20261115T192458286493Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-negative-control-rustc-20261115T192702761303Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-target-cpus.txt.gz",
+    "waves/RW-51/verification/cpu-isa-negative-control-20261115T192702761303Z.json",
+    "waves/RW-51/verification/cpu-isa-qemu-baseline-probe-20261115T192629158949Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-target-features.txt.gz",
+    "waves/RW-51/verification/cpu-isa-qemu-baseline-20261115T192629158949Z.json",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-cfg.txt.gz",
+    "waves/RW-51/verification/cpu-isa-probe-native-20261115T192458286493Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-cfg.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-target-features.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-cfg.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-target-cpus.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-target-features.txt.gz",
+    "waves/RW-51/verification/cpu-isa-qemu-baseline-gpui-headless-20261115T192629158949Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-target-cpus.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-cfg.txt.gz",
+    "waves/RW-51/verification/cpu-isa-probe-20261115T192458286493Z.json",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-target-features.txt.gz",
+    "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-target-cpus.txt.gz",
+    "waves/RW-51/verification/cpu-isa-cpu-inventory-20261115T192250515182Z.json",
+    "waves/RW-51/verification/cpu-isa-cpu-isa-runtime-image-20261115T192503929863Z.json",
+    "waves/RW-51/verification/cpu-isa-cpu-isa-runtime-image-20261115T192503929863Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-meta-sequential-checkpoint-20261115T165324785530Z.json",
+    "waves/RW-51/verification/cpu-isa-meta-sequential-checkpoint-20261115T165324785530Z.log.gz",
+    "waves/RW-51/verification/cpu-isa-cpu-probe.rs",
+    "waves/RW-51/verification/cpu-isa-runtime-20261115T192458286493Z-Dockerfile",
+    "waves/RW-51/verification/cpu-isa-negative-control.rs",
+    "waves/RW-51/verification/cpu-isa-negative-control-20261115T192702761303Z-Dockerfile"
+  ],
+  "independent_review": "waves/RW-51/reports/CPU-ISA-INDEPENDENT-REVIEW.json",
+  "review_transport": "Codex collaboration read-only specialist; not counted as a new ECC session"
+}

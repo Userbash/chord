@@ -1,0 +1,6 @@
+FROM chord-verify-ubuntu22:b0a64275
+USER 0:0
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends qemu-user && rm -rf /var/lib/apt/lists/*
+COPY cpu-probe /app/cpu-probe
+USER 65534:65534
+ENTRYPOINT ["/usr/bin/qemu-x86_64"]

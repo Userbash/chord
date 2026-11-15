@@ -1,9 +1,19 @@
 # Validation and practical limits
 
+Latest full worker gate, 2026-11-15 16:47 UTC: **failed only in JS unit** (**2614 passed / 34 failed / 0 skipped**). Typechecks, meta **210/210**, GUI-spike Rust, workspace **1490 passed / 12 ignored**, GPUI smoke, GPUI E2E contracts **55/55** and GPUI visual contracts **10/10** passed. Smoke recorded **19 passed / 3 skipped**. Full report: [GPUI-enabled gate](verification/sequential-worker-gpui-enabled-20261115T164751333Z.json).
+
+The [genuine Linux release binary](SEQUENTIAL-03-GPUI-BUILD.md) also passes headless startup on the host and in digest-pinned Ubuntu 22.04 with GLIBC 2.35. Native windows/media/ARM and release packages remain unqualified. No application source or dependency locks changed in this checkpoint.
+
+Latest test-repair checkpoint: [sequential step 2](SEQUENTIAL-02-UNIT-REPAIRS.md)
+resolves five failures while preserving independent protocol/palette assertions.
+The observed full JS unit run is 2614 pass / 34 fail / 0 skip, with no new failed
+names. Source-only Windows checks, clean-checkout fixture proof and reviews are
+reported separately from native UI/voice/ARM qualification.
+
 Latest environment checkpoint: [sequential step 1](SEQUENTIAL-01-DEPENDENCIES.md)
 restored the exact locked Linux GUI dependencies. Its 748 offline Rust tests pass;
-the lockfile is unchanged. The rerun worker gate passes `spike-rust`, with 39 JS
-unit failures still open. Earlier offline-cache failures below are historical.
+the lockfile is unchanged. The first rerun passed `spike-rust` with 39 JS
+unit failures; the later five-case repair above leaves 34 failures. Earlier offline-cache failures below are historical.
 
 Measured application baseline: `2b7cfb52024be0453e3b9333aba292b2372e610e`. The current branch includes upstream release `4653bdec519bec8cd6719e92d9736e5299c38468` and bounded ARM builder/verifier source fixes. Rust application and dependency changes from upstream were retained; the ARM slice changes no dependency lock. Current execution and gate evidence supersede earlier planning-only observations below: see [ARM-SOURCE-BATCH.md](ARM-SOURCE-BATCH.md).
 
@@ -31,3 +41,7 @@ The native Windows transport had failed/stopped configuration attempts before th
 This result does not qualify whole-application functionality, native Windows/macOS/ARM GUI behavior, live Discord/media behavior or actual library migrations. Those have explicit independent-contract, integration and native tasks in the plan. Static board exports report their recorded observation time; live ECC status is available from the documented runtime directory.
 
 ARM follow-up: the unchanged integrity suite passes12/12 on x86_64 WSL, while actual Linux ARM64 Rust std is absent. A fourth real ECC source audit produced7 findings (no tools/build/native execution). Its records are in `reports/LIB-ARM-01.json` and `verification/arm-audit-receipt.json`. The newly added three meta guards were RED before the explicit ARM tasks/admission/release rules existed, then passed; no ARM code fix or native runtime success is inferred.
+
+CPU instruction clarification: [contract and failed control](CPU-ISA-CONTRACT.md). Host std detection and masked-feature headless execution are recorded separately from instruction enforcement and native qualification. The AVX2 negative diagnostic unexpectedly exited0 instead of132, so the emulator does not certify the CPU floor. No production source/lock changes were made.
+
+Final metadata check after CPU/board annotations: **210/210**, no skips. The [independent CPU requirements review](reports/CPU-ISA-INDEPENDENT-REVIEW.json) is a read-only collaboration review, not an additional ECC session. The reviewed five-case test repair is commit `ef9c819642ec9811333b29dea13eb0c96cd628d0`.

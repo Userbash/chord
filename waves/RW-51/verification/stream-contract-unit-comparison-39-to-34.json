@@ -1,0 +1,300 @@
+{
+  "initial_failures": 39,
+  "remaining_failures": 34,
+  "new_failing_names": [],
+  "fixed_tests": [
+    {
+      "name": "C4: voice_stream_start queues OP 18 through the voice-state delegate and uses real self_uid",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/call_stream_dispatch.test.mjs",
+      "line": 61
+    },
+    {
+      "name": "L1: voice_stream_stop accepts stream_key and streamKey, auto-derives if None",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/call_stream_lifecycle.test.mjs",
+      "line": 29
+    },
+    {
+      "name": "L2: voice_stream_start checks STREAM permission before initiating stream",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/call_stream_lifecycle.test.mjs",
+      "line": 37
+    },
+    {
+      "name": "SUB-985-1: сверяет дизайн-токены, макет Theme Picker, палитры (Midnight, Dark, Light, AMOLED) и интерактивные состояния с независимыми оракулами",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/custom-themes-985.test.mjs",
+      "line": 280
+    },
+    {
+      "name": "SUB-985-2: переключает темы (Dark, Light, Midnight, AMOLED и пользовательские) на лету без перезагрузки интерфейса и управляет состояниями theme-preview",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/custom-themes-985.test.mjs",
+      "line": 351
+    }
+  ],
+  "remaining_tests": [
+    {
+      "name": "SUB-961-2: scripts/build-appimage.sh собирает валидный Type 2 AppImage с бандлингом зависимостей, иконкой и .desktop файлом",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/appimage-package-961.test.mjs",
+      "line": 194
+    },
+    {
+      "name": "SUB-961-3: выполняет --headless-smoke внутри релизного AppImage (VmRSS < 60 MB) и проверяет fallback/негативные режимы",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/appimage-package-961.test.mjs",
+      "line": 392
+    },
+    {
+      "name": "Шаг 3: контрольные суммы sha256sums в PKGBUILD и .SRCINFO строго соответствуют оракулу rust/dist/SHA256SUMS и реальным файлам",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/arch-pkgbuild-964.test.mjs",
+      "line": 153
+    },
+    {
+      "name": "Шаг 4: .SRCINFO побайтово синхронизирован с выводом makepkg --printsrcinfo",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/arch-pkgbuild-964.test.mjs",
+      "line": 207
+    },
+    {
+      "name": "Шаг 5: PKGBUILD проходит верификацию makepkg --verifysource (позитивный сценарий) и отклоняет повреждённый артефакт / невалидный pkgver (негативные сценарии)",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/arch-pkgbuild-964.test.mjs",
+      "line": 221
+    },
+    {
+      "name": "Шаг 6: функции check() и package() в PKGBUILD корректно проверяют и устанавливают артефакты в $pkgdir",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/arch-pkgbuild-964.test.mjs",
+      "line": 325
+    },
+    {
+      "name": "SUB-990-3: собирает и верифицирует ARM64 пакеты .tar.gz, .deb (Architecture: arm64) и Type 2 .AppImage (EM_AARCH64)",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/arm64-packaging-990.test.mjs",
+      "line": 322
+    },
+    {
+      "name": "SUB-990-4: контрольные суммы всех ARM64 артефактов записаны в rust/dist/SHA256SUMS и проходят sha256sum -c и --verify",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/arm64-packaging-990.test.mjs",
+      "line": 511
+    },
+    {
+      "name": "SUB-990-5: проверяет изолированную сборку профилей rpi5/asahi, негативные/граничные сценарии CLI (коды 0/1/2), повреждение артефактов и маскирование секретов",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/arm64-packaging-990.test.mjs",
+      "line": 586
+    },
+    {
+      "name": "SUB-958-1 (Шаг 1.1): архив discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz содержит stripped бинарник и лицензионные файлы",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/beta-release-package-958.test.mjs",
+      "line": 63
+    },
+    {
+      "name": "SUB-958-1 (Шаг 1.2): rust/dist/SHA256SUMS содержит актуальный хеш архива и проходит независимый оракул sha256sum -c",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/beta-release-package-958.test.mjs",
+      "line": 143
+    },
+    {
+      "name": "SUB-969-1: кодирует ENDSLEY/BSDIFF43 + Zstandard (0x28 0xb5 0x2f 0xfd) и проходит сверку с независимым /usr/bin/zstd",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/binary-delta-969.test.mjs",
+      "line": 98
+    },
+    {
+      "name": "SUB-969-2: генерирует дельты в режимах bsdiff43-zstd и zstd-patch-from со 100% восстановлением SHA-256 и валидирует ManifestPatch",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/binary-delta-969.test.mjs",
+      "line": 195
+    },
+    {
+      "name": "SUB-969-4: выполняет атомарный откат при повреждении патча/целевого хеша и переключает skip_host_delta / skip_module_delta",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/binary-delta-969.test.mjs",
+      "line": 368
+    },
+    {
+      "name": "SUB-969-5: проверяет CLI scripts/generate-delta.mjs (--generate, --verify, --apply, --self-test), коды 0/1/2 и маскирование токенов",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/binary-delta-969.test.mjs",
+      "line": 543
+    },
+    {
+      "name": "SUB-962-1: манифест packaging/flatpak/com.discord_lab.DiscordGpui.yml существует, валиден по YAML-схеме и задаёт runtime org.freedesktop.Platform 23.08",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/flatpak-manifest-962.test.mjs",
+      "line": 236
+    },
+    {
+      "name": "SUB-962-4: модуль discord-gpui и его источники ссылаются на реальные артефакты rust/dist/ с точным совпадением SHA-256 по оракулу SHA256SUMS",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/flatpak-manifest-962.test.mjs",
+      "line": 345
+    },
+    {
+      "name": "KVS-02 [Positive]: separates Krisp NC (noiseCancellation: true) from WebRTC VAD (vadUseKrisp: false)",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/krisp-vad-stability.test.mjs",
+      "line": 92
+    },
+    {
+      "name": "KVS-10 [Recovery / Loopback & State Toggle]: loopback and set_state preserve Krisp NC separation and vadUseKrisp: false",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/krisp-vad-stability.test.mjs",
+      "line": 236
+    },
+    {
+      "name": "KVS-14 [End-to-End DV_BRIDGE_JS Command Loop]: executes ready -> set_state -> loopback in VM and enforces vadUseKrisp: false on every call",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/krisp-vad-stability.test.mjs",
+      "line": 448
+    },
+    {
+      "name": "Шаг 1: файл packaging/rpm/discord-gpui.spec существует, валиден и синхронизирован с оракулом rust/dist/SHA256SUMS",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/rpm-package-966.test.mjs",
+      "line": 327
+    },
+    {
+      "name": "Шаг 3: реальное выполнение %build, %install и %check из spec-файла, верификация desktop-file-validate, иконок 256x256 и --headless-smoke",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/rpm-package-966.test.mjs",
+      "line": 397
+    },
+    {
+      "name": "SUB-956-1 (Шаг 1.1 & 1.2): сканирует кодовую базу и бинарник по 20+ паттернам (Discord MFA/Bot/User токены, ключи DAVE MLS) с 0 находок",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/security-audit-sbom-956.test.mjs",
+      "line": 32
+    },
+    {
+      "name": "CLI и отчётность: запускает scripts/secret-scan.mjs и проверяет отчёт SECURITY-AUDIT-REPORT.md",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/security-audit-sbom-956.test.mjs",
+      "line": 224
+    },
+    {
+      "name": "SUB-967-1: манифест packaging/snap/snapcraft.yaml существует, валиден по YAML-схеме (оракул PyYAML) и задаёт базовый образ core22",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/snapcraft-manifest-967.test.mjs",
+      "line": 425
+    },
+    {
+      "name": "SUB-967-4: секция parts ссылается на реальные артефакты rust/dist/ с точным совпадением SHA-256 по оракулу SHA256SUMS",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/snapcraft-manifest-967.test.mjs",
+      "line": 534
+    },
+    {
+      "name": "SUB-967-5: валидатор validateSnapcraftManifest отсекает негативные, граничные и небезопасные мутации манифеста",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/snapcraft-manifest-967.test.mjs",
+      "line": 581
+    },
+    {
+      "name": "CLI и отчёт: запускает scripts/soak-test.mjs на релизном бинарнике и проверяет waves/RW-44/QUALITY/SOAK-TEST-REPORT.md",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/soak-test-955.test.mjs",
+      "line": 190
+    },
+    {
+      "name": "SUB-953-1 (Шаг 1.1 & 1.3): анализирует вывод ldd, проверяет 0 отсутствующих библиотек и отсутствие проприетарных драйверов NVIDIA/AMD",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/system-requirements-953.test.mjs",
+      "line": 28
+    },
+    {
+      "name": "SUB-953-1 (Шаг 1.2): проверяет требование GLIBC <= 2.35 по секции Version References из objdump -p",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/system-requirements-953.test.mjs",
+      "line": 82
+    },
+    {
+      "name": "SUB-953-2 (Шаг 2.1 & 2.2): запускает discord-gpui --headless-smoke на программном рендерере Mesa llvmpipe",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/system-requirements-953.test.mjs",
+      "line": 138
+    },
+    {
+      "name": "SUB-953-3 (Шаг 3.1): проверяет CLI scripts/verify-system-requirements.mjs и документ docs/SYSTEM-REQUIREMENTS.md",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/system-requirements-953.test.mjs",
+      "line": 164
+    },
+    {
+      "name": "SUB-965-2: проверяет Ed25519 подпись манифеста и SHA-256 контрольные суммы артефактов (вкл. мутации битов)",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/update-checker-965.test.mjs",
+      "line": 153
+    },
+    {
+      "name": "SUB-965-4: выполняет сквозной цикл проверки обновлений через локальный HTTP-стенд GitHub Releases API v3 (200 -> 304 ETag -> 429 Rate-Limit -> CLI)",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/update-checker-965.test.mjs",
+      "line": 351
+    }
+  ],
+  "remaining_by_file": {
+    "tests/unit/appimage-package-961.test.mjs": 2,
+    "tests/unit/arch-pkgbuild-964.test.mjs": 4,
+    "tests/unit/arm64-packaging-990.test.mjs": 3,
+    "tests/unit/beta-release-package-958.test.mjs": 2,
+    "tests/unit/binary-delta-969.test.mjs": 4,
+    "tests/unit/flatpak-manifest-962.test.mjs": 2,
+    "tests/unit/krisp-vad-stability.test.mjs": 3,
+    "tests/unit/rpm-package-966.test.mjs": 2,
+    "tests/unit/security-audit-sbom-956.test.mjs": 2,
+    "tests/unit/snapcraft-manifest-967.test.mjs": 3,
+    "tests/unit/soak-test-955.test.mjs": 1,
+    "tests/unit/system-requirements-953.test.mjs": 4,
+    "tests/unit/update-checker-965.test.mjs": 2
+  },
+  "current_log": "/root/projects/chord-modernization-verification/arm-batch/unit-after-sequential-repairs-20261115T161412468818Z.log",
+  "current_log_sha256": "3a5a7b2d1c7b7f07b90abd332fe96452a690e9aaed1ffa708dea87e4d4d2b36f",
+  "scope": "Observed failure-name comparison, not whole-app/native qualification."
+}

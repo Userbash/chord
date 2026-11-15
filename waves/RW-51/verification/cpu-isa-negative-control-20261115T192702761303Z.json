@@ -1,0 +1,67 @@
+{
+  "observed_at": "2026-11-15T19:27:04.970783+00:00",
+  "purpose": "Confirm that the baseline emulator rejects a standalone deliberately unguarded AVX2 instruction; this is not an application crash.",
+  "source_sha256": "e1f59d2a7c107a9fc8bea63c87c02694cb3a12edaf4b17ade055be26915b58b3",
+  "binary_sha256": "5c712de46cfee34d612f78f036f3272df127e2a4d50765b21d0fe1e008f03219",
+  "image_tag": "chord-verify-isa-negative:20261115t192702761303z",
+  "image_id": "sha256:9052c194b3d3ee5ddeacc4b142284b588e6b9e939cbc73253e41c34fd166f538",
+  "expected_exit_code": 132,
+  "actual_exit_code": 0,
+  "sigill_control_passed": false,
+  "application_source_changed": false,
+  "receipts": [
+    {
+      "command": [
+        "/root/.cargo/bin/rustc",
+        "--edition=2021",
+        "-C",
+        "target-cpu=x86-64",
+        "-C",
+        "target-feature=+avx2",
+        "/root/projects/chord-modernization-verification/cpu-isa/negative-control-20261115T192702761303Z/negative-control.rs",
+        "-o",
+        "/root/projects/chord-modernization-verification/cpu-isa/negative-control-20261115T192702761303Z/negative-control"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/cpu-isa/negative-control-rustc-20261115T192702761303Z.log"
+    },
+    {
+      "command": [
+        "docker",
+        "build",
+        "--progress=plain",
+        "-t",
+        "chord-verify-isa-negative:20261115t192702761303z",
+        "/root/projects/chord-modernization-verification/cpu-isa/negative-control-20261115T192702761303Z"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/cpu-isa/negative-control-image-20261115T192702761303Z.log"
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--ulimit",
+        "core=0",
+        "--memory",
+        "512m",
+        "--pids-limit",
+        "64",
+        "chord-verify-isa-negative:20261115t192702761303z",
+        "-cpu",
+        "qemu64,-pni",
+        "/app/negative-control"
+      ],
+      "exit_code": 0,
+      "log": "/root/projects/chord-modernization-verification/cpu-isa/negative-control-baseline-sigill-20261115T192702761303Z.log"
+    }
+  ]
+}

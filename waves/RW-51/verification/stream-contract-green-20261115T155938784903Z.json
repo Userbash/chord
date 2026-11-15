@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "tests/unit/call_stream_dispatch.test.mjs",
+    "tests/unit/call_stream_lifecycle.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/arm-batch/stream-contract-green-20261115T155938784903Z.log"
+}

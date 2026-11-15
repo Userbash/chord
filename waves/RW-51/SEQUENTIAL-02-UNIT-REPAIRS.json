@@ -1,0 +1,258 @@
+{
+  "id": "SEQUENTIAL-02-UNIT-REPAIRS",
+  "step": 2,
+  "status": "in_progress",
+  "observed_at": "2026-11-15T16:24:49.742132+00:00",
+  "initial_failures": 39,
+  "fixed_failures": 5,
+  "remaining_failures": 34,
+  "new_failing_names": [],
+  "fixed_tests": [
+    {
+      "name": "C4: voice_stream_start queues OP 18 through the voice-state delegate and uses real self_uid",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/call_stream_dispatch.test.mjs",
+      "line": 61
+    },
+    {
+      "name": "L1: voice_stream_stop accepts stream_key and streamKey, auto-derives if None",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/call_stream_lifecycle.test.mjs",
+      "line": 29
+    },
+    {
+      "name": "L2: voice_stream_start checks STREAM permission before initiating stream",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/call_stream_lifecycle.test.mjs",
+      "line": 37
+    },
+    {
+      "name": "SUB-985-1: сверяет дизайн-токены, макет Theme Picker, палитры (Midnight, Dark, Light, AMOLED) и интерактивные состояния с независимыми оракулами",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/custom-themes-985.test.mjs",
+      "line": 280
+    },
+    {
+      "name": "SUB-985-2: переключает темы (Dark, Light, Midnight, AMOLED и пользовательские) на лету без перезагрузки интерфейса и управляет состояниями theme-preview",
+      "indent": 4,
+      "type": "test",
+      "file": "tests/unit/custom-themes-985.test.mjs",
+      "line": 351
+    }
+  ],
+  "remaining_by_file": {
+    "tests/unit/appimage-package-961.test.mjs": 2,
+    "tests/unit/arch-pkgbuild-964.test.mjs": 4,
+    "tests/unit/arm64-packaging-990.test.mjs": 3,
+    "tests/unit/beta-release-package-958.test.mjs": 2,
+    "tests/unit/binary-delta-969.test.mjs": 4,
+    "tests/unit/flatpak-manifest-962.test.mjs": 2,
+    "tests/unit/krisp-vad-stability.test.mjs": 3,
+    "tests/unit/rpm-package-966.test.mjs": 2,
+    "tests/unit/security-audit-sbom-956.test.mjs": 2,
+    "tests/unit/snapcraft-manifest-967.test.mjs": 3,
+    "tests/unit/soak-test-955.test.mjs": 1,
+    "tests/unit/system-requirements-953.test.mjs": 4,
+    "tests/unit/update-checker-965.test.mjs": 2
+  },
+  "source_contracts": {
+    "linux": {
+      "pass": 13,
+      "fail": 0,
+      "skipped": 0
+    },
+    "native_windows_source_tests": {
+      "pass": 13,
+      "fail": 0,
+      "skipped": 0
+    },
+    "isolated_source_mutants": {
+      "killed": 5,
+      "total": 5
+    },
+    "rust_data_contract": {
+      "pass": 44,
+      "fail": 0
+    },
+    "independent_ecc_session": "ec872267"
+  },
+  "theme_contracts": {
+    "pass": 6,
+    "fail": 0,
+    "skipped": 0,
+    "existing_rust_js_mutations": "5/5 passed inside the unchanged mutation case",
+    "independent_clean_checkout_passed": true,
+    "upstream_commit": "04f348092910a77cc317516b25577ad006cb708b",
+    "fixture_sha256": "f7ffb0acdb7269f1e2fdb235536870cef344f3fac761543174ddc091bb2aebb6",
+    "crlf_checkout_hashes_preserved": true
+  },
+  "production_code_changed": false,
+  "parent_card_completed": false,
+  "native_ui_or_arm_qualified": false,
+  "full_worker_gate": "failed",
+  "remaining_groups": [
+    {
+      "count": 31,
+      "category": "release/package/build prerequisites",
+      "next_action": "Build and inspect the genuine GPUI binary and packages outside immutable historical goldens."
+    },
+    {
+      "count": 3,
+      "category": "Krisp runtime capability/contract decision",
+      "evidence": "e46193e744e837c973e8b72a6c87f3c26d559506 forced NC off; existing tests expect earlier behavior.",
+      "next_action": "Establish supported SDK/model/runtime behavior while preserving the independent WebRTC VAD crash guard."
+    }
+  ],
+  "release_catalog": "waves/RW-51/verification/stream-contract-release-catalog.json",
+  "evidence": [
+    "waves/RW-51/verification/stream-contract-release-catalog.json",
+    "waves/RW-51/verification/stream-contract-windows-focused-20261115T160150837Z.log.gz",
+    "waves/RW-51/verification/stream-contract-unit-comparison-39-to-34.json",
+    "waves/RW-51/verification/stream-contract-mutation-lost-stream-flag-20261115T160058255555Z.log.gz",
+    "waves/RW-51/verification/stream-contract-mutation-bypassed-stream-permission-20261115T160058255555Z.log.gz",
+    "waves/RW-51/verification/stream-contract-mutation-ignored-camelcase-stop-key-20261115T160058255555Z.log.gz",
+    "waves/RW-51/verification/stream-contract-windows-focused-20261115T160150837Z.json.gz",
+    "waves/RW-51/verification/stream-contract-mutation-control-20261115T160058255555Z.log.gz",
+    "waves/RW-51/verification/stream-contract-mutation-receipt-20261115T160058255555Z.json",
+    "waves/RW-51/verification/stream-contract-mutation-disconnected-ipc-wrapper-20261115T160058255555Z.log.gz",
+    "waves/RW-51/verification/stream-contract-mutation-lost-real-user-id-20261115T160058255555Z.log.gz",
+    "waves/RW-51/verification/theme-oracle-crlf-checkout.json",
+    "waves/RW-51/verification/theme-oracle-pinned-fixture.json",
+    "waves/RW-51/verification/theme-oracle-review-upstream-theme.json",
+    "waves/RW-51/verification/theme-oracle-independent-review.json",
+    "waves/RW-51/verification/theme-oracle-upstream-oracle.json",
+    "waves/RW-51/verification/theme-oracle-independent-worktree-20261115T161432022512Z.log.gz",
+    "waves/RW-51/verification/theme-oracle-review-upstream-mit.json",
+    "waves/RW-51/verification/theme-oracle-review-upstream-apache.json",
+    "waves/RW-51/verification/stream-contract-red-20261115T155938278061Z.json",
+    "waves/RW-51/verification/stream-contract-green-20261115T155938784903Z.log.gz",
+    "waves/RW-51/verification/stream-contract-red-20261115T155938278061Z.log.gz",
+    "waves/RW-51/verification/stream-contract-green-20261115T155938784903Z.json",
+    "waves/RW-51/verification/themes-pinned-fixture-red-20261115T161035037532Z.log.gz",
+    "waves/RW-51/verification/themes-pinned-fixture-red-20261115T161035037532Z.json",
+    "waves/RW-51/verification/themes-pinned-fixture-green-20261115T161038116372Z.log.gz",
+    "waves/RW-51/verification/themes-restored-oracle-toolchain-20261115T160900572054Z.json",
+    "waves/RW-51/verification/themes-pinned-fixture-green-20261115T161038116372Z.json",
+    "waves/RW-51/verification/themes-restored-oracle-20261115T160835922286Z.log.gz",
+    "waves/RW-51/verification/themes-restored-oracle-20261115T160835922286Z.json",
+    "waves/RW-51/verification/themes-restored-oracle-toolchain-20261115T160900572054Z.log.gz",
+    "waves/RW-51/verification/unit-after-sequential-repairs-20261115T161412468818Z.log.gz",
+    "waves/RW-51/verification/unit-after-sequential-repairs-20261115T161412468818Z.json",
+    "waves/RW-51/verification/stream-review-receipt.json",
+    "waves/RW-51/verification/stream-review-independent-review.json",
+    "waves/RW-51/verification/stream-review-independent-checks.json",
+    "waves/RW-51/verification/sequential-worker-gpui-enabled-20261115T164751333Z.json",
+    "waves/RW-51/verification/sequential-worker-gate-gpui-enabled-20261115T164632261883Z.log.gz",
+    "waves/RW-51/verification/sequential-worker-gate-gpui-enabled-20261115T164632261883Z.json",
+    "waves/RW-51/verification/sequential-meta-after-unit-repair-records-20261115T162609328757Z.log.gz",
+    "waves/RW-51/verification/sequential-meta-after-unit-repair-records-20261115T162609328757Z.json"
+  ],
+  "latest_worker_gate": {
+    "record": "waves/RW-51/verification/sequential-worker-gpui-enabled-20261115T164751333Z.json",
+    "finished_at": "2026-11-15T16:47:51.124Z",
+    "verdict": "failed",
+    "failed_phases": [
+      "unit"
+    ],
+    "total_skipped": 15,
+    "phases": [
+      {
+        "name": "typecheck",
+        "ok": true,
+        "counts": null,
+        "ms": 793
+      },
+      {
+        "name": "ui-tsc",
+        "ok": true,
+        "counts": null,
+        "ms": 674
+      },
+      {
+        "name": "meta",
+        "ok": true,
+        "counts": {
+          "tests": 210,
+          "pass": 210,
+          "fail": 0,
+          "skipped": 0
+        },
+        "ms": 1006
+      },
+      {
+        "name": "unit",
+        "ok": false,
+        "counts": {
+          "tests": 2648,
+          "pass": 2614,
+          "fail": 34,
+          "skipped": 0
+        },
+        "ms": 13163
+      },
+      {
+        "name": "spike-rust",
+        "ok": true,
+        "counts": null,
+        "ms": 38130
+      },
+      {
+        "name": "workspace-rust",
+        "ok": true,
+        "counts": {
+          "tests": 1502,
+          "pass": 1490,
+          "fail": 0,
+          "skipped": 12
+        },
+        "ms": 10522
+      },
+      {
+        "name": "smoke",
+        "ok": true,
+        "counts": {
+          "tests": 22,
+          "pass": 19,
+          "fail": 0,
+          "skipped": 3
+        },
+        "ms": 1023
+      },
+      {
+        "name": "gpui-smoke",
+        "ok": true,
+        "counts": null,
+        "ms": 314
+      },
+      {
+        "name": "gpui-e2e",
+        "ok": true,
+        "counts": {
+          "tests": 55,
+          "pass": 55,
+          "fail": 0,
+          "skipped": 0
+        },
+        "ms": 5352
+      },
+      {
+        "name": "gpui-visual",
+        "ok": true,
+        "counts": {
+          "tests": 10,
+          "pass": 10,
+          "fail": 0,
+          "skipped": 0
+        },
+        "ms": 7854
+      }
+    ],
+    "native_window_qualification": false,
+    "native_arm_qualification": false
+  },
+  "test_repair_commit": "ef9c819642ec9811333b29dea13eb0c96cd628d0"
+}

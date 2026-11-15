@@ -1,0 +1,328 @@
+{
+  "reviewer": "/root/arm_review",
+  "phase": "CPU_ISA_contract_evidence_review",
+  "reviewed_at": "2026-11-15T19:36:08.359248+00:00",
+  "source_HEAD": "ef9c819642ec9811333b29dea13eb0c96cd628d0",
+  "verdict": "approve_requirements_and_observation_record_only",
+  "findings": [],
+  "reviewed_files_sha256": {
+    "waves/RW-51/CPU-ISA-CONTRACT.md": "5aa59e000bdd381423bbca4144c796eb60f08e168e7f14c67a6a13cf4d30b53f",
+    "waves/RW-51/CPU-ISA-CONTRACT.json": "2c0d0f58a696645e8c858cd0a589a97c5401e14f18a652c63b74c6703413095d",
+    "waves/RW-51/PACKAGING-PREREQUISITES.md": "e9769a165b9309e66c5cd77fb300f13c6cf1cde2dd94c54b7d336a014c7a0d04",
+    "waves/RW-51/TASKS.json": "f90f95b6a68630546e2e2acc496b4cd3b16036de7ff2675c7e9d9168c4d7c5e6",
+    "waves/RW-51/HANDOFF.json": "dc72f5fe41ea2e4a2d58a3e0452c5fc92a37d026665bea909858fae95059ba99",
+    "waves/kanban-board.json": "6fc1a965b322fdd781a0b834564e02c61b085a1e84944e610a99770f704479fa"
+  },
+  "feature_mapping_review": {
+    "SSE4a_distinct_from_SSE4_1_SSE4_2": true,
+    "FMA3_detector": "fma",
+    "AVX_VNNI_detector": "avxvnni",
+    "AVX512_VNNI_detector": "avx512vnni",
+    "AVX512_exact_subsets_required": true,
+    "MMX_plus_not_assumed": true,
+    "OS_state_checks_required": true,
+    "globally_enabled_features_may_make_runtime_macro_constant_true": true
+  },
+  "six_cfg_outputs_verified": [
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "features": [
+        "fxsr",
+        "sse",
+        "sse2"
+      ],
+      "raw_cfg_sha256": "de83cfea3c26b77e5109d1fbb7cb65187d45b7020ff6a2de1456242eadea656a"
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "features": [
+        "neon"
+      ],
+      "raw_cfg_sha256": "bd4aec52921ce4d47d2f31784f231cb39f27e8dfdc5e0b0925a433a7e38b3ff7"
+    },
+    {
+      "target": "x86_64-pc-windows-msvc",
+      "features": [
+        "cmpxchg16b",
+        "fxsr",
+        "sse",
+        "sse2",
+        "sse3"
+      ],
+      "raw_cfg_sha256": "dd8e35cb73a8761ddb7839fe1c7843828ce406f18c46f54b5ce0347098e2416d"
+    },
+    {
+      "target": "aarch64-pc-windows-msvc",
+      "features": [
+        "neon"
+      ],
+      "raw_cfg_sha256": "ae4429955f4766dc9a36f93dc42d7d44a87d4f92e67effea5c865be73ef1a848"
+    },
+    {
+      "target": "x86_64-apple-darwin",
+      "features": [
+        "cmpxchg16b",
+        "fxsr",
+        "sse",
+        "sse2",
+        "sse3",
+        "sse4.1",
+        "ssse3"
+      ],
+      "raw_cfg_sha256": "e710f590a0e43f025a8f65b3dc9de11d9245752ddccf0b9137baacf3c0021dbb"
+    },
+    {
+      "target": "aarch64-apple-darwin",
+      "features": [
+        "aes",
+        "crc",
+        "dit",
+        "dotprod",
+        "dpb",
+        "dpb2",
+        "fcma",
+        "fhm",
+        "flagm",
+        "fp16",
+        "frintts",
+        "jsconv",
+        "lor",
+        "lse",
+        "neon",
+        "paca",
+        "pacg",
+        "pan",
+        "pmuv3",
+        "ras",
+        "rcpc",
+        "rcpc2",
+        "rdm",
+        "sb",
+        "sha2",
+        "sha3",
+        "ssbs",
+        "vh"
+      ],
+      "raw_cfg_sha256": "adcd4b01da46c1516fd65b93201d2784971bbb6e573402098d5a9234b8121cef"
+    }
+  ],
+  "source_inventory": {
+    "tracked_files": 1682,
+    "matching_lines": 27,
+    "complete_transitive_audit_claimed": false
+  },
+  "negative_control": {
+    "expected_exit": 132,
+    "actual_exit": 0,
+    "passed": false,
+    "source_sha256": "e1f59d2a7c107a9fc8bea63c87c02694cb3a12edaf4b17ade055be26915b58b3",
+    "binary_sha256": "5c712de46cfee34d612f78f036f3272df127e2a4d50765b21d0fe1e008f03219",
+    "disassembly_excerpt": "0000000000014670 <_RNvCshh696UFUS35_16negative_control4main>:\n   14670:\tc5 fd ef c0          \tvpxor  %ymm0,%ymm0,%ymm0\n   14674:\tc3                   \tret"
+  },
+  "headless_observation": {
+    "artifact_sha256": "b0a642752c4e885f72c42733c0f768f065db4a27e0c7d14d1ab69e14af45e8d7",
+    "exit_code": 0,
+    "model": "qemu64,-pni",
+    "weak_GLIBC_warning_preserved": true,
+    "qualification": "Observation only; failed enforcement control prevents ISA-floor certification."
+  },
+  "copied_evidence_losslessly_verified": [
+    {
+      "file": "waves/RW-51/verification/cpu-isa-qemu-baseline-gpui-headless-20261115T192629158949Z.log.gz",
+      "raw_sha256": "74e1942180648ccc34b9f5b21100387c0d216fc07f37d2db4645c3acd2ad2ae8"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-negative-control-20261115T192702761303Z.json",
+      "raw_sha256": "738615360eda7b7ccb8f995491755bed6f6e01cd8854477630655cd2fc8b7166"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-qemu-baseline-probe-20261115T192629158949Z.log.gz",
+      "raw_sha256": "7a6b7014f9fe60c4eafb6effed156bb176a64918a8eec3740f620f81d830e106"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-negative-control-rustc-20261115T192702761303Z.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-qemu-baseline-20261115T192629158949Z.json",
+      "raw_sha256": "a17f9d7ff75c2f608b77b172ce3f8a080424ae04d85df01cac4afec4f0dfea78"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-target-features.txt.gz",
+      "raw_sha256": "2abb697bf89794ffeddd51c78f20d538b80795492201933224f5551e0fa23779"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-target-cpus.txt.gz",
+      "raw_sha256": "84be95055a60d6eab9691399bca12268a13cff2e381487cb2da791f519ebe665"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-cfg.txt.gz",
+      "raw_sha256": "e710f590a0e43f025a8f65b3dc9de11d9245752ddccf0b9137baacf3c0021dbb"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-cfg.txt.gz",
+      "raw_sha256": "ae4429955f4766dc9a36f93dc42d7d44a87d4f92e67effea5c865be73ef1a848"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-target-cpus.txt.gz",
+      "raw_sha256": "d4f08c3ab7cce03ba132edd2958f390d9bfc1966bd686e4aa0a67fe6b1b68015"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-target-cpus.txt.gz",
+      "raw_sha256": "2a859179a45937e540dda62356755d23a13e25fc8a58e2bba4f651d6ad4bad16"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-negative-control-image-20261115T192702761303Z.log.gz",
+      "raw_sha256": "4c953bed5e9759d0c0c83c5867315cd5e28784dea0cbeb8e600e04b36763714c"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-target-features.txt.gz",
+      "raw_sha256": "2abb697bf89794ffeddd51c78f20d538b80795492201933224f5551e0fa23779"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-cfg.txt.gz",
+      "raw_sha256": "de83cfea3c26b77e5109d1fbb7cb65187d45b7020ff6a2de1456242eadea656a"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-probe-build-20261115T192458286493Z.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-target-features.txt.gz",
+      "raw_sha256": "9f3c828a2304c568b3244fbf047741776f7536111259a4c47ff4650c8f7e5ce8"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-cfg.txt.gz",
+      "raw_sha256": "adcd4b01da46c1516fd65b93201d2784971bbb6e573402098d5a9234b8121cef"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-target-features.txt.gz",
+      "raw_sha256": "2abb697bf89794ffeddd51c78f20d538b80795492201933224f5551e0fa23779"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-cpu-isa-runtime-image-20261115T192503929863Z.log.gz",
+      "raw_sha256": "d8ab5583a23f6096344d76d818856b541dc6118787c2012bcf4adb21415cad18"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-probe-native-20261115T192458286493Z.log.gz",
+      "raw_sha256": "19d9a713f820cef1f9420a6f3cbae8de83ee06b5f68db014d5a516368307f4ee"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-qemu-version-20261115T192629158949Z.log.gz",
+      "raw_sha256": "dbb400796e60ed6835cddf0e1648b359398e34b70a602bd3cd8fa323405bd19a"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-cpu-isa-runtime-image-20261115T192503929863Z.json",
+      "raw_sha256": "1167286ab71ec1f99a2749b2be2259cf5205a0ac0eec84986e9c80f9c94c81a6"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-negative-control-20261115T192702761303Z-Dockerfile",
+      "raw_sha256": "2b6868b5c32cb539fac44cd6da7be75945e906eb973307a9e77d0959bde18802"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-target-cpus.txt.gz",
+      "raw_sha256": "bbdda44e5820aee6ee85b7ce9c3f978c9e05da98c008c3243733af26d653b47f"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-meta-sequential-checkpoint-20261115T165324785530Z.json",
+      "raw_sha256": "fbbd6cc96670ca9ab40ee8a1b02034ee57e6586618f0005b7fe3ff4802ba2784"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-negative-control.rs",
+      "raw_sha256": "e1f59d2a7c107a9fc8bea63c87c02694cb3a12edaf4b17ade055be26915b58b3"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-cpu-inventory-20261115T192250515182Z.json",
+      "raw_sha256": "fedac23200f019414ff5e1d7918784b751eb2c8dae898da95b840af096ac0105"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-negative-control-baseline-sigill-20261115T192702761303Z.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-cpu-probe.rs",
+      "raw_sha256": "7c9003fb0a9d8ca104a7e4e9c9d913cae71ecf5f45221885e3e893769496f038"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-runtime-20261115T192458286493Z-Dockerfile",
+      "raw_sha256": "2ef008960ccf5fd037ec38134988da2ff611ad35c4c76423e02e38bec52fb109"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-target-cpus.txt.gz",
+      "raw_sha256": "168f052f591f84d191f711acbb1c0d7ccd1890a32fa29455a1118e7726eb395c"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-meta-sequential-checkpoint-20261115T165324785530Z.log.gz",
+      "raw_sha256": "f624ee750b0ad0440493dca01bd29b90f64eef44f7c66f4d4677ab72b20041d6"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-target-cpus.txt.gz",
+      "raw_sha256": "93756d6acc5e4d44fff8ef4086688dc7041bdad2d747b859fa6bd059ef394d97"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-probe-20261115T192458286493Z.json",
+      "raw_sha256": "5d6c8070c20a0f1b2d62b2f819aa4e0f36340eee31f96c0ad2fa8a01d097c0d2"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-cfg.txt.gz",
+      "raw_sha256": "bd4aec52921ce4d47d2f31784f231cb39f27e8dfdc5e0b0925a433a7e38b3ff7"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-target-features.txt.gz",
+      "raw_sha256": "9f3c828a2304c568b3244fbf047741776f7536111259a4c47ff4650c8f7e5ce8"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-cfg.txt.gz",
+      "raw_sha256": "dd8e35cb73a8761ddb7839fe1c7843828ce406f18c46f54b5ce0347098e2416d"
+    },
+    {
+      "file": "waves/RW-51/verification/cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-target-features.txt.gz",
+      "raw_sha256": "9f3c828a2304c568b3244fbf047741776f7536111259a4c47ff4650c8f7e5ce8"
+    }
+  ],
+  "CPU_annotation_task_ids": [
+    "LIB-ARM-02",
+    "LIB-GOV-01",
+    "LIB-GOV-02",
+    "LIB-QA-02",
+    "LIB-QA-03",
+    "LIB-QA-04",
+    "LIB-QA-05",
+    "LIB-DEP-01",
+    "LIB-DEP-02",
+    "LIB-DEP-03",
+    "LIB-DEP-04",
+    "LIB-DEP-05",
+    "LIB-DEP-06",
+    "LIB-DEP-07",
+    "LIB-DEP-08",
+    "LIB-DEP-09",
+    "LIB-DEP-10",
+    "LIB-DEP-11",
+    "LIB-DEP-12",
+    "LIB-DEP-13",
+    "LIB-DEP-14",
+    "LIB-DEP-15",
+    "LIB-QA-07"
+  ],
+  "historical_220_cards_unchanged": true,
+  "ARM_release_blocker_preserved": true,
+  "production_and_lock_changes_at_checkpoint": [],
+  "packaging_prerequisites_review": "Inspected custom tar.gz/AI2PAYLOAD source observation and official Type2 runtime+SquashFS contract; no adoption or valid-package claim is made.",
+  "primary_sources_checked": [
+    "https://doc.rust-lang.org/std/arch/macro.is_x86_feature_detected.html",
+    "https://docs.appimage.org/reference/architecture.html"
+  ],
+  "ISA_floor_certified": false,
+  "native_old_x86_qualified": false,
+  "native_ARM_qualified": false,
+  "all_accelerated_paths_qualified": false,
+  "full_gate_run_by_reviewer": false,
+  "ECC_session_started": false,
+  "limits": [
+    "Approval covers requirements and faithful observation recording, not accelerated-path implementation or native compatibility.",
+    "The failed negative instruction control remains failed; CPUID masking, disassembly or exit0 headless startup cannot certify an ISA floor.",
+    "Actual old/current hardware, target SDK/dependency dispatch/fallback, GUI/media and package qualification remain open."
+  ],
+  "copied_evidence_not_compared": []
+}

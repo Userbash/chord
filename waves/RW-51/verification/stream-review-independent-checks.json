@@ -1,0 +1,71 @@
+{
+  "reviewer": "/root/arm_review",
+  "phase": "independent_test_contract_checks",
+  "source_commit": "606828759b7ed2bab5787c6b11acedb886f37ecd",
+  "source_files_sha256": {
+    "tests/unit/call_stream_dispatch.test.mjs": "50e8c858643c9cf4558a1ed062201c291bc939b485b957afe813146ef428dfc1",
+    "tests/unit/call_stream_lifecycle.test.mjs": "1f64e1d227adc532699a56b53557866429d5c5c1e6abe9911e984099f65189fd",
+    "rust/gui-spike/src/main.rs": "4ca1516723a61eb3d4f24e00dffd7280f456e5c4120488f94b5f4937cf3d7cba",
+    "rust/gui-spike/src/voice_plugin.rs": "00cbc32e14164f95712cacd82ca9d48da2cb41cb7fb4e6bc1a5a0cd292053776",
+    "rust/gui-spike/src/data.rs": "a9a065741f7a740439cb44ef987b173d3fc25fa43e9ef4358ebff17615980fe7",
+    "rust/gui-spike/src/net.rs": "72c7007ddc29c9ffda1b11019c1849f4597c43f60a8700c1a512dbc1cc90b001",
+    "rust/gui-spike/src/voice_stage.rs": "56512ef6841c3bad14a2529a35de30b360be50d8c18ef0d1c8ec557ecc195a9b",
+    "rust/gui-spike/ui/app.js": "b3fc95fa62f0455a5c19c47e2322291ee9c8282b0c30540990cf2eef9966fd87",
+    "rust/crates/chord-core/src/ws.rs": "bb174c95b2f4c67c0c8d61e3abfb827f292cbe6ab6837fcbffdef549ea68a798"
+  },
+  "production_files_match_HEAD": true,
+  "test_count": 13,
+  "pass": 13,
+  "fail": 0,
+  "skipped": 0,
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "tests/unit/call_stream_dispatch.test.mjs",
+    "tests/unit/call_stream_lifecycle.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/stream-contract/review/independent-focused-20261115T160405595433Z.log",
+  "log_sha256": "4220fe344e10f5517bfd707dc90bf43e40eeca9f3f84ecb42975a9cc1778d732",
+  "existing_C5_C7_L3_L6_tail_assertions_byte_unchanged": true,
+  "new_test_skips_or_suppressions": false,
+  "mutation_evidence": "/root/projects/chord-modernization-verification/stream-contract/mutation-receipt-20261115T160058255555Z.json",
+  "mutation_receipt_sha256": "e00cf84b7e14e45a6bbf1ba25c577be778462019e054fcff09c4d7ee350cc062",
+  "mutation_logs": {
+    "control": {
+      "sha256": "a2eda3c59a01c23a287372ce19fdb9b27469544b22ef9b8dbc500132d741e1b3",
+      "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-control-20261115T160058255555Z.log",
+      "exit_code": 0
+    },
+    "disconnected-ipc-wrapper": {
+      "sha256": "28f79b65059c9d96f0386f47c2bc164827268ca43df6159848d32bc981eb4c98",
+      "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-disconnected-ipc-wrapper-20261115T160058255555Z.log",
+      "exit_code": 1
+    },
+    "lost-stream-flag": {
+      "sha256": "e9b34e85ee672e58a774b5843897e6fae08114da90e1d2a76b1fbbbbfcfc8697",
+      "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-lost-stream-flag-20261115T160058255555Z.log",
+      "exit_code": 1
+    },
+    "lost-real-user-id": {
+      "sha256": "57aba8380151186ad8d82652fb7ae2a323cb8db702b68b0de41dfda7cdcd2245",
+      "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-lost-real-user-id-20261115T160058255555Z.log",
+      "exit_code": 1
+    },
+    "bypassed-stream-permission": {
+      "sha256": "7eeb1b69b3794e3fc187aad7ced850966beca9daf9bb9f9359654be85662b700",
+      "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-bypassed-stream-permission-20261115T160058255555Z.log",
+      "exit_code": 1
+    },
+    "ignored-camelcase-stop-key": {
+      "sha256": "cd69a6e4a0a8b3005b0246341dac8871ab973c54435366ec841befcf06661a4e",
+      "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-ignored-camelcase-stop-key-20261115T160058255555Z.log",
+      "exit_code": 1
+    }
+  },
+  "mutants_independently_rerun": false,
+  "mutation_failure_labels_and_assertions_verified": true,
+  "native_UI_voice_ARM_execution": false,
+  "whole_card_accepted": false
+}

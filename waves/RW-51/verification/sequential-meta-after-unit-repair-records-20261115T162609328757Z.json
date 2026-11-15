@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/meta/**/*.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 0,
+  "log": "/root/projects/chord-modernization-verification/arm-batch/meta-after-unit-repair-records-20261115T162609328757Z.log"
+}

@@ -309,6 +309,174 @@
       "archive_sha256": "f56c45603463facf714d3b7f789f04d1be4d40e8c7b4dd758013e0f86eb718ce"
     },
     {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-cfg.txt.gz",
+      "raw_bytes": 1208,
+      "raw_sha256": "adcd4b01da46c1516fd65b93201d2784971bbb6e573402098d5a9234b8121cef",
+      "archive_sha256": "e5c12df3252bfc43ac2f1cd823a08df6afa0cdeb8b43b3d91588002eb9ac7105"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-target-cpus.txt.gz",
+      "raw_bytes": 1245,
+      "raw_sha256": "d4f08c3ab7cce03ba132edd2958f390d9bfc1966bd686e4aa0a67fe6b1b68015",
+      "archive_sha256": "0f13691481601e0f82631836891553c57b6fad4813f11ef4de7416a530d743d4"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-apple-darwin-target-features.txt.gz",
+      "raw_bytes": 32473,
+      "raw_sha256": "9f3c828a2304c568b3244fbf047741776f7536111259a4c47ff4650c8f7e5ce8",
+      "archive_sha256": "ee4cea1a625b97a353519d322b32d21bdec4bc5640b2d22765a885a2215f5bd9"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-cfg.txt.gz",
+      "raw_bytes": 626,
+      "raw_sha256": "ae4429955f4766dc9a36f93dc42d7d44a87d4f92e67effea5c865be73ef1a848",
+      "archive_sha256": "424626d1e9e8d6ba83b92448cf13ca736f93dc6f75126e0c097dde2720131026"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-target-cpus.txt.gz",
+      "raw_bytes": 1352,
+      "raw_sha256": "168f052f591f84d191f711acbb1c0d7ccd1890a32fa29455a1118e7726eb395c",
+      "archive_sha256": "ada1a6dab587d058f1ae2d0daac8baa9354a72454ade06bfa3423f7c108a0c13"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-pc-windows-msvc-target-features.txt.gz",
+      "raw_bytes": 32473,
+      "raw_sha256": "9f3c828a2304c568b3244fbf047741776f7536111259a4c47ff4650c8f7e5ce8",
+      "archive_sha256": "ee4cea1a625b97a353519d322b32d21bdec4bc5640b2d22765a885a2215f5bd9"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-cfg.txt.gz",
+      "raw_bytes": 622,
+      "raw_sha256": "bd4aec52921ce4d47d2f31784f231cb39f27e8dfdc5e0b0925a433a7e38b3ff7",
+      "archive_sha256": "59aab2e0653cf7fba3931ce7191abaa158d21cd111efd946966fa7682094a585"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-target-cpus.txt.gz",
+      "raw_bytes": 1354,
+      "raw_sha256": "84be95055a60d6eab9691399bca12268a13cff2e381487cb2da791f519ebe665",
+      "archive_sha256": "75cfed1cfb584c0ffd804036ba9abe4dfd3d8838a11ad0e521342ebb7a8a70db"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-aarch64-unknown-linux-gnu-target-features.txt.gz",
+      "raw_bytes": 32473,
+      "raw_sha256": "9f3c828a2304c568b3244fbf047741776f7536111259a4c47ff4650c8f7e5ce8",
+      "archive_sha256": "ee4cea1a625b97a353519d322b32d21bdec4bc5640b2d22765a885a2215f5bd9"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-cfg.txt.gz",
+      "raw_bytes": 756,
+      "raw_sha256": "e710f590a0e43f025a8f65b3dc9de11d9245752ddccf0b9137baacf3c0021dbb",
+      "archive_sha256": "79b4f80216b0a1814b14aa88bd4a4ef7ee6605ab80758eaa04ac4c6c02f3c84e"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-target-cpus.txt.gz",
+      "raw_bytes": 2183,
+      "raw_sha256": "93756d6acc5e4d44fff8ef4086688dc7041bdad2d747b859fa6bd059ef394d97",
+      "archive_sha256": "59a2d121f9fe4ffda88823af438cd39b06642e7bc30c29d611ec24a8fc7fe116"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-apple-darwin-target-features.txt.gz",
+      "raw_bytes": 19597,
+      "raw_sha256": "2abb697bf89794ffeddd51c78f20d538b80795492201933224f5551e0fa23779",
+      "archive_sha256": "c207721a94f4b042a39ab217cc6e48876735c09dc8bf048d4c956607f8e08fa0"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-cfg.txt.gz",
+      "raw_bytes": 718,
+      "raw_sha256": "dd8e35cb73a8761ddb7839fe1c7843828ce406f18c46f54b5ce0347098e2416d",
+      "archive_sha256": "8cab503938d542727c85320af4582beeb74115c52e8eeb066dedc594b07e0ff1"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-target-cpus.txt.gz",
+      "raw_bytes": 2186,
+      "raw_sha256": "2a859179a45937e540dda62356755d23a13e25fc8a58e2bba4f651d6ad4bad16",
+      "archive_sha256": "0a08edb9f137bc8366849349ebb98b4b41ad8a7cb6a94f1fd1774cdbca402504"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-pc-windows-msvc-target-features.txt.gz",
+      "raw_bytes": 19597,
+      "raw_sha256": "2abb697bf89794ffeddd51c78f20d538b80795492201933224f5551e0fa23779",
+      "archive_sha256": "c207721a94f4b042a39ab217cc6e48876735c09dc8bf048d4c956607f8e08fa0"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-cfg.txt.gz",
+      "raw_bytes": 596,
+      "raw_sha256": "de83cfea3c26b77e5109d1fbb7cb65187d45b7020ff6a2de1456242eadea656a",
+      "archive_sha256": "13f0d1c2b19d7c63847c9c11e665ee8ae61bf057db818f17274e8ba21a92c80a"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-target-cpus.txt.gz",
+      "raw_bytes": 2188,
+      "raw_sha256": "bbdda44e5820aee6ee85b7ce9c3f978c9e05da98c008c3243733af26d653b47f",
+      "archive_sha256": "cd681d818b4963fb5e4b0a8a6adcd40ee509977347d6a6de6e6ff7d3be70575c"
+    },
+    {
+      "file": "cpu-isa-20261115T192250515182Z-x86_64-unknown-linux-gnu-target-features.txt.gz",
+      "raw_bytes": 19597,
+      "raw_sha256": "2abb697bf89794ffeddd51c78f20d538b80795492201933224f5551e0fa23779",
+      "archive_sha256": "c207721a94f4b042a39ab217cc6e48876735c09dc8bf048d4c956607f8e08fa0"
+    },
+    {
+      "file": "cpu-isa-cpu-isa-runtime-image-20261115T192503929863Z.log.gz",
+      "raw_bytes": 6168,
+      "raw_sha256": "d8ab5583a23f6096344d76d818856b541dc6118787c2012bcf4adb21415cad18",
+      "archive_sha256": "a859bcafab059e15a3a15a0c215c37bda26019f5b287473d7aa7fba408b0ed26"
+    },
+    {
+      "file": "cpu-isa-meta-sequential-checkpoint-20261115T165324785530Z.log.gz",
+      "raw_bytes": 28865,
+      "raw_sha256": "f624ee750b0ad0440493dca01bd29b90f64eef44f7c66f4d4677ab72b20041d6",
+      "archive_sha256": "85151cf35a6cc2e29c35870c7bda3091e09120b751e37b8b127df8cffd6ace32"
+    },
+    {
+      "file": "cpu-isa-negative-control-baseline-sigill-20261115T192702761303Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "cpu-isa-negative-control-image-20261115T192702761303Z.log.gz",
+      "raw_bytes": 1629,
+      "raw_sha256": "4c953bed5e9759d0c0c83c5867315cd5e28784dea0cbeb8e600e04b36763714c",
+      "archive_sha256": "02f5ffbc1aa2431d5bece51a0afd7dba4f1b6fe0561f6dcf01e9d0da42a27ea3"
+    },
+    {
+      "file": "cpu-isa-negative-control-rustc-20261115T192702761303Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "cpu-isa-probe-build-20261115T192458286493Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "cpu-isa-probe-native-20261115T192458286493Z.log.gz",
+      "raw_bytes": 423,
+      "raw_sha256": "19d9a713f820cef1f9420a6f3cbae8de83ee06b5f68db014d5a516368307f4ee",
+      "archive_sha256": "135f0ac756b752e294af54b2377a0298b5b741c3739f6c1d29017b024f92330f"
+    },
+    {
+      "file": "cpu-isa-qemu-baseline-gpui-headless-20261115T192629158949Z.log.gz",
+      "raw_bytes": 367,
+      "raw_sha256": "74e1942180648ccc34b9f5b21100387c0d216fc07f37d2db4645c3acd2ad2ae8",
+      "archive_sha256": "b148a71826c46c3722a40a1f9580cadefb1b08eedecd52fe1bca498269b66710"
+    },
+    {
+      "file": "cpu-isa-qemu-baseline-probe-20261115T192629158949Z.log.gz",
+      "raw_bytes": 447,
+      "raw_sha256": "7a6b7014f9fe60c4eafb6effed156bb176a64918a8eec3740f620f81d830e106",
+      "archive_sha256": "fc0f85b22854ef420becd859f21b9b3d353a017499147f5ec1dbb9f4904c1b30"
+    },
+    {
+      "file": "cpu-isa-qemu-version-20261115T192629158949Z.log.gz",
+      "raw_bytes": 130,
+      "raw_sha256": "dbb400796e60ed6835cddf0e1648b359398e34b70a602bd3cd8fa323405bd19a",
+      "archive_sha256": "e74703e84a05767f27c1c55c7b13c77d58c596cdd10f4cd220236a0e19c8f058"
+    },
+    {
       "file": "dependency-cache-locked-fetch-20261115T154759091205Z.log.gz",
       "raw_bytes": 1043,
       "raw_sha256": "9238dad3a2103420b10ec8428036f5b5feaa1e0d22858c8a443c4b7c4969bdbe",
@@ -355,6 +523,12 @@
       "raw_bytes": 22646,
       "raw_sha256": "d6c44a5acd26926fe3e5674a3cd0b87d0d1c6551d1e4523f3ebfabb1bda9ba9a",
       "archive_sha256": "040fda4f18d8141be3f7761bc26ad6a0c0612ff1117aac747361a2a411bc2bb2"
+    },
+    {
+      "file": "final-meta-cpu-isa-final-20261115T193018251094Z.log.gz",
+      "raw_bytes": 28866,
+      "raw_sha256": "ab305acca59ed5c43d01ae1076aace5e683a8552b370e92cef61a38b2ed608ca",
+      "archive_sha256": "8421d6961ba33f970d00e257c33af984d8513cf47472db07ef5572311b1d4694"
     },
     {
       "file": "gemini-model-catalog.json.gz",
@@ -445,6 +619,204 @@
       "raw_bytes": 28577,
       "raw_sha256": "ff7835a6fc03defcd6dad2961f33d30721a6cef4f1891c205677400f291c800a",
       "archive_sha256": "a1e1469c088721280b4ddb9a7c6283f2605831ded348b0cde03612740b32bdcc"
+    },
+    {
+      "file": "native-build-gpui-debug-prebuild-20261115T164354520484Z.log.gz",
+      "raw_bytes": 32333,
+      "raw_sha256": "7f13f2567671d5b2c121dd77deb3fbe51f04036a989d986f83daeaf049ff59cf",
+      "archive_sha256": "6c4ad41fc60171d993f1da663497ef7d29971eb41ce21126f5d0b5da32b961df"
+    },
+    {
+      "file": "native-build-gpui-locked-fetch-20261115T162027864924Z.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "file": "native-build-gpui-metadata-after-submodule-20261115T162026540588Z.log.gz",
+      "raw_bytes": 4735020,
+      "raw_sha256": "6cca0873ddb0d79b9d1032be7c756ddf0b50c1ffed07d373374be730cecf7927",
+      "archive_sha256": "1b3c0a6538270510dcace8f075c14d4111985bb62d35e74ebbec270ffc478d01"
+    },
+    {
+      "file": "native-build-gpui-metadata-preflight-20261115T161825170311Z.log.gz",
+      "raw_bytes": 219,
+      "raw_sha256": "6b11b9a77af3aa524168097635e8a41ba9909c68cce1bbc580b7d925da2dc098",
+      "archive_sha256": "52fd292796bdc4e4baf476ad5e1d986e91bca66e78f0aedf03d5bac6da5357c0"
+    },
+    {
+      "file": "native-build-gpui-release-build-20261115T162044288382Z.log.gz",
+      "raw_bytes": 32323,
+      "raw_sha256": "690dcdcbe47fadd6f40fd0be2cc062c59451dc89424de5dded2824dad20c5875",
+      "archive_sha256": "7e515472d7699d48e0be3829505df175e80b2d64d95dcc77c33c9425ef274f15"
+    },
+    {
+      "file": "native-build-gpui-release-elf.txt.gz",
+      "raw_bytes": 11439,
+      "raw_sha256": "6dfb7d8f9edc70927e598d8d71f08f25f4608b146f95f8e2d2a3ced211e2d2d4",
+      "archive_sha256": "4bf35dde55bc605e7081871883232bd34b12987cdee817bd0bb064b719f840b8"
+    },
+    {
+      "file": "native-build-gpui-release-headless-20261115T162927705098Z.log.gz",
+      "raw_bytes": 253,
+      "raw_sha256": "3667fe9e85769faafd2771c5f1e2749bb81eb65000b9c8729207bae9ddd4353e",
+      "archive_sha256": "30976af0024391e5052c9b135b597c80272ff269d1d62b7bf2d9d9272c093309"
+    },
+    {
+      "file": "native-build-gpui-release-ldd.txt.gz",
+      "raw_bytes": 984,
+      "raw_sha256": "75957edf761cbe3c8fa6c99de02147fb10252c566f594a8d0aae90c65761ace9",
+      "archive_sha256": "9bdcba0818a1ddb235f200296b9acb683d0814c5ace8940cc061f633d56ff88e"
+    },
+    {
+      "file": "native-build-gpui-release-system-check-20261115T164218358892Z.log.gz",
+      "raw_bytes": 76,
+      "raw_sha256": "99dff3c3165870324be97348992b4c9cbb20c4096657f8d23eb4cda05205d6c9",
+      "archive_sha256": "72ede2776dbf8610e668176a2fa22ec0a6962649f5499bb5d41e7a3a61b242f0"
+    },
+    {
+      "file": "native-build-gpui-release-system-report-20261115T164302156724Z.log.gz",
+      "raw_bytes": 84,
+      "raw_sha256": "1d48d3bd337a31d62c14c35de1c23d0298e277d8317cc8545396dc42e7761179",
+      "archive_sha256": "82d5851d29f312b439dab656386be5e0a02ace5ca8a77295a89ae4742afc3cc9"
+    },
+    {
+      "file": "native-build-gpui-submodule-init-20261115T161825573829Z.log.gz",
+      "raw_bytes": 361,
+      "raw_sha256": "92ae654c95af283aeab87156229ed3bc069322b5d08d7d63b7112450f0926667",
+      "archive_sha256": "0bbb02b3eac6b5e1b5c602294f8b1636f3e280b062b7f7a433c7f7aea98104bc"
+    },
+    {
+      "file": "native-build-ubuntu22-headless-20261115T164241324162Z.log.gz",
+      "raw_bytes": 366,
+      "raw_sha256": "9744e23234d06df3a1a511a84300a885cca23d990b61bcedd4b8f9ef8495b341",
+      "archive_sha256": "daff3c1da64da38c3def3308b5fd3a39c90ec1d09f47a376bd071712a8a4babd"
+    },
+    {
+      "file": "native-build-ubuntu22-runtime-image-20261115T163906386271Z.log.gz",
+      "raw_bytes": 10054,
+      "raw_sha256": "7fe39b6bb287bf830ed8aaa367af37b7507e6f0ec812eb331c02b1cc886618d5",
+      "archive_sha256": "5ca39fe033744276714256821b26ed46d2ce03558d7775742203065d58f220a6"
+    },
+    {
+      "file": "native-build-ubuntu22-runtime-pull-20261115T163714596911Z.log.gz",
+      "raw_bytes": 317,
+      "raw_sha256": "1eb24da6f792210c014afe713e0e91ea096435094a1c0ea671180f26c7c8bb1d",
+      "archive_sha256": "a4d8b09eb80be626de995e7a17bb6fb71e3859fa121c810bb1f09a92fc4a8c4e"
+    },
+    {
+      "file": "native-build-ubuntu22-runtime-version-20261115T164302536813Z.log.gz",
+      "raw_bytes": 288,
+      "raw_sha256": "4e59a42c911c1a4d5635375182eb6b2f5cc99223e57554f48e2bf06a5ea3d00b",
+      "archive_sha256": "ccd6cd501e3d1b4cdb85f0586f7a735071b17ab91dc999f1ff18cdaf93f1bc87"
+    },
+    {
+      "file": "sequential-meta-after-unit-repair-records-20261115T162609328757Z.log.gz",
+      "raw_bytes": 28867,
+      "raw_sha256": "098804265f9b18c03ef5f4f6a74ef0432816d5d1ec1b8d16d1a53427cbc75d42",
+      "archive_sha256": "a22d99baf3f4df18e6ff382c08fc089c3f2a9500ecdfe96bc990c25b8e8b79de"
+    },
+    {
+      "file": "sequential-worker-gate-gpui-enabled-20261115T164632261883Z.log.gz",
+      "raw_bytes": 4337,
+      "raw_sha256": "3b032f615aa8a4d15655945cb7c491f1e9e4f1a1ba0b901c8af461656e5ac4b6",
+      "archive_sha256": "1038a4587b5deb81a467c866e189af7a22f9b2a0a54e4a63bd4dc410b04f3120"
+    },
+    {
+      "file": "stream-contract-green-20261115T155938784903Z.log.gz",
+      "raw_bytes": 1478,
+      "raw_sha256": "891c1c823efaf52d7250be8aeb3a4d056742ee1f0828ce37e92c9491ca062243",
+      "archive_sha256": "ddbff508b4ba8ec5f2d49a2064fc0b779ac727d6c3d666207c3435e4da5df6d8"
+    },
+    {
+      "file": "stream-contract-mutation-bypassed-stream-permission-20261115T160058255555Z.log.gz",
+      "raw_bytes": 7945,
+      "raw_sha256": "7eeb1b69b3794e3fc187aad7ced850966beca9daf9bb9f9359654be85662b700",
+      "archive_sha256": "0a23ee2cfc936f4ae5ef5c92516c5d2f386335f665499b79631978038a1b977c"
+    },
+    {
+      "file": "stream-contract-mutation-control-20261115T160058255555Z.log.gz",
+      "raw_bytes": 1477,
+      "raw_sha256": "a2eda3c59a01c23a287372ce19fdb9b27469544b22ef9b8dbc500132d741e1b3",
+      "archive_sha256": "51f3b5a09fa3bd961c6b190018ce5d1bfa8da76b064da86034203448d99f6224"
+    },
+    {
+      "file": "stream-contract-mutation-disconnected-ipc-wrapper-20261115T160058255555Z.log.gz",
+      "raw_bytes": 2825,
+      "raw_sha256": "28f79b65059c9d96f0386f47c2bc164827268ca43df6159848d32bc981eb4c98",
+      "archive_sha256": "db896da9724b8ba837e9495622cbd2492782a46da2cda336fc1434c4d4bb61c5"
+    },
+    {
+      "file": "stream-contract-mutation-ignored-camelcase-stop-key-20261115T160058255555Z.log.gz",
+      "raw_bytes": 4512,
+      "raw_sha256": "cd69a6e4a0a8b3005b0246341dac8871ab973c54435366ec841befcf06661a4e",
+      "archive_sha256": "4d5001630dbd46dd380e20d4b92bbf535dc18df965e57e651b41a64f61301e1d"
+    },
+    {
+      "file": "stream-contract-mutation-lost-real-user-id-20261115T160058255555Z.log.gz",
+      "raw_bytes": 7807,
+      "raw_sha256": "57aba8380151186ad8d82652fb7ae2a323cb8db702b68b0de41dfda7cdcd2245",
+      "archive_sha256": "f52d74f91d0f27a80f49a6edcf6d8bb82aa2e76bf731a0078602ff61cf807b9b"
+    },
+    {
+      "file": "stream-contract-mutation-lost-stream-flag-20261115T160058255555Z.log.gz",
+      "raw_bytes": 7915,
+      "raw_sha256": "e9b34e85ee672e58a774b5843897e6fae08114da90e1d2a76b1fbbbbfcfc8697",
+      "archive_sha256": "ca1db5e86ebaab82110008e204db182386d18931441190792a1cdcddccfe333a"
+    },
+    {
+      "file": "stream-contract-red-20261115T155938278061Z.log.gz",
+      "raw_bytes": 25879,
+      "raw_sha256": "c8cda16916d50ad4d326428abff7c47591b585ac035e503c3cb56e540bed0d36",
+      "archive_sha256": "8dacf4cfcc0578c6cd63d2a87f673532a459a2ac3f5fc0a2f531141706dda4cb"
+    },
+    {
+      "file": "stream-contract-windows-focused-20261115T160150837Z.json.gz",
+      "raw_bytes": 349,
+      "raw_sha256": "9c053d8ef03fc663b751abcca64ceed6bcd9e4264cffaea6201a856e99959ef8",
+      "archive_sha256": "c6995ff078eaa80d7d4739e7a1abbf0425343a3bbee56a8a0c08aa62b2e6ebc5"
+    },
+    {
+      "file": "stream-contract-windows-focused-20261115T160150837Z.log.gz",
+      "raw_bytes": 1474,
+      "raw_sha256": "4b0875fa51c3a3b01d44f07245fd77a7fe6feafc9550c5013844d1e42b8709a6",
+      "archive_sha256": "dfb875f09328a03af6f8be45c2003470d41b747cd8701957a7602666c64fc019"
+    },
+    {
+      "file": "theme-oracle-independent-worktree-20261115T161432022512Z.log.gz",
+      "raw_bytes": 122,
+      "raw_sha256": "711a1df2d1ea79e3deb2ecf369f808d02e99d53caebdfb9cedca9c94b014fe2c",
+      "archive_sha256": "ba84948d38e6fbd74d96163c0899995dc351be51a20d25a5644a15a318b6d624"
+    },
+    {
+      "file": "themes-pinned-fixture-green-20261115T161038116372Z.log.gz",
+      "raw_bytes": 1830,
+      "raw_sha256": "bbdcacf92a4924bc4794f7ac6562904a63028ec8375425656e2b1976e361c3f6",
+      "archive_sha256": "cd5b4f83c2d059c06fa50d3c8d16a7e76d5dd31d9568e6be7a04da502828417a"
+    },
+    {
+      "file": "themes-pinned-fixture-red-20261115T161035037532Z.log.gz",
+      "raw_bytes": 3649,
+      "raw_sha256": "70c782abfc9ad879cc5c3eaa354059696e56920b22883e661c5f446ba34832a9",
+      "archive_sha256": "fc81e645e3535525891ec06c12b3cb918f6b004ef1c15407ac87545d7624dbca"
+    },
+    {
+      "file": "themes-restored-oracle-20261115T160835922286Z.log.gz",
+      "raw_bytes": 6009,
+      "raw_sha256": "b0787c458399749d6a22d82bf9f244241aaec41bb08b855d63fd528c39a21a0a",
+      "archive_sha256": "899361287abf4eac0dd475837873681e2c05f5b0b010454b269f6f584e272229"
+    },
+    {
+      "file": "themes-restored-oracle-toolchain-20261115T160900572054Z.log.gz",
+      "raw_bytes": 1832,
+      "raw_sha256": "dddd3c4ef9c835809ccf45a810a6172271c901d9efd0069883b40c7b0fdef425",
+      "archive_sha256": "bf65038c92d71c52e54be60affbbecf0c5215bd14a681ec2f73e708cc8c10815"
+    },
+    {
+      "file": "unit-after-sequential-repairs-20261115T161412468818Z.log.gz",
+      "raw_bytes": 1057787,
+      "raw_sha256": "3a5a7b2d1c7b7f07b90abd332fe96452a690e9aaed1ffa708dea87e4d4d2b36f",
+      "archive_sha256": "28c720a83c84ffc557b971918680908e2e6ec31eea0acfd7bb923ebaf01651eb"
     }
   ]
 }

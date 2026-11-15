@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-11-15T16:32:01.990567+00:00",
+  "source_commit": "606828759b7ed2bab5787c6b11acedb886f37ecd",
+  "rust_tree": "2765c050e3d37b71a581f8a4c92e2408b0d07bda",
+  "rust_source_changed": false,
+  "gpui_gitlink": "957ae8b55f1d02ea0f322951a9fa3b3f0cbbb282",
+  "binary": "/root/projects/chord-modernization/rust/chord-gpui/target/release/chord-gpui",
+  "size_bytes": 43687496,
+  "sha256": "b0a642752c4e885f72c42733c0f768f065db4a27e0c7d14d1ab69e14af45e8d7",
+  "build_id": "111e9cfcce3a46851c61ae996d8ebc0571be0a13",
+  "max_glibc": "2.39",
+  "missing_dynamic_libraries": false,
+  "headless_smoke_passed": true,
+  "native_window_tested": false,
+  "native_arm_tested": false,
+  "published": false
+}

@@ -443,7 +443,8 @@
         "Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.",
         "No unsupported CPU/ABI assumption or fake artifact is accepted as ARM functionality.",
         "Missing environment is explicitly unresolved; exact native evidence and source/artifact hashes are required for release.",
-        "Original behavior, strict tests and independent review are retained; rollback and affected targets documented."
+        "Original behavior, strict tests and independent review are retained; rollback and affected targets documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "Source slice implemented and independently reviewed; parent/native qualification remains open. See waves/RW-51/ARM-SOURCE-BATCH.md.\nOperator ARM follow-up; release blocker. Outcome: Qualify generic/rpi5/asahi CPU and ABI contracts, including optional extension dispatch and claimed Linux page-size compatibility.\nPinned application baseline: 2b7cfb52024be0453e3b9333aba292b2372e610e; record the exact changed/accepted source revision and artifact hashes. Acquire prerequisites and exclusive equal/ancestor path leases before editing.\nIndependent oracle: Exact compiler flags, independent ELF segment/header inspection and actual target CPU/page-size evidence; generic must not imply optional AES/CRC/SHA2 availability.\nBaseline generic flags forced +crc,+aes,+sha2 and C +crypto. Assess potential SIGILL on incompatible CPUs; this is a source risk, not a measured crash. Prefer vetted library runtime dispatch or a documented minimum CPU. Test generic and hardware-specific profiles separately and evaluate 4K/16K/64K only when claimed; never substitute Apple macOS ABI for Asahi Linux.\nWrite and execute an independently failing contract first; record RED/GREEN commands, exits and immutable evidence. Preserve positive, negative, boundary, error, empty/loading, permissions, recovery and telemetry cases as applicable. English comments explain CPU/ABI/resource invariants. Keep protocol behavior and original assertions unless an independently justified contract decision is accepted.\nUse existing Rust/library APIs and typed errors. Missing SDK/runner yields explicit EnvFail2/unmet, never a fake successful package. No placeholder executable, fixed success marker, substituted x86 binary, disabled test, invented native performance or live-account operation.\nDifferentiate Linux aarch64/Asahi from macOS Apple Silicon and Windows ARM64. Cross-compilation and emulation do not establish native GUI/media/GPU parity. ARM32 is not silently added to the support claim.\nCoordinator owns dependency/CI/pin integration. Count real application/library code separately from generated packages/tests. Any included source, features, SDK or artifacts change invalidates previous qualification. Independent review and rollback are required.",
       "tests": {
@@ -487,7 +488,7 @@
       "plan_reference": "waves/RW-51/TASKS.md#lib-arm-02",
       "release_blocker": true,
       "runtime_crash_observed": false,
-      "updated_at": "2026-11-15T15:43:09.025618+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "source_slice": {
         "batch": "ARM-SOURCE-20261115",
         "state": "implemented_source_review_approved",
@@ -495,7 +496,8 @@
         "receipt": "waves/RW-51/ARM-SOURCE-BATCH.json",
         "full_card_completed": false,
         "native_validation": "not_run"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-ARM-03",
@@ -1065,7 +1067,8 @@
         "Existing tests, clean-room docs/re records and immutable previous verification results; do not turn known reds into passes.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "Completed ECC planning phase: 8aa61e7a. Report: waves/RW-51/reports/LIB-GOV-01.json. The source audit is available; this card still needs its next-phase contract/baseline/approval evidence. No application migration or test run was performed by this phase.\nOne leaf outcome: Map every supported feature to both renderers, commands/events, native OS evidence and known failures before migration.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Existing tests, clean-room docs/re records and immutable previous verification results; do not turn known reds into passes.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Run affected baseline suites once with exact commands/exits; store a machine-readable expected-failure ledger.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
       "tests": {
@@ -1102,7 +1105,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-gov-01",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [],
       "exclusive_resources": [
         "gov-slice",
@@ -1145,7 +1148,8 @@
         "report": "waves/RW-51/reports/LIB-GOV-01.json",
         "report_sha256": "c0da6c97ba6a17c72fed1c9bf942679d959730b2bac4f18aadf948b93abf3cc6",
         "coordinator_review": "Source-grounded findings reviewed and incorporated into the plan; independent-vector, dependency approval, implementation and native gates remain open."
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-GOV-02",
@@ -1169,7 +1173,9 @@
       ],
       "write_scope": [
         "waves/RW-51/DEPENDENCY-DECISIONS.md",
-        "waves/RW-51/DEPENDENCY-GRAPH.json"
+        "waves/RW-51/DEPENDENCY-GRAPH.json",
+        "waves/RW-51/CPU-ISA-CONTRACT.json",
+        "waves/RW-51/CPU-ISA-CONTRACT.md"
       ],
       "integration_owner": "RW-51 coordinator",
       "exclusive_resource": "gov-slice",
@@ -1178,7 +1184,8 @@
         "Locked manifests, cargo metadata/tree, primary crate documentation and advisory database; no install based only on a package name.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "Sequential step 1 completed: existing locked Linux GUI dependency cache restored;748 offline Rust tests passed, lockfile unchanged. Full dependency intake/target qualification remains open. See waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.md.\nCompleted ECC planning phase: 051d71c3. Report: waves/RW-51/reports/LIB-GOV-02.json. The source audit is available; this card still needs its next-phase contract/baseline/approval evidence. No application migration or test run was performed by this phase.\nOne leaf outcome: Record existing direct/transitive versions, minimum features, MSRV, licenses, advisories and target support separately for all three Rust workspaces.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Locked manifests, cargo metadata/tree, primary crate documentation and advisory database; no install based only on a package name.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Serialized cargo metadata --locked for each manifest; security/license/MSRV review and duplicate links/features report.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
       "tests": {
@@ -1215,12 +1222,26 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-gov-02",
-      "updated_at": "2026-11-15T15:54:30.988835+00:00",
-      "integration_subtasks": [],
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
+      "integration_subtasks": [
+        {
+          "id": "LIB-GOV-02.I1",
+          "owner": "RW-51 coordinator / named integrator",
+          "write_scope": [
+            "waves/RW-51/CPU-ISA-CONTRACT.json",
+            "waves/RW-51/CPU-ISA-CONTRACT.md"
+          ],
+          "instruction": "Record the user screenshot ISA families, per-OS compiler defaults, library dispatch/fallback requirements and failed emulator control. Do not claim native or all-path qualification.",
+          "status": "in_review",
+          "evidence": "waves/RW-51/CPU-ISA-CONTRACT.json"
+        }
+      ],
       "exclusive_resources": [
         "gov-slice",
         "waves/RW-51/DEPENDENCY-DECISIONS.md",
-        "waves/RW-51/DEPENDENCY-GRAPH.json"
+        "waves/RW-51/DEPENDENCY-GRAPH.json",
+        "waves/RW-51/CPU-ISA-CONTRACT.json",
+        "waves/RW-51/CPU-ISA-CONTRACT.md"
       ],
       "runtime_resolution": {
         "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
@@ -1268,8 +1289,15 @@
           "tests_passed": 748,
           "lock_changed": false,
           "record": "waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.json"
+        },
+        {
+          "id": "CPU-ISA-CONTRACT",
+          "state": "requirements_recorded_emulator_instruction_control_failed",
+          "full_parent_completed": false,
+          "record": "waves/RW-51/CPU-ISA-CONTRACT.json"
         }
-      ]
+      ],
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-GOV-03",
@@ -9259,7 +9287,11 @@
         "TDD-PLAN.md"
       ],
       "write_scope": [
-        "waves/RW-51/QA-MATRIX.md"
+        "waves/RW-51/QA-MATRIX.md",
+        "tests/unit/call_stream_dispatch.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs",
+        "tests/unit/custom-themes-985.test.mjs",
+        "tests/fixtures/themes/serein"
       ],
       "integration_owner": "RW-51 coordinator",
       "exclusive_resource": "qa-slice",
@@ -9270,7 +9302,7 @@
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
         "Before/after net owned production code and performance measurements attached; rollback documented."
       ],
-      "coding_instructions": "One leaf outcome: Map each leaf to applicable nine dimensions, old suites, independently defined regressions and five behavioral mutants.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Existing tests and feature ledger; a rewritten test matching the new code is not a parity oracle.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Validate complete feature-to-contract-to-native-target links; identify missing evidence as blocked.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
+      "coding_instructions": "Sequential unit repair checkpoint:5/39 failures resolved and independently reviewed;34 remain. CP-010/011 preserve protocol and upstream palette oracles. Full contract matrix and native qualification remain open. See waves/RW-51/SEQUENTIAL-02-UNIT-REPAIRS.md.\nOne leaf outcome: Map each leaf to applicable nine dimensions, old suites, independently defined regressions and five behavioral mutants.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Existing tests and feature ledger; a rewritten test matching the new code is not a parity oracle.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Validate complete feature-to-contract-to-native-target links; identify missing evidence as blocked.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
       "tests": {
         "targeted_command": "Validate complete feature-to-contract-to-native-target links; identify missing evidence as blocked.",
         "independent_oracle": "Existing tests and feature ledger; a rewritten test matching the new code is not a parity oracle.",
@@ -9305,11 +9337,38 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-qa-01",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
-      "integration_subtasks": [],
+      "updated_at": "2026-11-15T16:24:49.742132+00:00",
+      "integration_subtasks": [
+        {
+          "id": "LIB-QA-01.I1",
+          "owner": "RW-51 coordinator / named integrator",
+          "write_scope": [
+            "tests/unit/call_stream_dispatch.test.mjs",
+            "tests/unit/call_stream_lifecycle.test.mjs"
+          ],
+          "instruction": "Reconcile only module extraction source contracts under CP-010; retain protocol/permission semantics and bind wrapper forwarding to the actual plugin implementation.",
+          "status": "in_review",
+          "evidence": "waves/RW-51/SEQUENTIAL-02-UNIT-REPAIRS.json"
+        },
+        {
+          "id": "LIB-QA-01.I2",
+          "owner": "RW-51 coordinator / named integrator",
+          "write_scope": [
+            "tests/unit/custom-themes-985.test.mjs",
+            "tests/fixtures/themes/serein"
+          ],
+          "instruction": "Pin the unchanged independent Serein theme/license snapshot under CP-011; preserve all palette/contrast/mutation checks and platform byte hashes.",
+          "status": "in_review",
+          "evidence": "waves/RW-51/SEQUENTIAL-02-UNIT-REPAIRS.json"
+        }
+      ],
       "exclusive_resources": [
         "qa-slice",
-        "waves/RW-51/QA-MATRIX.md"
+        "waves/RW-51/QA-MATRIX.md",
+        "tests/unit/call_stream_dispatch.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs",
+        "tests/unit/custom-themes-985.test.mjs",
+        "tests/fixtures/themes/serein"
       ],
       "runtime_resolution": {
         "installed_ecc": "ecc 0.1.0; affaan-m/ECC v2.2.3 Rust alpha",
@@ -9318,7 +9377,17 @@
         "initial_phase_model": "gpt-6.1-sol",
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
-      }
+      },
+      "verification_checkpoints": [
+        {
+          "id": "SEQUENTIAL-02-UNIT-REPAIRS",
+          "state": "five_failures_resolved_remainder_open",
+          "fixed": 5,
+          "remaining": 34,
+          "full_parent_completed": false,
+          "record": "waves/RW-51/SEQUENTIAL-02-UNIT-REPAIRS.json"
+        }
+      ]
     },
     {
       "id": "LIB-QA-02",
@@ -9339,7 +9408,9 @@
         "waves/RW-51/QA-MATRIX.md"
       ],
       "write_scope": [
-        "waves/RW-51/QA-NATIVE-2.json"
+        "waves/RW-51/QA-NATIVE-2.json",
+        "waves/RW-51/SEQUENTIAL-03-GPUI-BUILD.json",
+        "waves/RW-51/PACKAGING-PREREQUISITES.md"
       ],
       "integration_owner": "RW-51 coordinator",
       "exclusive_resource": "qa-slice",
@@ -9348,7 +9419,8 @@
         "Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Execute the accepted-slice matrix on real Linux x86_64/Wayland/X11, including both renderers and relevant native resource lifecycle.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Run locked affected contracts, real fixture/WebView journeys, packaging smoke and relevant native integrations; preserve baseline reds.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nRun only against ACCEPTED-SLICES.json exact source/dependency hashes; record those hashes before/after. Any included code change invalidates this evidence. Native runner requirement: ubuntu-24.04 plus explicit X11/Wayland environments.",
       "tests": {
@@ -9385,11 +9457,24 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-qa-02",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
-      "integration_subtasks": [],
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
+      "integration_subtasks": [
+        {
+          "id": "LIB-QA-02.I0",
+          "owner": "RW-51 coordinator / named integrator",
+          "write_scope": [
+            "waves/RW-51/SEQUENTIAL-03-GPUI-BUILD.json"
+          ],
+          "instruction": "Record only locked Linux GPUI build/headless/runtime prerequisites; do not infer native window/media/ARM or package acceptance.",
+          "status": "in_review",
+          "evidence": "waves/RW-51/SEQUENTIAL-03-GPUI-BUILD.json"
+        }
+      ],
       "exclusive_resources": [
         "qa-slice",
-        "waves/RW-51/QA-NATIVE-2.json"
+        "waves/RW-51/QA-NATIVE-2.json",
+        "waves/RW-51/SEQUENTIAL-03-GPUI-BUILD.json",
+        "waves/RW-51/PACKAGING-PREREQUISITES.md"
       ],
       "accepted_slice_manifest": "waves/RW-51/ACCEPTED-SLICES.json",
       "runner_requirement": "ubuntu-24.04 plus explicit X11/Wayland environments",
@@ -9400,7 +9485,24 @@
         "initial_phase_model": "gpt-6.1-sol",
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
-      }
+      },
+      "verification_checkpoints": [
+        {
+          "id": "SEQUENTIAL-03-GPUI-BUILD",
+          "state": "build_headless_prerequisite_verified",
+          "full_parent_completed": false,
+          "native_window_tested": false,
+          "record": "waves/RW-51/SEQUENTIAL-03-GPUI-BUILD.json",
+          "latest_worker_gate": "waves/RW-51/verification/sequential-worker-gpui-enabled-20261115T164751333Z.json"
+        },
+        {
+          "id": "PACKAGING-PREREQUISITES",
+          "state": "format_and_artifact_input_findings_recorded",
+          "full_parent_completed": false,
+          "record": "waves/RW-51/PACKAGING-PREREQUISITES.md"
+        }
+      ],
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-QA-03",
@@ -9430,7 +9532,8 @@
         "Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Execute the accepted-slice matrix on real Windows x86_64, including both renderers and relevant native resource lifecycle.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Run locked affected contracts, real fixture/WebView journeys, packaging smoke and relevant native integrations; preserve baseline reds.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nRun only against ACCEPTED-SLICES.json exact source/dependency hashes; record those hashes before/after. Any included code change invalidates this evidence. Native runner requirement: windows-2025 native MSVC/runtime.",
       "tests": {
@@ -9467,7 +9570,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-qa-03",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [],
       "exclusive_resources": [
         "qa-slice",
@@ -9482,7 +9585,8 @@
         "initial_phase_model": "gpt-6.1-sol",
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-QA-04",
@@ -9512,7 +9616,8 @@
         "Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Execute the accepted-slice matrix on real macOS Intel and Apple Silicon, including both renderers and relevant native resource lifecycle.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Run locked affected contracts, real fixture/WebView journeys, packaging smoke and relevant native integrations; preserve baseline reds.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nRun only against ACCEPTED-SLICES.json exact source/dependency hashes; record those hashes before/after. Any included code change invalidates this evidence. Native runner requirement: macos-15 plus explicit Intel/Apple-Silicon native hosts.",
       "tests": {
@@ -9549,7 +9654,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-qa-04",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [],
       "exclusive_resources": [
         "qa-slice",
@@ -9564,7 +9669,8 @@
         "initial_phase_model": "gpt-6.1-sol",
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-QA-05",
@@ -9597,7 +9703,8 @@
         "Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Execute the accepted-slice matrix on real Linux ARM64 packages and runtime, including both renderers and relevant native resource lifecycle.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Actual runner/OS/architecture/process/window/media/package evidence; cross-compile or fixture IPC is not full native behavior.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Run locked affected contracts, real fixture/WebView journeys, packaging smoke and relevant native integrations; preserve baseline reds.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nRun only against ACCEPTED-SLICES.json exact source/dependency hashes; record those hashes before/after. Any included code change invalidates this evidence. Native runner requirement: native aarch64 Linux host with real SDK/runtime.\nExplicit ARM release blocker: require the real SDK, portable CPU/ABI contract, genuine artifacts, reconciled strict tests and native runner evidence from LIB-ARM-01..07. Do not clear based on source-only audit or passing integrity fixtures.",
       "tests": {
@@ -9634,7 +9741,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-qa-05",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [],
       "exclusive_resources": [
         "qa-slice",
@@ -9650,7 +9757,8 @@
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
       },
-      "release_blocker": true
+      "release_blocker": true,
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-QA-06",
@@ -10892,7 +11000,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved RSA backend candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-01.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -10931,7 +11040,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-01",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-01.I1",
@@ -10974,7 +11083,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-02",
@@ -11016,7 +11126,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved voice AEAD and HKDF primitives candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-02.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -11055,7 +11166,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-02",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-02.I1",
@@ -11098,7 +11209,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-03",
@@ -11140,7 +11252,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved bounded flate2 decoding candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-03.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -11179,7 +11292,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-03",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-03.I1",
@@ -11222,7 +11335,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-04",
@@ -11264,7 +11378,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved rusqlite linkage candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-04.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -11303,7 +11418,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-04",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-04.I1",
@@ -11346,7 +11461,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-05",
@@ -11388,7 +11504,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved reusable HTTP client candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-05.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -11427,7 +11544,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-05",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-05.I1",
@@ -11470,7 +11587,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-06",
@@ -11512,7 +11630,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved Linux ashpd and zbus candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-06.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -11551,7 +11670,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-06",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-06.I1",
@@ -11594,7 +11713,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-07",
@@ -11636,7 +11756,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved explicit secure keyring stores candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-07.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -11675,7 +11796,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-07",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-07.I1",
@@ -11718,7 +11839,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-08",
@@ -11761,7 +11883,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved strict Serde and shared DTOs candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-08.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -11800,7 +11923,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-08",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-08.I1",
@@ -11845,7 +11968,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-09",
@@ -11878,7 +12002,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved exact-pinned IPC generator candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/gui-spike/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-09.I1 owns: rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -11917,7 +12042,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-09",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-09.I1",
@@ -11950,7 +12075,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-10",
@@ -11983,7 +12109,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved local UI build and primitive packages candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: npm ci --ignore-scripts\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-10.I1 owns: package.json, package-lock.json. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -12016,7 +12143,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-10",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-10.I1",
@@ -12049,7 +12176,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-11",
@@ -12092,7 +12220,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved standard IDs and encodings candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-11.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -12131,7 +12260,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-11",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-11.I1",
@@ -12178,7 +12307,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-12",
@@ -12220,7 +12350,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved shared Markdown parser candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-12.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -12259,7 +12390,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-12",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-12.I1",
@@ -12302,7 +12433,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-13",
@@ -12343,7 +12475,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved qualified PCM queue candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-13.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -12382,7 +12515,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-13",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-13.I1",
@@ -12425,7 +12558,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-14",
@@ -12457,7 +12591,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved native clipboard candidate candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/gui-spike/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-14.I1 owns: rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -12496,7 +12631,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-14",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-14.I1",
@@ -12529,7 +12664,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-DEP-15",
@@ -12571,7 +12707,8 @@
         "Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Apply exactly the approved targeted ICU and tracing candidates candidate pins/features to the qualification scope, refresh coherent locks and record the dependency delta.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Accepted dependency decision, exact upstream artifact/license/advisory/MSRV/target records and reproducible locked resolution; no arbitrary upgrades.\nImplementation boundaries: Coordinator-owned isolated integration leaf. Only add selected vetted candidates required for the next bounded qualification; conditional/rejected candidates are not enabled in production. Record direct versus transitive changes and compile the target matrix.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: flock /tmp/chord-cargo.lock cargo metadata --locked --format-version 1 --manifest-path rust/Cargo.toml\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.\nExplicit coordinator integration subtask LIB-DEP-15.I1 owns: rust/Cargo.toml, rust/Cargo.lock, rust/chord-gpui/Cargo.toml, rust/chord-gpui/Cargo.lock, rust/gui-spike/Cargo.toml, rust/gui-spike/Cargo.lock. Request this named lease; do not leave exports/capabilities/callers as unowned follow-up work.\nARM follow-up: consult LIB-ARM-03 CPU/ABI/target matrix before intake. Prototype admission is not native ARM approval; unknown support stays unqualified and production ARM promotion requires the real native gate.",
       "tests": {
@@ -12610,7 +12747,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-dep-15",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [
         {
           "id": "LIB-DEP-15.I1",
@@ -12655,7 +12792,8 @@
         "cpu_abi": "LIB-ARM-02",
         "native_qualification": "LIB-QA-05",
         "unknown_support": "not_qualified"
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     },
     {
       "id": "LIB-QA-07",
@@ -12715,7 +12853,8 @@
         "Actual accepted implementation/decision receipts; reject baseline-only checks and invalidate evidence whenever included source/dependency hashes change.",
         "Existing observable behavior and strict assertions remain valid; all applicable nine dimensions documented.",
         "Independent review and targeted checks attached; native target claims require actual native evidence.",
-        "Before/after net owned production code and performance measurements attached; rollback documented."
+        "Before/after net owned production code and performance measurements attached; rollback documented.",
+        "Apply CPU-ISA-CONTRACT.json: declare the exact platform CPU baseline and optional instruction subsets, preserve library dispatch/fallback and OS-state checks, bind evidence to source/artifact hashes, and require native acceptance; the failed emulator enforcement control cannot qualify an ISA floor."
       ],
       "coding_instructions": "One leaf outcome: Bind each adopted or explicitly retained-by-decision slice to accepted prerequisites, exact Git revision/source hashes, dependency decision and review evidence.\nBefore editing: verify pinned base 2b7cfb52024be0453e3b9333aba292b2372e610e, prerequisites and exclusive file leases. Write and run the independent failing contract first; save the command, exit code and immutable RED log.\nIndependent oracle: Actual accepted implementation/decision receipts; reject baseline-only checks and invalidate evidence whenever included source/dependency hashes change.\nImplementation boundaries: Use standard Rust or the approved library API directly; keep only the domain-specific adapter. Do not build another generic compatibility framework.\nUse named Rust structs/enums/newtypes and explicit Result errors at boundaries. Preserve unknown-field/variant policy, lossless identifiers, permissions, cancellation and resource ownership. English Rustdoc/comments explain invariants and why.\nTargeted verification: Validate manifest hashes at native job start/end and reject any mismatch or missing included slice.\nAttach positive, negative, boundary, error, empty, loading, capability/permission, recovery and telemetry cases where applicable; document a reason for each non-applicable dimension. Never weaken the existing assertions, retries, skips or timeouts.\nObsolete code removal criterion: Remove superseded hand-written infrastructure only after all consumers and independent parity tests pass. Moving code to another file or generated output is not a measured deletion.\nReport net first-party hand-written production code, generated output, tests and dependencies separately; report startup/RSS/latency/binary/asset impact, and provide a rollback condition. Security/parity improvements may justify a temporary LOC increase only with explicit review.\nDo not edit shared Cargo/package locks, registry exports, app.js/main.rs integration points, board/journal or golden evidence outside your explicit lease. Coordinator owns shared integration. No direct shared-branch push, live account actions or self-approval.",
       "tests": {
@@ -12752,7 +12891,7 @@
       "definition_of_ready": "Accepted prerequisite artifacts, independent oracle, approved dependency decision and exclusive leases; ready is not equivalent to launched.",
       "rollback": "Revert this isolated slice or keep the previous adapter selected; never dual-execute side effects or downgrade secret storage.",
       "plan_reference": "waves/RW-51/TASKS.md#lib-qa-07",
-      "updated_at": "2026-11-15T14:55:09.354410+00:00",
+      "updated_at": "2026-11-15T19:29:48.418794+00:00",
       "integration_subtasks": [],
       "exclusive_resources": [
         "qa-slice",
@@ -12765,18 +12904,27 @@
         "initial_phase_model": "gpt-6.1-sol",
         "initial_phase_effort": "medium",
         "policy": "Resolve future effort/model from complexity and actual supported profiles; never silently use the unavailable Gemini alias."
-      }
+      },
+      "cpu_isa_contract": "waves/RW-51/CPU-ISA-CONTRACT.json"
     }
   ],
   "execution_receipts": "waves/RW-51/DISPATCH-RECEIPTS.json",
-  "updated_at": "2026-11-15T15:54:30.988835+00:00",
+  "updated_at": "2026-11-15T19:29:48.418794+00:00",
   "platform_blockers": [
     "ARM64_RELEASE_NOT_QUALIFIED"
   ],
   "source_batch": "waves/RW-51/ARM-SOURCE-BATCH.json",
   "sequential_progress": {
     "completed_step": 1,
-    "next_step": 2,
-    "record": "waves/RW-51/SEQUENTIAL-01-DEPENDENCIES.json"
+    "current_step": 2,
+    "state": "in_progress",
+    "unit_failures_fixed": 5,
+    "unit_failures_remaining": 34,
+    "record": "waves/RW-51/SEQUENTIAL-02-UNIT-REPAIRS.json",
+    "build_prerequisite": "waves/RW-51/SEQUENTIAL-03-GPUI-BUILD.json",
+    "latest_worker_gate": "waves/RW-51/verification/sequential-worker-gpui-enabled-20261115T164751333Z.json",
+    "remaining_js_unit_failures": 34,
+    "cpu_instruction_contract": "waves/RW-51/CPU-ISA-CONTRACT.json",
+    "cpu_isa_qualified": false
   }
 }

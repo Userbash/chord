@@ -179,3 +179,5 @@ The source audit found that GPUI emits a hashed `proof` field where the checked-
 It also identified intentional core Base64 trailing-bit/error-order behavior, duplicated digest families, a zstd manifest-comment/source discrepancy and separate fuzz-workspace dependencies. These are intake/compatibility constraints; they do not authorize blind dependency deduplication or a new compression backend.
 
 Current card state separates the completed read-only planning phases from next-phase contract acquisition, implementation and acceptance. The two local control-plane prerequisites are prepared for review. Remaining cards stay queued behind admission and accepted dependencies.
+
+CPU instruction follow-up: [CPU-ISA-CONTRACT.md](CPU-ISA-CONTRACT.md) records the exact screenshot families, platform baselines and native acceptance requirements. The emulator negative instruction control failed, so no ISA floor is qualified. [Packaging prerequisites](PACKAGING-PREREQUISITES.md) records the next format/input work.

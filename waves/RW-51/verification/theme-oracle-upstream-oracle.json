@@ -1,0 +1,21 @@
+{
+  "repository": "ViceVerse-cz/Serein",
+  "commit": "04f348092910a77cc317516b25577ad006cb708b",
+  "path": "extensions/themes/midnight.serein-extension",
+  "url": "https://github.com/ViceVerse-cz/Serein/blob/04f348092910a77cc317516b25577ad006cb708b/extensions/themes/midnight.serein-extension",
+  "git_blob_sha1": "58d7e3b17bf440c0fa3d6435b8da5f8d8f2dc142",
+  "sha256": "f7ffb0acdb7269f1e2fdb235536870cef344f3fac761543174ddc091bb2aebb6",
+  "bytes": 1458,
+  "cache": "/root/projects/chord-modernization/docs/reference-projects/sources/Serein/extensions/themes/midnight.serein-extension",
+  "command": [
+    "/root/.local/bin/gh",
+    "api",
+    "repos/ViceVerse-cz/Serein/contents/extensions/themes/midnight.serein-extension",
+    "--method",
+    "GET",
+    "-f",
+    "ref=04f348092910a77cc317516b25577ad006cb708b"
+  ],
+  "exit_code": 0,
+  "source_executed": false
+}

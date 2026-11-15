@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "wave": "RW-51",
-  "status": "four_planning_phases_and_two_source_reviews_completed",
-  "observed_at": "2026-11-15T15:43:09.025618+00:00",
+  "status": "four_planning_phases_and_three_source_or_contract_reviews_completed",
+  "observed_at": "2026-11-15T16:24:49.742132+00:00",
   "application_migrations_completed": false,
   "receipts": [
     {
@@ -211,6 +211,42 @@
         "waves/RW-51/ARM-ELF-ABI-CONTRACT.md": "bd660f4b47f24003237466f9dd7a929aff8f8431bb222c3fb96bba7df62fdc7d"
       },
       "limitations": "Source review only; immutable initial and final snapshots differ. Final CPU test has a separately reviewed type-only supplement. No native qualification or whole-card acceptance."
+    },
+    {
+      "task_id": "STREAM-CONTRACT-SOURCE-REVIEW",
+      "task_ids": [
+        "LIB-QA-01.I1"
+      ],
+      "session_id": "ec872267",
+      "phase": "test_contract_review",
+      "phase_state": "completed",
+      "migration_completed": false,
+      "harness": "codex",
+      "actual_model": "gpt-6.1-sol",
+      "actual_effort": "medium",
+      "sandbox": "read-only",
+      "worktree": "/root/projects/chord-modernization-verification/stream-contract/review/source",
+      "base_commit": "606828759b7ed2bab5787c6b11acedb886f37ecd",
+      "pid_or_remote_worker_identity": "ecc:ec872267",
+      "process_state": "exited",
+      "heartbeat_at": "2026-11-15T16:03:34.730598976+00:00",
+      "completed_at": "2026-11-15T16:03:34.730598976+00:00",
+      "observed_at": "2026-11-15T16:04:13.592294+00:00",
+      "model_generated_commands": 0,
+      "findings": 0,
+      "verdict": "approve_test_contract_slice",
+      "report": "waves/RW-51/reports/STREAM-CONTRACT-SOURCE-REVIEW.json",
+      "report_sha256": "86f01f451b623d6c9f3c63a9266aad95add95d5166982b29bb4fcdad9ff446cf",
+      "raw_receipt": "waves/RW-51/verification/stream-review-receipt.json",
+      "source_files_sha256": {
+        "tests/unit/call_stream_dispatch.test.mjs": "50e8c858643c9cf4558a1ed062201c291bc939b485b957afe813146ef428dfc1",
+        "tests/unit/call_stream_lifecycle.test.mjs": "1f64e1d227adc532699a56b53557866429d5c5c1e6abe9911e984099f65189fd",
+        "rust/gui-spike/src/main.rs": "4ca1516723a61eb3d4f24e00dffd7280f456e5c4120488f94b5f4937cf3d7cba",
+        "rust/gui-spike/src/voice_plugin.rs": "00cbc32e14164f95712cacd82ca9d48da2cb41cb7fb4e6bc1a5a0cd292053776",
+        "rust/gui-spike/src/data.rs": "a9a065741f7a740439cb44ef987b173d3fc25fa43e9ef4358ebff17615980fe7",
+        "rust/crates/chord-core/src/ws.rs": "bb174c95b2f4c67c0c8d61e3abfb827f292cbe6ab6837fcbffdef549ea68a798"
+      },
+      "limitations": "Test-only source contract review; no native/live/ARM or full-gate qualification."
     }
   ]
 }

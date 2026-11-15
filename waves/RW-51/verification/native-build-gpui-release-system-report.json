@@ -1,0 +1,270 @@
+{
+  "taskId": "TASK-953",
+  "binaryPath": "/root/projects/chord-modernization/rust/chord-gpui/target/release/chord-gpui",
+  "status": "passed",
+  "ldd": {
+    "passed": true,
+    "libraries": [
+      {
+        "name": "linux-vdso.so.1",
+        "resolvedPath": null,
+        "raw": "linux-vdso.so.1 (0x0000791508afe000)"
+      },
+      {
+        "name": "libxcb.so.1",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libxcb.so.1",
+        "raw": "libxcb.so.1 => /lib/x86_64-linux-gnu/libxcb.so.1 (0x0000791508ac2000)"
+      },
+      {
+        "name": "libxkbcommon.so.0",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libxkbcommon.so.0",
+        "raw": "libxkbcommon.so.0 => /lib/x86_64-linux-gnu/libxkbcommon.so.0 (0x0000791508a79000)"
+      },
+      {
+        "name": "libxkbcommon-x11.so.0",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libxkbcommon-x11.so.0",
+        "raw": "libxkbcommon-x11.so.0 => /lib/x86_64-linux-gnu/libxkbcommon-x11.so.0 (0x0000791508a6f000)"
+      },
+      {
+        "name": "libasound.so.2",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libasound.so.2",
+        "raw": "libasound.so.2 => /lib/x86_64-linux-gnu/libasound.so.2 (0x0000791505ef6000)"
+      },
+      {
+        "name": "libgcc_s.so.1",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libgcc_s.so.1",
+        "raw": "libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x0000791508a41000)"
+      },
+      {
+        "name": "libm.so.6",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libm.so.6",
+        "raw": "libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x0000791505e0d000)"
+      },
+      {
+        "name": "libc.so.6",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libc.so.6",
+        "raw": "libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000791505a00000)"
+      },
+      {
+        "name": "ld-linux-x86-64.so.2",
+        "resolvedPath": "/lib64/ld-linux-x86-64.so.2",
+        "raw": "/lib64/ld-linux-x86-64.so.2 (0x0000791508b00000)"
+      },
+      {
+        "name": "libXau.so.6",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libXau.so.6",
+        "raw": "libXau.so.6 => /lib/x86_64-linux-gnu/libXau.so.6 (0x0000791508a39000)"
+      },
+      {
+        "name": "libXdmcp.so.6",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libXdmcp.so.6",
+        "raw": "libXdmcp.so.6 => /lib/x86_64-linux-gnu/libXdmcp.so.6 (0x0000791508a31000)"
+      },
+      {
+        "name": "libxcb-xkb.so.1",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libxcb-xkb.so.1",
+        "raw": "libxcb-xkb.so.1 => /lib/x86_64-linux-gnu/libxcb-xkb.so.1 (0x0000791508a13000)"
+      },
+      {
+        "name": "libbsd.so.0",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libbsd.so.0",
+        "raw": "libbsd.so.0 => /lib/x86_64-linux-gnu/libbsd.so.0 (0x00007915089fb000)"
+      },
+      {
+        "name": "libmd.so.0",
+        "resolvedPath": "/lib/x86_64-linux-gnu/libmd.so.0",
+        "raw": "libmd.so.0 => /lib/x86_64-linux-gnu/libmd.so.0 (0x00007915089ec000)"
+      }
+    ],
+    "missingLibraries": [],
+    "proprietaryLibraries": [],
+    "reasons": []
+  },
+  "glibc": {
+    "passed": true,
+    "maxAllowedVersion": "2.35",
+    "maxMandatoryLibcVersion": "2.34",
+    "maxBaselineGlibcVersion": "2.35",
+    "weakVersions": [
+      "2.18",
+      "2.25",
+      "2.29",
+      "2.30",
+      "2.39"
+    ],
+    "hostLibmC23Versions": [],
+    "entries": [
+      {
+        "library": "libm.so.6",
+        "flagsHex": "0x00",
+        "version": "2.2.5",
+        "isWeak": false
+      },
+      {
+        "library": "libm.so.6",
+        "flagsHex": "0x00",
+        "version": "2.27",
+        "isWeak": false
+      },
+      {
+        "library": "libm.so.6",
+        "flagsHex": "0x00",
+        "version": "2.29",
+        "isWeak": false
+      },
+      {
+        "library": "libm.so.6",
+        "flagsHex": "0x00",
+        "version": "2.35",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.2.5",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.3",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.3.2",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.3.4",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.4",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.7",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.9",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.14",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.15",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.16",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.17",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x02",
+        "version": "2.18",
+        "isWeak": true
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x02",
+        "version": "2.25",
+        "isWeak": true
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.28",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x02",
+        "version": "2.29",
+        "isWeak": true
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x02",
+        "version": "2.30",
+        "isWeak": true
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.32",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.33",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x00",
+        "version": "2.34",
+        "isWeak": false
+      },
+      {
+        "library": "libc.so.6",
+        "flagsHex": "0x02",
+        "version": "2.39",
+        "isWeak": true
+      },
+      {
+        "library": "ld-linux-x86-64.so.2",
+        "flagsHex": "0x00",
+        "version": "2.3",
+        "isWeak": false
+      }
+    ],
+    "reasons": []
+  },
+  "llvmpipe": {
+    "passed": true,
+    "exitCode": 0,
+    "payload": {
+      "status": "ok",
+      "display_backend": "wayland+x11",
+      "window_width": 1280,
+      "window_height": 720,
+      "min_width": 900,
+      "min_height": 550,
+      "guilds": 2,
+      "channels": 5,
+      "sqlite_wal_ok": true,
+      "fps_budget_ok": true,
+      "frame_tick_us": 0,
+      "vmrss_kb": 13048,
+      "vmrss_mb": 12.74
+    },
+    "reasons": []
+  }
+}

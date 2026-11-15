@@ -1,0 +1,187 @@
+{
+  "reviewer": "/root/arm_review",
+  "task_id": "STREAM-CONTRACT-SOURCE-REVIEW",
+  "phase": "final_independent_test_contract_review",
+  "reviewed_at": "2026-11-15T16:04:55.492616+00:00",
+  "source_commit": "606828759b7ed2bab5787c6b11acedb886f37ecd",
+  "source_files_sha256": {
+    "tests/unit/call_stream_dispatch.test.mjs": "50e8c858643c9cf4558a1ed062201c291bc939b485b957afe813146ef428dfc1",
+    "tests/unit/call_stream_lifecycle.test.mjs": "1f64e1d227adc532699a56b53557866429d5c5c1e6abe9911e984099f65189fd",
+    "rust/gui-spike/src/main.rs": "4ca1516723a61eb3d4f24e00dffd7280f456e5c4120488f94b5f4937cf3d7cba",
+    "rust/gui-spike/src/voice_plugin.rs": "00cbc32e14164f95712cacd82ca9d48da2cb41cb7fb4e6bc1a5a0cd292053776",
+    "rust/gui-spike/src/data.rs": "a9a065741f7a740439cb44ef987b173d3fc25fa43e9ef4358ebff17615980fe7",
+    "rust/gui-spike/src/net.rs": "72c7007ddc29c9ffda1b11019c1849f4597c43f60a8700c1a512dbc1cc90b001",
+    "rust/gui-spike/src/voice_stage.rs": "56512ef6841c3bad14a2529a35de30b360be50d8c18ef0d1c8ec557ecc195a9b",
+    "rust/gui-spike/ui/app.js": "b3fc95fa62f0455a5c19c47e2322291ee9c8282b0c30540990cf2eef9966fd87",
+    "rust/crates/chord-core/src/ws.rs": "bb174c95b2f4c67c0c8d61e3abfb827f292cbe6ab6837fcbffdef549ea68a798"
+  },
+  "reviewed_test_diff_sha256": "dd9e60aac4fcb882cf769230e0ecd8fbf2c7b1ed4cbcbf17a1c01f68e16668ab",
+  "source_excerpt_ranges": {
+    "tests/unit/call_stream_dispatch.test.mjs": [
+      [
+        1,
+        130
+      ]
+    ],
+    "tests/unit/call_stream_lifecycle.test.mjs": [
+      [
+        1,
+        106
+      ]
+    ],
+    "rust/gui-spike/src/main.rs": [
+      [
+        54,
+        65
+      ],
+      [
+        1457,
+        1473
+      ],
+      [
+        1845,
+        1853
+      ]
+    ],
+    "rust/gui-spike/src/voice_plugin.rs": [
+      [
+        288,
+        468
+      ],
+      [
+        515,
+        519
+      ]
+    ],
+    "rust/gui-spike/src/data.rs": [
+      [
+        4842,
+        4857
+      ],
+      [
+        5040,
+        5090
+      ],
+      [
+        5328,
+        5349
+      ]
+    ],
+    "rust/crates/chord-core/src/ws.rs": [
+      [
+        1232,
+        1403
+      ]
+    ]
+  },
+  "verdict": "approve_test_contract_slice",
+  "findings": [],
+  "production_code_changed": false,
+  "remaining_existing_assertions_weakened": false,
+  "comment_only_matches_used": false,
+  "old_to_new_contract": [
+    {
+      "case": "C4",
+      "old": "Search main.rs implementation for stream=true and real self UID.",
+      "new": "Require public wrapper delegation and retain protocol/UID/OP18/Gateway assertions on the extracted voice plugin and unchanged data/ws delegates."
+    },
+    {
+      "case": "L1",
+      "old": "Search main.rs broadly for stop/current target fallback.",
+      "new": "Require both wrapper arguments forwarded, bounded actual plugin fallback, camelCase alias and unwrap_or_else."
+    },
+    {
+      "case": "L2",
+      "old": "Require permission-provider declaration and any main.rs reference.",
+      "new": "Retain provider assertion; require negated plugin guard before its real connect call."
+    }
+  ],
+  "independent_focus": {
+    "tests": 13,
+    "pass": 13,
+    "fail": 0,
+    "skipped": 0,
+    "command": [
+      "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+      "--test",
+      "tests/unit/call_stream_dispatch.test.mjs",
+      "tests/unit/call_stream_lifecycle.test.mjs"
+    ],
+    "cwd": "/root/projects/chord-modernization",
+    "exit_code": 0,
+    "log": "/root/projects/chord-modernization-verification/stream-contract/review/independent-focused-20261115T160405595433Z.log",
+    "log_sha256": "4220fe344e10f5517bfd707dc90bf43e40eeca9f3f84ecb42975a9cc1778d732"
+  },
+  "mutation_review": {
+    "receipt": "/root/projects/chord-modernization-verification/stream-contract/mutation-receipt-20261115T160058255555Z.json",
+    "receipt_sha256": "e00cf84b7e14e45a6bbf1ba25c577be778462019e054fcff09c4d7ee350cc062",
+    "control_passed": true,
+    "assertion_mutants_killed": 5,
+    "total": 5,
+    "failure_labels_verified": true,
+    "independently_rerun": false,
+    "logs": {
+      "control": {
+        "sha256": "a2eda3c59a01c23a287372ce19fdb9b27469544b22ef9b8dbc500132d741e1b3",
+        "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-control-20261115T160058255555Z.log",
+        "exit_code": 0
+      },
+      "disconnected-ipc-wrapper": {
+        "sha256": "28f79b65059c9d96f0386f47c2bc164827268ca43df6159848d32bc981eb4c98",
+        "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-disconnected-ipc-wrapper-20261115T160058255555Z.log",
+        "exit_code": 1
+      },
+      "lost-stream-flag": {
+        "sha256": "e9b34e85ee672e58a774b5843897e6fae08114da90e1d2a76b1fbbbbfcfc8697",
+        "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-lost-stream-flag-20261115T160058255555Z.log",
+        "exit_code": 1
+      },
+      "lost-real-user-id": {
+        "sha256": "57aba8380151186ad8d82652fb7ae2a323cb8db702b68b0de41dfda7cdcd2245",
+        "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-lost-real-user-id-20261115T160058255555Z.log",
+        "exit_code": 1
+      },
+      "bypassed-stream-permission": {
+        "sha256": "7eeb1b69b3794e3fc187aad7ced850966beca9daf9bb9f9359654be85662b700",
+        "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-bypassed-stream-permission-20261115T160058255555Z.log",
+        "exit_code": 1
+      },
+      "ignored-camelcase-stop-key": {
+        "sha256": "cd69a6e4a0a8b3005b0246341dac8871ab973c54435366ec841befcf06661a4e",
+        "path": "/root/projects/chord-modernization-verification/stream-contract/mutation-ignored-camelcase-stop-key-20261115T160058255555Z.log",
+        "exit_code": 1
+      }
+    }
+  },
+  "ecc_review": {
+    "session_id": "ec872267",
+    "state": "completed",
+    "harness": "codex",
+    "actual_model": "gpt-6.1-sol",
+    "actual_effort": "medium",
+    "sandbox": "read-only",
+    "actual_model_commands": 0,
+    "verdict": "approve_test_contract_slice",
+    "findings": 0,
+    "receipt": "/root/projects/chord-modernization-verification/stream-contract/review/receipt.json",
+    "report": "/root/projects/chord-modernization-verification/stream-contract/review/report.json",
+    "report_sha256": "86f01f451b623d6c9f3c63a9266aad95add95d5166982b29bb4fcdad9ff446cf"
+  },
+  "decision_entry": {
+    "id": "CP-010",
+    "present": true,
+    "path": "DECISIONS.md",
+    "sha256": "e3d4f7c508b47e1c33e85f3d40336570ba7beb91e0ad640a2d08ec72fad9875d"
+  },
+  "prior_ECC_sessions_and_reports_unchanged": true,
+  "native_UI_voice_network_ARM_qualified": false,
+  "whole_parent_card_complete": false,
+  "full_gate_approved": false,
+  "additional_task_started": false,
+  "limits": [
+    "This review approves the bounded test-only reconciliation to the real upstream extraction.",
+    "Source regex checks are not runtime control-flow, actual media/voice transport or native-platform tests.",
+    "No Cargo, application build, dependency installation, live application/network session or helper agent was run; the authorized ECC model review and Node source tests are recorded separately.",
+    "Krisp capability and other backlog tasks remain outside this review."
+  ]
+}

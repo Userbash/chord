@@ -1,0 +1,2 @@
+FROM chord-verify-isa:20261115t192458286493z
+COPY negative-control /app/negative-control

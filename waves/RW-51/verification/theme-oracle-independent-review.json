@@ -1,0 +1,112 @@
+{
+  "reviewer": "/root/arm_review",
+  "phase": "pinned_theme_oracle_restoration_review",
+  "reviewed_at": "2026-11-15T16:14:33.431115+00:00",
+  "verdict": "approve_pinned_test_fixture_restoration",
+  "findings": [],
+  "baseline_commit": "606828759b7ed2bab5787c6b11acedb886f37ecd",
+  "upstream_repository": "ViceVerse-cz/Serein",
+  "upstream_commit": "04f348092910a77cc317516b25577ad006cb708b",
+  "independent_primary_source_fetch": "GitHub connector, exact commit blob URLs; stored structured content compared byte-for-byte.",
+  "verified_upstream_files": [
+    {
+      "file": "tests/fixtures/themes/serein/midnight.serein-extension",
+      "bytes": 1458,
+      "sha256": "f7ffb0acdb7269f1e2fdb235536870cef344f3fac761543174ddc091bb2aebb6",
+      "git_blob_sha1": "58d7e3b17bf440c0fa3d6435b8da5f8d8f2dc142",
+      "independent_fetch_url": "https://github.com/ViceVerse-cz/Serein/blob/04f348092910a77cc317516b25577ad006cb708b/extensions/themes/midnight.serein-extension",
+      "independent_fetch_response": "/root/projects/chord-modernization-verification/theme-oracle/review-upstream-theme.json",
+      "response_sha256": "6a713c9f98dbcca6e29c70db665f00cac7e1e7b7b5fd78c74f1753e7e2f3b0f3"
+    },
+    {
+      "file": "tests/fixtures/themes/serein/LICENSE-APACHE",
+      "bytes": 10398,
+      "sha256": "e3ba223bb1423f0aad8c3dfce0fe3148db48926d41e6fbc3afbbf5ff9e1c89cb",
+      "git_blob_sha1": "136d90045663ab0acaeff2a3ecf0013c968de8c9",
+      "independent_fetch_url": "https://github.com/ViceVerse-cz/Serein/blob/04f348092910a77cc317516b25577ad006cb708b/LICENSE-APACHE",
+      "independent_fetch_response": "/root/projects/chord-modernization-verification/theme-oracle/review-upstream-apache.json",
+      "response_sha256": "845f7a66967cc85eda716adfa3f336243e65bdbbbdf448e5fd71a9466a0c527d"
+    },
+    {
+      "file": "tests/fixtures/themes/serein/LICENSE-MIT",
+      "bytes": 1076,
+      "sha256": "33901c362268dade203b4031d247ef378220c0264103ca710bf51729cc447db3",
+      "git_blob_sha1": "db954095584150ac9298035fbccb4c422dd5db7e",
+      "independent_fetch_url": "https://github.com/ViceVerse-cz/Serein/blob/04f348092910a77cc317516b25577ad006cb708b/LICENSE-MIT",
+      "independent_fetch_response": "/root/projects/chord-modernization-verification/theme-oracle/review-upstream-mit.json",
+      "response_sha256": "a126049c49f6b5bbca62507181999bff6f7dc0f98088b424feb97a9b982559f2"
+    }
+  ],
+  "fixture_and_test_hashes": {
+    "tests/fixtures/themes/serein/LICENSE-APACHE": "e3ba223bb1423f0aad8c3dfce0fe3148db48926d41e6fbc3afbbf5ff9e1c89cb",
+    "tests/fixtures/themes/serein/LICENSE-MIT": "33901c362268dade203b4031d247ef378220c0264103ca710bf51729cc447db3",
+    "tests/fixtures/themes/serein/README.md": "f9bf405ba4e7a0173eff28d6121cb56ede00cc6609027147606d79885b6a2f9e",
+    "tests/fixtures/themes/serein/midnight.serein-extension": "f7ffb0acdb7269f1e2fdb235536870cef344f3fac761543174ddc091bb2aebb6",
+    "tests/fixtures/themes/serein/upstream.json": "394ea224c884666a06054f69aa0169e47ac36130dec2e67c023a779f7591c1b7",
+    "tests/unit/custom-themes-985.test.mjs": "99203d77213a5709f17c638891e434a1f047a0c36a5f9b361e9144bce15e6d4e"
+  },
+  "production_hashes_unchanged": {
+    "rust/chord-gpui/src/custom_themes.rs": "2a06d1e932a04d57684377a4f49a9e4f60fc570205582bb838e290717ed7c667",
+    "rust/gui-spike/ui/features/custom-themes.js": "3a1a96f57c48dd8ec0bcf1a84164a9a627d7a9849554f0502c0f368d6408469e",
+    "rust/gui-spike/ui/features/token-map.js": "269a8a95a6c24a27afda19e30b4342de4a052cc6833cc4b55496ca1635504a0e",
+    "rust/gui-spike/ui/tokens.css": "24e94411e2ccc173f3a69ec1571d61e7fcc0fbf2261185296f740e6ddccfc485"
+  },
+  "existing_assertions_weakened": false,
+  "existing_oracle_and_mutation_test_tail_byte_unchanged": true,
+  "fixture_paths_ignored": false,
+  "fixture_paths_tracked_at_review": false,
+  "integration_followup": [
+    "Coordinator must git-add all five Serein fixture files before commit; current files are not ignored but are still untracked."
+  ],
+  "independent_clean_checkout": {
+    "path": "/root/projects/chord-modernization-verification/theme-oracle/clean-checkout",
+    "commit": "606828759b7ed2bab5787c6b11acedb886f37ecd",
+    "ignored_Serein_cache_absent": true,
+    "node_modules_absent": true,
+    "copied_final_files": [
+      "tests/fixtures/themes/serein/LICENSE-APACHE",
+      "tests/fixtures/themes/serein/LICENSE-MIT",
+      "tests/fixtures/themes/serein/README.md",
+      "tests/fixtures/themes/serein/midnight.serein-extension",
+      "tests/fixtures/themes/serein/upstream.json",
+      "tests/unit/custom-themes-985.test.mjs"
+    ],
+    "command": [
+      "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+      "--test",
+      "--test-reporter=tap",
+      "tests/unit/custom-themes-985.test.mjs"
+    ],
+    "cwd": "/root/projects/chord-modernization-verification/theme-oracle/clean-checkout",
+    "exit_code": 0,
+    "totals": {
+      "tests": 6,
+      "suites": 1,
+      "pass": 6,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "log": "/root/projects/chord-modernization-verification/theme-oracle/independent-focused-20261115T161432022512Z.tap",
+    "log_sha256": "942476a4ddd35a687f5839c61ba3d559eaf52652a0c8ebf6194fdeaf38bf2fc4",
+    "existing_mutation_gate": "SUB-985-5 passed; existing JS5/5 and Rust5/5 assertions preserved.",
+    "only_rustc_builds": "Existing focused test compiles isolated Rust unit-test/mutation files; no Cargo or application build command was run."
+  },
+  "decision_entry": {
+    "id": "CP-011",
+    "present": true,
+    "sha256": "2177872477b845985cd06281dea1d23fbd9c7fda559ed748631e9201d4803947"
+  },
+  "additional_model_session": false,
+  "helper_agents_started": false,
+  "native_UI_or_ARM_qualified": false,
+  "full_gate_approved": false,
+  "whole_parent_card_complete": false,
+  "limits": [
+    "Approval covers exact upstream test data and unchanged tests against that oracle, not application palette changes.",
+    "Licenses were verified as upstream byte copies; this is provenance checking, not a separate legal interpretation.",
+    "Clean-checkout test copies final candidate files; coordinator must ensure the files are included in the eventual Git commit.",
+    "No new ECC/model session or additional backlog task was started."
+  ]
+}

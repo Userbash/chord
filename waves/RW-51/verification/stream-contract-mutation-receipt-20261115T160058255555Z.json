@@ -1,0 +1,97 @@
+{
+  "scope": "Source-contract regressions only; mutants are not native/live runtime tests.",
+  "source_files_sha256": {
+    "tests/unit/call_stream_dispatch.test.mjs": "50e8c858643c9cf4558a1ed062201c291bc939b485b957afe813146ef428dfc1",
+    "tests/unit/call_stream_lifecycle.test.mjs": "1f64e1d227adc532699a56b53557866429d5c5c1e6abe9911e984099f65189fd",
+    "rust/gui-spike/src/main.rs": "4ca1516723a61eb3d4f24e00dffd7280f456e5c4120488f94b5f4937cf3d7cba",
+    "rust/gui-spike/src/voice_plugin.rs": "00cbc32e14164f95712cacd82ca9d48da2cb41cb7fb4e6bc1a5a0cd292053776",
+    "rust/gui-spike/src/data.rs": "a9a065741f7a740439cb44ef987b173d3fc25fa43e9ef4358ebff17615980fe7",
+    "rust/gui-spike/src/net.rs": "72c7007ddc29c9ffda1b11019c1849f4597c43f60a8700c1a512dbc1cc90b001",
+    "rust/gui-spike/src/voice_stage.rs": "56512ef6841c3bad14a2529a35de30b360be50d8c18ef0d1c8ec557ecc195a9b",
+    "rust/gui-spike/ui/app.js": "b3fc95fa62f0455a5c19c47e2322291ee9c8282b0c30540990cf2eef9966fd87",
+    "rust/crates/chord-core/src/ws.rs": "bb174c95b2f4c67c0c8d61e3abfb827f292cbe6ab6837fcbffdef549ea68a798"
+  },
+  "control_passed": true,
+  "mutants_killed": 5,
+  "mutants_total": 5,
+  "runs": [
+    {
+      "id": "control",
+      "exit_code": 0,
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/call_stream_dispatch.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs"
+      ],
+      "log": "/root/projects/chord-modernization-verification/stream-contract/mutation-control-20261115T160058255555Z.log",
+      "expected_failed_case": null,
+      "changed_source_sha256": null
+    },
+    {
+      "id": "disconnected-ipc-wrapper",
+      "exit_code": 1,
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/call_stream_dispatch.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs"
+      ],
+      "log": "/root/projects/chord-modernization-verification/stream-contract/mutation-disconnected-ipc-wrapper-20261115T160058255555Z.log",
+      "expected_failed_case": "C4:",
+      "changed_source_sha256": "064bfa30045619ba46aaf69dee827e6a155a230cbf88318952165a6b98c8e487"
+    },
+    {
+      "id": "lost-stream-flag",
+      "exit_code": 1,
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/call_stream_dispatch.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs"
+      ],
+      "log": "/root/projects/chord-modernization-verification/stream-contract/mutation-lost-stream-flag-20261115T160058255555Z.log",
+      "expected_failed_case": "C4:",
+      "changed_source_sha256": "44f45c9da64a1eb63075cb19b6e8d98d66a60da8ef8649f8c6caf95caca8a6f1"
+    },
+    {
+      "id": "lost-real-user-id",
+      "exit_code": 1,
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/call_stream_dispatch.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs"
+      ],
+      "log": "/root/projects/chord-modernization-verification/stream-contract/mutation-lost-real-user-id-20261115T160058255555Z.log",
+      "expected_failed_case": "C4:",
+      "changed_source_sha256": "8cff1625a0d72a2a9ce2a3f34c52e8a6c044e467ea923b56626a328d0d5256cf"
+    },
+    {
+      "id": "bypassed-stream-permission",
+      "exit_code": 1,
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/call_stream_dispatch.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs"
+      ],
+      "log": "/root/projects/chord-modernization-verification/stream-contract/mutation-bypassed-stream-permission-20261115T160058255555Z.log",
+      "expected_failed_case": "L2:",
+      "changed_source_sha256": "cdd39ed4f953577016486a6b482b52d5ce04be5fd79b81291f706439bf776aaf"
+    },
+    {
+      "id": "ignored-camelcase-stop-key",
+      "exit_code": 1,
+      "command": [
+        "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+        "--test",
+        "tests/unit/call_stream_dispatch.test.mjs",
+        "tests/unit/call_stream_lifecycle.test.mjs"
+      ],
+      "log": "/root/projects/chord-modernization-verification/stream-contract/mutation-ignored-camelcase-stop-key-20261115T160058255555Z.log",
+      "expected_failed_case": "L1:",
+      "changed_source_sha256": "358d3b41c8ae07ddf5d9f4f10b0a5d5fb42e1353ea900f1658fbc20886f996e2"
+    }
+  ]
+}

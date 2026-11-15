@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/root/.local/share/mcp/node-v24.22.3-linux-x64/bin/node",
+    "--test",
+    "tests/unit/custom-themes-985.test.mjs"
+  ],
+  "cwd": "/root/projects/chord-modernization",
+  "exit_code": 1,
+  "log": "/root/projects/chord-modernization-verification/arm-batch/themes-pinned-fixture-red-20261115T161035037532Z.log"
+}

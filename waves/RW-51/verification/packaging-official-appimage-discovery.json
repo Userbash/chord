@@ -1,0 +1,90 @@
+{
+  "observed_at": "2026-11-15T16:55:15.266Z",
+  "note": "Official discovery only. Continuous tags are mutable; any adoption requires reviewed source/asset/digest pins, offline execution and separate native ARM qualification.",
+  "releases": [
+    {
+      "repository": "AppImage/appimagetool",
+      "api_url": "https://api.github.com/repos/AppImage/appimagetool/releases/435944148",
+      "url": "https://github.com/AppImage/appimagetool/releases/tag/continuous",
+      "release_id": 435944148,
+      "tag": "continuous",
+      "target_commitish": "11d54c9acc7f246df1398050a4b880314ac76862",
+      "published_at": "2026-11-06T00:48:33Z",
+      "immutable": false,
+      "candidate_only": true,
+      "downloaded": false,
+      "assets": [
+        {
+          "id": 715388203,
+          "name": "appimagetool-aarch64.AppImage",
+          "size": 14694920,
+          "digest": "sha256:d6a061996de690434996c2a523eafedd0a23780aaf02d69ce364537e71607e94",
+          "api_url": "https://api.github.com/repos/AppImage/appimagetool/releases/assets/715388203",
+          "url": "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-aarch64.AppImage"
+        },
+        {
+          "id": 715388534,
+          "name": "appimagetool-x86_64.AppImage",
+          "size": 15133176,
+          "digest": "sha256:e8c1169c4af66c3184d7ee110713d4be04befe671fa358e2c1591ee840553b03",
+          "api_url": "https://api.github.com/repos/AppImage/appimagetool/releases/assets/715388534",
+          "url": "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+        }
+      ]
+    },
+    {
+      "repository": "AppImage/type2-runtime",
+      "api_url": "https://api.github.com/repos/AppImage/type2-runtime/releases/417724209",
+      "url": "https://github.com/AppImage/type2-runtime/releases/tag/continuous",
+      "release_id": 417724209,
+      "tag": "continuous",
+      "target_commitish": "fedfad51acc2860b2916a1eef32ba4a500ff31ef",
+      "published_at": "2026-10-19T20:37:20Z",
+      "immutable": false,
+      "candidate_only": true,
+      "downloaded": false,
+      "assets": [
+        {
+          "id": 657373827,
+          "name": "runtime-aarch64",
+          "size": 936456,
+          "digest": "sha256:9a72a744d221576c9347ec074243acc5c3c7568896b12714e0e82e9f0bf47900",
+          "api_url": "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/657373827",
+          "url": "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-aarch64"
+        },
+        {
+          "id": 657373931,
+          "name": "runtime-aarch64.sig",
+          "size": 119,
+          "digest": "sha256:f081454c3af7fb43404949b6a08620971f4147cb05bc3ff8a91681be788f803f",
+          "api_url": "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/657373931",
+          "url": "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-aarch64.sig"
+        },
+        {
+          "id": 657374641,
+          "name": "runtime-x86_64",
+          "size": 944632,
+          "digest": "sha256:617aa77314d57c8b8e4fae9c3f0b35af7b30d5529cb69e98f64f92510ed98a46",
+          "api_url": "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/657374641",
+          "url": "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64"
+        },
+        {
+          "id": 657374763,
+          "name": "runtime-x86_64.sig",
+          "size": 119,
+          "digest": "sha256:4c38bbfd3c8fe7b43cd37483544e5aa682b5932674d89e53fcccd2d3fc3a8f12",
+          "api_url": "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/657374763",
+          "url": "https://github.com/AppImage/type2-runtime/releases/download/continuous/runtime-x86_64.sig"
+        },
+        {
+          "id": 657374839,
+          "name": "signing-pubkey.asc",
+          "size": 685,
+          "digest": "sha256:db8b615eb5bbf5e8418d52906b4a492960926370e2c5041ad6acaccda56ef0c6",
+          "api_url": "https://api.github.com/repos/AppImage/type2-runtime/releases/assets/657374839",
+          "url": "https://github.com/AppImage/type2-runtime/releases/download/continuous/signing-pubkey.asc"
+        }
+      ]
+    }
+  ]
+}

@@ -6,6 +6,7 @@
 - [ARM blocker, CPU/ELF/SDK and native qualification](ARM-BLOCKERS.md)
 - [ARM source implementation batch and remaining gates](ARM-SOURCE-BATCH.md), [machine receipt](ARM-SOURCE-BATCH.json)
 - [Sequential step 1: locked Rust dependency cache restored](SEQUENTIAL-01-DEPENDENCIES.md)
+- [Sequential step 2: five unit failures resolved, remainder open](SEQUENTIAL-02-UNIT-REPAIRS.md)
 - [Library decisions and rejection gates](LIBRARY-MATRIX.md)
 - [Human task breakdown](TASKS.md), [full machine-readable tasks](TASKS.json)
 - [Worker instructions](WORKER-RULES.md)
@@ -17,3 +18,5 @@
 - Combined [interactive Kanban](../kanban-board.html)
 
 The first three genuine ECC planning sessions completed 34 findings; a fourth ARM audit followed. These planning reports state their source-only limits. Two further genuine ECC sessions reviewed the bounded ARM source implementation. Generic compiler inputs and ELF checks/metadata now have code changes and executable regression tests. Parent cards and application library migrations remain gated by product review, the full batch gate, real target artifacts and native qualification.
+
+CPU instruction follow-up: [CPU-ISA-CONTRACT.md](CPU-ISA-CONTRACT.md) records the exact screenshot families, platform baselines and native acceptance requirements. The emulator negative instruction control failed, so no ISA floor is qualified. [Packaging prerequisites](PACKAGING-PREREQUISITES.md) records the next format/input work.
