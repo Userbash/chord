@@ -15,7 +15,8 @@ Welcome to the comprehensive documentation for **Chord**.
 | **Comprehensive Guide** | [`GUIDE.md`](GUIDE.md) | Unified user guide, beta testing instructions, shortcuts, audio/video streaming, debugging |
 | **User Guide** | [`USER-GUIDE.md`](USER-GUIDE.md) | Features, shortcuts, keyring troubleshooting, media cache, integrations |
 | **Architecture Reference** | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Crate inventory, REST v9, 64-bit permissions, SQLite WAL, UI catalog, i18n |
-| **AI Collaboration Guide** | [`AI-AGENTS.md`](../AI-AGENTS.md) | AMCP v1.0 protocol, multi-agent rules, review gates |
+| **AI Collaboration Guide** | [`AI-AGENTS.md`](../AI-AGENTS.md) | AMCP v2.0 protocol, multi-agent rules, review gates |
+| **AI Swarm Standard** | [`specs/AI-SWARM-ENGINEERING-STANDARD.md`](specs/AI-SWARM-ENGINEERING-STANDARD.md) | ASES-1.0 standard for 10–100 concurrent AI agents, dynamic leases & merge queue |
 | **Contributing Guide** | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Clean-Room rules, TDD, code style, PRs |
 | **Developer Alpha Limitations** | [`DEVELOPER_ALPHA_LIMITATIONS.md`](DEVELOPER_ALPHA_LIMITATIONS.md) | Known gaps and roadmap in Developer Alpha Preview |
 | **License** | [`LICENSE`](../LICENSE) | GNU General Public License v3.0 |

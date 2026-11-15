@@ -261,6 +261,7 @@ This project uses an **AI Multi-Model Collaboration Protocol (AMCP v1.0)** that 
 | **Comprehensive Guide** | [`docs/GUIDE.md`](docs/GUIDE.md) | Unified user guide, beta testing, shortcuts, audio/video streaming, and debugging |
 | **Contributing Guide** | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Full contribution guide for humans and AI operators |
 | **AI Agents Protocol** | [`AI-AGENTS.md`](AI-AGENTS.md) | Machine-readable protocol for AI models — start here if you are an AI |
+| **AI Swarm Standard** | [`docs/specs/AI-SWARM-ENGINEERING-STANDARD.md`](docs/specs/AI-SWARM-ENGINEERING-STANDARD.md) | ASES-1.0 standard for 10–100 concurrent AI agents, dynamic leases & merge queue |
 | **Project Registry** | [`docs/PROJECT-REGISTRY.md`](docs/PROJECT-REGISTRY.md) | Canonical registry of crates, artifacts, and test contracts |
 | **Feature Backlog** | [`docs/feature-backlog.md`](docs/feature-backlog.md) | Parity matrix and feature migration backlog |
 | **Current Status** | [`docs/rust-client/STATUS.md`](docs/rust-client/STATUS.md) | Up-to-date memory metrics, FPS, and wave completion |

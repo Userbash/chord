@@ -1,8 +1,9 @@
 # 🤖 AI Agents Guide — Chord Project
 
-> **Machine-readable protocol for AI agents.**
-> If you are an AI model — read this file as an executable instruction.
-> If you are a human — this file explains how AI agents work in this project.
+> **Machine-readable protocol for AI agents (AMCP v2.0 / ASES-1.0).**  
+> If you are an AI model — read this file as an executable instruction.  
+> If you are a human — this file explains how AI agents work in this project.  
+> 📖 **Full AI Swarm Engineering Standard (10–100 agents):** [`docs/specs/AI-SWARM-ENGINEERING-STANDARD.md`](docs/specs/AI-SWARM-ENGINEERING-STANDARD.md)
 
 ---
 
@@ -456,5 +457,5 @@ flock /tmp/chord-cargo.lock cargo build --manifest-path tests/e2e/harness/Cargo.
 
 ---
 
-*AI-AGENTS.md · Chord Project · AMCP v1.0 · 2026-11-13*
-*This file is part of the official project documentation*
+*AI-AGENTS.md · Chord Project · AMCP v2.0 / ASES-1.0 · 2026-11-15*
+*This file is part of the official project documentation. See also: docs/specs/AI-SWARM-ENGINEERING-STANDARD.md*
