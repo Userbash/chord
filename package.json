@@ -22,6 +22,7 @@
     "gate:release": "node scripts/gate.mjs --scope release",
     "gate:qualify": "node scripts/gate.mjs --scope qualify",
     "golden:freeze": "node scripts/gate.mjs --freeze-golden",
+    "gate:mutation": "node scripts/mutation-gate.mjs",
     "auto:status": "bash scripts/auto-loop.sh --status",
     "auto:step": "bash scripts/auto-loop.sh --step",
     "auto:watch": "bash scripts/auto-loop.sh --watch",

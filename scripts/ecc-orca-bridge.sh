@@ -122,12 +122,25 @@ case "$MODEL" in
     EFFORT_LEVEL="low"
     ;;
   *flash-medium*)
-    ORCA_MODEL="gemini-3.8-flash-medium"
-    EFFORT_LEVEL="medium"
+    # Quota Guard: When flash-medium has low quota, route to hydrogen-medium (Tier M policy)
+    if [[ "${FLASH_QUOTA_GUARD:-1}" == "1" ]]; then
+      ORCA_MODEL="gemini-4-hydrogen-medium"
+      EFFORT_LEVEL="medium"
+      echo "[ECC-ORCA-BRIDGE] Quota Guard: Routed flash-medium -> gemini-4-hydrogen-medium"
+    else
+      ORCA_MODEL="gemini-3.8-flash-medium"
+      EFFORT_LEVEL="medium"
+    fi
     ;;
   *flash-high*|*flash*)
-    ORCA_MODEL="gemini-3.8-flash-high"
-    EFFORT_LEVEL="medium"
+    if [[ "${FLASH_QUOTA_GUARD:-1}" == "1" ]]; then
+      ORCA_MODEL="gemini-4-hydrogen-medium"
+      EFFORT_LEVEL="medium"
+      echo "[ECC-ORCA-BRIDGE] Quota Guard: Routed flash -> gemini-4-hydrogen-medium"
+    else
+      ORCA_MODEL="gemini-3.8-flash-high"
+      EFFORT_LEVEL="medium"
+    fi
     ;;
   *argon-low*)
     ORCA_MODEL="gemini-4-argon-low"
