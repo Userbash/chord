@@ -130,5 +130,5 @@ test("createTypedCommands normalizes syncLiveState guilds via normalizeGuildDto"
   assert.equal(firstGuild.isMember, false);
   assert.equal(firstGuild.lurker, true);
   assert.deepEqual(firstGuild.myRoles, []);
-  assert.ok(normalizeGuildDto(firstGuild));
+  assert.ok(normalizeGuildDto(/** @type {any} */ (firstGuild)));
 });
