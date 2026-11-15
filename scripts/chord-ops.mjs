@@ -23,8 +23,21 @@ import { runGC } from './worker-gc.mjs';
 import { inspectMonolith } from './monolith-inspector.mjs';
 import { runTests, getChangedFiles } from './test-runner-smart.mjs';
 import { parseKanban, findKanbanPath, getStats } from './kanban-tool.mjs';
+import { fetchPrDetails, auditPr, generateMarkdownReport } from './pr-ops.mjs';
 
 const INTENT_PATTERNS = [
+  // 0. Pull Request Automation & Audit
+  {
+    regex: /(пиар|pull\s*request|\bpr\b)/i,
+    action: (rawInput) => {
+      const m = rawInput.match(/\d+/);
+      const prNum = m ? parseInt(m[0], 10) : 16;
+      console.log(`\n🔍 Analyzing PR #${prNum} against collaborative development rules...`);
+      const details = fetchPrDetails(prNum);
+      const res = auditPr(details);
+      console.log('\n' + generateMarkdownReport(res));
+    },
+  },
   // 1. Status & Dashboard
   {
     regex: /(статус|проверь|как дела|дашборд|dashboard|status|check|state)/i,
@@ -94,7 +107,7 @@ async function main() {
 
   for (const { regex, action } of INTENT_PATTERNS) {
     if (regex.test(rawInput)) {
-      await action();
+      await action(rawInput);
       return;
     }
   }

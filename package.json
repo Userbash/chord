@@ -29,7 +29,11 @@
     "gc": "node scripts/worker-gc.mjs",
     "inspect:monolith": "node scripts/monolith-inspector.mjs",
     "kanban:status": "bash scripts/auto-loop.sh --kanban status",
-    "kanban:list": "bash scripts/auto-loop.sh --kanban list"
+    "kanban:list": "bash scripts/auto-loop.sh --kanban list",
+    "pr:inspect": "bash scripts/pr.sh inspect",
+    "pr:audit": "bash scripts/pr.sh audit",
+    "pr:comment": "bash scripts/pr.sh comment",
+    "pr:template": "bash scripts/pr.sh template"
   },
   "files": [
     "bin/",
