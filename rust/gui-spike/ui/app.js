@@ -46,7 +46,7 @@ import { createAuthGate } from "./features/auth.js";
 import { createComposer, evaluateClientChannelPolicy } from "./features/composer.js";
 import { createSearchOverlay, SEARCH_SECTIONS, selectedGuildId } from "./features/search-overlay.js";
 import { createQuickSwitcher } from "./features/quick-switcher.js";
-import { createTauriEventListener } from "./features/shell-bridge.js";
+import { createTauriEventListener, resolveTauriListen } from "./features/shell-bridge.js";
 import { createVoicePanel, createVoiceStore } from "./features/voice.js";
 import { createJoinServer } from "./features/join-server.js";
 import { createCreateGuildController } from "./features/create-guild.js";
@@ -463,6 +463,8 @@ function createNetStatus(options) {
 
   /** @type {string} */
   let state = "ready";
+  /** @type {ReturnType<typeof createTauriEventListener> | null} */
+  let eventListener = null;
   /** @type {ReturnType<typeof setInterval> | null} */
   let timer = null;
   let polling = false;
@@ -531,12 +533,47 @@ function createNetStatus(options) {
   function start() {
     if (disposed) return;
     polling = true;
-    if (timer === null) timer = setInterval(() => { void refresh(); }, intervalMs);
+    if (!eventListener) {
+      eventListener = createTauriEventListener({
+        event: "gateway-status",
+        initialFetch: async () => {
+          try {
+            return await invoke(NET_COMMANDS.status);
+          } catch {
+            return null;
+          }
+        },
+        onEvent: (payload) => {
+          if (disposed || !polling) return;
+          const status = typeof payload === "string"
+            ? payload
+            : String(/** @type {any} */ (payload)?.status ?? "");
+          if (status !== "") {
+            apply(status);
+          } else {
+            void refresh();
+          }
+        },
+      });
+    }
+    void eventListener.start().then((listening) => {
+      if (!listening && polling && !disposed && timer === null) {
+        timer = setInterval(() => { void refresh(); }, intervalMs);
+      }
+    });
+    const hasTauriEvents = Boolean(resolveTauriListen());
+    if (!hasTauriEvents && timer === null) {
+      timer = setInterval(() => { void refresh(); }, intervalMs);
+    }
     void refresh();
   }
 
   function stop() {
     polling = false;
+    if (eventListener) {
+      void eventListener.stop();
+      eventListener = null;
+    }
     if (timer !== null) {
       clearInterval(timer);
       timer = null;
@@ -4893,10 +4930,7 @@ function boot() {
         ? `guild:${prevGuildId}:${prevChannelId}:${selfId}`
         : `call:${prevChannelId}:${selfId}`);
 
-    if (activePipAnimTimer) {
-      clearInterval(activePipAnimTimer);
-      activePipAnimTimer = null;
-    }
+    cancelPipAnimTimer();
     document.getElementById("live-stream-pip-preview")?.remove();
     document.getElementById("live-stream-stage-viewer")?.remove();
     document.getElementById("live-stream-preview-overlay")?.remove();
@@ -8765,8 +8799,22 @@ function boot() {
     document.body.append(pop);
   }
 
-  /** @type {ReturnType<typeof setInterval> | null} */
+  /** @type {number | ReturnType<typeof setInterval> | null} */
   let activePipAnimTimer = null;
+
+  /**
+   * Отменяет запланированный кадр анимации предпросмотра PiP стрима (`requestAnimationFrame` / `setInterval`).
+   */
+  function cancelPipAnimTimer() {
+    if (activePipAnimTimer !== null) {
+      if (typeof cancelAnimationFrame === "function") {
+        cancelAnimationFrame(/** @type {number} */ (activePipAnimTimer));
+      }
+      clearInterval(/** @type {any} */ (activePipAnimTimer));
+      clearTimeout(/** @type {any} */ (activePipAnimTimer));
+      activePipAnimTimer = null;
+    }
+  }
   /** @type {(() => void) | null} */
   let activePipDragCleanup = null;
   /** @type {{ left: number, top: number } | null} */
@@ -9720,10 +9768,7 @@ function boot() {
           const selfConn = /** @type {any} */ (activeVoiceConnection);
           selfConn.screenShareOn = false;
           selfConn.hideStreamPreview = true;
-          if (activePipAnimTimer) {
-            clearInterval(activePipAnimTimer);
-            activePipAnimTimer = null;
-          }
+          cancelPipAnimTimer();
           document.getElementById("live-stream-pip-preview")?.remove();
           document.getElementById("live-stream-stage-viewer")?.remove();
           document.getElementById("live-stream-preview-overlay")?.remove();
@@ -10400,12 +10445,12 @@ function boot() {
     dialog.style.cssText =
       "width:480px;max-width:94vw;background:#26282e;color:#f2f3f5;border:1px solid #3f4147;border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.88);display:flex;flex-direction:column;font-family:inherit;";
 
-    /** @type {ReturnType<typeof setInterval> | null} */
-    let portalTimer = null;
+    /** @type {number | null} */
+    let portalRafId = null;
     const closePortal = () => {
-      if (portalTimer) {
-        clearInterval(portalTimer);
-        portalTimer = null;
+      if (portalRafId !== null) {
+        cancelAnimationFrame(portalRafId);
+        portalRafId = null;
       }
       backdrop.remove();
     };
@@ -10632,7 +10677,7 @@ function boot() {
         footerArea.append(wpLabel);
       } else {
         const hint = document.createElement("span");
-        hint.style.cssText = "font-size:12px;color:#949ba4;";
+        hint.className = "stream-portal-hint";
         hint.textContent = "Выберите окно приложения для начала трансляции";
         footerArea.append(hint);
       }
@@ -10640,12 +10685,26 @@ function boot() {
 
     searchInput.addEventListener("input", renderPortalBody);
     renderPortalBody();
-    portalTimer = setInterval(() => {
-      tick += 1;
-      for (const c of activeCanvases) {
-        drawLiveCaptureCanvasFrame(c.canvas, c.id, tick, showWallpaper);
+    let lastPortalDraw = 0;
+    /** @param {number} [timestamp] */
+    const portalLoop = (timestamp) => {
+      if (portalRafId === null || !document.body.contains(backdrop)) {
+        portalRafId = null;
+        return;
       }
-    }, 150);
+      const now = typeof timestamp === "number" ? timestamp : (typeof performance !== "undefined" ? performance.now() : Date.now());
+      if (lastPortalDraw === 0) {
+        lastPortalDraw = now;
+      } else if (now - lastPortalDraw >= 150) {
+        lastPortalDraw = now;
+        tick += 1;
+        for (const c of activeCanvases) {
+          drawLiveCaptureCanvasFrame(c.canvas, c.id, tick, showWallpaper);
+        }
+      }
+      portalRafId = requestAnimationFrame(portalLoop);
+    };
+    portalRafId = requestAnimationFrame(portalLoop);
 
     dialog.append(titleBar, searchBarWrap, tabsBar, contentArea, footerArea);
     backdrop.append(dialog);
@@ -10659,10 +10718,7 @@ function boot() {
    * Синхронизирует плавающее окно предпросмотра активного стрима (`#live-stream-pip-preview`, кадр `hi_52.png` и `hi_61.png`).
    */
   function syncFloatingStreamPipPreview() {
-    if (activePipAnimTimer) {
-      clearInterval(activePipAnimTimer);
-      activePipAnimTimer = null;
-    }
+    cancelPipAnimTimer();
     if (activePipDragCleanup) {
       activePipDragCleanup();
       activePipDragCleanup = null;
@@ -10806,15 +10862,44 @@ function boot() {
     let tick = 0;
     const srcId = String(conn.streamSourceId || "win_orca");
     drawLiveCaptureCanvasFrame(cv, srcId, tick, true);
-    activePipAnimTimer = setInterval(() => {
+
+    let lastPipTickTime = typeof performance !== "undefined" && performance.now ? performance.now() : Date.now();
+    const PIP_FRAME_THROTTLE_MS = 550;
+
+    /** @param {DOMHighResTimeStamp} [timestamp] */
+    const stepPipFrame = (timestamp = 0) => {
+      // Завершаем цикл, если окно PiP удалено из DOM или закрыто
+      if (document.getElementById("live-stream-pip-preview") !== pip && !pip.isConnected && !document.body.contains(pip)) {
+        activePipAnimTimer = null;
+        return;
+      }
+
+      if (typeof requestAnimationFrame === "function") {
+        activePipAnimTimer = requestAnimationFrame(stepPipFrame);
+      } else {
+        activePipAnimTimer = /** @type {any} */ (setTimeout(() => stepPipFrame(Date.now()), PIP_FRAME_THROTTLE_MS));
+      }
+
+      // Visibility-gated: пропускаем отрисовку кадра при неактивной вкладке/документе или открытом Stage Viewer
+      if (typeof document !== "undefined" && document.hidden) return;
       if (document.getElementById("live-stream-stage-viewer")) return;
+
+      const now = Number(timestamp) || (typeof performance !== "undefined" && performance.now ? performance.now() : Date.now());
+      if (now - lastPipTickTime < PIP_FRAME_THROTTLE_MS) return;
+      lastPipTickTime = now;
+
       tick += 1;
       drawLiveCaptureCanvasFrame(cv, srcId, tick, true);
-    }, 550);
+    };
+
+    if (typeof requestAnimationFrame === "function") {
+      activePipAnimTimer = requestAnimationFrame(stepPipFrame);
+    } else {
+      activePipAnimTimer = /** @type {any} */ (setTimeout(() => stepPipFrame(Date.now()), PIP_FRAME_THROTTLE_MS));
+    }
 
     const topOverlay = document.createElement("div");
-    topOverlay.style.cssText =
-      "position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:linear-gradient(180deg,rgba(0,0,0,0.68) 0%,transparent 100%);";
+    topOverlay.className = "stream-pip-overlay-top";
     const chPill = document.createElement("span");
     chPill.style.cssText =
       "display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;background:rgba(17,18,20,0.78);color:#f2f3f5;font-size:12px;font-weight:700;";
@@ -10868,10 +10953,7 @@ function boot() {
     stopBtn.addEventListener("click", () => {
       conn.screenShareOn = false;
       conn.hideStreamPreview = true;
-      if (activePipAnimTimer) {
-        clearInterval(activePipAnimTimer);
-        activePipAnimTimer = null;
-      }
+      cancelPipAnimTimer();
       if (activePipDragCleanup) {
         activePipDragCleanup();
         activePipDragCleanup = null;
@@ -10940,10 +11022,7 @@ function boot() {
     if (activeVoiceConnection.screenShareOn && !forceOpenConfig) {
       activeVoiceConnection.screenShareOn = false;
       conn.hideStreamPreview = true;
-      if (activePipAnimTimer) {
-        clearInterval(activePipAnimTimer);
-        activePipAnimTimer = null;
-      }
+      cancelPipAnimTimer();
       document.getElementById("live-stream-stage-viewer")?.remove();
       document.getElementById("live-stream-pip-preview")?.remove();
       document.getElementById("live-stream-preview-overlay")?.remove();
@@ -12761,10 +12840,7 @@ function boot() {
       stopStreamBtn.addEventListener("click", () => {
         conn.screenShareOn = false;
         conn.hideStreamPreview = true;
-        if (activePipAnimTimer) {
-          clearInterval(activePipAnimTimer);
-          activePipAnimTimer = null;
-        }
+        cancelPipAnimTimer();
         document.getElementById("live-stream-stage-viewer")?.remove();
         document.getElementById("live-stream-pip-preview")?.remove();
         document.getElementById("live-stream-preview-overlay")?.remove();
