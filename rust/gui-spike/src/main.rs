@@ -50,11 +50,13 @@ use chord_client::{
     parse_process_metrics, validate_bench_payload, validate_ui_snapshot, ProcessMetrics,
 };
 pub mod auth_plugin;
+pub mod dm_plugin;
 pub mod gifts;
 pub mod gifts_plugin;
 pub mod invites_plugin;
 pub mod media_plugin;
 pub mod net_plugin;
+pub mod notifications_plugin;
 pub mod search_plugin;
 pub mod settings_plugin;
 pub mod voice_plugin;
@@ -1861,10 +1863,12 @@ fn main() {
     }
     tauri::Builder::default()
         .plugin(auth_plugin::init())
+        .plugin(dm_plugin::init())
         .plugin(gifts_plugin::init())
         .plugin(invites_plugin::init())
         .plugin(media_plugin::init())
         .plugin(net_plugin::init())
+        .plugin(notifications_plugin::init())
         .plugin(search_plugin::init())
         .plugin(settings_plugin::init())
         .plugin(voice_plugin::init())
