@@ -61,6 +61,9 @@ use serde_json::{json, Value};
 
 pub use crate::permissions::{PermissionOverwriteDef, RawPermissionOverwriteDto};
 pub use chord_core::cache::{InMemoryCache, InMemoryCacheBuilder, ResourceType};
+pub use chord_store::fts5_search::{
+    build_fts5_match_expression, Fts5MessageRecord, Fts5SearchEngine, Fts5SearchHit,
+};
 
 /// Global thread-safe in-memory cache instance replacing manual mutex locking for entity queries (`RW51-EPIC3-T2`).
 pub fn in_memory_cache() -> std::sync::Arc<InMemoryCache> {
@@ -12229,19 +12232,19 @@ pub struct SearchFilters {
     pub pinned: Option<bool>,
 }
 
-/// Найденное сообщение: та же строка, что в чате, плюс метаданные канала
-/// для строки результата (имя канала/гильдии может отсутствовать, если
-/// канал не попал в READY).
+/// Found message in search results: the chat [`MessageRow`] plus channel/guild metadata
+/// and an optional FTS5 highlighted match snippet (`snippet(messages_fts, -1, '<b>', '</b>', '...', 15)`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchHit {
     pub message: MessageRow,
     pub channel_name: Option<String>,
     pub guild_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub snippet: Option<String>,
 }
 
-/// Страница результатов поиска. `total` — сколько совпало во всех фикстурах,
-/// `scanned` — сколько сообщений просмотрено (для честного «найдено / загружено»).
+/// Page of local search results (`total` matched messages, `scanned` indexed messages).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchPage {
@@ -12255,7 +12258,7 @@ pub struct SearchPage {
     pub loaded_rows_limit: usize,
 }
 
-/// Пустая/пробельная строка фильтра = фильтр не задан.
+/// Blank/whitespace filter string is normalized to `None` (no restriction).
 fn normalized(value: Option<&str>) -> Option<String> {
     value
         .map(str::trim)
@@ -12263,7 +12266,7 @@ fn normalized(value: Option<&str>) -> Option<String> {
         .map(str::to_string)
 }
 
-/// `YYYY-MM-DD` — единственный принимаемый формат даты (как в `day` строки).
+/// Validates that `value` has the exact `YYYY-MM-DD` date shape.
 fn ensure_day(value: &str) -> Result<(), DataError> {
     ensure_input_len(value, "дата")?;
     let bytes = value.as_bytes();
@@ -12283,17 +12286,13 @@ fn ensure_day(value: &str) -> Result<(), DataError> {
     Ok(())
 }
 
-fn matches_query(row: &MessageRow, query_lower: &str) -> bool {
-    query_lower.is_empty() || row.content.to_lowercase().contains(query_lower)
-}
-
 fn matches_mention(row: &MessageRow, mention_id: &str) -> bool {
     row.mentions.iter().any(|id| id == mention_id)
         || row.content.contains(&format!("<@{mention_id}>"))
         || row.content.contains(&format!("<@!{mention_id}>"))
 }
 
-/// Проверяет один фильтр по строке. Значения уже обрезаны и провалидированы.
+/// Validates secondary R-10 filters on a candidate row returned by the FTS5 index.
 fn matches_filters(row: &MessageRow, filters: &SearchFilters) -> bool {
     if let Some(author) = filters.author_id.as_deref().map(str::trim) {
         if row.author.id != author {
@@ -12333,12 +12332,78 @@ fn matches_filters(row: &MessageRow, filters: &SearchFilters) -> bool {
     true
 }
 
-/// Локальный поиск по снятым фикстурам: тот же набор сообщений, что отдают
-/// `messages_page`, но по всем каналам сразу, с фильтрами R-10.
+/// Cached SQLite FTS5 index entry for a given fixture root directory.
+struct CachedFtsFixtureIndex {
+    engine: Fts5SearchEngine,
+    messages_by_id: HashMap<String, MessageRow>,
+    channels: HashMap<String, ChannelInfo>,
+    scanned: usize,
+}
+
+fn build_fixture_fts_index(root: &Path) -> Result<CachedFtsFixtureIndex, DataError> {
+    let frames = read_frames(root)?;
+    let channels = channel_index(&frames);
+    let mut channel_ids: Vec<String> = known_channels(&frames).into_iter().collect();
+    channel_ids.sort();
+
+    let mut records = Vec::new();
+    let mut messages_by_id = HashMap::new();
+    let mut scanned = 0;
+
+    for channel_id in channel_ids {
+        let rows = collect_messages(&frames, &channel_id)?;
+        scanned += rows.len();
+        for row in rows {
+            records.push(Fts5MessageRecord {
+                id: row.id.clone(),
+                channel_id: row.channel_id.clone(),
+                author_id: row.author.id.clone(),
+                content: row.content.clone(),
+            });
+            messages_by_id.insert(row.id.clone(), row);
+        }
+    }
+
+    let mut engine = Fts5SearchEngine::open_in_memory()
+        .map_err(|err| DataError::invalid_arg(format!("FTS5 init failed: {err}")))?;
+    engine
+        .index_messages(&records)
+        .map_err(|err| DataError::invalid_arg(format!("FTS5 indexing failed: {err}")))?;
+
+    Ok(CachedFtsFixtureIndex {
+        engine,
+        messages_by_id,
+        channels,
+        scanned,
+    })
+}
+
+/// Executes an indexed SQLite FTS5 search (`messages_fts` with `unicode61` tokenizer)
+/// and returns BM25-ranked results with `snippet(messages_fts, -1, '<b>', '</b>', '...', 15)`.
 ///
-/// Сортировка — время, затем id, затем канал (детерминированная при равных
-/// timestamp). `limit` — `1..=100`; курсор — id последнего результата.
-/// Нет совпадений — пустая страница с `total: 0`, это не ошибка.
+/// # Errors
+///
+/// Returns [`DataError`] if the fixture root cannot be indexed or the FTS5 query fails.
+pub fn search_messages(
+    root: &Path,
+    query: &str,
+    channel_id: Option<&str>,
+    author_id: Option<&str>,
+    limit: usize,
+    offset: usize,
+) -> Result<Vec<Fts5SearchHit>, DataError> {
+    let index = build_fixture_fts_index(root)?;
+    index
+        .engine
+        .search_messages(query, channel_id, author_id, limit, offset)
+        .map_err(|err| DataError::invalid_arg(format!("FTS5 search error: {err}")))
+}
+
+/// Local full-text message search across fixture channels backed by SQLite FTS5 (`RW51-EPIC4-T2`).
+///
+/// Replaces O(N) linear vector scanning with indexed FTS5 lookup (`messages_fts`, `unicode61`),
+/// while preserving R-10 filter semantics, deterministic sorting (`timestamp`, `id`, `channel_id`),
+/// and cursor pagination (`limit` in `1..=100`).
 pub fn search_page(
     root: &Path,
     query: &str,
@@ -12366,8 +12431,6 @@ pub fn search_page(
     {
         ensure_day(day)?;
     }
-    // Пустая строка из поля ввода — «фильтр не задан», а не «искать пустое»:
-    // иначе `authorId: ""` отдавал бы нулевой результат на пустом UI.
     let filters = SearchFilters {
         author_id: normalized(filters.author_id.as_deref()),
         channel_id: normalized(filters.channel_id.as_deref()),
@@ -12379,28 +12442,53 @@ pub fn search_page(
     };
     let limit = page_limit(limit)?;
 
-    let frames = read_frames(root)?;
-    let channels = channel_index(&frames);
+    let cached = build_fixture_fts_index(root)?;
+    let scanned = cached.scanned;
+
+    // Combine query and `filters.content` into the FTS5 query when possible.
+    let combined_fts_query = match (query.is_empty(), filters.content.as_deref()) {
+        (false, Some(extra)) => format!("{query} {extra}"),
+        (false, None) => query.to_string(),
+        (true, Some(extra)) => extra.to_string(),
+        (true, None) => String::new(),
+    };
+
+    let fts_hits = cached
+        .engine
+        .search_messages(
+            &combined_fts_query,
+            filters.channel_id.as_deref(),
+            filters.author_id.as_deref(),
+            scanned.max(100),
+            0,
+        )
+        .map_err(|err| DataError::invalid_arg(format!("FTS5 query failed: {err}")))?;
+
     let query_lower = query.to_lowercase();
-    let mut channel_ids: Vec<String> = known_channels(&frames).into_iter().collect();
-    channel_ids.sort();
-    let mut hits: Vec<SearchHit> = Vec::new();
-    let mut scanned = 0;
-    for channel_id in channel_ids {
-        let rows = collect_messages(&frames, &channel_id)?;
-        scanned += rows.len();
-        let info = channels.get(&channel_id);
-        for row in rows {
-            if !matches_query(&row, &query_lower) || !matches_filters(&row, &filters) {
-                continue;
-            }
-            hits.push(SearchHit {
-                message: row,
-                channel_name: info.and_then(|info| info.name.clone()),
-                guild_name: info.and_then(|info| info.guild_name.clone()),
-            });
+    let mut hits: Vec<SearchHit> = Vec::with_capacity(fts_hits.len());
+    for fts_hit in fts_hits {
+        let Some(row) = cached.messages_by_id.get(&fts_hit.message_id) else {
+            continue;
+        };
+        if (!query_lower.is_empty() && !row.content.to_lowercase().contains(&query_lower))
+            || !matches_filters(row, &filters)
+        {
+            continue;
         }
+        let info = cached.channels.get(&row.channel_id);
+        let snippet = if combined_fts_query.is_empty() {
+            None
+        } else {
+            Some(fts_hit.snippet)
+        };
+        hits.push(SearchHit {
+            message: row.clone(),
+            channel_name: info.and_then(|info| info.name.clone()),
+            guild_name: info.and_then(|info| info.guild_name.clone()),
+            snippet,
+        });
     }
+
     hits.sort_by(|left, right| {
         left.message
             .timestamp
@@ -13666,5 +13754,30 @@ mod dm_voice_stream_tests {
             .expect("valid channel row");
         let parsed_row = row.parsed_permission_overwrites();
         assert_eq!(parsed_row, parsed_dto);
+    }
+
+    #[test]
+    fn fts5_search_messages_and_search_page_highlight_snippets() {
+        let Ok(root) = fixtures_root() else {
+            return;
+        };
+        if !root.exists() {
+            return;
+        }
+        let hits = search_messages(&root, "call of duty", None, None, 10, 0)
+            .expect("fts5 search_messages");
+        assert_eq!(hits.len(), 1);
+        assert!(hits[0].snippet.contains("<b>"));
+        assert!(hits[0].snippet.contains("</b>"));
+
+        let page = search_page(&root, "call of duty", &SearchFilters::default(), None, None)
+            .expect("fts5 search_page");
+        assert_eq!(page.total, 1);
+        assert!(
+            page.items[0]
+                .snippet
+                .as_deref()
+                .is_some_and(|s| s.contains("<b>") && s.contains("</b>"))
+        );
     }
 }

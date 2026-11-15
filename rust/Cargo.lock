@@ -177,6 +177,7 @@ dependencies = [
  "tokio-rustls",
  "tokio-tungstenite",
  "twilight-model",
+ "twilight-util",
  "webpki-roots 1.0.12",
  "zstd",
 ]
@@ -1235,6 +1236,15 @@ dependencies = [
  "serde-value",
  "serde_repr",
  "time",
+]
+
+[[package]]
+name = "twilight-util"
+version = "0.15.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe3149347d8222e042a55deba80cd32f93f14770bbb845b8e4cfbd70a5062c56"
+dependencies = [
+ "twilight-model",
 ]
 
 [[package]]

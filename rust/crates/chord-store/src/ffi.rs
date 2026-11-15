@@ -94,6 +94,7 @@ unsafe extern "C" {
     fn sqlite3_column_text(statement: *mut Sqlite3Stmt, column: c_int) -> *const u8;
     fn sqlite3_column_bytes(statement: *mut Sqlite3Stmt, column: c_int) -> c_int;
     fn sqlite3_column_int64(statement: *mut Sqlite3Stmt, column: c_int) -> i64;
+    fn sqlite3_column_double(statement: *mut Sqlite3Stmt, column: c_int) -> f64;
     fn sqlite3_finalize(statement: *mut Sqlite3Stmt) -> c_int;
     fn sqlite3_changes(db: *mut Sqlite3) -> c_int;
 }
@@ -430,6 +431,13 @@ impl Stmt<'_> {
         let column = Self::index(column)?;
         // SAFETY: statement жив; чтение INTEGER не владеет памятью.
         Ok(unsafe { sqlite3_column_int64(self.raw.as_ptr(), column) })
+    }
+
+    /// Reads the `FLOAT` (`f64`) value of the current row column (returns `0.0` for `NULL`).
+    pub(crate) fn column_f64(&self, column: usize) -> Result<f64, FfiError> {
+        let column = Self::index(column)?;
+        // SAFETY: statement is alive and positioned on a valid row; reading a double does not own memory.
+        Ok(unsafe { sqlite3_column_double(self.raw.as_ptr(), column) })
     }
 }
 

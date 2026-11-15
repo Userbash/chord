@@ -24,6 +24,7 @@ use std::path::{Path, PathBuf};
 
 #[allow(unsafe_code)]
 mod ffi;
+pub mod fts5_search;
 
 /// Стартовый набор таблиц ядра данных (по F-DATA-02). В схеме v1 реализованы `channels`.
 pub const CORE_TABLES: [&str; 5] = ["guilds", "channels", "roles", "users", "emoji"];
