@@ -477,6 +477,10 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/webhooks-editor-contract.test.mjs` | `rust/gui-spike/ui/features/webhooks-editor.js` | `webhooks-editor` |
 | `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |
 | `tests/unit/bff-pins-threads-contract.test.mjs` | `rust/gui-spike/ui/features/pins-threads.js` | `createPinsThreadsController` |
+| `tests/unit/modules-voice-rtc-panel-contract.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveVoiceCallPhaseView` |
+| `tests/unit/modules-channel-tree-view-contract.test.mjs` | `rust/gui-spike/ui/modules/channel-tree-view.js` | `isConfirmedVoiceStateRecord` |
+| `tests/unit/core-ui-adapters-contract.test.mjs` | `src/core/ui/adapters.mjs` | `resolveAdapter`, `clickNavItemExpression` |
+| `tests/unit/core-ui-engine-contract.test.mjs` | `src/core/ui/engine.mjs` | `runWalk` |
 
 ## 9. Risks and Limitations
 
