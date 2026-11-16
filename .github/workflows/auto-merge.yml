@@ -5,13 +5,20 @@
 name: Auto Merge Safe PRs
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, labeled]
-  check_suite:
-    types: [completed]
-  workflow_run:
-    workflows: ["AI Collab Gate"]
-    types: [completed]
+  # CI/CD paused until 2026-12-01 per project directive
+  # pull_request:
+  #   types: [opened, synchronize, reopened, labeled]
+  # check_suite:
+  #   types: [completed]
+  # workflow_run:
+  #   workflows: ["AI Collab Gate"]
+  #   types: [completed]
+  workflow_dispatch:
+    inputs:
+      override_pause:
+        description: "Override pause until 2026-12-01 (set to 'run')"
+        required: false
+        default: ""
 
 permissions:
   contents: write

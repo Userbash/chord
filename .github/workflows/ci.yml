@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      override_pause:
+        description: "Override pause until 2026-12-01 (set to 'run')"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -11,6 +17,8 @@ permissions:
 jobs:
   test:
     name: fmt-clippy-test-bench
+    # CI/CD paused until 2026-12-01 per project directive
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.override_pause == 'run'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -31,6 +39,8 @@ jobs:
   # the suite is collected with `! -name 'live-*'`, and the live variable is unset via `env -u`.
   qa-browser:
     name: qa-browser
+    # CI/CD paused until 2026-12-01 per project directive
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.override_pause == 'run'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:

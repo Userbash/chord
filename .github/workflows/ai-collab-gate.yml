@@ -5,10 +5,17 @@
 name: AI Collab Gate
 
 on:
-  pull_request:
-    branches: [unstable, testing, beta, main, release/developer-alpha-preview]
-  pull_request_review:
-    types: [submitted]
+  # CI/CD paused until 2026-12-01 per project directive
+  # pull_request:
+  #   branches: [unstable, testing, beta, main, release/developer-alpha-preview]
+  # pull_request_review:
+  #   types: [submitted]
+  workflow_dispatch:
+    inputs:
+      override_pause:
+        description: "Override pause until 2026-12-01 (set to 'run')"
+        required: false
+        default: ""
 
 concurrency:
   group: ai-gate-${{ github.head_ref }}

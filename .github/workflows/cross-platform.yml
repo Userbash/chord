@@ -5,6 +5,11 @@ on:
   push:
     branches: [unstable, testing, beta, main, release/developer-alpha-preview]
   workflow_dispatch:
+    inputs:
+      override_pause:
+        description: "Override pause until 2026-12-01 (set to 'run')"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -21,6 +26,8 @@ env:
 jobs:
   native:
     name: ${{ matrix.suite }} (${{ matrix.runner }})
+    # CI/CD paused until 2026-12-01 per project directive
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.override_pause == 'run'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
