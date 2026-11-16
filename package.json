@@ -80,7 +80,9 @@
     "socrati:health": "bash scripts/socrati-guard.sh",
     "socrati:impact": "node scripts/socrati-impact.mjs",
     "socrati:search": "node scripts/socrati-search.mjs",
-    "socrati:hub": "node scripts/socrati-hub-check.mjs"
+    "socrati:hub": "node scripts/socrati-hub-check.mjs",
+    "socrati:cycles": "node scripts/socrati-cycles.mjs",
+    "socrati:auto-test": "node scripts/socrati-impact.mjs --run"
   },
   "files": [
     "bin/",

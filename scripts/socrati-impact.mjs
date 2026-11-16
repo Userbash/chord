@@ -120,21 +120,69 @@ function parseImpactOutput(text) {
   return { files, tests };
 }
 
+async function runTargetedTests(tests) {
+  if (tests.length === 0) {
+    console.log('⚡ [SOCRATI-IMPACT] No targeted test suites identified in blast radius.');
+    return 0;
+  }
+
+  console.log(`\n🚀 [SOCRATI-IMPACT] Auto-running ${tests.length} targeted test suites...`);
+  let hasFailures = false;
+
+  for (const t of tests.slice(0, 5)) {
+    if (t.endsWith('.rs')) {
+      const testName = path.basename(t, '.rs');
+      console.log(`\n▶️  Running Rust contract test: ${testName}`);
+      const res = spawnSync('bash', [path.join(PROJECT_ROOT, 'scripts/rust-slim.sh'), 'test', '--test', testName], {
+        cwd: PROJECT_ROOT,
+        stdio: 'inherit',
+      });
+      if (res.status !== 0) hasFailures = true;
+    } else {
+      console.log(`\n▶️  Running Node.js test: ${t}`);
+      const res = spawnSync('node', ['--test', t], {
+        cwd: PROJECT_ROOT,
+        stdio: 'inherit',
+      });
+      if (res.status !== 0) hasFailures = true;
+    }
+  }
+
+  return hasFailures ? 1 : 0;
+}
+
 async function main() {
-  const targetFile = process.argv[2];
-  if (!targetFile) {
-    console.error('Usage: node scripts/socrati-impact.mjs <file_path> [--depth 3]');
+  const isRunMode = process.argv.includes('--run');
+  const targetArg = process.argv.filter(a => !a.startsWith('--') && a !== process.argv[0] && a !== process.argv[1])[0];
+
+  let normTarget = targetArg;
+  if (!normTarget) {
+    // Auto-detect from git status / diff
+    try {
+      const diffOutput = spawnSync('git', ['diff', '--name-only', 'HEAD'], { encoding: 'utf8' }).stdout || '';
+      const changedFiles = diffOutput.trim().split('\n').filter(f => f && (f.endsWith('.rs') || f.endsWith('.js') || f.endsWith('.mjs')));
+      if (changedFiles.length > 0) {
+        normTarget = changedFiles[0];
+        console.log(`🔍 [SOCRATI-IMPACT] Auto-detected changed file: ${normTarget}`);
+      }
+    } catch {
+      // fallback
+    }
+  }
+
+  if (!normTarget) {
+    console.error('Usage: node scripts/socrati-impact.mjs <file_path> [--run] [--depth 3]');
     process.exit(1);
   }
 
-  const normTarget = path.relative(PROJECT_ROOT, path.resolve(PROJECT_ROOT, targetFile));
+  const normalized = path.relative(PROJECT_ROOT, path.resolve(PROJECT_ROOT, normTarget));
 
-  console.log(`💥 [SOCRATI-IMPACT] Calculating Blast Radius for: ${normTarget}`);
+  console.log(`💥 [SOCRATI-IMPACT] Calculating Blast Radius for: ${normalized}`);
 
   try {
     const res = await callSocratiCodeTool('codebase_impact', {
       projectPath: PROJECT_ROOT,
-      target: normTarget,
+      target: normalized,
       depth: 3,
     });
 
@@ -145,7 +193,7 @@ async function main() {
     if (files.length === 0) {
       console.log('   ✅ Standalone module or leaf: No callers or dependents found.');
     } else {
-      console.log(`\n🎯 Recommended Targeted Tests to Run (T0):`);
+      console.log(`\n🎯 Recommended Targeted Tests (T0):`);
       if (tests.length === 0) {
         console.log('   (No direct unit tests in immediate blast radius — run targeted crate test)');
       } else {
@@ -167,7 +215,11 @@ async function main() {
         console.log(`   • ${f}`);
       }
     }
-    console.log();
+
+    if (isRunMode && tests.length > 0) {
+      const code = await runTargetedTests(tests);
+      process.exit(code);
+    }
   } catch (err) {
     console.error(`⚠️  [SOCRATI-IMPACT] SocratiCode tool unavailable: ${err.message}`);
     console.log('   (Fallback: using grep for immediate module references)');

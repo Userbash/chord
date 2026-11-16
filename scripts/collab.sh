@@ -45,6 +45,8 @@ Subcommands:
   visual [status]       Headless UI visual regression comparator
   impact <file>         Calculate Blast Radius & smart test selector (SocratiCode)
   ask <query>           Compact semantic code search for LLMs/developers (SocratiCode)
+  cycles [filter]       Audit circular dependency chains in AST graph (SocratiCode)
+  auto-test [file]      Auto-run impacted contract tests with slim error logging
   report                Generate standard PROCESS.md §4.2 Completion Report
   sync                  Synchronize code & locks with git remotes (origin + public)
   clean                 Run garbage collection on stale incremental targets
@@ -166,6 +168,16 @@ case "${1:-status}" in
   impact)
     shift 1 || true
     node "$SCRIPT_DIR/socrati-impact.mjs" "$@"
+    ;;
+
+  auto-test)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-impact.mjs" "$@" --run
+    ;;
+
+  cycles)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-cycles.mjs" "$@"
     ;;
 
   ask)
