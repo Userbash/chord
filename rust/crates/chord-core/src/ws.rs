@@ -3555,11 +3555,11 @@ function resolveDeviceIndex(devStr, list) {
   return 0;
 }
 
-function buildVoiceDspTransportOptions(isStreamConn, _krispEnabled, autoGain) {
+function buildVoiceDspTransportOptions(isStreamConn, krispEnabled, autoGain) {
   return {
     echoCancellation: !isStreamConn,
-    noiseSuppression: !isStreamConn,
-    noiseCancellation: false,
+    noiseSuppression: !isStreamConn && !krispEnabled,
+    noiseCancellation: !isStreamConn && Boolean(krispEnabled),
     automaticGainControl: !isStreamConn && Boolean(autoGain),
     ducking: 0
   };
@@ -4603,8 +4603,8 @@ rl.on("line", (line) => {
       if (typeof dv.setLoopback === "function") {
         dv.setLoopback(active, {
           echoCancellation: true,
-          noiseCancellation: false,
-          noiseSuppression: true,
+          noiseCancellation: Boolean(currentKrispEnabled),
+          noiseSuppression: !currentKrispEnabled,
           automaticGainControl: Boolean(currentAutoGain),
           vadUseKrisp: false
         });

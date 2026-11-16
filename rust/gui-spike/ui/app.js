@@ -3018,7 +3018,7 @@ function boot() {
     },
     getSettingsRef: () => settingsRef,
     getSettingsObject: () => settingsRef,
-    getChatActiveChannelId: () => /** @type {any} */ (chat)?.activeChannelId ?? "",
+    getChatActiveChannelId: () => /** @type {any} */ (chat)?.channelId ?? /** @type {any} */ (chat)?.activeChannelId ?? "",
     getRailSelectedId: () => rail?.selectedId ?? "@me",
     selectedGuildId,
     currentGuildInfo: () => currentGuildInfo(),
