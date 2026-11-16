@@ -73,7 +73,10 @@
     "kanban:sync": "bash scripts/kanban-sync.sh",
     "pr:quarantine": "bash scripts/pr-quarantine.sh",
     "test:visual": "node scripts/visual-diff.mjs",
-    "security:shield": "node scripts/security-shield.mjs"
+    "security:shield": "node scripts/security-shield.mjs",
+    "docs:graph": "node scripts/docs-graph.mjs",
+    "docs:lint": "node scripts/docs-lint.mjs",
+    "docs:sync": "node scripts/docs-graph.mjs && node scripts/docs-lint.mjs"
   },
   "files": [
     "bin/",

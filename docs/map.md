@@ -16,50 +16,63 @@ flowchart TB
   classDef part fill:#fdf3d8,stroke:#c99700,color:#1b2430
   classDef no fill:#fbe3e3,stroke:#c0392b,color:#1b2430
   classDef neu fill:#eef2f7,stroke:#7d93ab,color:#1b2430
+  classDef amcp fill:#f0e6ff,stroke:#8a2be2,color:#1b2430
 
-  GOAL["Rust Client with Discord UX/UI from Scratch"]:::neu
+  GOAL["Native Discord Client & Protocol Suite (Chord)"]:::neu
   A["Scenario A — Independent Messenger (Recommended)"]:::ok
-  C["Scenario C — Direct Discord Protocol Client (Legal Risk)"]:::no
+  C["Scenario C — Direct Protocol Client (TOS Sensitive)"]:::no
   GOAL --> A
   GOAL --> C
   GOAL --> S8
   A --> LAYERS
 
-  subgraph LAYERS["Research Layers (Waves R1, R2-NET/R3, R7)"]
+  subgraph AMCP["Multi-AI Collaboration Control Plane (AMCP v2.0)"]
+    bus["Agent Bus (.collab/bus/events.jsonl)"]:::amcp
+    locks["Distributed File Locks (locks.json)"]:::amcp
+    precheck["Sub-Second Precheck (precheck.mjs)"]:::amcp
+    shield["AST Security Shield (security-shield.mjs)"]:::amcp
+    contracts["Contract Drift Linter (contract-lint.mjs)"]:::amcp
+    bus --- locks
+    locks --- precheck
+    precheck --- shield
+    shield --- contracts
+  end
+
+  subgraph LAYERS["System Architecture Layers (Waves R1–R7, RW-52)"]
     direction TB
-    subgraph S1["1. UI System and UX"]
+    subgraph S1["1. UI & Visual Engine"]
       u1["Tokens: 5,132 CSS variables"]:::ok
       u2["Themes: Dark / Light / Midnight"]:::ok
-      u3["Densities: Cozy / Compact"]:::ok
-      u4["Screens: Search, Emojis, Settings, Popovers (D-03)"]:::ok
-      u5["Localization: String catalogs & i18n keys"]:::ok
-      u6["Typography: 22 × WOFF2 fonts"]:::ok
+      u3["Views: Server Rail, Virtual Chat, Voice HUD"]:::ok
+      u4["Localization: 36 Locales (chord-i18n)"]:::ok
     end
-    subgraph S2["2. Protocol and Networking"]
-      p1["Gateway: WebSocket + ETF + zstd stream"]:::ok
-      p2["Opcodes 0–43, QoS op40"]:::ok
-      p3["Voice Gateway: JSON, heartbeat 13.75s"]:::ok
-      p4["Session Description: Key and encryption mode"]:::ok
-      p5["Cadence-based socket binding"]:::ok
-      p6["Clean READY: 4 logins (D-01); GUILD_CREATE full mode"]:::ok
+
+    subgraph S2["2. Protocol Core (chord-core)"]
+      p1["Gateway v9: WebSocket + ETF + zstd stream"]:::ok
+      p2["REST API v9: Discord endpoints"]:::ok
+      p3["Permissions: 64-bit Bitmask Calculator"]:::ok
+      p4["Heartbeat & Voice Gateway OP 0..43"]:::ok
     end
-    subgraph S3["3. Media and Cryptography"]
-      m1["Audio: Opus 48kHz stereo, 20ms frame"]:::ok
-      m2["SRTP: AES-256-GCM and XChaCha20-Poly1305"]:::ok
-      m3["Screen Sharing: PipeWire + X11 SHM fallback"]:::ok
-      m4["DAVE MLS v2: MLS 1.0 KeyRatchet E2EE"]:::ok
+
+    subgraph S3["3. Audio & Media Engine (chord-voice / chord-platform)"]
+      m1["Audio: cpal native ALSA/Pulse/PipeWire 48kHz"]:::ok
+      m2["SRTP: AES-256-GCM and ChaCha20-Poly1305"]:::ok
+      m3["Screen Sharing: PipeWire Portal + X11 SHM"]:::ok
+      m4["DAVE MLS v1: RFC 9420 KeyRatchet E2EE"]:::ok
     end
+
     subgraph S6["6. Reference Implementations"]
       ref1["Vesktop 1.6.7 (Screen sharing & packaging)"]:::ok
       ref2["discord-qt 0.5.1 (Protocol contracts & schemas)"]:::ok
     end
-    subgraph S8["8. Native Rust Client (docs/rust-client/)"]
-      rc1["CONCEPT.md: Zero Electron/Chromium"]:::ok
+
+    subgraph S8["8. Native Client Implementation (docs/rust-client/)"]
+      rc1["CONCEPT.md: Zero Electron / Zero WebKit lag"]:::ok
       rc2["FEATURES.md: >= 100 features mapped"]:::ok
-      rc3["ARCHITECTURE.md: GPUI 120 FPS + WGPU"]:::ok
+      rc3["ARCHITECTURE.md: Tauri v2 BFF & High-FPS WGPU"]:::ok
       rc4["PLAN.md: Waves P0–P8"]:::ok
-      rc5["TEST-PLAN.md: >= 110 tests L0–L7"]:::ok
-      rc6["PROJECT-STRUCTURE.md: Workspace crates"]:::ok
+      rc5["TEST-PLAN.md: 12 Quality Tiers (T0–T4)"]:::ok
+      rc6["PROJECT-STRUCTURE.md: Workspace Crates"]:::ok
       rc7["TRACEABILITY.md: F-* to T-* mapping"]:::ok
       rc8["VERIFICATION.md: Evidence validation"]:::ok
     end
@@ -69,6 +82,7 @@ flowchart TB
   ref1 --> bkl
   ref2 --> bkl
   bkl --> S8
+  AMCP --> LAYERS
 ```
 
 ---
