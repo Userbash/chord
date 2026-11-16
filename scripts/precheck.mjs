@@ -34,6 +34,15 @@ async function main() {
   const totalStart = Date.now();
   console.log('⚡ [PRECHECK] Running parallel sanity verification...');
 
+  // 0. Verify GPUI is frozen
+  try {
+    const gitDiff = execSync('git diff --name-only HEAD 2>/dev/null || true', { encoding: 'utf8' });
+    if (gitDiff.split('\n').some(f => f.startsWith('rust/chord-gpui/'))) {
+      console.error('❌ [PRECHECK] GPUI-Freeze FAILED: Changes in rust/chord-gpui/ are strictly rejected. Tauri is the primary client.');
+      process.exit(1);
+    }
+  } catch {}
+
   const checks = await Promise.all([
     runCheck('TSC', 'npx', ['tsc', '-p', 'tsconfig.json']),
     runCheck('Syntax', 'node', ['--check', 'rust/gui-spike/ui/app.js']),

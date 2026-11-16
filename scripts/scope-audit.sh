@@ -39,11 +39,17 @@ raw_files = """'"$CHANGED_FILES"'""".strip().split()
 
 # Forbidden for all ordinary workers
 golden_prefixes = ["logs/", "functions/", "evidence/"]
+frozen_prefixes = ["rust/chord-gpui/"]
 shared_core_files = ["state/types.rs", "state/reducer.rs", "state/mod.rs", "src/lib.rs", "PLAN.md", "STATUS.md", "ROADMAP.md", "TASKS.md"]
 
 violations = []
 
 for f in raw_files:
+    # 0. Check frozen GPUI codebase (Tauri is the primary client)
+    for fr in frozen_prefixes:
+        if f.startswith(fr):
+            violations.append(f"FROZEN GPUI: {f} (GPUI is frozen. All changes rejected; Tauri is the primary client.)")
+
     # 1. Check golden baselines
     for g in golden_prefixes:
         if f.startswith(g):

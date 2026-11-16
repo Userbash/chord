@@ -22,6 +22,12 @@ cat <<'EOF' > "$HOOKS_DIR/pre-commit"
 #!/usr/bin/env bash
 set -e
 
+# Block changes to GPUI (Tauri is the primary client)
+if git diff --cached --name-only | grep -E '^rust/chord-gpui/' >/dev/null 2>&1; then
+  echo "❌ [GIT-HOOK] Изменения в GPUI (rust/chord-gpui/) ЗАПРЕЩЕНЫ. Основной клиент — Tauri."
+  exit 1
+fi
+
 # Run zero-token precheck
 if command -v npm >/dev/null 2>&1; then
   echo "🔍 [GIT-HOOK] Running fast pre-commit sanity check..."
