@@ -4574,7 +4574,7 @@
       "id": "TASK-951",
       "title": "Формирование централизованного манифеста сборки BUILD-005 и подготовка слияния unstable -> testing",
       "department": "devops",
-      "status": "completed",
+      "status": "done",
       "priority": "P0",
       "summary": "Консолидация всех 128 завершённых задач в ветке unstable, проверка чистоты рабочего дерева, формирование машиночитаемого манифеста waves/BUILD-005.json и слияние в ветку testing с тегом build-005-candidate.",
       "layout": {
@@ -4718,7 +4718,7 @@
       "id": "TASK-953",
       "title": "Автономная верификация системных библиотек ldd и совместимости с дистрибутивами Linux",
       "department": "devops",
-      "status": "completed",
+      "status": "done",
       "priority": "P1",
       "summary": "Инспекция динамических зависимостей бинарника discord-gpui через ldd/objdump, проверка совместимости с glibc <= 2.35 и тестирование холодного старта при программном рендере llvmpipe.",
       "layout": {
@@ -8285,7 +8285,7 @@
     {
       "id": "TASK-AUTO-101",
       "title": "scripts/gui-run.sh: Единый менеджер жизненного цикла GUI и дисплея",
-      "status": "backlog",
+      "status": "done",
       "priority": "P0",
       "department": "DevOps",
       "summary": "Автоматизация запуска, проверки свежести сборки, экспорта DISPLAY/WAYLAND и остановки фонового процесса chord-client без вызовов ps aux | grep.",
@@ -8321,7 +8321,7 @@
     {
       "id": "TASK-AUTO-102",
       "title": "scripts/tdd-runner.sh: Полная автоматизация TDD-цикла (Red -> Green -> Mutations)",
-      "status": "backlog",
+      "status": "done",
       "priority": "P0",
       "department": "G4 QA",
       "summary": "Скрипт одного клика для фиксации red.log, green.log, clippy.log и мутаций 5/5 по карточке без ручного повторения 15 шагов диалога ИИ.",
@@ -8350,7 +8350,7 @@
     {
       "id": "TASK-AUTO-201",
       "title": "scripts/worker-gc.mjs (v2): Глубокая очистка дискового кэша Cargo target/",
-      "status": "backlog",
+      "status": "done",
       "priority": "P0",
       "department": "DevOps",
       "summary": "Добавление в worker-gc.mjs очистки инкрементальных кэшей target/debug/incremental и устаревших .rlib с лимитом размера 15 ГБ для предотвращения разрастания до 107 ГБ.",
@@ -8378,7 +8378,7 @@
     {
       "id": "TASK-AUTO-202",
       "title": "scripts/orca-slim.sh: Компактный парсер статуса Orca-воркеров",
-      "status": "backlog",
+      "status": "done",
       "priority": "P1",
       "department": "G0 Routine",
       "summary": "Локальная фильтрация вывода orca orchestration check и worktree ps до 3 строк (активные воркеры, упавшие воркеры, очередь) вместо 5000 строк JSON.",
@@ -8405,7 +8405,7 @@
     {
       "id": "TASK-AUTO-301",
       "title": "npm run precheck: Параллельная ультра-быстрая верификация синтаксиса и контрактов",
-      "status": "backlog",
+      "status": "done",
       "priority": "P1",
       "department": "G4 QA",
       "summary": "Объединение npm run typecheck, node --check rust/gui-spike/ui/app.js и tests/meta в один параллельный скрипт с однострочным выводом.",
@@ -8425,7 +8425,7 @@
     {
       "id": "TASK-AUTO-302",
       "title": "scripts/sync-push.sh: Безопасный синхронный пуш в origin и public",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "DevOps",
       "summary": "Автоматизация двойного пуша текущей ветки в оба репозитория с верификацией чистоты дерева и проверкой SHA.",
@@ -8445,7 +8445,7 @@
     {
       "id": "TASK-AUTO-401",
       "title": "scripts/ci-pause.sh: Мгновенный переключатель паузы GitHub Workflows",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "DevOps",
       "summary": "Скрипт переключения паузы CI/CD до заданной даты или разморозки в один шаг вместо ручной правки 25 YAML файлов.",
@@ -8465,7 +8465,7 @@
     {
       "id": "TASK-AUTO-402",
       "title": "scripts/pr.sh: Консолидация PR-инструментов и генерация Release Notes",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G0 Routine",
       "summary": "Объединение pr-collaborator.mjs и pr-ops.mjs под единым фасадом scripts/pr.sh с генерацией описания на английском из коммитов.",
