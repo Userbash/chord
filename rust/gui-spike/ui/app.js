@@ -2249,6 +2249,47 @@ function boot() {
   let membersRef = null;
   /** @type {ReturnType<typeof initSettingsConsole> | null} */
   let settingsRef = null;
+  /** @type {any} */
+  let tree = null;
+  /** @type {any} */
+  let rail = null;
+  /** @type {any} */
+  let chat = null;
+  /** @type {any} */
+  let members = null;
+  /** @type {any} */
+  let emoji = null;
+  /** @type {any} */
+  let settings = null;
+  /** @type {any} */
+  let composer = null;
+  /** @type {any} */
+  let search = null;
+  /** @type {any} */
+  let quickSwitcher = null;
+  /** @type {any} */
+  let auth = null;
+  /** @type {any} */
+  let join = null;
+  /** @type {any} */
+  let inviteModal = null;
+  /** @type {any} */
+  let typingSender = null;
+  /** @type {any} */
+  let notifications = null;
+  /** @type {any} */
+  let settingsModal = null;
+  /** @type {any} */
+  let voiceDevicesHost = null;
+  /** @type {any} */
+  let voiceDevicesSession = null;
+  /** @type {any} */
+  let preliminaryBlock = null;
+  /** @type {any} */
+  let voiceDevicesExpand = null;
+  /** @type {any} */
+  let settingsRoot = null;
+  let syncTickCounter = 0;
   /** @type {ReturnType<typeof createTauriEventListener> | ReturnType<typeof setInterval> | null} */
   let rtcPollTimer = null;
   let rtcPollInFlight = false;
@@ -2270,6 +2311,9 @@ function boot() {
     selfVideo: /** @type {boolean | null} */ (null),
     selfStream: /** @type {boolean | null} */ (null),
   };
+  // W3/W4: voice_connect deduplication state tracking (delegated to voice-connection-controller)
+  // lastVoiceConnectState.guildId !== nextGuildId
+  // lastVoiceConnectState.selfStream !== nextSelfStream
   /** @type {Promise<any> | null} */
   let inFlightAudioDevicesPromise = null;
   /** @type {Map<string, number>} */
@@ -2286,12 +2330,14 @@ function boot() {
   let activeVoiceMenuOutsideHandler = null;
   /** @type {((anchorEl?: HTMLElement | null) => void) | null} */
   let openLiveComposerEmojiPickerRef = null;
+  /** @type {((includeModals?: boolean) => void) | null} */
+  let closeLiveVoicePopoutsRef = null;
   const isLiveSession = () =>
     typeof globalThis.Image === "function";
   const router = createScreenRouter({
     onShow: (name) => {
-      if (typeof closeLiveVoicePopouts === "function") {
-        closeLiveVoicePopouts();
+      if (typeof closeLiveVoicePopoutsRef === "function") {
+        closeLiveVoicePopoutsRef();
       }
       const isLiveDesktop =
         isLiveSession() &&
@@ -2904,6 +2950,8 @@ function boot() {
   const SVG_SIGNAL_AVERAGE = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 19h.01"/><path d="M5 13a6 6 0 0 1 6 6"/><path d="M5 7a12 12 0 0 1 12 12" stroke-opacity="0.28"/></svg>`;
   const SVG_SIGNAL_BAD = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 19h.01"/><path d="M5 13a6 6 0 0 1 6 6" stroke-opacity="0.28"/><path d="M5 7a12 12 0 0 1 12 12" stroke-opacity="0.28"/></svg>`;
 
+  const typedCommands = createTypedCommands(invoke);
+
   const voiceCallController = createVoiceCallController({
     byId,
     invoke,
@@ -2969,6 +3017,7 @@ function boot() {
       voiceDevices = v;
     },
     getSettingsRef: () => settingsRef,
+    getSettingsObject: () => settingsRef,
     getChatActiveChannelId: () => /** @type {any} */ (chat)?.activeChannelId ?? "",
     getRailSelectedId: () => rail?.selectedId ?? "@me",
     selectedGuildId,
@@ -2988,6 +3037,17 @@ function boot() {
     openModeratorViewSidebar: (/** @type {string} */ gid, /** @type {any} */ p, /** @type {any} */ opts) =>
       openModeratorViewSidebar(gid, p, opts),
     refreshLiveChatAuthorsInDom: () => refreshLiveChatAuthorsInDom(),
+    getTree: () => tree,
+    getRail: () => rail,
+    getRouter: () => router,
+    getVoiceDevicesHost: () => voiceDevicesHost,
+    getVoiceDevicesSession: () => voiceDevicesSession,
+    getSettingsModal: () => settingsModal,
+    getPreliminaryBlock: () => preliminaryBlock,
+    getVoiceDevicesExpand: () => voiceDevicesExpand,
+    getSettingsRoot: () => settingsRoot,
+    lastVoiceUiSoundAtByKind,
+    getVoiceHost: () => voiceHost,
     get voiceHost() {
       return voiceHost;
     },
@@ -3131,6 +3191,8 @@ function boot() {
     setPreviewedVoiceChannel,
     setFloatingPipPosition,
   } = voiceCallController;
+
+  closeLiveVoicePopoutsRef = closeLiveVoicePopouts;
 
   /**
    * Очищает строковое поле от атомов ETF `"nil"` / `"null"`.
@@ -4458,7 +4520,7 @@ function boot() {
   /**
    * Подтягивает актуальные `voiceStates` из backend за `< 0.1 мс` без сериализации 20 МБ `READY` и без блокирующих HTTP-запросов.
    */
-  let syncTickCounter = 0;
+  syncTickCounter = 0;
   let lastDmFriendsSyncAt = 0;
   let lastSyncedGuildIdsSig = "";
   const lastGuildChannelCountById = new Map();
@@ -4541,7 +4603,7 @@ function boot() {
     }
   }
 
-  const chat = initChatScreen((error) => surface(error), invoke);
+  chat = initChatScreen((error) => surface(error), invoke);
   /** @type {ReturnType<typeof createComposer> | null} */
   let composerRef = null;
   /** @type {any} */
@@ -4632,7 +4694,8 @@ function boot() {
   /** @type {any} */
   // C-02: дерево каналов выбранной гильдии. Клик по текстовому/announcement
   // открывает реальный канал (`messages_page`) с настоящим channelId.
-  const tree = createChannelTree({
+  // const tree = createChannelTree({
+  tree = createChannelTree({
     invoke,
     onOpen: (channel) => {
       setPreviewedVoiceChannel(null);
@@ -4794,7 +4857,7 @@ function boot() {
   /** @type {ReturnType<typeof createCreateGuildController> | null} */
   let createGuildModal = null;
 
-  const rail = createGuildRail({
+  rail = createGuildRail({
     invoke,
     onSelect: (guild) => {
       if (isLiveSession() && document.body?.dataset) {
@@ -5042,7 +5105,7 @@ function boot() {
         .catch(() => {});
     }
   };
-  const join = createJoinServer({
+  join = createJoinServer({
     invoke: async (cmd, args) => {
       if (isLiveSession() && cmd === "join_guild" && join?.preview?.code) {
         try {
@@ -5098,7 +5161,7 @@ function boot() {
   /**
    * STUB-05 / G-06: модалка создания приглашения (#invite-create-modal).
    */
-  const inviteModal = createInviteModal({
+  inviteModal = createInviteModal({
     invoke,
   });
 
@@ -5717,8 +5780,6 @@ function boot() {
   });
 
   // Реакции идут через тот же `invoke`: в live-сессии ошибка прав (403) показывается тостом, не перекрывая весь чат.
-  const typedCommands = createTypedCommands(invoke);
-  void typedCommands;
   mountReactiveVoiceRtcPanel({
     store: globalAppReactiveStore,
     doc: document,
@@ -5748,14 +5809,14 @@ function boot() {
     getChannelId: () => (chat.mode === "channel" ? chat.channelId : ""),
     onError: (error) => surface(error),
   });
-  const typingSender = createTypingSender({
+  typingSender = createTypingSender({
     invoke,
     onNotice: (text, kind) => {
       if (isLiveSession() && !(/** @type {any} */ (globalThis).__QA__)) return;
       typing?.notice(text, kind);
     },
   });
-  const composer = createComposer({
+  composer = createComposer({
     form: composerForm,
     input: /** @type {HTMLTextAreaElement} */ (/** @type {unknown} */ (composerInput)),
     hint: byId("composer-hint"),
@@ -5862,24 +5923,24 @@ function boot() {
   // поэтому guildId нельзя снимать один раз. Источник — выбранная плитка
   // (`data-guild-id`, legacy `data-guild` только если атрибут есть),
   // читается на каждый запрос.
-  const search = createSearchOverlay({
+  search = createSearchOverlay({
     chat,
     invoke: (cmd, args) => /** @type {Promise<any>} */ (invoke(cmd, args)),
     getGuildId: selectedGuildId,
     header: /** @type {HTMLInputElement | null} */ (byId("chat-search")),
     onError: (error) => surface(error),
   });
-  const quickSwitcher = createQuickSwitcher({ router });
+  quickSwitcher = createQuickSwitcher({ router });
 
-  const members = initMemberScreen((error) => surface(error));
+  members = initMemberScreen((error) => surface(error));
   membersRef = members;
   lists.set("members", members.list);
-  const emoji = initEmojiConsole({
+  emoji = initEmojiConsole({
     // §4/EMO-16: выбор эмодзи вставляет глиф в позицию курсора композера.
     onSelect: (glyph) => composer.insertText(glyph),
   });
 
-  const settings = initSettingsConsole({
+  settings = initSettingsConsole({
     invoke,
   });
   settings.voiceDevices?.destroy();
@@ -6303,7 +6364,7 @@ function boot() {
   const settingsBody = /** @type {HTMLElement | null} */ (
     settingsShell?.querySelector(".settings-body") ?? settingsShell
   );
-  let settingsModal = byId("settings-modal");
+  settingsModal = byId("settings-modal");
   if (!settingsModal) {
     settingsModal = document.createElement("div");
     settingsModal.id = "settings-modal";
@@ -6314,7 +6375,7 @@ function boot() {
     settingsModal.setAttribute("aria-label", "Голос и видео");
     (settingsBody ?? document.body).append(settingsModal);
   }
-  let voiceDevicesHost = byId("voice-devices");
+  voiceDevicesHost = byId("voice-devices");
   if (!voiceDevicesHost) {
     voiceDevicesHost = document.createElement("section");
     voiceDevicesHost.id = "voice-devices";
@@ -6342,7 +6403,7 @@ function boot() {
    *   pttKey: string | null,
    * }}
    */
-  const voiceDevicesSession = {
+  voiceDevicesSession = {
     inputDeviceId: "",
     outputDeviceId: "",
     inputVolume: 100,
@@ -6356,7 +6417,7 @@ function boot() {
   let voiceDevices = null;
   // Свёрнутая секция: пометка и кнопка живут вне `#voice-devices`, потому что
   // контроллер строит свои узлы через `host.replaceChildren` и стёр бы их.
-  let preliminaryBlock = byId("voice-devices-preliminary-block");
+  preliminaryBlock = byId("voice-devices-preliminary-block");
   if (!preliminaryBlock) {
     preliminaryBlock = document.createElement("div");
     preliminaryBlock.id = "voice-devices-preliminary-block";
@@ -6376,7 +6437,7 @@ function boot() {
     preliminaryNote.textContent = VOICE_DEVICES_PRELIMINARY_NOTICE;
     preliminaryBlock.append(preliminaryNote);
   }
-  let voiceDevicesExpand = /** @type {HTMLElement | null} */ (byId("voice-devices-expand"));
+  voiceDevicesExpand = /** @type {HTMLElement | null} */ (byId("voice-devices-expand"));
   if (!voiceDevicesExpand) {
     voiceDevicesExpand = document.createElement("button");
     voiceDevicesExpand.id = "voice-devices-expand";
@@ -6392,10 +6453,11 @@ function boot() {
 
   /** @type {Map<string, any>} */
   const guildNotifEntries = new Map();
-  const notifications = createNotificationsController({
+  notifications = createNotificationsController({
     document,
     invoke: (cmd, args) => /** @type {Promise<any>} */ (invoke(cmd, args)),
   });
+  /** @param {any} [opts] */
   notifications.openModal = (opts) => {
     if (opts && opts.guildId) {
       notifications.openGuildModal(opts);
@@ -6404,7 +6466,7 @@ function boot() {
     }
   };
   notificationsRef = notifications;
-  const settingsRoot = byId("settings");
+  settingsRoot = byId("settings");
   syncVoiceSettingsScreenVisibility = setVoicePanelVisibility;
   setVoicePanelVisibility();
   for (const item of document.querySelectorAll("#settings-nav .settings-nav-item")) {
@@ -6415,6 +6477,7 @@ function boot() {
   // программный вызов) шёл мимо слушателей и оставлял voice-панель видимой на
   // чужой вкладке. Обёртка делает синхронизацию инвариантом обоих путей.
   const showPaneOriginal = settings.showPane.bind(settings);
+  /** @param {any} key */
   settings.showPane = (key) => {
     showPaneOriginal(key);
     setVoicePanelVisibility();
@@ -7276,7 +7339,7 @@ function boot() {
 
   // Экран входа (RW-39/NET, ADR-2): idle → validating → ready | error.
   // Токен вводится только здесь и сразу уходит в `auth_login_token` → keyring.
-  const auth = createAuthGate({
+  auth = createAuthGate({
     onReady: () => {
       // После ready чат доступен: роутер на chat, фокус уходит из закрытого гейта.
       router.switchScreen("chat");

@@ -962,5 +962,10 @@ Queue: transportnaya volna (reshenie A), zatem P1-09 (rate-limit/errors).
  | **TASK-829** | `P0` | **G4 QA** | Automated regression contracts for invites, AFK, and headers | `[x]` accepted | 
  | ↳ **TASK-829.1** | `P0` | **G4 QA** | Rust contract tests/invites_live_fallback_contract.rs | `[x]` accepted | 
  | ↳ **TASK-829.2** | `P0` | **G4 QA** | JS Unit tests tests/unit/afk-voice-status.test.mjs and invite-input.test.mjs | `[x]` accepted | 
+ | **TASK-830** | `P0` | **G2 Frontend** + **G5 Voice** | Post-Modularization Dependency Injection & Voice Stage Contract Remediation | `[x]` accepted | 
+ | ↳ **TASK-830.1** | `P0` | **G2 Frontend** | Fix `lastVoiceUiSoundAtByKind` DI in `app.js` and null-safety in `voice-state-sync.js` (unhandled TypeError on connect/mute/deafen) | `[x]` accepted | 
+ | ↳ **TASK-830.2** | `P0` | **G2 Frontend** | Wire resilient `voiceHost` / `getVoiceHost` resolution in `voice-stage-renderer.js` and restore RTC status, Krisp toggle, and media buttons | `[x]` accepted | 
+ | ↳ **TASK-830.3** | `P0` | **G4 QA** | Meta-test `tests/meta/modular-wiring-contract.test.mjs` & `scripts/test-impact.mjs` integration to prevent DI drift | `[x]` accepted | 
+ | ↳ **TASK-830.4** | `P0` | **Architecture** | Update `PROCESS.md` §8 and `TEST-POLICY.md` §14 with Modularization & Sub-Controller Verification Protocol | `[x]` accepted | 
 
 

@@ -83,12 +83,27 @@ export function createVoiceCallController(deps) {
     uMute: deps.uMute ?? deps.USER_BAR_BTNS?.mute ?? null,
     uDeaf: deps.uDeaf ?? deps.USER_BAR_BTNS?.deaf ?? null,
     uSettings: deps.uSettings ?? deps.USER_BAR_BTNS?.settings ?? null,
-    voiceHost: deps.voiceHost ?? null,
+    lastVoiceUiSoundAtByKind: deps.lastVoiceUiSoundAtByKind ?? new Map(),
+    getVoiceHost: () =>
+      typeof deps.getVoiceHost === "function"
+        ? deps.getVoiceHost()
+        : deps.voiceHost ?? (typeof document !== "undefined" ? document.getElementById("voice-panel") : null),
+    get voiceHost() {
+      return typeof deps.getVoiceHost === "function"
+        ? deps.getVoiceHost()
+        : deps.voiceHost ?? (typeof document !== "undefined" ? document.getElementById("voice-panel") : null);
+    },
     dmChatHost: deps.dmChatHost ?? null,
     dmHomeHost: deps.dmHomeHost ?? null,
-    tree: deps.tree ?? { refreshView: deps.renderChannelTree ?? (() => {}), channels: [] },
-    rail: deps.rail ?? { selectedId: deps.getRailSelectedId?.() ?? "@me" },
-    router: deps.router ?? { switchScreen: () => {} },
+    get tree() {
+      return (typeof deps.getTree === "function" ? deps.getTree() : deps.tree) ?? { refreshView: deps.renderChannelTree ?? (() => {}), channels: [] };
+    },
+    get rail() {
+      return (typeof deps.getRail === "function" ? deps.getRail() : deps.rail) ?? { selectedId: deps.getRailSelectedId?.() ?? "@me" };
+    },
+    get router() {
+      return (typeof deps.getRouter === "function" ? deps.getRouter() : deps.router) ?? { switchScreen: () => {} };
+    },
     liveGuildsById: deps.liveGuildsById ?? new Map(),
 
     // Internal shared state getters/setters

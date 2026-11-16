@@ -379,6 +379,18 @@ Historical Context: The initial module scaffolding in `src/` was generated direc
 | `tests/unit/rtc-metrics-1011a.test.mjs` | — | — |
 | `tests/unit/spatial-radar-1017b.test.mjs` | — | — |
 | `tests/unit/audit-log-parser-1008a.test.mjs` | — | — |
+| `tests/meta/modular-wiring-contract.test.mjs` | — | — |
+| `tests/meta/specta-types.test.mjs` | — | — |
+| `tests/unit/channel-tree-controller.test.mjs` | — | — |
+| `tests/unit/context-menu-router.test.mjs` | — | — |
+| `tests/unit/emojis.test.mjs` | — | — |
+| `tests/unit/markdown-mentions.test.mjs` | — | — |
+| `tests/unit/mentions.test.mjs` | — | — |
+| `tests/unit/message-rendering-and-emoji.test.mjs` | — | — |
+| `tests/unit/modal-router.test.mjs` | — | — |
+| `tests/unit/screen-share-dialog.test.mjs` | — | — |
+| `tests/unit/signals.test.mjs` | — | — |
+| `tests/unit/voice-call-orchestrator.test.mjs` | — | — |
 
 
 ### New Feature Implementation Workflow

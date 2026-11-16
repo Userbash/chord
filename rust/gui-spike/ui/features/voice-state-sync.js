@@ -105,12 +105,15 @@ export function createVoiceStateSync(ctx) {
     if (ctx.selfVoicePrefs.deafened && kind !== "deafen" && kind !== "undeafen" && kind !== "disconnect") {
       return;
     }
+    if (!ctx.lastVoiceUiSoundAtByKind) {
+      ctx.lastVoiceUiSoundAtByKind = new Map();
+    }
     const nowSoundMs = Date.now();
-    const prevSoundMs = ctx.lastVoiceUiSoundAtByKind.get(kind) ?? 0;
+    const prevSoundMs = ctx.lastVoiceUiSoundAtByKind.get?.(kind) ?? 0;
     if (nowSoundMs - prevSoundMs < 200) {
       return;
     }
-    ctx.lastVoiceUiSoundAtByKind.set(kind, nowSoundMs);
+    ctx.lastVoiceUiSoundAtByKind.set?.(kind, nowSoundMs);
     const fileMap = {
       join: "user_join.mp3",
       leave: "user_leave.mp3",

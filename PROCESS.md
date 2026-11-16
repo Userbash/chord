@@ -199,3 +199,26 @@ Data formats (`functions/pid-*.json`, `logs/*.jsonl`, SQLite stores):
 - **Golden Baseline:** Immutable reference data gathered from clean-room experiments.
 - **Zero-Idle:** Engineering operating model ensuring continuous developer and review throughput.
 - **DoD (Definition of Done):** Mandatory criteria required for a task card to transition to accepted status.
+
+---
+
+## 8. Modularization, Sub-Controller Extraction, and Dependency Injection Protocol
+
+To prevent UI breakage and runtime `TypeError` crashes during codebase modularization (e.g., extracting monolithic files like `app.js` or `voice.js` into sub-controllers):
+
+1. **Explicit Dependency Injection Contracts:**
+   - Every modular sub-controller factory (`create<Feature>(ctx)`) must declare all required methods, state objects, maps, and DOM hooks in JSDoc/TypeScript.
+   - The unifying orchestrator (`create<Feature>Controller`) must guarantee default fallbacks for all collections, maps, and audio state (e.g. `deps.lastVoiceUiSoundAtByKind ?? new Map()`).
+
+2. **Resilient DOM Element & Getter Resolution:**
+   - View renderers must never assume container getters are unconditionally present or non-null.
+   - Mandatory fallback chain: `ctx.getContainer?.() ?? ctx.container ?? document.getElementById("<id>")`.
+   - Functions must not perform early returns that leave UI areas unmounted when the target DOM element exists in the document.
+
+3. **Defensive Interaction Handlers:**
+   - User-triggered actions (clicks, keybinds, media toggles) must never crash the UI thread due to missing telemetry, sound effects, or popout handlers.
+   - Collections must use defensive null-coalescing on read/write: `ctx.collection?.get?.(key) ?? fallback` and initialize on demand if missing.
+
+4. **Automated CI Wiring Gates:**
+   - Any refactoring that extracts methods from shared scripts to `features/*.js` must be accompanied by an automated meta-contract test (e.g. `tests/meta/modular-wiring-contract.test.mjs`).
+   - The test must verify that `app.js` passes all extracted dependencies and that orchestrator context provides 100% of keys consumed by sub-controllers.

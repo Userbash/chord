@@ -52,7 +52,10 @@ export function createVoiceStageRenderer(ctx) {
       signalSvg,
       pillText,
     } = metrics;
-    const voiceHost = ctx.getVoiceHost?.();
+    const voiceHost =
+      ctx.getVoiceHost?.() ??
+      ctx.voiceHost ??
+      (typeof document !== "undefined" ? document.getElementById("voice-panel") : null);
     if (voiceHost && activeVoiceConnection) {
       renderVoiceRtcPhaseDom(voiceHost, liveRtcStatus, {
         doc: document,
@@ -603,7 +606,10 @@ export function createVoiceStageRenderer(ctx) {
    * Renders the active voice connection panel (`#voice-panel`) above the user bar.
    */
   function renderLiveVoicePanel() {
-    const voiceHost = ctx.getVoiceHost?.();
+    const voiceHost =
+      ctx.getVoiceHost?.() ??
+      ctx.voiceHost ??
+      (typeof document !== "undefined" ? document.getElementById("voice-panel") : null);
     if (!voiceHost || !ctx.isLiveSession()) return;
     syncUserBarVoiceButtons();
     ctx.syncFloatingStreamPipPreview();
