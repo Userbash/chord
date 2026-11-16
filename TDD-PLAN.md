@@ -426,6 +426,7 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/arm64-build-integrity.test.mjs` | `scripts/build-arm64.sh` | — |
 
 
+| `tests/unit/slowmode-contract.test.mjs` | `rust/gui-spike/ui/features/slowmode.js` | `slowmode` |
 | `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |
 | `tests/unit/bff-pins-threads-contract.test.mjs` | `rust/gui-spike/ui/features/pins-threads.js` | `createPinsThreadsController` |
 
