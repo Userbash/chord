@@ -243,6 +243,21 @@ case "${1:-status}" in
     node "$SCRIPT_DIR/auto-test-generator.mjs" "$@"
     ;;
 
+  plan-fix)
+    shift 1 || true
+    node "$SCRIPT_DIR/plan-autofix.mjs" "$@"
+    ;;
+
+  trace)
+    shift 1 || true
+    node "$SCRIPT_DIR/app-call-tracer.mjs" "$@"
+    ;;
+
+  fix)
+    shift 1 || true
+    node "$SCRIPT_DIR/auto-fix-routine.mjs" "$@"
+    ;;
+
   test-all)
     shift 1 || true
     node "$SCRIPT_DIR/qa-auto-system.mjs" "$@"

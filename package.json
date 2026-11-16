@@ -98,7 +98,10 @@
     "test:audit": "node scripts/test-auditor.mjs",
     "qa:system": "node scripts/qa-auto-system.mjs",
     "codemap": "node scripts/socrati-codemap.mjs",
-    "test:gen": "node scripts/auto-test-generator.mjs"
+    "test:gen": "node scripts/auto-test-generator.mjs",
+    "plan:fix": "node scripts/plan-autofix.mjs",
+    "trace:calls": "node scripts/app-call-tracer.mjs",
+    "fix:routine": "node scripts/auto-fix-routine.mjs"
   },
   "files": [
     "bin/",
