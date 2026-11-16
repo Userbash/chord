@@ -31,6 +31,48 @@
   ],
   "cards": [
     {
+      "id": "TASK-TAURI-03",
+      "title": "Tauri Webview Voice & WebRTC стриминг аудио/экрана без деградации",
+      "description": "Бесшовный пайплайн захвата звука и экрана PipeWire/Portal внутри окна Tauri без ошибок 2012",
+      "status": "backlog",
+      "column": "backlog",
+      "priority": "P0",
+      "tags": [
+        "tauri",
+        "voice",
+        "webrtc",
+        "p0"
+      ]
+    },
+    {
+      "id": "TASK-TAURI-02",
+      "title": "Tauri Specta типизация: связка Rust BFF с bindings.d.ts и typecheck",
+      "description": "100% типизация IPC каналов tauri-specta между rust/gui-spike/src/main.rs и ui/bindings.js",
+      "status": "backlog",
+      "column": "backlog",
+      "priority": "P0",
+      "tags": [
+        "tauri",
+        "specta",
+        "typescript",
+        "p0"
+      ]
+    },
+    {
+      "id": "TASK-TAURI-01",
+      "title": "Интеграция и стабилизация Tauri 2 BFF рантайма (rust/gui-spike)",
+      "description": "Стабилизация Tauri 2 IPC моста, устранение PSS утечек памяти и синхронизация всех 81 команд BFF с фронтендом",
+      "status": "backlog",
+      "column": "backlog",
+      "priority": "P0",
+      "tags": [
+        "tauri",
+        "bff",
+        "rust",
+        "p0"
+      ]
+    },
+    {
       "id": "TASK-701",
       "title": "Каркас приложения AppLayout и WGPU GPU-рендеринг",
       "status": "done",
@@ -7526,7 +7568,7 @@
       "id": "TASK-1011B",
       "title": "60 FPS векторный экран графиков RtcDiagnosticsHud на WGPU",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Окно графиков задержки и битрейта с зумом, сеткой шкал и тултипами данных.",
       "layout": {
@@ -7640,7 +7682,7 @@
       "id": "TASK-1007A",
       "title": "Модель ролей, валидатор прав u64 и REST PATCH /guilds/{id}/roles",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G1 Backend",
       "summary": "Битовые флаги Permissions u64, проверка невозможности эскалации и эндпоинты упорядочивания.",
       "layout": {
@@ -7678,7 +7720,7 @@
       "id": "TASK-1007B",
       "title": "Drag-and-drop интерфейс иерархии ролей и выбор цвета",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Перетаскивание позиций ролей мышью с линией вставки и селектор RGB цвета роли.",
       "layout": {
@@ -7716,7 +7758,7 @@
       "id": "TASK-1007C",
       "title": "Интерактивная матрица 35+ переключателей прав роли",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Список прав с предупреждениями при включении ADMINISTRATOR и плавающей плашкой сохранения.",
       "layout": {
@@ -7754,7 +7796,7 @@
       "id": "TASK-1008A",
       "title": "Парсер AuditLogActionType 1..145 и декодер диффов old/new",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G1 Backend",
       "summary": "Запрос GET /guilds/{id}/audit-logs и сопоставление пользователей, ролей и каналов.",
       "layout": {
@@ -7792,7 +7834,7 @@
       "id": "TASK-1008B",
       "title": "Фильтруемый список аудита AuditLogViewer с иконками событий",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Отображение журнала аудита с фильтрами по действиям/авторам и раскрытием деталей по клику.",
       "layout": {
@@ -7830,7 +7872,7 @@
       "id": "TASK-1009A",
       "title": "Модальное окно TOTP 2FA с 6 раздельными полями ввода цифр",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Квадратные поля ввода #1e1f22 с авто-переносом фокуса, возвратом по Backspace и вставкой Ctrl+V.",
       "layout": {
@@ -7868,7 +7910,7 @@
       "id": "TASK-1009B",
       "title": "Менеджер активных сессий и принудительный разлогин",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G1 Backend",
       "summary": "Запрос GET /users/@me/auth/sessions, бейдж текущего устройства и DELETE завершения сессии.",
       "layout": {
@@ -7906,7 +7948,7 @@
       "id": "TASK-1021A",
       "title": "Деривация мастер-ключа из Linux Keyring через Argon2id",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G1 Backend",
       "summary": "Хранение мастер-ключа в Secret Service API, деривация через Argon2id и очистка через zeroize.",
       "layout": {
@@ -7944,7 +7986,7 @@
       "id": "TASK-1021B",
       "title": "Прозрачное страничное шифрование SQLite (AES-256-GCM 4096 Б)",
       "status": "backlog",
-      "priority": "P1",
+      "priority": "P2",
       "department": "G1 Backend",
       "summary": "Шифрование страниц SQLite на лету с уникальным IV на страницу и защитой журнала WAL.",
       "layout": {
