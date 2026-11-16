@@ -90,6 +90,10 @@
     "qa:inspect": "node scripts/qa-inspector.mjs",
     "qa:modals": "node scripts/modal-fsm-suite.mjs",
     "qa:scaffold": "node scripts/qa-scaffold.mjs",
+    "gui:audit": "node scripts/gui-parity-audit.mjs",
+    "gui:live": "node scripts/gui-live-e2e.mjs",
+    "gui:watch": "node scripts/gui-watch.mjs",
+    "test:gui:live": "node scripts/gui-live-e2e.mjs",
     "test:all": "node scripts/qa-auto-system.mjs",
     "test:audit": "node scripts/test-auditor.mjs",
     "qa:system": "node scripts/qa-auto-system.mjs"

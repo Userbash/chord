@@ -218,6 +218,21 @@ case "${1:-status}" in
     node "$SCRIPT_DIR/modal-fsm-suite.mjs" "$@"
     ;;
 
+  gui-audit)
+    shift 1 || true
+    node "$SCRIPT_DIR/gui-parity-audit.mjs" "$@"
+    ;;
+
+  gui-live)
+    shift 1 || true
+    node "$SCRIPT_DIR/gui-live-e2e.mjs" "$@"
+    ;;
+
+  gui-watch)
+    shift 1 || true
+    node "$SCRIPT_DIR/gui-watch.mjs" "$@"
+    ;;
+
   test-all)
     shift 1 || true
     node "$SCRIPT_DIR/qa-auto-system.mjs" "$@"

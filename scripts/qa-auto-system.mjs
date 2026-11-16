@@ -65,24 +65,37 @@ async function main() {
     process.exit(1);
   }
 
-  // Step 5: Modal Dialogs FSM & A11y Suite
-  if (!runStep('5. Modal Dialogs FSM & W3C Accessibility Suite', 'node', ['scripts/modal-fsm-suite.mjs'])) {
+  // Step 5: GUI Feature Parity & DOM Integrity Audit
+  if (!runStep('5. GUI Feature Parity & DOM Integrity Audit', 'node', ['scripts/gui-parity-audit.mjs'])) {
     process.exit(1);
   }
 
-  // Step 6: Test Suite Hygiene
-  if (!runStep('6. Test Suite Hygiene & Broken Import Audit', 'node', ['scripts/test-auditor.mjs'])) {
+  // Step 6: Modal Dialogs FSM & A11y Suite
+  if (!runStep('6. Modal Dialogs FSM & W3C Accessibility Suite', 'node', ['scripts/modal-fsm-suite.mjs'])) {
     process.exit(1);
   }
 
-  // Step 7: Tiered Test Execution
+  // Step 7: Test Suite Hygiene
+  if (!runStep('7. Test Suite Hygiene & Broken Import Audit', 'node', ['scripts/test-auditor.mjs'])) {
+    process.exit(1);
+  }
+
+  // Step 8: Live Window Real E2E (if display available)
+  const hasDisplay = Boolean(process.env.DISPLAY || process.env.WAYLAND_DISPLAY);
+  if (hasDisplay && !isQuick) {
+    if (!runStep('8. Native Window Real E2E & AT-SPI Controls', 'node', ['scripts/gui-live-e2e.mjs'])) {
+      process.exit(1);
+    }
+  }
+
+  // Step 9: Tiered Test Execution
   const suiteArgs = isQuick ? ['--unit'] : ['--smoke'];
-  if (!runStep('7. SocratiCode Tiered Test Runner', 'node', ['scripts/socrati-smart-suite.mjs', ...suiteArgs])) {
+  if (!runStep('9. SocratiCode Tiered Test Runner', 'node', ['scripts/socrati-smart-suite.mjs', ...suiteArgs])) {
     process.exit(1);
   }
 
-  // Step 8: Telemetry Dashboard
-  runStep('8. Project Architecture & Test Intelligence Dashboard', 'node', ['scripts/socrati-dashboard.mjs']);
+  // Step 10: Telemetry Dashboard
+  runStep('10. Project Architecture & Test Intelligence Dashboard', 'node', ['scripts/socrati-dashboard.mjs']);
 
   const totalDur = ((Date.now() - tStart) / 1000).toFixed(2);
   console.log(`================================================================================`);
