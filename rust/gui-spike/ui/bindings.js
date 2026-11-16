@@ -390,6 +390,61 @@ export function createTypedCommands(invokeFn) {
       });
       return /** @type {import("./bindings.d.ts").VoiceRtcStatusDto} */ (res);
     },
+
+    /**
+     * Pins a message in a guild/DM channel.
+     * @param {string} channelId
+     * @param {string} messageId
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async pinMessage(channelId, messageId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      if (typeof messageId !== "string" || !messageId.trim()) {
+        throw new TypeError("messageId must be a non-empty string");
+      }
+      const res = await invokeFn("pin_channel_message", {
+        channel_id: channelId.trim(),
+        message_id: messageId.trim(),
+      });
+      return /** @type {Record<string, unknown>} */ (res);
+    },
+
+    /**
+     * Unpins a message from a channel.
+     * @param {string} channelId
+     * @param {string} messageId
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async unpinMessage(channelId, messageId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      if (typeof messageId !== "string" || !messageId.trim()) {
+        throw new TypeError("messageId must be a non-empty string");
+      }
+      const res = await invokeFn("unpin_channel_message", {
+        channel_id: channelId.trim(),
+        message_id: messageId.trim(),
+      });
+      return /** @type {Record<string, unknown>} */ (res);
+    },
+
+    /**
+     * Fetches all pinned messages in a channel.
+     * @param {string} channelId
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async listPins(channelId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      const res = await invokeFn("list_channel_pins", {
+        channel_id: channelId.trim(),
+      });
+      return /** @type {Array<Record<string, unknown>>} */ (res);
+    },
   });
 }
 

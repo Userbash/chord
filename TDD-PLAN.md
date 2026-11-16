@@ -475,6 +475,7 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/voice-stream-controller-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stream-controller.js` | `voice-stream-controller` |
 | `tests/unit/voice-stream-menus-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stream-menus.js` | `voice-stream-menus` |
 | `tests/unit/webhooks-editor-contract.test.mjs` | `rust/gui-spike/ui/features/webhooks-editor.js` | `webhooks-editor` |
+| `tests/unit/typed-pins-commands-contract.test.mjs` | `rust/gui-spike/ui/bindings.js` | `createTypedCommands` |
 | `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |
 | `tests/unit/bff-pins-threads-contract.test.mjs` | `rust/gui-spike/ui/features/pins-threads.js` | `createPinsThreadsController` |
 | `tests/unit/modules-voice-rtc-panel-contract.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveVoiceCallPhaseView` |

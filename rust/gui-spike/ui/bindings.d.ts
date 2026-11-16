@@ -132,6 +132,9 @@ export interface TypedCommands {
   syncLiveState(): Promise<LiveSyncSnapshotDto>;
   voiceConnect(opts: VoiceConnectOptionsDto): Promise<VoiceConnectResultDto>;
   voiceRtcStatus(): Promise<VoiceRtcStatusDto>;
+  pinMessage(channelId: string, messageId: string): Promise<Record<string, unknown>>;
+  unpinMessage(channelId: string, messageId: string): Promise<Record<string, unknown>>;
+  listPins(channelId: string): Promise<Array<Record<string, unknown>>>;
 }
 
 export declare const PERM_CREATE_INSTANT_INVITE: bigint;
