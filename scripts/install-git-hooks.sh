@@ -29,6 +29,10 @@ if command -v npm >/dev/null 2>&1; then
     echo "❌ [GIT-HOOK] Pre-commit check failed. Fix syntax/type errors before committing."
     exit 1
   }
+  node scripts/security-shield.mjs --staged || {
+    echo "❌ [GIT-HOOK] Security shield failed: secrets or forbidden unsafe blocks found."
+    exit 1
+  }
 fi
 EOF
 chmod +x "$HOOKS_DIR/pre-commit"

@@ -37,6 +37,12 @@ Subcommands:
   precheck              Execute fast sub-second precheck (Node syntax + TS + Meta)
   audit                 Validate write-scope boundaries against assigned department
   verify                Run full pre-flight verification before committing/pushing
+  contract              Verify Rust DTO <-> Frontend UI contract parity
+  shield                Scan staged/modified files for secrets & unsafe blocks
+  slim [check|test]     Run Rust compiler with JSON error condensation (-95% tokens)
+  kanban [status|auto]  Inspect or auto-sync Kanban board status with git
+  quarantine [scan|id]  Audit or quarantine external PRs
+  visual [status]       Headless UI visual regression comparator
   report                Generate standard PROCESS.md §4.2 Completion Report
   sync                  Synchronize code & locks with git remotes (origin + public)
   clean                 Run garbage collection on stale incremental targets
@@ -140,10 +146,44 @@ case "${1:-status}" in
     echo "2. Running fast sub-second precheck..."
     node "$SCRIPT_DIR/precheck.mjs"
     echo ""
-    echo "3. Checking git status..."
+    echo "3. Running AST & secret security shield..."
+    node "$SCRIPT_DIR/security-shield.mjs"
+    echo ""
+    echo "4. Auditing Rust DTO <-> UI contracts..."
+    node "$SCRIPT_DIR/contract-lint.mjs"
+    echo ""
+    echo "5. Checking git status..."
     git status -s
     echo ""
     echo "✅ [COLLAB-VERIFY] All pre-flight checks PASSED cleanly."
+    ;;
+
+  contract)
+    node "$SCRIPT_DIR/contract-lint.mjs" "$@"
+    ;;
+
+  shield)
+    node "$SCRIPT_DIR/security-shield.mjs" "$@"
+    ;;
+
+  slim)
+    shift 1 || true
+    bash "$SCRIPT_DIR/rust-slim.sh" "$@"
+    ;;
+
+  kanban)
+    shift 1 || true
+    bash "$SCRIPT_DIR/kanban-sync.sh" "$@"
+    ;;
+
+  quarantine)
+    shift 1 || true
+    bash "$SCRIPT_DIR/pr-quarantine.sh" "$@"
+    ;;
+
+  visual)
+    shift 1 || true
+    node "$SCRIPT_DIR/visual-diff.mjs" "$@"
     ;;
 
   report)

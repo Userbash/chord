@@ -67,7 +67,13 @@
     "pr:template": "bash scripts/pr.sh template",
     "bus": "node scripts/agent-bus.mjs",
     "bus:status": "node scripts/agent-bus.mjs status",
-    "collab": "bash scripts/collab.sh"
+    "collab": "bash scripts/collab.sh",
+    "rust:slim": "bash scripts/rust-slim.sh",
+    "contract:lint": "node scripts/contract-lint.mjs",
+    "kanban:sync": "bash scripts/kanban-sync.sh",
+    "pr:quarantine": "bash scripts/pr-quarantine.sh",
+    "test:visual": "node scripts/visual-diff.mjs",
+    "security:shield": "node scripts/security-shield.mjs"
   },
   "files": [
     "bin/",

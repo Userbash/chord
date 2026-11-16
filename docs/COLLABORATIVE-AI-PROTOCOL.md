@@ -189,6 +189,12 @@ npm run review:scaffold TASK-123
 | `npm run orca:status` | `scripts/orca-slim.sh` | Компактная сводка воркеров Orca | Сжатие вывода с 8000 до 30 токенов (-99.5%) |
 | `npm run gc` | `scripts/worker-gc.mjs` | Очистка target cache и stale воркдеревьев | Освобождает до 105 ГБ диска за 1 секунду |
 | `npm run dependabot:batch`| `scripts/dependabot-batch.sh` | SemVer фильтр и авто-мердж PR ботов | Полная автономия обновления зависимостей |
+| `npm run rust:slim` | `scripts/rust-slim.sh` | Сжатие ошибок компилятора Rust | Сжатие с 400 строк до 3 строк (-95% токенов) |
+| `npm run contract:lint`| `scripts/contract-lint.mjs` | Детектор рассинхронизации Rust DTO ↔ UI | Предотвращение скрытых багов интерфейса |
+| `npm run kanban:sync` | `scripts/kanban-sync.sh` | Zero-Touch авто-синхронизация Kanban-доски | Авто-перемещение карточек из git истории |
+| `npm run pr:quarantine`| `scripts/pr-quarantine.sh` | Авто-карантин дефектных сторонних PR | Изоляция ломающих веток без участия человека |
+| `npm run test:visual` | `scripts/visual-diff.mjs` | Headless визуальное регрессионное сравнение | Оценка UI сдвигов (<0.2%) для PM приемки |
+| `npm run security:shield`| `scripts/security-shield.mjs` | AST-сканер токенов, ключей и unsafe кода | Защита от утечек секретов в git pre-commit |
 
 ---
 
