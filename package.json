@@ -41,6 +41,8 @@
     "gate:worker": "node scripts/gate.mjs --scope worker",
     "gate:release": "node scripts/gate.mjs --scope release",
     "gate:qualify": "node scripts/gate.mjs --scope qualify",
+    "workers:monitor": "bash scripts/workers-monitor.sh",
+    "auto:commit": "bash scripts/auto-commit-push.sh",
     "golden:freeze": "node scripts/gate.mjs --freeze-golden",
     "gate:mutation": "node scripts/mutation-gate.mjs",
     "auto:status": "bash scripts/auto-loop.sh --status",

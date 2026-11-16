@@ -305,6 +305,16 @@ case "${1:-status}" in
     bash "$SCRIPT_DIR/worker-report.sh" "$@"
     ;;
 
+  ship)
+    shift 1 || true
+    bash "$SCRIPT_DIR/auto-commit-push.sh" "$@"
+    ;;
+
+  monitor)
+    shift 1 || true
+    bash "$SCRIPT_DIR/workers-monitor.sh" "$@"
+    ;;
+
   sync)
     echo "🔄 Synchronizing with remotes and agent bus..."
     bash "$SCRIPT_DIR/sync-push.sh"
