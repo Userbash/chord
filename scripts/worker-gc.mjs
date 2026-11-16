@@ -106,7 +106,50 @@ export function runGC(dryRun = false) {
     console.warn(`   ⚠️  Process scan failed:`, err.message);
   }
 
-  // 4. Memory summary after GC
+  // 4. Cargo target/ disk cache optimization (prevents 107 GB explosion)
+  let targetCleanedMb = 0;
+  try {
+    const targetDirs = [
+      path.join(PROJECT_ROOT, 'rust/target'),
+      path.join(PROJECT_ROOT, 'rust/chord-gpui/target'),
+      path.join(PROJECT_ROOT, 'rust/gui-spike/target/debug'),
+      path.join(PROJECT_ROOT, 'tests/e2e/harness/target'),
+    ];
+
+    for (const td of targetDirs) {
+      if (fs.existsSync(td)) {
+        try {
+          const duOut = execSync(`du -sm "${td}" 2>/dev/null`, { encoding: 'utf8' }).trim();
+          const sizeMb = parseInt(duOut.split(/\s+/)[0], 10) || 0;
+          // If a debug/incremental directory exceeds 8 GB, prune it
+          if (sizeMb > 8192) {
+            console.log(`   Found overgrown target dir: ${td} (${sizeMb} MB)`);
+            if (!dryRun) {
+              const incDir = path.join(td, 'incremental');
+              if (fs.existsSync(incDir)) {
+                fs.rmSync(incDir, { recursive: true, force: true });
+                console.log(`   ✅ Pruned incremental cache: ${incDir}`);
+              }
+              const depsDir = path.join(td, 'deps');
+              if (fs.existsSync(depsDir) && sizeMb > 15360) {
+                // Remove intermediate debug deps
+                fs.rmSync(depsDir, { recursive: true, force: true });
+                console.log(`   ✅ Pruned overgrown debug deps: ${depsDir}`);
+              }
+              targetCleanedMb += sizeMb;
+            } else {
+              console.log(`   [DRY-RUN] Would prune cache in: ${td} (${sizeMb} MB)`);
+              targetCleanedMb += sizeMb;
+            }
+          }
+        } catch {}
+      }
+    }
+  } catch (err) {
+    console.warn(`   ⚠️  Target cache scan failed:`, err.message);
+  }
+
+  // 5. Memory summary after GC
   let memAvailableMb = 0;
   try {
     const meminfo = fs.readFileSync('/proc/meminfo', 'utf8');

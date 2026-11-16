@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-42: Native GPUI Migration & Design Parity",
-  "updated_at": "2026-11-11T13:23:04.791Z",
+  "updated_at": "2026-11-16T14:45:00.000Z",
   "columns": [
     {
       "id": "backlog",
@@ -8279,6 +8279,343 @@
       "created_at": "2026-11-11T13:11:49.322Z",
       "updated_at": "2026-11-11T13:11:49.322Z",
       "progress": 0
+    },
+    {
+      "id": "TASK-AUTO-101",
+      "title": "scripts/gui-run.sh: Единый менеджер жизненного цикла GUI и дисплея",
+      "status": "backlog",
+      "priority": "P0",
+      "department": "DevOps",
+      "summary": "Автоматизация запуска, проверки свежести сборки, экспорта DISPLAY/WAYLAND и остановки фонового процесса chord-client без вызовов ps aux | grep.",
+      "subtasks": [
+        {
+          "id": "SUB-101.1",
+          "title": "Автоопределение дисплея (X11 / Wayland / headless)",
+          "microtasks": [
+            "MICRO-101.1.1: Проверка $DISPLAY и сокетов /tmp/.X11-unix",
+            "MICRO-101.1.2: Автоматический фоллбек на DISPLAY=:0 при пустом значении"
+          ]
+        },
+        {
+          "id": "SUB-101.2",
+          "title": "Проверка mtime бинарника против rust/gui-spike/ui/*",
+          "microtasks": [
+            "MICRO-101.2.1: Сравнение mtime target/release/chord-client и файлов ui/",
+            "MICRO-101.2.2: Автосборка cargo build --release при устаревании бинарника"
+          ]
+        },
+        {
+          "id": "SUB-101.3",
+          "title": "Управление процессом через PID-файл",
+          "microtasks": [
+            "MICRO-101.3.1: Запись PID в /tmp/chord-gui.pid при старте",
+            "MICRO-101.3.2: Graceful SIGTERM и принудительный SIGKILL по таймауту"
+          ]
+        }
+      ],
+      "dod": "Команда ./scripts/gui-run.sh start/stop/restart работает за < 1 сек без утечки процессов.",
+      "tokens_saved_estimate": "~800K токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-102",
+      "title": "scripts/tdd-runner.sh: Полная автоматизация TDD-цикла (Red -> Green -> Mutations)",
+      "status": "backlog",
+      "priority": "P0",
+      "department": "G4 QA",
+      "summary": "Скрипт одного клика для фиксации red.log, green.log, clippy.log и мутаций 5/5 по карточке без ручного повторения 15 шагов диалога ИИ.",
+      "subtasks": [
+        {
+          "id": "SUB-102.1",
+          "title": "Red-фаза валидатора",
+          "microtasks": [
+            "MICRO-102.1.1: Запуск теста, валидация падения (exit code != 0)",
+            "MICRO-102.1.2: Сохранение waves/<WAVE>/logs/red.log с метаданными"
+          ]
+        },
+        {
+          "id": "SUB-102.2",
+          "title": "Green-фаза и мутационный гейт",
+          "microtasks": [
+            "MICRO-102.2.1: Запуск теста, валидация успеха (exit code == 0)",
+            "MICRO-102.2.2: Сохранение green.log, вызов mutation-gate.mjs (5/5)",
+            "MICRO-102.2.3: Генерация итогового QA-отчета карточки"
+          ]
+        }
+      ],
+      "dod": "Скрипт tdd-runner.sh --card <ID> --test <NAME> --red/--green полностью генерирует артефакты волны.",
+      "tokens_saved_estimate": "~2.5M токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-201",
+      "title": "scripts/worker-gc.mjs (v2): Глубокая очистка дискового кэша Cargo target/",
+      "status": "backlog",
+      "priority": "P0",
+      "department": "DevOps",
+      "summary": "Добавление в worker-gc.mjs очистки инкрементальных кэшей target/debug/incremental и устаревших .rlib с лимитом размера 15 ГБ для предотвращения разрастания до 107 ГБ.",
+      "subtasks": [
+        {
+          "id": "SUB-201.1",
+          "title": "Мониторинг дискового пространства target/",
+          "microtasks": [
+            "MICRO-201.1.1: Быстрый замер du -s по всем target/ каталогам",
+            "MICRO-201.1.2: Срабатывание триггера при превышении порога в 15 ГБ"
+          ]
+        },
+        {
+          "id": "SUB-201.2",
+          "title": "Безопасная очистка кэшей без сноса бинарников",
+          "microtasks": [
+            "MICRO-201.2.1: Удаление target/debug/incremental и target/debug/deps старых версий",
+            "MICRO-201.2.2: Сохранение релизных бинарников chord-client и discord-gpui"
+          ]
+        }
+      ],
+      "dod": "npm run gc очищает диск, размер репозитория гарантированно держится в пределах 5-10 ГБ.",
+      "tokens_saved_estimate": "~300K токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-202",
+      "title": "scripts/orca-slim.sh: Компактный парсер статуса Orca-воркеров",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G0 Routine",
+      "summary": "Локальная фильтрация вывода orca orchestration check и worktree ps до 3 строк (активные воркеры, упавшие воркеры, очередь) вместо 5000 строк JSON.",
+      "subtasks": [
+        {
+          "id": "SUB-202.1",
+          "title": "Парсинг JSON вывода Orca CLI",
+          "microtasks": [
+            "MICRO-202.1.1: Извлечение running/succeeded/failed dispatches",
+            "MICRO-202.1.2: Сворачивание ошибок в 1 строчку"
+          ]
+        },
+        {
+          "id": "SUB-202.2",
+          "title": "Интеграция в git хуки и auto-loop",
+          "microtasks": [
+            "MICRO-202.2.1: Добавление флага --compact в scripts/auto-loop.sh"
+          ]
+        }
+      ],
+      "dod": "Вывод orca-slim.sh занимает менее 100 байт (20 токенов вместо 5 000).",
+      "tokens_saved_estimate": "~4.0M токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-301",
+      "title": "npm run precheck: Параллельная ультра-быстрая верификация синтаксиса и контрактов",
+      "status": "backlog",
+      "priority": "P1",
+      "department": "G4 QA",
+      "summary": "Объединение npm run typecheck, node --check rust/gui-spike/ui/app.js и tests/meta в один параллельный скрипт с однострочным выводом.",
+      "subtasks": [
+        {
+          "id": "SUB-301.1",
+          "title": "Параллельный запуск проверок",
+          "microtasks": [
+            "MICRO-301.1.1: Worker threads для TSC и Node syntax check",
+            "MICRO-301.1.2: Агрегация ошибок в единый краткий лог"
+          ]
+        }
+      ],
+      "dod": "npm run precheck выполняется за < 2 сек и заменяет 3 последовательных tool calls.",
+      "tokens_saved_estimate": "~600K токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-302",
+      "title": "scripts/sync-push.sh: Безопасный синхронный пуш в origin и public",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "DevOps",
+      "summary": "Автоматизация двойного пуша текущей ветки в оба репозитория с верификацией чистоты дерева и проверкой SHA.",
+      "subtasks": [
+        {
+          "id": "SUB-302.1",
+          "title": "Синхронизация remotes",
+          "microtasks": [
+            "MICRO-302.1.1: Проверка наличия remote origin и public",
+            "MICRO-302.1.2: Параллельный git push с гарантией атомарности"
+          ]
+        }
+      ],
+      "dod": "npm run sync:push пушит текущую ветку в оба remotes в один вызов.",
+      "tokens_saved_estimate": "~150K токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-401",
+      "title": "scripts/ci-pause.sh: Мгновенный переключатель паузы GitHub Workflows",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "DevOps",
+      "summary": "Скрипт переключения паузы CI/CD до заданной даты или разморозки в один шаг вместо ручной правки 25 YAML файлов.",
+      "subtasks": [
+        {
+          "id": "SUB-401.1",
+          "title": "Пакетная модификация workflows",
+          "microtasks": [
+            "MICRO-401.1.1: Поиск и замена условий паузы в .github/workflows/*.yml",
+            "MICRO-401.1.2: Флаги --pause <YYYY-MM-DD> и --resume"
+          ]
+        }
+      ],
+      "dod": "./scripts/ci-pause.sh --pause 2026-12-01 меняет все workflows за 100 мс.",
+      "tokens_saved_estimate": "~200K токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-402",
+      "title": "scripts/pr.sh: Консолидация PR-инструментов и генерация Release Notes",
+      "status": "backlog",
+      "priority": "P2",
+      "department": "G0 Routine",
+      "summary": "Объединение pr-collaborator.mjs и pr-ops.mjs под единым фасадом scripts/pr.sh с генерацией описания на английском из коммитов.",
+      "subtasks": [
+        {
+          "id": "SUB-402.1",
+          "title": "Единый интерфейс pr.sh",
+          "microtasks": [
+            "MICRO-402.1.1: Команды inspect, review, comment, sync-board",
+            "MICRO-402.1.2: Автогенерация Release Notes по Conventional Commits"
+          ]
+        }
+      ],
+      "dod": "./scripts/pr.sh sync-board и ./scripts/pr.sh release-notes работают без ручных промптов.",
+      "tokens_saved_estimate": "~400K токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-501",
+      "title": "scripts/scope-audit.sh & scripts/worker-report.sh: Авто-отчеты и линтер зон",
+      "status": "done",
+      "priority": "P1",
+      "department": "DevOps",
+      "summary": "Автоматическая валидация границ файлов отделов по AGENTS.md §2 и расчет SHA-256 чексумм для отчетов §4.2 без ручного труда.",
+      "subtasks": [
+        {
+          "id": "SUB-501.1",
+          "title": "Линтер границ write-scope отделов",
+          "microtasks": [
+            "MICRO-501.1.1: Проверка запрета на редактирование golden baselines",
+            "MICRO-501.1.2: Проверка файлов Tech Lead (state/types.rs, src/lib.rs)"
+          ]
+        },
+        {
+          "id": "SUB-501.2",
+          "title": "Генератор отчета завершения задачи §4.2",
+          "microtasks": [
+            "MICRO-501.2.1: Сбор sha256sum всех измененных файлов",
+            "MICRO-501.2.2: Сохранение Markdown-отчета в waves/<WAVE>/reports/<CARD>.md"
+          ]
+        }
+      ],
+      "dod": "Скрипты report:worker и audit:scope работают и выдают точные вердикты за <0.3 сек.",
+      "tokens_saved_estimate": "~2.5M токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-502",
+      "title": "scripts/install-git-hooks.sh: Нативные Git-хуки (Pre-commit & Commit-msg)",
+      "status": "done",
+      "priority": "P1",
+      "department": "DevOps",
+      "summary": "Автономная установка pre-commit (быстрый precheck 0.7с) и commit-msg (валидация Conventional Commits) без внешних пакетов.",
+      "subtasks": [
+        {
+          "id": "SUB-502.1",
+          "title": "Установка pre-commit хука",
+          "microtasks": [
+            "MICRO-502.1.1: Генерация исполняемого .git/hooks/pre-commit",
+            "MICRO-502.1.2: Вызов npm run precheck перед фиксацией изменений"
+          ]
+        },
+        {
+          "id": "SUB-502.2",
+          "title": "Установка commit-msg хука",
+          "microtasks": [
+            "MICRO-502.2.1: Валидация Conventional Commits regex",
+            "MICRO-502.2.2: Блокировка невалидных сообщений коммитов"
+          ]
+        }
+      ],
+      "dod": "Хуки блокируют битые коммиты локально, предотвращая падения CI раннеров.",
+      "tokens_saved_estimate": "~1.0M токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-503",
+      "title": "scripts/wave-accept.sh: Автоматический приёмщик задач и синхронизация журнала волн",
+      "status": "done",
+      "priority": "P1",
+      "department": "G0 Routine",
+      "summary": "Генерация append-only событий v1 схемы в waves/db.jsonl и синхронизация waves/STATE.md с верификацией мета-теста waves-sync.",
+      "subtasks": [
+        {
+          "id": "SUB-503.1",
+          "title": "Запись событий схемы v1",
+          "microtasks": [
+            "MICRO-503.1.1: Сбор метаданных карточки, тестов и доказательств",
+            "MICRO-503.1.2: Append в waves/db.jsonl в строгом JSONL-формате"
+          ]
+        },
+        {
+          "id": "SUB-503.2",
+          "title": "Верификация мета-тестом",
+          "microtasks": [
+            "MICRO-503.2.1: Запуск tests/meta/waves-sync.test.mjs"
+          ]
+        }
+      ],
+      "dod": "Приёмка задачи выполняется одной командой scripts/wave-accept.sh за <0.5 сек.",
+      "tokens_saved_estimate": "~800K токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-504",
+      "title": "scripts/review-scaffold.sh: Авто-генератор артефактов двойного ревью (ACCEPT + REVIEW 5/5)",
+      "status": "done",
+      "priority": "P2",
+      "department": "G0 Routine",
+      "summary": "Создание шаблонов ACCEPT.md (PM DoD Acceptance) и REVIEW.md (Technical Reviewer 5/5 mutations killed) в waves/<WAVE>/reviews/<CARD>/.",
+      "subtasks": [
+        {
+          "id": "SUB-504.1",
+          "title": "Генерация ACCEPT.md",
+          "microtasks": [
+            "MICRO-504.1.1: Чеклист критериев приемки DoD и ссылка на evidence"
+          ]
+        },
+        {
+          "id": "SUB-504.2",
+          "title": "Генерация REVIEW.md",
+          "microtasks": [
+            "MICRO-504.2.1: Таблица 5/5 мутаций M1-M5",
+            "MICRO-504.2.2: Аудит memory safety и архитектурных инвариантов"
+          ]
+        }
+      ],
+      "dod": "Шаблоны двойного ревью создаются мгновенно без ручной верстки Markdown.",
+      "tokens_saved_estimate": "~1.5M токенов/спринт"
+    },
+    {
+      "id": "TASK-AUTO-505",
+      "title": "scripts/worktree-prune.sh: Сборщик мусора смердженных воркдеревьев",
+      "status": "done",
+      "priority": "P2",
+      "department": "DevOps",
+      "summary": "Автоматическое обнаружение и удаление неактивных, удаленных или смердженных воркдеревьев в /home/sanya/orca/workspaces/project/.",
+      "subtasks": [
+        {
+          "id": "SUB-505.1",
+          "title": "Аудит внешних воркдеревьев",
+          "microtasks": [
+            "MICRO-505.1.1: Парсинг git worktree list --porcelain",
+            "MICRO-505.1.2: Обнаружение отсутствующих каталогов"
+          ]
+        },
+        {
+          "id": "SUB-505.2",
+          "title": "Безопасная очистка",
+          "microtasks": [
+            "MICRO-505.2.1: Очистка git worktree prune и удаление старых веток"
+          ]
+        }
+      ],
+      "dod": "Воркдеревья очищаются в один вызов, исключая разрастание диска и мусор в git status.",
+      "tokens_saved_estimate": "~400K токенов/спринт"
     }
   ]
 }
