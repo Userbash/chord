@@ -9,7 +9,7 @@ description = "Системная интеграция: tray, уведомлен
 # SCM_RIGHTS для передачи unix-fd (RW-35); версия уже в Cargo.lock/офлайн-кэше.
 libc = "0.2"
 # RW51-EPIC4-T1: Cross-platform native audio I/O engine (ALSA / CoreAudio / WASAPI).
-cpal = "0.15.3"
+cpal = "0.18.2"
 
 [lints.rust]
 unsafe_code = "deny"
