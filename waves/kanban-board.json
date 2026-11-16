@@ -4574,7 +4574,7 @@
       "id": "TASK-951",
       "title": "Формирование централизованного манифеста сборки BUILD-005 и подготовка слияния unstable -> testing",
       "department": "devops",
-      "status": "done",
+      "status": "completed",
       "priority": "P0",
       "summary": "Консолидация всех 128 завершённых задач в ветке unstable, проверка чистоты рабочего дерева, формирование машиночитаемого манифеста waves/BUILD-005.json и слияние в ветку testing с тегом build-005-candidate.",
       "layout": {
@@ -4637,10 +4637,11 @@
         "Файл waves/BUILD-005.json содержит полный реестр всех 128 задач со статусами и коммитами",
         "Тег build-005-candidate указывает на вершину ветки testing"
       ],
-      "column": "backlog",
+      "column": "done",
       "dispatchId": "ctx_c51a1083fc96",
       "terminal": "term_fd61ef03",
-      "updated_at": "2026-11-11T11:07:06.282Z"
+      "updated_at": "2026-11-11T11:07:06.282Z",
+      "updatedAt": "2026-11-16T15:22:37.915Z"
     },
     {
       "id": "TASK-952",
@@ -4717,7 +4718,7 @@
       "id": "TASK-953",
       "title": "Автономная верификация системных библиотек ldd и совместимости с дистрибутивами Linux",
       "department": "devops",
-      "status": "done",
+      "status": "completed",
       "priority": "P1",
       "summary": "Инспекция динамических зависимостей бинарника discord-gpui через ldd/objdump, проверка совместимости с glibc <= 2.35 и тестирование холодного старта при программном рендере llvmpipe.",
       "layout": {
@@ -4777,10 +4778,11 @@
         "Бинарник успешно стартует на программном драйвере llvmpipe без падений",
         "Документ docs/SYSTEM-REQUIREMENTS.md зафиксирован в репозитории"
       ],
-      "column": "backlog",
+      "column": "done",
       "dispatchId": "ctx_6d7350639b85",
       "terminal": "term_f62e9e10",
-      "updated_at": "2026-11-11T11:00:00.264Z"
+      "updated_at": "2026-11-11T11:00:00.264Z",
+      "updatedAt": "2026-11-16T15:22:37.915Z"
     },
     {
       "id": "TASK-954",
