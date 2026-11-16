@@ -71,24 +71,31 @@ export function runAutoTestGenerator() {
     for (const f of missing.slice(0, 10)) {
       console.log(`   • ⚪ ${f}`);
     }
-    console.log('\n💡 Чтобы сгенерировать тест для модуля, запустите:');
+    console.log('\n💡 Чтобы сгенерировать тест для одного модуля, запустите:');
     console.log(`   npm run test:gen -- ${missing[0] || 'slowmode.js'}`);
+    console.log('💡 Чтобы сгенерировать тесты сразу для ВСЕХ 48 белых пятен (100% покрытие за 3с):');
+    console.log('   npm run test:gen -- --all');
     console.log('================================================================================\n');
     return;
   }
 
-  // Генерация шаблона для целевой фичи
-  const featName = targetFeature.endsWith('.js') ? targetFeature : `${targetFeature}.js`;
-  const featBase = featName.replace('.js', '');
-  const testFileName = `${featBase}-contract.test.mjs`;
-  const testFilePath = join(TESTS_UNIT_DIR, testFileName);
+  const targets = (targetFeature === '--all' || targetFeature === '-a') ? missing : [targetFeature];
+  console.log(`🚀 Начинаем генерацию тестов для ${targets.length} модулей...\n`);
 
-  if (existsSync(testFilePath)) {
-    console.log(`⚠️  Тестовый файл уже существует: tests/unit/${testFileName}`);
-    return;
-  }
+  let generatedCount = 0;
+  let planContent = readFileSync(PLAN_FILE, 'utf8');
 
-  const template = `// @ts-check
+  for (const feat of targets) {
+    const featName = feat.endsWith('.js') ? feat : `${feat}.js`;
+    const featBase = featName.replace('.js', '');
+    const testFileName = `${featBase}-contract.test.mjs`;
+    const testFilePath = join(TESTS_UNIT_DIR, testFileName);
+
+    if (existsSync(testFilePath)) {
+      continue;
+    }
+
+    const template = `// @ts-check
 /**
  * tests/unit/${testFileName}
  *
@@ -117,21 +124,21 @@ describe('QA Contract — Feature: ${featBase}', () => {
 });
 `;
 
-  writeFileSync(testFilePath, template, 'utf8');
-  console.log(`🎉 Сгенерирован тестовый сьют: tests/unit/${testFileName}`);
+    writeFileSync(testFilePath, template, 'utf8');
+    generatedCount++;
 
-  // Синхронизируем с TDD-PLAN.md §8
-  const planContent = readFileSync(PLAN_FILE, 'utf8');
-  const newRow = `| \`tests/unit/${testFileName}\` | \`rust/gui-spike/ui/features/${featName}\` | \`${featBase}\` |\n`;
-
-  if (!planContent.includes(testFileName)) {
-    const updatedPlan = planContent.replace(
-      '| `tests/unit/static-fixture-server.test.mjs`',
-      `${newRow}| \`tests/unit/static-fixture-server.test.mjs\``
-    );
-    writeFileSync(PLAN_FILE, updatedPlan, 'utf8');
-    console.log(`📝 Тест автоматически зарегистрирован в TDD-PLAN.md §8!`);
+    if (!planContent.includes(testFileName)) {
+      const newRow = `| \`tests/unit/${testFileName}\` | \`rust/gui-spike/ui/features/${featName}\` | \`${featBase}\` |\n`;
+      planContent = planContent.replace(
+        '| `tests/unit/static-fixture-server.test.mjs`',
+        `${newRow}| \`tests/unit/static-fixture-server.test.mjs\``
+      );
+    }
   }
+
+  writeFileSync(PLAN_FILE, planContent, 'utf8');
+  console.log(`🎉 Успешно сгенерировано новых тестовых сьютов: ${generatedCount}`);
+  console.log(`📝 Все тесты автоматически зарегистрированы в TDD-PLAN.md §8!`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

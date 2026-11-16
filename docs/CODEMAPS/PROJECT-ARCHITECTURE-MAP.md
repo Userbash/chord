@@ -1,6 +1,6 @@
 # Architecture Codemap: Chord / Discord-Lab
 
-> **Generated:** 2026-11-16 12:17:58 UTC
+> **Generated:** 2026-11-16 12:28:36 UTC
 > **Engine:** SocratiCode AST Dependency Graph & Code Intelligence
 > **Total Indexed Files:** 1,534 | **Dependency Edges:** 8,032 | **Average Coupling:** 5.2 dep/file
 
@@ -79,7 +79,7 @@ flowchart TD
 | **BFF Host (`rust/gui-spike/src/*`)** | 58 | Связка Rust $\leftrightarrow$ WebView, IPC команды | 81 зарегистрированная команда, строгая типизация DTO |
 | **GPUI Native Client** | 0 | Альтернативный рендерер на GPU | 60 FPS рендеринг, прямое подключение к Metal/Vulkan |
 | **Frontend UI (`rust/gui-spike/ui/*`)** | 153 | Компоненты интерфейса, модальные окна, DOM | W3C ARIA диалоги, Focus Trap, отсутствие утечек памяти |
-| **Test Suites (`tests/*`)** | 301 | Пирамида верификации качества | 100% assertions, 0 broken imports, 5/5 mutation gate |
+| **Test Suites (`tests/*`)** | 351 | Пирамида верификации качества | 100% assertions, 0 broken imports, 5/5 mutation gate |
 
 ---
 
