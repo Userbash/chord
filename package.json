@@ -76,7 +76,11 @@
     "security:shield": "node scripts/security-shield.mjs",
     "docs:graph": "node scripts/docs-graph.mjs",
     "docs:lint": "node scripts/docs-lint.mjs",
-    "docs:sync": "node scripts/docs-graph.mjs && node scripts/docs-lint.mjs"
+    "docs:sync": "node scripts/docs-graph.mjs && node scripts/docs-lint.mjs",
+    "socrati:health": "bash scripts/socrati-guard.sh",
+    "socrati:impact": "node scripts/socrati-impact.mjs",
+    "socrati:search": "node scripts/socrati-search.mjs",
+    "socrati:hub": "node scripts/socrati-hub-check.mjs"
   },
   "files": [
     "bin/",

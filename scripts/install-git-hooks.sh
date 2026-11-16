@@ -33,6 +33,7 @@ if command -v npm >/dev/null 2>&1; then
     echo "❌ [GIT-HOOK] Security shield failed: secrets or forbidden unsafe blocks found."
     exit 1
   }
+  node scripts/socrati-hub-check.mjs --staged || true
 fi
 EOF
 chmod +x "$HOOKS_DIR/pre-commit"

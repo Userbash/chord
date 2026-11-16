@@ -43,6 +43,8 @@ Subcommands:
   kanban [status|auto]  Inspect or auto-sync Kanban board status with git
   quarantine [scan|id]  Audit or quarantine external PRs
   visual [status]       Headless UI visual regression comparator
+  impact <file>         Calculate Blast Radius & smart test selector (SocratiCode)
+  ask <query>           Compact semantic code search for LLMs/developers (SocratiCode)
   report                Generate standard PROCESS.md §4.2 Completion Report
   sync                  Synchronize code & locks with git remotes (origin + public)
   clean                 Run garbage collection on stale incremental targets
@@ -152,10 +154,23 @@ case "${1:-status}" in
     echo "4. Auditing Rust DTO <-> UI contracts..."
     node "$SCRIPT_DIR/contract-lint.mjs"
     echo ""
-    echo "5. Checking git status..."
+    echo "5. Checking architectural hub impacts (SocratiCode)..."
+    node "$SCRIPT_DIR/socrati-hub-check.mjs"
+    echo ""
+    echo "6. Checking git status..."
     git status -s
     echo ""
     echo "✅ [COLLAB-VERIFY] All pre-flight checks PASSED cleanly."
+    ;;
+
+  impact)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-impact.mjs" "$@"
+    ;;
+
+  ask)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-search.mjs" "$@"
     ;;
 
   contract)
