@@ -47,6 +47,8 @@ Subcommands:
   ask <query>           Compact semantic code search for LLMs/developers (SocratiCode)
   cycles [filter]       Audit circular dependency chains in AST graph (SocratiCode)
   auto-test [file]      Auto-run impacted contract tests with slim error logging
+  analyze               Deep AST graph analysis & test gap report (SocratiCode)
+  scaffold <file>       Auto-generate 9-dimension contract test for module
   report                Generate standard PROCESS.md §4.2 Completion Report
   sync                  Synchronize code & locks with git remotes (origin + public)
   clean                 Run garbage collection on stale incremental targets
@@ -178,6 +180,16 @@ case "${1:-status}" in
   cycles)
     shift 1 || true
     node "$SCRIPT_DIR/socrati-cycles.mjs" "$@"
+    ;;
+
+  analyze)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-analyzer.mjs" "$@"
+    ;;
+
+  scaffold)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-scaffold-test.mjs" "$@"
     ;;
 
   ask)

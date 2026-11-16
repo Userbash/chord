@@ -19,8 +19,8 @@ webpki-roots = { workspace = true }
 futures-util = { workspace = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-twilight-model = { version = "0.18", default-features = false }
-twilight-util = { version = "0.18", default-features = false, features = ["permission-calculator"] }
+twilight-model = { version = "0.15", default-features = false }
+twilight-util = { version = "0.15", default-features = false, features = ["permission-calculator"] }
 
 [dev-dependencies]
 # Энкодер zstd: стаб-сервер в тестах строит непрерывный поток (продукт пишет несжатый ETF).
