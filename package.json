@@ -122,7 +122,9 @@
     "test:gen": "node scripts/auto-test-generator.mjs",
     "plan:fix": "node scripts/plan-autofix.mjs",
     "trace:calls": "node scripts/app-call-tracer.mjs",
-    "fix:routine": "node scripts/auto-fix-routine.mjs"
+    "fix:routine": "node scripts/auto-fix-routine.mjs",
+    "branch:audit": "node scripts/branch-auditor.mjs",
+    "branch:prune": "node scripts/branch-auditor.mjs --prune-stale"
   },
   "files": [
     "bin/",

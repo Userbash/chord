@@ -57,6 +57,8 @@ Subcommands:
   test-audit            Audit test suite hygiene & detect broken imports
   report                Generate standard PROCESS.md §4.2 Completion Report
   sync                  Synchronize code & locks with git remotes (origin + public)
+  branch-audit          Audit all repository branches for duplicates, staleness & conflicts
+  branch-prune          Clean up redundant duplicates, merged branches & quarantined PRs
   clean                 Run garbage collection on stale incremental targets
 
 Examples:
@@ -313,6 +315,16 @@ case "${1:-status}" in
   monitor)
     shift 1 || true
     bash "$SCRIPT_DIR/workers-monitor.sh" "$@"
+    ;;
+
+  branch-audit)
+    shift 1 || true
+    node "$SCRIPT_DIR/branch-auditor.mjs" "$@"
+    ;;
+
+  branch-prune)
+    shift 1 || true
+    node "$SCRIPT_DIR/branch-auditor.mjs" --prune-stale "$@"
     ;;
 
   sync)
