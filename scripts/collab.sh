@@ -51,6 +51,8 @@ Subcommands:
   scaffold <file>       Auto-generate 9-dimension contract test for module
   suite [file] [--unit|--smoke|--e2e] Tiered fail-fast test pyramid runner
   dashboard             Full project intelligence & test pyramid dashboard
+  qa                    Product completeness & command parity inspector
+  modals                Run universal FSM & A11y modal test suite
   report                Generate standard PROCESS.md §4.2 Completion Report
   sync                  Synchronize code & locks with git remotes (origin + public)
   clean                 Run garbage collection on stale incremental targets
@@ -202,6 +204,16 @@ case "${1:-status}" in
   dashboard)
     shift 1 || true
     node "$SCRIPT_DIR/socrati-dashboard.mjs" "$@"
+    ;;
+
+  qa)
+    shift 1 || true
+    node "$SCRIPT_DIR/qa-inspector.mjs" "$@"
+    ;;
+
+  modals)
+    shift 1 || true
+    node "$SCRIPT_DIR/modal-fsm-suite.mjs" "$@"
     ;;
 
   ask)

@@ -86,7 +86,10 @@
     "socrati:analyze": "node scripts/socrati-analyzer.mjs",
     "socrati:scaffold": "node scripts/socrati-scaffold-test.mjs",
     "socrati:suite": "node scripts/socrati-smart-suite.mjs",
-    "socrati:dashboard": "node scripts/socrati-dashboard.mjs"
+    "socrati:dashboard": "node scripts/socrati-dashboard.mjs",
+    "qa:inspect": "node scripts/qa-inspector.mjs",
+    "qa:modals": "node scripts/modal-fsm-suite.mjs",
+    "qa:scaffold": "node scripts/qa-scaffold.mjs"
   },
   "files": [
     "bin/",

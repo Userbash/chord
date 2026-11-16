@@ -388,6 +388,10 @@ Historical Context: The initial module scaffolding in `src/` was generated direc
 | `tests/unit/mentions.test.mjs` | — | — |
 | `tests/unit/message-rendering-and-emoji.test.mjs` | — | — |
 | `tests/unit/modal-router.test.mjs` | — | — |
+| `tests/unit/modals-fsm-contract.test.mjs` | — | — |
+| `tests/unit/forward-modal.test.mjs` | — | — |
+| `tests/unit/inbox-popover.test.mjs` | — | — |
+| `tests/unit/rules-screening-modal.test.mjs` | — | — |
 | `tests/unit/screen-share-dialog.test.mjs` | — | — |
 | `tests/unit/signals.test.mjs` | — | — |
 | `tests/unit/voice-call-orchestrator.test.mjs` | — | — |
