@@ -63,11 +63,11 @@ flowchart TD
 ## 2. Component Inventory & Top Architectural Hubs
 
 ### Top Connected Architectural Hubs (SocratiCode Blast Radius):
-1. **`rust/crates/chord-core/src/state/mod.rs`** (273 connections) — Центральное ядро стейт-машины протокола.
-2. **`rust/crates/chord-core/src/lib.rs`** (256 connections) — Корневой экспорт моделей и DTO.
-3. **`rust/gui-spike/src/main.rs`** (104 imports, 81 handlers) — Хост нативного окна и точка входа Tauri BFF.
-4. **`rust/gui-spike/ui/app.js`** (50 imports, 6 dependents) — Главный контроллер пользовательского интерфейса.
-5. **`rust/crates/chord-voice/src/lib.rs`** (150 connections) — Аудио-движок и RTC сигнализация.
+1. **`rust/crates/chord-core/src/state/mod.rs`** (273 connections) — Central state machine core of the protocol.
+2. **`rust/crates/chord-core/src/lib.rs`** (256 connections) — Root export for models and DTOs.
+3. **`rust/gui-spike/src/main.rs`** (104 imports, 81 handlers) — Native window host and entry point for the Tauri BFF.
+4. **`rust/gui-spike/ui/app.js`** (50 imports, 6 dependents) — Main UI controller.
+5. **`rust/crates/chord-voice/src/lib.rs`** (150 connections) — Voice media engine and RTC signaling.
 
 ---
 
@@ -75,11 +75,11 @@ flowchart TD
 
 | Architectural Layer | File Count | Primary Role | Key Invariants |
 |---|---|---|---|
-| **Core Crates (`rust/crates/*`)** | 289 | Протокол, криптография, парсинг шлюза | `#![forbid(unsafe_code)]`, zero-copy ring buffers |
-| **BFF Host (`rust/gui-spike/src/*`)** | 58 | Связка Rust $\leftrightarrow$ WebView, IPC команды | 81 зарегистрированная команда, строгая типизация DTO |
-| **GPUI Native Client** | 0 | Альтернативный рендерер на GPU | 60 FPS рендеринг, прямое подключение к Metal/Vulkan |
-| **Frontend UI (`rust/gui-spike/ui/*`)** | 153 | Компоненты интерфейса, модальные окна, DOM | W3C ARIA диалоги, Focus Trap, отсутствие утечек памяти |
-| **Test Suites (`tests/*`)** | 351 | Пирамида верификации качества | 100% assertions, 0 broken imports, 5/5 mutation gate |
+| **Core Crates (`rust/crates/*`)** | 289 | Protocol, cryptography, gateway parser | `#![forbid(unsafe_code)]`, zero-copy ring buffers |
+| **BFF Host (`rust/gui-spike/src/*`)** | 58 | Rust $\leftrightarrow$ WebView bridge, IPC commands | 81 registered commands, strict DTO typing |
+| **GPUI Native Client** | 0 | Experimental GPU renderer (frozen) | 60 FPS rendering, direct Metal/Vulkan binding |
+| **Frontend UI (`rust/gui-spike/ui/*`)** | 153 | Interface components, modals, DOM | W3C ARIA dialogs, Focus Trap, zero memory leaks |
+| **Test Suites (`tests/*`)** | 351 | Quality verification pyramid | 100% assertions, 0 broken imports, 5/5 mutation gate |
 
 ---
 
@@ -102,7 +102,7 @@ flowchart TD
 
 ## 5. Automated Verification Workflows
 
-- `npm run codemap` — Перестроить текущую архитектурную карту через граф SocratiCode.
-- `npm run gui:audit` — Экспресс-проверка согласованности вызовов UI и бэкенда (30 мс).
-- `npm run test:gui:live` — Тестирование реального живого окна десктоп-клиента (4 сек).
-- `npm run qa:system` — Полная 10-этапная сертификация качества.
+- `npm run codemap` — Rebuild current architecture map via SocratiCode graph.
+- `npm run gui:audit` — Fast audit of UI and backend call consistency (30 ms).
+- `npm run test:gui:live` — Test real running desktop window client (4 s).
+- `npm run qa:system` — Complete 10-stage quality certification suite.

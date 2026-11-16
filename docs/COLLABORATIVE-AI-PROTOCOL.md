@@ -1,28 +1,28 @@
-# Протокол совместной разработки Multi-Human & Multi-AI (AMCP v2.0)
+# Multi-Human & Multi-AI Collaboration Protocol (AMCP v2.0)
 ## Agent Multi-Collaborator Protocol & Engineering Standard for `chord` / `discord-lab`
 
-> **Статус документа:** Действующий производственный стандарт  
-> **Версия протокола:** AMCP v2.0 (Agent-to-Agent Multi-Collaborator Protocol)  
-> **Область действия:** Все инженеры-люди, ИИ-агенты (Antigravity, Claude Code, Cursor, Windsurf, Codex, Gemini CLI), автономные воркеры и боты контрибьютинга (Dependabot).
+> **Document Status:** Active Engineering Standard  
+> **Protocol Version:** AMCP v2.0 (Agent-to-Agent Multi-Collaborator Protocol)  
+> **Scope:** All human engineers, AI agents (Antigravity, Claude Code, Cursor, Windsurf, Codex, Gemini CLI), autonomous workers, and automated bots (Dependabot).
 
 ---
 
-## 1. Введение и Архитектурные Принципы
+## 1. Introduction & Architectural Principles
 
-Разработка высокопроизводительного нативного клиента (`chord` / `discord-lab`) ведётся распределённой командой: людьми-инженерами и множеством ИИ-агентов на базе различных больших языковых моделей (LLM).
+The development of the high-performance native desktop client (`chord` / `discord-lab`) is conducted by a distributed team: human engineers and autonomous AI agents powered by large language models (LLMs).
 
-Когда над одним репозиторием параллельно работают несколько ИИ-агентов и инженеров, возникают 5 критических рисков:
-1. **Конфликты слияния и гонки перезаписи файлов:** два агента одновременно меняют один и тот же файл, затирая код друг друга.
-2. **Сжигание контекста и токенов на рутину:** агенты тратят до 80% лимита токенов на чтение многостраничных дампов `git status`, `cargo test` и JSON-выводов.
-3. **Рассинхронизация типов данных (Data Contract Drift):** бэкенд (Rust) меняет сигнатуру метода или структуры DTO, ломая фронтенд (TypeScript/GPUI/Tauri).
-4. **Утечки памяти и OOM Killer:** запуск множества параллельных компиляторов `rustc`/`cargo` и серверов приводит к падению хост-машины (лимит 48 ГБ RAM).
-5. **Ломающие внешние зависимости:** неконтролируемые мажорные обновления сторонних библиотек ломают скомпилированный код.
+When multiple AI agents and human engineers collaborate on a single repository simultaneously, five critical risks arise:
+1. **Merge Conflicts and File Race Conditions:** Two agents modifying the same file concurrently, overwriting each other's code.
+2. **Context and Token Depletion on Routine Ops:** Agents burning up to 80% of their context budget on massive `git status`, `cargo test`, and raw JSON dumps.
+3. **Data Contract Drift:** The backend (Rust) altering a DTO structure or method signature, silently breaking the frontend (TypeScript / Tauri).
+4. **Memory Leaks and Host OOM Crashes:** Multiple concurrent `cargo` and `rustc` processes causing system out-of-memory crashes on host hardware.
+5. **Breaking Dependency Drift:** Unmanaged external dependency updates breaking compiled code.
 
-Протокол **AMCP v2.0** решает эти проблемы через **жесткую стандартизацию, локальную шину синхронизации агентов и zero-token автоматизацию**.
+The **AMCP v2.0** protocol resolves these challenges through **strict engineering standards, a local agent coordination bus, and zero-token deterministic automations**.
 
 ---
 
-## 2. Архитектура Взаимодействия (Multi-AI Ecosystem)
+## 2. Collaboration Architecture (Multi-AI Ecosystem)
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -64,161 +64,160 @@
 
 ---
 
-## 3. Ядро Протокола AMCP v2.0
+## 3. AMCP v2.0 Protocol Core
 
-### §3.1. Contract-First Разработка
-- **Правило:** Любое изменение межмодульного интерфейса (Rust BFF <-> Frontend WebView / DTOs / Events) начинается с фиксации контракта.
-- Запрещено менять реализацию до утверждения DTO в `rust/crates/discord-core/src/dto.rs` или сигнатур в `shared/contracts/`.
-- Изменение контракта публикуется в шину событий:
+### §3.1. Contract-First Development
+- **Rule:** Any change to an inter-module boundary (Rust BFF <-> Frontend WebView / DTOs / Events) begins with freezing the contract first.
+- Modifying implementations before establishing the DTO in `rust/crates/discord-core/src/dto.rs` or signatures in `shared/contracts/` is strictly forbidden.
+- Contract updates must be published to the event bus:
   ```bash
   npm run collab publish CONTRACT_UPDATE "Updated VoiceStateDto to include deaf_reason field"
   ```
 
-### §3.2. Изоляция Отделов и Write-Scope Границы
-Каждый ИИ-воркер и разработчик работает строго в границах своего отдела (Department), определенных в `AGENTS.md` §2:
-- **G0 (Routine & Adapters):** Документация, утилиты, тесты мета-синхронизации, тривиальные DTO.
+### §3.2. Department Isolation and Write-Scope Boundaries
+Each worker operates strictly within assigned department boundaries, as defined in `AGENTS.md` §2:
+- **G0 (Routine & Adapters):** Documentation, utilities, meta-sync tests, boilerplate DTOs.
 - **G1 (Backend Core & BFF):** `rust/crates/discord-{core,codec,media,store,i18n}`, `rust/gui-spike/src/*.rs`.
 - **G2 (Frontend & UI):** `rust/gui-spike/ui/**/*.{js,css,html}`, `tests/unit/*.test.mjs`.
 - **G3 (Design & Specs):** `docs/specs/*.md`, `waves/RW-*/DESIGN/*.md`.
 - **G4 (QA Automation):** `tests/{meta,unit,smoke,e2e}/`, `scripts/test-impact.mjs`.
 - **G5 (Voice & Platform):** `rust/crates/discord-voice/**`, `rust/crates/discord-platform/**`, WebRTC/DAVE.
-- **G7 (Clean-Room RE):** Изучение оракулов `docs/re/`, генерация спецификаций без изменения прод-кода.
+- **G7 (Clean-Room RE):** Reference oracle analysis in `docs/re/`, specification generation without touching production code.
 
-Перед коммитом запускается проверка:
+Before committing, write-scope boundaries are automatically validated:
 ```bash
 npm run audit:scope
 ```
-Если воркер отдела G2 изменил файл бэкенда G1, коммит блокируется.
+If a frontend worker (G2) modifies a backend file (G1), the commit is rejected.
 
-### §3.3. Распределённые Блокировки Файлов (Distributed File Locks)
-Перед модификацией общего или критического файла агент ОБЯЗАН захватить лок:
+### §3.3. Distributed File Locks
+Before modifying a shared or critical file, an agent MUST acquire a lock:
 ```bash
 npm run collab lock rust/crates/discord-core/src/dto.rs TASK-123
 ```
-- Лок сохраняется в реестре `.collab/bus/locks.json`.
-- Если другой агент попытается захватить тот же файл, он получит отказ с указанием имени владельца и номера задачи:
+- The lock is recorded in `.collab/bus/locks.json`.
+- If another agent attempts to modify the locked file, the operation is blocked:
   ```
   ❌ CONFLICT BLOCKED: File rust/crates/discord-core/src/dto.rs is already locked by @g1_backend for task TASK-110!
   ```
-- После завершения работы и прогона тестов агент освобождает лок:
+- Upon task completion and passing tests, the agent releases the lock:
   ```bash
   npm run collab unlock rust/crates/discord-core/src/dto.rs
   ```
 
-### §3.4. Асинхронный Обмен Сообщениями (Direct Mailbox)
-Для взаимодействия между агентами и инженерами (например, уведомление фронтенда о готовности новой команды бэкенда) используется почтовый ящик:
+### §3.4. Asynchronous Messaging (Direct Mailbox)
+Inter-agent and engineer communication uses the mailbox mechanism:
 ```bash
-# Отправка сообщения
+# Send a notification
 npm run collab send g2_frontend "IPC Ready" "Command voice_connect is implemented and tested"
 
-# Чтение входящих
+# Read incoming messages
 npm run collab inbox g2_frontend
 ```
 
-### §3.5. Жесткий Лимит Памяти (`WORKER_RAM_LIMIT <= 25 GiB`) и Zero-Idle
-- Суммарная память всех активных ИИ-агентов, серверов и сборщиков `cargo`/`node` не должна превышать **25.00 GiB** (на хосте 48 GiB).
-- Максимум **5 параллельных рабочих слотов** (3–4 код/ревью + 1–2 RE).
-- Ротация 1-в-1: завершивший задачу воркер мгновенно освобождает терминал (`worker:rotate`), а освободившийся слот получает следующую задачу из очереди без простоя команды.
+### §3.5. Strict Host Memory Ceiling (`WORKER_RAM_LIMIT <= 25 GiB`) and Zero-Idle
+- Total memory consumed across all active AI agents, child processes, `cargo`, and `node` runners must never exceed **25.00 GiB** (on a 48 GiB host).
+- A maximum of **5 parallel worker slots** (3–4 dev/review + 1–2 RE).
+- 1-to-1 slot rotation: A worker that finishes a task immediately releases its terminal (`worker:rotate`), and the freed slot receives the next queued task without idle time.
 
 ---
 
-## 4. Конвейер Проверки, Контрибьютинга и Слияния (Merge Conveyor)
+## 4. Verification, Contribution, and Merge Conveyor
 
-### 4.1. Локальные Pre-Flight Проверки (Zero-Token)
-В репозитории установлены нативные хуки (`npm run hooks:install`):
+### 4.1. Zero-Token Local Pre-Flight Checks
+The repository enforces native Git hooks (`npm run hooks:install`):
 1. **Pre-commit:**
-   - Проверяет границы write-scope (`scripts/scope-audit.sh`).
-   - Проверяет корректность синтаксиса JS и TypeScript типов (`scripts/precheck.mjs`).
-   - Время выполнения: **0.7 секунды** (не сжигает токены LLM).
+   - Validates write-scope boundaries (`scripts/scope-audit.sh`).
+   - Rejects modifications to frozen directories (`rust/chord-gpui/`).
+   - Verifies JS syntax and TypeScript types in parallel (`scripts/precheck.mjs`).
+   - Execution time: **0.7 seconds** (0 LLM tokens burned).
 2. **Commit-msg:**
-   - Валидирует формат Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`, `perf:`, `ci:`).
+   - Validates Conventional Commits format (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`, `perf:`, `ci:`).
 
-### 4.2. TDD Цикл (Test-Driven Development)
-1. **Красная фаза (RED):** Агент пишет изолированный тест и запускает:
+### 4.2. Strict TDD Lifecycle
+1. **RED Phase:** The agent writes an isolated contract test and verifies failure:
    ```bash
    npm run tdd:red -- --test my_contract
    ```
-   Скрипт проверяет, что тест упал именно с ожидаемой ошибкой и фиксирует лог в wave journal.
-2. **Зеленая фаза (GREEN):** Агент пишет минимально необходимый код и запускает:
+2. **GREEN Phase:** The agent writes minimal production code to satisfy the test:
    ```bash
    npm run tdd:green -- --test my_contract
    ```
-   Скрипт проверяет прохождение теста и прогоняет 5/5 мутационный фильтр.
 
-### 4.3. Двойное Ревью (Dual Review Gate)
-Ни один PR не может быть слит в `unstable` без двух подтверждений:
-1. **Product Review (`ACCEPT.md`):** Продакт-менеджер валидирует выполнение критериев приемки (DoD), работу UI и отсутствие регрессий пользовательского опыта.
-2. **Technical Review (`REVIEW.md`):** Техлид проверяет чистоту архитектуры, потокобезопасность, запрет `unsafe_code` и **100% уничтожение мутаций (5/5)**.
-Генерация шаблонов ревью автоматизирована:
+### 4.3. Dual Review Gate
+No PR merges into `unstable` without dual sign-off:
+1. **Product Review (`ACCEPT.md`):** PM validates Definition of Done (DoD), UI journeys, and zero regressions.
+2. **Technical Review (`REVIEW.md`):** Tech Lead checks architecture, thread safety, memory constraints, `#![forbid(unsafe_code)]`, and **100% mutation kill rate (5/5)**.
+Scaffold generation is automated:
 ```bash
 npm run review:scaffold TASK-123
 ```
 
-### 4.4. SemVer Автоматизация и Работа с Ботами (Dependabot Conveyor)
-Все входящие PR от ботов (`dependabot[bot]`) и внешних контрибьюторов обрабатываются пакетным скриптом `scripts/dependabot-batch.sh`:
-- **PATCH-версии (0.14.3 -> 0.14.4):** Автоматически одобряются и вливаются squash-мерджем при зеленых тестах CI.
-- **MINOR-версии (0.15.0 -> 0.16.0):** Проходят `scripts/precheck.mjs` и вливаются полуавтоматически.
-- **MAJOR-версии (0.15 -> 0.18):** Изолируются, требуют подтверждения от техлида и прогона `npm run test:smoke`.
-- **Коллизии `Cargo.lock`:** Автоматически устраняются отправкой `@dependabot rebase`.
+### 4.4. Automated SemVer Bot Processing (Dependabot Conveyor)
+Incoming bot PRs (`dependabot[bot]`) and external contributors are processed via `scripts/dependabot-batch.sh`:
+- **PATCH Releases (0.14.3 -> 0.14.4):** Automatically approved and squash-merged once CI checks pass.
+- **MINOR Releases (0.15.0 -> 0.16.0):** Evaluated with `scripts/precheck.mjs` and merged semi-automatically.
+- **MAJOR Releases (0.15 -> 0.18):** Isolated, requiring Tech Lead review and `npm run test:smoke`.
+- **`Cargo.lock` Collisions:** Handled automatically by triggering `@dependabot rebase`.
 
-### 4.5. Протокол Карантина Дефектных PR (Quarantine Protocol)
-Если сторонний PR содержит ломающие регрессии (как PR #16 с повреждением аудио-пайплайна):
-- PR переводится в статус **Changes Requested** с детальным логом регрессии (`npm run pr:request-changes`).
-- Ветка PR изолируется и **НЕ блокирует** конвейер остальных задач.
-- Полезные части кода могут быть спасены через cherry-pick (`npm run pr:salvage`).
+### 4.5. Defective PR Quarantine Protocol
+If an external PR causes breaking regressions:
+- The PR is moved to **Changes Requested** with detailed regression logs (`npm run pr:request-changes`).
+- The branch is quarantined and does **not** block the main development pipeline.
+- Useful sub-components can be salvaged cleanly via cherry-pick (`npm run pr:salvage`).
 
 ---
 
-## 5. Полный Реестр Автоматизаций и CLI Команд
+## 5. Complete Automation & CLI Registry
 
-| Команда | Скрипт | Назначение | Экономия токенов / выгоды |
+| Command | Script | Purpose | Token Savings / Advantage |
 |---|---|---|---|
-| `npm run collab status` | `scripts/collab.sh status` | Сводный дашборд: локи, события, воркеры, RAM | Заменяет 6 ручных команд в один клик |
-| `npm run collab lock` | `scripts/collab.sh lock` | Захват эксклюзивного лока на файл | Предотвращает конфликты правок между ИИ |
-| `npm run collab unlock` | `scripts/collab.sh unlock` | Освобождение лока на файл | Чистота реестра локов |
-| `npm run collab verify` | `scripts/collab.sh verify` | Комплексная pre-flight проверка | 100% защита от коммита поломок |
-| `npm run collab sync` | `scripts/sync-push.sh` | Двойной push в origin и public репозитории | Исключает рассинхронизацию зеркал |
-| `npm run precheck` | `scripts/precheck.mjs` | Параллельный TS + Node + Meta чекер | 0.7 сек вместо 12 сек `npm test` |
-| `npm run audit:scope` | `scripts/scope-audit.sh` | Линтер границ отделов AGENTS.md §2 | Защита от случайных правок чужих файлов |
-| `npm run report:worker` | `scripts/worker-report.sh` | Генерация отчета по PROCESS.md §4.2 с SHA256 | -1500 токенов на ручное составление Markdown |
-| `npm run hooks:install` | `scripts/install-git-hooks.sh` | Установка git pre-commit и commit-msg хуков | Автоматический контроль на уровне git |
-| `npm run wave:accept` | `scripts/wave-accept.sh` | Внесение задачи в waves/db.jsonl | Соблюдение схемы v1 wave journal |
-| `npm run review:scaffold`| `scripts/review-scaffold.sh` | Генерация ACCEPT.md и REVIEW.md (5/5 мутаций) | Стандартизация двойного ревью |
-| `npm run tdd:red` | `scripts/tdd-runner.sh --red` | Автоматическая фиксация падения теста | Строгий TDD без подгонки тестов под код |
-| `npm run tdd:green` | `scripts/tdd-runner.sh --green`| Проверка прохождения теста и мутаций | Автоматизация зеленой фазы TDD |
-| `npm run orca:status` | `scripts/orca-slim.sh` | Компактная сводка воркеров Orca | Сжатие вывода с 8000 до 30 токенов (-99.5%) |
-| `npm run gc` | `scripts/worker-gc.mjs` | Очистка target cache и stale воркдеревьев | Освобождает до 105 ГБ диска за 1 секунду |
-| `npm run dependabot:batch`| `scripts/dependabot-batch.sh` | SemVer фильтр и авто-мердж PR ботов | Полная автономия обновления зависимостей |
-| `npm run rust:slim` | `scripts/rust-slim.sh` | Сжатие ошибок компилятора Rust | Сжатие с 400 строк до 3 строк (-95% токенов) |
-| `npm run contract:lint`| `scripts/contract-lint.mjs` | Детектор рассинхронизации Rust DTO ↔ UI | Предотвращение скрытых багов интерфейса |
-| `npm run kanban:sync` | `scripts/kanban-sync.sh` | Zero-Touch авто-синхронизация Kanban-доски | Авто-перемещение карточек из git истории |
-| `npm run pr:quarantine`| `scripts/pr-quarantine.sh` | Авто-карантин дефектных сторонних PR | Изоляция ломающих веток без участия человека |
-| `npm run test:visual` | `scripts/visual-diff.mjs` | Headless визуальное регрессионное сравнение | Оценка UI сдвигов (<0.2%) для PM приемки |
-| `npm run security:shield`| `scripts/security-shield.mjs` | AST-сканер токенов, ключей и unsafe кода | Защита от утечек секретов в git pre-commit |
+| `npm run collab status` | `scripts/collab.sh status` | Unified status: locks, events, workers, RAM | Replaces 6 manual commands in one click |
+| `npm run collab lock` | `scripts/collab.sh lock` | Acquire exclusive file lock | Prevents concurrent overwrite conflicts |
+| `npm run collab unlock` | `scripts/collab.sh unlock` | Release file lock | Keeps lock registry clean |
+| `npm run collab verify` | `scripts/collab.sh verify` | Comprehensive pre-flight verification | 100% protection against broken commits |
+| `npm run collab sync` | `scripts/sync-push.sh` | Atomic dual-push to origin & public remotes | Eliminates remote mirror desync |
+| `npm run precheck` | `scripts/precheck.mjs` | Parallel TS + Node + Meta checker | 0.7 s instead of 12 s `npm test` |
+| `npm run audit:scope` | `scripts/scope-audit.sh` | AGENTS.md §2 department boundary linter | Protects against accidental cross-dept edits |
+| `npm run report:worker` | `scripts/worker-report.sh` | PROCESS.md §4.2 report generator with SHA256 | -1500 tokens on manual markdown crafting |
+| `npm run hooks:install` | `scripts/install-git-hooks.sh` | Installs Git pre-commit & commit-msg hooks | Automated enforcement at Git level |
+| `npm run wave:accept` | `scripts/wave-accept.sh` | Records completed task in waves/db.jsonl | Enforces v1 wave journal schema |
+| `npm run review:scaffold`| `scripts/review-scaffold.sh` | Scaffolds ACCEPT.md and REVIEW.md (5/5) | Standardizes dual review process |
+| `npm run tdd:red` | `scripts/tdd-runner.sh --red` | Records red-phase test failure | Enforces strict test-first development |
+| `npm run tdd:green` | `scripts/tdd-runner.sh --green`| Verifies green-phase pass and mutation gate | Automates TDD green phase |
+| `npm run orca:status` | `scripts/orca-slim.sh` | Compact Orca worker status | Compresses 8000 tokens to 30 (-99.5%) |
+| `npm run gc` | `scripts/worker-gc.mjs` | Cleans target cache & stale worktrees | Frees up to 105 GB disk in 1 s |
+| `npm run dependabot:batch`| `scripts/dependabot-batch.sh` | SemVer filter & auto-merge for bot PRs | Full autonomy for dependency updates |
+| `npm run rust:slim` | `scripts/rust-slim.sh` | Compresses Rust compiler error output | Compresses 400 lines to 3 lines (-95%) |
+| `npm run contract:lint`| `scripts/contract-lint.mjs` | Rust DTO ↔ UI contract drift detector | Prevents silent UI mismatches |
+| `npm run kanban:sync` | `scripts/kanban-sync.sh` | Zero-touch Kanban board synchronization | Auto-moves cards from git history |
+| `npm run pr:quarantine`| `scripts/pr-quarantine.sh` | Quarantines defective external PRs | Isolates breaking branches automatically |
+| `npm run test:visual` | `scripts/visual-diff.mjs` | Headless visual regression comparison | Evaluates UI shift (<0.2%) for PM sign-off |
+| `npm run security:shield`| `scripts/security-shield.mjs` | AST scanner for keys, tokens & unsafe code | Pre-commit protection against secret leaks |
 
 ---
 
-## 6. Памятка Разработчику и ИИ-Агенту
+## 6. Developer & AI Quick Reference
 
-1. **Перед началом работы:**
+1. **Before Starting Work:**
    ```bash
    npm run collab status
-   npm run collab lock <файл> <номер_задачи>
+   npm run collab lock <file_path> <task_id>
    ```
-2. **В процессе разработки:**
-   - Писать тест перед кодом (`npm run tdd:red`).
-   - Соблюдать правила своего отдела (`AGENTS.md`).
-   - Использовать только проверенные контракты и чистые оракулы (`docs/re/`).
-3. **Перед коммитом:**
+2. **During Development:**
+   - Write tests first (`npm run tdd:red`).
+   - Adhere strictly to department scopes (`AGENTS.md`).
+   - Use verified contracts and clean-room references (`docs/re/`).
+3. **Before Committing:**
    ```bash
    npm run collab verify
-   npm run collab unlock <файл>
+   npm run collab unlock <file_path>
    npm run report:worker
    ```
-4. **Синхронизация с командой:**
+4. **Synchronizing with the Team:**
    ```bash
    npm run collab publish TASK_DONE "Completed TASK-XXX: Description"
    npm run collab sync
    ```
 
-Следуя этому протоколу, любая комбинация разработчиков-людей и ИИ-агентов может параллельно развивать проект без риска сломать архитектуру или вызвать деградацию системы.
+By following this protocol, any combination of human engineers and autonomous AI agents can advance the repository concurrently without risking architectural drift or system instability.
