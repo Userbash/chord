@@ -53,6 +53,8 @@ Subcommands:
   dashboard             Full project intelligence & test pyramid dashboard
   qa                    Product completeness & command parity inspector
   modals                Run universal FSM & A11y modal test suite
+  test-all              Run full 8-step autonomous QA certification system
+  test-audit            Audit test suite hygiene & detect broken imports
   report                Generate standard PROCESS.md §4.2 Completion Report
   sync                  Synchronize code & locks with git remotes (origin + public)
   clean                 Run garbage collection on stale incremental targets
@@ -214,6 +216,16 @@ case "${1:-status}" in
   modals)
     shift 1 || true
     node "$SCRIPT_DIR/modal-fsm-suite.mjs" "$@"
+    ;;
+
+  test-all)
+    shift 1 || true
+    node "$SCRIPT_DIR/qa-auto-system.mjs" "$@"
+    ;;
+
+  test-audit)
+    shift 1 || true
+    node "$SCRIPT_DIR/test-auditor.mjs" "$@"
     ;;
 
   ask)

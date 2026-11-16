@@ -89,7 +89,10 @@
     "socrati:dashboard": "node scripts/socrati-dashboard.mjs",
     "qa:inspect": "node scripts/qa-inspector.mjs",
     "qa:modals": "node scripts/modal-fsm-suite.mjs",
-    "qa:scaffold": "node scripts/qa-scaffold.mjs"
+    "qa:scaffold": "node scripts/qa-scaffold.mjs",
+    "test:all": "node scripts/qa-auto-system.mjs",
+    "test:audit": "node scripts/test-auditor.mjs",
+    "qa:system": "node scripts/qa-auto-system.mjs"
   },
   "files": [
     "bin/",
