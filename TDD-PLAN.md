@@ -427,6 +427,7 @@ npm run check                            # Unified typecheck and full test pass
 
 
 | `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |
+| `tests/unit/bff-pins-threads-contract.test.mjs` | `rust/gui-spike/ui/features/pins-threads.js` | `createPinsThreadsController` |
 
 ## 9. Risks and Limitations
 

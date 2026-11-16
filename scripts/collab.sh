@@ -233,6 +233,16 @@ case "${1:-status}" in
     node "$SCRIPT_DIR/gui-watch.mjs" "$@"
     ;;
 
+  codemap)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-codemap.mjs" "$@"
+    ;;
+
+  test-gen)
+    shift 1 || true
+    node "$SCRIPT_DIR/auto-test-generator.mjs" "$@"
+    ;;
+
   test-all)
     shift 1 || true
     node "$SCRIPT_DIR/qa-auto-system.mjs" "$@"

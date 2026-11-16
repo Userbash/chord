@@ -96,7 +96,9 @@
     "test:gui:live": "node scripts/gui-live-e2e.mjs",
     "test:all": "node scripts/qa-auto-system.mjs",
     "test:audit": "node scripts/test-auditor.mjs",
-    "qa:system": "node scripts/qa-auto-system.mjs"
+    "qa:system": "node scripts/qa-auto-system.mjs",
+    "codemap": "node scripts/socrati-codemap.mjs",
+    "test:gen": "node scripts/auto-test-generator.mjs"
   },
   "files": [
     "bin/",
