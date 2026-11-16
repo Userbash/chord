@@ -1,16 +1,16 @@
 # Current State of the Rust Client (discord-lab)
 
-> **Document Status:** `Production & Verification Status (v2.1)`  
-> **Last Updated:** November 12, 2026  
-> **Architecture:** Pure Native Rust GPUI Client (`discord-gpui`) + Core Rust Crates  
+> **Document Status:** `Production & Verification Status (v2.2)`  
+> **Last Updated:** November 16, 2026  
+> **Architecture:** Primary Desktop Client (`rust/gui-spike`, Tauri 2 / Rust BFF) + Core Rust Crates (`chord-core`, `chord-voice`, `chord-platform`) [GPUI prototype frozen]  
 > **Control Plane:** ECC 2.0 Control Plane (`scripts/ecc`) + Orca Orchestration  
-> **Current Wave:** Wave RW-47 (Sprints 1–5 Parity & Features)  
+> **Current Wave:** Wave RW-47 / Developer Alpha Preview  
 
 ---
 
 ## 1. Project Status Summary
 
-The legacy web prototype (Tauri 2 / WebKit) has been decommissioned and replaced by the native GPU-accelerated client **`discord-gpui`** based on `gpui-kit` (WGPU, 120 FPS).
+The desktop client is spearheaded by **Tauri 2 (`rust/gui-spike`)** as the primary daily-driver client, providing 100% pixel fidelity, full Discord markdown, 144/144 verified UI features, PipeWire DMA-BUF screensharing, and native Krisp noise suppression. The experimental native GPUI client (`chord-gpui`) is frozen to consolidate developer focus and production reliability.
 
 | Component / Metric | Value | Status |
 | :--- | :--- | :--- |

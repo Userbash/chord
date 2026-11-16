@@ -3,7 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Chord — High-performance native GPU desktop client and clean-room protocol analysis tools",
+  "description": "Chord — High-Performance, Zero-Electron Alternative Discord Desktop Client with Pure Rust Core, DAVE MLS v1 E2EE Voice, and Tauri 2",
+  "keywords": [
+    "discord",
+    "discord-client",
+    "tauri",
+    "tauri2",
+    "rust",
+    "alternative-discord-client",
+    "lightweight-discord",
+    "dave-mls",
+    "e2ee-voice",
+    "webrtc",
+    "pipewire",
+    "wayland",
+    "zero-electron",
+    "krisp-noise-suppression",
+    "linux-discord",
+    "desktop-app",
+    "clean-room"
+  ],
   "bin": {
     "chord": "./bin/chord.mjs",
     "discord-lab": "./bin/discord-lab.mjs"
