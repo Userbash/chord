@@ -49,6 +49,8 @@ Subcommands:
   auto-test [file]      Auto-run impacted contract tests with slim error logging
   analyze               Deep AST graph analysis & test gap report (SocratiCode)
   scaffold <file>       Auto-generate 9-dimension contract test for module
+  suite [file] [--unit|--smoke|--e2e] Tiered fail-fast test pyramid runner
+  dashboard             Full project intelligence & test pyramid dashboard
   report                Generate standard PROCESS.md §4.2 Completion Report
   sync                  Synchronize code & locks with git remotes (origin + public)
   clean                 Run garbage collection on stale incremental targets
@@ -190,6 +192,16 @@ case "${1:-status}" in
   scaffold)
     shift 1 || true
     node "$SCRIPT_DIR/socrati-scaffold-test.mjs" "$@"
+    ;;
+
+  suite)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-smart-suite.mjs" "$@"
+    ;;
+
+  dashboard)
+    shift 1 || true
+    node "$SCRIPT_DIR/socrati-dashboard.mjs" "$@"
     ;;
 
   ask)

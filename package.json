@@ -84,7 +84,9 @@
     "socrati:cycles": "node scripts/socrati-cycles.mjs",
     "socrati:auto-test": "node scripts/socrati-impact.mjs --run",
     "socrati:analyze": "node scripts/socrati-analyzer.mjs",
-    "socrati:scaffold": "node scripts/socrati-scaffold-test.mjs"
+    "socrati:scaffold": "node scripts/socrati-scaffold-test.mjs",
+    "socrati:suite": "node scripts/socrati-smart-suite.mjs",
+    "socrati:dashboard": "node scripts/socrati-dashboard.mjs"
   },
   "files": [
     "bin/",
