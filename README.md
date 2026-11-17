@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="#-quick-start--build-instructions"><strong>Quick Start</strong></a> •
+  <a href="docs/GOOD_FIRST_ISSUES.md"><strong>Good First Issues</strong></a> •
   <a href="#1-why-chord-benchmarks--unique-advantages"><strong>Why Chord?</strong></a> •
   <a href="#2-workspace-crate-architecture"><strong>Architecture</strong></a> •
   <a href="#3-protocol-research-suite-chord-cli--re"><strong>Protocol CLI</strong></a> •
@@ -20,6 +21,16 @@
 <p align="center">
   <code>discord-client</code> • <code>tauri</code> • <code>rust</code> • <code>alternative-discord-client</code> • <code>dave-mls</code> • <code>e2ee-voice</code> • <code>webrtc</code> • <code>pipewire</code> • <code>wayland</code> • <code>zero-electron</code> • <code>lightweight-discord</code> • <code>linux-desktop</code> • <code>krisp-noise-suppression</code>
 </p>
+
+> ### ⚡ 10-Second Overview (Get Started Instantly)
+> - **1. What is it?** A native, zero-Electron alternative Discord desktop client engineered in pure Rust & Tauri 2. Features **DAVE MLS v1 E2EE audio**, native **Wayland/PipeWire screensharing with system audio**, and **~150 MB RAM** footprint.
+> - **2. How to run in 3 commands?**
+>   ```bash
+>   git clone https://github.com/Userbash/chord.git && cd chord
+>   npm run precheck
+>   bash scripts/gui-run.sh start
+>   ```
+> - **3. How to help?** Pick a beginner-friendly task from [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md) or see [CONTRIBUTING.md](CONTRIBUTING.md). Community outreach kit: [docs/COMMUNITY_OUTREACH.md](docs/COMMUNITY_OUTREACH.md).
 
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org/)
 [![Tauri 2](https://img.shields.io/badge/gui-Tauri%202%20%2F%20WebKit-blue.svg)](rust/gui-spike/)
@@ -298,6 +309,8 @@ This project uses an **AI Multi-Model Collaboration Protocol (AMCP v1.0)** that 
 | :--- | :--- | :--- |
 | **Comprehensive Guide** | [`docs/GUIDE.md`](docs/GUIDE.md) | Unified user guide, beta testing, shortcuts, audio/video streaming, and debugging |
 | **Contributing Guide** | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Full contribution guide for humans and AI operators |
+| **Good First Issues** | [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) | 5 beginner-friendly, isolated tasks for new contributors |
+| **Community Outreach** | [`docs/COMMUNITY_OUTREACH.md`](docs/COMMUNITY_OUTREACH.md) | Ready-to-use engineering diary posts for Reddit, HN, and X |
 | **AI Agents Protocol** | [`AI-AGENTS.md`](AI-AGENTS.md) | Machine-readable protocol for AI models — start here if you are an AI |
 | **AI Swarm Standard** | [`docs/specs/AI-SWARM-ENGINEERING-STANDARD.md`](docs/specs/AI-SWARM-ENGINEERING-STANDARD.md) | ASES-1.0 standard for 10–100 concurrent AI agents, dynamic leases & merge queue |
 | **Project Registry** | [`docs/PROJECT-REGISTRY.md`](docs/PROJECT-REGISTRY.md) | Canonical registry of crates, artifacts, and test contracts |
