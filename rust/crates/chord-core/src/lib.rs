@@ -21,6 +21,7 @@ pub mod gateway;
 pub mod gateway_events;
 pub mod history;
 pub mod identify;
+pub mod logging;
 pub mod permissions;
 pub mod ready;
 pub mod rest;
@@ -61,6 +62,9 @@ pub use identify::{
     CAPABILITIES_ACTIVE, CAPABILITIES_CHANNEL_OBFUSCATION, IdentifyError, IdentifyParams,
     IdentifyProperties, PresenceInfo, build_identify, build_identify_frame,
     qos_token_client_provided,
+};
+pub use logging::{
+    redact_secrets, RedactedMakeWriter, RedactedWriter, SecretRedactionLayer, REDACTED_MARKER,
 };
 pub use permissions::{
     ALL_PERMISSIONS, OVERWRITE_TYPE_MEMBER, OVERWRITE_TYPE_ROLE, PermissionCalculator,

@@ -492,6 +492,8 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/runtime-config-stage-02.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RuntimeConfig` |
 | `tests/unit/runtime-manager-stage-02-1-2.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RuntimeManager` |
 | `tests/unit/media-pool-stage-02-1-3.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RUNTIME_RS` |
+| `tests/unit/secret-redaction-stage-02-3-1.test.mjs` | `rust/crates/chord-core/src/logging.rs` | `LOGGING_RS` |
+| `tests/unit/shutdown-signals-secret-redaction-stage-02.test.mjs` | `rust/crates/chord-core/src/shutdown.rs` | `SHUTDOWN_RS` |
 | `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
 
 ## 9. Risks and Limitations
