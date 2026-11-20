@@ -28,6 +28,8 @@
 use std::fmt;
 use std::marker::PhantomData;
 
+use zeroize::{Zeroize, Zeroizing};
+
 use crate::ffi_secret::{FfiError, Schema, Service};
 
 /// Имя схемы записей (TZ W33a §1).
@@ -170,16 +172,19 @@ impl Keyring {
     /// Читает секрет по ключу; отсутствие записи — `Ok(None)`.
     pub fn lookup(&mut self, key: &str) -> Result<Option<String>, KeyringError> {
         validate_key(key)?;
-        let Some(bytes) = self
+        let Some(mut bytes) = self
             .service
             .lookup(&self.schema, ATTRIBUTE_KEY, key)
             .map_err(KeyringError::from)?
         else {
             return Ok(None);
         };
-        String::from_utf8(bytes)
-            .map(Some)
-            .map_err(|_| KeyringError::Encoding)
+        let raw = std::mem::take(&mut *bytes);
+        String::from_utf8(raw).map(Some).map_err(|err| {
+            let mut invalid = err.into_bytes();
+            invalid.zeroize();
+            KeyringError::Encoding
+        })
     }
 
     /// Удаляет запись по ключу: `true` — запись была и удалена, `false` — записи не было.
@@ -335,8 +340,8 @@ impl SafeStorageMigrator {
         if !is_safe_storage_token(raw_entry) {
             return Ok(false);
         }
-        let ciphertext = extract_safe_storage_ciphertext(raw_entry)?;
-        let decrypted_bytes = decrypt(&ciphertext)?;
+        let ciphertext = Zeroizing::new(extract_safe_storage_ciphertext(raw_entry)?);
+        let decrypted_bytes = Zeroizing::new(decrypt(&ciphertext)?);
         let token = std::str::from_utf8(&decrypted_bytes)
             .map_err(|_| SafeStorageMigrationError::InvalidToken)?;
         if token.is_empty() || token.contains(['\0', '\n', '\r']) {
@@ -384,6 +389,16 @@ fn validate_key(key: &str) -> Result<(), KeyringError> {
         return Err(KeyringError::InvalidKey);
     }
     Ok(())
+}
+
+/// Зануляет срез секретных байтов в памяти через `zeroize`.
+pub fn zeroize_secret_bytes(bytes: &mut [u8]) {
+    bytes.zeroize();
+}
+
+/// Очищает и зануляет строковый секретный буфер в памяти через `zeroize`.
+pub fn zeroize_secret_string(text: &mut String) {
+    text.zeroize();
 }
 
 #[cfg(test)]

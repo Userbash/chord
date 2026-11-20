@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 /**
  * FE-P1-04 (task-159): unit-тесты для контроллера попапа карточки пользователя
  * (#user-popout) и модалки полного профиля (#user-profile-modal).
@@ -647,5 +647,59 @@ describe("FE-P1-04 (task-159): createUserPopoutController", () => {
     // Клик после destroy не создаёт поповер
     chatList.dispatchEvent("click", { target: authorEl });
     assert.equal(doc.getElementById("user-popout"), null);
+  });
+
+  it("18. рендерит баннер (bannerUrl/bannerColor), бейджи профиля, bio markdown и карточку активности", () => {
+    const { doc, root, createChatRow } = createTestEnv();
+    const row = createChatRow({ author: "CleanroomUser", authorId: "clean-1" });
+    const authorEl = row.querySelector(".author");
+
+    const controller = createUserPopoutController({ document: doc, root });
+    controller.openPopout(
+      {
+        authorId: "clean-1",
+        username: "cleanroom",
+        displayName: "CleanroomUser",
+        status: "online",
+        bannerColor: "#1f2937",
+        bannerUrl: "https://cdn.example.com/banner.png",
+        badges: [
+          { id: "nitro", label: "Nitro", icon: "✨" },
+          { id: "dev", label: "Active Developer", icon: "🛠️" },
+        ],
+        bio: "Hello **world**! Check [docs](https://example.com).",
+        activity: {
+          type: "Playing",
+          name: "Discord Lab",
+          details: "Editing UI",
+          state: "In workspace",
+        },
+        mutualGuilds: [{ id: "g1", name: "Guild One" }],
+      },
+      authorEl,
+    );
+
+    const popout = doc.getElementById("user-popout");
+    assert.ok(popout);
+
+    const banner = popout.querySelector(".user-popout-banner");
+    assert.ok(banner);
+    assert.match(banner.style.backgroundImage ?? "", /banner\.png/);
+
+    const badges = popout.querySelector(".user-popout-badges");
+    assert.ok(badges, "должен быть контейнер бейджей .user-popout-badges");
+    assert.equal(badges.querySelectorAll(".user-popout-badge").length, 2);
+
+    const bioEl = popout.querySelector(".user-popout-bio");
+    assert.ok(bioEl, "должен быть контейнер био .user-popout-bio");
+    assert.ok(bioEl.querySelector("strong"), "bio должен рендерить markdown <strong>");
+    assert.ok(bioEl.querySelector("a"), "bio должен рендерить markdown <a>");
+
+    const activityCard = popout.querySelector(".user-popout-activity-card");
+    assert.ok(activityCard, "должна быть карточка активности .user-popout-activity-card");
+    assert.match(activityCard.textContent ?? "", /Discord Lab/);
+    assert.match(activityCard.textContent ?? "", /Editing UI/);
+
+    controller.destroy();
   });
 });

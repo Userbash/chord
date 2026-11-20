@@ -160,3 +160,136 @@
   outline: var(--focus-ring-width) solid var(--focus-ring);
   outline-offset: var(--focus-ring-offset);
 }
+
+
+/* =============================================================================
+ * Cleanroom Discord Message Context Menu (01-msg-menu.html) Styles & Overrides
+ * Classes: .menu_c1e9c4, .flexible_c1e9c4, .scroller_c1e9c4, .wrapper_f563df,
+ * .customItem_c1e9c4, .button_f563df, .icon_f563df, .item_c1e9c4,
+ * .colorDefault_c1e9c4, .colorDanger_c1e9c4, .labelContainer_c1e9c4,
+ * .label_c1e9c4, .iconContainer_c1e9c4, .iconContainerLeft_c1e9c4,
+ * .caret_c1e9c4, .separator_c1e9c4
+ * ========================================================================== */
+
+.menu_c1e9c4,
+.context-menu.menu_c1e9c4 {
+  background: var(--surface-2);
+  border-radius: var(--menu-radius);
+  box-shadow: var(--shadow-popover);
+  min-width: var(--menu-min-w);
+  padding: var(--menu-pad);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+.scroller_c1e9c4 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.wrapper_f563df {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: var(--space-2);
+  gap: var(--space-2);
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  margin-bottom: var(--space-2);
+}
+
+.button_f563df {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  background: transparent;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.button_f563df:hover {
+  background: var(--state-hover);
+}
+
+.icon_f563df {
+  width: 20px;
+  height: 20px;
+}
+
+.item_c1e9c4,
+.customItem_c1e9c4 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--row-menu-item);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  box-sizing: border-box;
+  outline: none;
+  transition: background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.item_c1e9c4:hover,
+.item_c1e9c4:focus,
+.item_c1e9c4[data-focused="true"],
+.colorDefault_c1e9c4:hover,
+.colorDefault_c1e9c4:focus,
+.colorDefault_c1e9c4[data-focused="true"] {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.colorDanger_c1e9c4 {
+  color: var(--danger-text);
+}
+
+.colorDanger_c1e9c4:hover,
+.colorDanger_c1e9c4:focus,
+.colorDanger_c1e9c4[data-focused="true"] {
+  background: var(--danger-fill);
+  color: var(--text-on-danger);
+}
+
+.iconContainer_c1e9c4,
+.iconContainerLeft_c1e9c4 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-right: var(--space-2);
+  flex-shrink: 0;
+}
+
+.label_c1e9c4 {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.caret_c1e9c4 {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+}
+
+.separator_c1e9c4 {
+  height: var(--menu-border);
+  background: var(--border-subtle);
+  margin: var(--space-1) var(--space-2);
+  flex-shrink: 0;
+}

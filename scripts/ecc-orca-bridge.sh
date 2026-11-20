@@ -123,7 +123,7 @@ case "$MODEL" in
     ;;
   *flash-medium*)
     # Quota Guard: When flash-medium has low quota, route to hydrogen-medium (Tier M policy)
-    if [[ "${FLASH_QUOTA_GUARD:-1}" == "1" ]]; then
+    if [[ "${FLASH_QUOTA_GUARD:-0}" == "1" ]]; then
       ORCA_MODEL="gemini-4-hydrogen-medium"
       EFFORT_LEVEL="medium"
       echo "[ECC-ORCA-BRIDGE] Quota Guard: Routed flash-medium -> gemini-4-hydrogen-medium"
@@ -133,7 +133,7 @@ case "$MODEL" in
     fi
     ;;
   *flash-high*|*flash*)
-    if [[ "${FLASH_QUOTA_GUARD:-1}" == "1" ]]; then
+    if [[ "${FLASH_QUOTA_GUARD:-0}" == "1" ]]; then
       ORCA_MODEL="gemini-4-hydrogen-medium"
       EFFORT_LEVEL="medium"
       echo "[ECC-ORCA-BRIDGE] Quota Guard: Routed flash -> gemini-4-hydrogen-medium"

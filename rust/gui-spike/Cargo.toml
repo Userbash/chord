@@ -36,7 +36,7 @@ chord-ui = { path = "../crates/chord-ui" }
 chord-updater = { path = "../crates/chord-updater" }
 # RW-39/NET-C2: keyring (`org.freedesktop.secrets` через libsecret) — только path-dep.
 # `Keyring` там `!Send`, поэтому backend держит его в потоке-владельце.
-chord-platform = { path = "../crates/chord-platform" }
+chord-platform = { path = "../crates/chord-platform", default-features = false, features = ["ashpd-tokio"] }
 thiserror = "2"
 # Проверка токена — `ApiClient::get` из ядра; tokio уже в графе (tauri/discord-core),
 # поэтому офлайн-сборке новая версия не нужна.
@@ -47,6 +47,8 @@ ashpd = { version = "0.13", default-features = false, features = ["tokio", "scre
 enumflags2 = "0.7"
 base64 = "0.21"
 percent-encoding = "2.3"
+url = { version = "2.5", features = ["serde"] }
+reqwest = { package = "gpui-pre-reqwest", version = "0.12.15", default-features = false, features = ["rustls-tls-webpki-roots", "json", "http2"] }
 tempfile = "3"
 sha2 = "0.10"
 hex = "0.4"

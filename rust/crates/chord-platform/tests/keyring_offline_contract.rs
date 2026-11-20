@@ -97,3 +97,17 @@ fn kr03_secret_error_keeps_code_and_message_only() {
         "у KeyringError не должно быть source"
     );
 }
+
+#[test]
+fn kr04_zeroize_secret_clears_buffer_in_place() {
+    let mut buf = b"mfa.sensitive_token_payload".to_vec();
+    chord_platform::keyring::zeroize_secret_bytes(&mut buf);
+    assert!(
+        buf.iter().all(|&b| b == 0),
+        "секретные байты должны быть занулены"
+    );
+
+    let mut text = String::from("mfa.sensitive_token_string");
+    chord_platform::keyring::zeroize_secret_string(&mut text);
+    assert!(text.is_empty(), "секретная строка должна быть очищена");
+}

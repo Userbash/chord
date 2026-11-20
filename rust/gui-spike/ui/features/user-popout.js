@@ -9,6 +9,8 @@
  * - `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md` (FE-P0-04, FE-P1-04)
  */
 
+import { renderMessageMarkdown } from "./markdown.js";
+
 /**
  * @typedef {{
  *   id?: string,
@@ -23,10 +25,13 @@
  *   status?: string,
  *   statusLabel?: string,
  *   customStatus?: string,
- *   activity?: string,
+ *   activity?: string | { type?: string, name?: string, details?: string, state?: string },
+ *   activityObj?: any,
  *   bot?: boolean,
  *   bio?: string,
  *   bannerColor?: string,
+ *   bannerUrl?: string | null,
+ *   badges?: Array<{ id?: string, label?: string, icon?: string }>,
  *   roles?: Array<{ id?: string, name: string, color?: string }>,
  *   mutualGuilds?: Array<{ id: string, name: string, icon?: string }>,
  *   mutualFriends?: Array<{ id: string, username: string, displayName?: string, avatarUrl?: string }>,
@@ -78,12 +83,25 @@ function normalizeUserData(raw) {
   const bot = Boolean(raw.bot);
   const status = String(raw.status || "offline");
   const statusLabel = String(raw.statusLabel || (status === "online" ? "в сети" : status === "idle" ? "неактивен" : status === "dnd" ? "не беспокоить" : "не в сети"));
-  const customStatus = String(raw.customStatus || raw.activity || "");
-  const activity = String(raw.activity || customStatus);
+  const rawActivity = raw.activity;
+  const activityObj = rawActivity && typeof rawActivity === "object" ? rawActivity : null;
+  const activityText = activityObj
+    ? [activityObj.type, activityObj.name].filter(Boolean).join(" ")
+    : String(rawActivity || "");
+  const customStatus = String(raw.customStatus || activityText || "");
+  const activity = activityText || customStatus;
   const bio = String(raw.bio || "");
   const avatarUrl = raw.avatarUrl ?? null;
   const avatarHue = typeof raw.avatarHue === "number" ? raw.avatarHue : 220;
   const bannerColor = String(raw.bannerColor || "#430d3e");
+  const bannerUrl = raw.bannerUrl ? String(raw.bannerUrl) : null;
+  const badges = Array.isArray(raw.badges)
+    ? raw.badges.map((b) => ({
+        id: b?.id ? String(b.id) : "",
+        label: b?.label ? String(b.label) : "",
+        icon: b?.icon ? String(b.icon) : "",
+      }))
+    : [];
   const relationshipType = typeof raw.relationshipType === "number" ? raw.relationshipType : 0;
 
   /** @type {Array<{ id?: string, name: string, color?: string }>} */
@@ -113,9 +131,12 @@ function normalizeUserData(raw) {
     statusLabel,
     customStatus,
     activity,
+    activityObj,
     bot,
     bio,
     bannerColor,
+    bannerUrl,
+    badges,
     roles,
     mutualGuilds,
     mutualFriends,
@@ -161,7 +182,7 @@ export function createUserPopoutController(options = {}) {
    * ======================================================================== */
   const popoutEl = doc.createElement("div");
   popoutEl.id = "user-popout";
-  popoutEl.className = "user-popout user-profile-popout";
+  popoutEl.className = "user-popout user-profile-popout popoutContainer_ce8328 accountPopout__37e49 theme-dark";
   popoutEl.setAttribute("role", "dialog");
   popoutEl.setAttribute("aria-modal", "false");
   popoutEl.setAttribute("tabindex", "-1");
@@ -169,15 +190,15 @@ export function createUserPopoutController(options = {}) {
 
   // Баннер
   const popoutBanner = doc.createElement("div");
-  popoutBanner.className = "user-popout-banner";
+  popoutBanner.className = "user-popout-banner banner_f7e69e banner__68edb";
   popoutEl.appendChild(popoutBanner);
 
   // Секция шапки с аватаром
   const popoutHeader = doc.createElement("div");
-  popoutHeader.className = "user-popout-header";
+  popoutHeader.className = "user-popout-header header__5be3e";
 
   const popoutAvatar = doc.createElement("div");
-  popoutAvatar.className = "user-popout-avatar avatar avatar--lg";
+  popoutAvatar.className = "user-popout-avatar avatar avatar--lg avatar__75742";
 
   const popoutAvatarInitial = doc.createElement("span");
   popoutAvatarInitial.className = "avatar-initial";
@@ -190,14 +211,14 @@ export function createUserPopoutController(options = {}) {
 
   // Имя и тег
   const popoutNamesWrap = doc.createElement("div");
-  popoutNamesWrap.className = "user-popout-names";
+  popoutNamesWrap.className = "user-popout-names userInfo_ce8328";
 
   const popoutDisplayName = doc.createElement("div");
-  popoutDisplayName.className = "user-popout-display-name";
+  popoutDisplayName.className = "user-popout-display-name displayName__26b1f";
   popoutNamesWrap.appendChild(popoutDisplayName);
 
   const popoutTag = doc.createElement("div");
-  popoutTag.className = "user-popout-tag user-popout-username";
+  popoutTag.className = "user-popout-tag user-popout-username userTag__26b1f userTagUsername__26b1f";
   popoutNamesWrap.appendChild(popoutTag);
 
   const popoutBotBadge = doc.createElement("span");
@@ -206,12 +227,30 @@ export function createUserPopoutController(options = {}) {
   popoutBotBadge.setAttribute("hidden", "");
 
   popoutHeader.appendChild(popoutNamesWrap);
+
+  const popoutBadges = doc.createElement("div");
+  popoutBadges.className = "user-popout-badges";
+  popoutBadges.setAttribute("hidden", "");
+  popoutHeader.appendChild(popoutBadges);
+
   popoutEl.appendChild(popoutHeader);
 
   // Кастомный статус
   const popoutCustomStatus = doc.createElement("div");
   popoutCustomStatus.className = "user-popout-custom-status";
   popoutEl.appendChild(popoutCustomStatus);
+
+  // Био (Markdown)
+  const popoutBio = doc.createElement("div");
+  popoutBio.className = "user-popout-bio";
+  popoutBio.setAttribute("hidden", "");
+  popoutEl.appendChild(popoutBio);
+
+  // Карточка активности
+  const popoutActivityCard = doc.createElement("div");
+  popoutActivityCard.className = "user-popout-activity-card";
+  popoutActivityCard.setAttribute("hidden", "");
+  popoutEl.appendChild(popoutActivityCard);
 
   // Разделитель
   const divider1 = doc.createElement("hr");
@@ -536,6 +575,33 @@ export function createUserPopoutController(options = {}) {
       : `@${norm.username}`;
     popoutTag.textContent = tagText;
 
+    // Баннер
+    if (norm.bannerUrl) {
+      popoutBanner.style.backgroundImage = `url("${norm.bannerUrl}")`;
+    } else {
+      popoutBanner.style.backgroundImage = "";
+    }
+    if (norm.bannerColor) {
+      popoutBanner.style.backgroundColor = norm.bannerColor;
+    } else {
+      popoutBanner.style.backgroundColor = "";
+    }
+
+    // Бейджи
+    popoutBadges.replaceChildren();
+    if (norm.badges && norm.badges.length > 0) {
+      popoutBadges.removeAttribute("hidden");
+      for (const badge of norm.badges) {
+        const badgeEl = doc.createElement("span");
+        badgeEl.className = "user-popout-badge";
+        badgeEl.setAttribute("title", badge.label || badge.id || "");
+        badgeEl.textContent = badge.icon || badge.label || "";
+        popoutBadges.appendChild(badgeEl);
+      }
+    } else {
+      popoutBadges.setAttribute("hidden", "");
+    }
+
     // Аватар
     popoutAvatarInitial.textContent = norm.displayName.slice(0, 1).toUpperCase();
     popoutAvatar.style.setProperty("--avatar-hue", String(norm.avatarHue));
@@ -558,6 +624,44 @@ export function createUserPopoutController(options = {}) {
     } else {
       popoutCustomStatus.textContent = "";
       popoutCustomStatus.setAttribute("hidden", "");
+    }
+
+    // Био (Markdown)
+    popoutBio.replaceChildren();
+    if (norm.bio) {
+      popoutBio.removeAttribute("hidden");
+      try {
+        renderMessageMarkdown(popoutBio, norm.bio);
+      } catch {
+        popoutBio.textContent = norm.bio;
+      }
+    } else {
+      popoutBio.setAttribute("hidden", "");
+    }
+
+    // Карточка активности
+    popoutActivityCard.replaceChildren();
+    if (norm.activityObj) {
+      popoutActivityCard.removeAttribute("hidden");
+      const titleEl = doc.createElement("div");
+      titleEl.className = "user-popout-activity-title";
+      titleEl.textContent = [norm.activityObj.type, norm.activityObj.name].filter(Boolean).join(" ");
+      popoutActivityCard.appendChild(titleEl);
+
+      if (norm.activityObj.details) {
+        const detailsEl = doc.createElement("div");
+        detailsEl.className = "user-popout-activity-details";
+        detailsEl.textContent = norm.activityObj.details;
+        popoutActivityCard.appendChild(detailsEl);
+      }
+      if (norm.activityObj.state) {
+        const stateEl = doc.createElement("div");
+        stateEl.className = "user-popout-activity-state";
+        stateEl.textContent = norm.activityObj.state;
+        popoutActivityCard.appendChild(stateEl);
+      }
+    } else {
+      popoutActivityCard.setAttribute("hidden", "");
     }
 
     // Роли

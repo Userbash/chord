@@ -3,7 +3,10 @@ name = "chord-store"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Локальное хранилище (SQLite) и миграции схемы"
+description = "Локальное хранилище (SQLite / rusqlite), полнотекстовый поиск FTS5, миграции схемы и выделенный DB-Worker"
+
+[dependencies]
+rusqlite = { version = "0.40.2", features = ["bundled", "backup"] }
 
 [lints.rust]
-unsafe_code = "deny"
+unsafe_code = "forbid"

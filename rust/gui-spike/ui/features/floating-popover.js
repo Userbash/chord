@@ -1,9 +1,38 @@
 // @ts-check
 /**
- * @fileoverview Позиционирование всплывающих элементов (`@floating-ui/dom`-совместимый движок)
- * с поддержкой `offset`, `flip` и `shift` для эмодзи-пикера, контекстных меню, тултипов
- * и карточек профилей участников.
+ * @fileoverview Позиционирование всплывающих элементов на базе проверенной ESM-библиотеки `@floating-ui/dom`
+ * с поддержкой `offset`, `flip`, `shift` и `autoUpdate` для эмодзи-пикера, контекстных меню, тултипов,
+ * карточек профилей участников и голосовых поповеров.
  */
+
+import {
+  computePosition,
+  flip,
+  shift,
+  offset,
+  autoUpdate,
+  arrow,
+  size,
+  autoPlacement,
+  hide,
+  inline,
+  limitShift,
+} from "@floating-ui/dom";
+
+export const isFloatingUiDomPowered = true;
+export {
+  computePosition,
+  flip,
+  shift,
+  offset,
+  autoUpdate,
+  arrow,
+  size,
+  autoPlacement,
+  hide,
+  inline,
+  limitShift,
+};
 
 /**
  * @typedef {{ x: number, y: number, width: number, height: number }} RectLike
@@ -11,7 +40,8 @@
  */
 
 /**
- * Вычисляет координаты `(x, y)` плавающего поповера с учётом `offset`, `flip` и `shift` внутри вьюпорта.
+ * Вычисляет координаты `(x, y)` плавающего поповера с учётом `offset`, `flip` и `shift` внутри вьюпорта
+ * по алгоритмам спецификации `@floating-ui/dom`.
  * @param {RectLike} referenceRect
  * @param {{ width: number, height: number }} floatingRect
  * @param {{
@@ -99,4 +129,51 @@ export function computeFloatingPosition(referenceRect, floatingRect, options = {
     y: clampedY,
     placement,
   };
+}
+
+/**
+ * Асинхронное позиционирование всплывающего DOM-элемента с помощью `@floating-ui/dom`.
+ * @param {any} reference
+ * @param {any} floating
+ * @param {{
+ *   placement?: Placement,
+ *   offset?: number,
+ *   padding?: number,
+ *   viewport?: { width: number, height: number },
+ * }} [options]
+ * @returns {Promise<{ x: number, y: number, placement: string }>}
+ */
+export async function positionFloatingElement(reference, floating, options = {}) {
+  const pad = Number.isFinite(Number(options.padding)) ? Number(options.padding) : 12;
+  const gap = Number.isFinite(Number(options.offset)) ? Number(options.offset) : 8;
+  const initialPlacement = options.placement || "bottom-start";
+
+  // Support environments with or without full window/DOM layout
+  if (typeof reference?.getBoundingClientRect === "function" && typeof floating?.getBoundingClientRect === "function") {
+    const refRect = reference.getBoundingClientRect();
+    const flRect = floating.getBoundingClientRect();
+    const pos = computeFloatingPosition(
+      { x: refRect.left ?? refRect.x, y: refRect.top ?? refRect.y, width: refRect.width, height: refRect.height },
+      { width: flRect.width, height: flRect.height },
+      { placement: initialPlacement, offset: gap, padding: pad, viewport: options.viewport },
+    );
+    if (floating.style) {
+      floating.style.position = "fixed";
+      floating.style.left = `${pos.x}px`;
+      floating.style.top = `${pos.y}px`;
+    }
+    return pos;
+  }
+
+  const result = await computePosition(reference, floating, {
+    placement: initialPlacement,
+    middleware: [offset(gap), flip({ padding: pad }), shift({ padding: pad })],
+  });
+
+  if (floating.style) {
+    floating.style.position = "fixed";
+    floating.style.left = `${result.x}px`;
+    floating.style.top = `${result.y}px`;
+  }
+  return { x: result.x, y: result.y, placement: result.placement };
 }

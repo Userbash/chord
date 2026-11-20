@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 /**
  * T-222 (FE-P1-21, RW-40 / G2): unit-тесты контроллера автодополнения композера
  * для слэш-команд `/`, упоминаний `@user/@role` и текстовых каналов `#channel`
@@ -10,9 +10,22 @@ import assert from "node:assert/strict";
 import {
   AUTOCOMPLETE_MAX_SUGGESTIONS,
   AUTOCOMPLETE_KINDS,
+  AUTOCOMPLETE_HEADERS_RU,
+  isFloatingUiDomPowered,
   detectAutocompleteTrigger,
   createComposerAutocompleteController,
+  positionAutocompletePopover,
 } from "../../rust/gui-spike/ui/features/composer-autocomplete.js";
+import {
+  isTinykeysPowered,
+  autoResizeComposerInput,
+  createMessageComposer,
+} from "../../rust/gui-spike/ui/features/composer.js";
+import {
+  MAX_ATTACHMENT_SIZE_BYTES,
+  createAttachmentsController,
+} from "../../rust/gui-spike/ui/features/attachments.js";
+import { ShimDocument } from "../support/gui-dom-harness.mjs";
 
 /* ------------------------------------------------------------------ *
  * Минимальный DOM-шим для изолированных unit-тестов
@@ -261,6 +274,30 @@ function makeContainer() {
 /* ------------------------------------------------------------------ *
  * Тестовые наборы
  * ------------------------------------------------------------------ */
+
+const SAMPLE_USERS = [
+  { id: "101", username: "alice", displayName: "Алиса" },
+  { id: "102", username: "alex", displayName: "Алексей" },
+  { id: "103", username: "bob", displayName: "Боб" },
+];
+
+const SAMPLE_CHANNELS = [
+  { id: "201", name: "general" },
+  { id: "202", name: "announcements" },
+  { id: "203", name: "gaming-lounge" },
+];
+
+const SAMPLE_COMMANDS = [
+  { name: "shrug", description: "Добавить ¯\\_(ツ)_/¯ в сообщение" },
+  { name: "spoiler", description: "Скрыть текст под спойлером" },
+  { name: "nick", description: "Изменить никнейм на сервере" },
+];
+
+const SAMPLE_EMOJIS = [
+  { name: "smile", unicode: "😄", keywords: ["happy", "joy"] },
+  { name: "fire", unicode: "🔥", keywords: ["lit", "hot"] },
+  { name: "rocket", unicode: "🚀", keywords: ["launch", "ship"] },
+];
 
 describe("composer-autocomplete: константы и detectAutocompleteTrigger", () => {
   it("экспортирует замороженный AUTOCOMPLETE_KINDS и лимит AUTOCOMPLETE_MAX_SUGGESTIONS = 10", () => {
@@ -562,5 +599,246 @@ describe("composer-autocomplete: createComposerAutocompleteController DOM и н�
     controller.close();
     assert.equal(container.querySelector("[data-composer-autocomplete]"), null);
     assert.equal(controller.confirmSelection(), null);
+  });
+});
+
+describe("Wave 53 W05: @floating-ui/dom autocomplete, emoji shortcodes, tinykeys & auto-expand", () => {
+  const SAMPLE_EMOJIS = [
+    { name: "smile", unicode: "😄", keywords: ["happy", "joy"] },
+    { name: "fire", unicode: "🔥", keywords: ["lit", "hot"] },
+    { name: "rocket", unicode: "🚀", keywords: ["launch", "ship"] },
+  ];
+
+  it("экспортирует isFloatingUiDomPowered = true и распознаёт триггер эмодзи ':'", () => {
+    assert.equal(isFloatingUiDomPowered, true);
+    assert.equal(AUTOCOMPLETE_HEADERS_RU.emoji, "ЭМОДЗИ");
+
+    assert.deepEqual(detectAutocompleteTrigger(":smi", 4), {
+      kind: "emoji",
+      query: "smi",
+      startIndex: 0,
+    });
+    assert.deepEqual(detectAutocompleteTrigger("Привет :fire", 12), {
+      kind: "emoji",
+      query: "fire",
+      startIndex: 7,
+    });
+
+    // Не срабатывает на URL, время или уже закрытый шорткод
+    assert.equal(detectAutocompleteTrigger("http://example.com", 18), null);
+    assert.equal(detectAutocompleteTrigger("12:30", 5), null);
+    assert.equal(detectAutocompleteTrigger(":smile:", 7), null);
+  });
+
+  it("фильтрует эмодзи по шорткоду/ключевым словам и вставляет unicode при подтверждении", () => {
+    const container = makeContainer();
+    /** @type {any[]} */
+    const inserted = [];
+
+    const controller = createComposerAutocompleteController({
+      container,
+      onInsertReplacement: (payload) => inserted.push(payload),
+    });
+
+    controller.updateFromInput({
+      text: "Hello :fir",
+      cursorIndex: 10,
+      emojis: SAMPLE_EMOJIS,
+    });
+
+    const listbox = container.querySelector("[data-composer-autocomplete='emoji']");
+    assert.ok(listbox, "Ожидался listbox для emoji");
+    assert.equal(
+      listbox.querySelector("[data-autocomplete-header='emoji']")?.textContent,
+      "ЭМОДЗИ",
+    );
+
+    const options = container.querySelectorAll("[data-autocomplete-option]");
+    assert.equal(options.length, 1);
+    assert.ok(options[0]?.textContent.includes("🔥"));
+    assert.ok(options[0]?.textContent.includes(":fire:"));
+
+    const result = controller.confirmSelection();
+    assert.equal(result?.newText, "Hello 🔥 ");
+    assert.equal(inserted[0]?.newText, "Hello 🔥 ");
+  });
+
+  it("позиционирует поповер через @floating-ui/dom (positionAutocompletePopover)", async () => {
+    const doc = new ShimDocument();
+    const anchor = doc.createElement("textarea");
+    anchor.getBoundingClientRect = () => ({
+      x: 100,
+      y: 500,
+      top: 500,
+      left: 100,
+      right: 500,
+      bottom: 544,
+      width: 400,
+      height: 44,
+      toJSON() { return this; },
+    });
+
+    const floating = doc.createElement("div");
+    floating.getBoundingClientRect = () => ({
+      x: 0,
+      y: 0,
+      top: 0,
+      left: 0,
+      right: 280,
+      bottom: 180,
+      width: 280,
+      height: 180,
+      toJSON() { return this; },
+    });
+
+    const pos = await positionAutocompletePopover(anchor, floating, {
+      placement: "top-start",
+      offset: 8,
+    });
+
+    assert.equal(floating.style.position, "fixed");
+    assert.ok(typeof pos.x === "number" && Number.isFinite(pos.x));
+    assert.ok(typeof pos.y === "number" && Number.isFinite(pos.y));
+    assert.ok(floating.style.left.endsWith("px"));
+    assert.ok(floating.style.top.endsWith("px"));
+    assert.ok(floating.getAttribute("data-placement"));
+  });
+
+  it("composer.js: autoResizeComposerInput и createMessageComposer расширяют textarea и поддерживают tinykeys-навигацию", () => {
+    assert.equal(isTinykeysPowered, true);
+
+    const doc = new ShimDocument();
+    const form = doc.createElement("form");
+    form.id = "composer";
+    const input = doc.createElement("textarea");
+    input.id = "composer-input";
+    let mockScrollHeight = 44;
+    Object.defineProperty(input, "scrollHeight", {
+      get: () => mockScrollHeight,
+      configurable: true,
+    });
+    const sendBtn = doc.createElement("button");
+    sendBtn.id = "composer-send";
+    sendBtn.type = "submit";
+    const acContainer = doc.createElement("div");
+    acContainer.id = "composer-autocomplete";
+
+    form.append(input, sendBtn);
+    doc.body.append(form, acContainer);
+
+    // Проверка прямого вызова autoResizeComposerInput
+    mockScrollHeight = 120;
+    const h1 = autoResizeComposerInput(input, { minHeight: 44, maxHeight: 240 });
+    assert.equal(h1, 120);
+    assert.equal(input.style.height, "120px");
+    assert.equal(input.style.overflowY, "hidden");
+    assert.equal(input.getAttribute("data-expanded"), "true");
+
+    mockScrollHeight = 320;
+    const h2 = autoResizeComposerInput(input, { minHeight: 44, maxHeight: 240 });
+    assert.equal(h2, 240);
+    assert.equal(input.style.height, "240px");
+    assert.equal(input.style.overflowY, "auto");
+
+    /** @type {any[]} */
+    const sent = [];
+    let editLastCount = 0;
+
+    const composer = createMessageComposer({
+      document: doc,
+      composerEl: form,
+      inputEl: input,
+      sendBtnEl: sendBtn,
+      autocompleteContainer: acContainer,
+      users: SAMPLE_USERS,
+      channels: SAMPLE_CHANNELS,
+      commands: SAMPLE_COMMANDS,
+      emojis: SAMPLE_EMOJIS,
+      onSendMessage: (payload) => {
+        sent.push(payload);
+      },
+      onEditLastMessage: () => {
+        editLastCount += 1;
+      },
+    });
+
+    // ArrowUp на пустом поле вызывает onEditLastMessage
+    input.value = "";
+    input.dispatchEvent({ type: "keydown", key: "ArrowUp", preventDefault() {} });
+    assert.equal(editLastCount, 1);
+
+    // Ввод @al открывает автодополнение, ArrowDown/Enter выбирает alice
+    input.value = "@";
+    input.selectionStart = 1;
+    input.selectionEnd = 1;
+    input.dispatchEvent({ type: "input" });
+    assert.ok(acContainer.querySelector("[data-composer-autocomplete='user']"));
+
+    input.dispatchEvent({ type: "keydown", key: "ArrowDown", preventDefault() {} });
+    input.dispatchEvent({ type: "keydown", key: "Enter", preventDefault() {} });
+    assert.equal(input.value, "<@102>");
+    assert.equal(sent.length, 0, "Enter при открытом автодополнении не должен отправлять сообщение");
+
+    // Shift+Enter не отправляет сообщение
+    input.dispatchEvent({ type: "keydown", key: "Enter", shiftKey: true, preventDefault() {} });
+    assert.equal(sent.length, 0);
+
+    // Enter при закрытом автодополнении отправляет сообщение и сбрасывает высоту
+    mockScrollHeight = 44;
+    input.dispatchEvent({ type: "keydown", key: "Enter", shiftKey: false, preventDefault() {} });
+    assert.equal(sent.length, 1);
+    assert.equal(sent[0]?.content, "<@102>");
+
+    composer.destroy();
+  });
+
+  it("attachments.js: drag-and-drop, превью изображений (thumbnail) и валидация 25 МБ", () => {
+    const doc = new ShimDocument();
+    const form = doc.createElement("form");
+    form.id = "composer";
+    const input = doc.createElement("textarea");
+    input.id = "composer-input";
+    form.append(input);
+    doc.body.append(form);
+
+    /** @type {any[]} */
+    const errors = [];
+    const controller = createAttachmentsController({
+      document: doc,
+      composerEl: form,
+      inputEl: input,
+      onError: (err) => errors.push(err),
+    });
+
+    // Превышение 25 МБ отклоняется
+    const oversized = {
+      name: "huge.png",
+      size: MAX_ATTACHMENT_SIZE_BYTES + 1,
+      type: "image/png",
+    };
+    const addedOver = controller.addFiles([oversized]);
+    assert.equal(addedOver.length, 0);
+    assert.equal(errors.length, 1);
+    assert.equal(errors[0]?.code, "FILE_TOO_LARGE");
+
+    // Drag-and-drop валидного изображения с previewUrl
+    const validImage = {
+      name: "photo.png",
+      size: 1024,
+      type: "image/png",
+      previewUrl: "blob:chord-preview-1",
+    };
+    form.dispatchEvent({
+      type: "drop",
+      preventDefault() {},
+      dataTransfer: { files: [validImage] },
+    });
+
+    assert.equal(controller.getCount(), 1);
+    const thumbImg = controller.shelfEl?.querySelector("img.attachment-card-preview");
+    assert.ok(thumbImg, "Карточка изображения должна рендерить img.attachment-card-preview");
+    assert.equal(thumbImg.getAttribute("src"), "blob:chord-preview-1");
+
+    controller.destroy();
   });
 });

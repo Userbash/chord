@@ -13,5 +13,5 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["app.js"]
+  "include": ["app.js", "bindings.js"]
 }

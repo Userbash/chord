@@ -2064,6 +2064,22 @@ mod wiring_tests {
         }
     }
 
+    #[test]
+    fn specta_bindings_wire_to_invoke_handler_and_zero_any() {
+        let block = handler_block(include_str!("main.rs"));
+        let builder = bindings::generate_specta_builder();
+        for cmd in builder.commands() {
+            assert!(
+                lists_command(block, cmd.name),
+                "Specta command `{}` must be registered in main.rs invoke_handler!",
+                cmd.name
+            );
+        }
+        builder
+            .validate_no_any()
+            .expect("Specta bindings must have zero `any` types");
+    }
+
     /// Исходник до тестового модуля: литералы теста не дают ложного «нашлось».
     fn head_source() -> &'static str {
         include_str!("main.rs")

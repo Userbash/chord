@@ -256,6 +256,7 @@ export function createLiveEmojiPickerController(ctx) {
     { glyph: "👋", shortcode: ":wave:", name: "привет машет рукой" },
     { glyph: "🔥", shortcode: ":fire:", name: "огонь" },
     { glyph: "👀", shortcode: ":eyes:", name: "глаза" },
+    { glyph: "❤️", shortcode: ":heart:", name: "сердце" },
   ];
 
   /**

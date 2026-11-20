@@ -13,6 +13,7 @@
  * Состояние меняется оптимистично, а transport откатывает его при ошибке IPC.
  */
 import { QUICK_REACTIONS, baseReactions, extrasFor } from "./rows.js";
+import { DEFAULT_HOVER_QUICK_REACTIONS } from "./reactions-ui.js";
 import { UIError } from "./errors.js";
 
 /** @typedef {import("./rows.js").Reaction} Reaction */
@@ -457,10 +458,16 @@ function normalizeReactionUsers(raw, emoji, type) {
  *     messageId?: string,
  *   }) | null,
  *   categories?: ReadonlyArray<{ id?: string, name: string, icon: string, items: readonly string[] }>,
+ *   document?: any,
+ *   quickReactions?: string[],
  * }} [options]
  */
 export function createReactionsController(options = {}) {
-  const doc = typeof document !== "undefined" ? document : null;
+  const doc =
+    options.document ??
+    options.container?.ownerDocument ??
+    options.list?.ownerDocument ??
+    (typeof document !== "undefined" ? document : null);
   const listEl = options.list ?? (doc ? doc.getElementById("chat-list") : null);
   const containerEl =
     options.container ??
@@ -833,15 +840,15 @@ export function createReactionsController(options = {}) {
             const refreshedRow =
               (listEl ? /** @type {HTMLElement | null} */ (listEl.querySelector(`.row[data-index="${index}"]`)) : null) ??
               currentRow;
-            let pill = /** @type {HTMLElement | null} */ (
+            let pill = /** @type {any} */ (
               refreshedRow.querySelector(`.reaction[data-emoji="${emoji}"]`)
             );
             const updatedState = reactionsFor(key, base).find((entry) => entry.emoji === emoji);
             if (!pill && updatedState && updatedState.count > 0) {
               const textContainer = refreshedRow.querySelector(".text");
               if (textContainer) {
-                let group = textContainer.querySelector(".reactions-row");
-                if (!group) {
+                let group = /** @type {any} */ (textContainer.querySelector(".reactions-row"));
+                if (!group && doc) {
                   group = doc.createElement("div");
                   group.className = "reactions-row";
                   group.setAttribute("role", "group");
@@ -849,19 +856,21 @@ export function createReactionsController(options = {}) {
                   textContainer.append(group);
                   textContainer.setAttribute("data-stack", "true");
                 }
-                pill = doc.createElement("button");
-                pill.className = "reaction";
-                pill.setAttribute("type", "button");
-                pill.setAttribute("data-emoji", emoji);
-                const glyph = doc.createElement("span");
-                glyph.className = "reaction-emoji";
-                glyph.setAttribute("aria-hidden", "true");
-                glyph.textContent = emoji;
-                const countSpan = doc.createElement("span");
-                countSpan.className = "reaction-count";
-                countSpan.textContent = String(updatedState.count);
-                pill.append(glyph, countSpan);
-                group.append(pill);
+                if (doc && group) {
+                  pill = /** @type {any} */ (doc.createElement("button"));
+                  pill.className = "reaction";
+                  pill.setAttribute("type", "button");
+                  pill.setAttribute("data-emoji", emoji);
+                  const glyph = doc.createElement("span");
+                  glyph.className = "reaction-emoji";
+                  glyph.setAttribute("aria-hidden", "true");
+                  glyph.textContent = emoji;
+                  const countSpan = doc.createElement("span");
+                  countSpan.className = "reaction-count";
+                  countSpan.textContent = String(updatedState.count);
+                  pill.append(glyph, countSpan);
+                  group.append(pill);
+                }
               }
             }
             if (pill && updatedState) {
@@ -1121,7 +1130,7 @@ export function createReactionsController(options = {}) {
       closeReactionUsersModal();
     });
 
-    modal.addEventListener("keydown", (event) => {
+    modal.addEventListener("keydown", (/** @type {any} */ event) => {
       if (/** @type {any} */ (event).key === "Escape") {
         event.preventDefault?.();
         closeReactionUsersModal();
@@ -1187,7 +1196,8 @@ export function createReactionsController(options = {}) {
       bar.setAttribute("aria-label", "Действия с сообщением");
       bar.setAttribute("data-open", "false");
 
-      for (const emoji of QUICK_REACTIONS) {
+      const quickList = options.quickReactions ?? DEFAULT_HOVER_QUICK_REACTIONS ?? QUICK_REACTIONS;
+      for (const emoji of quickList) {
         const btn = doc.createElement("button");
         btn.className = "icon-btn msg-toolbar-btn quick-reaction-btn";
         btn.setAttribute("type", "button");

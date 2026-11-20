@@ -1179,16 +1179,7 @@ fn normalize_trimmed_vec(
 }
 
 fn url_encode(input: &str) -> String {
-    let mut out = String::with_capacity(input.len());
-    for byte in input.bytes() {
-        match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
-                out.push(byte as char);
-            }
-            _ => out.push_str(&format!("%{byte:02X}")),
-        }
-    }
-    out
+    super::bridge::encode_rfc3986_query_value(input)
 }
 
 #[cfg(test)]

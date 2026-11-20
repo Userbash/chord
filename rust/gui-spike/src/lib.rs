@@ -37,6 +37,7 @@
 pub mod attachments;
 pub mod auth;
 pub mod automod;
+pub mod bindings;
 pub mod core_bridge;
 pub mod data;
 pub mod dm_channels;

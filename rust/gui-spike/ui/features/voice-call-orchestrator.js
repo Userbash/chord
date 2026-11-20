@@ -9,6 +9,7 @@
 import { createVoiceStateSync } from "./voice-state-sync.js";
 import { createVoiceConnectionController } from "./voice-connection-controller.js";
 import { createVoiceDmCallStage } from "./voice-dm-call-stage.js";
+import { createVoiceCallStage } from "./voice-call-stage.js";
 import { createVoiceStageRenderer } from "./voice-stage-renderer.js";
 import { createVoiceParticipantMenu } from "./voice-participant-menu.js";
 import { createVoiceInviteAndDevicesController } from "./voice-invite-and-devices.js";
@@ -259,6 +260,7 @@ export function createVoiceCallController(deps) {
     ...stageViewer,
     ...streamMenus,
     ...streamCtrl,
+    createVoiceCallStage,
     getPreviewedVoiceChannel: ctx.getPreviewedVoiceChannel,
     setPreviewedVoiceChannel: ctx.setPreviewedVoiceChannel,
     setFloatingPipPosition: ctx.setFloatingPipPosition,

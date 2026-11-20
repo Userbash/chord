@@ -28,7 +28,19 @@
     "discord-lab": "./bin/discord-lab.mjs"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.agent.json",
+    "roadmap:audit": "node scripts/roadmap-audit.mjs",
+    "roadmap:sync": "node scripts/roadmap-audit.mjs --sync",
+    "test:rust": "bash scripts/test-all-rust.sh",
+    "test:stress": "node scripts/stress-fts5.mjs --messages 10000 --threads 2",
+    "audit:bridges": "node scripts/audit-thin-bridges.mjs",
+    "audit:security": "bash scripts/security-audit-deps.sh && node scripts/security-shield.mjs",
+    "generate:ipc": "node scripts/generate-ipc-bridges.mjs",
+    "autopilot": "node scripts/pipeline-auto-pilot.mjs --once",
+    "autopilot:daemon": "node scripts/pipeline-auto-pilot.mjs --daemon 20",
+    "harvest": "node scripts/auto-worker-harvester.mjs --once",
+    "gate:quick": "bash scripts/quick-gate.sh",
+    "ram:guard": "bash scripts/worker-ram-guard.sh",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.agent.json && tsc -p rust/gui-spike/ui/tsconfig.json",
     "test": "node --test 'tests/**/*.test.mjs'",
     "test:unit": "node --test 'tests/unit/**/*.test.mjs'",
     "test:meta": "node --test 'tests/meta/**/*.test.mjs'",
@@ -75,7 +87,7 @@
     "pr:scan": "node scripts/pr-collaborator.mjs scan",
     "pr:plan": "node scripts/pr-collaborator.mjs plan",
     "pr:rework": "node scripts/pr-collaborator.mjs rework",
-    "pr:approve": "node scripts/pr-collaborator.mjs approve",
+    "pr:approve": "bash scripts/pr.sh approve",
     "pr:salvage": "node scripts/pr-collaborator.mjs salvage",
     "protocol:sync": "node scripts/protocol-daemon.mjs --once",
     "protocol:watch": "node scripts/protocol-daemon.mjs --watch",
@@ -84,7 +96,6 @@
     "pr:audit": "bash scripts/pr.sh audit",
     "pr:comment": "bash scripts/pr.sh comment",
     "pr:request-changes": "bash scripts/pr.sh request-changes",
-    "pr:approve": "bash scripts/pr.sh approve",
     "pr:template": "bash scripts/pr.sh template",
     "bus": "node scripts/agent-bus.mjs",
     "bus:status": "node scripts/agent-bus.mjs status",
@@ -135,7 +146,11 @@
     "node": ">=24"
   },
   "dependencies": {
-    "frida": "17.26.3"
+    "@floating-ui/dom": "^1.8.0",
+    "@preact/signals-core": "^1.14.5",
+    "@tanstack/virtual-core": "^3.19.11",
+    "frida": "17.26.3",
+    "tinykeys": "^4.0.1"
   },
   "allowScripts": {
     "frida@17.23.2": true

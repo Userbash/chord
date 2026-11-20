@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 //! # discord-core
 //!
 //! Транспорт и логика Discord: WebSocket-шлюз, REST v9, сессии, heartbeat, реконнект.
@@ -23,7 +25,9 @@ pub mod permissions;
 pub mod ready;
 pub mod rest;
 pub mod resume;
+pub mod runtime;
 pub mod settings;
+pub mod shutdown;
 pub mod soundshare;
 pub mod state;
 pub mod stream;
@@ -33,6 +37,11 @@ pub mod ws;
 /// отдельная зависимость на `discord-codec`.
 pub use chord_codec as codec;
 pub use cache::*;
+pub use runtime::{
+    MediaThreadPool, MediaThreadPoolError, RegisteredThread, RuntimeConfig, RuntimeConfigError,
+    RuntimeError, RuntimeManager, ThreadRegistry,
+};
+pub use shutdown::ShutdownCoordinator;
 pub use gateway_events::*;
 pub use twilight_model;
 pub use dispatch::{DispatchEvent, DispatchKind, route_dispatch};
@@ -60,6 +69,10 @@ pub use permissions::{
 };
 pub use twilight_util;
 pub use ready::ReadySummary;
+pub use rest::bridge::{
+    DiscordHttpClient, DiscordRestBridge, DiscordRestBridgeError, RateLimitBucketState,
+    build_relative_url_with_query, encode_rfc3986_query_value, validate_snowflake_id,
+};
 pub use rest::client::{ApiAuth, ApiAuthError, AuthScheme};
 pub use rest::user::{Me, MeError, parse_me};
 pub use resume::{

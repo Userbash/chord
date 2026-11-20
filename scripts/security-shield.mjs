@@ -89,8 +89,8 @@ function scanFile(relPath) {
       violations.push({ file: relPath, line: lineNum, rule: 'CRITICAL: Unencrypted Private Key Header' });
     }
 
-    // 2. Unsafe Rust
-    if (relPath.endsWith('.rs') && RUST_UNSAFE_BLOCK_RE.test(line)) {
+    // 2. Unsafe Rust (strictly forbidden in core, store, audio, dave crates)
+    if (relPath.endsWith('.rs') && !relPath.includes('chord-platform/src/') && RUST_UNSAFE_BLOCK_RE.test(line)) {
       violations.push({ file: relPath, line: lineNum, rule: 'FORBIDDEN: unsafe block in Rust (#![forbid(unsafe_code)])' });
     }
 

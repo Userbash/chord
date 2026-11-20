@@ -830,9 +830,10 @@ const UI_IPC_COMMAND_CONSTANTS: [&str; 4] = [
     "READY_COMMAND",
 ];
 
-const ALL_47_UI_IPC_COMMANDS: [&str; 47] = [
+const ALL_81_UI_IPC_COMMANDS: [&str; 81] = [
     "accept_invite",
     "ack_message",
+    "add_reaction",
     "attachments_upload_put",
     "attachments_upload_slots",
     "auth_login_password",
@@ -843,41 +844,74 @@ const ALL_47_UI_IPC_COMMANDS: [&str; 47] = [
     "auth_sms",
     "auth_status",
     "channels",
+    "confirm_member_rules",
+    "create_channel_invite",
     "create_gift_code",
+    "create_guild",
     "create_invite",
     "delete_message",
     "edit_message",
+    "fetch_application_entitlements",
+    "fetch_giftable_entitlements",
+    "fetch_user_entitlements",
+    "fetch_user_gift_codes",
+    "invoke_bff_domain",
     "join_guild",
     "leave_guild",
+    "list_channel_pins",
+    "list_channel_threads",
     "list_nitro_gift_plans",
     "members_page",
     "messages_page",
     "net_connect",
+    "net_disconnect",
+    "net_dispatch_stats",
     "net_status",
+    "pin_channel_message",
     "pins_list",
     "process_metrics",
     "read_state",
     "ready",
     "redeem_gift_code",
+    "remote_auth_cancel",
+    "remote_auth_cancel_session",
+    "remote_auth_finish",
+    "remote_auth_heartbeat_tick",
+    "remote_auth_initialize",
+    "remote_auth_process_frame",
+    "remote_auth_start_session",
     "reply_message",
     "report_bench",
     "report_ui_snapshot",
+    "request_upload_slots",
     "resolve_gift_code",
     "resolve_invite",
+    "revoke_gift_code",
+    "search_page",
     "search_remote",
     "send_message",
     "send_typing",
+    "settings",
     "settings_load",
     "settings_save",
     "spike_config",
     "threads_list",
     "toggle_reaction",
+    "unpin_channel_message",
     "update_channel_notification_override",
     "update_guild_notification_settings",
+    "voice_audio_devices",
+    "voice_connect",
+    "voice_deaf",
     "voice_desktop_sources",
+    "voice_disconnect",
+    "voice_mute",
+    "voice_rtc_status",
     "voice_set_audio_device",
+    "voice_stream_set_paused",
     "voice_stream_start",
     "voice_stream_stop",
+    "voice_stream_watch",
 ];
 
 fn is_valid_ipc_command_name(cmd: &str) -> bool {
@@ -1166,16 +1200,16 @@ fn every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main() {
     seen_ui_commands.sort();
     assert_eq!(
         seen_ui_commands.len(),
-        ALL_47_UI_IPC_COMMANDS.len(),
+        ALL_81_UI_IPC_COMMANDS.len(),
         "множество всех найденных UI IPC-команд (включая AUTH_COMMANDS, JOIN_COMMANDS, NET_COMMANDS, READY_COMMAND) должно быть равно ровно {} командам: {seen_ui_commands:?}",
-        ALL_47_UI_IPC_COMMANDS.len()
+        ALL_81_UI_IPC_COMMANDS.len()
     );
     let seen_refs: Vec<&str> = seen_ui_commands.iter().map(String::as_str).collect();
     assert_eq!(
         seen_refs.as_slice(),
-        &ALL_47_UI_IPC_COMMANDS,
+        &ALL_81_UI_IPC_COMMANDS,
         "множество найденных в ui/**/*.js IPC-команд должно точно совпадать с каноническим списком из {} команд",
-        ALL_47_UI_IPC_COMMANDS.len()
+        ALL_81_UI_IPC_COMMANDS.len()
     );
 
     for required in F1_UI_IPC_ALIASES

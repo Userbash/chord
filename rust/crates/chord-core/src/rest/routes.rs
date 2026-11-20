@@ -588,23 +588,11 @@ impl From<PathRenderError> for QueryError {
 /// RFC 3986 percent-encoding компонента query-параметра (ключ или значение).
 ///
 /// Символы `A-Z`, `a-z`, `0-9`, `-`, `_`, `.`, `~` (unreserved) остаются без изменений.
-/// Все остальные байты кодируются в верхнем регистре `%XX`.
+/// Все остальные байты кодируются в верхнем регистре `%XX` через `percent_encoding`.
 /// Экранирует `+` (%2B), `#` (%23), `&` (%26), пробел (%20), кириллицу и другие UTF-8 байты.
 #[must_use]
 pub fn encode_query_component(input: &str) -> String {
-    let mut encoded = String::with_capacity(input.len());
-    for &byte in input.as_bytes() {
-        match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
-                encoded.push(byte as char);
-            }
-            _ => {
-                use std::fmt::Write;
-                let _ = write!(encoded, "%{:02X}", byte);
-            }
-        }
-    }
-    encoded
+    super::bridge::encode_rfc3986_query_value(input)
 }
 
 /// Конструктор query-строки запроса.

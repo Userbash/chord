@@ -20,6 +20,8 @@ use std::os::raw::{c_char, c_int, c_uint, c_void};
 use std::ptr::{self, NonNull};
 use std::slice;
 
+use zeroize::Zeroizing;
+
 /// `SECRET_SERVICE_NONE`.
 const SECRET_SERVICE_NONE: c_int = 0;
 /// MIME-тип текстового секрета (`secret_value_new`).
@@ -315,15 +317,19 @@ impl Service {
         attributes.put_string(attribute, value)?;
         let c_label =
             CString::new(label).map_err(|_| FfiError::new(0, "метка содержит NUL-байт"))?;
-        let c_secret =
-            CString::new(secret).map_err(|_| FfiError::new(0, "секрет содержит NUL-байт"))?;
-        let length = isize::try_from(c_secret.as_bytes().len())
+        if secret.as_bytes().contains(&0) {
+            return Err(FfiError::new(0, "секрет содержит NUL-байт"));
+        }
+        let mut secret_buf = Zeroizing::new(Vec::with_capacity(secret.len() + 1));
+        secret_buf.extend_from_slice(secret.as_bytes());
+        secret_buf.push(0);
+        let length = isize::try_from(secret.len())
             .map_err(|_| FfiError::new(0, "секрет длиннее isize::MAX"))?;
         // SAFETY: строка и content_type — валидные NUL-терминированные строки; length —
         // точная длина без терминатора; функция копирует секрет в новый SecretValue.
         let value = unsafe {
             secret_value_new(
-                c_secret.as_ptr(),
+                secret_buf.as_ptr().cast::<c_char>(),
                 length,
                 CONTENT_TYPE.as_ptr().cast::<c_char>(),
             )
@@ -365,7 +371,7 @@ impl Service {
         schema: &Schema,
         attribute: &str,
         value: &str,
-    ) -> Result<Option<Vec<u8>>, FfiError> {
+    ) -> Result<Option<Zeroizing<Vec<u8>>>, FfiError> {
         let mut attributes = Table::strings()?;
         attributes.put_string(attribute, value)?;
         let mut error: *mut GError = ptr::null_mut();
@@ -398,7 +404,8 @@ impl Service {
         // SAFETY: `data` валиден ровно на `length` байт (контракт `secret_value_get`);
         // копируем байты как есть, не полагаясь на NUL-терминатор: значение может содержать
         // встроенный NUL (бинарные записи), и `g_strndup` обрезал бы его.
-        let bytes = unsafe { slice::from_raw_parts(data.cast::<u8>(), length) }.to_vec();
+        let bytes =
+            Zeroizing::new(unsafe { slice::from_raw_parts(data.cast::<u8>(), length) }.to_vec());
         // SAFETY: `value` ещё не освобождён; владение единственное.
         unsafe { secret_value_unref(value.as_ptr().cast::<c_void>()) };
         Ok(Some(bytes))

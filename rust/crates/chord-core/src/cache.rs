@@ -490,7 +490,8 @@ impl InMemoryCache {
         // Cache Current User
         if let Some(user_val) = d.get("user")
             && let Some(id_str) = user_val.get("id").and_then(Value::as_str)
-            && let Ok(id_u64) = id_str.parse::<u64>() {
+            && let Ok(id_u64) = id_str.parse::<u64>()
+            && let Some(user_id) = Id::new_checked(id_u64) {
             let name = user_val
                         .get("username")
                         .and_then(Value::as_str)
@@ -508,7 +509,7 @@ impl InMemoryCache {
                     let bot = user_val.get("bot").and_then(Value::as_bool).unwrap_or(false);
 
                     let cu = Arc::new(CachedCurrentUser {
-                        id: Id::new(id_u64),
+                        id: user_id,
                         name,
                         discriminator: disc,
                         avatar,
@@ -534,7 +535,9 @@ impl InMemoryCache {
                 let Ok(gid_u64) = gid_str.parse::<u64>() else {
                     continue;
                 };
-                let gid = Id::<GuildMarker>::new(gid_u64);
+                let Some(gid) = Id::<GuildMarker>::new_checked(gid_u64) else {
+                    continue;
+                };
 
                 let g_name = g_val
                     .get("name")
@@ -546,7 +549,7 @@ impl InMemoryCache {
                     .get("afk_channel_id")
                     .and_then(Value::as_str)
                     .and_then(|s| s.parse::<u64>().ok())
-                    .map(Id::new);
+                    .and_then(Id::new_checked);
                 let afk_timeout = g_val.get("afk_timeout").and_then(Value::as_u64);
 
                 let guild = Arc::new(CachedGuild {
@@ -571,7 +574,9 @@ impl InMemoryCache {
                         let Ok(cid_u64) = cid_str.parse::<u64>() else {
                             continue;
                         };
-                        let cid = Id::<ChannelMarker>::new(cid_u64);
+                        let Some(cid) = Id::<ChannelMarker>::new_checked(cid_u64) else {
+                            continue;
+                        };
                         let name = ch_val.get("name").and_then(Value::as_str).map(str::to_string);
                         let kind = ch_val.get("type").and_then(Value::as_u64).unwrap_or(0) as u8;
                         let pos = ch_val.get("position").and_then(Value::as_i64).map(|p| p as i32);
@@ -588,7 +593,7 @@ impl InMemoryCache {
                                 .get("parent_id")
                                 .and_then(Value::as_str)
                                 .and_then(|s| s.parse::<u64>().ok())
-                                .map(Id::new),
+                                .and_then(Id::new_checked),
                             rate_limit_per_user: ch_val
                                 .get("rate_limit_per_user")
                                 .and_then(Value::as_u64)
@@ -615,7 +620,9 @@ impl InMemoryCache {
                         let Ok(rid_u64) = rid_str.parse::<u64>() else {
                             continue;
                         };
-                        let rid = Id::<RoleMarker>::new(rid_u64);
+                        let Some(rid) = Id::<RoleMarker>::new_checked(rid_u64) else {
+                            continue;
+                        };
                         let r_name = r_val.get("name").and_then(Value::as_str).unwrap_or_default().to_string();
                         let color = r_val.get("color").and_then(Value::as_u64).unwrap_or(0) as u32;
                         let pos = r_val.get("position").and_then(Value::as_i64).unwrap_or(0);
@@ -656,7 +663,9 @@ impl InMemoryCache {
                         let Ok(uid_u64) = uid_str.parse::<u64>() else {
                             continue;
                         };
-                        let uid = Id::<UserMarker>::new(uid_u64);
+                        let Some(uid) = Id::<UserMarker>::new_checked(uid_u64) else {
+                            continue;
+                        };
 
                         let user = Arc::new(CachedUser {
                             id: uid,
@@ -680,7 +689,7 @@ impl InMemoryCache {
                                 arr.iter()
                                     .filter_map(Value::as_str)
                                     .filter_map(|s| s.parse::<u64>().ok())
-                                    .map(Id::<RoleMarker>::new)
+                                    .filter_map(Id::<RoleMarker>::new_checked)
                                     .collect()
                             })
                             .unwrap_or_default();
@@ -717,12 +726,14 @@ impl InMemoryCache {
                         let Ok(uid_u64) = uid_str.parse::<u64>() else {
                             continue;
                         };
-                        let uid = Id::<UserMarker>::new(uid_u64);
+                        let Some(uid) = Id::<UserMarker>::new_checked(uid_u64) else {
+                            continue;
+                        };
                         let cid = vs_val
                             .get("channel_id")
                             .and_then(Value::as_str)
                             .and_then(|s| s.parse::<u64>().ok())
-                            .map(Id::<ChannelMarker>::new);
+                            .and_then(Id::<ChannelMarker>::new_checked);
                         let sess = vs_val.get("session_id").and_then(Value::as_str).unwrap_or_default().to_string();
 
                         let state = Arc::new(CachedVoiceState {
@@ -758,7 +769,9 @@ impl InMemoryCache {
                 let Ok(cid_u64) = cid_str.parse::<u64>() else {
                     continue;
                 };
-                let cid = Id::<ChannelMarker>::new(cid_u64);
+                let Some(cid) = Id::<ChannelMarker>::new_checked(cid_u64) else {
+                    continue;
+                };
                 let name = ch_val.get("name").and_then(Value::as_str).map(str::to_string);
                 let kind = ch_val.get("type").and_then(Value::as_u64).unwrap_or(1) as u8;
 

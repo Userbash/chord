@@ -599,3 +599,64 @@ fn screencast_dma_buf_zero_copy_eliminates_86ms_latency_and_passes_60fps_budget(
     assert_eq!(m.dropped_frames, 0); // 0 потерянных кадров
     assert_eq!(m.sequence, 60);
 }
+
+#[test]
+fn ashpd_wayland_portal_option_mapping_and_validation() {
+    use ashpd::desktop::PersistMode;
+    use ashpd::desktop::screencast::{CursorMode, SourceType};
+    use chord_platform::screencast::{
+        WaylandScreencastSession, to_ashpd_cursor_mode, to_ashpd_persist_mode,
+        to_ashpd_source_types,
+    };
+
+    let monitor_flags = to_ashpd_source_types(PortalSourceTypes::MONITOR);
+    assert!(monitor_flags.contains(SourceType::Monitor));
+    assert!(!monitor_flags.contains(SourceType::Window));
+
+    let both_flags = to_ashpd_source_types(PortalSourceTypes::MONITOR_AND_WINDOW);
+    assert!(both_flags.contains(SourceType::Monitor));
+    assert!(both_flags.contains(SourceType::Window));
+
+    let virtual_flags = to_ashpd_source_types(PortalSourceTypes::VIRTUAL);
+    assert!(virtual_flags.contains(SourceType::Virtual));
+
+    assert!(matches!(
+        to_ashpd_cursor_mode(PortalCursorMode::Hidden),
+        CursorMode::Hidden
+    ));
+    assert!(matches!(
+        to_ashpd_cursor_mode(PortalCursorMode::Embedded),
+        CursorMode::Embedded
+    ));
+    assert!(matches!(
+        to_ashpd_cursor_mode(PortalCursorMode::Metadata),
+        CursorMode::Metadata
+    ));
+
+    assert!(matches!(
+        to_ashpd_persist_mode(PortalPersistMode::DoNotPersist),
+        PersistMode::DoNot
+    ));
+    assert!(matches!(
+        to_ashpd_persist_mode(PortalPersistMode::ApplicationRunning),
+        PersistMode::Application
+    ));
+    assert!(matches!(
+        to_ashpd_persist_mode(PortalPersistMode::ExplicitlyRevoked),
+        PersistMode::ExplicitlyRevoked
+    ));
+
+    let invalid_opts = ScreenCastOptions {
+        handle_token: "bad-token!".to_string(),
+        session_handle_token: "valid_sess".to_string(),
+        source_types: PortalSourceTypes::MONITOR,
+        multiple: false,
+        cursor_mode: PortalCursorMode::Embedded,
+        persist_mode: PortalPersistMode::ApplicationRunning,
+        restore_token: None,
+        parent_window: String::new(),
+    };
+    let err = WaylandScreencastSession::open_blocking(&invalid_opts)
+        .expect_err("invalid options must fail validation before D-Bus/ashpd");
+    assert!(matches!(err, PortalRequestError::InvalidToken(_)));
+}

@@ -482,6 +482,17 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/modules-channel-tree-view-contract.test.mjs` | `rust/gui-spike/ui/modules/channel-tree-view.js` | `isConfirmedVoiceStateRecord` |
 | `tests/unit/core-ui-adapters-contract.test.mjs` | `src/core/ui/adapters.mjs` | `resolveAdapter`, `clickNavItemExpression` |
 | `tests/unit/core-ui-engine-contract.test.mjs` | `src/core/ui/engine.mjs` | `runWalk` |
+| `tests/unit/chat-virtualizer-tanstack.test.mjs` | `rust/gui-spike/ui/features/virtualizer.js` | `VirtualList` |
+| `tests/unit/chord-store-rusqlite-worker-lib-simplify-02.test.mjs` | `rust/crates/chord-store/src/worker.rs` | `STORE_MANIFEST` |
+| `tests/unit/dave-e2ee-spike-lib-simplify-05.test.mjs` | `rust/dave-spike/src/bridge.rs` | `DaveVoiceBridge` |
+| `tests/unit/emoji-reactions-contract.test.mjs` | `rust/gui-spike/ui/features/reactions.js` | `EMOJI_CATEGORIES` |
+| `tests/unit/esm-libraries-integration.test.mjs` | `rust/gui-spike/ui/state/signals.js` | `signal` |
+| `tests/unit/markdown-contract.test.mjs` | `rust/gui-spike/ui/features/markdown.js` | `parseMessageMarkdown` |
+| `tests/unit/member-list-virtual.test.mjs` | `rust/gui-spike/ui/features/virtualizer.js` | `createMemberListController` |
+| `tests/unit/runtime-config-stage-02.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RuntimeConfig` |
+| `tests/unit/runtime-manager-stage-02-1-2.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RuntimeManager` |
+| `tests/unit/media-pool-stage-02-1-3.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RUNTIME_RS` |
+| `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
 
 ## 9. Risks and Limitations
 
