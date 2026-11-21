@@ -297,6 +297,12 @@ impl<T: PortalTransport> PortalScreenCastClient<T> {
         self.session_handle.as_deref()
     }
 
+    /// Освобождает клиент и возвращает нижележащий транспорт [`PortalTransport`].
+    #[must_use]
+    pub fn into_transport(self) -> T {
+        self.transport
+    }
+
     /// Шаг 1: Создание сессии `CreateSession`.
     pub fn create_session(&mut self, config: &PortalSessionConfig) -> Result<String, CaptureError> {
         if self.state != PortalSessionState::Unconnected {
