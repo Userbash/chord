@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T08:21:28.680Z",
+  "updated_at": "2026-11-21T08:27:54.660Z",
   "columns": [
     {
       "id": "backlog",
@@ -9783,8 +9783,8 @@
       "id": "R4-12",
       "title": "Configuration Store",
       "description": "Persistent user preferences (JSON store, schema validation, default merge, reactive change listeners), comprehensive settings window. Target: Core: Settings Engine. Criteria: Preferences persist across application restarts; settings UI exposes all keys; reset-to-defaults functions reliably",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9797,7 +9797,8 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:28:35.847Z"
     },
     {
       "id": "R5-01",
@@ -9866,8 +9867,8 @@
       "id": "R5-04",
       "title": "Stream Source Selector",
       "description": "Source selection grid with live thumbnails, monitor vs window tabs, resolution presets (480p–1440p) and frame rates (15–60 FPS), audio toggle. Target: UI: Streaming Modal. Criteria: Selecting source initiates stream; target resolution, framerate, and audio flags apply to encoder pipeline",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9880,14 +9881,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:28:35.847Z"
     },
     {
       "id": "R5-05",
       "title": "High-Res Source Thumbnails",
       "description": "On-demand high-resolution thumbnail generation (1920×1080) on source hover or selection while keeping the initial picker list responsive. Target: UI: Streaming Modal. Criteria: Selected thumbnail renders crisp high-res preview; source list remains smooth and responsive",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9900,7 +9902,8 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:28:35.847Z"
     },
     {
       "id": "R5-06",

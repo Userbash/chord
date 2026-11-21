@@ -248,10 +248,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:12:14.542Z"
+      "dispatchedAt": "2026-11-21T08:12:14.542Z",
+      "completedAt": "2026-11-21T08:28:35.849Z"
     },
     {
       "slot": 14,
@@ -323,10 +324,11 @@
       "scriptCommand": null,
       "model": "gemini-4-argon-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:17:00.368Z"
+      "dispatchedAt": "2026-11-21T08:17:00.368Z",
+      "completedAt": "2026-11-21T08:28:35.849Z"
     },
     {
       "slot": 18,
@@ -341,10 +343,11 @@
       "scriptCommand": null,
       "model": "gemini-4-argon-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:19:53.566Z"
+      "dispatchedAt": "2026-11-21T08:19:53.566Z",
+      "completedAt": "2026-11-21T08:28:35.849Z"
     },
     {
       "slot": 19,
@@ -433,9 +436,10 @@
       "scriptCommand": null,
       "model": "gemini-4-argon-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:28:21.246Z"
     },
     {
       "slot": 24,
