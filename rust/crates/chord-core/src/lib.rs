@@ -35,6 +35,7 @@ pub mod shutdown;
 pub mod soundshare;
 pub mod state;
 pub mod stream;
+pub mod stream_lifecycle;
 pub mod threads;
 pub mod totp_view;
 pub mod ws;
