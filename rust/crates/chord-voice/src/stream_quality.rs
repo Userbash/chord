@@ -191,24 +191,51 @@ pub enum GoLiveQualityPatchPolicy {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StreamQualityError {
-    InvalidDimensions { width: u32, height: u32 },
-    OddDimensions { width: u32, height: u32 },
+    InvalidDimensions {
+        width: u32,
+        height: u32,
+    },
+    OddDimensions {
+        width: u32,
+        height: u32,
+    },
     InvalidFramerate(u32),
-    BitrateOutOfRange { min_bps: u32, target_bps: u32, max_bps: u32 },
-    InvalidBitrateHierarchy { min_bps: u32, target_bps: u32, max_bps: u32 },
+    BitrateOutOfRange {
+        min_bps: u32,
+        target_bps: u32,
+        max_bps: u32,
+    },
+    InvalidBitrateHierarchy {
+        min_bps: u32,
+        target_bps: u32,
+        max_bps: u32,
+    },
     InvalidSsrc,
 }
 
 impl fmt::Display for StreamQualityError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::InvalidDimensions { width, height } => write!(f, "invalid dimensions {width}x{height}"),
+            Self::InvalidDimensions { width, height } => {
+                write!(f, "invalid dimensions {width}x{height}")
+            }
             Self::OddDimensions { width, height } => write!(f, "odd dimensions {width}x{height}"),
             Self::InvalidFramerate(fps) => write!(f, "invalid framerate {fps} FPS"),
-            Self::BitrateOutOfRange { min_bps, target_bps, max_bps } => {
-                write!(f, "bitrates ({min_bps}/{target_bps}/{max_bps}) out of range")
+            Self::BitrateOutOfRange {
+                min_bps,
+                target_bps,
+                max_bps,
+            } => {
+                write!(
+                    f,
+                    "bitrates ({min_bps}/{target_bps}/{max_bps}) out of range"
+                )
             }
-            Self::InvalidBitrateHierarchy { min_bps, target_bps, max_bps } => {
+            Self::InvalidBitrateHierarchy {
+                min_bps,
+                target_bps,
+                max_bps,
+            } => {
                 write!(f, "invalid hierarchy {min_bps}<={target_bps}<={max_bps}")
             }
             Self::InvalidSsrc => f.write_str("stream audio SSRC must be non-zero"),
@@ -243,7 +270,11 @@ impl StreamQualityProfile {
         let (width, height) = res.dimensions();
         let fps = preset.framerate().as_u32();
         let (min_bitrate_bps, target_bitrate_bps, max_bitrate_bps) = preset.bitrate_bounds_bps();
-        let content_hint = if fps >= 60 { StreamContentHint::Motion } else { StreamContentHint::Detail };
+        let content_hint = if fps >= 60 {
+            StreamContentHint::Motion
+        } else {
+            StreamContentHint::Detail
+        };
         Self {
             width,
             height,
@@ -283,10 +314,16 @@ impl StreamQualityProfile {
         if !(MIN_STREAM_DIMENSION..=MAX_STREAM_DIMENSION).contains(&self.width)
             || !(MIN_STREAM_DIMENSION..=MAX_STREAM_DIMENSION).contains(&self.height)
         {
-            return Err(StreamQualityError::InvalidDimensions { width: self.width, height: self.height });
+            return Err(StreamQualityError::InvalidDimensions {
+                width: self.width,
+                height: self.height,
+            });
         }
         if !self.width.is_multiple_of(2) || !self.height.is_multiple_of(2) {
-            return Err(StreamQualityError::OddDimensions { width: self.width, height: self.height });
+            return Err(StreamQualityError::OddDimensions {
+                width: self.width,
+                height: self.height,
+            });
         }
         if !(MIN_STREAM_FPS..=MAX_STREAM_FPS).contains(&self.fps) {
             return Err(StreamQualityError::InvalidFramerate(self.fps));
@@ -302,7 +339,9 @@ impl StreamQualityProfile {
                 max_bps: self.max_bitrate_bps,
             });
         }
-        if self.min_bitrate_bps > self.target_bitrate_bps || self.target_bitrate_bps > self.max_bitrate_bps {
+        if self.min_bitrate_bps > self.target_bitrate_bps
+            || self.target_bitrate_bps > self.max_bitrate_bps
+        {
             return Err(StreamQualityError::InvalidBitrateHierarchy {
                 min_bps: self.min_bitrate_bps,
                 target_bps: self.target_bitrate_bps,
@@ -370,7 +409,12 @@ pub fn scale_dimensions_to_pixel_limit(
     let cap_h = max_height.clamp(MIN_STREAM_DIMENSION, MAX_STREAM_DIMENSION);
     let pixel_cap = u64::from(max_pixel_limit.max(MIN_STREAM_DIMENSION * MIN_STREAM_DIMENSION));
 
-    let (mut w, mut h) = fit_bounding_box(u64::from(src_w), u64::from(src_h), u64::from(cap_w), u64::from(cap_h));
+    let (mut w, mut h) = fit_bounding_box(
+        u64::from(src_w),
+        u64::from(src_h),
+        u64::from(cap_w),
+        u64::from(cap_h),
+    );
     let current_pixels = w * h;
     if current_pixels > pixel_cap {
         let scale_num = integer_sqrt_u64(pixel_cap * 1_000_000 / current_pixels.max(1));
@@ -447,20 +491,40 @@ pub struct GoLiveStreamContext {
 
 impl GoLiveStreamContext {
     #[must_use]
-    pub fn new(stream_key: impl Into<String>, rtc_token: impl Into<String>, audio_ssrc: u32) -> Self {
+    pub fn new(
+        stream_key: impl Into<String>,
+        rtc_token: impl Into<String>,
+        audio_ssrc: u32,
+    ) -> Self {
         let (video_ssrc, rtx_ssrc) = compute_stream_ssrcs(audio_ssrc);
-        Self { stream_key: stream_key.into(), rtc_token: rtc_token.into(), audio_ssrc, video_ssrc, rtx_ssrc }
+        Self {
+            stream_key: stream_key.into(),
+            rtc_token: rtc_token.into(),
+            audio_ssrc,
+            video_ssrc,
+            rtx_ssrc,
+        }
     }
     #[must_use]
-    pub fn stream_key(&self) -> &str { &self.stream_key }
+    pub fn stream_key(&self) -> &str {
+        &self.stream_key
+    }
     #[must_use]
-    pub fn rtc_token(&self) -> &str { &self.rtc_token }
+    pub fn rtc_token(&self) -> &str {
+        &self.rtc_token
+    }
     #[must_use]
-    pub const fn audio_ssrc(&self) -> u32 { self.audio_ssrc }
+    pub const fn audio_ssrc(&self) -> u32 {
+        self.audio_ssrc
+    }
     #[must_use]
-    pub const fn video_ssrc(&self) -> u32 { self.video_ssrc }
+    pub const fn video_ssrc(&self) -> u32 {
+        self.video_ssrc
+    }
     #[must_use]
-    pub const fn rtx_ssrc(&self) -> u32 { self.rtx_ssrc }
+    pub const fn rtx_ssrc(&self) -> u32 {
+        self.rtx_ssrc
+    }
 }
 
 impl fmt::Debug for GoLiveStreamContext {
@@ -549,21 +613,37 @@ impl StreamQualityController {
     }
 
     #[must_use]
-    pub const fn audio_ssrc(&self) -> u32 { self.audio_ssrc }
+    pub const fn audio_ssrc(&self) -> u32 {
+        self.audio_ssrc
+    }
     #[must_use]
-    pub const fn video_ssrc(&self) -> u32 { self.video_ssrc }
+    pub const fn video_ssrc(&self) -> u32 {
+        self.video_ssrc
+    }
     #[must_use]
-    pub const fn rtx_ssrc(&self) -> u32 { self.rtx_ssrc }
+    pub const fn rtx_ssrc(&self) -> u32 {
+        self.rtx_ssrc
+    }
     #[must_use]
-    pub const fn state(&self) -> StreamAdaptationState { self.state }
+    pub const fn state(&self) -> StreamAdaptationState {
+        self.state
+    }
     #[must_use]
-    pub const fn selected_profile(&self) -> &StreamQualityProfile { &self.selected_profile }
+    pub const fn selected_profile(&self) -> &StreamQualityProfile {
+        &self.selected_profile
+    }
     #[must_use]
-    pub const fn effective_profile(&self) -> &StreamQualityProfile { &self.effective_profile }
+    pub const fn effective_profile(&self) -> &StreamQualityProfile {
+        &self.effective_profile
+    }
     #[must_use]
-    pub const fn current_target_bitrate_bps(&self) -> u32 { self.current_target_bitrate_bps }
+    pub const fn current_target_bitrate_bps(&self) -> u32 {
+        self.current_target_bitrate_bps
+    }
     #[must_use]
-    pub const fn telemetry(&self) -> &StreamQualityTelemetry { &self.telemetry }
+    pub const fn telemetry(&self) -> &StreamQualityTelemetry {
+        &self.telemetry
+    }
 
     pub fn take_keyframe_requested(&mut self) -> bool {
         std::mem::replace(&mut self.keyframe_requested, false)
@@ -574,7 +654,11 @@ impl StreamQualityController {
         self.keyframe_requested = true;
         self.refresh_adaptation_state();
         let out = self.evaluate_encoder_Params(source_width, source_height);
-        self.build_op12_video(out.encoded_width, out.encoded_height, out.encoded_fps.max(1))
+        self.build_op12_video(
+            out.encoded_width,
+            out.encoded_height,
+            out.encoded_fps.max(1),
+        )
     }
 
     pub fn patch_stream_quality(&mut self, policy: GoLiveQualityPatchPolicy) -> VoiceVideo {
@@ -584,7 +668,11 @@ impl StreamQualityController {
         self.keyframe_requested = true;
         self.telemetry.profile_updates += 1;
         self.refresh_adaptation_state();
-        self.build_op12_video(self.effective_profile.width, self.effective_profile.height, self.effective_profile.fps)
+        self.build_op12_video(
+            self.effective_profile.width,
+            self.effective_profile.height,
+            self.effective_profile.fps,
+        )
     }
 
     pub fn set_quality_profile(
@@ -598,12 +686,21 @@ impl StreamQualityController {
         self.keyframe_requested = true;
         self.telemetry.profile_updates += 1;
         self.refresh_adaptation_state();
-        Ok(self.build_op12_video(self.effective_profile.width, self.effective_profile.height, self.effective_profile.fps))
+        Ok(self.build_op12_video(
+            self.effective_profile.width,
+            self.effective_profile.height,
+            self.effective_profile.fps,
+        ))
     }
 
     pub fn apply_media_sink_wants(&mut self, wants: &MediaSinkWants) {
         self.telemetry.sink_wants_updates += 1;
-        let ssrc_q = wants.ssrc_qualities.get(&self.video_ssrc).copied().or(wants.any).unwrap_or(100);
+        let ssrc_q = wants
+            .ssrc_qualities
+            .get(&self.video_ssrc)
+            .copied()
+            .or(wants.any)
+            .unwrap_or(100);
         self.sink_wants_quality = ssrc_q.min(100);
         self.sink_wants_pixel_limit = wants.pixel_counts.filter(|&pc| pc > 0);
         self.refresh_adaptation_state();
@@ -619,14 +716,17 @@ impl StreamQualityController {
 
     pub fn on_rtcp_packet(&mut self, packet: &RtcpPacket, now_ms: u64) {
         match packet {
-            RtcpPacket::ReceiverReport { reports, .. } | RtcpPacket::SenderReport { reports, .. } => {
+            RtcpPacket::ReceiverReport { reports, .. }
+            | RtcpPacket::SenderReport { reports, .. } => {
                 for block in reports {
                     if block.ssrc == self.video_ssrc {
                         self.observe_network_feedback(Some(block.fraction_lost), None, now_ms);
                     }
                 }
             }
-            RtcpPacket::Remb(remb) if remb.ssrcs.is_empty() || remb.ssrcs.contains(&self.video_ssrc) => {
+            RtcpPacket::Remb(remb)
+                if remb.ssrcs.is_empty() || remb.ssrcs.contains(&self.video_ssrc) =>
+            {
                 let wire_bps = u32::try_from(remb.bitrate_bps).unwrap_or(u32::MAX);
                 self.observe_network_feedback(None, Some(wire_bps), now_ms);
             }
@@ -646,7 +746,10 @@ impl StreamQualityController {
         if let Some(wire) = wire_remb_bps {
             let headroom_bps = ((u64::from(wire) * u64::from(REMB_HEADROOM_NUMERATOR))
                 / u64::from(REMB_HEADROOM_DENOMINATOR)) as u32;
-            self.pending_remb_bps = Some(self.pending_remb_bps.map_or(headroom_bps, |old| old.min(headroom_bps)));
+            self.pending_remb_bps = Some(
+                self.pending_remb_bps
+                    .map_or(headroom_bps, |old| old.min(headroom_bps)),
+            );
         }
     }
 
@@ -664,7 +767,8 @@ impl StreamQualityController {
         }
 
         let ceiling = self.compute_active_ceiling_bps(now_ms);
-        let (target, congested, recovered) = self.evaluate_next_bitrate(now_ms, loss, estimate, ceiling);
+        let (target, congested, recovered) =
+            self.evaluate_next_bitrate(now_ms, loss, estimate, ceiling);
         if target == self.current_target_bitrate_bps {
             self.refresh_adaptation_state();
             return None;
@@ -717,12 +821,19 @@ impl StreamQualityController {
             }
         }
 
-        let clamped = target.clamp(self.effective_profile.min_bitrate_bps, self.effective_profile.max_bitrate_bps);
+        let clamped = target.clamp(
+            self.effective_profile.min_bitrate_bps,
+            self.effective_profile.max_bitrate_bps,
+        );
         (clamped, congested, recovered)
     }
 
     #[allow(non_snake_case)]
-    pub fn evaluate_encoder_Params(&mut self, source_width: u32, source_height: u32) -> EncoderScaleOutput {
+    pub fn evaluate_encoder_Params(
+        &mut self,
+        source_width: u32,
+        source_height: u32,
+    ) -> EncoderScaleOutput {
         if self.sink_wants_quality == 0 {
             return EncoderScaleOutput {
                 active: false,
@@ -754,7 +865,8 @@ impl StreamQualityController {
         }
 
         let encoded_fps = self.compute_effective_fps();
-        let frame_byte_budget = (self.current_target_bitrate_bps as usize) / (8 * (encoded_fps.max(1) as usize));
+        let frame_byte_budget =
+            (self.current_target_bitrate_bps as usize) / (8 * (encoded_fps.max(1) as usize));
 
         EncoderScaleOutput {
             active: true,
@@ -779,7 +891,9 @@ impl StreamQualityController {
         }
         if self.current_target_bitrate_bps * 2 < self.effective_profile.target_bitrate_bps {
             pixel_limit = pixel_limit.min(PIXEL_LIMIT_480P);
-        } else if self.current_target_bitrate_bps * 4 < self.effective_profile.target_bitrate_bps * 3 {
+        } else if self.current_target_bitrate_bps * 4
+            < self.effective_profile.target_bitrate_bps * 3
+        {
             pixel_limit = pixel_limit.min(PIXEL_LIMIT_720P);
         }
         pixel_limit
