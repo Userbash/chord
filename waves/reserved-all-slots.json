@@ -117,10 +117,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:03:00.213Z"
+      "dispatchedAt": "2026-11-21T08:03:00.213Z",
+      "completedAt": "2026-11-21T08:13:18.704Z"
     },
     {
       "slot": 7,
@@ -192,10 +193,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:07:52.565Z"
+      "dispatchedAt": "2026-11-21T08:07:52.565Z",
+      "completedAt": "2026-11-21T08:13:18.704Z"
     },
     {
       "slot": 11,
