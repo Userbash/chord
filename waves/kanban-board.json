@@ -34,7 +34,7 @@
       "id": "TASK-TAURI-03",
       "title": "Tauri Webview Voice & WebRTC стриминг аудио/экрана без деградации",
       "description": "Бесшовный пайплайн захвата звука и экрана PipeWire/Portal внутри окна Tauri без ошибок 2012",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -43,7 +43,8 @@
         "webrtc",
         "p0"
       ],
-      "updated_at": "2026-11-20T20:42:51.919Z"
+      "updated_at": "2026-11-20T20:42:51.919Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "TASK-TAURI-02",
@@ -64,7 +65,7 @@
       "id": "TASK-TAURI-01",
       "title": "Интеграция и стабилизация Tauri 2 BFF рантайма (rust/gui-spike)",
       "description": "Стабилизация Tauri 2 IPC моста, устранение PSS утечек памяти и синхронизация всех 81 команд BFF с фронтендом",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -73,7 +74,8 @@
         "rust",
         "p0"
       ],
-      "updated_at": "2026-11-20T19:43:50.836Z"
+      "updated_at": "2026-11-20T19:43:50.836Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "TASK-701",
@@ -8144,7 +8146,7 @@
     {
       "id": "TASK-1021A",
       "title": "Деривация мастер-ключа из Linux Keyring через Argon2id",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Хранение мастер-ключа в Secret Service API, деривация через Argon2id и очистка через zeroize.",
@@ -8178,7 +8180,8 @@
       "created_at": "2026-11-11T13:11:49.322Z",
       "updated_at": "2026-11-20T20:42:56.074Z",
       "progress": 0,
-      "column": "done"
+      "column": "done",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "TASK-1021B",
@@ -9025,8 +9028,8 @@
       "id": "LIB-SIMPLIFY-06",
       "title": "Concurrency & Automation: x86_64 Tokio/Rayon Runtime + Скрипты экономии токенов",
       "description": "Разделение потоков исполнения: Tokio для асинхронной сети, Rayon для тяжелых CPU-задач (картинки/видео), rtrb для звука. Разработка автоматических скриптов для рутинных задач ИИ.",
-      "status": "in_dev",
-      "column": "in_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "tags": [
         "Architecture",
@@ -9050,7 +9053,8 @@
         "603.2: Написание скрипта smart-typecheck.mjs и ram-guard для воркеров"
       ],
       "updated_at": "2026-11-21T07:46:45.518Z",
-      "progress": 100
+      "progress": 100,
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "LIB-SIMPLIFY-07",
@@ -9117,7 +9121,7 @@
       "id": "STAGE-02.1.3",
       "title": "Создание изолированного пула rayon::ThreadPool для фоновых CPU медиа-задач",
       "description": "Выделение фонового пула для кодирования Opus/видео без блокировки асинхронного Tokio",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -9126,7 +9130,8 @@
         "stage-02",
         "p0"
       ],
-      "updated_at": "2026-11-20T20:43:00.287Z"
+      "updated_at": "2026-11-20T20:43:00.287Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-02.2.1",
@@ -9147,7 +9152,7 @@
       "id": "STAGE-02.2.2",
       "title": "Регистрация дочерних задач в tokio::task::JoinSet с таймаутом завершения 5 секунд",
       "description": "Гарантированное закрытие соединений и баз данных без зависания процесса при выходе",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -9156,13 +9161,14 @@
         "stage-02",
         "p0"
       ],
-      "updated_at": "2026-11-20T21:12:36.779Z"
+      "updated_at": "2026-11-20T21:12:36.779Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-02.3.1",
       "title": "Реализация Secret Redaction Layer для tracing_subscriber (маскирование токенов)",
       "description": "Фильтр логов, заменяющий токены Bot/Bearer и ключи шифрования на [REDACTED]",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -9171,13 +9177,14 @@
         "stage-02",
         "p0"
       ],
-      "updated_at": "2026-11-20T21:12:40.688Z"
+      "updated_at": "2026-11-20T21:12:40.688Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-02.3.2",
       "title": "Контрактные тесты перехвата SIGINT/SIGTERM и маскирования секретов",
       "description": "Автоматические тесты на корректное завершение процесса и отсутствие токенов в stdout",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -9186,13 +9193,14 @@
         "stage-02",
         "p0"
       ],
-      "updated_at": "2026-11-20T21:12:44.595Z"
+      "updated_at": "2026-11-20T21:12:44.595Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-10.BFF.1",
       "title": "Настройка макросов tauri_specta::collect_commands для 48 Rust IPC-команд",
       "description": "Автоматическая экспозиция команд Tauri с автоматической генерацией TypeScript типов",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -9201,7 +9209,8 @@
         "bff",
         "p0"
       ],
-      "updated_at": "2026-11-20T21:12:48.489Z"
+      "updated_at": "2026-11-20T21:12:48.489Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-10.BFF.2",
@@ -9222,7 +9231,7 @@
       "id": "STAGE-10.BFF.3",
       "title": "Связка DiscordRestBridge с Tauri командой rest_request",
       "description": "Проброс REST-запросов из WebView в тонкий мост на reqwest/url::Url",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -9231,13 +9240,14 @@
         "bridge",
         "p0"
       ],
-      "updated_at": "2026-11-21T06:17:50.539Z"
+      "updated_at": "2026-11-21T06:17:50.539Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-10.BFF.4",
       "title": "Связка StoreBridge (SQLite worker) с Tauri командами db_query и db_messages",
       "description": "Асинхронный доступ к SQLite истории сообщений и кэшу через mpsc канал",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -9246,13 +9256,14 @@
         "bridge",
         "p0"
       ],
-      "updated_at": "2026-11-21T06:17:50.738Z"
+      "updated_at": "2026-11-21T06:17:50.738Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-10.BFF.5",
       "title": "Связка AudioPipelineBridge с командами audio_set_volume, audio_mute, audio_devices",
       "description": "Управление громкостью, мутом и устройствами cpal из настроек интерфейса",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P0",
       "tags": [
@@ -9261,7 +9272,8 @@
         "bridge",
         "p0"
       ],
-      "updated_at": "2026-11-21T06:17:50.933Z"
+      "updated_at": "2026-11-21T06:17:50.933Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-10.BFF.6",
@@ -9282,7 +9294,7 @@
       "id": "STAGE-05.1.1",
       "title": "Подключение tokio-tungstenite с поддержкой TLS для Discord Gateway",
       "description": "Чистый легковесный WebSocket транспорт вместо тяжелых надстроек",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P1",
       "tags": [
@@ -9291,13 +9303,14 @@
         "stage-05",
         "p1"
       ],
-      "updated_at": "2026-11-21T06:21:08.222Z"
+      "updated_at": "2026-11-21T06:21:08.222Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-05.1.2",
       "title": "Потоковый декомпрессор zlib-ng / flate2 для Discord Gateway payload",
       "description": "Эффективная распаковка входящих бинарных пакетов с экономией трафика 80%",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P1",
       "tags": [
@@ -9306,13 +9319,14 @@
         "stage-05",
         "p1"
       ],
-      "updated_at": "2026-11-21T06:21:08.413Z"
+      "updated_at": "2026-11-21T06:21:08.413Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-05.2.1",
       "title": "Выделенный независимый таск heartbeat_loop с интервалом heartbeat_interval_ms",
       "description": "Изолированный таймер пульса, не зависящий от задержек обработки событий интерфейса",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P1",
       "tags": [
@@ -9321,13 +9335,14 @@
         "stage-05",
         "p1"
       ],
-      "updated_at": "2026-11-21T06:21:08.608Z"
+      "updated_at": "2026-11-21T06:21:08.608Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-05.2.2",
       "title": "Отслеживание ACK heartbeats (Op 1 / Op 11) и детектор зависшего сокета",
       "description": "Немедленный реконнект (Zombie Socket Detection) при пропуске подтверждения пульса",
-      "status": "in_progress",
+      "status": "done",
       "column": "done",
       "priority": "P1",
       "tags": [
@@ -9336,7 +9351,8 @@
         "stage-05",
         "p1"
       ],
-      "updated_at": "2026-11-21T06:21:08.804Z"
+      "updated_at": "2026-11-21T06:21:08.804Z",
+      "completedAt": "2026-11-21T07:50:35.288Z"
     },
     {
       "id": "STAGE-05.3.1",
