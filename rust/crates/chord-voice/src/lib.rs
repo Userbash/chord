@@ -26,6 +26,7 @@ pub mod rtp;
 pub mod session;
 pub mod srtp;
 pub mod stats;
+pub mod stream_quality;
 pub mod udp;
 
 pub use noise::{

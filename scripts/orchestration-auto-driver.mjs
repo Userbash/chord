@@ -5,7 +5,8 @@
  *
  * Автоматический драйвер оркестрации Orca и непрерывной ротации слотов воркеров.
  * Полностью исключает затраты токенов ИИ на рутинную проверку сообщений воркеров,
- * закрытие завершённых задач, освобождение терминалов и запуск следующих слотов.
+ * закрытие завершённых задач, освобождение терминалов, запуск следующих слотов
+ * и синхронизацию Git репозиториев.
  *
  * Возможности:
  * 1. Проверяет входящие сообщения оркестрации (orca orchestration check).
@@ -14,16 +15,20 @@
  * 4. Фиксирует статус COMPLETED_VERIFIED в реестре слотов (waves/reserved-all-slots.json).
  * 5. Контролирует лимит оперативной памяти (WORKER_RAM_LIMIT < 25 GB).
  * 6. Берёт следующий зарезервированный слот из пула и запускает воркера в Orca.
+ * 7. При завершении задач автоматически выполняет git-sync в origin и public.
+ * 8. Поддерживает фоновый режим непрерывного цикла (--watch / --daemon).
  *
  * Использование:
- *   node scripts/orchestration-auto-driver.mjs --once   # Однократная проверка и обработка очереди
- *   node scripts/orchestration-auto-driver.mjs --status # Показать статус активных слотов и памяти
+ *   node scripts/orchestration-auto-driver.mjs --once              # Однократная проверка и обработка
+ *   node scripts/orchestration-auto-driver.mjs --status            # Показать статус слотов и памяти
+ *   node scripts/orchestration-auto-driver.mjs --watch [seconds]   # Фоновый цикл (по умолчанию каждые 15с)
  */
 
 import { execSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { cmdCommit } from './git-sync.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -182,6 +187,8 @@ export function runCycle() {
   const messages = checkOrchestrationMessages();
   console.log(`Входящих сообщений: ${messages.length}`);
 
+  let completedTasks = [];
+
   for (const msg of messages) {
     if (msg.type === 'worker_done') {
       console.log(`📩 Получен worker_done для dispatchId: ${msg.dispatchId}`);
@@ -193,6 +200,7 @@ export function runCycle() {
         const slot = res.slots.find(s => s.dispatchId === msg.dispatchId);
         if (slot) {
           markTaskCompleted(slot.id);
+          completedTasks.push(slot.id);
         }
       }
     }
@@ -206,8 +214,24 @@ export function runCycle() {
     else break;
   }
 
+  // Если задачи завершились, выполняем авто-коммит и пуш
+  if (completedTasks.length > 0) {
+    console.log(`🚀 [AUTO-DRIVER] Синхронизация Git после завершения ${completedTasks.join(', ')}...`);
+    cmdCommit(`docs(kanban): auto-complete tasks ${completedTasks.join(', ')}`);
+  }
+
   console.log('=========================================');
-  return { messagesCount: messages.length, spawned };
+  return { messagesCount: messages.length, completedTasks, spawned };
+}
+
+export function runWatchMode(intervalSeconds = 15) {
+  console.log(`👀 [AUTO-DRIVER WATCH] Запущен фоновый драйвер (интервал ${intervalSeconds}с)...`);
+  console.log('Нажмите Ctrl+C для завершения.');
+
+  runCycle();
+  setInterval(() => {
+    runCycle();
+  }, intervalSeconds * 1000);
 }
 
 function main() {
@@ -216,6 +240,13 @@ function main() {
     const mem = getWorkerMemoryGiB();
     const active = getActiveWorkerCount();
     console.log(`Status: Active workers = ${active}/${MAX_CONCURRENT_WORKERS}, RAM = ${mem} GiB`);
+    return;
+  }
+
+  if (args.includes('--watch') || args.includes('--daemon')) {
+    const watchIdx = args.indexOf('--watch') !== -1 ? args.indexOf('--watch') : args.indexOf('--daemon');
+    const sec = parseInt(args[watchIdx + 1], 10) || 15;
+    runWatchMode(sec);
     return;
   }
 

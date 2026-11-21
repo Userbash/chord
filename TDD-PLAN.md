@@ -513,6 +513,8 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
 | `tests/unit/smart-typecheck-lib-simplify-06.test.mjs` | `scripts/smart-typecheck.mjs` | `LIB-SIMPLIFY-06` |
 | `tests/unit/distribution-packaging-r4-08.test.mjs` | `scripts/package-dist.mjs` | `package-dist` |
+| `tests/unit/store-metadata-r4-09.test.mjs` | `scripts/lint-store-metadata.mjs` | `store-metadata` |
+| `tests/unit/automation-zero-token-scripts.test.mjs` | `scripts/git-sync.mjs` | `git-sync` |
 
 ## 9. Risks and Limitations
 
