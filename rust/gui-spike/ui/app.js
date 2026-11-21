@@ -5979,7 +5979,7 @@ function boot() {
     openSelfProfileStatusPopover();
   });
   const cleanupSpikeBenchmarkArtifacts = () => {
-    if (!isLiveSession() || Boolean((/** @type {any} */ (globalThis)).__SPIKE_AUTH_DISABLED__) || (/** @type {any} */ (globalThis).__QA__)) return;
+    if (!isLiveSession() || (/** @type {any} */ (globalThis).__QA__)) return;
     // В живом режиме приложения скрываем синтетические кнопки спайк-бенчмарка
     // ("Чат 100k", "Эмодзи-пикер", "Участники 24k", дубликат "Настройки" в рейле серверов),
     // метрики бенчмарка в верхней полосе и очищаем тестовые списки (100k фейковых сообщений и 24k фейковых пользователей).

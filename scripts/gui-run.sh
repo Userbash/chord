@@ -17,7 +17,7 @@ BIN_DEBUG="$PROJECT_ROOT/rust/gui-spike/target/debug/chord-client"
 
 export DISPLAY="${DISPLAY:-:0}"
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-1}"
-export SPIKE_AUTH_DISABLED="${SPIKE_AUTH_DISABLED:-1}"
+export SPIKE_AUTH_DISABLED="${SPIKE_AUTH_DISABLED:-0}"
 
 function get_pid() {
   if [ -f "$PID_FILE" ]; then
