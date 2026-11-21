@@ -1,7 +1,7 @@
-# Манифест Flatpak для нативного клиента Discord GPUI (TASK-962)
-# Оракул RE: /home/user/clean-room-oracle/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, ScreenCast)
-# Оракул RE: /home/user/clean-room-oracle/main-arch.md (@143136, FLATPAK_ID runtime environment)
-# Оракул Keyring: rust/crates/discord-platform/src/keyring.rs (org.freedesktop.secrets / Secret portal)
+# Flatpak manifest for the native Discord GPUI client (TASK-962)
+# RE Oracle: /home/user/clean-room-oracle/native-re.md (§2.1–2.2, $XDG_RUNTIME_DIR/pipewire-0, ScreenCast)
+# RE Oracle: /home/user/clean-room-oracle/main-arch.md (@143136, FLATPAK_ID runtime environment)
+# Keyring Oracle: rust/crates/chord-platform/src/keyring.rs (org.freedesktop.secrets / Secret portal)
 app-id: com.discord_lab.DiscordGpui
 runtime: org.freedesktop.Platform
 runtime-version: "23.08"
@@ -10,30 +10,30 @@ command: discord-gpui
 separate-locales: false
 
 finish-args:
-  # Графический стек: нативный Wayland (основной) + безопасный резервный X11 (только при отсутствии Wayland)
+  # Display stack: native Wayland (primary) + safe X11 fallback (only when Wayland is absent)
   - --socket=wayland
   - --socket=fallback-x11
-  # Разделяемая память IPC для X11 MIT-SHM fallback (XShmGetImage)
+  # Shared memory IPC for X11 MIT-SHM fallback (XShmGetImage)
   - --share=ipc
-  # Аппаратное ускорение GPU (WGPU Vulkan / OpenGL 120 FPS + VA-API) без полного доступа ко всем устройствам
+  # GPU hardware acceleration (WGPU Vulkan / OpenGL 120 FPS + VA-API) without full device access
   - --device=dri
-  # Сетевой стек: Discord Gateway (WSS), REST API v9 (HTTPS) и WebRTC медиа-транспорт (UDP/SRTP/DAVE MLS)
+  # Network stack: Discord Gateway (WSS), REST API v9 (HTTPS), and WebRTC media transport (UDP/SRTP/DAVE MLS)
   - --share=network
-  # Низколатентный захват экрана (DMA-BUF NV12) и аудиомаршрутизация через сокет PipeWire
+  # Low-latency screen capture (DMA-BUF NV12) and audio routing via PipeWire socket
   - --filesystem=xdg-run/pipewire-0
-  # Совместимость аудиовывода через PipeWire-Pulse / PulseAudio мост
+  # Audio output compatibility via PipeWire-Pulse / PulseAudio bridge
   - --socket=pulseaudio
-  # Хранение сессионного токена в системном брелоке через Secret Service API и XDG Secret Portal
+  # Session token storage in system keyring via Secret Service API and XDG Secret Portal
   - --talk-name=org.freedesktop.secrets
-  # Интеграция с XDG Desktop Portal (ScreenCast, Secret, FileChooser, Settings)
+  # Integration with XDG Desktop Portal (ScreenCast, Secret, FileChooser, Settings)
   - --talk-name=org.freedesktop.portal.Desktop
-  # Системные уведомления рабочего стола
+  # Desktop system notifications
   - --talk-name=org.freedesktop.Notifications
-  # Иконка системного трея по протоколу StatusNotifierItem (SNI / AppIndicator)
+  # System tray icon via StatusNotifierItem (SNI / AppIndicator) protocol
   - --talk-name=org.kde.StatusNotifierWatcher
-  # Экспорт дерева доступности AT-SPI (WCAG 2.2 AA / Screen Reader)
+  # AT-SPI accessibility tree export (WCAG 2.2 AA / Screen Reader)
   - --talk-name=org.a11y.Bus
-  # Структурированное логирование по умолчанию (с автоматическим маскированием токенов mfa.[REDACTED])
+  # Structured logging by default (with automatic masking of mfa.[REDACTED] tokens)
   - --env=RUST_LOG=info
 
 modules:
@@ -46,6 +46,57 @@ modules:
       - install -Dm644 LICENSE-APACHE /app/share/licenses/com.discord_lab.DiscordGpui/LICENSE-APACHE
       - install -Dm644 BETA-TESTING-GUIDE.md /app/share/doc/discord-gpui/BETA-TESTING-GUIDE.md
       - install -Dm644 RELEASE-NOTES-v1.0.0-beta.1.md /app/share/doc/discord-gpui/RELEASE-NOTES-v1.0.0-beta.1.md
+      - |
+        install -d /app/share/applications /app/share/icons/hicolor/scalable/apps /app/share/mime/packages /app/share/metainfo
+        cat <<'EOF' > /app/share/metainfo/com.discord_lab.DiscordGpui.metainfo.xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <component type="desktop-application">
+          <id>com.discord_lab.DiscordGpui</id>
+          <metadata_license>CC0-1.0</metadata_license>
+          <project_license>MIT OR Apache-2.0</project_license>
+          <name>Discord GPUI</name>
+          <summary>Native Rust GPUI Discord client</summary>
+          <launchable type="desktop-id">com.discord_lab.DiscordGpui.desktop</launchable>
+        </component>
+        EOF
+        cat <<'EOF' > /app/share/applications/com.discord_lab.DiscordGpui.desktop
+        [Desktop Entry]
+        Version=1.0
+        Type=Application
+        Name=Discord GPUI
+        GenericName=Internet Messenger
+        Comment=Native Rust GPUI Discord client for Linux (Wayland/X11, PipeWire, WGPU 120 FPS)
+        Exec=discord-gpui %u
+        Icon=com.discord_lab.DiscordGpui
+        Terminal=false
+        Categories=Network;InstantMessaging;Chat;
+        MimeType=x-scheme-handler/discord;x-scheme-handler/disclip;application/x-discord-gpui-invite;
+        StartupWMClass=discord-gpui
+        StartupNotify=true
+        EOF
+        cat <<'EOF' > /app/share/icons/hicolor/scalable/apps/com.discord_lab.DiscordGpui.svg
+        <?xml version="1.0" encoding="UTF-8"?>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+          <rect width="256" height="256" rx="56" fill="#5865F2"/>
+          <circle cx="96" cy="136" r="20" fill="#FFFFFF"/>
+          <circle cx="160" cy="136" r="20" fill="#FFFFFF"/>
+        </svg>
+        EOF
+        cat <<'EOF' > /app/share/mime/packages/com.discord_lab.DiscordGpui.xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+          <mime-type type="x-scheme-handler/discord">
+            <comment>Discord URI Scheme (discord://)</comment>
+          </mime-type>
+          <mime-type type="x-scheme-handler/disclip">
+            <comment>Discord Clip URI Scheme (disclip://)</comment>
+          </mime-type>
+          <mime-type type="application/x-discord-gpui-invite">
+            <comment>Discord GPUI Server Invite</comment>
+            <glob pattern="*.discord-invite"/>
+          </mime-type>
+        </mime-info>
+        EOF
     sources:
       - type: archive
         path: ../../rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz
@@ -59,4 +110,4 @@ modules:
           - x86_64
       - type: file
         path: ../../rust/dist/sbom.spdx.json
-        sha256: acb867f70bd6b4891a274388677363fbb9a521213234bbf384c14f9806de2921
+        sha256: 4663c83dd8fc2b39477b4108b27a3097617fcc6c918b33b5cdd9bc3c9c08548f

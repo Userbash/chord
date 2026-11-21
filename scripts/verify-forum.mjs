@@ -709,7 +709,7 @@ export function runCli(argv) {
   const gatewaySchemaMdPath = resolve(ROOT, "docs/re/gateway-schema.md");
   const frontendD03Path = resolve(ROOT, "docs/re/frontend-d03.json");
   const spikeForumRsPath = resolve(ROOT, "rust/gui-spike/src/forum.rs");
-  const rustModulePath = resolve(ROOT, "rust/discord-gpui/src/channels/forum_view.rs");
+  const rustModulePath = resolve(ROOT, "rust/chord-gpui/src/channels/forum_view.rs");
 
   for (const reqPath of [
     oraclePath,
@@ -758,7 +758,7 @@ export function runCli(argv) {
       "",
       `- **Статус**: \`${passed ? "PASS" : "FAIL"}\``,
       `- **Мутационный гейт**: \`${mutations.killed}/${mutations.total}\``,
-      `- **MD5 модуля \`rust/discord-gpui/src/channels/forum_view.rs\`**: \`${rustMd5}\``,
+      `- **MD5 модуля \`rust/chord-gpui/src/channels/forum_view.rs\`**: \`${rustMd5}\``,
       "",
     ].join("\n");
     writeFileSync(outMd, md, "utf8");

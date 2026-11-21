@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты интерактивного GPUI-плеера голосовых сообщений `VoiceMessagePlayer` (TASK-1003B):
- * - SUB-1003B-0: Статический и компиляционный контракт `rust/discord-gpui/src/chat/voice_player.rs`
+ * - SUB-1003B-0: Статический и компиляционный контракт `rust/chord-gpui/src/chat/voice_player.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`
  *   < 50 строк на функцию и < 800 строк на модуль, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -50,7 +50,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const VOICE_PLAYER_REL_PATH = "rust/discord-gpui/src/chat/voice_player.rs";
+const VOICE_PLAYER_REL_PATH = "rust/chord-gpui/src/chat/voice_player.rs";
 const VOICE_PLAYER_PATH = join(ROOT, VOICE_PLAYER_REL_PATH);
 
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");

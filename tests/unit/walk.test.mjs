@@ -5,7 +5,7 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { chmod, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { clickNavItemExpression, resolveAdapter } from "../../src/core/ui/adapters.mjs";
 import { runWalk } from "../../src/core/ui/engine.mjs";
@@ -362,9 +362,9 @@ describe("walk: движок fixture", () => {
 
   it("ошибка записи журнала → код 2", async (t) => {
     const r = await walk(t, {
+      opts: { fresh: true },
       prepare: async ({ outPath }) => {
-        await writeFile(outPath, "");
-        await chmod(outPath, 0o444);
+        await mkdir(outPath);
       },
     });
     assert.equal(r.result.code, 2);

@@ -1,7 +1,7 @@
 # ECC 2.0 Control Plane, Testing Pyramid & Delivery Pipeline Architecture
 
 > **Document Status:** `Living Architecture & Process Specification (v2.0)`  
-> **Project:** `discord-lab` (`discord-gpui` native client + BFF & Core Rust)  
+> **Project:** `chord` (`discord-gpui` native client + BFF & Core Rust)  
 > **Orchestrator:** ECC 2.0 Control Plane (`scripts/ecc`) + Orca Orchestration Engine  
 > **Updated:** November 2026  
 
@@ -43,11 +43,11 @@ Each department has an isolated write-scope to eliminate merge conflicts during 
 
 | Department / Role | Profile (`ecc2.toml`) | Write-Scope | T0 Verification |
 | :--- | :--- | :--- | :--- |
-| **G1 Backend** | `g1_backend` | `rust/crates/discord-{core,codec,media,store,i18n}`, `rust/gui-spike/src/*.rs`, `rust/discord-gpui/src/{net,state,storage,audio}` | `cargo test -p discord-core`, `--test <slice>_contract` |
-| **G2 Frontend** | `g2_frontend` | `rust/gui-spike/ui/**/*.{js,css,html}`, `rust/discord-gpui/src/ui/**` | `node scripts/test-impact.mjs --run`, `npm run typecheck` |
+| **G1 Backend** | `g1_backend` | `rust/crates/chord-{core,codec,media,store,i18n}`, `rust/gui-spike/src/*.rs`, `rust/chord-gpui/src/{net,state,storage,audio}` | `cargo test -p discord-core`, `--test <slice>_contract` |
+| **G2 Frontend** | `g2_frontend` | `rust/gui-spike/ui/**/*.{js,css,html}`, `rust/chord-gpui/src/ui/**` | `node scripts/test-impact.mjs --run`, `npm run typecheck` |
 | **G3 Design** | `g3_design` | `docs/specs/*.md`, `docs/specs/wireframes/`, design tokens | `tests/meta/design-breakpoints.test.mjs` |
-| **G4 QA** | `g4_qa` | `rust/discord-gpui/tests/`, `tests/{unit,smoke,e2e,meta}/`, `scripts/test-impact.mjs` | `cargo test --test visual_regression_contract`, `gpui_e2e_contract` |
-| **G5 Voice / Platform** | `g5_voice_platform` | `rust/crates/discord-voice/**`, `rust/crates/discord-platform/**`, `voice_devices.rs`, DAVE MLS v1 | `cargo test -p discord-voice -p discord-platform` |
+| **G4 QA** | `g4_qa` | `rust/chord-gpui/tests/`, `tests/{unit,smoke,e2e,meta}/`, `scripts/test-impact.mjs` | `cargo test --test visual_regression_contract`, `gpui_e2e_contract` |
+| **G5 Voice / Platform** | `g5_voice_platform` | `rust/crates/chord-voice/**`, `rust/crates/chord-platform/**`, `voice_devices.rs`, DAVE MLS v1 | `cargo test -p discord-voice -p discord-platform` |
 | **G6 Tech Writer** | `g6_tech_writer` | `docs/`, `waves/RW-*/PARITY/`, `RELEASE-NOTES-*.md` | `tests/meta/docs-sync.test.mjs` |
 | **G7 RE / REA** | `g7_re_rea` | Read-only `docs/re/`; writes to `waves/RW-*/RE-AUDIT/` | MCP `rea` and `understand` |
 | **DevOps** | `devops` | `scripts/{ci.sh,gate.mjs,release.sh}`, `.gate/`, CI configurations | `bash scripts/ci.sh --dry-run` |
@@ -91,9 +91,9 @@ T0: Targeted    (Targeted test impact: node scripts/test-impact.mjs --run, <500m
   * `cargo clippy --workspace --all-targets --all-features -- -D warnings`.
   * `node scripts/gate.mjs --scope worker`. Runtime: `< 30s`.
 * **T2 (Integration & E2E Gate):**
-  * `cargo run --manifest-path rust/discord-gpui/Cargo.toml -- --headless-smoke` (validates cold boot, SQLite WAL, 120 FPS frame budget, VmRSS < 60 MB).
-  * `cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_e2e_contract` (50 end-to-end user journeys offline).
-  * `cargo test --manifest-path rust/discord-gpui/Cargo.toml --test visual_regression_contract test_sub_904` (SSIM > 0.995, dynamic region masking).
+  * `cargo run --manifest-path rust/chord-gpui/Cargo.toml -- --headless-smoke` (validates cold boot, SQLite WAL, 120 FPS frame budget, VmRSS < 60 MB).
+  * `cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_e2e_contract` (50 end-to-end user journeys offline).
+  * `cargo test --manifest-path rust/chord-gpui/Cargo.toml --test visual_regression_contract test_sub_904` (SSIM > 0.995, dynamic region masking).
 * **T3 (Release & Mutation Gate):**
   * Mutation testing threshold: **5 out of 5 intentional mutants must be killed by tests**.
   * Memory sanitizers: compilation with AddressSanitizer and ThreadSanitizer to detect races in async multithreaded runtime.

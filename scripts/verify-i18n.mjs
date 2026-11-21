@@ -10,10 +10,10 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
-const DEFAULT_RUST_LOCALE_PATH = resolve(ROOT, "rust", "crates", "discord-i18n", "src", "locale.rs");
-const DEFAULT_RUST_A11Y_PATH = resolve(ROOT, "rust", "discord-gpui", "src", "a11y", "mod.rs");
+const DEFAULT_RUST_LOCALE_PATH = resolve(ROOT, "rust", "crates", "chord-i18n", "src", "locale.rs");
+const DEFAULT_RUST_A11Y_PATH = resolve(ROOT, "rust", "chord-gpui", "src", "a11y", "mod.rs");
 const DEFAULT_I18N_DEEP_PATH = resolve(ROOT, "docs", "re", "i18n-deep.json");
-const DEFAULT_CLDR_ORACLE_PATH = resolve(ROOT, "rust", "crates", "discord-i18n", "tests", "data", "cldr-oracle.json");
+const DEFAULT_CLDR_ORACLE_PATH = resolve(ROOT, "rust", "crates", "chord-i18n", "tests", "data", "cldr-oracle.json");
 const DEFAULT_RU_CATALOG_PATH = "/home/sanya/re-deep/ru-catalog.json";
 const DEFAULT_EN_CATALOG_PATH = "/home/sanya/re-deep/en-catalog.json";
 

@@ -1,4 +1,4 @@
-# discord-lab: session checkpoint (compact context)
+# Chord: session checkpoint (compact context)
 
 Entry point for new dialogues. Read first; refer to detailed files as needed.
 Updated: **2026-11-12** (Wave **RW-47** under active development; Kanban board at **85.00%** completion).
@@ -7,12 +7,12 @@ Updated: **2026-11-12** (Wave **RW-47** under active development; Kanban board a
 
 ## 1. Current Project Status (2026-11-12)
 
-- **Native Rust GPUI Client (`discord-gpui`)**:
-  - Full migration from WebKit/Tauri prototype to direct GPU rendering via WGPU at 120 FPS (`rust/discord-gpui/`).
-  - Release binary: [`rust/dist/discord-gpui`](rust/dist/discord-gpui) — **42 MB** (stripped ELF, Thin LTO, opt-level 3).
+- **Native Rust GPUI Client (`chord-gpui`)**:
+  - Full migration from WebKit/Tauri prototype to direct GPU rendering via WGPU at 120 FPS (`rust/chord-gpui/`).
+  - Release binary: [`rust/dist/chord`](rust/dist/chord) (and legacy `rust/dist/discord-gpui`) — **42 MB** (stripped ELF, Thin LTO, opt-level 3).
   - SHA-256 checksum in [`rust/dist/SHA256SUMS`](rust/dist/SHA256SUMS): `d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e`.
   - Idle memory consumption: **11.26–18.00 MB VmRSS** (strict budget limit `< 60 MB`), 120 FPS frame budget maintained.
-  - Deterministic E2E test harness: [`rust/discord-gpui/tests/gpui_e2e_contract.rs`](rust/discord-gpui/tests/gpui_e2e_contract.rs) — 50 end-to-end user journeys (100% pass in 0.08s).
+  - Deterministic E2E test harness: [`rust/chord-gpui/tests/gpui_e2e_contract.rs`](rust/chord-gpui/tests/gpui_e2e_contract.rs) — 50 end-to-end user journeys (100% pass in 0.08s).
 
 - **Active Wave: Wave RW-47 (Sprints 1–5 & Deep Parity Integration)**:
   - Active orchestration run: `run_a9411d4ae3c4` managed via Orca Orchestration.
@@ -44,8 +44,8 @@ Updated: **2026-11-12** (Wave **RW-47** under active development; Kanban board a
 ## 2. Architecture and Directory Structure
 
 - **Repository Layout:**
-  - `rust/crates/`: core modules (`discord-core`, `discord-voice`, `discord-codec`, `discord-media`, `discord-platform`, `discord-store`, `discord-i18n`).
-  - `rust/discord-gpui/`: native client UI on GPU WGPU 120 FPS.
+  - `rust/crates/`: core modules (`chord-app`, `chord-core`, `chord-voice`, `chord-codec`, `chord-media`, `chord-platform`, `chord-store`, `chord-i18n`, `chord-ui`, `chord-json`, `chord-perf`, `chord-updater`, `chord-conformance`).
+  - `rust/chord-gpui/`: native client UI on GPU WGPU 120 FPS.
   - `packaging/`: distribution packaging manifests (`windows/wix.xml`, `macos/build-dmg.sh`, Linux deb/rpm/AppImage).
   - `docs/articles/`: technical and public articles about the project.
   - `docs/archive/wave-artifacts/`: archive of intermediate sprint artifacts (early `CONTRACTS`, `PM`, `QA`, `QUALITY`).

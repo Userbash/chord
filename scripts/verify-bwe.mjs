@@ -754,7 +754,7 @@ function renderMarkdownReport(data) {
     `- **Максимальное снижение за один шаг**: \`${(data.sim.maxSingleStepDropRatio * 100).toFixed(2)}%\` (порог \`<= 15.00%\`)`,
     `- **Сброс соединения (` + "`connectionDropped`" + `)**: \`${data.sim.connectionDropped}\` (\`reconnectCount = ${data.sim.reconnectCount}\`)`,
     `- **SSRC из оракула ` + "`rtc-frames.jsonl`" + `**: video=\`${data.parity.videoSsrc}\`, rtx=\`${data.parity.rtxSsrc}\`, AV1 PT=\`${data.parity.av1PayloadType}\``,
-    `- **MD5 модуля ` + "`rust/discord-voice/src/congestion.rs`" + `**: \`${data.rustMd5}\``,
+    `- **MD5 модуля ` + "`rust/chord-voice/src/congestion.rs`" + `**: \`${data.rustMd5}\``,
     "",
   ].join("\n");
 }
@@ -796,7 +796,7 @@ export function runCli(argv) {
   const nativeRePath = resolve(ROOT, "docs/re/native-re.md");
   const voiceDeepPath = resolve(ROOT, "docs/re/voice-deep.md");
   const rtcFramesPath = resolve(ROOT, "fixtures/voice/rtc-frames.jsonl");
-  const rustModulePath = resolve(ROOT, "rust/discord-voice/src/congestion.rs");
+  const rustModulePath = resolve(ROOT, "rust/chord-voice/src/congestion.rs");
 
   for (const requiredPath of [oraclePath, nativeRePath, voiceDeepPath, rtcFramesPath, rustModulePath]) {
     if (!existsSync(requiredPath)) {

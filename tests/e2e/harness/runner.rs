@@ -17,6 +17,8 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
+use tokio::io::AsyncReadExt;
+
 pub use compositor::{CompositorConfig, CompositorSession};
 pub use mock_gateway::{
     DaemonMetrics, Http2ClientResponse, MockGatewayConfig, MockGatewayDaemon, MockWsClient,
@@ -313,23 +315,57 @@ impl E2eRunner {
         }
         let secrets = collect_secret_values(extra_env);
         let run_start = Instant::now();
-        let mut cmd = self.build_binary_command(bin_path, args, extra_env);
+        let std_cmd = self.build_binary_command(bin_path, args, extra_env);
+        let mut cmd = tokio::process::Command::from(std_cmd);
+        cmd.kill_on_drop(true);
         let timeout_dur = self.config.command_timeout;
-        let output = tokio::time::timeout(
-            timeout_dur,
-            tokio::task::spawn_blocking(move || cmd.output()),
-        )
-        .await
-        .map_err(|_| HarnessError::Timeout("Превышен таймаут выполнения бинарника".into()))?
-        .map_err(|e| HarnessError::Process(format!("join error: {e}")))?
-        .map_err(|e| HarnessError::Io(format!("spawn error: {e}")))?;
+        let mut child = cmd
+            .spawn()
+            .map_err(|e| HarnessError::Io(format!("spawn error: {e}")))?;
+        let mut stdout_pipe = child.stdout.take();
+        let mut stderr_pipe = child.stderr.take();
 
-        let stdout = mask_secrets(&String::from_utf8_lossy(&output.stdout), &secrets);
-        let stderr = mask_secrets(&String::from_utf8_lossy(&output.stderr), &secrets);
+        let wait_with_pipes = async {
+            let stdout_fut = async {
+                let mut buf = Vec::new();
+                if let Some(mut out) = stdout_pipe.take() {
+                    out.read_to_end(&mut buf).await?;
+                }
+                Ok::<Vec<u8>, std::io::Error>(buf)
+            };
+            let stderr_fut = async {
+                let mut buf = Vec::new();
+                if let Some(mut err) = stderr_pipe.take() {
+                    err.read_to_end(&mut buf).await?;
+                }
+                Ok::<Vec<u8>, std::io::Error>(buf)
+            };
+            tokio::try_join!(stdout_fut, stderr_fut, child.wait())
+        };
+
+        let (stdout_bytes, stderr_bytes, status) =
+            match tokio::time::timeout(timeout_dur, wait_with_pipes).await {
+                Ok(Ok(res)) => res,
+                Ok(Err(e)) => {
+                    let _ = child.kill().await;
+                    let _ = child.wait().await;
+                    return Err(HarnessError::Io(format!("io error: {e}")));
+                }
+                Err(_) => {
+                    let _ = child.kill().await;
+                    let _ = child.wait().await;
+                    return Err(HarnessError::Timeout(
+                        "Превышен таймаут выполнения бинарника".into(),
+                    ));
+                }
+            };
+
+        let stdout = mask_secrets(&String::from_utf8_lossy(&stdout_bytes), &secrets);
+        let stderr = mask_secrets(&String::from_utf8_lossy(&stderr_bytes), &secrets);
         let panic_report = extract_panic_report(&stderr);
 
         Ok(E2eRunResult {
-            exit_code: output.status.code(),
+            exit_code: status.code(),
             stdout,
             stderr,
             duration: run_start.elapsed(),

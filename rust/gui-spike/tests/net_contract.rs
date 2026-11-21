@@ -2,7 +2,7 @@
 //! «dispatch → UI» (`CONTRACTS/dispatch.md`).
 //!
 //! Оракулы диспатчей — снятые кадры `fixtures/gateway/by-type/*.json` и роутер
-//! ядра (`discord_core::route_dispatch`), а не текущая реализация адаптера:
+//! ядра (`chord_core::route_dispatch`), а не текущая реализация адаптера:
 //! `d` сравнивается с кадром поле-в-поле, секреты READY проверяются рекурсивно.
 //! Сети/окна/живого Discord здесь нет: драйвер — `FakeGateway`, эмиттер — fake
 //! с `Condvar`-ожиданием (порядок событий проверяется без sleep-гонок).
@@ -10,9 +10,9 @@
 use std::sync::{Arc, Condvar, Mutex};
 use std::time::{Duration, Instant};
 
-use discord_core::codec::etf::EtfValue;
-use discord_core::dispatch::{route_dispatch, DispatchEvent, DispatchKind};
-use discord_core::gateway::supervisor::{StopReason, SupervisorEvent};
+use chord_core::codec::etf::EtfValue;
+use chord_core::dispatch::{route_dispatch, DispatchEvent, DispatchKind};
+use chord_core::gateway::supervisor::{StopReason, SupervisorEvent};
 use chord_client::net::{
     etf_to_json, map_dispatch, map_dispatch_event, map_supervisor_event, CoreGatewayDriver,
     DispatchChannel, DispatchEmitter, DispatchError, DispatchPayload, DispatchStats, FakeGateway,
@@ -608,7 +608,7 @@ fn reaction_kinds_use_wire_name_and_forward_data_as_is() {
 
 #[test]
 fn forwarded_dispatches_cover_every_core_kind_and_the_raw_reaction_remove() {
-    use discord_core::dispatch::ExtendedDispatchKind;
+    use chord_core::dispatch::ExtendedDispatchKind;
 
     // Оракул — `DispatchKind::ALL` ядра и `ExtendedDispatchKind::ALL` из PR-32, а не текущий
     // литерал адаптера: каждый канонический тип обязан присутствовать, лишними могут быть только явно
@@ -958,7 +958,7 @@ fn core_supervisor_config_wires_lifecycle_and_dispatch() {
     );
     assert_eq!(
         config.gateway,
-        discord_core::ws::GatewayUrl::default(),
+        chord_core::ws::GatewayUrl::default(),
         "боевой адрес шлюза"
     );
 
@@ -966,7 +966,7 @@ fn core_supervisor_config_wires_lifecycle_and_dispatch() {
     emit_lifecycle(SupervisorEvent::Ready);
 
     let event = DispatchEvent {
-        kind: Some(discord_core::dispatch::DispatchKind::PresenceUpdate),
+        kind: Some(chord_core::dispatch::DispatchKind::PresenceUpdate),
         name: "PRESENCE_UPDATE".to_string(),
         seq: Some(7),
         data: EtfValue::Map(vec![(
@@ -986,7 +986,7 @@ fn core_supervisor_config_wires_lifecycle_and_dispatch() {
 
 #[test]
 fn forwarded_dispatches_and_map_dispatch_event_cover_eight_pr32_events() {
-    use discord_core::dispatch::ExtendedDispatchKind;
+    use chord_core::dispatch::ExtendedDispatchKind;
 
     const PR32_EVENTS: [&str; 8] = [
         "MESSAGE_DELETE",

@@ -35,7 +35,7 @@ Prior to opening PR `testing -> beta`, the release engineer (`devops`) and `Lead
 | 2 | End-to-end `T1/T2` pipeline (`scripts/ci.sh`) | `bash scripts/ci.sh` | Exit code `0` (`fmt`, `clippy -D warnings`, workspace tests) |
 | 3 | Release gate `T3/T4` without skips | `DISCORD_LAB_KEYRING_LIVE=1 node scripts/gate.mjs --scope release` | `passed`, `skipped = 0` (`failOnSkips: true`) |
 | 4 | Headless Smoke of native client `discord-gpui` | `./rust/dist/discord-gpui --headless-smoke` | `GPUI_SMOKE_OK`, `"status":"ok"`, `"sqlite_wal_ok":true`, `vmrss_mb < 60.0` |
-| 5 | 4-Compositor Linux Matrix (`Wayland`/`X11`) | `cargo test --manifest-path rust/discord-gpui/Cargo.toml --test manual_qa_suite_contract test_desktop_matrix` | `100% PASS` (GNOME Mutter, KDE KWin, Hyprland/wlroots, X11 SHM) |
+| 5 | 4-Compositor Linux Matrix (`Wayland`/`X11`) | `cargo test --manifest-path rust/chord-gpui/Cargo.toml --test manual_qa_suite_contract test_desktop_matrix` | `100% PASS` (GNOME Mutter, KDE KWin, Hyprland/wlroots, X11 SHM) |
 | 6 | Cryptographic artifact integrity and SBOM | `(cd rust/dist && sha256sum -c SHA256SUMS)` | All 4 artifacts: `OK` |
 | 7 | Build quality report `BUILD-005` | `waves/RW-41/QUALITY/QA-BUILD-005.md` | Status `QA PASSED`, `P0 = 0`, `P1 = 0` |
 
@@ -172,7 +172,7 @@ fi
 
 # Option B: Deterministic offline rebuild from reverted beta revision (zero network)
 CARGO_TARGET_DIR="./rust/target" \
-    cargo build --offline --release --manifest-path rust/discord-gpui/Cargo.toml
+    cargo build --offline --release --manifest-path rust/chord-gpui/Cargo.toml
 install -m 0755 rust/target/release/discord-gpui rust/dist/discord-gpui
 bash scripts/release.sh
 
@@ -205,7 +205,7 @@ During emergency binary rollbacks from a new build (`v1.0.0-beta.1` / `BUILD-005
 ### 4.1. SQLite Architecture in `discord-lab`
 Two isolated SQLite modules operate in the application (system library `libsqlite3` 3.54):
 
-1. **Storage Core `discord-store` (`rust/crates/discord-store/src/lib.rs`):**
+1. **Storage Core `discord-store` (`rust/crates/chord-store/src/lib.rs`):**
    * **Journal Mode:** `PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; busy_timeout = 5000`.
    * **Schema Version:** `PRAGMA user_version = 1` (`pub const SCHEMA_VERSION: u32 = 1`).
    * **Tables and Indexes (`SQL_SCHEMA_V1`):**
@@ -213,7 +213,7 @@ Two isolated SQLite modules operate in the application (system library `libsqlit
      * `messages (id TEXT PRIMARY KEY NOT NULL, channel_id TEXT NOT NULL REFERENCES channels(id) ON DELETE CASCADE, author_id TEXT NOT NULL, content TEXT NOT NULL, timestamp INTEGER NOT NULL, edited_timestamp INTEGER, flags INTEGER NOT NULL, deleted INTEGER NOT NULL DEFAULT 0)`
      * `kv (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)`
      * Indexes: `idx_messages_channel_timestamp (channel_id, timestamp DESC)` and `idx_messages_channel_id (channel_id, id DESC)`.
-2. **Native Client DB `discord-gpui::storage::LocalDatabase` (`rust/discord-gpui/src/storage/mod.rs`):**
+2. **Native Client DB `discord-gpui::storage::LocalDatabase` (`rust/chord-gpui/src/storage/mod.rs`):**
    * **Journal Mode:** `PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;`.
    * **Tables (`init_schema`):**
      * `guilds (id, name, icon, owner_id, unread_count, mention_count)`

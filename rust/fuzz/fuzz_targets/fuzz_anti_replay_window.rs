@@ -3,7 +3,7 @@
 //! со сверкой каждого шага против эталонной математической модели на `HashSet<u64>`.
 
 use arbitrary::{Arbitrary, Result as ArbResult, Unstructured};
-use discord_voice::dave_v1::{
+use chord_voice::dave_v1::{
     AntiReplayWindow, DAVE_REPLAY_WINDOW_SIZE, ReplayError, dave_compute_wrapped_big_nonce,
     dave_compute_wrapped_generation,
 };

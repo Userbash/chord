@@ -6,16 +6,25 @@
 //! Спека: `docs/re/backend-ipc.md` (168 корневых каналов; мост DiscordNative — 35 записей).
 //! План: P6 (UI/интеграция); тесты: T-SYS-*.
 
+pub mod audio_engine;
 pub mod autostart;
 pub mod dbus;
 pub mod deep_link;
+pub mod gamepad_driver;
+pub mod handheld;
 pub mod keyring;
+pub mod macos;
+pub mod notification_defaults;
 pub mod notifications;
 pub mod power;
+pub mod privacy_guardrails;
 pub mod rpc_ipc;
 pub mod screencast;
 pub mod spellcheck;
+pub mod spotify_mpris;
 pub mod tray;
+pub mod unread_badge;
+pub mod windows;
 
 #[allow(unsafe_code)]
 mod ffi_hunspell;

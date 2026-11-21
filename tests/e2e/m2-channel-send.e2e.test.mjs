@@ -59,7 +59,10 @@ function readRows(ui) {
 describe("M2-02: канал → send/edit/delete/reply (реальный index.html)", () => {
   it("история из MESSAGE_CREATE; send/reply/edit/delete несут реальные id", async (t) => {
     assert.equal(MESSAGES.length, 3, "оракул: в канале должно быть 3 сообщения MESSAGE_CREATE");
-    const ui = await openApp(t);
+    // These commands return Result<(), MessageError> in gui-spike/src/main.rs.
+    const ui = await openApp(t, { overrides: {
+      reply_message: { ok: null }, edit_message: { ok: null }, delete_message: { ok: null },
+    } });
     await openChannel(ui);
 
     // 1. Заголовок и строки — из payload, а не из статичной разметки.
@@ -129,14 +132,28 @@ describe("M2-02: канал → send/edit/delete/reply (реальный index.h
         assert.ok(!String(args.messageId).match(/^\d{1,3}$/), "edit_message: index вместо snowflake");
       },
     });
+    assert.deepEqual(await ui.consoleErrors(), [], "положительные reply/edit дали ошибку backend");
+    await ui.waitFor(
+      `document.querySelector(${JSON.stringify(`${firstRow} .text-body`)})?.textContent === "M2 fixture edited"`,
+      { label: "успешная правка отражена в строке" },
+    );
 
     // 5. Delete: два клика (confirm) → один delete_message с реальными id.
+    // Shorter edited content clamps scrollTop; its queued scroll event closes the toolbar.
+    // Let rendering finish before the synthetic hover selects the next message.
+    await ui.eval(
+      "new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))",
+    );
     const lastIndex = (await ui.count("#chat-list [data-channel-message]")) - 1;
     const lastRow = `#chat-list [data-channel-message][data-index="${lastIndex}"]`;
     const lastId = await ui.attr(lastRow, "data-message-id");
     await ui.hover(lastRow);
     await ui.waitFor(`document.querySelector('.msg-toolbar').getAttribute('data-open') === "true"`);
+    assert.equal(await ui.attr(".msg-toolbar", "data-for-index"), String(lastIndex));
     await ui.click('.msg-toolbar [data-command="delete"]');
+    await ui.waitFor(`document.querySelector('.msg-toolbar [data-command="delete"]').getAttribute('data-confirm') === "true"`, {
+      label: "подтверждение удаления выбранной строки",
+    });
     await ui.click('.msg-toolbar [data-command="delete"]');
     await ui.waitForCall("delete_message", {
       check: (args) => {
@@ -144,6 +161,12 @@ describe("M2-02: канал → send/edit/delete/reply (реальный index.h
         assert.equal(args.messageId, lastId, "delete_message: не id удаляемой строки");
       },
     });
+    await ui.waitFor(
+      `(() => { const row = document.querySelector(${JSON.stringify(`#chat-list [data-message-id="${lastId}"]`)});`
+        + " return !row || getComputedStyle(row).display === 'none'; })()",
+      { label: "удалённая строка скрыта после успеха" },
+    );
+    assert.deepEqual(await ui.consoleErrors(), [], "положительный delete дал ошибку backend");
 
     // 6. Ошибка отправки видима у самой строки (message-error), а не проглочена.
     await ui.setCommand("send_message", { err: { kind: "network" } });

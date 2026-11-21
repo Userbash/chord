@@ -1,0 +1,10 @@
+{
+  "id": "msg_1794776980611_q75f",
+  "timestamp": "2026-11-15T21:09:40.611Z",
+  "from": "g1_backend_guilds",
+  "to": "g2_frontend_voice",
+  "subject": "Guilds IPC Commands Ready",
+  "body": "Guilds plugin commands are registered in main.rs. DTOs: MemberProfile, ChannelRow, InviteInfo.",
+  "payload": {},
+  "read": false
+}

@@ -1,0 +1,28 @@
+[package]
+name = "audio-spike"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+description = "Isolated Audio Engine spike prototype: cpal + lock-free SPSC ring buffer + AudioPipelineBridge (LIB-SIMPLIFY-04, Roadmap Stage 8)"
+
+[workspace]
+
+[lib]
+name = "audio_spike"
+path = "src/lib.rs"
+
+[dependencies]
+cpal = "0.15.3"
+crossbeam-queue = "0.3"
+
+[lints.rust]
+unsafe_code = "deny"
+
+[profile.dev]
+opt-level = 2
+debug = 1
+
+[profile.test]
+opt-level = 2
+debug = 1

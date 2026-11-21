@@ -2,7 +2,7 @@
 //! Фаззинг RTP-заголовков, расширений RFC 5285 / RFC 8285 One-Byte (`0xBEDE`) и
 //! Two-Byte (`0x1000..=0x100F`), распаковки RTX (RFC 4588) и сборщика `VideoFrameAssembler`.
 
-use discord_voice::media::rtp::{
+use chord_voice::media::rtp::{
     RtpExtensionFormat, VideoFrameAssembler, encode_rtp_one_byte_extensions,
     encode_rtp_two_byte_extensions, parse_rtp, parse_rtp_extension_elements, restore_rtx_bytes,
 };

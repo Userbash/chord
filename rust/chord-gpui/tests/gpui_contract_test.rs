@@ -8,6 +8,8 @@ mod dispatch;
 mod media;
 #[path = "../src/net/mod.rs"]
 mod net;
+#[path = "../src/platform/mod.rs"]
+mod platform;
 #[path = "../src/state/mod.rs"]
 mod state;
 #[path = "../src/storage/mod.rs"]
@@ -1720,7 +1722,7 @@ fn test_channel_permissions_and_locked_status_contract() {
     assert!(!general.is_locked);
     assert_eq!(
         general.permissions_bitmask,
-        discord_core::permissions::ALL_PERMISSIONS
+        chord_core::permissions::ALL_PERMISSIONS
     );
 
     // ch-announcements имеет ограниченные права (is_locked = true, только VIEW_CHANNEL и READ_HISTORY)
@@ -1732,14 +1734,14 @@ fn test_channel_permissions_and_locked_status_contract() {
     assert!(announcements.is_locked);
     assert_ne!(
         announcements.permissions_bitmask,
-        discord_core::permissions::ALL_PERMISSIONS
+        chord_core::permissions::ALL_PERMISSIONS
     );
     assert_ne!(
-        announcements.permissions_bitmask & discord_core::permissions::VIEW_CHANNEL,
+        announcements.permissions_bitmask & chord_core::permissions::VIEW_CHANNEL,
         0
     );
     assert_eq!(
-        announcements.permissions_bitmask & discord_core::permissions::SEND_MESSAGES,
+        announcements.permissions_bitmask & chord_core::permissions::SEND_MESSAGES,
         0,
         "Обычный пользователь не может писать в канал анонсов"
     );
@@ -2428,7 +2430,7 @@ async fn test_voice_udp_streamer_lifecycle_contract() {
 
 #[test]
 fn test_screencast_portal_options_contract() {
-    use discord_platform::screencast::PortalSourceTypes;
+    use chord_platform::screencast::PortalSourceTypes;
 
     // 1. Проверка сборки опций XDG Desktop Portal
     let opts = ScreenCastManager::build_portal_options(PortalSourceTypes::MONITOR, true);
@@ -2496,7 +2498,7 @@ fn test_desktop_notification_formatting_contract() {
 
 #[test]
 fn test_system_tray_states_and_badge_contract() {
-    use discord_platform::tray::TrayIconState;
+    use chord_platform::tray::TrayIconState;
 
     // 1. Вычисление состояний иконки
     assert_eq!(
@@ -2535,7 +2537,7 @@ fn test_system_tray_states_and_badge_contract() {
 
 #[test]
 fn test_linux_system_tray_icon_controller_full_integration() {
-    use discord_platform::tray::{CloseDisposition, TrayIconState, TrayMenuAction};
+    use chord_platform::tray::{CloseDisposition, TrayIconState, TrayMenuAction};
 
     let mut tray = LinuxSystemTrayIconController::default_linux();
 
@@ -2605,7 +2607,7 @@ fn test_linux_system_tray_icon_controller_full_integration() {
 
 #[test]
 fn test_local_rpc_ipc_frame_contract() {
-    use discord_platform::rpc_ipc::RpcOpCode;
+    use chord_platform::rpc_ipc::RpcOpCode;
 
     // 1. Рукопожатие Handshake (Opcode = 0)
     let frame_bytes = LocalRpcIpcServer::create_handshake_frame(1, "123456789012345678").unwrap();
@@ -3065,7 +3067,7 @@ fn test_sqlite_guild_channel_persistence_and_disk_open_contract() {
             position: idx as i32,
             unread: idx % 2 == 0,
             is_locked: false,
-            permissions_bitmask: discord_core::permissions::ALL_PERMISSIONS,
+            permissions_bitmask: chord_core::permissions::ALL_PERMISSIONS,
         };
         db.insert_channel(&ch).expect("Сохранение канала в SQLite");
     }
@@ -3114,7 +3116,7 @@ fn test_sqlite_guild_channel_persistence_and_disk_open_contract() {
 
 #[test]
 fn test_gpu_video_pixel_formats_nv12_i420_bgra8_and_portal_contract() {
-    use discord_platform::screencast::{PortalCursorMode, PortalSourceTypes};
+    use chord_platform::screencast::{PortalCursorMode, PortalSourceTypes};
 
     // 1. Дескрипторы NV12 и I420 (1.5 байта на пиксель) и BGRA8 (4 байта на пиксель)
     let nv12 = video::GpuTextureDescriptor::new(1920, 1080, VideoPixelFormat::Nv12);
@@ -3204,7 +3206,7 @@ fn test_async_dispatcher_bounded_backpressure_and_all_background_events_contract
     let headless_ctrl = SystemTrayManager::create_headless_controller(true);
     assert_eq!(headless_ctrl.menu().len(), 6);
     let custom_ctrl = SystemTrayManager::create_controller(
-        Some(discord_platform::tray::MockTrayBackend::default()),
+        Some(chord_platform::tray::MockTrayBackend::default()),
         false,
     );
     assert_eq!(custom_ctrl.menu().len(), 6);
@@ -3215,7 +3217,7 @@ fn test_async_dispatcher_bounded_backpressure_and_all_background_events_contract
     assert_eq!(linux_headless.controller().menu().len(), 6);
     assert_eq!(linux_headless.controller_mut().menu().len(), 6);
     let linux_custom = dispatch::LinuxSystemTrayIconController::new(
-        Some(discord_platform::tray::MockTrayBackend::default()),
+        Some(chord_platform::tray::MockTrayBackend::default()),
         true,
     );
     assert!(linux_custom.has_valid_6_item_menu());
@@ -3224,10 +3226,10 @@ fn test_async_dispatcher_bounded_backpressure_and_all_background_events_contract
     let _mention_fn = DesktopNotificationManager::send_mention_notification;
     let _close_notif_fn = DesktopNotificationManager::close_notification;
     let _tray_msg_fn = dispatch::LinuxSystemTrayIconController::<
-        discord_platform::tray::MockTrayBackend,
+        chord_platform::tray::MockTrayBackend,
     >::send_message_notification;
     let _tray_mention_fn = dispatch::LinuxSystemTrayIconController::<
-        discord_platform::tray::MockTrayBackend,
+        chord_platform::tray::MockTrayBackend,
     >::send_mention_notification;
 }
 
@@ -3803,4 +3805,51 @@ fn test_dynamic_message_pagination_contract() {
         !exhausted_trigger,
         "При достижении верха истории новые запросы отправляться не должны"
     );
+}
+
+#[test]
+fn test_guild_folders_hierarchy_and_expansion_contract() {
+    use state::GuildFolder;
+
+    // 1. Десериализация guild_folders из типичного пакета Discord READY
+    let ready_folders_json = r#"[
+        {
+            "id": null,
+            "guild_ids": ["111111111111111111"]
+        },
+        {
+            "id": 1001,
+            "name": "Rust Dev Hub",
+            "color": 5793266,
+            "guild_ids": ["222222222222222222", "333333333333333333"]
+        }
+    ]"#;
+
+    let folders: Vec<GuildFolder> =
+        serde_json::from_str(ready_folders_json).expect("deserialize ready guild_folders");
+    assert_eq!(folders.len(), 2);
+    assert_eq!(folders[0].id, None);
+    assert_eq!(folders[0].guild_ids, vec!["111111111111111111"]);
+
+    assert_eq!(folders[1].id, Some(1001));
+    assert_eq!(folders[1].name.as_deref(), Some("Rust Dev Hub"));
+    assert_eq!(folders[1].color, Some(5793266));
+    assert_eq!(
+        folders[1].guild_ids,
+        vec!["222222222222222222", "333333333333333333"]
+    );
+
+    // 2. Интеграция с AppState и проверка аккордеона раскрытия папок (референс diamondburned/dissent)
+    let mut state = AppState::new();
+    state.guild_folders = folders;
+
+    assert!(!state.is_folder_expanded(1001));
+
+    // Раскрытие папки
+    state.toggle_folder_expanded(1001);
+    assert!(state.is_folder_expanded(1001));
+
+    // Сворачивание папки
+    state.toggle_folder_expanded(1001);
+    assert!(!state.is_folder_expanded(1001));
 }

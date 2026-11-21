@@ -1,0 +1,53 @@
+name: "🐛 Bug Report"
+description: Bug in the code (for AI workers and humans)
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill in all fields. An AI worker will be assigned automatically.
+
+  - type: input
+    id: task-id
+    attributes:
+      label: Task ID
+      description: Task number from TASKS.md (if applicable)
+      placeholder: "P0-X.X or H-FIX-X"
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope (affected module)
+      options:
+        - G1 Backend (Rust Core/State/Gateway)
+        - G2 Frontend (UI/Views)
+        - G4 QA (Tests/Harness)
+        - G5 Voice/Platform
+        - G7 RE/Docs
+        - DevOps/CI
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: What happens, what was expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Commands, inputs, steps
+      placeholder: |
+        1. cargo run -- ...
+        2. See error: ...
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / stack trace
+      render: shell

@@ -6,8 +6,8 @@
 //! (`last_viewed: 4310` — счётчик read-state, не snowflake сообщения).
 //! Транспорт — фейк, сети/окна нет.
 
-use discord_core::rest::routes::{find, HttpMethod};
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::routes::{find, HttpMethod};
+use chord_core::rest::transport::HttpResponse;
 use chord_client::messages::{
     ack_message, AckTransport, DiscordReadState, MessageError, ReadStateAck,
 };

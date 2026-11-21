@@ -12,8 +12,8 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const DEFAULT_KANBAN_BOARD_PATH = resolve(ROOT, "waves", "kanban-board.json");
-const DEFAULT_GPUI_THEME_PATH = resolve(ROOT, "rust", "discord-gpui", "src", "theme", "discord_dark.rs");
-const DEFAULT_GPUI_STATE_PATH = resolve(ROOT, "rust", "discord-gpui", "src", "state", "mod.rs");
+const DEFAULT_GPUI_THEME_PATH = resolve(ROOT, "rust", "chord-gpui", "src", "theme", "discord_dark.rs");
+const DEFAULT_GPUI_STATE_PATH = resolve(ROOT, "rust", "chord-gpui", "src", "state", "mod.rs");
 const DEFAULT_UI_TOKENS_CSS_PATH = resolve(ROOT, "rust", "gui-spike", "ui", "tokens.css");
 const DEFAULT_FRONTEND_D03_PATH = resolve(ROOT, "docs", "re", "frontend-d03.json");
 

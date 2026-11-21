@@ -1,3 +1,5 @@
+//! Standard and custom emoji picker popover for message composition and reactions.
+
 use crate::state::AppState;
 use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;

@@ -16,7 +16,7 @@ const DEFAULT_RE_GAP_22_PATH = join(ROOT, "waves", "RW-40", "RE-AUDIT", "RE-GAP-
 const DEFAULT_VOICE_DEEP_PATH = join(ROOT, "docs", "re", "voice-deep.json");
 const DEFAULT_RTCP_UDP3_PATH = join(ROOT, "waves", "RW-26", "research", "fixtures", "rtcp-voice-udp3-server.json");
 const DEFAULT_RTCP_UDP4_PATH = join(ROOT, "waves", "RW-26", "research", "fixtures", "rtcp-voice-udp4-server.json");
-const DEFAULT_RUST_MODULE_PATH = join(ROOT, "rust", "discord-gpui", "src", "voice", "rtc_diagnostics.rs");
+const DEFAULT_RUST_MODULE_PATH = join(ROOT, "rust", "chord-gpui", "src", "voice", "rtc_diagnostics.rs");
 
 /** Макет `RTC Internals HUD` из карточки `TASK-1011` (`waves/kanban-board.json`). */
 export const RTC_INTERNALS_HUD_LAYOUT = Object.freeze({

@@ -21,7 +21,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::messages::{send_message, MessageError, MessageReceipt, MessageSender};
 use chord_client::pins_threads::{
     list_channel_pins, list_channel_threads, pin_channel_message, unpin_channel_message,

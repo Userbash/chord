@@ -1,0 +1,41 @@
+name: "🎯 Good First Issue"
+description: "A beginner-friendly, well-scoped task for new contributors"
+title: "[Good First Issue]: "
+labels: ["good first issue", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping make Chord better! Please describe an isolated, beginner-friendly task with clear acceptance criteria.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Task Summary"
+      description: "What needs to be implemented or fixed?"
+      placeholder: "e.g., Add character counter to channel topic input field..."
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: "Target Files / Pointers"
+      description: "Which files should the contributor look at?"
+      placeholder: "rust/gui-spike/ui/app.js, rust/gui-spike/ui/style.css"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected Behavior & Acceptance Criteria"
+      description: "How does the feature behave once implemented?"
+      placeholder: "- Displays (0/1024) counter\n- Truncates long topic gracefully"
+    validations:
+      required: true
+  - type: input
+    id: verification
+    attributes:
+      label: "Verification Command"
+      description: "Command to verify the fix"
+      value: "npm run precheck"
+    validations:
+      required: true

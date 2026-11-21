@@ -2,7 +2,7 @@
 /**
  * TASK-801 [P0] G5 Voice / Hardware:
  * Integrate NVENC/CUDA/Vulkan Video encoder in discord_voice.node on NVIDIA RTX 5070 Ti
- * instead of CPU libopenh264 fallback in rust/crates/discord-core/src/ws.rs.
+ * instead of CPU libopenh264 fallback in rust/crates/chord-core/src/ws.rs.
  * Enable true 60 FPS hardware encoding without WebRTC VideoSource (30 FPS) or
  * QualityScalerResource (20 FPS) framerate degradation.
  */
@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../..");
-const WS_RS_PATH = path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs");
+const WS_RS_PATH = path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs");
 
 describe("TASK-801: NVENC/CUDA/Vulkan 60 FPS Hardware Video Encoder in discord_voice.node", () => {
   const wsRs = fs.readFileSync(WS_RS_PATH, "utf8");

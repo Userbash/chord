@@ -8,6 +8,8 @@ mod dispatch;
 mod media;
 #[path = "../src/net/mod.rs"]
 mod net;
+#[path = "../src/platform/mod.rs"]
+mod platform;
 #[path = "../src/state/mod.rs"]
 mod state;
 #[path = "../src/storage/mod.rs"]
@@ -25,7 +27,7 @@ use audio::{
     AdaptiveJitterBuffer, DaveMlsGroupContext, DaveMlsKeySchedule, DaveTransportCipherMode,
     DaveVoiceSession,
 };
-use discord_platform::screencast::RTP_VIDEO_CLOCK_HZ;
+use chord_platform::screencast::RTP_VIDEO_CLOCK_HZ;
 use state::{
     AppState, CallStatus, Channel, ChannelType, Guild, LoginStep, Message, MessageKind,
     QuickSwitcherItemKind, UserSummary,

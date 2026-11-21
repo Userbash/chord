@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * TASK-800 [P0] G5 Voice: Контрактные тесты согласования и конфигурации видеокодека AV1
- * в WebRTC RTCControlSocket (`rust/crates/discord-core/src/ws.rs:3675-3707`).
+ * в WebRTC RTCControlSocket (`rust/crates/chord-core/src/ws.rs:3675-3707`).
  *
  * Проверяемые требования:
  * 1. При получении `video_codec: "AV1"` или `videoCodec: "AV1"` / `"AV1X"` в Opcode 4 Session Description
@@ -22,10 +22,10 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../..");
-const WS_RS_PATH = path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs");
+const WS_RS_PATH = path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs");
 
 /**
- * Извлекает тело JS-моста `DV_BRIDGE_JS` из `rust/crates/discord-core/src/ws.rs`.
+ * Извлекает тело JS-моста `DV_BRIDGE_JS` из `rust/crates/chord-core/src/ws.rs`.
  * @param {string} wsRs
  * @returns {string}
  */

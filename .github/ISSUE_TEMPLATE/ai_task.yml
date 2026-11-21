@@ -1,0 +1,75 @@
+name: "✨ AI Task Card"
+description: New task for an AI worker (equivalent to a card in TASKS.md)
+title: "task: "
+labels: ["ai-task", "backlog"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Task card for an AI worker. After creation, the coordinator will assign a worker.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - "P0 — critical"
+        - "P1 — high"
+        - "P2 — medium"
+        - "P3 — low"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: department
+    attributes:
+      label: Department (who performs the task)
+      options:
+        - G1 Backend
+        - G2 Frontend
+        - G4 QA
+        - G5 Voice/Platform
+        - G7 RE/Docs
+        - DevOps
+    validations:
+      required: true
+
+  - type: input
+    id: file-scope
+    attributes:
+      label: Files (worker scope)
+      description: Which files the worker will modify
+      placeholder: "rust/crates/chord-core/src/auth/*.rs"
+    validations:
+      required: true
+
+  - type: textarea
+    id: contract
+    attributes:
+      label: Contract (what must work)
+      description: Observable behaviour that the test will verify
+      placeholder: |
+        Input: email, password
+        Output: Ok(AuthToken) | Err(LoginError)
+        HTTP: POST /api/v9/auth/login → 200 / 400 / 401
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Task description
+    validations:
+      required: true
+
+  - type: input
+    id: estimate
+    attributes:
+      label: Time estimate
+      placeholder: "2h"
+
+  - type: input
+    id: depends
+    attributes:
+      label: Depends on
+      placeholder: "P0-1.2, P0-1.3"

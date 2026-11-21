@@ -1,0 +1,40 @@
+[package]
+name = "dave-spike"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+description = "Comparative DAVE E2EE spike prototype: official Discord libdave C++ FFI vs Serein davey + OpenMLS/RustCrypto via DaveVoiceBridge (LIB-SIMPLIFY-05)"
+
+[workspace]
+
+[lib]
+name = "dave_spike"
+path = "src/lib.rs"
+
+[dependencies]
+aead = { version = "0.6.1", default-features = false, features = ["alloc"] }
+aes = "0.9.4"
+aes-gcm = { version = "0.11.1", default-features = false, features = ["aes", "alloc", "hazmat", "zeroize"] }
+cipher = "0.5.2"
+hkdf = "0.12.4"
+hmac = "0.12.1"
+ring = "0.17.14"
+sha2 = "0.10.9"
+subtle = "2.6.1"
+zeroize = { version = "1.8.2", features = ["derive"] }
+
+[build-dependencies]
+cc = "1.2.67"
+pkg-config = "0.3.32"
+
+[lints.rust]
+unsafe_code = "deny"
+
+[profile.dev]
+opt-level = 2
+debug = 1
+
+[profile.test]
+opt-level = 2
+debug = 1

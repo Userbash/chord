@@ -18,7 +18,7 @@ fn repo_fixtures_dir() -> PathBuf {
 
 /// Base64 of "999888777666555444" is "OTk5ODg4Nzc3NjY2NTU1NDQ0"
 const TEST_USER_ID: &str = "999888777666555444";
-const TEST_LIVE_TOKEN: &str = "OTk5ODg4Nzc3NjY2NTU1NDQ0.GTest1.liveTokenSignatureMock";
+const TEST_LIVE_TOKEN: &str = "test_live_token_mock_val_0123456789";
 
 /// Base64 of "111222333444555666" is "MTExMjIyMzMzNDQ0NTU1NjY2"
 const FOREIGN_USER_ID: &str = "111222333444555666";

@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты мгновенного переключения аккаунтов (Multi-Account Switcher & Instant Handoff — TASK-987):
- * - SUB-987-0: Статический и структурный контракт `rust/discord-gpui/src/multi_account_switcher.rs`
+ * - SUB-987-0: Статический и структурный контракт `rust/chord-gpui/src/multi_account_switcher.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде, соблюдение лимитов
  *   `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, чистый `rustfmt --check --edition 2024`
  *   и компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -47,7 +47,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-gpui/src/multi_account_switcher.rs";
+const MODULE_REL_PATH = "rust/chord-gpui/src/multi_account_switcher.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const BACKEND_IPC_JSON_PATH = join(ROOT, "docs", "re", "backend-ipc.json");
@@ -56,14 +56,14 @@ const KEYRING_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-platform",
+  "chord-platform",
   "src",
   "keyring.rs",
 );
 const UI_ACCOUNT_SWITCHER_PATH = join(
   ROOT,
   "rust",
-  "discord-gpui",
+  "chord-gpui",
   "src",
   "ui",
   "account_switcher.rs",
@@ -71,7 +71,7 @@ const UI_ACCOUNT_SWITCHER_PATH = join(
 const STATE_MOD_PATH = join(
   ROOT,
   "rust",
-  "discord-gpui",
+  "chord-gpui",
   "src",
   "state",
   "mod.rs",
@@ -84,7 +84,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/multi_account_switcher.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/multi_account_switcher.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -135,7 +135,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-987: Мгновенное переключение аккаунтов (Multi-Account Switcher — rust/discord-gpui/src/multi_account_switcher.rs)", () => {
+describe("TASK-987: Мгновенное переключение аккаунтов (Multi-Account Switcher — rust/chord-gpui/src/multi_account_switcher.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "multi-account-switcher-987-"));
     testBinPath = join(workDir, "multi_account_switcher_987_test");
@@ -147,7 +147,7 @@ describe("TASK-987: Мгновенное переключение аккаунт
     }
   });
 
-  it("SUB-987-0: модуль rust/discord-gpui/src/multi_account_switcher.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
+  it("SUB-987-0: модуль rust/chord-gpui/src/multi_account_switcher.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,
@@ -255,12 +255,12 @@ describe("TASK-987: Мгновенное переключение аккаунт
     const restText = readFileSync(REST_D02_JSON_PATH, "utf8");
     assert.match(restText, /"\/api\/v9\/users\/@me"/);
 
-    // 4. Независимый оракул: схема и префикс в rust/crates/discord-platform/src/keyring.rs
+    // 4. Независимый оракул: схема и префикс в rust/crates/chord-platform/src/keyring.rs
     const keyringSrc = readFileSync(KEYRING_RS_PATH, "utf8");
     assert.match(keyringSrc, /pub const SCHEMA_NAME: &str = "com\.discordlab\.Token";/);
     assert.match(keyringSrc, /pub const ENCRYPTED_TOKEN_PREFIX: &str = "dQw4w9WgXcQ:";/);
 
-    // 5. Независимый оракул: UI и AppState в rust/discord-gpui/src/ui/account_switcher.rs и state/mod.rs
+    // 5. Независимый оракул: UI и AppState в rust/chord-gpui/src/ui/account_switcher.rs и state/mod.rs
     const uiSwitcherSrc = readFileSync(UI_ACCOUNT_SWITCHER_PATH, "utf8");
     assert.match(uiSwitcherSrc, /\.w\(px\(280\.\)\)/);
     assert.match(uiSwitcherSrc, /\.p\(px\(8\.\)\)/);

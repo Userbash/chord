@@ -1,6 +1,7 @@
 // @ts-check
 /**
- * T-236 (FE-P0-09): реестр фич оболочки UI и единый мост контроллеров (`shell-bridge.js`).
+ * T-236 (FE-P0-09) & TAURI-EVT-01: реестр фич оболочки UI, единый мост контроллеров
+ * и событийно-ориентированный слушатель Tauri без CPU-поллинга (`shell-bridge.js`).
  *
  * Отвечает за:
  * - `SHELL_MODAL_LAYERS`: замороженный канонический реестр 10 слоёв модалок, поповеров и панелей;
@@ -8,7 +9,11 @@
  * - взаимное исключение 5 полноэкранных/центрированных модальных окон
  *   (`quick-switcher`, `settings-modal`, `profile-modal`, `invite-modal`, `forward-modal`);
  * - обработку глобальных сочетаний клавиш (`Ctrl+K`, `Ctrl+F`, `Escape`) через `normalizeKeyCombo`;
- * - проксирование IPC-вызовов (`onDispatchIpc`) и навигации (`onNavigate`).
+ * - проксирование IPC-вызовов (`onDispatchIpc`) и навигации (`onNavigate`);
+ * - TAURI-EVT-01: `createTauriEventListener` / `createEventDrivenListener` — подписка на события
+ *   Tauri (например, `net://status`, `auth://state`, `gateway:dispatch`) без постоянного опроса CPU
+ *   через `setInterval` (`NET_POLL_MS`), с поддержкой безопасного жизненного цикла, опционального
+ *   `initialFetch` и изоляции ошибок.
  *
  * @module ui/features/shell-bridge
  */
@@ -280,5 +285,309 @@ export function createShellFeatureBridge({ onDispatchIpc, onNavigate } = {}) {
     isLayerOpen,
     dispatchIpc,
     navigate,
+    /**
+     * Создаёт событийно-ориентированный слушатель Tauri без CPU-поллинга.
+     * @param {TauriEventListenerOptions} listenerOptions
+     * @returns {TauriEventListenerController}
+     */
+    createEventListener(listenerOptions) {
+      return createTauriEventListener(listenerOptions);
+    },
   };
+}
+
+/**
+ * @typedef {object} TauriEventListenerOptions
+ * @property {string} event
+ *   Tauri event name to subscribe to (e.g. "net://status", "net_status", or "auth://state").
+ * @property {(payload: any, rawEvent?: any) => void} onEvent
+ *   Callback invoked when the Tauri event is received. Receives unwrapped payload and raw event.
+ * @property {((event: string, handler: (payload: any) => void) => Promise<(() => void) | void> | (() => void) | void) | null} [listen]
+ *   Custom listen function (defaults to resolveTauriListen()).
+ * @property {(() => Promise<unknown> | unknown)} [initialFetch]
+ *   Optional one-shot initial fetch function executed on start() to obtain initial state
+ *   immediately without CPU polling or waiting for the first push event.
+ * @property {(error: unknown) => void} [onError]
+ *   Optional error handler for listen setup or event processing failures.
+ * @property {boolean} [autoStart]
+ *   Whether to start listening immediately upon creation (default: false).
+ * @property {number} [intervalMs]
+ *   Optional periodic poll interval in milliseconds as a fallback / sync timer
+ *   when backend push events are unavailable or infrequent (e.g. 500-1000ms).
+ */
+
+/**
+ * @typedef {object} TauriEventListenerController
+ * @property {() => Promise<boolean>} start
+ *   Starts listening for events and runs initialFetch if provided. Idempotent.
+ * @property {() => Promise<void>} stop
+ *   Stops listening and cleans up active unlisten subscription.
+ * @property {() => boolean} isListening
+ *   Returns true if the listener is currently active.
+ * @property {() => Promise<void>} dispose
+ *   Permanently disposes the listener and cancels any active subscription.
+ * @property {(payload: any) => void} emitMock
+ *   Dispatches a mock event payload to the onEvent callback (useful in tests/QA).
+ */
+
+/**
+ * Resolves the Tauri event listen function from the global environment.
+ * Checks `window.__TAURI__.event.listen` or custom injected window.
+ *
+ * @param {any} [win] Window object or global context.
+ * @returns {((event: string, handler: (payload: any) => void) => Promise<(() => void) | void> | (() => void) | void) | null}
+ */
+export function resolveTauriListen(win = (typeof window !== "undefined" ? window : /** @type {any} */ (globalThis).window)) {
+  const listen = win?.__TAURI__?.event?.listen;
+  return typeof listen === "function" ? listen : null;
+}
+
+/**
+ * Unwraps Tauri event envelope if present, extracting `payload`.
+ * Tauri events are dispatched as `{ event: string, id: number, payload: any }`.
+ *
+ * @param {unknown} value
+ * @returns {unknown}
+ */
+export function unwrapTauriPayload(value) {
+  if (value !== null && typeof value === "object" && "payload" in value) {
+    return /** @type {{ payload: unknown }} */ (value).payload;
+  }
+  return value;
+}
+
+/**
+ * Creates an event-driven listener for Tauri events without CPU polling (TAURI-EVT-01).
+ *
+ * Replaces periodic `setInterval` CPU polling (such as `NET_POLL_MS` net_status polling)
+ * with a reactive push subscription using Tauri's event bus.
+ *
+ * Key advantages over polling:
+ * 1. Zero timer wakeups: eliminates `setInterval` overhead, avoiding battery drain and CPU spikes.
+ * 2. Instant notification: updates propagate in sub-millisecond time rather than waiting for next poll cycle.
+ * 3. Graceful fallback: handles environments where Tauri event transport is unavailable.
+ * 4. Safe lifecycle: idempotent start/stop, cleans up subscriptions and prevents memory/event leaks.
+ *
+ * @param {TauriEventListenerOptions} options
+ * @returns {TauriEventListenerController}
+ */
+export function createTauriEventListener(options) {
+  const {
+    event: eventName,
+    onEvent,
+    listen: customListen,
+    initialFetch,
+    onError,
+    autoStart = false,
+    intervalMs = 0,
+  } = options;
+
+  if (typeof eventName !== "string" || eventName.trim() === "") {
+    throw new TypeError("TauriEventListener: 'event' must be a non-empty string");
+  }
+  if (typeof onEvent !== "function") {
+    throw new TypeError("TauriEventListener: 'onEvent' must be a function");
+  }
+
+  const resolveListenFn = customListen !== undefined
+    ? () => customListen
+    : () => resolveTauriListen();
+
+  /** @type {(() => void) | null} */
+  let unlistenFn = null;
+  /** @type {Promise<void> | null} */
+  let pendingSubscription = null;
+  /** @type {ReturnType<typeof setInterval> | null} */
+  let pollIntervalTimer = null;
+  let active = false;
+  let disposed = false;
+
+  /**
+   * Starts listening to the Tauri event.
+   * Runs `initialFetch` if provided and hooks into the event bus.
+   * @returns {Promise<boolean>}
+   */
+  async function start() {
+    if (disposed || active) {
+      return active;
+    }
+    active = true;
+
+    // Run initial fetch if provided (to initialize state without CPU polling)
+    if (typeof initialFetch === "function") {
+      try {
+        const initialValue = await initialFetch();
+        if (active && !disposed) {
+          onEvent(unwrapTauriPayload(initialValue), initialValue);
+        }
+      } catch (err) {
+        if (typeof onError === "function") {
+          onError(err);
+        }
+      }
+    }
+
+    if (!active || disposed) {
+      return false;
+    }
+
+    // Start periodic polling fallback if intervalMs is specified
+    if (typeof intervalMs === "number" && intervalMs > 0 && typeof initialFetch === "function") {
+      if (pollIntervalTimer) {
+        clearInterval(pollIntervalTimer);
+      }
+      pollIntervalTimer = setInterval(async () => {
+        if (!active || disposed) return;
+        try {
+          const val = await initialFetch();
+          if (active && !disposed && val !== null && val !== undefined) {
+            onEvent(unwrapTauriPayload(val), val);
+          }
+        } catch (pollErr) {
+          if (typeof onError === "function") {
+            onError(pollErr);
+          }
+        }
+      }, intervalMs);
+    }
+
+    const listen = resolveListenFn();
+    if (typeof listen !== "function") {
+      // Event transport not available in this environment
+      return false;
+    }
+
+    if (unlistenFn || pendingSubscription) {
+      return true;
+    }
+
+    pendingSubscription = (async () => {
+      try {
+        const dispose = await listen(eventName, (rawEvent) => {
+          if (!active || disposed) return;
+          try {
+            const payload = unwrapTauriPayload(rawEvent);
+            onEvent(payload, rawEvent);
+          } catch (dispatchErr) {
+            onError?.(dispatchErr);
+          }
+        });
+
+        if (!active || disposed) {
+          if (typeof dispose === "function") {
+            try {
+              dispose();
+            } catch {
+              /* ignore */
+            }
+          }
+          unlistenFn = null;
+        } else {
+          unlistenFn = typeof dispose === "function" ? dispose : null;
+        }
+      } catch (subErr) {
+        onError?.(subErr);
+      } finally {
+        pendingSubscription = null;
+      }
+    })();
+
+    await pendingSubscription;
+    return active;
+  }
+
+  /**
+   * Stops listening and cleans up subscriptions.
+   * @returns {Promise<void>}
+   */
+  async function stop() {
+    active = false;
+    if (pollIntervalTimer) {
+      clearInterval(pollIntervalTimer);
+      pollIntervalTimer = null;
+    }
+    if (pendingSubscription) {
+      try {
+        await pendingSubscription;
+      } catch {
+        /* ignore */
+      }
+    }
+    if (unlistenFn) {
+      const fn = unlistenFn;
+      unlistenFn = null;
+      try {
+        fn();
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  /**
+   * Returns whether the listener is actively listening.
+   * @returns {boolean}
+   */
+  function isListening() {
+    return active && !disposed;
+  }
+
+  /**
+   * Permanently disposes the listener.
+   * @returns {Promise<void>}
+   */
+  async function dispose() {
+    disposed = true;
+    await stop();
+  }
+
+  /**
+   * Emits a mock payload directly (useful for tests and QA verification).
+   * @param {unknown} mockPayload
+   */
+  function emitMock(mockPayload) {
+    if (disposed) return;
+    try {
+      const payload = unwrapTauriPayload(mockPayload);
+      onEvent(payload, mockPayload);
+    } catch (err) {
+      onError?.(err);
+    }
+  }
+
+  if (autoStart) {
+    void start();
+  }
+
+  return {
+    start,
+    stop,
+    isListening,
+    dispose,
+    emitMock,
+  };
+}
+
+/**
+ * Event-driven listener helper for Tauri events without CPU polling (TAURI-EVT-01).
+ * Alias for `createTauriEventListener`.
+ */
+export const createEventDrivenListener = createTauriEventListener;
+
+/**
+ * One-shot helper to listen for a Tauri event and return an unlisten callback.
+ *
+ * @param {string} event
+ * @param {(payload: any, rawEvent?: any) => void} onEvent
+ * @param {Omit<TauriEventListenerOptions, "event" | "onEvent" | "autoStart">} [options]
+ * @returns {() => Promise<void>}
+ */
+export function listenTauriEvent(event, onEvent, options = {}) {
+  const listener = createTauriEventListener({
+    event,
+    onEvent,
+    ...options,
+    autoStart: true,
+  });
+  return () => listener.stop();
 }

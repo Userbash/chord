@@ -11,8 +11,15 @@ const REPO_ROOT = path.resolve(__dirname, "../..");
 
 describe("Stream Viewer Close, Bottom Preview Teardown & Live Source Switch Parity", () => {
   const dataRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/data.rs"), "utf8");
-  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs"), "utf8");
-  const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
+  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs"), "utf8");
+  const appJs = [
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer-controls.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-renderer.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stream-controller.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stream-menus.js"), "utf8"),
+  ].join("\n");
 
   it("SV1: ws.rs node runner always configures screen capturer -1 (kFullDesktopScreenId) for XShm hook parity on Wayland", () => {
     // Under Wayland, passing window GUID {...} or "0" directly to WebRTC SetScreenshareSourceLinux
@@ -32,7 +39,9 @@ describe("Stream Viewer Close, Bottom Preview Teardown & Live Source Switch Pari
   it("SV2: data.rs set_system_audio_device parses raw window GUIDs without colon prefix", () => {
     const fnIdx = dataRs.indexOf("if kind == \"set_capture_source\"");
     assert.ok(fnIdx > 0, "set_capture_source must exist in data.rs");
-    const fnBody = dataRs.slice(fnIdx, fnIdx + 1000);
+    const fnEnd = dataRs.indexOf('    if kind == "list_capture_windows"', fnIdx);
+    assert.ok(fnEnd > fnIdx, "set_capture_source must have its expected closing boundary");
+    const fnBody = dataRs.slice(fnIdx, fnEnd);
     assert.match(
       fnBody,
       /raw\.starts_with\('\{'\)/,
@@ -43,7 +52,7 @@ describe("Stream Viewer Close, Bottom Preview Teardown & Live Source Switch Pari
   it("SV3: app.js openLiveStreamStageViewer provides separate stop button and close/minimize cross button", () => {
     const fnIdx = appJs.indexOf("function openLiveStreamStageViewer(");
     assert.ok(fnIdx > 0, "openLiveStreamStageViewer must exist in app.js");
-    const fnBody = appJs.slice(fnIdx, fnIdx + 18000);
+    const fnBody = appJs.slice(fnIdx, fnIdx + 45000);
     assert.match(
       fnBody,
       /stopStageBtn/,

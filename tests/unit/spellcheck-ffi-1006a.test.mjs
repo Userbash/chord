@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты FFI-биндинга `libenchant-2` / `hunspell`, интеграции с системным
  * словарём Linux (`/usr/share/hunspell/`), метода `check_word()` и генерации до 5 подсказок замены (TASK-1006A):
- * - SUB-1006A-0: Статический и компиляционный контракт `rust/crates/discord-platform/src/spellcheck.rs`
+ * - SUB-1006A-0: Статический и компиляционный контракт `rust/crates/chord-platform/src/spellcheck.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`:
  *   функции < 50 строк, файл < 800 строк, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений и прогон встроенных Rust-тестов).
@@ -20,7 +20,7 @@
  *   граничные Snowflake `0`/`u64::MAX`, `2000` символов, `10` файлов/`25 МБ`, `offset=9975`, громкость `0..200%`,
  *   бейдж `99+`, HTTP `400/401/403/404/413/429/5xx`, пустые, `skeleton`/`HTTP 202`, права `VIEW_CHANNEL` /
  *   `SEND_MESSAGES` / `AGE_GATED_SPACES`, fallback-восстановление при отсутствии системного словаря и редактирование секретов).
- * - SUB-1006A-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/discord-platform/src/spellcheck.rs`
+ * - SUB-1006A-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/crates/chord-platform/src/spellcheck.rs`
  *   (пропуск слов с дефисом, утечка памяти C-строк, сбой при смене локали, отключение фильтра `@mention`/URL,
  *   превышение лимита 5 подсказок).
  */
@@ -46,7 +46,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/crates/discord-platform/src/spellcheck.rs";
+const RUST_MODULE_REL_PATH = "rust/crates/chord-platform/src/spellcheck.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const BACKEND_IPC_PATH = join(ROOT, "docs", "re", "backend-ipc.json");
@@ -62,7 +62,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/crates/discord-platform/src/spellcheck.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/crates/chord-platform/src/spellcheck.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -125,7 +125,7 @@ describe("TASK-1006A: Интеграция с системным словарё�
     }
   });
 
-  it("SUB-1006A-0: проверяет статический контракт rust/crates/discord-platform/src/spellcheck.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
+  it("SUB-1006A-0: проверяет статический контракт rust/crates/chord-platform/src/spellcheck.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024 и rustc --test -D warnings)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,
@@ -375,7 +375,7 @@ describe("TASK-1006A: Интеграция с системным словарё�
     assert.match(run.stdout, /test tests::test_sub_1006a_4_.*ok/);
   });
 
-  it("SUB-1006A-5: убивает 5/5 контрольных мутаций в rust/crates/discord-platform/src/spellcheck.rs (100% mutation kill rate)", () => {
+  it("SUB-1006A-5: убивает 5/5 контрольных мутаций в rust/crates/chord-platform/src/spellcheck.rs (100% mutation kill rate)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       "Модуль spellcheck.rs должен существовать",

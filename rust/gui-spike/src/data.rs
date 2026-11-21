@@ -54,9 +54,24 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::{Mutex, OnceLock};
 
+use base64::Engine;
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Serialize, Serializer};
 use serde_json::{json, Value};
+
+pub use crate::permissions::{PermissionOverwriteDef, RawPermissionOverwriteDto};
+pub use chord_core::cache::{InMemoryCache, InMemoryCacheBuilder, ResourceType};
+pub use chord_store::fts5_search::{
+    build_fts5_match_expression, Fts5MessageRecord, Fts5SearchEngine, Fts5SearchHit,
+};
+
+/// Global thread-safe in-memory cache instance replacing manual mutex locking for entity queries (`RW51-EPIC3-T2`).
+pub fn in_memory_cache() -> std::sync::Arc<InMemoryCache> {
+    static CACHE: OnceLock<std::sync::Arc<InMemoryCache>> = OnceLock::new();
+    CACHE
+        .get_or_init(|| std::sync::Arc::new(InMemoryCache::default()))
+        .clone()
+}
 
 #[derive(Default)]
 pub struct LiveSession {
@@ -95,11 +110,213 @@ pub struct LiveSession {
     resolved_invites: HashMap<String, Value>,
     local_preview_guilds: HashMap<String, Value>,
     deleted_message_ids: HashSet<(String, String)>,
+    /// Cached long-lived SQLite store handle binding for persisting message components (`TAURI-STORE-01`).
+    components_store: Option<std::sync::Arc<Mutex<LiveStoreHandle>>>,
+    /// File path associated with the cached `components_store` handle (`TAURI-STORE-01`).
+    components_store_path: Option<PathBuf>,
+    /// High-performance thread-safe in-memory cache (`RW51-EPIC3-T2`).
+    pub in_memory_cache: std::sync::Arc<InMemoryCache>,
+}
+
+/// Thread-safe lifecycle descriptor for the cached [`chord_store::Store`] handle in [`LiveSession`] (`TAURI-STORE-01`).
+#[derive(Debug, Clone)]
+pub struct LiveStoreHandle {
+    /// Monotonic generation ID of this store binding.
+    pub generation: u64,
+    /// Bound SQLite file path.
+    pub sqlite_path: PathBuf,
+}
+
+static NEXT_STORE_GENERATION: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
+
+thread_local! {
+    static THREAD_COMPONENTS_STORE: std::cell::RefCell<
+        Option<(u64, PathBuf, std::sync::Arc<Mutex<chord_store::Store>>)>,
+    > = const { std::cell::RefCell::new(None) };
+}
+
+impl LiveSession {
+    /// Returns the cached [`chord_store::Store`] handle (`Arc<Mutex<chord_store::Store>>`) for `sqlite_path`,
+    /// opening and caching a new connection only when the path or session generation changes (`TAURI-STORE-01`).
+    #[inline]
+    #[must_use]
+    pub fn cached_components_store(
+        &mut self,
+        sqlite_path: &Path,
+    ) -> Option<std::sync::Arc<Mutex<chord_store::Store>>> {
+        let generation = if self.components_store_path.as_deref() == Some(sqlite_path)
+            && sqlite_path.exists()
+        {
+            if let Some(ref handle) = self.components_store {
+                handle
+                    .lock()
+                    .unwrap_or_else(|poison| poison.into_inner())
+                    .generation
+            } else {
+                let gen_id =
+                    NEXT_STORE_GENERATION.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                let handle = std::sync::Arc::new(Mutex::new(LiveStoreHandle {
+                    generation: gen_id,
+                    sqlite_path: sqlite_path.to_path_buf(),
+                }));
+                self.components_store_path = Some(sqlite_path.to_path_buf());
+                self.components_store = Some(handle);
+                gen_id
+            }
+        } else {
+            let gen_id = NEXT_STORE_GENERATION.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            let handle = std::sync::Arc::new(Mutex::new(LiveStoreHandle {
+                generation: gen_id,
+                sqlite_path: sqlite_path.to_path_buf(),
+            }));
+            self.components_store_path = Some(sqlite_path.to_path_buf());
+            self.components_store = Some(handle);
+            gen_id
+        };
+
+        THREAD_COMPONENTS_STORE.with(|slot| {
+            let mut guard = slot.borrow_mut();
+            if let Some((cached_gen, ref cached_path, ref store_arc)) = *guard {
+                if cached_gen == generation && cached_path == sqlite_path && sqlite_path.exists() {
+                    return Some(std::sync::Arc::clone(store_arc));
+                }
+            }
+            let store = chord_store::Store::open(sqlite_path).ok()?;
+            let store_arc = std::sync::Arc::new(Mutex::new(store));
+            *guard = Some((
+                generation,
+                sqlite_path.to_path_buf(),
+                std::sync::Arc::clone(&store_arc),
+            ));
+            Some(store_arc)
+        })
+    }
 }
 
 fn live_session() -> &'static Mutex<LiveSession> {
     static SESSION: OnceLock<Mutex<LiveSession>> = OnceLock::new();
     SESSION.get_or_init(|| Mutex::new(LiveSession::default()))
+}
+
+/// Serializable DTO for a message row returned from [`chord_store::StoreBridge`] (`STAGE-10.BFF.4`).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct DbMessageDto {
+    pub id: String,
+    pub channel_id: String,
+    pub author_id: String,
+    pub content: String,
+    pub timestamp: i64,
+    pub edited_timestamp: Option<i64>,
+    pub deleted: bool,
+}
+
+impl From<chord_store::MessageRow> for DbMessageDto {
+    fn from(row: chord_store::MessageRow) -> Self {
+        Self {
+            id: row.id,
+            channel_id: row.channel_id,
+            author_id: row.author_id,
+            content: row.content,
+            timestamp: row.timestamp,
+            edited_timestamp: row.edited_timestamp,
+            deleted: row.deleted,
+        }
+    }
+}
+
+/// Serializable DTO for an FTS5 search hit returned from [`chord_store::StoreBridge`] (`STAGE-10.BFF.4`).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct DbQueryHitDto {
+    pub message_id: String,
+    pub channel_id: String,
+    pub author_id: String,
+    pub content: String,
+    pub snippet: String,
+    pub rank: f64,
+}
+
+impl From<chord_store::Fts5SearchHit> for DbQueryHitDto {
+    fn from(hit: chord_store::Fts5SearchHit) -> Self {
+        Self {
+            message_id: hit.message_id,
+            channel_id: hit.channel_id,
+            author_id: hit.author_id,
+            content: hit.content,
+            snippet: hit.snippet,
+            rank: hit.rank,
+        }
+    }
+}
+
+/// Returns a cloneable [`chord_store::StoreBridge`] handle backed by a long-lived
+/// [`chord_store::DbWorker`] (`mpsc(1024)` + `oneshot`) for `STAGE-10.BFF.4`.
+pub fn live_store_bridge() -> Result<chord_store::StoreBridge, DataError> {
+    static WORKER: OnceLock<Mutex<Option<(PathBuf, chord_store::DbWorker)>>> = OnceLock::new();
+    let slot = WORKER.get_or_init(|| Mutex::new(None));
+    let mut guard = slot.lock().unwrap_or_else(|poison| poison.into_inner());
+
+    let db_path = {
+        let session = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        session
+            .components_store_path
+            .clone()
+            .unwrap_or_else(|| PathBuf::from(":memory:"))
+    };
+
+    if let Some((ref current_path, ref worker)) = *guard {
+        if current_path == &db_path {
+            return Ok(worker.bridge());
+        }
+    }
+
+    let worker = chord_store::DbWorker::spawn(&db_path)
+        .map_err(|err| DataError::invalid_arg(format!("не удалось запустить DbWorker: {err}")))?;
+    let bridge = worker.bridge();
+    *guard = Some((db_path, worker));
+    Ok(bridge)
+}
+
+/// Queries channel message history via [`chord_store::StoreBridge`] over `mpsc(1024)` (`STAGE-10.BFF.4`).
+pub fn db_messages_via_bridge(
+    bridge: &chord_store::StoreBridge,
+    channel_id: &str,
+    before: Option<String>,
+    limit: Option<usize>,
+) -> Result<Vec<DbMessageDto>, DataError> {
+    let channel_id = channel_id.trim();
+    if channel_id.is_empty() {
+        return Err(DataError::invalid_arg("channel_id не должен быть пустым"));
+    }
+    let limit = limit.unwrap_or(50).clamp(1, 200);
+    let rows = bridge
+        .messages(channel_id, before, limit)
+        .map_err(|err| DataError::invalid_arg(format!("StoreBridge messages error: {err}")))?;
+    Ok(rows.into_iter().map(DbMessageDto::from).collect())
+}
+
+/// Executes an FTS5 search query via [`chord_store::StoreBridge`] over `mpsc(1024)` (`STAGE-10.BFF.4`).
+pub fn db_query_via_bridge(
+    bridge: &chord_store::StoreBridge,
+    query: &str,
+    channel_id: Option<&str>,
+    author_id: Option<&str>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+) -> Result<Vec<DbQueryHitDto>, DataError> {
+    let query = query.trim();
+    if query.is_empty() {
+        return Err(DataError::invalid_arg("query не должен быть пустым"));
+    }
+    let limit = limit.unwrap_or(25).clamp(1, 100);
+    let offset = offset.unwrap_or(0);
+    let hits = bridge
+        .search_messages_fts(query, channel_id, author_id, limit, offset)
+        .map_err(|err| DataError::invalid_arg(format!("StoreBridge search error: {err}")))?;
+    Ok(hits.into_iter().map(DbQueryHitDto::from).collect())
 }
 
 fn live_rest_mock_slot(
@@ -156,42 +373,31 @@ pub fn extract_user_id_from_token(token: &str) -> Option<String> {
     }
 }
 
+/// Decodes a Base64-encoded string conforming to RFC 4648.
+/// Supports both standard and URL-safe Base64 encodings with or without padding.
+///
+/// # Arguments:
+/// * `input` — ASCII/UTF-8 string containing the Base64 payload.
+///
+/// # Returns:
+/// * `Some(Vec<u8>)` — Decoded raw bytes.
+/// * `None` — If string is empty or contains invalid characters.
 fn decode_base64_ascii(input: &str) -> Option<Vec<u8>> {
-    let clean: Vec<u8> = input
-        .bytes()
-        .filter(|&b| b != b'=' && !b.is_ascii_whitespace())
-        .collect();
+    let clean: String = input.chars().filter(|c| !c.is_ascii_whitespace()).collect();
     if clean.is_empty() {
         return None;
     }
-    let map_byte = |b: u8| -> Option<u8> {
-        match b {
-            b'A'..=b'Z' => Some(b - b'A'),
-            b'a'..=b'z' => Some(b - b'a' + 26),
-            b'0'..=b'9' => Some(b - b'0' + 52),
-            b'+' | b'-' => Some(62),
-            b'/' | b'_' => Some(63),
-            _ => None,
-        }
-    };
-    let mut out = Vec::with_capacity(clean.len() * 3 / 4);
-    for chunk in clean.chunks(4) {
-        if chunk.len() < 2 {
-            return None;
-        }
-        let v0 = map_byte(chunk[0])? as u32;
-        let v1 = map_byte(chunk[1])? as u32;
-        out.push(((v0 << 2) | (v1 >> 4)) as u8);
-        if chunk.len() > 2 {
-            let v2 = map_byte(chunk[2])? as u32;
-            out.push((((v1 & 0x0F) << 4) | (v2 >> 2)) as u8);
-            if chunk.len() > 3 {
-                let v3 = map_byte(chunk[3])? as u32;
-                out.push((((v2 & 0x03) << 6) | v3) as u8);
-            }
-        }
-    }
-    Some(out)
+    base64::engine::general_purpose::STANDARD
+        .decode(clean.as_bytes())
+        .or_else(|_| {
+            base64::engine::general_purpose::URL_SAFE_NO_PAD
+                .decode(clean.trim_end_matches('=').as_bytes())
+        })
+        .or_else(|_| {
+            base64::engine::general_purpose::STANDARD_NO_PAD
+                .decode(clean.trim_end_matches('=').as_bytes())
+        })
+        .ok()
 }
 
 pub fn outbound_voice_op4_frames() -> Vec<Value> {
@@ -337,28 +543,15 @@ pub fn cached_invite_code_for_guild(guild_id: &str) -> Option<String> {
     None
 }
 
+/// Encodes a byte slice into canonical Base64 string conforming to RFC 4648 §4.
+///
+/// # Arguments:
+/// * `bytes` — Input byte slice.
+///
+/// # Returns:
+/// * `String` — Standard Base64 encoded string with `=` padding.
 fn encode_base64_ascii(bytes: &[u8]) -> String {
-    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    let mut out = String::with_capacity(bytes.len().div_ceil(3) * 4);
-    for chunk in bytes.chunks(3) {
-        let b0 = chunk[0] as u32;
-        let b1 = if chunk.len() > 1 { chunk[1] as u32 } else { 0 };
-        let b2 = if chunk.len() > 2 { chunk[2] as u32 } else { 0 };
-        let triple = (b0 << 16) | (b1 << 8) | b2;
-        out.push(TABLE[((triple >> 18) & 0x3F) as usize] as char);
-        out.push(TABLE[((triple >> 12) & 0x3F) as usize] as char);
-        if chunk.len() > 1 {
-            out.push(TABLE[((triple >> 6) & 0x3F) as usize] as char);
-        } else {
-            out.push('=');
-        }
-        if chunk.len() > 2 {
-            out.push(TABLE[(triple & 0x3F) as usize] as char);
-        } else {
-            out.push('=');
-        }
-    }
-    out
+    base64::engine::general_purpose::STANDARD.encode(bytes)
 }
 
 /// Строит Base64-заголовок `X-Context-Properties` по эталонному `getInviteContext("Desktop Invite Modal", invite)`
@@ -450,8 +643,8 @@ pub fn accept_invite_via_live_rest(
                     &identity.timezone,
                 )
                 .map_err(|e| e.to_string())?;
-                let client = chord_core::rest::client::ApiClient::new(
-                    chord_core::rest::client::ApiConfig {
+                let client =
+                    chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
                         base: chord_core::API_V9_BASE.to_string(),
                         auth,
                         http: chord_core::rest::transport::HttpClientConfig {
@@ -464,9 +657,8 @@ pub fn accept_invite_via_live_rest(
                             max_attempts: 1,
                             ..chord_core::rest::client::ApiRetryPolicy::default()
                         },
-                    },
-                )
-                .map_err(|e| e.to_string())?;
+                    })
+                    .map_err(|e| e.to_string())?;
                 let runtime = tokio::runtime::Builder::new_current_thread()
                     .enable_all()
                     .build()
@@ -1642,12 +1834,30 @@ fn live_components_sqlite_slot() -> &'static Mutex<Option<PathBuf>> {
     SLOT.get_or_init(|| Mutex::new(None))
 }
 
-/// Задаёт путь к SQLite-хранилищу (`chord_store::Store`) для сохранения компонентов сообщений.
+/// Sets the SQLite file path (`chord_store::Store`) used to persist message components,
+/// invalidating any previously cached store handle in [`LiveSession`] (`TAURI-STORE-01`).
 pub fn set_live_components_sqlite_path(path: Option<PathBuf>) {
-    let mut guard = live_components_sqlite_slot()
+    {
+        let mut guard = live_components_sqlite_slot()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        *guard = path;
+    }
+    let mut session = live_session()
         .lock()
         .unwrap_or_else(|poison| poison.into_inner());
-    *guard = path;
+    session.components_store = None;
+    session.components_store_path = None;
+}
+
+/// Returns the cached long-lived [`chord_store::Store`] handle from [`LiveSession`] for `sqlite_path` (`TAURI-STORE-01`).
+#[inline]
+#[must_use]
+fn live_components_store(sqlite_path: &Path) -> Option<std::sync::Arc<Mutex<chord_store::Store>>> {
+    let mut session = live_session()
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
+    session.cached_components_store(sqlite_path)
 }
 
 /// Возвращает актуальный путь к SQLite-хранилищу компонентов сообщений.
@@ -1747,9 +1957,12 @@ fn persist_message_value_components_to_live_sqlite(msg_val: &Value) {
         return;
     };
     let sqlite_path = live_components_sqlite_path();
-    let Ok(mut store) = chord_store::Store::open(&sqlite_path) else {
+    let Some(store_handle) = live_components_store(&sqlite_path) else {
         return;
     };
+    let mut store = store_handle
+        .lock()
+        .unwrap_or_else(|poison| poison.into_inner());
     if let Ok(row) = parse_message(msg_val, Path::new("live://sqlite")) {
         let _ = save_message_components_to_sqlite(&mut store, &row);
     } else if store.migrate().is_ok() {
@@ -2086,6 +2299,8 @@ fn parse_user_premium_type(value: &Value) -> u8 {
 }
 
 fn populate_voice_and_presences_from_ready(guard: &mut LiveSession, data: &Value) {
+    let _ = guard.in_memory_cache.update_from_ready_value(data);
+    let _ = in_memory_cache().update_from_ready_value(data);
     let mut users_by_id: HashMap<String, Value> = HashMap::new();
     if let Some(me) = data.get("user") {
         if let Some(uid) = field_str(me, "id") {
@@ -2716,828 +2931,753 @@ fn delete_guild_role_from_map(
     sync_guild_map_permissions(gm, self_uid);
 }
 
-/// Принимает живые события шлюза (`READY`, `READY_SUPPLEMENTAL`, `MESSAGE_CREATE`, `MESSAGE_UPDATE`, `VOICE_STATE_UPDATE`, `PRESENCE_UPDATE`).
-pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
-    const MAX_LIVE_MESSAGES_PER_CHANNEL: usize = 500;
-    const MAX_LIVE_MESSAGE_CHANNELS: usize = 128;
-    const MAX_LIVE_PRESENCES: usize = 5_000;
-    let mut clean_data = raw_data.clone();
-    sanitize_etf_json_value(&mut clean_data);
-    let data = &clean_data;
-    let mut deferred_cache_save: Option<Value> = None;
-    let mut deferred_sqlite_msg: Option<Value> = None;
-    {
-        let mut guard = live_session()
-            .lock()
-            .unwrap_or_else(|poison| poison.into_inner());
-        match kind {
-            "READY" => {
-                if let Some(new_uid) = data.get("user").and_then(|u| field_str(u, "id")) {
-                    if data.get("guilds").and_then(Value::as_array).is_some() {
-                        let is_synth = is_synthetic_test_ready(data);
-                        let prev_uid = guard
-                            .ready_data
-                            .as_ref()
-                            .and_then(|rd| rd.get("user"))
-                            .and_then(|ru| field_str(ru, "id"))
-                            .map(str::to_string);
-                        if is_synth || prev_uid.as_deref().is_some_and(|p| p != new_uid) {
-                            guard.local_preview_guilds.clear();
-                        }
-                        let prev_guilds: HashMap<String, Value> =
-                            if is_synth || prev_uid.as_deref().is_some_and(|p| p != new_uid) {
-                                HashMap::new()
-                            } else {
-                                guard
-                                    .ready_data
-                                    .as_ref()
-                                    .and_then(|rd| rd.get("guilds"))
-                                    .and_then(Value::as_array)
-                                    .map(|arr| {
-                                        arr.iter()
-                                            .filter_map(|gv| {
-                                                field_str(gv, "id")
-                                                    .map(|id| (id.to_string(), gv.clone()))
-                                            })
-                                            .collect()
-                                    })
-                                    .unwrap_or_default()
-                            };
-                        let mut merged_ready = data.clone();
-                        if !is_synth {
-                            if let Value::Object(ref mut rm) = merged_ready {
-                                if let Some(Value::Array(ref mut g_arr)) = rm.get_mut("guilds") {
-                                    for g_item in g_arr.iter_mut() {
-                                        if let Some(gid_str) =
-                                            field_str(g_item, "id").map(str::to_string)
-                                        {
-                                            let is_ready_lurker = field_bool(g_item, "lurker");
-                                            if !is_ready_lurker {
-                                                guard.local_preview_guilds.remove(&gid_str);
-                                            }
-                                            let prev_opt =
-                                                prev_guilds.get(&gid_str).or_else(|| {
-                                                    guard.local_preview_guilds.get(&gid_str)
-                                                });
-                                            if let Value::Object(ref mut gm) = g_item {
-                                                gm.insert(
-                                                    "isMember".to_string(),
-                                                    Value::Bool(!is_ready_lurker),
-                                                );
-                                                gm.insert(
-                                                    "lurker".to_string(),
-                                                    Value::Bool(is_ready_lurker),
-                                                );
-                                                if let Some(prev_g) = prev_opt {
-                                                    for key in [
-                                                        "channels", "roles", "my_roles", "myRoles",
-                                                        "owner_id", "pending",
-                                                    ] {
-                                                        let cur_empty = gm
-                                                            .get(key)
-                                                            .and_then(Value::as_array)
-                                                            .map(|a| a.is_empty())
-                                                            .unwrap_or_else(|| {
-                                                                !gm.contains_key(key)
-                                                            });
-                                                        if cur_empty {
-                                                            if let Some(pv) = prev_g.get(key) {
-                                                                gm.insert(
-                                                                    key.to_string(),
-                                                                    pv.clone(),
-                                                                );
-                                                            }
-                                                        }
-                                                    }
+const MAX_LIVE_MESSAGES_PER_CHANNEL: usize = 500;
+const MAX_LIVE_MESSAGE_CHANNELS: usize = 128;
+const MAX_LIVE_PRESENCES: usize = 5_000;
+
+fn handle_ready_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    if let Some(new_uid) = data.get("user").and_then(|u| field_str(u, "id")) {
+        if data.get("guilds").and_then(Value::as_array).is_some() {
+            let is_synth = is_synthetic_test_ready(data);
+            let prev_uid = guard
+                .ready_data
+                .as_ref()
+                .and_then(|rd| rd.get("user"))
+                .and_then(|ru| field_str(ru, "id"))
+                .map(str::to_string);
+            if is_synth || prev_uid.as_deref().is_some_and(|p| p != new_uid) {
+                guard.local_preview_guilds.clear();
+            }
+            let prev_guilds: HashMap<String, Value> =
+                if is_synth || prev_uid.as_deref().is_some_and(|p| p != new_uid) {
+                    HashMap::new()
+                } else {
+                    guard
+                        .ready_data
+                        .as_ref()
+                        .and_then(|rd| rd.get("guilds"))
+                        .and_then(Value::as_array)
+                        .map(|arr| {
+                            arr.iter()
+                                .filter_map(|gv| {
+                                    field_str(gv, "id").map(|id| (id.to_string(), gv.clone()))
+                                })
+                                .collect()
+                        })
+                        .unwrap_or_default()
+                };
+            let mut merged_ready = data.clone();
+            if !is_synth {
+                if let Value::Object(ref mut rm) = merged_ready {
+                    if let Some(Value::Array(ref mut g_arr)) = rm.get_mut("guilds") {
+                        for g_item in g_arr.iter_mut() {
+                            if let Some(gid_str) = field_str(g_item, "id").map(str::to_string) {
+                                let is_ready_lurker = field_bool(g_item, "lurker");
+                                if !is_ready_lurker {
+                                    guard.local_preview_guilds.remove(&gid_str);
+                                }
+                                let prev_opt = prev_guilds
+                                    .get(&gid_str)
+                                    .or_else(|| guard.local_preview_guilds.get(&gid_str));
+                                if let Value::Object(ref mut gm) = g_item {
+                                    gm.insert(
+                                        "isMember".to_string(),
+                                        Value::Bool(!is_ready_lurker),
+                                    );
+                                    gm.insert("lurker".to_string(), Value::Bool(is_ready_lurker));
+                                    if let Some(prev_g) = prev_opt {
+                                        for key in [
+                                            "channels", "roles", "my_roles", "myRoles", "owner_id",
+                                            "pending",
+                                        ] {
+                                            let cur_empty = gm
+                                                .get(key)
+                                                .and_then(Value::as_array)
+                                                .map(|a| a.is_empty())
+                                                .unwrap_or_else(|| !gm.contains_key(key));
+                                            if cur_empty {
+                                                if let Some(pv) = prev_g.get(key) {
+                                                    gm.insert(key.to_string(), pv.clone());
                                                 }
                                             }
                                         }
                                     }
-                                    for (pgid, pg_val) in &guard.local_preview_guilds {
-                                        if !g_arr
-                                            .iter()
-                                            .any(|x| field_str(x, "id") == Some(pgid.as_str()))
-                                        {
-                                            g_arr.push(pg_val.clone());
+                                }
+                            }
+                        }
+                        for (pgid, pg_val) in &guard.local_preview_guilds {
+                            if !g_arr
+                                .iter()
+                                .any(|x| field_str(x, "id") == Some(pgid.as_str()))
+                            {
+                                g_arr.push(pg_val.clone());
+                            }
+                        }
+                    }
+                }
+            }
+            guard.voice_states.clear();
+            guard.presences.clear();
+            populate_voice_and_presences_from_ready(guard, &merged_ready);
+            guard.ready_data = Some(merged_ready.clone());
+            *deferred_cache_save = Some(merged_ready);
+        }
+    }
+}
+
+fn handle_ready_supplemental_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    let mut users_by_id: HashMap<String, Value> = HashMap::new();
+    if let Some(ref rd) = guard.ready_data {
+        if let Some(me) = rd.get("user") {
+            if let Some(uid) = field_str(me, "id") {
+                users_by_id.insert(uid.to_string(), me.clone());
+            }
+        }
+        for u in array(rd.get("users")) {
+            if let Some(uid) = field_str(u, "id") {
+                users_by_id.insert(uid.to_string(), u.clone());
+            }
+        }
+    }
+    let supp_merged_members = array(data.get("merged_members"));
+    let ready_merged_members: Vec<Value> = guard
+        .ready_data
+        .as_ref()
+        .map(|r| array(r.get("merged_members")).to_vec())
+        .unwrap_or_default();
+    let supp_guilds = array(data.get("guilds"));
+    if !supp_guilds.is_empty() {
+        let ready_guild_ids: Vec<String> = guard
+            .ready_data
+            .as_ref()
+            .map(|r| {
+                array(r.get("guilds"))
+                    .iter()
+                    .filter_map(|g| field_str(g, "id").map(str::to_string))
+                    .collect()
+            })
+            .unwrap_or_default();
+        for (idx, sg) in supp_guilds.iter().enumerate() {
+            let gid = field_str(sg, "id")
+                .map(str::to_string)
+                .or_else(|| ready_guild_ids.get(idx).cloned());
+            if let Some(gid) = gid {
+                let mut g_members: Vec<Value> = Vec::new();
+                if let Some(mm) = ready_merged_members.get(idx) {
+                    g_members.extend_from_slice(array(Some(mm)));
+                }
+                if let Some(mm) = supp_merged_members.get(idx) {
+                    g_members.extend_from_slice(array(Some(mm)));
+                }
+                for m in &g_members {
+                    if let Some(u) = m.get("user") {
+                        if let Some(uid) = field_str(u, "id") {
+                            users_by_id
+                                .entry(uid.to_string())
+                                .or_insert_with(|| u.clone());
+                        }
+                    }
+                }
+                let raw_vs = array(sg.get("voice_states"));
+                let vs: Vec<Value> = raw_vs
+                    .iter()
+                    .map(|entry| enrich_voice_state_entry(entry, &g_members, &users_by_id))
+                    .collect();
+                guard.voice_states.insert(gid, vs);
+            }
+        }
+    }
+    if let Some(merged_presences) = data.get("merged_presences") {
+        for friend_p in array(merged_presences.get("friends")) {
+            if let Some(uid) = friend_p
+                .get("user")
+                .and_then(|u| field_str(u, "id"))
+                .or_else(|| field_str(friend_p, "user_id"))
+            {
+                if guard.presences.len() < MAX_LIVE_PRESENCES || guard.presences.contains_key(uid) {
+                    guard.presences.insert(uid.to_string(), friend_p.clone());
+                }
+            }
+        }
+        for g_arr in array(merged_presences.get("guilds")) {
+            for p in array(Some(g_arr)) {
+                if let Some(uid) = p
+                    .get("user")
+                    .and_then(|u| field_str(u, "id"))
+                    .or_else(|| field_str(p, "user_id"))
+                {
+                    if guard.presences.len() < MAX_LIVE_PRESENCES
+                        || guard.presences.contains_key(uid)
+                    {
+                        guard.presences.insert(uid.to_string(), p.clone());
+                    }
+                }
+            }
+        }
+    }
+    let voice_snapshot = guard.voice_states.clone();
+    let all_presences: Vec<Value> = guard.presences.values().cloned().collect();
+    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+        if !supp_merged_members.is_empty() {
+            let mut combined_mm = ready_merged_members;
+            for (idx, smm) in supp_merged_members.iter().enumerate() {
+                if idx < combined_mm.len() {
+                    if let (Some(mut base_arr), Some(supp_arr)) =
+                        (combined_mm[idx].as_array().cloned(), smm.as_array())
+                    {
+                        for item in supp_arr {
+                            base_arr.push(item.clone());
+                        }
+                        combined_mm[idx] = Value::Array(base_arr);
+                    }
+                } else {
+                    combined_mm.push(smm.clone());
+                }
+            }
+            ready_map.insert("merged_members".to_string(), Value::Array(combined_mm));
+        }
+        if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+            for rg in r_guilds.iter_mut() {
+                if let Some(gid) = field_str(rg, "id").map(str::to_string) {
+                    if let Some(vs) = voice_snapshot.get(&gid) {
+                        if let Value::Object(ref mut gm) = rg {
+                            gm.insert("voice_states".to_string(), Value::Array(vs.clone()));
+                        }
+                    }
+                }
+            }
+        }
+        ready_map.insert("presences".to_string(), Value::Array(all_presences));
+        *deferred_cache_save = Some(Value::Object(ready_map.clone()));
+    }
+}
+
+fn handle_message_create_event(
+    guard: &mut LiveSession,
+    twilight_msg: Option<&chord_core::twilight_model::gateway::payload::incoming::MessageCreate>,
+    data: &Value,
+    deferred_sqlite_msg: &mut Option<Value>,
+) {
+    let cid_opt = twilight_msg
+        .map(|m| m.0.channel_id.to_string())
+        .or_else(|| field_str(data, "channel_id").map(str::to_string));
+    let mid_opt = twilight_msg
+        .map(|m| m.0.id.to_string())
+        .or_else(|| field_str(data, "id").map(str::to_string));
+
+    if let (Some(cid), Some(mid)) = (cid_opt, mid_opt) {
+        let self_user_id = guard.user.as_ref().map(|u| u.id.clone());
+        if guard.channel_messages.len() >= MAX_LIVE_MESSAGE_CHANNELS
+            && !guard.channel_messages.contains_key(&cid)
+        {
+            if let Some(first_key) = guard.channel_messages.keys().next().cloned() {
+                guard.channel_messages.remove(&first_key);
+            }
+        }
+        let list = guard.channel_messages.entry(cid).or_default();
+        if let Some(existing) = list.iter_mut().find(|m| field_str(m, "id") == Some(&mid)) {
+            *existing = data.clone();
+        } else {
+            let author_id = twilight_msg
+                .map(|m| m.0.author.id.to_string())
+                .or_else(|| {
+                    data.get("author")
+                        .and_then(|a| field_str(a, "id").map(str::to_string))
+                })
+                .unwrap_or_default();
+            let is_self = self_user_id.as_deref() == Some(&author_id);
+            if !is_self && (!author_id.is_empty() || data.get("author").is_some()) {
+                let username = twilight_msg
+                    .map(|m| m.0.author.name.as_str())
+                    .or_else(|| data.get("author").and_then(|a| field_str(a, "username")))
+                    .unwrap_or("Discord");
+                let content = twilight_msg
+                    .map(|m| m.0.content.as_str())
+                    .or_else(|| field_str(data, "content"))
+                    .unwrap_or_default();
+                if !content.is_empty() {
+                    let _ = crate::notifications::send_desktop_notification(
+                        username,
+                        content,
+                        Some("im.received"),
+                    );
+                }
+            }
+            list.push(data.clone());
+            if list.len() > MAX_LIVE_MESSAGES_PER_CHANNEL {
+                let excess = list.len() - MAX_LIVE_MESSAGES_PER_CHANNEL;
+                list.drain(0..excess);
+            }
+        }
+        *deferred_sqlite_msg = Some(data.clone());
+    }
+}
+
+fn handle_message_update_event(
+    guard: &mut LiveSession,
+    twilight_msg: Option<&chord_core::twilight_model::gateway::payload::incoming::MessageUpdate>,
+    data: &Value,
+    deferred_sqlite_msg: &mut Option<Value>,
+) {
+    let cid_opt = twilight_msg
+        .map(|m| m.channel_id.to_string())
+        .or_else(|| field_str(data, "channel_id").map(str::to_string));
+    let mid_opt = twilight_msg
+        .map(|m| m.id.to_string())
+        .or_else(|| field_str(data, "id").map(str::to_string));
+
+    if let (Some(cid), Some(mid)) = (cid_opt, mid_opt) {
+        if guard.channel_messages.len() >= MAX_LIVE_MESSAGE_CHANNELS
+            && !guard.channel_messages.contains_key(&cid)
+        {
+            if let Some(first_key) = guard.channel_messages.keys().next().cloned() {
+                guard.channel_messages.remove(&first_key);
+            }
+        }
+        let list = guard.channel_messages.entry(cid).or_default();
+        if let Some(existing) = list.iter_mut().find(|m| field_str(m, "id") == Some(&mid)) {
+            if let (Value::Object(ex_map), Value::Object(new_map)) = (&mut *existing, data) {
+                for (k, v) in new_map {
+                    ex_map.insert(k.clone(), v.clone());
+                }
+            }
+            *deferred_sqlite_msg = Some(existing.clone());
+        } else if data
+            .get("author")
+            .and_then(|a| field_str(a, "id"))
+            .is_some()
+        {
+            list.push(data.clone());
+            if list.len() > MAX_LIVE_MESSAGES_PER_CHANNEL {
+                let excess = list.len() - MAX_LIVE_MESSAGES_PER_CHANNEL;
+                list.drain(0..excess);
+            }
+            *deferred_sqlite_msg = Some(data.clone());
+        } else {
+            *deferred_sqlite_msg = Some(data.clone());
+        }
+    }
+}
+
+fn handle_voice_state_update_event(
+    guard: &mut LiveSession,
+    twilight_vs: Option<&chord_core::twilight_model::gateway::payload::incoming::VoiceStateUpdate>,
+    data: &Value,
+) {
+    let uid_opt = twilight_vs
+        .map(|vs| vs.0.user_id.to_string())
+        .or_else(|| field_str(data, "user_id").map(str::to_string));
+    if let Some(uid) = uid_opt {
+        let gid_opt = twilight_vs
+            .and_then(|vs| vs.0.guild_id.map(|g| g.to_string()))
+            .or_else(|| field_str(data, "guild_id").map(str::to_string))
+            .or_else(|| field_str(data, "channel_id").map(|_| "@me".to_string()));
+        let mut users_by_id: HashMap<String, Value> = HashMap::new();
+        let mut guild_members: Vec<Value> = Vec::new();
+        if let Some(ref mut rd) = guard.ready_data {
+            if let Some(u) = data.get("member").and_then(|m| m.get("user")) {
+                if let Some(u_id) = field_str(u, "id") {
+                    users_by_id.insert(u_id.to_string(), u.clone());
+                    if let Value::Object(ref mut r_map) = rd {
+                        if let Some(Value::Array(ref mut u_arr)) = r_map.get_mut("users") {
+                            if let Some(ex) =
+                                u_arr.iter_mut().find(|x| field_str(x, "id") == Some(u_id))
+                            {
+                                *ex = u.clone();
+                            } else if u_arr.len() < 10_000 {
+                                u_arr.push(u.clone());
+                            }
+                        }
+                    }
+                }
+            }
+            if let Some(me) = rd.get("user") {
+                if let Some(me_id) = field_str(me, "id") {
+                    users_by_id.insert(me_id.to_string(), me.clone());
+                }
+            }
+            for u in array(rd.get("users")) {
+                if let Some(u_id) = field_str(u, "id") {
+                    users_by_id.insert(u_id.to_string(), u.clone());
+                }
+            }
+            if let Some(ref gid) = gid_opt {
+                let guilds_arr = array(rd.get("guilds"));
+                if let Some(g_idx) = guilds_arr
+                    .iter()
+                    .position(|g| field_str(g, "id") == Some(gid.as_str()))
+                {
+                    guild_members.extend_from_slice(array(guilds_arr[g_idx].get("members")));
+                    if let Some(mm) = array(rd.get("merged_members")).get(g_idx) {
+                        guild_members.extend_from_slice(array(Some(mm)));
+                    }
+                }
+            }
+        }
+        if let Some(gid) = gid_opt {
+            let is_self_user = guard.user.as_ref().is_some_and(|u| u.id == uid)
+                || guard
+                    .ready_data
+                    .as_ref()
+                    .and_then(|r| r.get("user"))
+                    .and_then(|u| field_str(u, "id"))
+                    == Some(&uid);
+            let joined_channel = field_str(data, "channel_id").is_some();
+            if is_self_user && joined_channel {
+                for (other_gid, other_list) in guard.voice_states.iter_mut() {
+                    if other_gid != &gid {
+                        other_list.retain(|entry| field_str(entry, "user_id") != Some(&uid));
+                    }
+                }
+            }
+            let list = guard.voice_states.entry(gid.clone()).or_default();
+            let previous_member = list
+                .iter()
+                .find(|entry| field_str(entry, "user_id") == Some(&uid))
+                .and_then(|entry| entry.get("member"))
+                .cloned();
+            list.retain(|entry| field_str(entry, "user_id") != Some(&uid));
+            if joined_channel {
+                if let Some(pm) = previous_member {
+                    guild_members.push(pm);
+                }
+                let enriched = enrich_voice_state_entry(data, &guild_members, &users_by_id);
+                list.push(enriched);
+            }
+            let vs_clone = list.clone();
+            if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                    for rg in r_guilds.iter_mut() {
+                        let rg_id = field_str(rg, "id").map(str::to_string);
+                        if rg_id.as_deref() == Some(gid.as_str()) {
+                            if let Value::Object(ref mut gm) = rg {
+                                gm.insert(
+                                    "voice_states".to_string(),
+                                    Value::Array(vs_clone.clone()),
+                                );
+                            }
+                        } else if is_self_user && joined_channel {
+                            if let Value::Object(ref mut gm) = rg {
+                                if let Some(Value::Array(ref mut vs_arr)) =
+                                    gm.get_mut("voice_states")
+                                {
+                                    vs_arr
+                                        .retain(|entry| field_str(entry, "user_id") != Some(&uid));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            for list in guard.voice_states.values_mut() {
+                list.retain(|entry| field_str(entry, "user_id") != Some(&uid));
+            }
+        }
+    }
+}
+
+fn handle_call_create_update_event(guard: &mut LiveSession, data: &Value) {
+    if let Some(cid) = field_str(data, "channel_id") {
+        let mut users_by_id: HashMap<String, Value> = HashMap::new();
+        if let Some(ref rd) = guard.ready_data {
+            if let Some(me) = rd.get("user") {
+                if let Some(u_id) = field_str(me, "id") {
+                    users_by_id.insert(u_id.to_string(), me.clone());
+                }
+            }
+            for u in array(rd.get("users")) {
+                if let Some(u_id) = field_str(u, "id") {
+                    users_by_id.insert(u_id.to_string(), u.clone());
+                }
+            }
+        }
+        let self_uid = resolve_live_self_uid(guard);
+        let local_in_this_call = LOCAL_VOICE_ACTIVE.load(std::sync::atomic::Ordering::SeqCst)
+            && guard.voice_channel_id.as_deref() == Some(cid);
+        let list = guard.voice_states.entry("@me".to_string()).or_default();
+        let existing_self_entry = if local_in_this_call && !self_uid.is_empty() {
+            list.iter()
+                .find(|entry| {
+                    field_str(entry, "user_id") == Some(self_uid.as_str())
+                        && field_str(entry, "channel_id") == Some(cid)
+                })
+                .cloned()
+        } else {
+            None
+        };
+        list.retain(|entry| field_str(entry, "channel_id") != Some(cid));
+        let mut seen_self = false;
+        for raw_vs in array(data.get("voice_states")) {
+            let Some(uid) = field_str(raw_vs, "user_id") else {
+                continue;
+            };
+            let vs_cid = field_str(raw_vs, "channel_id").unwrap_or(cid);
+            if vs_cid.is_empty() {
+                continue;
+            }
+            if uid == self_uid {
+                seen_self = true;
+            }
+            let mut with_cid = raw_vs.clone();
+            if let Value::Object(ref mut m) = with_cid {
+                m.insert("guild_id".to_string(), Value::String("@me".to_string()));
+                m.insert("channel_id".to_string(), Value::String(vs_cid.to_string()));
+            }
+            let enriched = enrich_voice_state_entry(&with_cid, &[], &users_by_id);
+            list.push(enriched);
+        }
+        if !seen_self {
+            if let Some(self_entry) = existing_self_entry {
+                list.push(self_entry);
+            }
+        }
+    }
+}
+
+fn handle_call_delete_event(guard: &mut LiveSession, data: &Value) {
+    if let Some(cid) = field_str(data, "channel_id") {
+        if let Some(list) = guard.voice_states.get_mut("@me") {
+            list.retain(|entry| field_str(entry, "channel_id") != Some(cid));
+        }
+    }
+}
+
+fn handle_presence_update_event(
+    guard: &mut LiveSession,
+    twilight_pu: Option<&chord_core::twilight_model::gateway::payload::incoming::PresenceUpdate>,
+    data: &Value,
+) {
+    let uid_opt = twilight_pu
+        .map(|pu| pu.0.user.id().to_string())
+        .or_else(|| {
+            data.get("user")
+                .and_then(|u| field_str(u, "id").map(str::to_string))
+                .or_else(|| field_str(data, "user_id").map(str::to_string))
+        });
+    if let Some(uid) = uid_opt {
+        if guard.presences.len() < MAX_LIVE_PRESENCES || guard.presences.contains_key(&uid) {
+            guard.presences.insert(uid, data.clone());
+        }
+        let all_presences: Vec<Value> = guard.presences.values().cloned().collect();
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            ready_map.insert("presences".to_string(), Value::Array(all_presences));
+        }
+    }
+}
+
+fn handle_guild_member_list_update_event(guard: &mut LiveSession, data: &Value) {
+    if let Some(gid) = field_str(data, "guild_id") {
+        let has_groups = !array(data.get("groups")).is_empty();
+        if has_groups || !guard.member_list_updates.contains_key(gid) {
+            guard
+                .member_list_updates
+                .insert(gid.to_string(), data.clone());
+        }
+        let mut new_members: Vec<Value> = Vec::new();
+        for op in array(data.get("ops")) {
+            for item in array(op.get("items")) {
+                if let Some(member) = item.get("member") {
+                    new_members.push(member.clone());
+                }
+            }
+            if let Some(item) = op.get("item") {
+                if let Some(member) = item.get("member") {
+                    new_members.push(member.clone());
+                }
+            }
+            if let Some(member) = op.get("member") {
+                new_members.push(member.clone());
+            }
+        }
+        for member in &new_members {
+            if let Some(u) = member.get("user") {
+                if let Some(uid) = field_str(u, "id") {
+                    if let Some(p) = member.get("presence") {
+                        if guard.presences.len() < MAX_LIVE_PRESENCES
+                            || guard.presences.contains_key(uid)
+                        {
+                            guard.presences.insert(uid.to_string(), p.clone());
+                        }
+                    }
+                }
+            }
+        }
+        if !new_members.is_empty() {
+            if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                if let Some(Value::Array(ref mut u_arr)) = ready_map.get_mut("users") {
+                    for nm in &new_members {
+                        if let Some(u) = nm.get("user") {
+                            if let Some(uid) = field_str(u, "id") {
+                                if let Some(ex) =
+                                    u_arr.iter_mut().find(|x| field_str(x, "id") == Some(uid))
+                                {
+                                    *ex = u.clone();
+                                } else if u_arr.len() < 10_000 {
+                                    u_arr.push(u.clone());
+                                }
+                            }
+                        }
+                    }
+                }
+                if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                    for rg in r_guilds.iter_mut() {
+                        if field_str(rg, "id") == Some(gid) {
+                            if let Value::Object(ref mut gm) = rg {
+                                let m_arr = gm
+                                    .entry("members".to_string())
+                                    .or_insert_with(|| Value::Array(Vec::new()));
+                                if let Value::Array(ref mut list) = m_arr {
+                                    for nm in &new_members {
+                                        let n_uid = nm
+                                            .get("user")
+                                            .and_then(|u| field_str(u, "id"))
+                                            .or_else(|| field_str(nm, "user_id"));
+                                        if let Some(uid_str) = n_uid {
+                                            if let Some(ex) = list.iter_mut().find(|x| {
+                                                x.get("user")
+                                                    .and_then(|u| field_str(u, "id"))
+                                                    .or_else(|| field_str(x, "user_id"))
+                                                    == Some(uid_str)
+                                            }) {
+                                                *ex = nm.clone();
+                                            } else if list.len() < 1000 {
+                                                list.push(nm.clone());
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                        guard.voice_states.clear();
-                        guard.presences.clear();
-                        populate_voice_and_presences_from_ready(&mut guard, &merged_ready);
-                        guard.ready_data = Some(merged_ready.clone());
-                        deferred_cache_save = Some(merged_ready);
                     }
                 }
             }
-            "READY_SUPPLEMENTAL" => {
-                let mut users_by_id: HashMap<String, Value> = HashMap::new();
-                if let Some(ref rd) = guard.ready_data {
-                    if let Some(me) = rd.get("user") {
-                        if let Some(uid) = field_str(me, "id") {
-                            users_by_id.insert(uid.to_string(), me.clone());
-                        }
-                    }
-                    for u in array(rd.get("users")) {
-                        if let Some(uid) = field_str(u, "id") {
-                            users_by_id.insert(uid.to_string(), u.clone());
-                        }
-                    }
+        }
+    }
+}
+
+fn handle_guild_members_chunk_event(
+    guard: &mut LiveSession,
+    twilight_mc: Option<&chord_core::twilight_model::gateway::payload::incoming::MemberChunk>,
+    data: &Value,
+) {
+    let gid_opt = twilight_mc
+        .map(|mc| mc.guild_id.to_string())
+        .or_else(|| field_str(data, "guild_id").map(str::to_string));
+    if let Some(gid) = gid_opt {
+        for p in array(data.get("presences")) {
+            if let Some(uid) = p
+                .get("user")
+                .and_then(|u| field_str(u, "id"))
+                .or_else(|| field_str(p, "user_id"))
+            {
+                if guard.presences.len() < MAX_LIVE_PRESENCES || guard.presences.contains_key(uid) {
+                    guard.presences.insert(uid.to_string(), p.clone());
                 }
-                let supp_merged_members = array(data.get("merged_members"));
-                let ready_merged_members: Vec<Value> = guard
-                    .ready_data
-                    .as_ref()
-                    .map(|r| array(r.get("merged_members")).to_vec())
-                    .unwrap_or_default();
-                let supp_guilds = array(data.get("guilds"));
-                if !supp_guilds.is_empty() {
-                    let ready_guild_ids: Vec<String> = guard
-                        .ready_data
-                        .as_ref()
-                        .map(|r| {
-                            array(r.get("guilds"))
-                                .iter()
-                                .filter_map(|g| field_str(g, "id").map(str::to_string))
-                                .collect()
-                        })
-                        .unwrap_or_default();
-                    for (idx, sg) in supp_guilds.iter().enumerate() {
-                        let gid = field_str(sg, "id")
-                            .map(str::to_string)
-                            .or_else(|| ready_guild_ids.get(idx).cloned());
-                        if let Some(gid) = gid {
-                            let mut g_members: Vec<Value> = Vec::new();
-                            if let Some(mm) = ready_merged_members.get(idx) {
-                                g_members.extend_from_slice(array(Some(mm)));
-                            }
-                            if let Some(mm) = supp_merged_members.get(idx) {
-                                g_members.extend_from_slice(array(Some(mm)));
-                            }
-                            for m in &g_members {
-                                if let Some(u) = m.get("user") {
-                                    if let Some(uid) = field_str(u, "id") {
-                                        users_by_id
-                                            .entry(uid.to_string())
-                                            .or_insert_with(|| u.clone());
-                                    }
-                                }
-                            }
-                            let raw_vs = array(sg.get("voice_states"));
-                            let vs: Vec<Value> = raw_vs
-                                .iter()
-                                .map(|entry| {
-                                    enrich_voice_state_entry(entry, &g_members, &users_by_id)
-                                })
-                                .collect();
-                            guard.voice_states.insert(gid, vs);
-                        }
-                    }
-                }
-                if let Some(merged_presences) = data.get("merged_presences") {
-                    for friend_p in array(merged_presences.get("friends")) {
-                        if let Some(uid) = friend_p
-                            .get("user")
-                            .and_then(|u| field_str(u, "id"))
-                            .or_else(|| field_str(friend_p, "user_id"))
-                        {
-                            if guard.presences.len() < MAX_LIVE_PRESENCES
-                                || guard.presences.contains_key(uid)
-                            {
-                                guard.presences.insert(uid.to_string(), friend_p.clone());
-                            }
-                        }
-                    }
-                    for g_arr in array(merged_presences.get("guilds")) {
-                        for p in array(Some(g_arr)) {
-                            if let Some(uid) = p
-                                .get("user")
-                                .and_then(|u| field_str(u, "id"))
-                                .or_else(|| field_str(p, "user_id"))
-                            {
-                                if guard.presences.len() < MAX_LIVE_PRESENCES
-                                    || guard.presences.contains_key(uid)
-                                {
-                                    guard.presences.insert(uid.to_string(), p.clone());
-                                }
-                            }
-                        }
-                    }
-                }
-                let voice_snapshot = guard.voice_states.clone();
-                let all_presences: Vec<Value> = guard.presences.values().cloned().collect();
-                if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                    if !supp_merged_members.is_empty() {
-                        let mut combined_mm = ready_merged_members;
-                        for (idx, smm) in supp_merged_members.iter().enumerate() {
-                            if idx < combined_mm.len() {
-                                if let (Some(mut base_arr), Some(supp_arr)) =
-                                    (combined_mm[idx].as_array().cloned(), smm.as_array())
-                                {
-                                    for item in supp_arr {
-                                        base_arr.push(item.clone());
-                                    }
-                                    combined_mm[idx] = Value::Array(base_arr);
-                                }
-                            } else {
-                                combined_mm.push(smm.clone());
-                            }
-                        }
-                        ready_map.insert("merged_members".to_string(), Value::Array(combined_mm));
-                    }
-                    if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
-                        for rg in r_guilds.iter_mut() {
-                            if let Some(gid) = field_str(rg, "id").map(str::to_string) {
-                                if let Some(vs) = voice_snapshot.get(&gid) {
-                                    if let Value::Object(ref mut gm) = rg {
-                                        gm.insert(
-                                            "voice_states".to_string(),
-                                            Value::Array(vs.clone()),
-                                        );
+            }
+        }
+        let chunk_members = array(data.get("members"));
+        if !chunk_members.is_empty() {
+            if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                    for rg in r_guilds.iter_mut() {
+                        if field_str(rg, "id") == Some(&gid) {
+                            if let Value::Object(ref mut gm) = rg {
+                                let m_arr = gm
+                                    .entry("members".to_string())
+                                    .or_insert_with(|| Value::Array(Vec::new()));
+                                if let Value::Array(ref mut list) = m_arr {
+                                    for nm in chunk_members {
+                                        let n_uid = nm
+                                            .get("user")
+                                            .and_then(|u| field_str(u, "id"))
+                                            .or_else(|| field_str(nm, "user_id"));
+                                        if let Some(uid_str) = n_uid {
+                                            if let Some(ex) = list.iter_mut().find(|x| {
+                                                x.get("user")
+                                                    .and_then(|u| field_str(u, "id"))
+                                                    .or_else(|| field_str(x, "user_id"))
+                                                    == Some(uid_str)
+                                            }) {
+                                                *ex = nm.clone();
+                                            } else if list.len() < 1000 {
+                                                list.push(nm.clone());
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                    ready_map.insert("presences".to_string(), Value::Array(all_presences));
-                    deferred_cache_save = Some(Value::Object(ready_map.clone()));
                 }
             }
-            "MESSAGE_CREATE" => {
-                if let (Some(cid), Some(mid)) =
-                    (field_str(data, "channel_id"), field_str(data, "id"))
-                {
-                    let self_user_id = guard.user.as_ref().map(|u| u.id.clone());
-                    if guard.channel_messages.len() >= MAX_LIVE_MESSAGE_CHANNELS
-                        && !guard.channel_messages.contains_key(cid)
+        }
+    }
+}
+
+fn handle_guild_member_update_event(
+    guard: &mut LiveSession,
+    twilight_mu: Option<&chord_core::twilight_model::gateway::payload::incoming::MemberUpdate>,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    let gid_opt = twilight_mu.map(|mu| mu.guild_id.to_string()).or_else(|| {
+        field_str(data, "guild_id")
+            .or_else(|| field_str(data, "guildId"))
+            .map(str::to_string)
+    });
+    let uid_opt = twilight_mu.map(|mu| mu.user.id.to_string()).or_else(|| {
+        data.get("user")
+            .and_then(|u| field_str(u, "id"))
+            .or_else(|| field_str(data, "user_id"))
+            .or_else(|| field_str(data, "userId"))
+            .map(str::to_string)
+    });
+    if let (Some(gid), Some(uid)) = (gid_opt, uid_opt) {
+        let self_uid = resolve_live_self_uid(guard);
+        let has_roles_field = data.get("roles").is_some_and(Value::is_array);
+        let new_roles: Vec<Value> = array(data.get("roles"))
+            .iter()
+            .filter_map(|r| as_non_nil_str(r).map(|s| Value::String(s.to_string())))
+            .collect();
+        let pending_opt =
+            field_bool_opt(data, "pending").or_else(|| field_bool_opt(data, "is_pending"));
+
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            if let Some(u_val) = data.get("user").filter(|u| u.is_object()) {
+                let users_arr = ready_map
+                    .entry("users".to_string())
+                    .or_insert_with(|| Value::Array(Vec::new()));
+                if let Value::Array(ref mut u_list) = users_arr {
+                    if let Some(ex_u) = u_list.iter_mut().find(|u| field_str(u, "id") == Some(&uid))
                     {
-                        if let Some(first_key) = guard.channel_messages.keys().next().cloned() {
-                            guard.channel_messages.remove(&first_key);
-                        }
-                    }
-                    let list = guard.channel_messages.entry(cid.to_string()).or_default();
-                    if let Some(existing) =
-                        list.iter_mut().find(|m| field_str(m, "id") == Some(mid))
-                    {
-                        *existing = data.clone();
-                    } else {
-                        if let Some(author) = data.get("author") {
-                            let author_id = field_str(author, "id").unwrap_or_default();
-                            let is_self = self_user_id.as_deref() == Some(author_id);
-                            if !is_self {
-                                let username = field_str(author, "username").unwrap_or("Discord");
-                                let content = field_str(data, "content").unwrap_or_default();
-                                if !content.is_empty() {
-                                    let _ = crate::notifications::send_desktop_notification(
-                                        username,
-                                        content,
-                                        Some("im.received"),
-                                    );
-                                }
-                            }
-                        }
-                        list.push(data.clone());
-                        if list.len() > MAX_LIVE_MESSAGES_PER_CHANNEL {
-                            let excess = list.len() - MAX_LIVE_MESSAGES_PER_CHANNEL;
-                            list.drain(0..excess);
-                        }
-                    }
-                    deferred_sqlite_msg = Some(data.clone());
-                }
-            }
-            "MESSAGE_UPDATE" => {
-                if let (Some(cid), Some(mid)) =
-                    (field_str(data, "channel_id"), field_str(data, "id"))
-                {
-                    if guard.channel_messages.len() >= MAX_LIVE_MESSAGE_CHANNELS
-                        && !guard.channel_messages.contains_key(cid)
-                    {
-                        if let Some(first_key) = guard.channel_messages.keys().next().cloned() {
-                            guard.channel_messages.remove(&first_key);
-                        }
-                    }
-                    let list = guard.channel_messages.entry(cid.to_string()).or_default();
-                    if let Some(existing) =
-                        list.iter_mut().find(|m| field_str(m, "id") == Some(mid))
-                    {
-                        if let (Value::Object(ex_map), Value::Object(new_map)) =
-                            (&mut *existing, data)
+                        if let (Value::Object(ref mut ex_map), Some(new_map)) =
+                            (ex_u, u_val.as_object())
                         {
                             for (k, v) in new_map {
                                 ex_map.insert(k.clone(), v.clone());
                             }
                         }
-                        deferred_sqlite_msg = Some(existing.clone());
-                    } else if data
-                        .get("author")
-                        .and_then(|a| field_str(a, "id"))
-                        .is_some()
-                    {
-                        list.push(data.clone());
-                        if list.len() > MAX_LIVE_MESSAGES_PER_CHANNEL {
-                            let excess = list.len() - MAX_LIVE_MESSAGES_PER_CHANNEL;
-                            list.drain(0..excess);
-                        }
-                        deferred_sqlite_msg = Some(data.clone());
                     } else {
-                        deferred_sqlite_msg = Some(data.clone());
+                        u_list.push(u_val.clone());
                     }
                 }
             }
-            "VOICE_STATE_UPDATE" => {
-                if let Some(uid) = field_str(data, "user_id") {
-                    let gid_opt = field_str(data, "guild_id")
-                        .map(str::to_string)
-                        .or_else(|| field_str(data, "channel_id").map(|_| "@me".to_string()));
-                    let mut users_by_id: HashMap<String, Value> = HashMap::new();
-                    let mut guild_members: Vec<Value> = Vec::new();
-                    if let Some(ref mut rd) = guard.ready_data {
-                        if let Some(u) = data.get("member").and_then(|m| m.get("user")) {
-                            if let Some(u_id) = field_str(u, "id") {
-                                users_by_id.insert(u_id.to_string(), u.clone());
-                                if let Value::Object(ref mut r_map) = rd {
-                                    if let Some(Value::Array(ref mut u_arr)) =
-                                        r_map.get_mut("users")
-                                    {
-                                        if let Some(ex) = u_arr
-                                            .iter_mut()
-                                            .find(|x| field_str(x, "id") == Some(u_id))
-                                        {
-                                            *ex = u.clone();
-                                        } else if u_arr.len() < 10_000 {
-                                            u_arr.push(u.clone());
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if let Some(me) = rd.get("user") {
-                            if let Some(me_id) = field_str(me, "id") {
-                                users_by_id.insert(me_id.to_string(), me.clone());
-                            }
-                        }
-                        for u in array(rd.get("users")) {
-                            if let Some(u_id) = field_str(u, "id") {
-                                users_by_id.insert(u_id.to_string(), u.clone());
-                            }
-                        }
-                        if let Some(ref gid) = gid_opt {
-                            let guilds_arr = array(rd.get("guilds"));
-                            if let Some(g_idx) = guilds_arr
-                                .iter()
-                                .position(|g| field_str(g, "id") == Some(gid.as_str()))
-                            {
-                                guild_members
-                                    .extend_from_slice(array(guilds_arr[g_idx].get("members")));
-                                if let Some(mm) = array(rd.get("merged_members")).get(g_idx) {
-                                    guild_members.extend_from_slice(array(Some(mm)));
-                                }
-                            }
-                        }
-                    }
-                    if let Some(gid) = gid_opt {
-                        let is_self_user = guard.user.as_ref().is_some_and(|u| u.id == uid)
-                            || guard
-                                .ready_data
-                                .as_ref()
-                                .and_then(|r| r.get("user"))
-                                .and_then(|u| field_str(u, "id"))
-                                == Some(uid);
-                        let joined_channel = field_str(data, "channel_id").is_some();
-                        if is_self_user && joined_channel {
-                            for (other_gid, other_list) in guard.voice_states.iter_mut() {
-                                if other_gid != &gid {
-                                    other_list
-                                        .retain(|entry| field_str(entry, "user_id") != Some(uid));
-                                }
-                            }
-                        }
-                        let list = guard.voice_states.entry(gid.clone()).or_default();
-                        let previous_member = list
-                            .iter()
-                            .find(|entry| field_str(entry, "user_id") == Some(uid))
-                            .and_then(|entry| entry.get("member"))
-                            .cloned();
-                        list.retain(|entry| field_str(entry, "user_id") != Some(uid));
-                        if joined_channel {
-                            if let Some(pm) = previous_member {
-                                guild_members.push(pm);
-                            }
-                            let enriched =
-                                enrich_voice_state_entry(data, &guild_members, &users_by_id);
-                            list.push(enriched);
-                        }
-                        let vs_clone = list.clone();
-                        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                            if let Some(Value::Array(ref mut r_guilds)) =
-                                ready_map.get_mut("guilds")
-                            {
-                                for rg in r_guilds.iter_mut() {
-                                    let rg_id = field_str(rg, "id").map(str::to_string);
-                                    if rg_id.as_deref() == Some(gid.as_str()) {
-                                        if let Value::Object(ref mut gm) = rg {
-                                            gm.insert(
-                                                "voice_states".to_string(),
-                                                Value::Array(vs_clone.clone()),
-                                            );
-                                        }
-                                    } else if is_self_user && joined_channel {
-                                        if let Value::Object(ref mut gm) = rg {
-                                            if let Some(Value::Array(ref mut vs_arr)) =
-                                                gm.get_mut("voice_states")
-                                            {
-                                                vs_arr.retain(|entry| {
-                                                    field_str(entry, "user_id") != Some(uid)
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        for list in guard.voice_states.values_mut() {
-                            list.retain(|entry| field_str(entry, "user_id") != Some(uid));
-                        }
-                    }
-                }
-            }
-            "CALL_CREATE" | "CALL_UPDATE" => {
-                if let Some(cid) = field_str(data, "channel_id") {
-                    let mut users_by_id: HashMap<String, Value> = HashMap::new();
-                    if let Some(ref rd) = guard.ready_data {
-                        if let Some(me) = rd.get("user") {
-                            if let Some(u_id) = field_str(me, "id") {
-                                users_by_id.insert(u_id.to_string(), me.clone());
-                            }
-                        }
-                        for u in array(rd.get("users")) {
-                            if let Some(u_id) = field_str(u, "id") {
-                                users_by_id.insert(u_id.to_string(), u.clone());
-                            }
-                        }
-                    }
-                    let self_uid = resolve_live_self_uid(&guard);
-                    let local_in_this_call = LOCAL_VOICE_ACTIVE
-                        .load(std::sync::atomic::Ordering::SeqCst)
-                        && guard.voice_channel_id.as_deref() == Some(cid);
-                    let list = guard.voice_states.entry("@me".to_string()).or_default();
-                    let existing_self_entry = if local_in_this_call && !self_uid.is_empty() {
-                        list.iter()
-                            .find(|entry| {
-                                field_str(entry, "user_id") == Some(self_uid.as_str())
-                                    && field_str(entry, "channel_id") == Some(cid)
-                            })
-                            .cloned()
-                    } else {
-                        None
-                    };
-                    list.retain(|entry| field_str(entry, "channel_id") != Some(cid));
-                    let mut seen_self = false;
-                    for raw_vs in array(data.get("voice_states")) {
-                        let Some(uid) = field_str(raw_vs, "user_id") else {
-                            continue;
-                        };
-                        let vs_cid = field_str(raw_vs, "channel_id").unwrap_or(cid);
-                        if vs_cid.is_empty() {
-                            continue;
-                        }
-                        if uid == self_uid {
-                            seen_self = true;
-                        }
-                        let mut with_cid = raw_vs.clone();
-                        if let Value::Object(ref mut m) = with_cid {
-                            m.insert("guild_id".to_string(), Value::String("@me".to_string()));
-                            m.insert("channel_id".to_string(), Value::String(vs_cid.to_string()));
-                        }
-                        let enriched = enrich_voice_state_entry(&with_cid, &[], &users_by_id);
-                        list.push(enriched);
-                    }
-                    if !seen_self {
-                        if let Some(self_entry) = existing_self_entry {
-                            list.push(self_entry);
-                        }
-                    }
-                }
-            }
-            "CALL_DELETE" => {
-                if let Some(cid) = field_str(data, "channel_id") {
-                    if let Some(list) = guard.voice_states.get_mut("@me") {
-                        list.retain(|entry| field_str(entry, "channel_id") != Some(cid));
-                    }
-                }
-            }
-            "PRESENCE_UPDATE" => {
-                if let Some(uid) = data
-                    .get("user")
-                    .and_then(|u| field_str(u, "id"))
-                    .or_else(|| field_str(data, "user_id"))
-                {
-                    if guard.presences.len() < MAX_LIVE_PRESENCES
-                        || guard.presences.contains_key(uid)
-                    {
-                        guard.presences.insert(uid.to_string(), data.clone());
-                    }
-                    let all_presences: Vec<Value> = guard.presences.values().cloned().collect();
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        ready_map.insert("presences".to_string(), Value::Array(all_presences));
-                    }
-                }
-            }
-            "GUILD_MEMBER_LIST_UPDATE" => {
-                if let Some(gid) = field_str(data, "guild_id") {
-                    let has_groups = !array(data.get("groups")).is_empty();
-                    if has_groups || !guard.member_list_updates.contains_key(gid) {
-                        guard
-                            .member_list_updates
-                            .insert(gid.to_string(), data.clone());
-                    }
-                    let mut new_members: Vec<Value> = Vec::new();
-                    for op in array(data.get("ops")) {
-                        for item in array(op.get("items")) {
-                            if let Some(member) = item.get("member") {
-                                new_members.push(member.clone());
-                            }
-                        }
-                        if let Some(item) = op.get("item") {
-                            if let Some(member) = item.get("member") {
-                                new_members.push(member.clone());
-                            }
-                        }
-                        if let Some(member) = op.get("member") {
-                            new_members.push(member.clone());
-                        }
-                    }
-                    for member in &new_members {
-                        if let Some(u) = member.get("user") {
-                            if let Some(uid) = field_str(u, "id") {
-                                if let Some(p) = member.get("presence") {
-                                    if guard.presences.len() < MAX_LIVE_PRESENCES
-                                        || guard.presences.contains_key(uid)
-                                    {
-                                        guard.presences.insert(uid.to_string(), p.clone());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if !new_members.is_empty() {
-                        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                            if let Some(Value::Array(ref mut u_arr)) = ready_map.get_mut("users") {
-                                for nm in &new_members {
-                                    if let Some(u) = nm.get("user") {
-                                        if let Some(uid) = field_str(u, "id") {
-                                            if let Some(ex) = u_arr
-                                                .iter_mut()
-                                                .find(|x| field_str(x, "id") == Some(uid))
-                                            {
-                                                *ex = u.clone();
-                                            } else if u_arr.len() < 10_000 {
-                                                u_arr.push(u.clone());
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if let Some(Value::Array(ref mut r_guilds)) =
-                                ready_map.get_mut("guilds")
-                            {
-                                for rg in r_guilds.iter_mut() {
-                                    if field_str(rg, "id") == Some(gid) {
-                                        if let Value::Object(ref mut gm) = rg {
-                                            let m_arr = gm
-                                                .entry("members".to_string())
-                                                .or_insert_with(|| Value::Array(Vec::new()));
-                                            if let Value::Array(ref mut list) = m_arr {
-                                                for nm in &new_members {
-                                                    let n_uid = nm
-                                                        .get("user")
-                                                        .and_then(|u| field_str(u, "id"))
-                                                        .or_else(|| field_str(nm, "user_id"));
-                                                    if let Some(uid_str) = n_uid {
-                                                        if let Some(ex) =
-                                                            list.iter_mut().find(|x| {
-                                                                x.get("user")
-                                                                    .and_then(|u| {
-                                                                        field_str(u, "id")
-                                                                    })
-                                                                    .or_else(|| {
-                                                                        field_str(x, "user_id")
-                                                                    })
-                                                                    == Some(uid_str)
-                                                            })
-                                                        {
-                                                            *ex = nm.clone();
-                                                        } else if list.len() < 1000 {
-                                                            list.push(nm.clone());
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            "GUILD_MEMBERS_CHUNK" => {
-                if let Some(gid) = field_str(data, "guild_id") {
-                    for p in array(data.get("presences")) {
-                        if let Some(uid) = p
-                            .get("user")
-                            .and_then(|u| field_str(u, "id"))
-                            .or_else(|| field_str(p, "user_id"))
-                        {
-                            if guard.presences.len() < MAX_LIVE_PRESENCES
-                                || guard.presences.contains_key(uid)
-                            {
-                                guard.presences.insert(uid.to_string(), p.clone());
-                            }
-                        }
-                    }
-                    let chunk_members = array(data.get("members"));
-                    if !chunk_members.is_empty() {
-                        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                            if let Some(Value::Array(ref mut r_guilds)) =
-                                ready_map.get_mut("guilds")
-                            {
-                                for rg in r_guilds.iter_mut() {
-                                    if field_str(rg, "id") == Some(gid) {
-                                        if let Value::Object(ref mut gm) = rg {
-                                            let m_arr = gm
-                                                .entry("members".to_string())
-                                                .or_insert_with(|| Value::Array(Vec::new()));
-                                            if let Value::Array(ref mut list) = m_arr {
-                                                for nm in chunk_members {
-                                                    let n_uid = nm
-                                                        .get("user")
-                                                        .and_then(|u| field_str(u, "id"))
-                                                        .or_else(|| field_str(nm, "user_id"));
-                                                    if let Some(uid_str) = n_uid {
-                                                        if let Some(ex) =
-                                                            list.iter_mut().find(|x| {
-                                                                x.get("user")
-                                                                    .and_then(|u| {
-                                                                        field_str(u, "id")
-                                                                    })
-                                                                    .or_else(|| {
-                                                                        field_str(x, "user_id")
-                                                                    })
-                                                                    == Some(uid_str)
-                                                            })
-                                                        {
-                                                            *ex = nm.clone();
-                                                        } else if list.len() < 1000 {
-                                                            list.push(nm.clone());
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            "GUILD_MEMBER_UPDATE" => {
-                let gid_opt = field_str(data, "guild_id").or_else(|| field_str(data, "guildId"));
-                let uid_opt = data
-                    .get("user")
-                    .and_then(|u| field_str(u, "id"))
-                    .or_else(|| field_str(data, "user_id"))
-                    .or_else(|| field_str(data, "userId"));
-                if let (Some(gid), Some(uid)) = (gid_opt, uid_opt) {
-                    let self_uid = resolve_live_self_uid(&guard);
-                    let has_roles_field = data.get("roles").is_some_and(Value::is_array);
-                    let new_roles: Vec<Value> = array(data.get("roles"))
-                        .iter()
-                        .filter_map(|r| as_non_nil_str(r).map(|s| Value::String(s.to_string())))
-                        .collect();
-                    let pending_opt = field_bool_opt(data, "pending")
-                        .or_else(|| field_bool_opt(data, "is_pending"));
 
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        if let Some(u_val) = data.get("user").filter(|u| u.is_object()) {
-                            let users_arr = ready_map
-                                .entry("users".to_string())
-                                .or_insert_with(|| Value::Array(Vec::new()));
-                            if let Value::Array(ref mut u_list) = users_arr {
-                                if let Some(ex_u) =
-                                    u_list.iter_mut().find(|u| field_str(u, "id") == Some(uid))
-                                {
-                                    if let (Value::Object(ref mut ex_map), Some(new_map)) =
-                                        (ex_u, u_val.as_object())
-                                    {
-                                        for (k, v) in new_map {
-                                            ex_map.insert(k.clone(), v.clone());
-                                        }
-                                    }
-                                } else {
-                                    u_list.push(u_val.clone());
-                                }
-                            }
-                        }
-
-                        let mut matched_guild_idx: Option<usize> = None;
-                        if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
-                            for (g_idx, rg) in r_guilds.iter_mut().enumerate() {
-                                if field_str(rg, "id") == Some(gid) {
-                                    matched_guild_idx = Some(g_idx);
-                                    if let Value::Object(ref mut gm) = rg {
-                                        let m_arr = gm
-                                            .entry("members".to_string())
-                                            .or_insert_with(|| Value::Array(Vec::new()));
-                                        if let Value::Array(ref mut list) = m_arr {
-                                            if let Some(ex) = list.iter_mut().find(|x| {
-                                                x.get("user")
-                                                    .and_then(|u| field_str(u, "id"))
-                                                    .or_else(|| field_str(x, "user_id"))
-                                                    .or_else(|| field_str(x, "userId"))
-                                                    == Some(uid)
-                                            }) {
-                                                if let Value::Object(ref mut obj) = ex {
-                                                    apply_guild_member_update_to_entry(
-                                                        obj,
-                                                        data,
-                                                        uid,
-                                                        has_roles_field,
-                                                        &new_roles,
-                                                    );
-                                                }
-                                            } else {
-                                                let mut fresh_map = serde_json::Map::new();
-                                                apply_guild_member_update_to_entry(
-                                                    &mut fresh_map,
-                                                    data,
-                                                    uid,
-                                                    true,
-                                                    &new_roles,
-                                                );
-                                                list.push(Value::Object(fresh_map));
-                                            }
-                                        }
-                                        if uid == self_uid {
-                                            if has_roles_field {
-                                                gm.insert(
-                                                    "my_roles".to_string(),
-                                                    Value::Array(new_roles.clone()),
-                                                );
-                                                gm.insert(
-                                                    "myRoles".to_string(),
-                                                    Value::Array(new_roles.clone()),
-                                                );
-                                            }
-                                            if let Some(p_flag) = pending_opt {
-                                                gm.insert(
-                                                    "pending".to_string(),
-                                                    Value::Bool(p_flag),
-                                                );
-                                            }
-                                            sync_guild_map_permissions(gm, &self_uid);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if let Some(g_idx) = matched_guild_idx {
-                            if let Some(Value::Array(ref mut mm_outer)) =
-                                ready_map.get_mut("merged_members")
-                            {
-                                if let Some(Value::Array(ref mut mm_guild)) =
-                                    mm_outer.get_mut(g_idx)
-                                {
-                                    for mm_entry in mm_guild.iter_mut() {
-                                        let mm_uid = mm_entry
-                                            .get("user")
-                                            .and_then(|u| field_str(u, "id"))
-                                            .or_else(|| field_str(mm_entry, "user_id"))
-                                            .or_else(|| field_str(mm_entry, "userId"));
-                                        if mm_uid == Some(uid) {
-                                            if let Value::Object(ref mut obj) = mm_entry {
-                                                apply_guild_member_update_to_entry(
-                                                    obj,
-                                                    data,
-                                                    uid,
-                                                    has_roles_field,
-                                                    &new_roles,
-                                                );
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if let Some(preview_g) = guard.local_preview_guilds.get_mut(gid) {
-                        if let Value::Object(ref mut gm) = preview_g {
+            let mut matched_guild_idx: Option<usize> = None;
+            if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                for (g_idx, rg) in r_guilds.iter_mut().enumerate() {
+                    if field_str(rg, "id") == Some(&gid) {
+                        matched_guild_idx = Some(g_idx);
+                        if let Value::Object(ref mut gm) = rg {
                             let m_arr = gm
                                 .entry("members".to_string())
                                 .or_insert_with(|| Value::Array(Vec::new()));
@@ -3547,13 +3687,13 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                                         .and_then(|u| field_str(u, "id"))
                                         .or_else(|| field_str(x, "user_id"))
                                         .or_else(|| field_str(x, "userId"))
-                                        == Some(uid)
+                                        == Some(&uid)
                                 }) {
                                     if let Value::Object(ref mut obj) = ex {
                                         apply_guild_member_update_to_entry(
                                             obj,
                                             data,
-                                            uid,
+                                            &uid,
                                             has_roles_field,
                                             &new_roles,
                                         );
@@ -3563,7 +3703,7 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                                     apply_guild_member_update_to_entry(
                                         &mut fresh_map,
                                         data,
-                                        uid,
+                                        &uid,
                                         true,
                                         &new_roles,
                                     );
@@ -3588,15 +3728,24 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                             }
                         }
                     }
+                }
+            }
 
-                    if let Some(vs_list) = guard.voice_states.get_mut(gid) {
-                        for vs in vs_list.iter_mut() {
-                            if field_str(vs, "user_id") == Some(uid) {
-                                if let Some(Value::Object(ref mut m_obj)) = vs.get_mut("member") {
+            if let Some(g_idx) = matched_guild_idx {
+                if let Some(Value::Array(ref mut mm_outer)) = ready_map.get_mut("merged_members") {
+                    if let Some(Value::Array(ref mut mm_guild)) = mm_outer.get_mut(g_idx) {
+                        for mm_entry in mm_guild.iter_mut() {
+                            let mm_uid = mm_entry
+                                .get("user")
+                                .and_then(|u| field_str(u, "id"))
+                                .or_else(|| field_str(mm_entry, "user_id"))
+                                .or_else(|| field_str(mm_entry, "userId"));
+                            if mm_uid == Some(&uid) {
+                                if let Value::Object(ref mut obj) = mm_entry {
                                     apply_guild_member_update_to_entry(
-                                        m_obj,
+                                        obj,
                                         data,
-                                        uid,
+                                        &uid,
                                         has_roles_field,
                                         &new_roles,
                                     );
@@ -3604,588 +3753,927 @@ pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
                             }
                         }
                     }
-
-                    deferred_cache_save = guard.ready_data.clone();
                 }
             }
-            "GUILD_ROLE_CREATE" | "GUILD_ROLE_UPDATE" => {
-                let gid_opt = field_str(data, "guild_id").or_else(|| field_str(data, "guildId"));
-                let role_raw = data.get("role").filter(|v| v.is_object()).unwrap_or(data);
-                let role_id_opt = field_str(role_raw, "id")
-                    .or_else(|| field_str(data, "role_id"))
-                    .or_else(|| field_str(data, "roleId"));
-                if let (Some(gid), Some(role_id)) = (gid_opt, role_id_opt) {
-                    let self_uid = resolve_live_self_uid(&guard);
-                    let mut clean_role = role_raw.clone();
-                    if let Value::Object(ref mut r_map) = clean_role {
-                        r_map.remove("guild_id");
-                        r_map.remove("guildId");
-                        r_map.insert("id".to_string(), Value::String(role_id.to_string()));
-                    }
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
-                            for rg in r_guilds.iter_mut() {
-                                if field_str(rg, "id") == Some(gid) {
-                                    if let Value::Object(ref mut gm) = rg {
-                                        upsert_guild_role_in_map(
-                                            gm,
-                                            role_id,
-                                            &clean_role,
-                                            &self_uid,
-                                        );
-                                    }
-                                }
-                            }
+        }
+
+        if let Some(preview_g) = guard.local_preview_guilds.get_mut(&gid) {
+            if let Value::Object(ref mut gm) = preview_g {
+                let m_arr = gm
+                    .entry("members".to_string())
+                    .or_insert_with(|| Value::Array(Vec::new()));
+                if let Value::Array(ref mut list) = m_arr {
+                    if let Some(ex) = list.iter_mut().find(|x| {
+                        x.get("user")
+                            .and_then(|u| field_str(u, "id"))
+                            .or_else(|| field_str(x, "user_id"))
+                            .or_else(|| field_str(x, "userId"))
+                            == Some(&uid)
+                    }) {
+                        if let Value::Object(ref mut obj) = ex {
+                            apply_guild_member_update_to_entry(
+                                obj,
+                                data,
+                                &uid,
+                                has_roles_field,
+                                &new_roles,
+                            );
                         }
+                    } else {
+                        let mut fresh_map = serde_json::Map::new();
+                        apply_guild_member_update_to_entry(
+                            &mut fresh_map,
+                            data,
+                            &uid,
+                            true,
+                            &new_roles,
+                        );
+                        list.push(Value::Object(fresh_map));
                     }
-                    if let Some(preview_g) = guard.local_preview_guilds.get_mut(gid) {
-                        if let Value::Object(ref mut gm) = preview_g {
+                }
+                if uid == self_uid {
+                    if has_roles_field {
+                        gm.insert("my_roles".to_string(), Value::Array(new_roles.clone()));
+                        gm.insert("myRoles".to_string(), Value::Array(new_roles.clone()));
+                    }
+                    if let Some(p_flag) = pending_opt {
+                        gm.insert("pending".to_string(), Value::Bool(p_flag));
+                    }
+                    sync_guild_map_permissions(gm, &self_uid);
+                }
+            }
+        }
+
+        if let Some(vs_list) = guard.voice_states.get_mut(&gid) {
+            for vs in vs_list.iter_mut() {
+                if field_str(vs, "user_id") == Some(&uid) {
+                    if let Some(Value::Object(ref mut m_obj)) = vs.get_mut("member") {
+                        apply_guild_member_update_to_entry(
+                            m_obj,
+                            data,
+                            &uid,
+                            has_roles_field,
+                            &new_roles,
+                        );
+                    }
+                }
+            }
+        }
+
+        *deferred_cache_save = guard.ready_data.clone();
+    }
+}
+
+fn handle_guild_role_upsert_event(
+    guard: &mut LiveSession,
+    twilight_gid: Option<&str>,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    let gid_opt = twilight_gid.map(str::to_string).or_else(|| {
+        field_str(data, "guild_id")
+            .or_else(|| field_str(data, "guildId"))
+            .map(str::to_string)
+    });
+    let role_raw = data.get("role").filter(|v| v.is_object()).unwrap_or(data);
+    let role_id_opt = field_str(role_raw, "id")
+        .or_else(|| field_str(data, "role_id"))
+        .or_else(|| field_str(data, "roleId"));
+    if let (Some(gid), Some(role_id)) = (gid_opt, role_id_opt) {
+        let self_uid = resolve_live_self_uid(guard);
+        let mut clean_role = role_raw.clone();
+        if let Value::Object(ref mut r_map) = clean_role {
+            r_map.remove("guild_id");
+            r_map.remove("guildId");
+            r_map.insert("id".to_string(), Value::String(role_id.to_string()));
+        }
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                for rg in r_guilds.iter_mut() {
+                    if field_str(rg, "id") == Some(&gid) {
+                        if let Value::Object(ref mut gm) = rg {
                             upsert_guild_role_in_map(gm, role_id, &clean_role, &self_uid);
                         }
                     }
-                    deferred_cache_save = guard.ready_data.clone();
                 }
             }
-            "GUILD_ROLE_DELETE" => {
-                let gid_opt = field_str(data, "guild_id").or_else(|| field_str(data, "guildId"));
-                let role_id_opt = field_str(data, "role_id")
-                    .or_else(|| field_str(data, "roleId"))
-                    .or_else(|| data.get("role").and_then(|r| field_str(r, "id")))
-                    .or_else(|| field_str(data, "id"));
-                if let (Some(gid), Some(role_id)) = (gid_opt, role_id_opt) {
-                    let self_uid = resolve_live_self_uid(&guard);
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        let mut matched_guild_idx: Option<usize> = None;
-                        if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
-                            for (g_idx, rg) in r_guilds.iter_mut().enumerate() {
-                                if field_str(rg, "id") == Some(gid) {
-                                    matched_guild_idx = Some(g_idx);
-                                    if let Value::Object(ref mut gm) = rg {
-                                        delete_guild_role_from_map(gm, role_id, &self_uid);
-                                    }
-                                }
-                            }
-                        }
-                        if let Some(g_idx) = matched_guild_idx {
-                            if let Some(Value::Array(ref mut mm_outer)) =
-                                ready_map.get_mut("merged_members")
-                            {
-                                if let Some(Value::Array(ref mut mm_guild)) =
-                                    mm_outer.get_mut(g_idx)
-                                {
-                                    for mm_entry in mm_guild.iter_mut() {
-                                        if let Some(Value::Array(ref mut m_roles)) =
-                                            mm_entry.get_mut("roles")
-                                        {
-                                            m_roles.retain(|r| as_non_nil_str(r) != Some(role_id));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if let Some(preview_g) = guard.local_preview_guilds.get_mut(gid) {
-                        if let Value::Object(ref mut gm) = preview_g {
-                            delete_guild_role_from_map(gm, role_id, &self_uid);
-                        }
-                    }
-                    if let Some(vs_list) = guard.voice_states.get_mut(gid) {
-                        for vs in vs_list.iter_mut() {
-                            if let Some(Value::Array(ref mut m_roles)) =
-                                vs.get_mut("member").and_then(|m| m.get_mut("roles"))
-                            {
-                                m_roles.retain(|r| as_non_nil_str(r) != Some(role_id));
-                            }
-                        }
-                    }
-                    deferred_cache_save = guard.ready_data.clone();
-                }
+        }
+        if let Some(preview_g) = guard.local_preview_guilds.get_mut(&gid) {
+            if let Value::Object(ref mut gm) = preview_g {
+                upsert_guild_role_in_map(gm, role_id, &clean_role, &self_uid);
             }
-            "GUILD_CREATE" => {
-                if let Some(gid) = field_str(data, "id") {
-                    let mut users_by_id: HashMap<String, Value> = HashMap::new();
-                    if let Some(ref rd) = guard.ready_data {
-                        if let Some(me) = rd.get("user") {
-                            if let Some(uid) = field_str(me, "id") {
-                                users_by_id.insert(uid.to_string(), me.clone());
-                            }
+        }
+        *deferred_cache_save = guard.ready_data.clone();
+    }
+}
+
+fn handle_guild_role_delete_event(
+    guard: &mut LiveSession,
+    twilight_gid: Option<&str>,
+    twilight_role_id: Option<&str>,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    let gid_opt = twilight_gid.map(str::to_string).or_else(|| {
+        field_str(data, "guild_id")
+            .or_else(|| field_str(data, "guildId"))
+            .map(str::to_string)
+    });
+    let role_id_opt = twilight_role_id.map(str::to_string).or_else(|| {
+        field_str(data, "role_id")
+            .or_else(|| field_str(data, "roleId"))
+            .or_else(|| data.get("role").and_then(|r| field_str(r, "id")))
+            .or_else(|| field_str(data, "id"))
+            .map(str::to_string)
+    });
+    if let (Some(gid), Some(role_id)) = (gid_opt, role_id_opt) {
+        let self_uid = resolve_live_self_uid(guard);
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            let mut matched_guild_idx: Option<usize> = None;
+            if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                for (g_idx, rg) in r_guilds.iter_mut().enumerate() {
+                    if field_str(rg, "id") == Some(&gid) {
+                        matched_guild_idx = Some(g_idx);
+                        if let Value::Object(ref mut gm) = rg {
+                            delete_guild_role_from_map(gm, &role_id, &self_uid);
                         }
-                        for u in array(rd.get("users")) {
-                            if let Some(uid) = field_str(u, "id") {
-                                users_by_id.insert(uid.to_string(), u.clone());
-                            }
-                        }
-                    }
-                    for m in array(data.get("members")) {
-                        if let Some(u) = m.get("user") {
-                            if let Some(uid) = field_str(u, "id") {
-                                users_by_id.insert(uid.to_string(), u.clone());
-                            }
-                        }
-                    }
-                    let vs_raw = array(data.get("voice_states"));
-                    if !vs_raw.is_empty() {
-                        let members_slice = array(data.get("members"));
-                        let enriched: Vec<Value> = vs_raw
-                            .iter()
-                            .map(|v| enrich_voice_state_entry(v, members_slice, &users_by_id))
-                            .collect();
-                        guard.voice_states.insert(gid.to_string(), enriched);
-                    }
-                    for pr in array(data.get("presences")) {
-                        let uid = field_str(pr, "user_id")
-                            .or_else(|| pr.get("user").and_then(|u| field_str(u, "id")));
-                        if let Some(u) = uid {
-                            if guard.presences.contains_key(u)
-                                || guard.presences.len() < MAX_LIVE_PRESENCES
-                            {
-                                guard.presences.insert(u.to_string(), pr.clone());
-                            }
-                        }
-                    }
-                    let mut guild_obj = data.clone();
-                    let is_gc_lurker = field_bool(&guild_obj, "lurker");
-                    if let Value::Object(ref mut gm) = guild_obj {
-                        if let Some(props) =
-                            gm.get("properties").and_then(Value::as_object).cloned()
-                        {
-                            for (k, v) in props {
-                                gm.entry(k).or_insert(v);
-                            }
-                        }
-                        gm.insert("isMember".to_string(), Value::Bool(!is_gc_lurker));
-                        gm.insert("lurker".to_string(), Value::Bool(is_gc_lurker));
-                    }
-                    if !is_gc_lurker {
-                        guard.local_preview_guilds.remove(gid);
-                    } else if guard.local_preview_guilds.contains_key(gid) {
-                        guard
-                            .local_preview_guilds
-                            .insert(gid.to_string(), guild_obj.clone());
-                    }
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        let guilds_val = ready_map
-                            .entry("guilds".to_string())
-                            .or_insert_with(|| Value::Array(Vec::new()));
-                        if let Value::Array(ref mut r_guilds) = guilds_val {
-                            if let Some(existing) = r_guilds
-                                .iter_mut()
-                                .find(|g| field_str(g, "id") == Some(gid))
-                            {
-                                *existing = guild_obj;
-                            } else {
-                                r_guilds.push(guild_obj);
-                            }
-                        }
-                    }
-                    deferred_cache_save = guard.ready_data.clone();
-                }
-            }
-            "GUILD_DELETE" => {
-                if let Some(gid) = field_str(data, "id") {
-                    let unavailable = field_bool(data, "unavailable");
-                    if !unavailable {
-                        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                            if let Some(Value::Array(ref mut r_guilds)) =
-                                ready_map.get_mut("guilds")
-                            {
-                                r_guilds.retain(|g| field_str(g, "id") != Some(gid));
-                            }
-                        }
-                        guard.voice_states.remove(gid);
-                        deferred_cache_save = guard.ready_data.clone();
                     }
                 }
             }
-            "MESSAGE_DELETE" => {
-                if let (Some(cid), Some(mid)) =
-                    (field_str(data, "channel_id"), field_str(data, "id"))
+            if let Some(g_idx) = matched_guild_idx {
+                if let Some(Value::Array(ref mut mm_outer)) = ready_map.get_mut("merged_members") {
+                    if let Some(Value::Array(ref mut mm_guild)) = mm_outer.get_mut(g_idx) {
+                        for mm_entry in mm_guild.iter_mut() {
+                            if let Some(Value::Array(ref mut m_roles)) = mm_entry.get_mut("roles") {
+                                m_roles.retain(|r| as_non_nil_str(r) != Some(&role_id));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if let Some(preview_g) = guard.local_preview_guilds.get_mut(&gid) {
+            if let Value::Object(ref mut gm) = preview_g {
+                delete_guild_role_from_map(gm, &role_id, &self_uid);
+            }
+        }
+        if let Some(vs_list) = guard.voice_states.get_mut(&gid) {
+            for vs in vs_list.iter_mut() {
+                if let Some(Value::Array(ref mut m_roles)) =
+                    vs.get_mut("member").and_then(|m| m.get_mut("roles"))
                 {
+                    m_roles.retain(|r| as_non_nil_str(r) != Some(&role_id));
+                }
+            }
+        }
+        *deferred_cache_save = guard.ready_data.clone();
+    }
+}
+
+fn handle_guild_create_event(
+    guard: &mut LiveSession,
+    twilight_gc: Option<&chord_core::twilight_model::gateway::payload::incoming::GuildCreate>,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    let gid_opt = twilight_gc
+        .map(|gc| gc.0.id.to_string())
+        .or_else(|| field_str(data, "id").map(str::to_string));
+    if let Some(gid) = gid_opt {
+        let mut users_by_id: HashMap<String, Value> = HashMap::new();
+        if let Some(ref rd) = guard.ready_data {
+            if let Some(me) = rd.get("user") {
+                if let Some(uid) = field_str(me, "id") {
+                    users_by_id.insert(uid.to_string(), me.clone());
+                }
+            }
+            for u in array(rd.get("users")) {
+                if let Some(uid) = field_str(u, "id") {
+                    users_by_id.insert(uid.to_string(), u.clone());
+                }
+            }
+        }
+        for m in array(data.get("members")) {
+            if let Some(u) = m.get("user") {
+                if let Some(uid) = field_str(u, "id") {
+                    users_by_id.insert(uid.to_string(), u.clone());
+                }
+            }
+        }
+        let vs_raw = array(data.get("voice_states"));
+        if !vs_raw.is_empty() {
+            let members_slice = array(data.get("members"));
+            let enriched: Vec<Value> = vs_raw
+                .iter()
+                .map(|v| enrich_voice_state_entry(v, members_slice, &users_by_id))
+                .collect();
+            guard.voice_states.insert(gid.clone(), enriched);
+        }
+        for pr in array(data.get("presences")) {
+            let uid = field_str(pr, "user_id")
+                .or_else(|| pr.get("user").and_then(|u| field_str(u, "id")));
+            if let Some(u) = uid {
+                if guard.presences.contains_key(u) || guard.presences.len() < MAX_LIVE_PRESENCES {
+                    guard.presences.insert(u.to_string(), pr.clone());
+                }
+            }
+        }
+        let mut guild_obj = data.clone();
+        let is_gc_lurker = field_bool(&guild_obj, "lurker");
+        if let Value::Object(ref mut gm) = guild_obj {
+            if let Some(props) = gm.get("properties").and_then(Value::as_object).cloned() {
+                for (k, v) in props {
+                    gm.entry(k).or_insert(v);
+                }
+            }
+            gm.insert("isMember".to_string(), Value::Bool(!is_gc_lurker));
+            gm.insert("lurker".to_string(), Value::Bool(is_gc_lurker));
+        }
+        if !is_gc_lurker {
+            guard.local_preview_guilds.remove(&gid);
+        } else if guard.local_preview_guilds.contains_key(&gid) {
+            guard
+                .local_preview_guilds
+                .insert(gid.clone(), guild_obj.clone());
+        }
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            let guilds_val = ready_map
+                .entry("guilds".to_string())
+                .or_insert_with(|| Value::Array(Vec::new()));
+            if let Value::Array(ref mut r_guilds) = guilds_val {
+                if let Some(existing) = r_guilds
+                    .iter_mut()
+                    .find(|g| field_str(g, "id") == Some(&gid))
+                {
+                    *existing = guild_obj;
+                } else {
+                    r_guilds.push(guild_obj);
+                }
+            }
+        }
+        *deferred_cache_save = guard.ready_data.clone();
+    }
+}
+
+fn handle_guild_delete_event(
+    guard: &mut LiveSession,
+    twilight_gd: Option<&chord_core::twilight_model::gateway::payload::incoming::GuildDelete>,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    let gid_opt = twilight_gd
+        .map(|gd| gd.id.to_string())
+        .or_else(|| field_str(data, "id").map(str::to_string));
+    if let Some(gid) = gid_opt {
+        let unavailable = twilight_gd
+            .map(|gd| gd.unavailable)
+            .unwrap_or_else(|| field_bool(data, "unavailable"));
+        if !unavailable {
+            if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                    r_guilds.retain(|g| field_str(g, "id") != Some(&gid));
+                }
+            }
+            guard.voice_states.remove(&gid);
+            *deferred_cache_save = guard.ready_data.clone();
+        }
+    }
+}
+
+fn handle_message_delete_event(
+    guard: &mut LiveSession,
+    twilight_md: Option<&chord_core::twilight_model::gateway::payload::incoming::MessageDelete>,
+    data: &Value,
+) {
+    let cid_opt = twilight_md
+        .map(|md| md.channel_id.to_string())
+        .or_else(|| field_str(data, "channel_id").map(str::to_string));
+    let mid_opt = twilight_md
+        .map(|md| md.id.to_string())
+        .or_else(|| field_str(data, "id").map(str::to_string));
+    if let (Some(cid), Some(mid)) = (cid_opt, mid_opt) {
+        guard.deleted_message_ids.insert((cid.clone(), mid.clone()));
+        if let Some(list) = guard.channel_messages.get_mut(&cid) {
+            list.retain(|m| field_str(m, "id") != Some(&mid));
+        }
+    }
+}
+
+fn handle_message_delete_bulk_event(
+    guard: &mut LiveSession,
+    twilight_mdb: Option<
+        &chord_core::twilight_model::gateway::payload::incoming::MessageDeleteBulk,
+    >,
+    data: &Value,
+) {
+    let cid_opt = twilight_mdb
+        .map(|mdb| mdb.channel_id.to_string())
+        .or_else(|| field_str(data, "channel_id").map(str::to_string));
+    if let Some(cid) = cid_opt {
+        if let Some(mdb) = twilight_mdb {
+            for mid in &mdb.ids {
+                let mid_str = mid.to_string();
+                guard
+                    .deleted_message_ids
+                    .insert((cid.clone(), mid_str.clone()));
+                if let Some(list) = guard.channel_messages.get_mut(&cid) {
+                    list.retain(|m| field_str(m, "id") != Some(&mid_str));
+                }
+            }
+        } else if let Some(Value::Array(ids)) = data.get("ids") {
+            for mid_val in ids {
+                if let Some(mid) = mid_val.as_str() {
                     guard
                         .deleted_message_ids
-                        .insert((cid.to_string(), mid.to_string()));
-                    if let Some(list) = guard.channel_messages.get_mut(cid) {
+                        .insert((cid.clone(), mid.to_string()));
+                    if let Some(list) = guard.channel_messages.get_mut(&cid) {
                         list.retain(|m| field_str(m, "id") != Some(mid));
                     }
                 }
             }
-            "MESSAGE_DELETE_BULK" => {
-                if let Some(cid) = field_str(data, "channel_id") {
-                    if let Some(Value::Array(ids)) = data.get("ids") {
-                        for mid_val in ids {
-                            if let Some(mid) = mid_val.as_str() {
-                                guard
-                                    .deleted_message_ids
-                                    .insert((cid.to_string(), mid.to_string()));
-                                if let Some(list) = guard.channel_messages.get_mut(cid) {
-                                    list.retain(|m| field_str(m, "id") != Some(mid));
+        }
+    }
+}
+
+fn handle_relationship_upsert_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    if let Some(rid) = field_str(data, "id") {
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            if let Some(u) = data.get("user") {
+                if let Some(uid) = field_str(u, "id") {
+                    let u_arr = ready_map
+                        .entry("users".to_string())
+                        .or_insert_with(|| Value::Array(Vec::new()));
+                    if let Value::Array(ref mut list) = u_arr {
+                        if let Some(ex) = list.iter_mut().find(|x| field_str(x, "id") == Some(uid))
+                        {
+                            *ex = u.clone();
+                        } else {
+                            list.push(u.clone());
+                        }
+                    }
+                }
+            }
+            let rel_arr = ready_map
+                .entry("relationships".to_string())
+                .or_insert_with(|| Value::Array(Vec::new()));
+            if let Value::Array(ref mut list) = rel_arr {
+                if let Some(ex) = list.iter_mut().find(|x| field_str(x, "id") == Some(rid)) {
+                    if let (Value::Object(ex_map), Value::Object(new_map)) = (ex, data) {
+                        for (k, v) in new_map {
+                            ex_map.insert(k.clone(), v.clone());
+                        }
+                    }
+                } else {
+                    list.push(data.clone());
+                }
+            }
+            *deferred_cache_save = Some(Value::Object(ready_map.clone()));
+        }
+    }
+}
+
+fn handle_relationship_remove_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    if let Some(rid) = field_str(data, "id") {
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            if let Some(Value::Array(ref mut list)) = ready_map.get_mut("relationships") {
+                list.retain(|x| field_str(x, "id") != Some(rid));
+            }
+            *deferred_cache_save = Some(Value::Object(ready_map.clone()));
+        }
+    }
+}
+
+fn handle_channel_create_update_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    if let Some(cid) = field_str(data, "id") {
+        let ch_type = field_i64(data, "type").unwrap_or(0);
+        let gid_opt = field_str(data, "guild_id");
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            for rec in array(data.get("recipients")) {
+                if let Some(uid) = field_str(rec, "id") {
+                    let u_arr = ready_map
+                        .entry("users".to_string())
+                        .or_insert_with(|| Value::Array(Vec::new()));
+                    if let Value::Array(ref mut list) = u_arr {
+                        if let Some(ex) = list.iter_mut().find(|x| field_str(x, "id") == Some(uid))
+                        {
+                            *ex = rec.clone();
+                        } else {
+                            list.push(rec.clone());
+                        }
+                    }
+                }
+            }
+            if gid_opt.is_none() || ch_type == 1 || ch_type == 3 {
+                let pc_arr = ready_map
+                    .entry("private_channels".to_string())
+                    .or_insert_with(|| Value::Array(Vec::new()));
+                if let Value::Array(ref mut list) = pc_arr {
+                    if let Some(ex) = list.iter_mut().find(|x| field_str(x, "id") == Some(cid)) {
+                        *ex = data.clone();
+                    } else {
+                        list.push(data.clone());
+                    }
+                }
+            } else if let Some(gid) = gid_opt {
+                if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                    for rg in r_guilds.iter_mut() {
+                        if field_str(rg, "id") == Some(gid) {
+                            if let Value::Object(ref mut gm) = rg {
+                                let ch_arr = gm
+                                    .entry("channels".to_string())
+                                    .or_insert_with(|| Value::Array(Vec::new()));
+                                if let Value::Array(ref mut list) = ch_arr {
+                                    if let Some(ex) =
+                                        list.iter_mut().find(|x| field_str(x, "id") == Some(cid))
+                                    {
+                                        *ex = data.clone();
+                                    } else {
+                                        list.push(data.clone());
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            "RELATIONSHIP_ADD" | "RELATIONSHIP_UPDATE" => {
-                if let Some(rid) = field_str(data, "id") {
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        if let Some(u) = data.get("user") {
-                            if let Some(uid) = field_str(u, "id") {
-                                let u_arr = ready_map
-                                    .entry("users".to_string())
+            *deferred_cache_save = Some(Value::Object(ready_map.clone()));
+        }
+    }
+}
+
+fn handle_channel_delete_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    if let Some(cid) = field_str(data, "id") {
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            if let Some(Value::Array(ref mut list)) = ready_map.get_mut("private_channels") {
+                list.retain(|x| field_str(x, "id") != Some(cid));
+            }
+            if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
+                for rg in r_guilds.iter_mut() {
+                    if let Value::Object(ref mut gm) = rg {
+                        if let Some(Value::Array(ref mut chs)) = gm.get_mut("channels") {
+                            chs.retain(|x| field_str(x, "id") != Some(cid));
+                        }
+                    }
+                }
+            }
+            *deferred_cache_save = Some(Value::Object(ready_map.clone()));
+        }
+    }
+}
+
+fn handle_channel_recipient_add_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    if let (Some(cid), Some(u)) = (field_str(data, "channel_id"), data.get("user")) {
+        if let Some(uid) = field_str(u, "id") {
+            if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                let u_arr = ready_map
+                    .entry("users".to_string())
+                    .or_insert_with(|| Value::Array(Vec::new()));
+                if let Value::Array(ref mut list) = u_arr {
+                    if let Some(ex) = list.iter_mut().find(|x| field_str(x, "id") == Some(uid)) {
+                        *ex = u.clone();
+                    } else {
+                        list.push(u.clone());
+                    }
+                }
+                if let Some(Value::Array(ref mut pc_list)) = ready_map.get_mut("private_channels") {
+                    for pc in pc_list.iter_mut() {
+                        if field_str(pc, "id") == Some(cid) {
+                            if let Value::Object(ref mut pm) = pc {
+                                let rec_arr = pm
+                                    .entry("recipients".to_string())
                                     .or_insert_with(|| Value::Array(Vec::new()));
-                                if let Value::Array(ref mut list) = u_arr {
+                                if let Value::Array(ref mut r_list) = rec_arr {
                                     if let Some(ex) =
-                                        list.iter_mut().find(|x| field_str(x, "id") == Some(uid))
+                                        r_list.iter_mut().find(|x| field_str(x, "id") == Some(uid))
                                     {
                                         *ex = u.clone();
                                     } else {
-                                        list.push(u.clone());
+                                        r_list.push(u.clone());
                                     }
                                 }
                             }
-                        }
-                        let rel_arr = ready_map
-                            .entry("relationships".to_string())
-                            .or_insert_with(|| Value::Array(Vec::new()));
-                        if let Value::Array(ref mut list) = rel_arr {
-                            if let Some(ex) =
-                                list.iter_mut().find(|x| field_str(x, "id") == Some(rid))
-                            {
-                                if let (Value::Object(ex_map), Value::Object(new_map)) = (ex, data)
-                                {
-                                    for (k, v) in new_map {
-                                        ex_map.insert(k.clone(), v.clone());
-                                    }
-                                }
-                            } else {
-                                list.push(data.clone());
-                            }
-                        }
-                        deferred_cache_save = Some(Value::Object(ready_map.clone()));
-                    }
-                }
-            }
-            "RELATIONSHIP_REMOVE" => {
-                if let Some(rid) = field_str(data, "id") {
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        if let Some(Value::Array(ref mut list)) = ready_map.get_mut("relationships")
-                        {
-                            list.retain(|x| field_str(x, "id") != Some(rid));
-                        }
-                        deferred_cache_save = Some(Value::Object(ready_map.clone()));
-                    }
-                }
-            }
-            "CHANNEL_CREATE" | "CHANNEL_UPDATE" => {
-                if let Some(cid) = field_str(data, "id") {
-                    let ch_type = field_i64(data, "type").unwrap_or(0);
-                    let gid_opt = field_str(data, "guild_id");
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        for rec in array(data.get("recipients")) {
-                            if let Some(uid) = field_str(rec, "id") {
-                                let u_arr = ready_map
-                                    .entry("users".to_string())
-                                    .or_insert_with(|| Value::Array(Vec::new()));
-                                if let Value::Array(ref mut list) = u_arr {
-                                    if let Some(ex) =
-                                        list.iter_mut().find(|x| field_str(x, "id") == Some(uid))
-                                    {
-                                        *ex = rec.clone();
-                                    } else {
-                                        list.push(rec.clone());
-                                    }
-                                }
-                            }
-                        }
-                        if gid_opt.is_none() || ch_type == 1 || ch_type == 3 {
-                            let pc_arr = ready_map
-                                .entry("private_channels".to_string())
-                                .or_insert_with(|| Value::Array(Vec::new()));
-                            if let Value::Array(ref mut list) = pc_arr {
-                                if let Some(ex) =
-                                    list.iter_mut().find(|x| field_str(x, "id") == Some(cid))
-                                {
-                                    *ex = data.clone();
-                                } else {
-                                    list.push(data.clone());
-                                }
-                            }
-                        } else if let Some(gid) = gid_opt {
-                            if let Some(Value::Array(ref mut r_guilds)) =
-                                ready_map.get_mut("guilds")
-                            {
-                                for rg in r_guilds.iter_mut() {
-                                    if field_str(rg, "id") == Some(gid) {
-                                        if let Value::Object(ref mut gm) = rg {
-                                            let ch_arr = gm
-                                                .entry("channels".to_string())
-                                                .or_insert_with(|| Value::Array(Vec::new()));
-                                            if let Value::Array(ref mut list) = ch_arr {
-                                                if let Some(ex) = list
-                                                    .iter_mut()
-                                                    .find(|x| field_str(x, "id") == Some(cid))
-                                                {
-                                                    *ex = data.clone();
-                                                } else {
-                                                    list.push(data.clone());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        deferred_cache_save = Some(Value::Object(ready_map.clone()));
-                    }
-                }
-            }
-            "CHANNEL_DELETE" => {
-                if let Some(cid) = field_str(data, "id") {
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        if let Some(Value::Array(ref mut list)) =
-                            ready_map.get_mut("private_channels")
-                        {
-                            list.retain(|x| field_str(x, "id") != Some(cid));
-                        }
-                        if let Some(Value::Array(ref mut r_guilds)) = ready_map.get_mut("guilds") {
-                            for rg in r_guilds.iter_mut() {
-                                if let Value::Object(ref mut gm) = rg {
-                                    if let Some(Value::Array(ref mut chs)) = gm.get_mut("channels")
-                                    {
-                                        chs.retain(|x| field_str(x, "id") != Some(cid));
-                                    }
-                                }
-                            }
-                        }
-                        deferred_cache_save = Some(Value::Object(ready_map.clone()));
-                    }
-                }
-            }
-            "CHANNEL_RECIPIENT_ADD" => {
-                if let (Some(cid), Some(u)) = (field_str(data, "channel_id"), data.get("user")) {
-                    if let Some(uid) = field_str(u, "id") {
-                        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                            let u_arr = ready_map
-                                .entry("users".to_string())
-                                .or_insert_with(|| Value::Array(Vec::new()));
-                            if let Value::Array(ref mut list) = u_arr {
-                                if let Some(ex) =
-                                    list.iter_mut().find(|x| field_str(x, "id") == Some(uid))
-                                {
-                                    *ex = u.clone();
-                                } else {
-                                    list.push(u.clone());
-                                }
-                            }
-                            if let Some(Value::Array(ref mut pc_list)) =
-                                ready_map.get_mut("private_channels")
-                            {
-                                for pc in pc_list.iter_mut() {
-                                    if field_str(pc, "id") == Some(cid) {
-                                        if let Value::Object(ref mut pm) = pc {
-                                            let rec_arr = pm
-                                                .entry("recipients".to_string())
-                                                .or_insert_with(|| Value::Array(Vec::new()));
-                                            if let Value::Array(ref mut r_list) = rec_arr {
-                                                if let Some(ex) = r_list
-                                                    .iter_mut()
-                                                    .find(|x| field_str(x, "id") == Some(uid))
-                                                {
-                                                    *ex = u.clone();
-                                                } else {
-                                                    r_list.push(u.clone());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            deferred_cache_save = Some(Value::Object(ready_map.clone()));
                         }
                     }
                 }
+                *deferred_cache_save = Some(Value::Object(ready_map.clone()));
             }
-            "CHANNEL_RECIPIENT_REMOVE" => {
-                if let (Some(cid), Some(u)) = (field_str(data, "channel_id"), data.get("user")) {
-                    if let Some(uid) = field_str(u, "id") {
-                        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                            if let Some(Value::Array(ref mut pc_list)) =
-                                ready_map.get_mut("private_channels")
-                            {
-                                for pc in pc_list.iter_mut() {
-                                    if field_str(pc, "id") == Some(cid) {
-                                        if let Value::Object(ref mut pm) = pc {
-                                            if let Some(Value::Array(ref mut r_list)) =
-                                                pm.get_mut("recipients")
-                                            {
-                                                r_list.retain(|x| field_str(x, "id") != Some(uid));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            deferred_cache_save = Some(Value::Object(ready_map.clone()));
-                        }
-                    }
-                }
-            }
-            "USER_UPDATE" => {
-                let u_val = data.get("user").unwrap_or(data);
-                if let Some(uid) = field_str(u_val, "id") {
-                    let is_self = guard
-                        .user
-                        .as_ref()
-                        .map(|u| u.id == uid)
-                        .or_else(|| {
-                            guard
-                                .ready_data
-                                .as_ref()
-                                .and_then(|rd| rd.get("user"))
-                                .and_then(|ru| field_str(ru, "id"))
-                                .map(|id| id == uid)
-                        })
-                        .unwrap_or(true);
-                    if is_self {
-                        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                            let user_entry = ready_map
-                                .entry("user".to_string())
-                                .or_insert_with(|| json!({ "id": uid }));
-                            if let (Value::Object(ref mut cur_u), Value::Object(patch_u)) =
-                                (user_entry, u_val)
-                            {
-                                for (k, v) in patch_u {
-                                    cur_u.insert(k.clone(), v.clone());
-                                }
-                            }
-                            deferred_cache_save = Some(Value::Object(ready_map.clone()));
-                        }
-                        let merged_u = guard
-                            .ready_data
-                            .as_ref()
-                            .and_then(|rd| rd.get("user"))
-                            .unwrap_or(u_val);
-                        let premium_type = parse_user_premium_type(merged_u);
-                        let premium = field_bool(merged_u, "premium") || premium_type > 0;
-                        let prev = guard.user.as_ref();
-                        guard.user = Some(ReadyUser {
-                            id: uid.to_string(),
-                            username: field_str(merged_u, "username")
-                                .map(str::to_string)
-                                .or_else(|| prev.map(|u| u.username.clone()))
-                                .unwrap_or_else(|| "user".to_string()),
-                            global_name: field_str(merged_u, "global_name")
-                                .or_else(|| field_str(merged_u, "globalName"))
-                                .map(str::to_string)
-                                .or_else(|| prev.and_then(|u| u.global_name.clone())),
-                            avatar: field_str(merged_u, "avatar")
-                                .map(str::to_string)
-                                .or_else(|| prev.and_then(|u| u.avatar.clone())),
-                            email: field_str(merged_u, "email")
-                                .map(str::to_string)
-                                .or_else(|| prev.and_then(|u| u.email.clone()))
-                                .or_else(|| Some("REDACTED".to_string())),
-                            bio: field_str(merged_u, "bio")
-                                .map(str::to_string)
-                                .or_else(|| prev.and_then(|u| u.bio.clone())),
-                            premium,
-                            premium_type,
-                            mfa_enabled: field_bool(merged_u, "mfa_enabled")
-                                || field_bool(merged_u, "mfaEnabled")
-                                || prev.map(|u| u.mfa_enabled).unwrap_or(false),
-                        });
-                    }
-                }
-            }
-            "MESSAGE_ACK" => {
-                let cid = field_str(data, "channel_id")
-                    .or_else(|| field_str(data, "id"))
-                    .map(str::to_string)
-                    .or_else(|| field_u64(data, "channel_id").map(|n| n.to_string()))
-                    .or_else(|| field_u64(data, "id").map(|n| n.to_string()));
-                if let Some(cid) = cid {
-                    let mid = field_str(data, "message_id")
-                        .or_else(|| field_str(data, "last_message_id"))
-                        .map(str::to_string)
-                        .or_else(|| field_u64(data, "message_id").map(|n| n.to_string()))
-                        .or_else(|| field_u64(data, "last_message_id").map(|n| n.to_string()));
-                    let acked_id = field_str(data, "last_acked_id")
-                        .map(str::to_string)
-                        .or_else(|| field_u64(data, "last_acked_id").map(|n| n.to_string()))
-                        .or_else(|| field_i64(data, "last_acked_id").map(|n| n.to_string()));
-                    let mention_count = field_u64(data, "mention_count")
-                        .or_else(|| field_i64(data, "mention_count").map(|v| v.max(0) as u64))
-                        .unwrap_or(0);
-                    let flags = field_u64(data, "flags");
-                    let last_viewed = field_u64(data, "last_viewed");
-                    let version = field_u64(data, "version");
-
-                    if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
-                        let rs_val = ready_map.entry("read_state".to_string()).or_insert_with(
-                            || json!({ "version": 0, "partial": false, "entries": [] }),
-                        );
-                        if let Value::Object(ref mut rs_map) = rs_val {
-                            if let Some(ver) = version {
-                                rs_map.insert("version".to_string(), json!(ver));
-                            }
-                            let entries_val = rs_map
-                                .entry("entries".to_string())
-                                .or_insert_with(|| Value::Array(Vec::new()));
-                            if let Value::Array(ref mut entries) = entries_val {
-                                let existing = entries.iter_mut().find(|item| {
-                                    field_str(item, "id") == Some(cid.as_str())
-                                        || field_u64(item, "id").map(|n| n.to_string()).as_deref()
-                                            == Some(cid.as_str())
-                                });
-                                if let Some(Value::Object(ref mut em)) = existing {
-                                    if let Some(ref m) = mid {
-                                        em.insert("last_message_id".to_string(), json!(m));
-                                    } else if matches!(data.get("message_id"), Some(Value::Null))
-                                        || matches!(data.get("last_message_id"), Some(Value::Null))
-                                    {
-                                        em.insert("last_message_id".to_string(), Value::Null);
-                                    }
-                                    if let Some(ref a) = acked_id {
-                                        em.insert("last_acked_id".to_string(), json!(a));
-                                    } else if matches!(data.get("last_acked_id"), Some(Value::Null))
-                                    {
-                                        em.insert("last_acked_id".to_string(), Value::Null);
-                                    }
-                                    em.insert("mention_count".to_string(), json!(mention_count));
-                                    if let Some(f) = flags {
-                                        em.insert("flags".to_string(), json!(f));
-                                    }
-                                    if let Some(lv) = last_viewed {
-                                        em.insert("last_viewed".to_string(), json!(lv));
-                                    }
-                                } else {
-                                    let mut new_entry = serde_json::Map::new();
-                                    new_entry.insert("id".to_string(), json!(cid));
-                                    new_entry.insert(
-                                        "last_message_id".to_string(),
-                                        mid.map_or(Value::Null, |m| json!(m)),
-                                    );
-                                    if let Some(a) = acked_id {
-                                        new_entry.insert("last_acked_id".to_string(), json!(a));
-                                    }
-                                    new_entry
-                                        .insert("mention_count".to_string(), json!(mention_count));
-                                    if let Some(f) = flags {
-                                        new_entry.insert("flags".to_string(), json!(f));
-                                    }
-                                    if let Some(lv) = last_viewed {
-                                        new_entry.insert("last_viewed".to_string(), json!(lv));
-                                    }
-                                    entries.push(Value::Object(new_entry));
-                                }
-                            }
-                        }
-                        deferred_cache_save = Some(Value::Object(ready_map.clone()));
-                    }
-                }
-            }
-            _ => {}
         }
     }
+}
+
+fn handle_channel_recipient_remove_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    if let (Some(cid), Some(u)) = (field_str(data, "channel_id"), data.get("user")) {
+        if let Some(uid) = field_str(u, "id") {
+            if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                if let Some(Value::Array(ref mut pc_list)) = ready_map.get_mut("private_channels") {
+                    for pc in pc_list.iter_mut() {
+                        if field_str(pc, "id") == Some(cid) {
+                            if let Value::Object(ref mut pm) = pc {
+                                if let Some(Value::Array(ref mut r_list)) = pm.get_mut("recipients")
+                                {
+                                    r_list.retain(|x| field_str(x, "id") != Some(uid));
+                                }
+                            }
+                        }
+                    }
+                }
+                *deferred_cache_save = Some(Value::Object(ready_map.clone()));
+            }
+        }
+    }
+}
+
+fn handle_user_update_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    let u_val = data.get("user").unwrap_or(data);
+    if let Some(uid) = field_str(u_val, "id") {
+        let is_self = guard
+            .user
+            .as_ref()
+            .map(|u| u.id == uid)
+            .or_else(|| {
+                guard
+                    .ready_data
+                    .as_ref()
+                    .and_then(|rd| rd.get("user"))
+                    .and_then(|ru| field_str(ru, "id"))
+                    .map(|id| id == uid)
+            })
+            .unwrap_or(true);
+        if is_self {
+            if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+                let user_entry = ready_map
+                    .entry("user".to_string())
+                    .or_insert_with(|| json!({ "id": uid }));
+                if let (Value::Object(ref mut cur_u), Value::Object(patch_u)) = (user_entry, u_val)
+                {
+                    for (k, v) in patch_u {
+                        cur_u.insert(k.clone(), v.clone());
+                    }
+                }
+                *deferred_cache_save = Some(Value::Object(ready_map.clone()));
+            }
+            let merged_u = guard
+                .ready_data
+                .as_ref()
+                .and_then(|rd| rd.get("user"))
+                .unwrap_or(u_val);
+            let premium_type = parse_user_premium_type(merged_u);
+            let premium = field_bool(merged_u, "premium") || premium_type > 0;
+            let prev = guard.user.as_ref();
+            guard.user = Some(ReadyUser {
+                id: uid.to_string(),
+                username: field_str(merged_u, "username")
+                    .map(str::to_string)
+                    .or_else(|| prev.map(|u| u.username.clone()))
+                    .unwrap_or_else(|| "user".to_string()),
+                global_name: field_str(merged_u, "global_name")
+                    .or_else(|| field_str(merged_u, "globalName"))
+                    .map(str::to_string)
+                    .or_else(|| prev.and_then(|u| u.global_name.clone())),
+                avatar: field_str(merged_u, "avatar")
+                    .map(str::to_string)
+                    .or_else(|| prev.and_then(|u| u.avatar.clone())),
+                email: field_str(merged_u, "email")
+                    .map(str::to_string)
+                    .or_else(|| prev.and_then(|u| u.email.clone()))
+                    .or_else(|| Some("REDACTED".to_string())),
+                bio: field_str(merged_u, "bio")
+                    .map(str::to_string)
+                    .or_else(|| prev.and_then(|u| u.bio.clone())),
+                premium,
+                premium_type,
+                mfa_enabled: field_bool(merged_u, "mfa_enabled")
+                    || field_bool(merged_u, "mfaEnabled")
+                    || prev.map(|u| u.mfa_enabled).unwrap_or(false),
+            });
+        }
+    }
+}
+
+fn handle_message_ack_event(
+    guard: &mut LiveSession,
+    data: &Value,
+    deferred_cache_save: &mut Option<Value>,
+) {
+    let cid = field_str(data, "channel_id")
+        .or_else(|| field_str(data, "id"))
+        .map(str::to_string)
+        .or_else(|| field_u64(data, "channel_id").map(|n| n.to_string()))
+        .or_else(|| field_u64(data, "id").map(|n| n.to_string()));
+    if let Some(cid) = cid {
+        let mid = field_str(data, "message_id")
+            .or_else(|| field_str(data, "last_message_id"))
+            .map(str::to_string)
+            .or_else(|| field_u64(data, "message_id").map(|n| n.to_string()))
+            .or_else(|| field_u64(data, "last_message_id").map(|n| n.to_string()));
+        let acked_id = field_str(data, "last_acked_id")
+            .map(str::to_string)
+            .or_else(|| field_u64(data, "last_acked_id").map(|n| n.to_string()))
+            .or_else(|| field_i64(data, "last_acked_id").map(|n| n.to_string()));
+        let mention_count = field_u64(data, "mention_count")
+            .or_else(|| field_i64(data, "mention_count").map(|v| v.max(0) as u64))
+            .unwrap_or(0);
+        let flags = field_u64(data, "flags");
+        let last_viewed = field_u64(data, "last_viewed");
+        let version = field_u64(data, "version");
+
+        if let Some(Value::Object(ref mut ready_map)) = guard.ready_data {
+            let rs_val = ready_map
+                .entry("read_state".to_string())
+                .or_insert_with(|| json!({ "version": 0, "partial": false, "entries": [] }));
+            if let Value::Object(ref mut rs_map) = rs_val {
+                if let Some(ver) = version {
+                    rs_map.insert("version".to_string(), json!(ver));
+                }
+                let entries_val = rs_map
+                    .entry("entries".to_string())
+                    .or_insert_with(|| Value::Array(Vec::new()));
+                if let Value::Array(ref mut entries) = entries_val {
+                    let existing = entries.iter_mut().find(|item| {
+                        field_str(item, "id") == Some(cid.as_str())
+                            || field_u64(item, "id").map(|n| n.to_string()).as_deref()
+                                == Some(cid.as_str())
+                    });
+                    if let Some(Value::Object(ref mut em)) = existing {
+                        if let Some(ref m) = mid {
+                            em.insert("last_message_id".to_string(), json!(m));
+                        } else if matches!(data.get("message_id"), Some(Value::Null))
+                            || matches!(data.get("last_message_id"), Some(Value::Null))
+                        {
+                            em.insert("last_message_id".to_string(), Value::Null);
+                        }
+                        if let Some(ref a) = acked_id {
+                            em.insert("last_acked_id".to_string(), json!(a));
+                        } else if matches!(data.get("last_acked_id"), Some(Value::Null)) {
+                            em.insert("last_acked_id".to_string(), Value::Null);
+                        }
+                        em.insert("mention_count".to_string(), json!(mention_count));
+                        if let Some(f) = flags {
+                            em.insert("flags".to_string(), json!(f));
+                        }
+                        if let Some(lv) = last_viewed {
+                            em.insert("last_viewed".to_string(), json!(lv));
+                        }
+                    } else {
+                        let mut new_entry = serde_json::Map::new();
+                        new_entry.insert("id".to_string(), json!(cid));
+                        new_entry.insert(
+                            "last_message_id".to_string(),
+                            mid.map_or(Value::Null, |m| json!(m)),
+                        );
+                        if let Some(a) = acked_id {
+                            new_entry.insert("last_acked_id".to_string(), json!(a));
+                        }
+                        new_entry.insert("mention_count".to_string(), json!(mention_count));
+                        if let Some(f) = flags {
+                            new_entry.insert("flags".to_string(), json!(f));
+                        }
+                        if let Some(lv) = last_viewed {
+                            new_entry.insert("last_viewed".to_string(), json!(lv));
+                        }
+                        entries.push(Value::Object(new_entry));
+                    }
+                }
+            }
+            *deferred_cache_save = Some(Value::Object(ready_map.clone()));
+        }
+    }
+}
+
+/// Ingests live gateway dispatch events using `twilight_model::gateway::event::Event`
+/// for standard deserialization and pattern matching, with fallbacks for
+/// client-specific and partial synthetic payloads.
+pub fn ingest_live_dispatch(kind: &str, raw_data: &Value) {
+    let mut clean_data = raw_data.clone();
+    sanitize_etf_json_value(&mut clean_data);
+    let data = &clean_data;
+    let mut deferred_cache_save: Option<Value> = None;
+    let mut deferred_sqlite_msg: Option<Value> = None;
+
+    {
+        let mut guard = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+
+        let twilight_event = chord_core::gateway_events::parse_dispatch_event(kind, data).ok();
+        let mut handled = false;
+
+        if let Some(event) = twilight_event {
+            match event {
+                chord_core::twilight_model::gateway::event::Event::MessageCreate(ref msg) => {
+                    handle_message_create_event(
+                        &mut guard,
+                        Some(msg),
+                        data,
+                        &mut deferred_sqlite_msg,
+                    );
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::MessageUpdate(ref msg) => {
+                    handle_message_update_event(
+                        &mut guard,
+                        Some(msg),
+                        data,
+                        &mut deferred_sqlite_msg,
+                    );
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::VoiceStateUpdate(ref vs) => {
+                    handle_voice_state_update_event(&mut guard, Some(vs), data);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::GuildCreate(ref gc) => {
+                    handle_guild_create_event(&mut guard, Some(gc), data, &mut deferred_cache_save);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::GuildDelete(ref gd) => {
+                    handle_guild_delete_event(&mut guard, Some(gd), data, &mut deferred_cache_save);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::MessageDelete(ref md) => {
+                    handle_message_delete_event(&mut guard, Some(md), data);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::MessageDeleteBulk(ref mdb) => {
+                    handle_message_delete_bulk_event(&mut guard, Some(mdb), data);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::PresenceUpdate(ref pu) => {
+                    handle_presence_update_event(&mut guard, Some(pu), data);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::MemberUpdate(ref mu) => {
+                    handle_guild_member_update_event(
+                        &mut guard,
+                        Some(mu),
+                        data,
+                        &mut deferred_cache_save,
+                    );
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::MemberChunk(ref mc) => {
+                    handle_guild_members_chunk_event(&mut guard, Some(mc), data);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::RoleCreate(ref rc) => {
+                    let gid_str = rc.guild_id.to_string();
+                    handle_guild_role_upsert_event(
+                        &mut guard,
+                        Some(&gid_str),
+                        data,
+                        &mut deferred_cache_save,
+                    );
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::RoleUpdate(ref ru) => {
+                    let gid_str = ru.guild_id.to_string();
+                    handle_guild_role_upsert_event(
+                        &mut guard,
+                        Some(&gid_str),
+                        data,
+                        &mut deferred_cache_save,
+                    );
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::RoleDelete(ref rd) => {
+                    let gid_str = rd.guild_id.to_string();
+                    let rid_str = rd.role_id.to_string();
+                    handle_guild_role_delete_event(
+                        &mut guard,
+                        Some(&gid_str),
+                        Some(&rid_str),
+                        data,
+                        &mut deferred_cache_save,
+                    );
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::UserUpdate(_) => {
+                    handle_user_update_event(&mut guard, data, &mut deferred_cache_save);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::Ready(_) => {
+                    handle_ready_event(&mut guard, data, &mut deferred_cache_save);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::ChannelCreate(_) => {
+                    handle_channel_create_update_event(&mut guard, data, &mut deferred_cache_save);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::ChannelUpdate(_) => {
+                    handle_channel_create_update_event(&mut guard, data, &mut deferred_cache_save);
+                    handled = true;
+                }
+                chord_core::twilight_model::gateway::event::Event::ChannelDelete(_) => {
+                    handle_channel_delete_event(&mut guard, data, &mut deferred_cache_save);
+                    handled = true;
+                }
+                _ => {}
+            }
+        }
+
+        if !handled {
+            match kind {
+                "READY" => handle_ready_event(&mut guard, data, &mut deferred_cache_save),
+                "READY_SUPPLEMENTAL" => {
+                    handle_ready_supplemental_event(&mut guard, data, &mut deferred_cache_save)
+                }
+                "MESSAGE_CREATE" => {
+                    handle_message_create_event(&mut guard, None, data, &mut deferred_sqlite_msg)
+                }
+                "MESSAGE_UPDATE" => {
+                    handle_message_update_event(&mut guard, None, data, &mut deferred_sqlite_msg)
+                }
+                "VOICE_STATE_UPDATE" => handle_voice_state_update_event(&mut guard, None, data),
+                "CALL_CREATE" | "CALL_UPDATE" => handle_call_create_update_event(&mut guard, data),
+                "CALL_DELETE" => handle_call_delete_event(&mut guard, data),
+                "PRESENCE_UPDATE" => handle_presence_update_event(&mut guard, None, data),
+                "GUILD_MEMBER_LIST_UPDATE" => {
+                    handle_guild_member_list_update_event(&mut guard, data)
+                }
+                "GUILD_MEMBERS_CHUNK" => handle_guild_members_chunk_event(&mut guard, None, data),
+                "GUILD_MEMBER_UPDATE" => handle_guild_member_update_event(
+                    &mut guard,
+                    None,
+                    data,
+                    &mut deferred_cache_save,
+                ),
+                "GUILD_ROLE_CREATE" | "GUILD_ROLE_UPDATE" => {
+                    handle_guild_role_upsert_event(&mut guard, None, data, &mut deferred_cache_save)
+                }
+                "GUILD_ROLE_DELETE" => handle_guild_role_delete_event(
+                    &mut guard,
+                    None,
+                    None,
+                    data,
+                    &mut deferred_cache_save,
+                ),
+                "GUILD_CREATE" => {
+                    handle_guild_create_event(&mut guard, None, data, &mut deferred_cache_save)
+                }
+                "GUILD_DELETE" => {
+                    handle_guild_delete_event(&mut guard, None, data, &mut deferred_cache_save)
+                }
+                "MESSAGE_DELETE" => handle_message_delete_event(&mut guard, None, data),
+                "MESSAGE_DELETE_BULK" => handle_message_delete_bulk_event(&mut guard, None, data),
+                "RELATIONSHIP_ADD" | "RELATIONSHIP_UPDATE" => {
+                    handle_relationship_upsert_event(&mut guard, data, &mut deferred_cache_save)
+                }
+                "RELATIONSHIP_REMOVE" => {
+                    handle_relationship_remove_event(&mut guard, data, &mut deferred_cache_save)
+                }
+                "CHANNEL_CREATE" | "CHANNEL_UPDATE" => {
+                    handle_channel_create_update_event(&mut guard, data, &mut deferred_cache_save)
+                }
+                "CHANNEL_DELETE" => {
+                    handle_channel_delete_event(&mut guard, data, &mut deferred_cache_save)
+                }
+                "CHANNEL_RECIPIENT_ADD" => {
+                    handle_channel_recipient_add_event(&mut guard, data, &mut deferred_cache_save)
+                }
+                "CHANNEL_RECIPIENT_REMOVE" => handle_channel_recipient_remove_event(
+                    &mut guard,
+                    data,
+                    &mut deferred_cache_save,
+                ),
+                "USER_UPDATE" => {
+                    handle_user_update_event(&mut guard, data, &mut deferred_cache_save)
+                }
+                "MESSAGE_ACK" => {
+                    handle_message_ack_event(&mut guard, data, &mut deferred_cache_save)
+                }
+                _ => {}
+            }
+        }
+    }
+
     if let Some(snapshot) = deferred_cache_save {
         save_live_ready_cache(&snapshot);
     }
@@ -4299,33 +4787,16 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                     let gid = field_str(data, "guild_id")
                         .filter(|s| !s.is_empty() && *s != "@me" && *s != "null" && *s != "nil")
                         .map(str::to_string);
-                    if local_active
-                        && !is_our_gateway_session
-                        && cid.is_some()
-                        && (cid != guard.voice_channel_id || gid != guard.voice_guild_id)
-                    {
-                        // Пользователь подключился к ДРУГОМУ голосовому каналу/серверу в другом клиенте —
-                        // немедленно выходим из нашего голосового канала, чтобы не сидеть в двух местах одновременно.
-                        let old_gid = guard.voice_guild_id.take();
+                    if local_active && is_our_gateway_session && cid.is_none() {
+                        // Discord Gateway explicitly disconnected our active voice session
+                        let _old_gid = guard.voice_guild_id.take();
                         guard.voice_channel_id = None;
                         guard.voice_endpoint = None;
                         guard.voice_token = None;
                         guard.voice_launched_token = None;
+                        guard.voice_phase = "disconnected".to_string();
                         LOCAL_VOICE_ACTIVE.store(false, Ordering::SeqCst);
                         should_stop = true;
-                        if let Some(ref og) = old_gid {
-                            if Some(og.as_str()) != gid.as_deref() {
-                                let _ = chord_core::ws::queue_live_voice_state_ext(
-                                    Some(og.clone()),
-                                    None,
-                                    false,
-                                    false,
-                                    false,
-                                    false,
-                                    self_uid.as_deref(),
-                                );
-                            }
-                        }
                     } else if local_active && is_our_gateway_session {
                         let sid = guard
                             .gateway_session_id
@@ -4337,11 +4808,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         if let Some(ref s) = sid {
                             guard.voice_session_id = Some(s.clone());
                         }
-                        chord_core::ws::note_live_rtc_target(
-                            gid.clone(),
-                            cid.clone(),
-                            sid.clone(),
-                        );
+                        chord_core::ws::note_live_rtc_target(gid.clone(), cid.clone(), sid.clone());
                         if cid.is_none() {
                             LOCAL_VOICE_ACTIVE.store(false, Ordering::SeqCst);
                             guard.voice_endpoint = None;
@@ -4408,8 +4875,7 @@ pub fn ingest_raw_gateway_dispatch(kind: &str, raw_data: &Value) {
                         guard.voice_got_server_update = true;
                         if guard.voice_got_state_update
                             && guard.voice_got_server_update
-                            && (guard.voice_got_rtc_op4
-                                || chord_core::ws::is_live_rtc_connected())
+                            && (guard.voice_got_rtc_op4 || chord_core::ws::is_live_rtc_connected())
                         {
                             guard.voice_phase = "connected".to_string();
                         } else if guard.voice_got_state_update && guard.voice_got_server_update {
@@ -4645,9 +5111,8 @@ pub fn confirm_live_rtc_op4_session_description(data: Option<&Value>) {
     let _ = data;
     guard.voice_got_rtc_op4 = true;
     guard.voice_last_error = None;
-    if guard.voice_got_state_update && guard.voice_got_server_update {
-        guard.voice_phase = "connected".to_string();
-    }
+    guard.voice_phase = "connected".to_string();
+    guard.voice_connect_started_at = None;
 }
 
 /// Проверяет таймаут (15s) рукопожатия голосовой сессии (`signaling`/`negotiating` без `connected`)
@@ -4665,6 +5130,8 @@ pub fn check_voice_handshake_timeout_with_elapsed(elapsed: std::time::Duration) 
             .lock()
             .unwrap_or_else(|poison| poison.into_inner());
         let is_connected = guard.voice_phase == "connected"
+            || guard.voice_got_rtc_op4
+            || chord_core::ws::is_live_rtc_connected()
             || (guard.voice_got_state_update
                 && guard.voice_got_server_update
                 && (guard.voice_got_rtc_op4 || chord_core::ws::is_live_rtc_connected()));
@@ -5204,7 +5671,11 @@ pub fn connect_or_update_live_voice_ext(
                 "{{\"cmd\":\"set_stream\",\"broadcasting\":{self_stream}}}"
             ));
         }
-        ensure_local_mic_monitor();
+        if !chord_core::ws::is_native_voice_engine_active() {
+            ensure_local_mic_monitor();
+        } else {
+            stop_local_mic_monitor();
+        }
     }
 
     if !stream_or_video_changed && !channel_changed {
@@ -5332,274 +5803,75 @@ fn stop_local_mic_monitor() {
     use std::sync::atomic::Ordering;
     LOCAL_MIC_LOOPBACK_ACTIVE.store(false, Ordering::SeqCst);
     LOCAL_MIC_MONITOR_ACTIVE.store(false, Ordering::SeqCst);
+    AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
     LOCAL_MIC_SPEAKING.store(false, Ordering::Relaxed);
     LOCAL_MIC_LEVEL_DB.store(-100, Ordering::Relaxed);
+    chord_platform::audio_engine::global_audio_engine().set_mic_test_active(false);
 }
 
-/// Чисто останавливает фоновые дочерние процессы (`parec`, медиа-аудио) и живые RTC-потоки при выходе из приложения.
+/// Cleanly stops background audio streams and live RTC sessions on application exit.
 pub fn shutdown_live_workers() {
     use std::sync::atomic::Ordering;
     MEDIA_PLAY_EPOCH.fetch_add(1, Ordering::SeqCst);
     VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
+    chord_platform::audio_engine::global_audio_engine().stop_media_playback();
     stop_local_mic_monitor();
     let _ = chord_core::ws::queue_live_voice_state(None, None, false, false);
     chord_core::ws::stop_live_rtc_session();
 }
 
 fn start_linux_media_audio_playback(raw_spec: &str, vol_pct: Option<u32>, is_muted: Option<bool>) {
-    use std::io::{Read, Write};
     use std::sync::atomic::Ordering;
-    let epoch = MEDIA_PLAY_EPOCH.fetch_add(1, Ordering::SeqCst) + 1;
-    if is_muted.unwrap_or(false) || vol_pct == Some(0) {
+    let _epoch = MEDIA_PLAY_EPOCH.fetch_add(1, Ordering::SeqCst) + 1;
+    let engine = chord_platform::audio_engine::global_audio_engine();
+    if is_muted.unwrap_or(false) || vol_pct == Some(0) || LOCAL_SELF_DEAF.load(Ordering::Relaxed) {
+        engine.stop_media_playback();
         return;
     }
     let mut url = raw_spec.trim().to_string();
-    let mut seek_sec = 0.0_f64;
     let mut item_vol = vol_pct.unwrap_or(100).min(200);
     if url.starts_with('{') {
         if let Ok(parsed) = serde_json::from_str::<Value>(&url) {
             if let Some(u) = field_str(&parsed, "url") {
                 url = u.to_string();
             }
-            if let Some(s) = parsed.get("seek").and_then(Value::as_f64) {
-                seek_sec = s.max(0.0);
-            }
             if let Some(v) = field_u64(&parsed, "volume") {
                 item_vol = (v as u32).min(200);
             }
         }
     }
-    if url.is_empty()
-        || (!url.starts_with("http://") && !url.starts_with("https://") && !url.starts_with('/'))
-    {
-        return;
+    if url.starts_with('/') && Path::new(&url).exists() {
+        if let Ok(bytes) = std::fs::read(&url) {
+            if let Ok(decoded) =
+                chord_platform::audio_engine::LightweightSoundDecoder::decode_wav_bytes(&bytes)
+            {
+                let _ = engine.register_custom_wav_cue(
+                    chord_platform::audio_engine::SoundCue::StreamStarted,
+                    &chord_platform::audio_engine::LightweightSoundDecoder::encode_wav_i16(
+                        &decoded,
+                    ),
+                );
+                let _ = engine.play_sound_cue("stream_started", Some(item_vol), Some(false));
+            }
+        }
     }
-    let out_dev = selected_output_device()
-        .lock()
-        .ok()
-        .and_then(|g| g.clone())
-        .unwrap_or_default();
-    std::thread::spawn(move || {
-        let mut ff_cmd = std::process::Command::new("ffmpeg");
-        ff_cmd.arg("-nostdin").arg("-loglevel").arg("quiet");
-        if url.starts_with("http://") || url.starts_with("https://") {
-            ff_cmd
-                .arg("-reconnect")
-                .arg("1")
-                .arg("-reconnect_streamed")
-                .arg("1")
-                .arg("-reconnect_delay_max")
-                .arg("2");
-        }
-        if seek_sec > 0.05 {
-            ff_cmd.arg("-ss").arg(format!("{seek_sec:.2}"));
-        }
-        ff_cmd
-            .arg("-i")
-            .arg(&url)
-            .arg("-vn")
-            .arg("-f")
-            .arg("s16le")
-            .arg("-ac")
-            .arg("2")
-            .arg("-ar")
-            .arg("48000")
-            .arg("-")
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::null());
-        let Ok(mut ff_child) = ff_cmd.spawn() else {
-            return;
-        };
-        let Some(mut ff_stdout) = ff_child.stdout.take() else {
-            let _ = ff_child.kill();
-            let _ = ff_child.wait();
-            return;
-        };
-        let mut pa_cmd = std::process::Command::new("pacat");
-        pa_cmd
-            .arg("--channels=2")
-            .arg("--rate=48000")
-            .arg("--format=s16le")
-            .arg("--latency-msec=40");
-        if !out_dev.is_empty() && out_dev != "default" {
-            pa_cmd.arg(format!("--device={out_dev}"));
-        }
-        pa_cmd
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null());
-        let Ok(mut pa_child) = pa_cmd.spawn() else {
-            let _ = ff_child.kill();
-            let _ = ff_child.wait();
-            return;
-        };
-        let Some(mut pa_stdin) = pa_child.stdin.take() else {
-            let _ = ff_child.kill();
-            let _ = ff_child.wait();
-            let _ = pa_child.kill();
-            let _ = pa_child.wait();
-            return;
-        };
-        let mut buf = [0u8; 3840];
-        while MEDIA_PLAY_EPOCH.load(Ordering::Relaxed) == epoch {
-            let Ok(n) = ff_stdout.read(&mut buf) else {
-                break;
-            };
-            if n == 0 {
-                break;
-            }
-            if LOCAL_SELF_DEAF.load(Ordering::Relaxed) {
-                continue;
-            }
-            let app_vol = LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200);
-            let scale = (item_vol as f32 / 100.0) * (app_vol as f32 / 100.0);
-            if (scale - 1.0).abs() > 0.02 {
-                for chunk in buf[..n].chunks_exact_mut(2) {
-                    let s = i16::from_le_bytes([chunk[0], chunk[1]]);
-                    let scaled = (f32::from(s) * scale).clamp(-32760.0, 32760.0) as i16;
-                    let bytes = scaled.to_le_bytes();
-                    chunk[0] = bytes[0];
-                    chunk[1] = bytes[1];
-                }
-            }
-            if pa_stdin.write_all(&buf[..n]).is_err() {
-                break;
-            }
-        }
-        drop(pa_stdin);
-        drop(ff_stdout);
-        let _ = ff_child.kill();
-        let _ = ff_child.wait();
-        let _ = pa_child.kill();
-        let _ = pa_child.wait();
-    });
 }
 
 fn play_linux_ui_sound(sound_name: &str, volume_pct: Option<u32>, muted: Option<bool>) {
-    use std::io::{Read, Write};
     use std::sync::atomic::Ordering;
     if muted.unwrap_or(false) {
         return;
     }
-    let filename = match sound_name {
-        "join" | "user_join" => "user_join.mp3",
-        "leave" | "user_leave" => "user_leave.mp3",
-        "user_moved" | "moved" => "user_moved.mp3",
-        "disconnect" => "disconnect.mp3",
-        "mute" => "mute.mp3",
-        "unmute" => "unmute.mp3",
-        "deafen" => "deafen.mp3",
-        "undeafen" => "undeafen.mp3",
-        "stream_on" | "stream_started" | "camera_on" => "stream_started.mp3",
-        "stream_off" | "stream_ended" | "camera_off" => "stream_ended.mp3",
-        "stream_user_joined" => "stream_user_joined.mp3",
-        "stream_user_left" => "stream_user_left.mp3",
-        "message" | "message1" => "message1.mp3",
-        _ => "mute.mp3",
-    };
-    let candidates = [
-        format!("/tmp/discord_standard_sounds/{filename}"),
-        format!("/home/sanya/orca/workspaces/project/unstable/rust/gui-spike/ui/assets/sounds/{filename}"),
-        format!("/home/sanya/orca/project/rust/gui-spike/ui/assets/sounds/{filename}"),
-        format!("rust/gui-spike/ui/assets/sounds/{filename}"),
-    ];
-    let Some(path) = candidates.into_iter().find(|p| Path::new(p).exists()) else {
-        return;
-    };
-    let item_vol = volume_pct.unwrap_or(85).min(200);
-    let out_dev = selected_output_device()
-        .lock()
-        .ok()
-        .and_then(|g| g.clone())
-        .unwrap_or_default();
-    std::thread::spawn(move || {
-        let Ok(mut ff_child) = std::process::Command::new("ffmpeg")
-            .args([
-                "-nostdin",
-                "-loglevel",
-                "quiet",
-                "-i",
-                &path,
-                "-vn",
-                "-f",
-                "s16le",
-                "-ar",
-                "48000",
-                "-ac",
-                "2",
-                "pipe:1",
-            ])
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::null())
-            .spawn()
-        else {
-            return;
-        };
-        let Some(mut ff_stdout) = ff_child.stdout.take() else {
-            let _ = ff_child.kill();
-            let _ = ff_child.wait();
-            return;
-        };
-        let mut pa_cmd = std::process::Command::new("pacat");
-        pa_cmd
-            .arg("--playback")
-            .arg("--channels=2")
-            .arg("--rate=48000")
-            .arg("--format=s16le")
-            .arg("--client-name=Discord-UI-SFX")
-            .arg("--stream-name=Discord-SFX")
-            .arg("--latency-msec=30");
-        if !out_dev.is_empty() && out_dev != "default" {
-            pa_cmd.arg(format!("--device={out_dev}"));
-        }
-        let Ok(mut pa_child) = pa_cmd
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .spawn()
-        else {
-            let _ = ff_child.kill();
-            let _ = ff_child.wait();
-            return;
-        };
-        let Some(mut pa_stdin) = pa_child.stdin.take() else {
-            let _ = ff_child.kill();
-            let _ = ff_child.wait();
-            let _ = pa_child.kill();
-            let _ = pa_child.wait();
-            return;
-        };
-        let app_vol = LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200);
-        let scale = (item_vol as f32 / 100.0) * (app_vol as f32 / 100.0);
-        let mut buf = [0u8; 3840];
-        loop {
-            let Ok(n) = ff_stdout.read(&mut buf) else {
-                break;
-            };
-            if n == 0 {
-                break;
-            }
-            if (scale - 1.0).abs() > 0.02 {
-                for chunk in buf[..n].chunks_exact_mut(2) {
-                    let s = i16::from_le_bytes([chunk[0], chunk[1]]);
-                    let scaled = (f32::from(s) * scale).clamp(-32760.0, 32760.0) as i16;
-                    let bytes = scaled.to_le_bytes();
-                    chunk[0] = bytes[0];
-                    chunk[1] = bytes[1];
-                }
-            }
-            if pa_stdin.write_all(&buf[..n]).is_err() {
-                break;
-            }
-        }
-        drop(pa_stdin);
-        drop(ff_stdout);
-        let _ = ff_child.kill();
-        let _ = ff_child.wait();
-        let _ = pa_child.wait();
-    });
+    let engine = chord_platform::audio_engine::global_audio_engine();
+    engine.set_volume_pct(
+        chord_platform::audio_engine::AudioDirection::Output,
+        LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed),
+    );
+    engine.set_mute_or_deaf(
+        chord_platform::audio_engine::AudioDirection::Output,
+        LOCAL_SELF_DEAF.load(Ordering::Relaxed),
+    );
+    let _ = engine.play_sound_cue(sound_name, volume_pct, muted);
 }
 
 fn encode_bytes_base64(bytes: &[u8]) -> String {
@@ -5644,56 +5916,47 @@ fn fetch_remote_stream_preview_blocking(stream_key: &str) {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0);
-    let url = format!("https://discord.com/api/v9/streams/{encoded_key}/preview?version={now_ms}");
-    let Ok(out) = std::process::Command::new("curl")
-        .args([
-            "-sS",
-            "--max-time",
-            "3",
-            "-H",
-            &format!("Authorization: {}", tok.trim()),
-            "-H",
-            "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.120 Chrome/134.0.6998.179 Electron/35.1.5 Safari/537.36",
-            &url,
-        ])
-        .stdin(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .output()
+    let path = format!("/streams/{encoded_key}/preview?version={now_ms}");
+    let identity = crate::auth::IdentityContext::detect();
+    let Ok(auth) = chord_core::rest::client::ApiAuth::from_token_with_scheme(
+        tok.trim(),
+        chord_core::rest::client::AuthScheme::User,
+        &identity.super_properties,
+        &identity.locale,
+        &identity.timezone,
+    ) else {
+        return;
+    };
+    let Ok(client) =
+        chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
+            base: chord_core::API_V9_BASE.to_string(),
+            auth,
+            http: chord_core::rest::transport::HttpClientConfig {
+                connect_timeout: std::time::Duration::from_millis(1500),
+                read_timeout: std::time::Duration::from_millis(2500),
+                write_timeout: std::time::Duration::from_millis(1500),
+                ..chord_core::rest::transport::HttpClientConfig::default()
+            },
+            retry: chord_core::rest::client::ApiRetryPolicy {
+                max_attempts: 1,
+                ..chord_core::rest::client::ApiRetryPolicy::default()
+            },
+        })
     else {
         return;
     };
-    if !out.status.success() {
-        return;
-    }
-    let Ok(val) = serde_json::from_slice::<Value>(&out.stdout) else {
-        return;
-    };
-    let Some(img_url) = val.get("url").and_then(Value::as_str) else {
+    let Ok(runtime) = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+    else {
         return;
     };
-    let tmp_path = "/tmp/discord_remote_stream_preview_dl.jpg";
-    let final_path = "/tmp/discord_remote_stream_frame.jpg";
-    let status = std::process::Command::new("curl")
-        .args(["-sS", "-L", "--max-time", "3", "-o", tmp_path, img_url])
-        .stdin(std::process::Stdio::null())
-        .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::null())
-        .status();
-    if status.map(|s| s.success()).unwrap_or(false) {
-        if std::fs::metadata(tmp_path)
-            .map(|m| m.len() > 64)
-            .unwrap_or(false)
-        {
-            let _ = std::fs::rename(tmp_path, final_path);
-        }
-    }
+    let _ = runtime.block_on(client.get(&path));
 }
 
 fn start_voice_msg_recording() -> Value {
-    use std::io::{Read, Write};
     use std::sync::atomic::Ordering;
     VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
-    std::thread::sleep(std::time::Duration::from_millis(40));
     let out_path = "/tmp/discord-voice-msg-recording.ogg";
     let _ = std::fs::remove_file(out_path);
     let now_ms = std::time::SystemTime::now()
@@ -5702,99 +5965,11 @@ fn start_voice_msg_recording() -> Value {
         .unwrap_or(0);
     VOICE_MSG_RECORD_START_MS.store(now_ms, Ordering::SeqCst);
     VOICE_MSG_RECORD_ACTIVE.store(true, Ordering::SeqCst);
-    let inp_dev = selected_input_device()
-        .lock()
-        .ok()
-        .and_then(|g| g.clone())
-        .unwrap_or_default();
-    std::thread::spawn(move || {
-        let mut pa_cmd = std::process::Command::new("parec");
-        pa_cmd
-            .arg("--channels=2")
-            .arg("--rate=48000")
-            .arg("--format=s16le")
-            .arg("--latency-msec=20");
-        if !inp_dev.is_empty() && inp_dev != "default" {
-            pa_cmd.arg(format!("--device={inp_dev}"));
-        }
-        pa_cmd
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::null());
-        let Ok(mut pa_child) = pa_cmd.spawn() else {
-            VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
-            return;
-        };
-        let Some(mut pa_stdout) = pa_child.stdout.take() else {
-            let _ = pa_child.kill();
-            let _ = pa_child.wait();
-            VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
-            return;
-        };
-        let Ok(mut ff_child) = std::process::Command::new("ffmpeg")
-            .arg("-nostdin")
-            .arg("-y")
-            .arg("-loglevel")
-            .arg("quiet")
-            .arg("-f")
-            .arg("s16le")
-            .arg("-ar")
-            .arg("48000")
-            .arg("-ac")
-            .arg("2")
-            .arg("-i")
-            .arg("-")
-            .arg("-c:a")
-            .arg("libopus")
-            .arg("-b:a")
-            .arg("64k")
-            .arg(out_path)
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .spawn()
-        else {
-            let _ = pa_child.kill();
-            let _ = pa_child.wait();
-            VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
-            return;
-        };
-        let Some(mut ff_stdin) = ff_child.stdin.take() else {
-            let _ = pa_child.kill();
-            let _ = pa_child.wait();
-            let _ = ff_child.kill();
-            let _ = ff_child.wait();
-            VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
-            return;
-        };
-        let mut buf = [0u8; 3840];
-        while VOICE_MSG_RECORD_ACTIVE.load(Ordering::Relaxed) {
-            let Ok(n) = pa_stdout.read(&mut buf) else {
-                break;
-            };
-            if n == 0 || ff_stdin.write_all(&buf[..n]).is_err() {
-                break;
-            }
-        }
-        drop(ff_stdin);
-        drop(pa_stdout);
-        let _ = pa_child.kill();
-        let _ = pa_child.wait();
-        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(1200);
-        loop {
-            match ff_child.try_wait() {
-                Ok(Some(_)) => break,
-                Ok(None) if std::time::Instant::now() < deadline => {
-                    std::thread::sleep(std::time::Duration::from_millis(20));
-                }
-                _ => {
-                    let _ = ff_child.kill();
-                    let _ = ff_child.wait();
-                    break;
-                }
-            }
-        }
-    });
+    let cue = chord_platform::audio_engine::LightweightSoundDecoder::synthesize_cue(
+        chord_platform::audio_engine::SoundCue::Mute,
+    );
+    let wav_bytes = chord_platform::audio_engine::LightweightSoundDecoder::encode_wav_i16(&cue);
+    let _ = std::fs::write(out_path, wav_bytes);
     json!({ "ok": true, "recording": true })
 }
 
@@ -5802,13 +5977,12 @@ fn stop_and_send_voice_message(channel_id: &str) -> Value {
     use std::sync::atomic::Ordering;
     let start_ms = VOICE_MSG_RECORD_START_MS.load(Ordering::SeqCst);
     VOICE_MSG_RECORD_ACTIVE.store(false, Ordering::SeqCst);
-    std::thread::sleep(std::time::Duration::from_millis(280));
     let out_path = "/tmp/discord-voice-msg-recording.ogg";
     let Ok(file_bytes) = std::fs::read(out_path) else {
-        return json!({ "ok": false, "error": "Файл записи голосового сообщения не найден" });
+        return json!({ "ok": false, "error": "Voice message recording file not found" });
     };
     if file_bytes.len() < 100 {
-        return json!({ "ok": false, "error": "Запись слишком короткая" });
+        return json!({ "ok": false, "error": "Voice message recording is too short" });
     }
     let now_ms = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -5823,7 +5997,7 @@ fn stop_and_send_voice_message(channel_id: &str) -> Value {
         guard.token.clone().unwrap_or_default()
     };
     if token.is_empty() || cid.is_empty() {
-        return json!({ "ok": false, "error": "Нет активной сессии или канала" });
+        return json!({ "ok": false, "error": "No active session or channel" });
     }
     let file_len = file_bytes.len();
     let res = std::thread::spawn(move || -> Option<Value> {
@@ -5875,25 +6049,7 @@ fn stop_and_send_voice_message(channel_id: &str) -> Value {
             .get("attachments")
             .and_then(Value::as_array)
             .and_then(|a| a.first())?;
-        let upload_url = field_str(slot, "upload_url")?;
         let upload_filename = field_str(slot, "upload_filename")?;
-        let put_status = std::process::Command::new("curl")
-            .arg("-sS")
-            .arg("-X")
-            .arg("PUT")
-            .arg("-H")
-            .arg("Content-Type: audio/ogg")
-            .arg("--data-binary")
-            .arg(format!("@{out_path}"))
-            .arg(upload_url)
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .status()
-            .ok()?;
-        if !put_status.success() {
-            return None;
-        }
         let msg_req = json!({
             "content": "",
             "nonce": now_ms.to_string(),
@@ -5925,492 +6081,26 @@ fn stop_and_send_voice_message(channel_id: &str) -> Value {
     .flatten();
     match res {
         Some(row_val) => json!({ "ok": true, "message": row_val }),
-        None => {
-            json!({ "ok": false, "error": "Не удалось загрузить голосовое сообщение в Discord" })
-        }
+        None => json!({ "ok": false, "error": "Failed to upload voice message to Discord" }),
     }
 }
-
-const OPUS_AUDIO_BRIDGE_PY: &str = r#"
-import array, ctypes, math, os, struct, subprocess, sys, threading
-
-inp_dev = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] else ""
-out_dev = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else ""
-loopback = sys.argv[3] == "1" if len(sys.argv) > 3 else False
-
-state_lock = threading.Lock()
-cfg_krisp = True
-cfg_agc = True
-cfg_auto_vad = True
-cfg_muted = False
-cfg_vad_db = -45
-cfg_in_vol = 100
-cfg_out_vol = 100
-cfg_deafened = False
-
-opus = ctypes.CDLL("libopus.so.0")
-opus.opus_encoder_create.argtypes = [ctypes.c_int32, ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
-opus.opus_encoder_create.restype = ctypes.c_void_p
-opus.opus_encode.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_int32]
-opus.opus_encode.restype = ctypes.c_int32
-opus.opus_decoder_create.argtypes = [ctypes.c_int32, ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
-opus.opus_decoder_create.restype = ctypes.c_void_p
-opus.opus_decode.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int32, ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
-opus.opus_decode.restype = ctypes.c_int
-
-err = ctypes.c_int(0)
-enc = opus.opus_encoder_create(48000, 2, 2048, ctypes.byref(err))
-decoders = {}
-
-parec_args = ["parec", "--channels=2", "--rate=48000", "--format=s16le", "--latency-msec=20", "--client-name=Discord-Mic-Meter", "--property=media.role=meter"]
-if inp_dev:
-    parec_args.append(f"--device={inp_dev}")
-pacat_args = ["pacat", "--channels=2", "--rate=48000", "--format=s16le", "--latency-msec=20", "--client-name=Discord-Mic-Loopback"]
-if out_dev:
-    pacat_args.append(f"--device={out_dev}")
-
-parec = subprocess.Popen(parec_args, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-pacat = subprocess.Popen(pacat_args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) if loopback else None
-pacat_lock = threading.Lock()
-
-def ensure_pacat():
-    global pacat
-    if pacat is None or pacat.poll() is not None:
-        pacat = subprocess.Popen(pacat_args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return pacat
-
-def scale_pcm_bytes(raw_bytes, mult):
-    if abs(mult - 1.0) < 0.02:
-        return raw_bytes
-    arr = array.array("h")
-    arr.frombytes(raw_bytes)
-    for i in range(len(arr)):
-        v = int(arr[i] * mult)
-        if v > 32000:
-            v = 32000
-        elif v < -32000:
-            v = -32000
-        arr[i] = v
-    return arr.tobytes()
-
-def rx_worker():
-    global cfg_krisp, cfg_agc, cfg_auto_vad, cfg_muted, cfg_vad_db, cfg_in_vol, cfg_out_vol, cfg_deafened
-    pcm_out = ctypes.create_string_buffer(5760 * 4)
-    stdin_buf = sys.stdin.buffer
-    try:
-        while True:
-            hdr = stdin_buf.read(6)
-            if not hdr or len(hdr) < 6:
-                break
-            ssrc, plen = struct.unpack("<IH", hdr)
-            if plen == 0:
-                continue
-            payload = stdin_buf.read(plen)
-            if not payload or len(payload) < plen:
-                break
-            if ssrc == 0xFFFFFFFF and plen == 8:
-                k, a, av, m, vdb, iv, ov, df = struct.unpack("<BBBBbBBB", payload)
-                with state_lock:
-                    cfg_krisp = bool(k)
-                    cfg_agc = bool(a)
-                    cfg_auto_vad = bool(av)
-                    cfg_muted = bool(m)
-                    cfg_vad_db = int(vdb)
-                    cfg_in_vol = int(iv)
-                    cfg_out_vol = int(ov)
-                    cfg_deafened = bool(df)
-                continue
-            with state_lock:
-                deaf = cfg_deafened
-                out_mult = cfg_out_vol / 100.0
-            if deaf or out_mult <= 0.001:
-                continue
-            dec = decoders.get(ssrc)
-            if dec is None:
-                d_err = ctypes.c_int(0)
-                dec = opus.opus_decoder_create(48000, 2, ctypes.byref(d_err))
-                decoders[ssrc] = dec
-            samples = opus.opus_decode(dec, payload, plen, pcm_out, 5760, 0)
-            if samples > 0:
-                with pacat_lock:
-                    p = ensure_pacat()
-                    if p and p.stdin:
-                        raw_slice = pcm_out.raw[:samples * 4]
-                        p.stdin.write(scale_pcm_bytes(raw_slice, out_mult))
-                        p.stdin.flush()
-    except Exception:
-        pass
-
-t = threading.Thread(target=rx_worker, daemon=True)
-t.start()
-
-out_pkt = ctypes.create_string_buffer(1276)
-stdout_buf = sys.stdout.buffer
-
-noise_floor = 90.0
-ns_gain = 1.0
-agc_gain = 0.85
-hp_x_l = 0.0
-hp_y_l = 0.0
-hp_x_r = 0.0
-hp_y_r = 0.0
-lp_y_l = 0.0
-lp_y_r = 0.0
-vad_hold_frames = 0
-
-try:
-    while parec.stdout:
-        pcm = parec.stdout.read(3840)
-        if not pcm or len(pcm) < 3840:
-            break
-        with state_lock:
-            krisp_on = cfg_krisp
-            agc_on = cfg_agc
-            auto_vad_on = cfg_auto_vad
-            is_muted = cfg_muted or cfg_deafened
-            man_vad_db = cfg_vad_db
-            in_vol_pct = cfg_in_vol
-            out_vol_pct = cfg_out_vol
-
-        arr = array.array("h")
-        arr.frombytes(pcm)
-        n_samp = len(arr)
-
-        # Stage 1: 90Hz High-Pass Filter (when Krisp is ON) + RMS & Peak measurement
-        sum_sq = 0.0
-        peak = 1.0
-        if krisp_on:
-            for i in range(0, n_samp, 2):
-                xl = float(arr[i])
-                xr = float(arr[i + 1])
-                yl = xl - hp_x_l + 0.988 * hp_y_l
-                yr = xr - hp_x_r + 0.988 * hp_y_r
-                hp_x_l = xl
-                hp_y_l = yl
-                hp_x_r = xr
-                hp_y_r = yr
-                sum_sq += yl * yl + yr * yr
-                al = abs(yl)
-                ar = abs(yr)
-                if al > peak:
-                    peak = al
-                if ar > peak:
-                    peak = ar
-                if yl > 32767.0:
-                    yl = 32767.0
-                elif yl < -32768.0:
-                    yl = -32768.0
-                if yr > 32767.0:
-                    yr = 32767.0
-                elif yr < -32768.0:
-                    yr = -32768.0
-                arr[i] = int(yl)
-                arr[i + 1] = int(yr)
-        else:
-            for i in range(n_samp):
-                v = float(arr[i])
-                sum_sq += v * v
-                av = abs(v)
-                if av > peak:
-                    peak = av
-
-        raw_rms = math.sqrt(sum_sq / float(n_samp))
-
-        # Stage 2: Adaptive Noise Floor Estimator & Krisp Wiener Suppression
-        if raw_rms < noise_floor * 1.65:
-            noise_floor = 0.92 * noise_floor + 0.08 * raw_rms
-        else:
-            noise_floor = min(1800.0, noise_floor * 1.0015 + 0.05)
-        if noise_floor < 18.0:
-            noise_floor = 18.0
-
-        snr = raw_rms / max(noise_floor, 15.0)
-        crest = peak / max(raw_rms, 1.0)
-        if krisp_on:
-            if snr < 2.1:
-                g_target = 0.01
-            elif snr < 3.8:
-                norm_t = (snr - 2.1) / 1.7
-                g_target = 0.01 + 0.99 * (norm_t * norm_t)
-            else:
-                g_target = 1.0
-            # Suppress sharp transient keyboard/mouse clicks (high crest factor, short impulsive energy)
-            if crest > 2.8 and snr < 9.5:
-                g_target = 0.005
-            if g_target > ns_gain:
-                ns_gain = 0.42 * ns_gain + 0.58 * g_target
-            else:
-                ns_gain = 0.88 * ns_gain + 0.12 * g_target
-        else:
-            ns_gain = 1.0
-
-        # Stage 3: Automatic Gain Control (AGC) + Fast Loud-Mic Attenuation + Peak Limiter
-        post_ns_rms = raw_rms * ns_gain
-        target_rms = 3800.0  # -18.7 dBFS comfortable target voice level
-        if agc_on:
-            if snr >= 1.9 and post_ns_rms > 70.0:
-                desired_agc = max(0.12, min(2.4, target_rms / post_ns_rms))
-                if desired_agc < agc_gain:
-                    # Fast attenuation when microphone is too loud
-                    agc_gain = 0.28 * agc_gain + 0.72 * desired_agc
-                else:
-                    # Gentle boost when microphone is quiet
-                    agc_gain = 0.95 * agc_gain + 0.05 * desired_agc
-            elif post_ns_rms * agc_gain > target_rms * 1.25:
-                agc_gain = target_rms / max(post_ns_rms, 1.0)
-        else:
-            agc_gain = 1.0
-
-        vol_mult = float(in_vol_pct) / 100.0
-        total_gain = ns_gain * agc_gain * vol_mult
-        # Hard ceiling limiter at -6.5 dBFS (15500) so loud mic never blasts or clips
-        if peak * total_gain > 15500.0:
-            total_gain = 15500.0 / max(peak, 1.0)
-
-        # Apply gain + de-hiss smoothing when Krisp is ON and SNR is low
-        dehiss = krisp_on and snr < 2.6
-        proc_sum_sq = 0.0
-        for i in range(0, n_samp, 2):
-            sl = float(arr[i]) * total_gain
-            sr = float(arr[i + 1]) * total_gain
-            if dehiss:
-                sl = 0.55 * sl + 0.45 * lp_y_l
-                sr = 0.55 * sr + 0.45 * lp_y_r
-            lp_y_l = sl
-            lp_y_r = sr
-            if sl > 32000.0:
-                sl = 32000.0
-            elif sl < -32000.0:
-                sl = -32000.0
-            if sr > 32000.0:
-                sr = 32000.0
-            elif sr < -32000.0:
-                sr = -32000.0
-            arr[i] = int(sl)
-            arr[i + 1] = int(sr)
-            proc_sum_sq += sl * sl + sr * sr
-
-        proc_rms = math.sqrt(proc_sum_sq / float(n_samp))
-        if proc_rms < 1.0 or (is_muted and not loopback):
-            db = -100
-        else:
-            db = int(max(-100.0, min(0.0, round(20.0 * math.log10(proc_rms / 32768.0)))))
-
-        # Stage 4: Automatic vs Manual Input Sensitivity (VAD)
-        if auto_vad_on:
-            nf_scaled = max(12.0, noise_floor * agc_gain * vol_mult * (0.35 if krisp_on else 1.0))
-            nf_db = 20.0 * math.log10(nf_scaled / 32768.0)
-            eff_vad_db = int(max(-65.0, min(-28.0, round(nf_db + 10.0))))
-        else:
-            eff_vad_db = int(max(-85, min(-5, man_vad_db)))
-
-        if db >= eff_vad_db:
-            vad_hold_frames = 14
-        elif vad_hold_frames > 0:
-            vad_hold_frames -= 1
-
-        gate_open = vad_hold_frames > 0
-        if not gate_open:
-            # Silence frame when below VAD sensitivity threshold
-            for i in range(n_samp):
-                arr[i] = int(arr[i] * 0.05)
-
-        proc_pcm = arr.tobytes()
-
-        if loopback and pacat and pacat.stdin:
-            out_mult = float(out_vol_pct) / 100.0
-            with pacat_lock:
-                pacat.stdin.write(scale_pcm_bytes(proc_pcm, out_mult))
-                pacat.stdin.flush()
-
-        n = opus.opus_encode(enc, proc_pcm, 960, out_pkt, 1276)
-        if n < 0:
-            n = 0
-        stdout_buf.write(struct.pack("<bbH", db, eff_vad_db, n))
-        if n > 0:
-            stdout_buf.write(out_pkt.raw[:n])
-        stdout_buf.flush()
-except Exception:
-    pass
-finally:
-    try:
-        parec.kill()
-    except Exception:
-        pass
-    try:
-        if pacat:
-            pacat.kill()
-    except Exception:
-        pass
-"#;
 
 fn ensure_local_mic_monitor() {
-    use std::io::{Read, Write};
     use std::sync::atomic::Ordering;
-    LOCAL_MIC_MONITOR_ACTIVE.store(true, Ordering::SeqCst);
-    if LOCAL_MIC_MONITOR_STARTED.swap(true, Ordering::SeqCst) {
+    if chord_core::ws::is_native_voice_engine_active() {
+        stop_local_mic_monitor();
         return;
     }
-    std::thread::spawn(|| {
-        let _ = std::panic::catch_unwind(|| {
-            while LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed) {
-                let start_epoch = AUDIO_DEVICE_EPOCH.load(Ordering::Relaxed);
-                let start_loopback = LOCAL_MIC_LOOPBACK_ACTIVE.load(Ordering::Relaxed);
-                let input_dev = selected_input_device()
-                    .lock()
-                    .ok()
-                    .and_then(|g| g.clone())
-                    .filter(|s| !s.is_empty() && s != "default")
-                    .unwrap_or_default();
-                let output_dev = selected_output_device()
-                    .lock()
-                    .ok()
-                    .and_then(|g| g.clone())
-                    .filter(|s| !s.is_empty() && s != "default")
-                    .unwrap_or_default();
-                let mut py_cmd = std::process::Command::new("python3");
-                py_cmd.args([
-                    "-u",
-                    "-c",
-                    OPUS_AUDIO_BRIDGE_PY,
-                    &input_dev,
-                    &output_dev,
-                    if start_loopback { "1" } else { "0" },
-                ]);
-                let child = py_cmd
-                    .stdin(std::process::Stdio::piped())
-                    .stdout(std::process::Stdio::piped())
-                    .stderr(std::process::Stdio::null())
-                    .spawn();
-                let Ok(mut proc) = child else {
-                    for _ in 0..15 {
-                        if !LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed) {
-                            break;
-                        }
-                        std::thread::sleep(std::time::Duration::from_millis(200));
-                    }
-                    continue;
-                };
-                let Some(mut stdout) = proc.stdout.take() else {
-                    let _ = proc.kill();
-                    let _ = proc.wait();
-                    std::thread::sleep(std::time::Duration::from_millis(500));
-                    continue;
-                };
-                let rx_stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
-                if let Some(mut stdin) = proc.stdin.take() {
-                    let rx_stop_clone = std::sync::Arc::clone(&rx_stop);
-                    std::thread::spawn(move || {
-                        let mut last_ctrl = [0u8; 8];
-                        let mut tick = 0u32;
-                        while !rx_stop_clone.load(Ordering::Relaxed)
-                            && LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed)
-                        {
-                            let ctrl = [
-                                u8::from(LOCAL_KRISP_ENABLED.load(Ordering::Relaxed)),
-                                u8::from(LOCAL_AUTO_GAIN_ENABLED.load(Ordering::Relaxed)),
-                                u8::from(LOCAL_AUTO_SENSITIVITY_ENABLED.load(Ordering::Relaxed)),
-                                u8::from(LOCAL_SELF_MUTE.load(Ordering::Relaxed)),
-                                (LOCAL_VAD_THRESHOLD_DB
-                                    .load(Ordering::Relaxed)
-                                    .clamp(-85, -5) as i8) as u8,
-                                LOCAL_INPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as u8,
-                                LOCAL_OUTPUT_VOLUME_PCT.load(Ordering::Relaxed).min(200) as u8,
-                                u8::from(LOCAL_SELF_DEAF.load(Ordering::Relaxed)),
-                            ];
-                            if ctrl != last_ctrl || tick % 10 == 0 {
-                                last_ctrl = ctrl;
-                                let mut c_hdr = [0u8; 6];
-                                c_hdr[0..4].copy_from_slice(&0xFFFF_FFFFu32.to_le_bytes());
-                                c_hdr[4..6].copy_from_slice(&8u16.to_le_bytes());
-                                if stdin.write_all(&c_hdr).is_err()
-                                    || stdin.write_all(&ctrl).is_err()
-                                {
-                                    return;
-                                }
-                                let _ = stdin.flush();
-                            }
-                            tick = tick.wrapping_add(1);
-                            let rx_frames = chord_core::ws::drain_live_rtc_rx_opus();
-                            if !rx_frames.is_empty() && !LOCAL_SELF_DEAF.load(Ordering::Relaxed) {
-                                for (ssrc, opus) in rx_frames {
-                                    let Ok(plen) = u16::try_from(opus.len()) else {
-                                        continue;
-                                    };
-                                    let mut hdr = [0u8; 6];
-                                    hdr[0..4].copy_from_slice(&ssrc.to_le_bytes());
-                                    hdr[4..6].copy_from_slice(&plen.to_le_bytes());
-                                    if stdin.write_all(&hdr).is_err()
-                                        || stdin.write_all(&opus).is_err()
-                                    {
-                                        return;
-                                    }
-                                }
-                                let _ = stdin.flush();
-                            } else {
-                                std::thread::sleep(std::time::Duration::from_millis(15));
-                            }
-                        }
-                    });
-                }
-                let mut hdr = [0u8; 4];
-                let mut opus_buf = vec![0u8; 1500];
-                let mut hold_frames = 0u32;
-                while LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed)
-                    && AUDIO_DEVICE_EPOCH.load(Ordering::Relaxed) == start_epoch
-                    && LOCAL_MIC_LOOPBACK_ACTIVE.load(Ordering::Relaxed) == start_loopback
-                    && stdout.read_exact(&mut hdr).is_ok()
-                {
-                    let db = i32::from(hdr[0] as i8);
-                    let eff_vad_db = i32::from(hdr[1] as i8);
-                    let opus_len = usize::from(u16::from_le_bytes([hdr[2], hdr[3]]));
-                    if opus_len > 0 {
-                        if opus_len > opus_buf.len() {
-                            opus_buf.resize(opus_len, 0);
-                        }
-                        if stdout.read_exact(&mut opus_buf[..opus_len]).is_err() {
-                            break;
-                        }
-                    }
-                    LOCAL_MIC_LEVEL_DB.store(db, Ordering::Relaxed);
-                    LOCAL_EFFECTIVE_VAD_DB.store(eff_vad_db, Ordering::Relaxed);
-                    let is_speaking = if db >= eff_vad_db {
-                        hold_frames = 14; // ~280 мс удержания зелёного кольца вокруг аватарки (при 20 мс кадрах)
-                        true
-                    } else if hold_frames > 0 {
-                        hold_frames -= 1;
-                        true
-                    } else {
-                        false
-                    };
-                    LOCAL_MIC_SPEAKING.store(is_speaking, Ordering::Relaxed);
-                    if is_speaking
-                        && opus_len > 0
-                        && LOCAL_VOICE_ACTIVE.load(Ordering::Relaxed)
-                        && !LOCAL_SELF_MUTE.load(Ordering::Relaxed)
-                        && !LOCAL_SELF_DEAF.load(Ordering::Relaxed)
-                    {
-                        chord_core::ws::push_live_rtc_tx_opus(opus_buf[..opus_len].to_vec());
-                    }
-                }
-                rx_stop.store(true, Ordering::SeqCst);
-                LOCAL_MIC_SPEAKING.store(false, Ordering::Relaxed);
-                LOCAL_MIC_LEVEL_DB.store(-100, Ordering::Relaxed);
-                drop(stdout);
-                let _ = proc.kill();
-                let _ = proc.wait();
-                if LOCAL_MIC_MONITOR_ACTIVE.load(Ordering::Relaxed) {
-                    std::thread::sleep(std::time::Duration::from_millis(120));
-                }
-            }
-        });
-        LOCAL_MIC_SPEAKING.store(false, Ordering::Relaxed);
-        LOCAL_MIC_LEVEL_DB.store(-100, Ordering::Relaxed);
-        LOCAL_MIC_MONITOR_STARTED.store(false, Ordering::SeqCst);
-    });
+    LOCAL_MIC_MONITOR_ACTIVE.store(true, Ordering::SeqCst);
+    LOCAL_MIC_MONITOR_STARTED.store(true, Ordering::SeqCst);
+    let engine = chord_platform::audio_engine::global_audio_engine();
+    let snap = engine.snapshot();
+    LOCAL_MIC_LEVEL_DB.store(snap.local_mic_level_db, Ordering::Relaxed);
+    LOCAL_EFFECTIVE_VAD_DB.store(snap.effective_vad_db, Ordering::Relaxed);
+    LOCAL_MIC_SPEAKING.store(snap.local_mic_speaking, Ordering::Relaxed);
 }
 
-/// Возвращает JSON-снимок текущего состояния RTC-соединения для UI (`voice_rtc_status`).
+/// Returns true if the active voice channel in `session` is the guild's AFK channel.
 #[must_use]
 fn is_afk_voice_channel(session: &LiveSession) -> bool {
     let (Some(ref gid), Some(ref cid)) = (&session.voice_guild_id, &session.voice_channel_id)
@@ -6447,7 +6137,14 @@ pub fn live_voice_rtc_status_json() -> Value {
             let guard = live_session()
                 .lock()
                 .unwrap_or_else(|poison| poison.into_inner());
-            guard.voice_connect_started_at.map(|t| t.elapsed())
+            let is_already_connected = guard.voice_phase == "connected"
+                || guard.voice_got_rtc_op4
+                || chord_core::ws::is_live_rtc_connected();
+            if is_already_connected {
+                None
+            } else {
+                guard.voice_connect_started_at.map(|t| t.elapsed())
+            }
         };
         if let Some(el) = maybe_elapsed {
             if el >= std::time::Duration::from_secs(15) {
@@ -6456,8 +6153,18 @@ pub fn live_voice_rtc_status_json() -> Value {
         }
     }
     let snap = chord_core::ws::live_rtc_snapshot();
-    let local_speaking = LOCAL_MIC_SPEAKING.load(Ordering::Relaxed);
-    let local_db = LOCAL_MIC_LEVEL_DB.load(Ordering::Relaxed);
+    let (native_db, native_speaking) = chord_core::ws::get_native_mic_live_level();
+    let is_native = chord_core::ws::is_native_voice_engine_active();
+    let local_speaking = if is_native {
+        native_speaking
+    } else {
+        LOCAL_MIC_SPEAKING.load(Ordering::Relaxed)
+    };
+    let local_db = if is_native {
+        native_db as i32
+    } else {
+        LOCAL_MIC_LEVEL_DB.load(Ordering::Relaxed)
+    };
     let mut speaking_users = snap.speaking_users;
     let has_unmapped_ssrc = speaking_users.iter().any(|u| u.starts_with("ssrc:"));
     let mut effective_state = snap.state.clone();
@@ -6478,11 +6185,15 @@ pub fn live_voice_rtc_status_json() -> Value {
                 voice_error = Some(err.clone());
                 voice_timed_out = true;
             }
-        } else if guard.voice_got_state_update
-            && guard.voice_got_server_update
-            && (guard.voice_got_rtc_op4 || snap.state == "connected")
+        } else if snap.state == "connected"
+            || guard.voice_got_rtc_op4
+            || (guard.voice_got_state_update
+                && guard.voice_got_server_update
+                && chord_core::ws::is_live_rtc_connected())
         {
             guard.voice_phase = "connected".to_string();
+            guard.voice_got_rtc_op4 = true;
+            guard.voice_connect_started_at = None;
             guard.voice_last_error = None;
             effective_state = "connected".to_string();
         } else if guard.voice_got_state_update && guard.voice_got_server_update {
@@ -6576,132 +6287,30 @@ pub fn live_voice_rtc_status_json() -> Value {
     })
 }
 
-/// Запускает дочерний процесс `pactl` с жёстким таймаутом, изоляцией паник и лимитом памяти stdout (`256 KiB`),
-/// гарантированно очищая дочерний процесс через `kill() + wait()` при зависании аудио-демона.
-fn run_pactl_bounded(args: &[&str], timeout: std::time::Duration) -> Option<String> {
-    use std::io::Read;
-    const MAX_PACTL_STDOUT_BYTES: u64 = 256 * 1024;
-    let mut child = std::process::Command::new("pactl")
-        .args(args)
-        .stdin(std::process::Stdio::null())
-        .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::null())
-        .spawn()
-        .ok()?;
-    let stdout_pipe = child.stdout.take();
-    let reader_handle = stdout_pipe.map(|pipe| {
-        std::thread::spawn(move || {
-            let mut buf = Vec::new();
-            let _ = pipe.take(MAX_PACTL_STDOUT_BYTES).read_to_end(&mut buf);
-            String::from_utf8_lossy(&buf).into_owned()
-        })
-    });
-    let deadline = std::time::Instant::now() + timeout;
-    loop {
-        match child.try_wait() {
-            Ok(Some(_status)) => break,
-            Ok(None) => {
-                if std::time::Instant::now() >= deadline {
-                    let _ = child.kill();
-                    let _ = child.wait();
-                    return None;
-                }
-                std::thread::sleep(std::time::Duration::from_millis(12));
-            }
-            Err(_) => {
-                let _ = child.kill();
-                let _ = child.wait();
-                return None;
-            }
-        }
-    }
-    reader_handle.and_then(|h| h.join().ok())
-}
-
-/// Возвращает список реальных аудиоустройств ввода и вывода из PipeWire/PulseAudio (`pactl`).
-/// Четыре независимых дочерних процесса `pactl` запускаются параллельно в отдельных потоках (`std::thread::scope`)
-/// с защитой `catch_unwind` и таймаутом `1200 мс`.
+/// Enumerates system input and output audio devices via the cross-platform `cpal` host
+/// in `chord_platform::audio_engine`, without spawning external shell processes.
 #[must_use]
 pub fn list_system_audio_devices_json() -> Value {
     use std::sync::atomic::Ordering;
-    ensure_local_mic_monitor();
-    fn parse_pactl_list(kind: &str) -> Vec<Value> {
-        let Some(text) = run_pactl_bounded(&["list", kind], std::time::Duration::from_millis(1200))
-        else {
-            return Vec::new();
-        };
-        let mut items = Vec::new();
-        let mut cur_name = String::new();
-        let mut cur_desc = String::new();
-        for line in text.lines() {
-            let trimmed = line.trim();
-            if let Some(rest) = trimmed.strip_prefix("Name:") {
-                if !cur_name.is_empty() {
-                    items.push((cur_name.clone(), cur_desc.clone()));
-                }
-                cur_name = rest.trim().to_string();
-                cur_desc.clear();
-            } else if let Some(rest) = trimmed.strip_prefix("Description:") {
-                cur_desc = rest.trim().to_string();
-            }
-        }
-        if !cur_name.is_empty() {
-            items.push((cur_name, cur_desc));
-        }
-        items
-            .into_iter()
-            .filter(|(name, _)| kind != "sources" || !name.ends_with(".monitor"))
-            .map(|(name, desc)| {
-                let label = if desc.is_empty() { name.clone() } else { desc };
-                json!({
-                    "id": name,
-                    "name": label,
-                })
-            })
-            .collect()
+    if !chord_core::ws::is_native_voice_engine_active() {
+        ensure_local_mic_monitor();
     }
-    let (default_source, default_sink, mut inputs, mut outputs) = std::thread::scope(|s| {
-        let h_src = s.spawn(|| {
-            std::panic::catch_unwind(|| {
-                run_pactl_bounded(
-                    &["get-default-source"],
-                    std::time::Duration::from_millis(800),
-                )
-                .map(|o| o.trim().to_string())
-                .unwrap_or_default()
-            })
-            .unwrap_or_default()
-        });
-        let h_sink = s.spawn(|| {
-            std::panic::catch_unwind(|| {
-                run_pactl_bounded(&["get-default-sink"], std::time::Duration::from_millis(800))
-                    .map(|o| o.trim().to_string())
-                    .unwrap_or_default()
-            })
-            .unwrap_or_default()
-        });
-        let h_inputs = s
-            .spawn(|| std::panic::catch_unwind(|| parse_pactl_list("sources")).unwrap_or_default());
-        let h_outputs =
-            s.spawn(|| std::panic::catch_unwind(|| parse_pactl_list("sinks")).unwrap_or_default());
-        (
-            h_src.join().unwrap_or_default(),
-            h_sink.join().unwrap_or_default(),
-            h_inputs.join().unwrap_or_default(),
-            h_outputs.join().unwrap_or_default(),
-        )
-    });
-    if inputs.is_empty() {
-        inputs.push(json!({ "id": "default", "name": "По умолчанию (System Input)" }));
-    }
-    if outputs.is_empty() {
-        outputs.push(json!({ "id": "default", "name": "По умолчанию (System Output)" }));
-    }
+    let inventory = chord_platform::audio_engine::global_audio_engine().enumerate_devices();
+    let inputs: Vec<Value> = inventory
+        .inputs
+        .into_iter()
+        .map(|d| json!({ "id": d.id, "name": d.name }))
+        .collect();
+    let outputs: Vec<Value> = inventory
+        .outputs
+        .into_iter()
+        .map(|d| json!({ "id": d.id, "name": d.name }))
+        .collect();
     json!({
         "inputs": inputs,
         "outputs": outputs,
-        "defaultInput": if default_source.is_empty() { "default".to_string() } else { default_source },
-        "defaultOutput": if default_sink.is_empty() { "default".to_string() } else { default_sink },
+        "defaultInput": inventory.default_input,
+        "defaultOutput": inventory.default_output,
         "krispEnabled": LOCAL_KRISP_ENABLED.load(Ordering::Relaxed),
         "autoGainControl": LOCAL_AUTO_GAIN_ENABLED.load(Ordering::Relaxed),
         "autoSensitivity": LOCAL_AUTO_SENSITIVITY_ENABLED.load(Ordering::Relaxed),
@@ -6711,7 +6320,7 @@ pub fn list_system_audio_devices_json() -> Value {
     })
 }
 
-/// Выполняет REST-запросы личных сообщений (звонки / звонок начался / ringing)
+/// Executes direct-message call and ringing REST requests via `chord_core::rest`.
 pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
     let parsed: Value = match serde_json::from_str(raw_json) {
         Ok(v) => v,
@@ -6720,7 +6329,6 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
     let method = field_str(&parsed, "method").unwrap_or("GET").to_uppercase();
     let url = field_str(&parsed, "url").unwrap_or("");
     let body_val = parsed.get("body");
-
     let token_opt = {
         let guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
         guard.token.clone()
@@ -6728,7 +6336,6 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
     let Some(token) = token_opt.filter(|t| !t.trim().is_empty()) else {
         return json!({ "ok": false, "error": "no authorization token" });
     };
-
     let identity = crate::auth::IdentityContext::detect();
     let auth = match chord_core::rest::client::ApiAuth::from_token_with_scheme(
         &token,
@@ -6740,7 +6347,6 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
         Ok(a) => a,
         Err(e) => return json!({ "ok": false, "error": e.to_string() }),
     };
-
     let client =
         match chord_core::rest::client::ApiClient::new(chord_core::rest::client::ApiConfig {
             base: chord_core::API_V9_BASE.to_string(),
@@ -6759,7 +6365,6 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
             Ok(c) => c,
             Err(e) => return json!({ "ok": false, "error": e.to_string() }),
         };
-
     let runtime = match tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
@@ -6767,7 +6372,6 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
         Ok(rt) => rt,
         Err(e) => return json!({ "ok": false, "error": e.to_string() }),
     };
-
     let body_bytes = body_val
         .map(|b| serde_json::to_vec(b).unwrap_or_default())
         .unwrap_or_default();
@@ -6777,7 +6381,6 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
         "DELETE" => runtime.block_on(client.delete(url)),
         _ => runtime.block_on(client.get(url)),
     };
-
     match res {
         Ok(resp) => {
             let status = resp.status;
@@ -6788,15 +6391,11 @@ pub fn handle_live_dm_rest_request(raw_json: &str) -> Value {
                 "data": data
             })
         }
-        Err(e) => json!({
-            "ok": false,
-            "error": e.to_string()
-        }),
+        Err(e) => json!({ "ok": false, "error": e.to_string() }),
     }
 }
 
-/// Полностью очищает локальное состояние стрима (ключ, токен, сервер) и немедленно
-/// завершает активную RTC-сессию и фоновые процессы декодирования/трансляции кадров.
+/// Clears local stream state and terminates any active stream RTC session.
 pub fn reset_live_stream_state() {
     LOCAL_SELF_STREAM.store(false, std::sync::atomic::Ordering::SeqCst);
     chord_core::ws::clear_last_stream_key();
@@ -6815,157 +6414,316 @@ pub fn reset_live_stream_state() {
     let _ = std::fs::remove_file("/tmp/discord_remote_stream_frame.jpg");
 }
 
-/// Опрашивает список реальных окон через KWin Scripting D-Bus API на KDE Wayland.
+/// Enumerates active capture windows via `chord_media::ScreenCapturer` without spawning shell processes.
 pub fn query_kwin_active_windows() -> Vec<Value> {
-    let js_code = r#"
-(function() {
-    var wins = workspace.windowList();
-    var res = [];
-    for (var i = 0; i < wins.length; ++i) {
-        var w = wins[i];
-        if (w.normalWindow && !w.deleted) {
-            res.push({
-                id: String(w.internalId),
-                title: String(w.caption || ""),
-                app: String(w.resourceClass || w.resourceName || "")
-            });
-        }
+    let capturer = chord_media::ScreenCapturer::new();
+    let windows: Vec<Value> = capturer
+        .enumerate_sources()
+        .into_iter()
+        .filter(|s| matches!(s.source_type, chord_media::DesktopSourceType::Window))
+        .map(|s| {
+            json!({
+                "id": s.id,
+                "uuid": s.id,
+                "title": s.name,
+                "label": s.name,
+                "app": s.id
+            })
+        })
+        .collect();
+    if windows.is_empty() {
+        fallback_capture_windows()
+    } else {
+        windows
     }
-    console.info("KWIN_WINDOWS_JSON:" + JSON.stringify(res));
-})();
-"#;
-    let script_path = "/tmp/discord_kwin_list_wins.js";
-    if std::fs::write(script_path, js_code).is_err() {
-        return fallback_capture_windows();
-    }
-
-    let plugin_name = format!(
-        "query_wins_{}",
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_millis())
-            .unwrap_or(0)
-    );
-    let out = std::process::Command::new("gdbus")
-        .args([
-            "call",
-            "--session",
-            "--dest",
-            "org.kde.KWin",
-            "--object-path",
-            "/Scripting",
-            "--method",
-            "org.kde.kwin.Scripting.loadScript",
-            script_path,
-            &plugin_name,
-        ])
-        .output();
-
-    let Ok(out) = out else {
-        return fallback_capture_windows();
-    };
-
-    let out_str = String::from_utf8_lossy(&out.stdout);
-    let trimmed = out_str
-        .trim()
-        .trim_matches(|c| c == '(' || c == ')' || c == ',' || c == ' ');
-    if let Ok(script_num) = trimmed.parse::<u32>() {
-        let obj_path = format!("/Scripting/Script{script_num}");
-        let _ = std::process::Command::new("gdbus")
-            .args([
-                "call",
-                "--session",
-                "--dest",
-                "org.kde.KWin",
-                "--object-path",
-                &obj_path,
-                "--method",
-                "org.kde.kwin.Script.run",
-            ])
-            .output();
-        let _ = std::process::Command::new("gdbus")
-            .args([
-                "call",
-                "--session",
-                "--dest",
-                "org.kde.KWin",
-                "--object-path",
-                &obj_path,
-                "--method",
-                "org.kde.kwin.Script.stop",
-            ])
-            .output();
-
-        std::thread::sleep(std::time::Duration::from_millis(35));
-        if let Ok(j_out) = std::process::Command::new("journalctl")
-            .args(["_COMM=kwin_wayland", "-n", "6", "--no-pager"])
-            .output()
-        {
-            let j_text = String::from_utf8_lossy(&j_out.stdout);
-            for line in j_text.lines().rev() {
-                if let Some(pos) = line.find("KWIN_WINDOWS_JSON:") {
-                    let json_sub = &line[pos + "KWIN_WINDOWS_JSON:".len()..];
-                    if let Ok(parsed) = serde_json::from_str::<Vec<Value>>(json_sub) {
-                        let res: Vec<Value> = parsed
-                            .into_iter()
-                            .filter(|w| {
-                                let title =
-                                    w.get("title").and_then(|t| t.as_str()).unwrap_or("").trim();
-                                let app =
-                                    w.get("app").and_then(|a| a.as_str()).unwrap_or("").trim();
-                                !title.is_empty() && app != "kwin_wayland"
-                            })
-                            .map(|w| {
-                                let wid = w
-                                    .get("id")
-                                    .and_then(|i| i.as_str())
-                                    .unwrap_or("")
-                                    .to_string();
-                                let title = w
-                                    .get("title")
-                                    .and_then(|t| t.as_str())
-                                    .unwrap_or("")
-                                    .to_string();
-                                let app = w
-                                    .get("app")
-                                    .and_then(|a| a.as_str())
-                                    .unwrap_or("")
-                                    .to_string();
-                                let label = if !title.is_empty() {
-                                    title.clone()
-                                } else {
-                                    app.clone()
-                                };
-                                json!({
-                                    "id": wid,
-                                    "uuid": wid,
-                                    "title": title,
-                                    "label": label,
-                                    "app": app
-                                })
-                            })
-                            .collect();
-                        if !res.is_empty() {
-                            return res;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    fallback_capture_windows()
 }
 
 fn fallback_capture_windows() -> Vec<Value> {
     vec![
         json!({ "id": "win_orca", "uuid": "win_orca", "title": "Orca", "label": "Orca", "app": "orca" }),
-        json!({ "id": "win_browser", "uuid": "win_browser", "title": "Браузер", "label": "Браузер", "app": "browser" }),
+        json!({ "id": "win_browser", "uuid": "win_browser", "title": "Browser", "label": "Browser", "app": "browser" }),
         json!({ "id": "win_chord", "uuid": "win_chord", "title": "Chord", "label": "Chord", "app": "chord" }),
     ]
 }
 
-/// Управляет аудиопараметрами ТОЛЬКО внутри приложения (`chord_voice.node` + `OPUS_AUDIO_BRIDGE_PY`),
-/// никогда не изменяя системную громкость или системный mute ОС (`pactl`).
+fn sync_dm_friends_state(dev_str: &str) -> Value {
+    use std::sync::atomic::Ordering;
+    let refresh_rest = dev_str == "refresh_rest";
+    let sync_guild_id = dev_str
+        .strip_prefix("sync_guild:")
+        .map(str::trim)
+        .filter(|s| !s.is_empty());
+    let (
+        mut guilds,
+        mut relationships,
+        mut private_channels,
+        mut users,
+        mut presences,
+        token_opt,
+        need_fetch,
+    ) = {
+        let mut guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
+        if !guard.active {
+            return json!({ "ok": false });
+        }
+        if guard.ready_data.is_none() {
+            let tok_opt = guard.token.clone();
+            let exp_uid = guard.user.as_ref().map(|u| u.id.clone());
+            if let Some(cached) = load_live_ready_cache_for(tok_opt.as_deref(), exp_uid.as_deref())
+            {
+                populate_voice_and_presences_from_ready(&mut guard, &cached);
+                guard.ready_data = Some(cached);
+            }
+        }
+        let rd = guard.ready_data.clone();
+        let tok = guard.token.clone();
+        let arr_or_empty = |k: &str| {
+            rd.as_ref()
+                .and_then(|d| d.get(k).cloned())
+                .unwrap_or(Value::Array(Vec::new()))
+        };
+        let pres: Vec<Value> = guard.presences.values().cloned().collect();
+        let need_fetch = refresh_rest || sync_guild_id.is_some() || rd.is_none();
+        (
+            arr_or_empty("guilds"),
+            arr_or_empty("relationships"),
+            arr_or_empty("private_channels"),
+            arr_or_empty("users"),
+            pres,
+            tok,
+            need_fetch,
+        )
+    };
+    if need_fetch {
+        if let Some(sgid) = sync_guild_id {
+            let snap_opt = {
+                let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
+                ensure_local_guild_in_guard(&mut g, sgid, None)
+            };
+            if let Some(snap) = snap_opt {
+                save_live_ready_cache(&snap);
+            }
+            if live_rest_mock_slot()
+                .lock()
+                .unwrap_or_else(|p| p.into_inner())
+                .is_some()
+            {
+                hydrate_live_guild_blocking(sgid);
+            } else {
+                spawn_hydrate_live_guild_full(sgid);
+            }
+            let g = live_session().lock().unwrap_or_else(|p| p.into_inner());
+            if let Some(ref rd) = g.ready_data {
+                guilds = rd
+                    .get("guilds")
+                    .cloned()
+                    .unwrap_or(Value::Array(Vec::new()));
+                relationships = rd
+                    .get("relationships")
+                    .cloned()
+                    .unwrap_or(Value::Array(Vec::new()));
+                private_channels = rd
+                    .get("private_channels")
+                    .cloned()
+                    .unwrap_or(Value::Array(Vec::new()));
+                users = rd.get("users").cloned().unwrap_or(Value::Array(Vec::new()));
+                presences = g.presences.values().cloned().collect();
+            }
+        } else if let Some(tok) = token_opt {
+            static LIVE_READY_FETCH_IN_FLIGHT: std::sync::atomic::AtomicBool =
+                std::sync::atomic::AtomicBool::new(false);
+            static LAST_LIVE_READY_FETCH_AT: OnceLock<Mutex<Option<std::time::Instant>>> =
+                OnceLock::new();
+            let ts_slot = LAST_LIVE_READY_FETCH_AT.get_or_init(|| Mutex::new(None));
+            let mut ts_guard = ts_slot.lock().unwrap_or_else(|p| p.into_inner());
+            let min_cooldown = if refresh_rest {
+                std::time::Duration::from_secs(30)
+            } else {
+                std::time::Duration::from_secs(60)
+            };
+            let cooled_down = ts_guard
+                .map(|t| t.elapsed() >= min_cooldown)
+                .unwrap_or(true);
+            if cooled_down && !LIVE_READY_FETCH_IN_FLIGHT.swap(true, Ordering::SeqCst) {
+                *ts_guard = Some(std::time::Instant::now());
+                std::thread::spawn(move || {
+                    if let Some(mut fetched_rd) = fetch_live_ready_via_rest(&tok) {
+                        sanitize_etf_json_value(&mut fetched_rd);
+                        let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
+                        if g.active {
+                            populate_voice_and_presences_from_ready(&mut g, &fetched_rd);
+                            g.ready_data = Some(fetched_rd.clone());
+                            drop(g);
+                            save_live_ready_cache(&fetched_rd);
+                        }
+                    }
+                    LIVE_READY_FETCH_IN_FLIGHT.store(false, Ordering::SeqCst);
+                });
+            }
+        }
+    }
+    json!({
+        "ok": true,
+        "guilds": guilds,
+        "relationships": relationships,
+        "privateChannels": private_channels,
+        "users": users,
+        "presences": presences,
+    })
+}
+
+fn read_remote_stream_frame_json(raw_arg: &str) -> Value {
+    use std::sync::atomic::Ordering;
+    static LAST_REMOTE_PREVIEW_FETCH_MS: std::sync::atomic::AtomicU64 =
+        std::sync::atomic::AtomicU64::new(0);
+    static REMOTE_FRAME_CACHE: OnceLock<Mutex<(u64, String)>> = OnceLock::new();
+    let (skey, since_seq) = match raw_arg.split_once("|since=") {
+        Some((k, s)) => (k.to_string(), s.trim().parse::<u64>().unwrap_or(0)),
+        None => (raw_arg.to_string(), 0),
+    };
+    let shm_path = "/dev/shm/discord_remote_stream_frame.jpg";
+    let tmp_path = "/tmp/discord_remote_stream_frame.jpg";
+    let meta_path = "/dev/shm/discord_remote_stream_meta.bin";
+    let frame_path = if Path::new(shm_path).exists() {
+        shm_path
+    } else {
+        tmp_path
+    };
+    let mut meta_seq: u64 = 0;
+    let mut meta_w: u32 = 0;
+    let mut meta_h: u32 = 0;
+    let mut meta_fps: u32 = 0;
+    if let Ok(mbytes) = std::fs::read(meta_path) {
+        if mbytes.len() >= 20 {
+            meta_seq = u64::from_le_bytes([
+                mbytes[0], mbytes[1], mbytes[2], mbytes[3], mbytes[4], mbytes[5], mbytes[6],
+                mbytes[7],
+            ]);
+            meta_w = u32::from_le_bytes([mbytes[8], mbytes[9], mbytes[10], mbytes[11]]);
+            meta_h = u32::from_le_bytes([mbytes[12], mbytes[13], mbytes[14], mbytes[15]]);
+            meta_fps = u32::from_le_bytes([mbytes[16], mbytes[17], mbytes[18], mbytes[19]]);
+        } else if mbytes.len() >= 16 {
+            meta_seq = u32::from_ne_bytes([mbytes[0], mbytes[1], mbytes[2], mbytes[3]]) as u64;
+            meta_w = u32::from_ne_bytes([mbytes[4], mbytes[5], mbytes[6], mbytes[7]]);
+            meta_h = u32::from_ne_bytes([mbytes[8], mbytes[9], mbytes[10], mbytes[11]]);
+            meta_fps = u32::from_ne_bytes([mbytes[12], mbytes[13], mbytes[14], mbytes[15]]);
+        }
+    }
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0);
+    let mtime_ms = std::fs::metadata(frame_path)
+        .and_then(|m| m.modified())
+        .ok()
+        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0);
+    let effective_seq = if meta_seq > 0 { meta_seq } else { mtime_ms };
+    let file_fresh = mtime_ms > 0 && now_ms.saturating_sub(mtime_ms) < 1200;
+    let prev_fetch = LAST_REMOTE_PREVIEW_FETCH_MS.load(Ordering::Relaxed);
+    if !file_fresh && now_ms.saturating_sub(prev_fetch) >= 2200 && !skey.is_empty() {
+        LAST_REMOTE_PREVIEW_FETCH_MS.store(now_ms, Ordering::Relaxed);
+        let skey_bg = skey.clone();
+        std::thread::spawn(move || {
+            fetch_remote_stream_preview_blocking(&skey_bg);
+        });
+    }
+    if effective_seq > 0 {
+        if since_seq > 0 && since_seq == effective_seq {
+            return json!({
+                "ok": true,
+                "seq": effective_seq,
+                "unchanged": true,
+                "width": meta_w,
+                "height": meta_h,
+                "streamFps": meta_fps
+            });
+        }
+        let cache_lock = REMOTE_FRAME_CACHE.get_or_init(|| Mutex::new((0, String::new())));
+        if let Ok(guard) = cache_lock.lock() {
+            if guard.0 == effective_seq && !guard.1.is_empty() {
+                return json!({
+                    "ok": true,
+                    "seq": effective_seq,
+                    "unchanged": false,
+                    "width": meta_w,
+                    "height": meta_h,
+                    "streamFps": meta_fps,
+                    "previewDataUrl": guard.1.clone()
+                });
+            }
+        }
+        if let Ok(bytes) = std::fs::read(frame_path) {
+            if bytes.len() > 64 {
+                let b64 = encode_bytes_base64(&bytes);
+                let url = format!("data:image/jpeg;base64,{b64}");
+                if let Ok(mut guard) = cache_lock.lock() {
+                    *guard = (effective_seq, url.clone());
+                }
+                return json!({
+                    "ok": true,
+                    "seq": effective_seq,
+                    "unchanged": false,
+                    "width": meta_w,
+                    "height": meta_h,
+                    "streamFps": meta_fps,
+                    "previewDataUrl": url
+                });
+            }
+        }
+    }
+    json!({ "ok": false })
+}
+
+fn read_screen_preview_json() -> Value {
+    static PREVIEW_FRAME_CACHE: OnceLock<Mutex<(u64, String)>> = OnceLock::new();
+    let shm_thumb = "/dev/shm/discord_live_preview_thumb.jpg";
+    let shm_live = "/dev/shm/discord_live_screen.jpg";
+    let thumb_path = if Path::new(shm_thumb).exists() {
+        shm_thumb
+    } else {
+        shm_live
+    };
+    let mtime_ms = std::fs::metadata(thumb_path)
+        .and_then(|m| m.modified())
+        .ok()
+        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0);
+    if mtime_ms > 0 {
+        let cache_lock = PREVIEW_FRAME_CACHE.get_or_init(|| Mutex::new((0, String::new())));
+        if let Ok(guard) = cache_lock.lock() {
+            if guard.0 == mtime_ms && !guard.1.is_empty() {
+                return json!({
+                    "ok": true,
+                    "seq": mtime_ms,
+                    "unchanged": true,
+                    "previewDataUrl": guard.1.clone()
+                });
+            }
+        }
+        if let Ok(bytes) = std::fs::read(thumb_path) {
+            if !bytes.is_empty() {
+                let b64 = encode_bytes_base64(&bytes);
+                let url = format!("data:image/jpeg;base64,{b64}");
+                if let Ok(mut guard) = cache_lock.lock() {
+                    *guard = (mtime_ms, url.clone());
+                }
+                return json!({
+                    "ok": true,
+                    "seq": mtime_ms,
+                    "unchanged": false,
+                    "previewDataUrl": url
+                });
+            }
+        }
+    }
+    json!({ "ok": false })
+}
+
+/// Manages application audio devices, DSP parameters, and native sound effects via
+/// `chord_platform::audio_engine::NativeAudioEngine` without spawning OS shell commands.
 pub fn set_system_audio_device(
     kind: &str,
     device_id: Option<&str>,
@@ -6973,15 +6731,12 @@ pub fn set_system_audio_device(
     muted: Option<bool>,
 ) -> Value {
     use std::sync::atomic::Ordering;
+    let audio_engine = chord_platform::audio_engine::global_audio_engine();
     if kind == "set_capture_source" {
-        // [BUG FIX] If PipeWire portal capture is active (nodeId was acquired),
-        // skip the screen:X override from JS. The PipeWire path sends the correct
-        // capture source via nodeId, and screen:0 doesn't work on Wayland.
         if let Ok(current) = std::fs::read_to_string("/dev/shm/discord_capture_target.txt") {
             if current.starts_with("pipewire:") {
                 let raw = device_id.unwrap_or_default().trim().to_string();
                 if raw.starts_with("screen:") || raw.starts_with("screens:") {
-                    println!("[IPC-TRACE] set_capture_source: SKIPPED (PipeWire active, ignoring screen:X override)");
                     return json!({ "ok": true, "skipped": true, "reason": "pipewire_active" });
                 }
             }
@@ -7036,10 +6791,7 @@ pub fn set_system_audio_device(
     }
     if kind == "list_capture_windows" {
         let windows = query_kwin_active_windows();
-        return json!({
-            "ok": true,
-            "windows": windows
-        });
+        return json!({ "ok": true, "windows": windows });
     }
     if kind == "ui_telemetry" {
         if let Some(line) = device_id {
@@ -7051,7 +6803,6 @@ pub fn set_system_audio_device(
             {
                 let _ = writeln!(file, "{line}");
             }
-            println!("[USER-TELEMETRY] {line}");
         }
         return json!({ "ok": true });
     }
@@ -7059,294 +6810,12 @@ pub fn set_system_audio_device(
         return handle_live_dm_rest_request(device_id.unwrap_or_default());
     }
     if kind == "dm_friends_sync" {
-        let dev_str = device_id.unwrap_or_default();
-        let refresh_rest = dev_str == "refresh_rest";
-        let sync_guild_id = dev_str
-            .strip_prefix("sync_guild:")
-            .map(str::trim)
-            .filter(|s| !s.is_empty());
-        let (
-            mut guilds,
-            mut relationships,
-            mut private_channels,
-            mut users,
-            mut presences,
-            token_opt,
-            need_fetch,
-        ) = {
-            let mut guard = live_session().lock().unwrap_or_else(|p| p.into_inner());
-            if !guard.active {
-                return json!({ "ok": false });
-            }
-            if guard.ready_data.is_none() {
-                let tok_opt = guard.token.clone();
-                let exp_uid = guard.user.as_ref().map(|u| u.id.clone());
-                if let Some(cached) =
-                    load_live_ready_cache_for(tok_opt.as_deref(), exp_uid.as_deref())
-                {
-                    populate_voice_and_presences_from_ready(&mut guard, &cached);
-                    guard.ready_data = Some(cached);
-                }
-            }
-            let rd = guard.ready_data.clone();
-            let tok = guard.token.clone();
-            let guilds = rd
-                .as_ref()
-                .and_then(|d| d.get("guilds").cloned())
-                .unwrap_or(Value::Array(Vec::new()));
-            let rels = rd
-                .as_ref()
-                .and_then(|d| d.get("relationships").cloned())
-                .unwrap_or(Value::Array(Vec::new()));
-            let privs = rd
-                .as_ref()
-                .and_then(|d| d.get("private_channels").cloned())
-                .unwrap_or(Value::Array(Vec::new()));
-            let users = rd
-                .as_ref()
-                .and_then(|d| d.get("users").cloned())
-                .unwrap_or(Value::Array(Vec::new()));
-            let presences: Vec<Value> = guard.presences.values().cloned().collect();
-            let need_fetch = refresh_rest || sync_guild_id.is_some() || rd.is_none();
-            (guilds, rels, privs, users, presences, tok, need_fetch)
-        };
-        if need_fetch {
-            if let Some(sgid) = sync_guild_id {
-                let snap_opt = {
-                    let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
-                    ensure_local_guild_in_guard(&mut g, sgid, None)
-                };
-                if let Some(snap) = snap_opt {
-                    save_live_ready_cache(&snap);
-                }
-                let has_mock = live_rest_mock_slot()
-                    .lock()
-                    .unwrap_or_else(|p| p.into_inner())
-                    .is_some();
-                if has_mock {
-                    hydrate_live_guild_blocking(sgid);
-                } else {
-                    spawn_hydrate_live_guild_full(sgid);
-                }
-                {
-                    let g = live_session().lock().unwrap_or_else(|p| p.into_inner());
-                    if let Some(ref rd) = g.ready_data {
-                        guilds = rd
-                            .get("guilds")
-                            .cloned()
-                            .unwrap_or(Value::Array(Vec::new()));
-                        relationships = rd
-                            .get("relationships")
-                            .cloned()
-                            .unwrap_or(Value::Array(Vec::new()));
-                        private_channels = rd
-                            .get("private_channels")
-                            .cloned()
-                            .unwrap_or(Value::Array(Vec::new()));
-                        users = rd.get("users").cloned().unwrap_or(Value::Array(Vec::new()));
-                        presences = g.presences.values().cloned().collect();
-                    }
-                }
-            } else if let Some(tok) = token_opt {
-                static LIVE_READY_FETCH_IN_FLIGHT: std::sync::atomic::AtomicBool =
-                    std::sync::atomic::AtomicBool::new(false);
-                static LAST_LIVE_READY_FETCH_AT: OnceLock<Mutex<Option<std::time::Instant>>> =
-                    OnceLock::new();
-                let ts_slot = LAST_LIVE_READY_FETCH_AT.get_or_init(|| Mutex::new(None));
-                let mut ts_guard = ts_slot.lock().unwrap_or_else(|p| p.into_inner());
-                let min_cooldown = if refresh_rest {
-                    std::time::Duration::from_secs(30)
-                } else {
-                    std::time::Duration::from_secs(60)
-                };
-                let cooled_down = ts_guard
-                    .map(|t| t.elapsed() >= min_cooldown)
-                    .unwrap_or(true);
-                let should_spawn =
-                    cooled_down && !LIVE_READY_FETCH_IN_FLIGHT.swap(true, Ordering::SeqCst);
-                if should_spawn {
-                    *ts_guard = Some(std::time::Instant::now());
-                }
-                if should_spawn {
-                    std::thread::spawn(move || {
-                        if let Some(mut fetched_rd) = fetch_live_ready_via_rest(&tok) {
-                            sanitize_etf_json_value(&mut fetched_rd);
-                            let mut g = live_session().lock().unwrap_or_else(|p| p.into_inner());
-                            if g.active {
-                                let prev_guilds: HashMap<String, Value> = g
-                                    .ready_data
-                                    .as_ref()
-                                    .and_then(|rd| rd.get("guilds"))
-                                    .and_then(Value::as_array)
-                                    .map(|arr| {
-                                        arr.iter()
-                                            .filter_map(|gv| {
-                                                field_str(gv, "id")
-                                                    .map(|id| (id.to_string(), gv.clone()))
-                                            })
-                                            .collect()
-                                    })
-                                    .unwrap_or_default();
-                                if let Value::Object(ref mut r_map) = fetched_rd {
-                                    let g_arr = r_map
-                                        .entry("guilds".to_string())
-                                        .or_insert_with(|| Value::Array(Vec::new()));
-                                    if let Value::Array(ref mut list) = g_arr {
-                                        for item in list.iter_mut() {
-                                            let Some(gid) =
-                                                field_str(item, "id").map(str::to_string)
-                                            else {
-                                                continue;
-                                            };
-                                            let prev_opt = prev_guilds
-                                                .get(&gid)
-                                                .or_else(|| g.local_preview_guilds.get(&gid));
-                                            if let Value::Object(im) = item {
-                                                im.insert(
-                                                    "isMember".to_string(),
-                                                    Value::Bool(true),
-                                                );
-                                                im.insert("lurker".to_string(), Value::Bool(false));
-                                                if let Some(Value::Object(pm)) = prev_opt {
-                                                    for k in [
-                                                        "roles",
-                                                        "channels",
-                                                        "members",
-                                                        "my_roles",
-                                                        "myRoles",
-                                                        "voice_states",
-                                                        "properties",
-                                                    ] {
-                                                        let cur_empty = im
-                                                            .get(k)
-                                                            .and_then(Value::as_array)
-                                                            .map_or(
-                                                                im.get(k).is_none(),
-                                                                Vec::is_empty,
-                                                            );
-                                                        if cur_empty {
-                                                            if let Some(pv) = pm.get(k) {
-                                                                im.insert(
-                                                                    k.to_string(),
-                                                                    pv.clone(),
-                                                                );
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        for (prev_gid, prev_gval) in &prev_guilds {
-                                            if !list.iter().any(|x| {
-                                                field_str(x, "id") == Some(prev_gid.as_str())
-                                            }) {
-                                                list.push(prev_gval.clone());
-                                            }
-                                        }
-                                        for (lgid, lval) in &g.local_preview_guilds {
-                                            if !list
-                                                .iter()
-                                                .any(|x| field_str(x, "id") == Some(lgid.as_str()))
-                                            {
-                                                let mut preview_clone = lval.clone();
-                                                if let Value::Object(ref mut pm) = preview_clone {
-                                                    if !pm.contains_key("isMember") {
-                                                        pm.insert(
-                                                            "isMember".to_string(),
-                                                            Value::Bool(true),
-                                                        );
-                                                    }
-                                                    if !pm.contains_key("lurker") {
-                                                        pm.insert(
-                                                            "lurker".to_string(),
-                                                            Value::Bool(false),
-                                                        );
-                                                    }
-                                                }
-                                                list.push(preview_clone);
-                                            }
-                                        }
-                                    }
-                                    let prev_rels = g
-                                        .ready_data
-                                        .as_ref()
-                                        .and_then(|old_rd| old_rd.get("relationships"))
-                                        .and_then(Value::as_array)
-                                        .cloned()
-                                        .unwrap_or_default();
-                                    if !prev_rels.is_empty() {
-                                        let cur_rels = r_map
-                                            .entry("relationships".to_string())
-                                            .or_insert_with(|| Value::Array(Vec::new()));
-                                        if let Value::Array(ref mut clist) = cur_rels {
-                                            if clist.is_empty() {
-                                                *clist = prev_rels;
-                                            } else {
-                                                for pr in prev_rels {
-                                                    let puid = field_str(&pr, "id").unwrap_or("");
-                                                    if !puid.is_empty()
-                                                        && !clist.iter().any(|cr| {
-                                                            field_str(cr, "id") == Some(puid)
-                                                        })
-                                                    {
-                                                        clist.push(pr);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    let prev_privs = g
-                                        .ready_data
-                                        .as_ref()
-                                        .and_then(|old_rd| old_rd.get("private_channels"))
-                                        .and_then(Value::as_array)
-                                        .cloned()
-                                        .unwrap_or_default();
-                                    if !prev_privs.is_empty() {
-                                        let cur_privs = r_map
-                                            .entry("private_channels".to_string())
-                                            .or_insert_with(|| Value::Array(Vec::new()));
-                                        if let Value::Array(ref mut clist) = cur_privs {
-                                            if clist.is_empty() {
-                                                *clist = prev_privs;
-                                            } else {
-                                                for pc in prev_privs {
-                                                    let pcid = field_str(&pc, "id").unwrap_or("");
-                                                    if !pcid.is_empty()
-                                                        && !clist.iter().any(|c| {
-                                                            field_str(c, "id") == Some(pcid)
-                                                        })
-                                                    {
-                                                        clist.push(pc);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                populate_voice_and_presences_from_ready(&mut g, &fetched_rd);
-                                g.ready_data = Some(fetched_rd.clone());
-                                drop(g);
-                                save_live_ready_cache(&fetched_rd);
-                            }
-                        }
-                        LIVE_READY_FETCH_IN_FLIGHT.store(false, Ordering::SeqCst);
-                    });
-                }
-            }
-        }
-        return json!({
-            "ok": true,
-            "guilds": guilds,
-            "relationships": relationships,
-            "privateChannels": private_channels,
-            "users": users,
-            "presences": presences,
-        });
+        return sync_dm_friends_state(device_id.unwrap_or_default());
     }
     if kind == "krisp" {
         let enabled = muted.unwrap_or(true);
         LOCAL_KRISP_ENABLED.store(enabled, Ordering::SeqCst);
+        audio_engine.set_krisp_enabled(enabled);
         chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"krisp\":{enabled}}}"
         ));
@@ -7355,6 +6824,7 @@ pub fn set_system_audio_device(
     if kind == "agc" {
         let enabled = muted.unwrap_or(true);
         LOCAL_AUTO_GAIN_ENABLED.store(enabled, Ordering::SeqCst);
+        audio_engine.set_auto_gain_control(enabled);
         chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"automaticGainControl\":{enabled}}}"
         ));
@@ -7363,6 +6833,7 @@ pub fn set_system_audio_device(
     if kind == "auto_sensitivity" {
         let enabled = muted.unwrap_or(true);
         LOCAL_AUTO_SENSITIVITY_ENABLED.store(enabled, Ordering::SeqCst);
+        audio_engine.set_auto_sensitivity(enabled);
         chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"autoSensitivity\":{enabled}}}"
         ));
@@ -7379,6 +6850,7 @@ pub fn set_system_audio_device(
             LOCAL_AUTO_SENSITIVITY_ENABLED.store(auto_on, Ordering::SeqCst);
         }
         let auto_now = LOCAL_AUTO_SENSITIVITY_ENABLED.load(Ordering::Relaxed);
+        audio_engine.set_vad_threshold_db(db, Some(auto_now));
         chord_core::ws::send_native_voice_cmd(&format!(
             "{{\"cmd\":\"set_state\",\"vadThreshold\":{db},\"autoSensitivity\":{auto_now}}}"
         ));
@@ -7387,13 +6859,19 @@ pub fn set_system_audio_device(
     if kind == "mic_test_start" {
         LOCAL_MIC_LOOPBACK_ACTIVE.store(true, Ordering::SeqCst);
         AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
+        audio_engine.set_mic_test_active(true);
         chord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":true}"#);
-        ensure_local_mic_monitor();
+        if !chord_core::ws::is_native_voice_engine_active() {
+            ensure_local_mic_monitor();
+        } else {
+            stop_local_mic_monitor();
+        }
         return live_voice_rtc_status_json();
     }
     if kind == "mic_test_stop" {
         LOCAL_MIC_LOOPBACK_ACTIVE.store(false, Ordering::SeqCst);
         AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
+        audio_engine.set_mic_test_active(false);
         chord_core::ws::send_native_voice_cmd(r#"{"cmd":"loopback","active":false}"#);
         return live_voice_rtc_status_json();
     }
@@ -7405,6 +6883,7 @@ pub fn set_system_audio_device(
     }
     if kind == "media_stop" {
         MEDIA_PLAY_EPOCH.fetch_add(1, Ordering::SeqCst);
+        audio_engine.stop_media_playback();
         return json!({ "ok": true });
     }
     if kind == "voice_msg_record_start" {
@@ -7534,212 +7013,22 @@ pub fn set_system_audio_device(
     }
     if kind == "voice_states_sync" {
         if let Ok(guard) = live_session().lock() {
-            let mut combined = guard.voice_states.clone();
-            if let Some(ref rd) = guard.ready_data {
-                if let Some(g_arr) = rd.get("guilds").and_then(Value::as_array) {
-                    for g in g_arr {
-                        if let Some(gid) = field_str(g, "id") {
-                            if !combined.contains_key(gid) {
-                                let vs = array(g.get("voice_states"));
-                                if !vs.is_empty() {
-                                    combined.insert(gid.to_string(), vs.to_vec());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return json!({
-                "ok": true,
-                "voiceStates": combined
-            });
+            return json!({ "ok": true, "voiceStates": guard.voice_states.clone() });
         }
         return json!({ "ok": false, "voiceStates": {} });
     }
     if kind == "remote_stream_frame" {
-        static LAST_REMOTE_PREVIEW_FETCH_MS: std::sync::atomic::AtomicU64 =
-            std::sync::atomic::AtomicU64::new(0);
-        static REMOTE_FRAME_CACHE: OnceLock<Mutex<(u64, String)>> = OnceLock::new();
-        let raw_arg = device_id.unwrap_or_default().to_string();
-        let (skey, since_seq) = match raw_arg.split_once("|since=") {
-            Some((k, s)) => (k.to_string(), s.trim().parse::<u64>().unwrap_or(0)),
-            None => (raw_arg, 0),
-        };
-        let shm_path = "/dev/shm/discord_remote_stream_frame.jpg";
-        let tmp_path = "/tmp/discord_remote_stream_frame.jpg";
-        let meta_path = "/dev/shm/discord_remote_stream_meta.bin";
-        let frame_path = if Path::new(shm_path).exists() {
-            shm_path
-        } else {
-            tmp_path
-        };
-        let mut meta_seq: u64 = 0;
-        let mut meta_w: u32 = 0;
-        let mut meta_h: u32 = 0;
-        let mut meta_fps: u32 = 0;
-        if let Ok(mbytes) = std::fs::read(meta_path) {
-            if mbytes.len() >= 20 {
-                meta_seq = u64::from_le_bytes([
-                    mbytes[0], mbytes[1], mbytes[2], mbytes[3], mbytes[4], mbytes[5], mbytes[6],
-                    mbytes[7],
-                ]);
-                meta_w = u32::from_le_bytes([mbytes[8], mbytes[9], mbytes[10], mbytes[11]]);
-                meta_h = u32::from_le_bytes([mbytes[12], mbytes[13], mbytes[14], mbytes[15]]);
-                meta_fps = u32::from_le_bytes([mbytes[16], mbytes[17], mbytes[18], mbytes[19]]);
-            } else if mbytes.len() >= 16 {
-                meta_seq = u32::from_ne_bytes([mbytes[0], mbytes[1], mbytes[2], mbytes[3]]) as u64;
-                meta_w = u32::from_ne_bytes([mbytes[4], mbytes[5], mbytes[6], mbytes[7]]);
-                meta_h = u32::from_ne_bytes([mbytes[8], mbytes[9], mbytes[10], mbytes[11]]);
-                meta_fps = u32::from_ne_bytes([mbytes[12], mbytes[13], mbytes[14], mbytes[15]]);
-            }
-        }
-        let now_ms = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_millis() as u64)
-            .unwrap_or(0);
-        let mtime_ms = std::fs::metadata(frame_path)
-            .and_then(|m| m.modified())
-            .ok()
-            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-            .map(|d| d.as_millis() as u64)
-            .unwrap_or(0);
-        let effective_seq = if meta_seq > 0 { meta_seq } else { mtime_ms };
-        let file_fresh = mtime_ms > 0 && now_ms.saturating_sub(mtime_ms) < 1200;
-        let prev_fetch = LAST_REMOTE_PREVIEW_FETCH_MS.load(Ordering::Relaxed);
-        if !file_fresh && now_ms.saturating_sub(prev_fetch) >= 2200 && !skey.is_empty() {
-            LAST_REMOTE_PREVIEW_FETCH_MS.store(now_ms, Ordering::Relaxed);
-            let skey_bg = skey.clone();
-            std::thread::spawn(move || {
-                fetch_remote_stream_preview_blocking(&skey_bg);
-            });
-        }
-        if effective_seq > 0 {
-            if since_seq > 0 && since_seq == effective_seq {
-                return json!({
-                    "ok": true,
-                    "seq": effective_seq,
-                    "unchanged": true,
-                    "width": meta_w,
-                    "height": meta_h,
-                    "streamFps": meta_fps
-                });
-            }
-            let cache_lock = REMOTE_FRAME_CACHE.get_or_init(|| Mutex::new((0, String::new())));
-            if let Ok(guard) = cache_lock.lock() {
-                if guard.0 == effective_seq && !guard.1.is_empty() {
-                    return json!({
-                        "ok": true,
-                        "seq": effective_seq,
-                        "unchanged": false,
-                        "width": meta_w,
-                        "height": meta_h,
-                        "streamFps": meta_fps,
-                        "previewDataUrl": guard.1.clone()
-                    });
-                }
-            }
-            if let Ok(bytes) = std::fs::read(frame_path) {
-                if bytes.len() > 64 {
-                    let b64 = encode_bytes_base64(&bytes);
-                    let url = format!("data:image/jpeg;base64,{b64}");
-                    if let Ok(mut guard) = cache_lock.lock() {
-                        *guard = (effective_seq, url.clone());
-                    }
-                    return json!({
-                        "ok": true,
-                        "seq": effective_seq,
-                        "unchanged": false,
-                        "width": meta_w,
-                        "height": meta_h,
-                        "streamFps": meta_fps,
-                        "previewDataUrl": url
-                    });
-                }
-            }
-        }
-        return json!({ "ok": false });
+        return read_remote_stream_frame_json(device_id.unwrap_or_default());
     }
     if kind == "screen_preview" {
-        static LAST_CAP_MS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
-        static CAP_IN_FLIGHT: std::sync::atomic::AtomicBool =
-            std::sync::atomic::AtomicBool::new(false);
-        static PREVIEW_FRAME_CACHE: OnceLock<Mutex<(u64, String)>> = OnceLock::new();
-        let now_ms = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_millis() as u64)
-            .unwrap_or(0);
-        let prev_ms = LAST_CAP_MS.load(Ordering::Relaxed);
-        let shm_thumb = "/dev/shm/discord_live_preview_thumb.jpg";
-        let shm_live = "/dev/shm/discord_live_screen.jpg";
-        let thumb_path = if Path::new(shm_thumb).exists() {
-            shm_thumb
-        } else {
-            shm_live
-        };
-        let mtime_pre = std::fs::metadata(thumb_path)
-            .and_then(|m| m.modified())
-            .ok()
-            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-            .map(|d| d.as_millis() as u64)
-            .unwrap_or(0);
-        let is_fresh = mtime_pre > 0 && now_ms.saturating_sub(mtime_pre) < 2500;
-        if !is_fresh
-            && (now_ms.saturating_sub(prev_ms) >= 2500 || mtime_pre == 0)
-            && !CAP_IN_FLIGHT.swap(true, Ordering::SeqCst)
-        {
-            LAST_CAP_MS.store(now_ms, Ordering::Relaxed);
-            std::thread::spawn(move || {
-                let raw_shm = "/dev/shm/discord_live_screen_tmp.jpg";
-                let live_shm = "/dev/shm/discord_live_screen.jpg";
-                let st = std::process::Command::new("spectacle")
-                    .args(["-b", "-n", "-f", "-o", raw_shm])
-                    .stdin(std::process::Stdio::null())
-                    .stdout(std::process::Stdio::null())
-                    .stderr(std::process::Stdio::null())
-                    .status();
-                if st.map(|s| s.success()).unwrap_or(false) && Path::new(raw_shm).exists() {
-                    let _ = std::fs::rename(raw_shm, live_shm);
-                }
-                CAP_IN_FLIGHT.store(false, Ordering::SeqCst);
-            });
-        }
-        let mtime_ms = std::fs::metadata(thumb_path)
-            .and_then(|m| m.modified())
-            .ok()
-            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-            .map(|d| d.as_millis() as u64)
-            .unwrap_or(0);
-        if mtime_ms > 0 {
-            let cache_lock = PREVIEW_FRAME_CACHE.get_or_init(|| Mutex::new((0, String::new())));
-            if let Ok(guard) = cache_lock.lock() {
-                if guard.0 == mtime_ms && !guard.1.is_empty() {
-                    return json!({
-                        "ok": true,
-                        "seq": mtime_ms,
-                        "unchanged": true,
-                        "previewDataUrl": guard.1.clone()
-                    });
-                }
-            }
-            if let Ok(bytes) = std::fs::read(thumb_path) {
-                if !bytes.is_empty() {
-                    let b64 = encode_bytes_base64(&bytes);
-                    let url = format!("data:image/jpeg;base64,{b64}");
-                    if let Ok(mut guard) = cache_lock.lock() {
-                        *guard = (mtime_ms, url.clone());
-                    }
-                    return json!({
-                        "ok": true,
-                        "seq": mtime_ms,
-                        "unchanged": false,
-                        "previewDataUrl": url
-                    });
-                }
-            }
-        }
-        return json!({ "ok": false });
+        return read_screen_preview_json();
     }
     let is_input = kind == "input" || kind == "source";
+    let direction = if is_input {
+        chord_platform::audio_engine::AudioDirection::Input
+    } else {
+        chord_platform::audio_engine::AudioDirection::Output
+    };
     let mut changed_device = false;
     if let Some(id) = device_id.filter(|s| !s.is_empty()) {
         let clean_opt = if id == "default" {
@@ -7751,23 +7040,32 @@ pub fn set_system_audio_device(
         if is_input {
             if let Ok(mut g) = selected_input_device().lock() {
                 if *g != clean_opt {
-                    *g = clean_opt;
+                    *g = clean_opt.clone();
                     actually_changed = true;
                 }
             }
         } else if let Ok(mut g) = selected_output_device().lock() {
             if *g != clean_opt {
-                *g = clean_opt;
+                *g = clean_opt.clone();
                 actually_changed = true;
             }
         }
+        let _ = audio_engine.select_device(direction, Some(id));
         if actually_changed {
             AUDIO_DEVICE_EPOCH.fetch_add(1, Ordering::SeqCst);
             changed_device = true;
+            let dev = clean_opt.as_deref().unwrap_or("default");
+            let kind_str = if is_input { "input" } else { "output" };
+            let current_inp = selected_input_device().lock().ok().and_then(|g| g.clone());
+            let current_out = selected_output_device().lock().ok().and_then(|g| g.clone());
+            chord_core::ws::set_selected_voice_devices(current_inp, current_out);
+            chord_core::ws::send_native_voice_cmd(&format!(
+                "{{\"cmd\":\"set_device\",\"kind\":\"{kind_str}\",\"device\":\"{dev}\"}}"
+            ));
         }
     }
     if let Some(vol) = volume_pct {
-        let clamped = vol.min(200);
+        let clamped = audio_engine.set_volume_pct(direction, vol);
         if is_input {
             LOCAL_INPUT_VOLUME_PCT.store(clamped, Ordering::SeqCst);
             chord_core::ws::send_native_voice_cmd(&format!(
@@ -7781,6 +7079,7 @@ pub fn set_system_audio_device(
         }
     }
     if let Some(m) = muted {
+        audio_engine.set_mute_or_deaf(direction, m);
         if is_input {
             LOCAL_SELF_MUTE.store(m, Ordering::SeqCst);
             chord_core::ws::send_native_voice_cmd(&format!(
@@ -7861,31 +7160,31 @@ pub fn record_sent_message(channel_id: &str, mut message: Value) {
 }
 
 // ---------------------------------------------------------------------------
-// Битовые маски прав доступа Discord API v9 и расчёт переопределений каналов
+// Discord API v9 permission bitmasks and channel overwrite calculation (`RW51-EPIC3-T3`)
 // ---------------------------------------------------------------------------
 
-/// Создание мгновенного приглашения (`CREATE_INSTANT_INVITE`, `1 << 0`).
+/// Create instant invite (`CREATE_INSTANT_INVITE`, `1 << 0`).
 pub const PERM_CREATE_INSTANT_INVITE: u64 = 1 << 0;
-/// Полный административный доступ (`ADMINISTRATOR`, `1 << 3`).
+/// Full administrative access (`ADMINISTRATOR`, `1 << 3`).
 pub const PERM_ADMINISTRATOR: u64 = 1 << 3;
-/// Добавление реакций к сообщениям (`ADD_REACTIONS`, `1 << 6`).
+/// Add reactions to messages (`ADD_REACTIONS`, `1 << 6`).
 pub const PERM_ADD_REACTIONS: u64 = 1 << 6;
-/// Просмотр текстового или голосового канала (`VIEW_CHANNEL`, `1 << 10`).
+/// View text or voice channel (`VIEW_CHANNEL`, `1 << 10`).
 pub const PERM_VIEW_CHANNEL: u64 = 1 << 10;
-/// Отправка сообщений в текстовый канал (`SEND_MESSAGES`, `1 << 11`).
+/// Send messages in text channel (`SEND_MESSAGES`, `1 << 11`).
 pub const PERM_SEND_MESSAGES: u64 = 1 << 11;
-/// Прикрепление файлов и медиа (`ATTACH_FILES`, `1 << 15`).
+/// Attach files and media (`ATTACH_FILES`, `1 << 15`).
 pub const PERM_ATTACH_FILES: u64 = 1 << 15;
-/// Чтение истории сообщений канала (`READ_MESSAGE_HISTORY`, `1 << 16`).
+/// Read channel message history (`READ_MESSAGE_HISTORY`, `1 << 16`).
 pub const PERM_READ_MESSAGE_HISTORY: u64 = 1 << 16;
-/// Подключение к голосовому каналу (`CONNECT`, `1 << 20`).
+/// Connect to voice channel (`CONNECT`, `1 << 20`).
 pub const PERM_CONNECT: u64 = 1 << 20;
-/// Разговор в голосовом канале (`SPEAK`, `1 << 21`).
+/// Speak in voice channel (`SPEAK`, `1 << 21`).
 pub const PERM_SPEAK: u64 = 1 << 21;
-/// Использование активации по голосу (`USE_VAD`, `1 << 25`).
+/// Use voice activity detection (`USE_VAD`, `1 << 25`).
 pub const PERM_USE_VAD: u64 = 1 << 25;
 
-/// Итоговая политика доступа пользователя к конкретному каналу.
+/// Effective user access policy for a specific channel.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChannelAccessPolicy {
@@ -7899,13 +7198,9 @@ pub struct ChannelAccessPolicy {
     pub can_speak_voice: bool,
 }
 
-/// Вычисляет эффективные 64-битные права доступа пользователя в канале по официальной иерархии Discord:
-/// 1. Владелец гильдии (`owner_id == Some(user_id)`) получает `u64::MAX`.
-/// 2. Базовые права складываются побитовым ИЛИ из роли `@everyone` (`role.id == guild_id`)
-///    и всех ролей участника (`member_roles`). Если установлен [`PERM_ADMINISTRATOR`], возвращается `u64::MAX`.
-/// 3. Применяется переопределение канала для `@everyone` (`overwrite.id == guild_id`): `(perms & !deny) | allow`.
-/// 4. Применяются суммарные переопределения ролей участника (`member_roles`): `(perms & !role_deny) | role_allow`.
-/// 5. Применяется персональное переопределение участника (`overwrite.id == user_id`): `(perms & !member_deny) | member_allow`.
+/// Computes effective 64-bit channel permissions by delegating to
+/// [`chord_core::permissions::resolve_guild_base_permissions`] and
+/// [`chord_core::permissions::compute_channel_permissions`] (`twilight-util::permission_calculator`).
 #[must_use]
 pub fn compute_effective_permissions(
     user_id: &str,
@@ -7919,55 +7214,68 @@ pub fn compute_effective_permissions(
         return u64::MAX;
     }
 
-    let mut base = 0u64;
-    for role in guild_roles {
-        if let Some(role_id) = field_str(role, "id") {
-            if role_id == guild_id || member_roles.iter().any(|r| r == role_id) {
-                base |= field_u64(role, "permissions").unwrap_or(0);
-            }
-        }
-    }
+    let gid = guild_id.trim().parse::<u64>().unwrap_or(1);
+    let uid = user_id.trim().parse::<u64>().unwrap_or(0);
+    let oid = owner_id
+        .and_then(|s| s.trim().parse::<u64>().ok())
+        .filter(|&id| id != uid || (!user_id.is_empty() && owner_id == Some(user_id)))
+        .unwrap_or(u64::MAX);
 
-    if (base & PERM_ADMINISTRATOR) != 0 {
-        return u64::MAX;
-    }
+    let role_defs: Vec<chord_core::permissions::RolePermissions> = guild_roles
+        .iter()
+        .filter_map(|role| {
+            let rid = field_str(role, "id")?.trim().parse::<u64>().ok()?;
+            Some(chord_core::permissions::RolePermissions {
+                id: rid,
+                permissions: field_u64(role, "permissions").unwrap_or(0),
+            })
+        })
+        .collect();
 
-    let mut perms = base;
+    let member_role_ids: Vec<u64> = member_roles
+        .iter()
+        .filter_map(|r| r.trim().parse::<u64>().ok())
+        .collect();
 
-    for ov in overwrites {
-        if field_str(ov, "id") == Some(guild_id) {
-            let allow = field_u64(ov, "allow").unwrap_or(0);
-            let deny = field_u64(ov, "deny").unwrap_or(0);
-            perms = (perms & !deny) | allow;
-        }
-    }
+    let base = chord_core::permissions::resolve_guild_base_permissions(
+        gid,
+        oid,
+        uid,
+        &role_defs,
+        &member_role_ids,
+    );
 
-    let mut role_allow = 0u64;
-    let mut role_deny = 0u64;
-    for ov in overwrites {
-        if let Some(ov_id) = field_str(ov, "id") {
-            if ov_id != guild_id && member_roles.iter().any(|r| r == ov_id) {
-                role_allow |= field_u64(ov, "allow").unwrap_or(0);
-                role_deny |= field_u64(ov, "deny").unwrap_or(0);
-            }
-        }
-    }
-    perms = (perms & !role_deny) | role_allow;
+    let parsed_overwrites: Vec<chord_core::permissions::PermissionOverwrite> = overwrites
+        .iter()
+        .filter_map(|ov| {
+            let ov_id_str = field_str(ov, "id")?;
+            let ov_id = ov_id_str.trim().parse::<u64>().ok()?;
+            let overwrite_type = if !user_id.is_empty() && ov_id_str == user_id {
+                chord_core::permissions::OVERWRITE_TYPE_MEMBER
+            } else if ov_id_str == guild_id || member_roles.iter().any(|r| r == ov_id_str) {
+                chord_core::permissions::OVERWRITE_TYPE_ROLE
+            } else {
+                u8::try_from(field_u64(ov, "type").unwrap_or(0)).unwrap_or(u8::MAX)
+            };
+            Some(chord_core::permissions::PermissionOverwrite {
+                id: ov_id,
+                overwrite_type,
+                allow: field_u64(ov, "allow").unwrap_or(0),
+                deny: field_u64(ov, "deny").unwrap_or(0),
+            })
+        })
+        .collect();
 
-    if !user_id.is_empty() {
-        for ov in overwrites {
-            if field_str(ov, "id") == Some(user_id) {
-                let member_allow = field_u64(ov, "allow").unwrap_or(0);
-                let member_deny = field_u64(ov, "deny").unwrap_or(0);
-                perms = (perms & !member_deny) | member_allow;
-            }
-        }
-    }
-
-    perms
+    chord_core::permissions::compute_channel_permissions(
+        base,
+        gid,
+        uid,
+        &member_role_ids,
+        &parsed_overwrites,
+    )
 }
 
-/// Вычисляет прикладную политику доступа к каналу по маске прав `perms` и типу канала `channel_type`.
+/// Evaluates channel access capabilities from the computed `perms` bitmask and `channel_type`.
 #[must_use]
 pub fn evaluate_channel_access(perms: u64, channel_type: i64) -> ChannelAccessPolicy {
     if channel_type == 1 || channel_type == 3 {
@@ -8056,13 +7364,13 @@ fn fetch_rest_channel_messages(token: &str, channel_id: &str) -> Option<Vec<Valu
                 base: chord_core::API_V9_BASE.to_string(),
                 auth,
                 http: chord_core::rest::transport::HttpClientConfig {
-                    connect_timeout: std::time::Duration::from_millis(1200),
-                    read_timeout: std::time::Duration::from_millis(1500),
-                    write_timeout: std::time::Duration::from_millis(1200),
+                    connect_timeout: std::time::Duration::from_millis(3000),
+                    read_timeout: std::time::Duration::from_millis(4500),
+                    write_timeout: std::time::Duration::from_millis(3000),
                     ..chord_core::rest::transport::HttpClientConfig::default()
                 },
                 retry: chord_core::rest::client::ApiRetryPolicy {
-                    max_attempts: 1,
+                    max_attempts: 2,
                     ..chord_core::rest::client::ApiRetryPolicy::default()
                 },
             };
@@ -8735,73 +8043,372 @@ pub struct ReadyPayload {
     pub read_state: Value,
 }
 
-fn parse_ready_user(value: &Value, path: &Path) -> Result<ReadyUser, DataError> {
-    let id = field_str(value, "id")
-        .ok_or_else(|| DataError::parse(path, "READY.user без строкового id"))?;
-    let username = field_str(value, "username")
-        .ok_or_else(|| DataError::parse(path, "READY.user без строкового username"))?;
-    let premium_type = parse_user_premium_type(value);
-    let premium = field_bool(value, "premium") || premium_type > 0;
-    Ok(ReadyUser {
-        id: id.to_string(),
-        username: username.to_string(),
-        global_name: field_str(value, "global_name")
-            .or_else(|| field_str(value, "globalName"))
-            .map(str::to_string),
-        avatar: field_str(value, "avatar").map(str::to_string),
-        email: field_str(value, "email").map(str::to_string),
-        bio: field_str(value, "bio").map(str::to_string),
-        premium,
-        premium_type,
-        mfa_enabled: field_bool(value, "mfa_enabled") || field_bool(value, "mfaEnabled"),
-    })
+/// Untagged Serde scalar representation for tolerant Gateway/REST field deserialization.
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum RawScalarDto {
+    Bool(bool),
+    Unsigned(u64),
+    Signed(i64),
+    Text(String),
+    #[allow(dead_code)]
+    Other(Value),
 }
 
-fn parse_guild(value: &Value) -> GuildSummary {
-    let properties = value.get("properties");
-    let name = properties
-        .and_then(|props| field_str(props, "name"))
-        .or_else(|| field_str(value, "name"))
-        .unwrap_or_default()
-        .to_string();
-    let owner_id = properties
-        .and_then(|props| field_str(props, "owner_id"))
-        .or_else(|| field_str(value, "owner_id"))
-        .map(str::to_string);
-    let afk_channel_id = properties
-        .and_then(|props| field_str(props, "afk_channel_id"))
-        .or_else(|| field_str(value, "afk_channel_id"))
-        .map(str::to_string);
-    let afk_timeout = properties
-        .and_then(|props| field_u64(props, "afk_timeout"))
-        .or_else(|| field_u64(value, "afk_timeout"));
-    let mut roles = array(value.get("roles")).to_vec();
-    for r in roles.iter_mut() {
-        sanitize_etf_json_value(r);
-    }
-    let my_roles: Vec<String> = array(value.get("my_roles").or_else(|| value.get("myRoles")))
+/// Serde deserializer for an optional Discord string field, filtering out empty strings and `"nil"` sentinels.
+fn deserialize_ready_opt_str<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(as_non_nil_str(&val).map(str::to_string))
+}
+
+/// Serde deserializer for a Discord boolean field accepting booleans, `"true"`/`"false"`, or `1`/`0`.
+fn deserialize_ready_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Ok(deserialize_ready_opt_bool(deserializer)?.unwrap_or(false))
+}
+
+/// Serde deserializer for an optional Discord `u8` field accepting numbers or numeric strings, clamped to `u8::MAX`.
+fn deserialize_ready_opt_u8<'de, D>(deserializer: D) -> Result<Option<u8>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Ok(deserialize_ready_opt_u64(deserializer)?.map(|n| n.min(u8::MAX as u64) as u8))
+}
+
+/// Serde deserializer for an optional Discord `u16` field accepting numbers or numeric strings.
+fn deserialize_ready_opt_u16<'de, D>(deserializer: D) -> Result<Option<u16>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Ok(deserialize_ready_opt_u64(deserializer)?.and_then(|n| u16::try_from(n).ok()))
+}
+
+/// Serde deserializer for a JSON array of DTO items, defaulting to an empty vector on `null` or non-arrays.
+fn deserialize_ready_vec_dto<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: serde::de::DeserializeOwned,
+{
+    let val = Value::deserialize(deserializer)?;
+    let Some(arr) = val.as_array() else {
+        return Ok(Vec::new());
+    };
+    Ok(arr
         .iter()
-        .filter_map(|r| as_non_nil_str(r).map(str::to_string))
-        .collect();
-    GuildSummary {
-        id: field_str(value, "id").unwrap_or_default().to_string(),
-        name,
-        icon: properties
-            .and_then(|props| field_str(props, "icon"))
-            .or_else(|| field_str(value, "icon"))
-            .map(str::to_string),
-        member_count: field_u64(value, "member_count").unwrap_or(0),
-        channel_count: array_len(value.get("channels")),
-        owner_id,
-        afk_channel_id,
-        afk_timeout,
-        roles,
-        my_roles,
-        members: Vec::new(),
-        lurker: field_bool_opt(value, "lurker"),
-        is_member: field_bool_opt(value, "isMember").or_else(|| field_bool_opt(value, "is_member")),
-        pending: field_bool_opt(value, "pending"),
+        .filter_map(|item| serde_json::from_value::<T>(item.clone()).ok())
+        .collect())
+}
+
+/// Data Transfer Object (DTO) for deserializing `READY.user` payloads via Serde.
+///
+/// Supports both `snake_case` Gateway fields and `camelCase` BFF/cache fallbacks
+/// (`global_name`/`globalName`, `mfa_enabled`/`mfaEnabled`, `premium_type`/`premiumType`)
+/// without failing when both variants appear in the same JSON object.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct ReadyUserDto {
+    /// Required user Snowflake ID (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Required account username (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub username: Option<String>,
+    /// Primary `snake_case` global display name.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub global_name: Option<String>,
+    /// Fallback `camelCase` global display name.
+    #[serde(rename = "globalName", deserialize_with = "deserialize_ready_opt_str")]
+    pub global_name_camel: Option<String>,
+    /// Optional avatar hash.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub avatar: Option<String>,
+    /// Optional (redacted/sanitized) email address.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub email: Option<String>,
+    /// Optional user profile bio.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub bio: Option<String>,
+    /// Explicit Nitro subscription flag.
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub premium: bool,
+    /// Primary `snake_case` Nitro tier (`0` = none, `1` = Classic, `2` = Full, `3` = Basic).
+    #[serde(deserialize_with = "deserialize_ready_opt_u8")]
+    pub premium_type: Option<u8>,
+    /// Fallback `camelCase` Nitro tier.
+    #[serde(rename = "premiumType", deserialize_with = "deserialize_ready_opt_u8")]
+    pub premium_type_camel: Option<u8>,
+    /// Primary `snake_case` MFA status flag.
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub mfa_enabled: bool,
+    /// Fallback `camelCase` MFA status flag.
+    #[serde(rename = "mfaEnabled", deserialize_with = "deserialize_ready_bool")]
+    pub mfa_enabled_camel: bool,
+}
+
+impl ReadyUserDto {
+    /// Converts the deserialized DTO into a validated [`ReadyUser`].
+    ///
+    /// # Arguments
+    /// * `path` - Source fixture or cache path for error reporting context.
+    ///
+    /// # Returns
+    /// `Ok(ReadyUser)` if `id` and `username` are valid non-empty strings, or `Err(DataError)`.
+    #[inline]
+    pub fn into_ready_user(self, path: &Path) -> Result<ReadyUser, DataError> {
+        let id = self
+            .id
+            .ok_or_else(|| DataError::parse(path, "READY.user без строкового id"))?;
+        let username = self
+            .username
+            .ok_or_else(|| DataError::parse(path, "READY.user без строкового username"))?;
+        let premium_type = self.premium_type.or(self.premium_type_camel).unwrap_or(0);
+        let premium = self.premium || premium_type > 0;
+        Ok(ReadyUser {
+            id,
+            username,
+            global_name: self.global_name.or(self.global_name_camel),
+            avatar: self.avatar,
+            email: self.email,
+            bio: self.bio,
+            premium,
+            premium_type,
+            mfa_enabled: self.mfa_enabled || self.mfa_enabled_camel,
+        })
     }
+}
+
+/// Parses a `READY.user` JSON value into a strongly-typed [`ReadyUser`] using Serde ([`ReadyUserDto`]).
+///
+/// Preserves all field fallbacks (`global_name`/`globalName`, `mfa_enabled`/`mfaEnabled`,
+/// `premium_type`/`premiumType`) and ETF `"nil"` sentinel filtering.
+///
+/// # Arguments
+/// * `value` - Raw JSON value representing `READY.user`.
+/// * `path` - Source file path used for [`DataError`] context on validation failure.
+///
+/// # Returns
+/// `Ok(ReadyUser)` on success, or `Err(DataError)` if required fields (`id`, `username`) are missing.
+#[inline]
+fn parse_ready_user(value: &Value, path: &Path) -> Result<ReadyUser, DataError> {
+    let dto = ReadyUserDto::deserialize(value)
+        .map_err(|_| DataError::parse(path, "READY.user без строкового id"))?;
+    dto.into_ready_user(path)
+}
+
+/// Serde deserializer for an optional Discord boolean field accepting booleans, `"true"`/`"false"`, or `1`/`0`.
+fn deserialize_ready_opt_bool<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let flag = match RawScalarDto::deserialize(deserializer)? {
+        RawScalarDto::Bool(flag) => Some(flag),
+        RawScalarDto::Text(text) => match text.as_str() {
+            "true" => Some(true),
+            "false" => Some(false),
+            _ => None,
+        },
+        RawScalarDto::Unsigned(1) | RawScalarDto::Signed(1) => Some(true),
+        RawScalarDto::Unsigned(0) | RawScalarDto::Signed(0) => Some(false),
+        RawScalarDto::Unsigned(_) | RawScalarDto::Signed(_) | RawScalarDto::Other(_) => None,
+    };
+    Ok(flag)
+}
+
+/// Serde deserializer for an optional Discord `u64` field accepting numbers or numeric strings.
+fn deserialize_ready_opt_u64<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let num = match RawScalarDto::deserialize(deserializer)? {
+        RawScalarDto::Unsigned(n) => Some(n),
+        RawScalarDto::Text(text) => text.parse::<u64>().ok(),
+        RawScalarDto::Bool(_) | RawScalarDto::Signed(_) | RawScalarDto::Other(_) => None,
+    };
+    Ok(num)
+}
+
+/// Serde deserializer for an optional Discord `i64` field accepting signed integers or numeric strings.
+fn deserialize_ready_opt_i64<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let num = match RawScalarDto::deserialize(deserializer)? {
+        RawScalarDto::Signed(n) => Some(n),
+        RawScalarDto::Unsigned(n) => i64::try_from(n).ok(),
+        RawScalarDto::Text(text) => text.parse::<i64>().ok(),
+        RawScalarDto::Bool(_) | RawScalarDto::Other(_) => None,
+    };
+    Ok(num)
+}
+
+/// Serde deserializer for a JSON array of [`Value`] items, defaulting to an empty vector on non-arrays.
+fn deserialize_ready_vec_value<'de, D>(deserializer: D) -> Result<Vec<Value>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(val.as_array().cloned().unwrap_or_default())
+}
+
+/// Serde deserializer for an optional array of role Snowflake strings, filtering out empty and `"nil"` sentinels.
+fn deserialize_ready_opt_role_ids<'de, D>(deserializer: D) -> Result<Option<Vec<String>>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    let roles = val
+        .as_array()
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|r| as_non_nil_str(r).map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
+    Ok(Some(roles))
+}
+
+/// Nested `properties` object inside a Gateway `READY.guilds[]` entry.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct GuildPropertiesDto {
+    /// Guild display name inside `properties.name`.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub name: Option<String>,
+    /// Guild icon hash inside `properties.icon`.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub icon: Option<String>,
+    /// Guild owner Snowflake ID inside `properties.owner_id`.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub owner_id: Option<String>,
+    /// AFK voice channel Snowflake ID inside `properties.afk_channel_id`.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub afk_channel_id: Option<String>,
+    /// AFK timeout in seconds inside `properties.afk_timeout`.
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub afk_timeout: Option<u64>,
+}
+
+/// Serde deserializer for [`GuildPropertiesDto`], gracefully handling `null` or non-object values.
+fn deserialize_guild_properties<'de, D>(deserializer: D) -> Result<GuildPropertiesDto, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(GuildPropertiesDto::deserialize(&val).unwrap_or_default())
+}
+
+/// Data Transfer Object (DTO) for deserializing a Gateway `READY.guilds[]` entry via Serde.
+///
+/// Preserves all fallback chains from `properties.*` (`name`, `icon`, `owner_id`,
+/// `afk_channel_id`, `afk_timeout`) to top-level guild fields, as well as `my_roles`/`myRoles`
+/// and `isMember`/`is_member` aliases and ETF role sanitization.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct GuildSummaryDto {
+    /// Guild Snowflake ID.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Nested `properties` object from Gateway v9 guild payloads.
+    #[serde(deserialize_with = "deserialize_guild_properties")]
+    pub properties: GuildPropertiesDto,
+    /// Fallback top-level guild name.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub name: Option<String>,
+    /// Fallback top-level guild icon hash.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub icon: Option<String>,
+    /// Fallback top-level owner Snowflake ID.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub owner_id: Option<String>,
+    /// Fallback top-level AFK voice channel Snowflake ID.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub afk_channel_id: Option<String>,
+    /// Fallback top-level AFK timeout in seconds.
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub afk_timeout: Option<u64>,
+    /// Total member count in the guild.
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub member_count: Option<u64>,
+    /// Raw guild channels array used to compute `channel_count`.
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub channels: Vec<Value>,
+    /// Raw guild roles array sanitized for ETF bigints/sentinels.
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub roles: Vec<Value>,
+    /// Primary `snake_case` list of current user's role IDs in the guild.
+    #[serde(deserialize_with = "deserialize_ready_opt_role_ids")]
+    pub my_roles: Option<Vec<String>>,
+    /// Fallback `camelCase` list of current user's role IDs in the guild.
+    #[serde(
+        rename = "myRoles",
+        deserialize_with = "deserialize_ready_opt_role_ids"
+    )]
+    pub my_roles_camel: Option<Vec<String>>,
+    /// Optional lurker status flag.
+    #[serde(deserialize_with = "deserialize_ready_opt_bool")]
+    pub lurker: Option<bool>,
+    /// Primary `camelCase` membership flag.
+    #[serde(rename = "isMember", deserialize_with = "deserialize_ready_opt_bool")]
+    pub is_member_camel: Option<bool>,
+    /// Fallback `snake_case` membership flag.
+    #[serde(deserialize_with = "deserialize_ready_opt_bool")]
+    pub is_member: Option<bool>,
+    /// Optional rules screening pending flag.
+    #[serde(deserialize_with = "deserialize_ready_opt_bool")]
+    pub pending: Option<bool>,
+}
+
+impl GuildSummaryDto {
+    /// Converts the deserialized DTO into a [`GuildSummary`], resolving `properties.*` fallback chains
+    /// and sanitizing ETF role payloads.
+    ///
+    /// # Returns
+    /// A normalized [`GuildSummary`] ready for BFF state and IPC serialization.
+    #[inline]
+    #[must_use]
+    pub fn into_guild_summary(mut self) -> GuildSummary {
+        for r in self.roles.iter_mut() {
+            sanitize_etf_json_value(r);
+        }
+        GuildSummary {
+            id: self.id.unwrap_or_default(),
+            name: self.properties.name.or(self.name).unwrap_or_default(),
+            icon: self.properties.icon.or(self.icon),
+            member_count: self.member_count.unwrap_or(0),
+            channel_count: self.channels.len(),
+            owner_id: self.properties.owner_id.or(self.owner_id),
+            afk_channel_id: self.properties.afk_channel_id.or(self.afk_channel_id),
+            afk_timeout: self.properties.afk_timeout.or(self.afk_timeout),
+            roles: self.roles,
+            my_roles: self.my_roles.or(self.my_roles_camel).unwrap_or_default(),
+            members: Vec::new(),
+            lurker: self.lurker,
+            is_member: self.is_member_camel.or(self.is_member),
+            pending: self.pending,
+        }
+    }
+}
+
+/// Parses a Gateway `READY.guilds[]` JSON object into a [`GuildSummary`] using Serde ([`GuildSummaryDto`]).
+///
+/// Preserves all fallback chains from `properties.*` (`name`, `icon`, `owner_id`,
+/// `afk_channel_id`, `afk_timeout`) and sanitizes ETF role objects.
+///
+/// # Arguments
+/// * `value` - Raw JSON value representing a guild entry.
+///
+/// # Returns
+/// A populated [`GuildSummary`].
+#[inline]
+fn parse_guild(value: &Value) -> GuildSummary {
+    GuildSummaryDto::deserialize(value)
+        .unwrap_or_default()
+        .into_guild_summary()
 }
 
 /// Читает `gateway/by-type/002-READY.json` и отдаёт сводку для первого экрана.
@@ -9503,6 +9110,17 @@ pub struct ChannelRow {
     pub is_afk: Option<bool>,
 }
 
+impl ChannelRow {
+    /// Deserializes and validates all permission overwrites in this channel row into [`PermissionOverwriteDef`] items.
+    #[inline]
+    #[must_use]
+    pub fn parsed_permission_overwrites(&self) -> Vec<crate::permissions::PermissionOverwriteDef> {
+        crate::permissions::parse_overwrites_from_json(Some(&Value::Array(
+            self.permission_overwrites.clone(),
+        )))
+    }
+}
+
 /// Массив из объекта READY: отсутствие/`null` — пустой набор, другой тип —
 /// `Parse`. Иначе опечатка в фикстуре давала бы «каналов нет» вместо ошибки.
 fn ready_array<'a>(data: &'a Value, key: &str, path: &Path) -> Result<&'a [Value], DataError> {
@@ -9516,29 +9134,144 @@ fn ready_array<'a>(data: &'a Value, key: &str, path: &Path) -> Result<&'a [Value
     }
 }
 
-/// Канал READY: `id` и `type` обязательны (без типа UI не решит, открывать ли
-/// чат), остальные поля — как в фикстуре, `nil` — отсутствие значения.
+/// Data Transfer Object (DTO) for deserializing a guild or private channel entry from Gateway READY via Serde.
+///
+/// Eliminates manual `opt_str`/`as_u64` extraction while preserving ETF `"nil"` sentinel filtering,
+/// numeric/string `type`, `position`, and `user_limit` coercion, and `permission_overwrites` arrays.
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct RawGuildChannelDto {
+    /// Required channel Snowflake ID (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Optional channel display name (`None` for DM channels or `"nil"` sentinel).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub name: Option<String>,
+    /// Numeric Discord channel type (`0` = text, `2` = voice, `4` = category, `5` = announcement, `15` = forum, `1` = DM).
+    #[serde(rename = "type", deserialize_with = "deserialize_ready_opt_u64")]
+    pub kind: Option<u64>,
+    /// Optional parent category Snowflake ID (`None` if top-level or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub parent_id: Option<String>,
+    /// Optional sorting position within the guild.
+    #[serde(deserialize_with = "deserialize_ready_opt_i64")]
+    pub position: Option<i64>,
+    /// Raw permission overwrites array (`permission_overwrites`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub permission_overwrites: Vec<Value>,
+    /// Optional voice channel user limit (`> 0`).
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub user_limit: Option<u64>,
+}
+
+impl RawGuildChannelDto {
+    /// Converts the deserialized DTO into a validated [`ChannelRow`].
+    ///
+    /// # Arguments
+    /// * `guild_id` - Owning guild Snowflake ID (`None` for private/DM channels).
+    /// * `path` - Source fixture or cache path for error context.
+    /// * `at` - JSON location descriptor (e.g. `"READY.guilds[0].channels[1]"`).
+    ///
+    /// # Returns
+    /// `Ok(ChannelRow)` if `id` and `type` are valid, or `Err(DataError)` on schema violation.
+    #[inline]
+    #[must_use = "returns the validated ChannelRow result"]
+    pub fn into_channel_row(
+        self,
+        guild_id: Option<&str>,
+        path: &Path,
+        at: &str,
+    ) -> Result<ChannelRow, DataError> {
+        let id = self
+            .id
+            .ok_or_else(|| DataError::parse(path, format!("{at}: нет строкового id")))?;
+        let kind = self.kind.ok_or_else(|| {
+            DataError::parse(path, format!("{at} (канал {id}): нет числового type"))
+        })?;
+        Ok(ChannelRow {
+            id,
+            guild_id: guild_id.map(str::to_string),
+            name: self.name,
+            kind,
+            parent_id: self.parent_id,
+            position: self.position,
+            permission_overwrites: self.permission_overwrites,
+            user_limit: self.user_limit.filter(|&lim| lim > 0),
+            is_afk: None,
+        })
+    }
+
+    /// Deserializes and validates all raw permission overwrites in this DTO into [`PermissionOverwriteDef`] items.
+    #[inline]
+    #[must_use]
+    pub fn parsed_permission_overwrites(&self) -> Vec<crate::permissions::PermissionOverwriteDef> {
+        crate::permissions::parse_overwrites_from_json(Some(&Value::Array(
+            self.permission_overwrites.clone(),
+        )))
+    }
+}
+
+/// Parses a single Gateway READY channel JSON value into a [`ChannelRow`] via [`RawGuildChannelDto`].
+///
+/// # Arguments
+/// * `channel` - Raw JSON value representing a guild or private channel.
+/// * `guild_id` - Owning guild Snowflake ID (`None` for private/DM channels).
+/// * `path` - Source file path used for [`DataError`] reporting.
+/// * `at` - JSON location descriptor for error diagnostics.
+///
+/// # Returns
+/// `Ok(ChannelRow)` on valid schema, or `Err(DataError)` if `id` or `type` is missing/invalid.
+#[inline]
 fn parse_channel(
     channel: &Value,
     guild_id: Option<&str>,
     path: &Path,
     at: &str,
 ) -> Result<ChannelRow, DataError> {
-    let id = field_str(channel, "id")
-        .ok_or_else(|| DataError::parse(path, format!("{at}: нет строкового id")))?;
-    let kind = field_u64(channel, "type")
-        .ok_or_else(|| DataError::parse(path, format!("{at} (канал {id}): нет числового type")))?;
-    Ok(ChannelRow {
-        id: id.to_string(),
-        guild_id: guild_id.map(str::to_string),
-        name: field_str(channel, "name").map(str::to_string),
-        kind,
-        parent_id: field_str(channel, "parent_id").map(str::to_string),
-        position: field_i64(channel, "position"),
-        permission_overwrites: array(channel.get("permission_overwrites")).to_vec(),
-        user_limit: field_u64(channel, "user_limit").filter(|&lim| lim > 0),
-        is_afk: None,
-    })
+    RawGuildChannelDto::deserialize(channel)
+        .unwrap_or_default()
+        .into_channel_row(guild_id, path, at)
+}
+
+/// Parses all channels of a single Gateway `READY.guilds[]` object into `(guild_index, ChannelRow)` tuples.
+///
+/// Uses [`GuildSummaryDto`] to resolve `properties.afk_channel_id` / `afk_channel_id` and
+/// [`RawGuildChannelDto`] to deserialize each channel entry and mark AFK voice channels.
+///
+/// # Arguments
+/// * `guild` - Raw JSON value representing the guild in `READY.guilds[]`.
+/// * `guild_index` - Position of the guild in `READY.guilds[]` for deterministic sorting.
+/// * `guild_id` - Validated guild Snowflake ID.
+/// * `path` - Source fixture path for [`DataError`] diagnostics.
+///
+/// # Returns
+/// `Ok(Vec<(usize, ChannelRow)>)` for all channels in the guild, or `Err(DataError)` on malformed channel entries.
+#[inline]
+fn parse_guild_channels(
+    guild: &Value,
+    guild_index: usize,
+    guild_id: &str,
+    path: &Path,
+) -> Result<Vec<(usize, ChannelRow)>, DataError> {
+    let guild_dto = GuildSummaryDto::deserialize(guild).unwrap_or_default();
+    let afk_cid = guild_dto
+        .properties
+        .afk_channel_id
+        .or(guild_dto.afk_channel_id);
+    let mut guild_rows = Vec::with_capacity(guild_dto.channels.len());
+    for (channel_index, channel) in guild_dto.channels.iter().enumerate() {
+        let mut row = parse_channel(
+            channel,
+            Some(guild_id),
+            path,
+            &format!("READY.guilds[{guild_index}].channels[{channel_index}]"),
+        )?;
+        if afk_cid.as_deref().is_some_and(|afk_id| afk_id == row.id) {
+            row.is_afk = Some(true);
+        }
+        guild_rows.push((guild_index, row));
+    }
+    Ok(guild_rows)
 }
 
 /// Каналы из READY: гильдейские `guilds[].channels[]` и ЛС `private_channels[]`.
@@ -9582,6 +9315,9 @@ pub fn channels(root: &Path, guild_id: Option<&str>) -> Result<Vec<ChannelRow>, 
         } else {
             (&[], &[])
         };
+    if let Some(ref value) = value_opt {
+        let _ = in_memory_cache().update_from_ready_value(value);
+    }
 
     let (is_live_active, live_token_opt, mut live_guilds_opt, live_private_opt) = {
         let guard = live_session()
@@ -9589,6 +9325,7 @@ pub fn channels(root: &Path, guild_id: Option<&str>) -> Result<Vec<ChannelRow>, 
             .unwrap_or_else(|poison| poison.into_inner());
         if guard.active {
             if let Some(ref live_d) = guard.ready_data {
+                let _ = in_memory_cache().update_from_ready_value(live_d);
                 let lg = array(live_d.get("guilds"));
                 let lp = array(live_d.get("private_channels"));
                 (
@@ -9730,22 +9467,7 @@ pub fn channels(root: &Path, guild_id: Option<&str>) -> Result<Vec<ChannelRow>, 
         if guild_filter.is_some_and(|filter| filter != id) {
             continue;
         }
-        let afk_cid = guild
-            .get("properties")
-            .and_then(|p| field_str(p, "afk_channel_id"))
-            .or_else(|| field_str(guild, "afk_channel_id"));
-        for (channel_index, channel) in array(guild.get("channels")).iter().enumerate() {
-            let mut row = parse_channel(
-                channel,
-                Some(id),
-                &path,
-                &format!("READY.guilds[{guild_index}].channels[{channel_index}]"),
-            )?;
-            if afk_cid.is_some_and(|afk_id| afk_id == row.id) {
-                row.is_afk = Some(true);
-            }
-            rows.push((guild_index, row));
-        }
+        rows.extend(parse_guild_channels(guild, guild_index, id, &path)?);
     }
     if guild_filter.is_none() {
         for (index, channel) in private.iter().enumerate() {
@@ -9971,7 +9693,7 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
         };
         if should_fetch_rest {
             if let Some(ref token) = live_token {
-                {
+                if let Some(mut fetched) = fetch_rest_channel_messages(token, channel_id) {
                     let mut guard = live_session()
                         .lock()
                         .unwrap_or_else(|poison| poison.into_inner());
@@ -9979,11 +9701,6 @@ pub(crate) fn channel_rows(root: &Path, channel_id: &str) -> Result<Vec<MessageR
                     guard
                         .fetched_channels_at
                         .insert(channel_id.to_string(), std::time::Instant::now());
-                }
-                if let Some(mut fetched) = fetch_rest_channel_messages(token, channel_id) {
-                    let mut guard = live_session()
-                        .lock()
-                        .unwrap_or_else(|poison| poison.into_inner());
                     // Фильтруем удалённые сообщения: сообщения из blacklisted deleted_message_ids
                     // гарантированно не попадут в отображение канала.
                     fetched.retain(|m| {
@@ -10305,33 +10022,149 @@ pub struct MessagesPage {
     pub loaded_rows_limit: usize,
 }
 
-fn parse_message_author(value: &Value, path: &Path) -> Result<MessageAuthor, DataError> {
-    let id =
-        field_str(value, "id").ok_or_else(|| DataError::parse(path, "author без строкового id"))?;
-    let username = field_str(value, "username").unwrap_or(id);
-    Ok(MessageAuthor {
-        id: id.to_string(),
-        username: username.to_string(),
-        global_name: field_str(value, "global_name").map(str::to_string),
-        avatar: field_str(value, "avatar").map(str::to_string),
-        bot: field_bool(value, "bot"),
-    })
+/// Serde DTO for message author (`TAURI-DATA-07`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawMessageAuthorDto {
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub username: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub global_name: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub avatar: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub bot: bool,
 }
 
-/// Дата `YYYY-MM-DD` из ISO-подобного `timestamp`. Непарсящееся значение
-/// (санитизированное `nil`, пустая строка, чужой формат) — `None`, не фейк.
+impl RawMessageAuthorDto {
+    /// Converts DTO into a validated [`MessageAuthor`].
+    #[inline]
+    pub fn into_message_author(self, path: &Path) -> Result<MessageAuthor, DataError> {
+        let id = self
+            .id
+            .ok_or_else(|| DataError::parse(path, "author без строкового id"))?;
+        let username = self.username.unwrap_or_else(|| id.clone());
+        Ok(MessageAuthor {
+            id,
+            username,
+            global_name: self.global_name,
+            avatar: self.avatar,
+            bot: self.bot,
+        })
+    }
+}
+
+fn parse_message_author(value: &Value, path: &Path) -> Result<MessageAuthor, DataError> {
+    let dto: RawMessageAuthorDto = serde_json::from_value(value.clone())
+        .map_err(|e| DataError::parse(path, format!("некорректный author: {e}")))?;
+    dto.into_message_author(path)
+}
+
+fn parse_ascii_u32(s: &str, expected_len: usize) -> Option<u32> {
+    (s.len() == expected_len && s.chars().all(|c| c.is_ascii_digit()))
+        .then(|| s.parse().ok())
+        .flatten()
+}
+
+const fn is_valid_calendar_date(year: u32, month: u32, day: u32) -> bool {
+    if month < 1 || month > 12 || day == 0 {
+        return false;
+    }
+    let is_leap = (year.is_multiple_of(4) && !year.is_multiple_of(100)) || year.is_multiple_of(400);
+    let max_day = match month {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if is_leap => 29,
+        2 => 28,
+        _ => return false,
+    };
+    day <= max_day
+}
+
+fn is_valid_tz_offset(tz: &str) -> bool {
+    let Some(digits) = tz.strip_prefix(['+', '-']) else {
+        return false;
+    };
+    if let Some((hh, mm)) = digits.split_once(':') {
+        matches!(
+            (parse_ascii_u32(hh, 2), parse_ascii_u32(mm, 2)),
+            (Some(h), Some(m)) if h <= 23 && m <= 59
+        )
+    } else if digits.len() == 4 {
+        let (hh, mm) = digits.split_at(2);
+        matches!(
+            (parse_ascii_u32(hh, 2), parse_ascii_u32(mm, 2)),
+            (Some(h), Some(m)) if h <= 23 && m <= 59
+        )
+    } else {
+        matches!(parse_ascii_u32(digits, 2), Some(h) if h <= 23)
+    }
+}
+
+fn is_valid_iso8601_time_suffix(rest: &str) -> bool {
+    if rest.is_empty() {
+        return true;
+    }
+    let Some(time_part) = rest.strip_prefix(['T', 't', ' ']) else {
+        return false;
+    };
+    let hms = if let Some(hms) = time_part.strip_suffix(['Z', 'z']) {
+        hms
+    } else if let Some(pos) = time_part.rfind(['+', '-']) {
+        let (hms, tz) = time_part.split_at(pos);
+        if !is_valid_tz_offset(tz) {
+            return false;
+        }
+        hms
+    } else {
+        time_part
+    };
+
+    let hms_core = match hms.split_once('.') {
+        Some((core, frac)) => {
+            if frac.is_empty() || !frac.chars().all(|c| c.is_ascii_digit()) {
+                return false;
+            }
+            core
+        }
+        None => hms,
+    };
+
+    let mut parts = hms_core.split(':');
+    let Some(hh) = parts.next().and_then(|s| parse_ascii_u32(s, 2)) else {
+        return false;
+    };
+    let Some(mm) = parts.next().and_then(|s| parse_ascii_u32(s, 2)) else {
+        return false;
+    };
+    let ss = match parts.next() {
+        Some(s) => match parse_ascii_u32(s, 2) {
+            Some(sec) => sec,
+            None => return false,
+        },
+        None => 0,
+    };
+    parts.next().is_none() && hh <= 23 && mm <= 59 && ss <= 60
+}
+
+/// Дата `YYYY-MM-DD` из ISO-8601 `timestamp`. Непарсящееся или невалидное
+/// календарное значение (санитизированное `nil`, пустая строка, чужой формат) — `None`.
 fn day_of(timestamp: Option<&str>) -> Option<String> {
-    let text = timestamp?;
+    let text = timestamp?.trim();
     let date = text.get(..10)?;
-    let bytes = date.as_bytes();
-    let shape = bytes.len() == 10
-        && bytes[4] == b'-'
-        && bytes[7] == b'-'
-        && bytes
-            .iter()
-            .enumerate()
-            .all(|(index, byte)| index == 4 || index == 7 || byte.is_ascii_digit());
-    shape.then(|| date.to_string())
+    let rest = text.get(10..)?;
+
+    let mut parts = date.split('-');
+    let year = parse_ascii_u32(parts.next()?, 4)?;
+    let month = parse_ascii_u32(parts.next()?, 2)?;
+    let day = parse_ascii_u32(parts.next()?, 2)?;
+    if parts.next().is_some() || !is_valid_calendar_date(year, month, day) {
+        return None;
+    }
+
+    is_valid_iso8601_time_suffix(rest).then(|| date.to_string())
 }
 
 fn parse_mentions(data: &Value) -> Vec<String> {
@@ -10757,22 +10590,52 @@ fn parse_components_for_frame(data: &Value) -> Vec<MessageActionRow> {
     out
 }
 
+/// Serde DTO for a Discord message in gateway/REST payloads (`TAURI-DATA-07`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawMessageDto {
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub channel_id: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub guild_id: Option<String>,
+    pub author: Option<RawMessageAuthorDto>,
+    pub content: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub timestamp: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub edited_timestamp: Option<String>,
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub pinned: bool,
+    #[serde(rename = "type", deserialize_with = "deserialize_ready_opt_u64")]
+    pub kind: Option<u64>,
+    #[serde(deserialize_with = "deserialize_ready_opt_u64")]
+    pub flags: Option<u64>,
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub mention_everyone: bool,
+}
+
 fn parse_message(data: &Value, path: &Path) -> Result<MessageRow, DataError> {
-    let id = field_str(data, "id")
+    let dto = serde_json::from_value::<RawMessageDto>(data.clone())
+        .map_err(|e| DataError::parse(path, format!("некорректное сообщение: {e}")))?;
+    let id = dto
+        .id
         .ok_or_else(|| DataError::parse(path, "сообщение без строкового id"))?;
-    let channel_id = field_str(data, "channel_id")
+    let channel_id = dto
+        .channel_id
         .ok_or_else(|| DataError::parse(path, format!("сообщение {id} без channel_id")))?;
     let author_value = data
         .get("author")
         .ok_or_else(|| DataError::parse(path, format!("сообщение {id} без author")))?;
-    let timestamp = field_str(data, "timestamp").map(str::to_string);
-    let edited_at = field_str(data, "edited_timestamp").map(str::to_string);
+    let author = match dto.author {
+        Some(a) => a.into_message_author(path)?,
+        None => parse_message_author(author_value, path)?,
+    };
+    let timestamp = dto.timestamp;
+    let edited_at = dto.edited_timestamp;
     let is_live = path.to_string_lossy().starts_with("live://");
-    let mut raw_content = data
-        .get("content")
-        .and_then(Value::as_str)
-        .unwrap_or_default()
-        .to_string();
+    let mut raw_content = dto.content.unwrap_or_default();
     if is_live && raw_content.is_empty() {
         for snap in array(data.get("message_snapshots")) {
             if let Some(sc) = snap
@@ -10792,10 +10655,10 @@ fn parse_message(data: &Value, path: &Path) -> Result<MessageRow, DataError> {
         raw_content
     };
     Ok(MessageRow {
-        id: id.to_string(),
-        channel_id: channel_id.to_string(),
-        guild_id: field_str(data, "guild_id").map(str::to_string),
-        author: parse_message_author(author_value, path)?,
+        id,
+        channel_id,
+        guild_id: dto.guild_id,
+        author,
         content,
         day: day_of(timestamp.as_deref()),
         timestamp,
@@ -10803,20 +10666,16 @@ fn parse_message(data: &Value, path: &Path) -> Result<MessageRow, DataError> {
         edited_at,
         // Заполняется в `collect_messages` по соседним строкам канала.
         group: "start".to_string(),
-        pinned: field_bool(data, "pinned"),
-        message_type: field_u64(data, "type").unwrap_or(0),
+        pinned: dto.pinned,
+        message_type: dto.kind.unwrap_or(0),
         embeds: parse_embeds_for_frame(data, is_live),
         attachments: parse_attachments_for_frame(data, is_live),
         reactions: parse_reactions(data.get("reactions")),
         components: parse_components_for_frame(data),
         reply_to: parse_reply_to(data),
         mentions: parse_mentions(data),
-        mention_everyone: field_bool(data, "mention_everyone"),
-        flags: if is_live {
-            field_u64(data, "flags")
-        } else {
-            None
-        },
+        mention_everyone: dto.mention_everyone,
+        flags: if is_live { dto.flags } else { None },
         call: if is_live {
             data.get("call").cloned().filter(|v| !v.is_null())
         } else {
@@ -11280,33 +11139,185 @@ fn snowflake_low56(id: &str) -> Option<u64> {
     }
 }
 
+/// Serde DTO for a Discord user's clan or primary guild identity tag.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawClanDto {
+    /// Clan tag string (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub tag: Option<String>,
+    /// Whether the clan identity badge is enabled for this user.
+    #[serde(deserialize_with = "deserialize_ready_opt_bool")]
+    pub identity_enabled: Option<bool>,
+}
+
+/// Serde deserializer for an optional [`RawClanDto`].
+fn deserialize_opt_clan_dto<'de, D>(deserializer: D) -> Result<Option<RawClanDto>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    if val.is_null() {
+        return Ok(None);
+    }
+    Ok(RawClanDto::deserialize(&val).ok())
+}
+
+/// Serde DTO for deserializing a nested Discord `user` object inside a guild member payload.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawUserDto {
+    /// User Snowflake ID (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Account username (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub username: Option<String>,
+    /// Global display name (`global_name`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub global_name: Option<String>,
+    /// Legacy/fallback display name (`display_name`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub display_name: Option<String>,
+    /// Optional user avatar hash.
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub avatar: Option<String>,
+    /// Whether the user is a bot account.
+    #[serde(deserialize_with = "deserialize_ready_bool")]
+    pub bot: bool,
+    /// Optional `clan` badge metadata.
+    #[serde(deserialize_with = "deserialize_opt_clan_dto")]
+    pub clan: Option<RawClanDto>,
+    /// Fallback `primary_guild` badge metadata.
+    #[serde(deserialize_with = "deserialize_opt_clan_dto")]
+    pub primary_guild: Option<RawClanDto>,
+}
+
+impl RawUserDto {
+    /// Extracts the active clan or primary guild tag if `identity_enabled != Some(false)`.
+    #[inline]
+    #[must_use]
+    pub fn clan_tag(&self) -> Option<String> {
+        let clan = self.clan.as_ref().or(self.primary_guild.as_ref())?;
+        if clan.identity_enabled == Some(false) {
+            return None;
+        }
+        clan.tag.clone()
+    }
+}
+
+/// Serde deserializer for an optional [`RawUserDto`].
+fn deserialize_opt_user_dto<'de, D>(deserializer: D) -> Result<Option<RawUserDto>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    if val.is_null() {
+        return Ok(None);
+    }
+    Ok(RawUserDto::deserialize(&val).ok())
+}
+
+/// Serde DTO for a single Discord presence activity entry.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawActivityDto {
+    /// Numeric activity type (`4` = custom status).
+    #[serde(rename = "type", deserialize_with = "deserialize_ready_opt_u64")]
+    pub kind: Option<u64>,
+    /// Custom status text (`state`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub state: Option<String>,
+    /// Activity/game title (`name`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub name: Option<String>,
+}
+
+/// Serde deserializer for an array of [`RawActivityDto`] items.
+fn deserialize_opt_activities<'de, D>(deserializer: D) -> Result<Vec<RawActivityDto>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(val
+        .as_array()
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| RawActivityDto::deserialize(v).ok())
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
+/// Serde DTO for a member's embedded `presence` object.
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawPresenceDto {
+    /// Online status string (`"online"`, `"idle"`, `"dnd"`, `"offline"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub status: Option<String>,
+    /// Active presence activities list.
+    #[serde(deserialize_with = "deserialize_opt_activities")]
+    pub activities: Vec<RawActivityDto>,
+}
+
+impl RawPresenceDto {
+    /// Extracts a human-readable activity label from the presence activities list.
+    #[inline]
+    #[must_use]
+    pub fn activity_label(&self) -> Option<String> {
+        for act in &self.activities {
+            let kind = act.kind.unwrap_or(0);
+            if kind == 4 {
+                if let Some(ref st) = act.state {
+                    return Some(st.clone());
+                }
+            } else if let Some(ref name) = act.name {
+                if name != "bg-capture" && name != "Custom Status" {
+                    return Some(format!("🎮 {name}"));
+                }
+            }
+        }
+        None
+    }
+}
+
+/// Serde deserializer for an optional [`RawPresenceDto`].
+fn deserialize_opt_presence_dto<'de, D>(deserializer: D) -> Result<Option<RawPresenceDto>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    if val.is_null() {
+        return Ok(None);
+    }
+    Ok(RawPresenceDto::deserialize(&val).ok())
+}
+
+/// Serde deserializer for a member's `roles` array of strings.
+fn deserialize_member_role_strs<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Value::deserialize(deserializer)?;
+    Ok(val
+        .as_array()
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|role| role.as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
 fn extract_user_clan_tag(user: Option<&Value>) -> Option<String> {
     let u = user?;
-    let clan = u.get("clan").or_else(|| u.get("primary_guild"))?;
-    if clan
-        .get("identity_enabled")
-        .is_some_and(|v| v == &Value::Bool(false) || v.as_str() == Some("false"))
-    {
-        return None;
-    }
-    field_str(clan, "tag").map(str::to_string)
+    RawUserDto::deserialize(u).ok()?.clan_tag()
 }
 
 fn extract_presence_activity(presence: Option<&Value>) -> Option<String> {
     let p = presence?;
-    for act in array(p.get("activities")) {
-        let kind = field_u64(act, "type").unwrap_or(0);
-        if kind == 4 {
-            if let Some(st) = field_str(act, "state") {
-                return Some(st.to_string());
-            }
-        } else if let Some(name) = field_str(act, "name") {
-            if name != "bg-capture" && name != "Custom Status" {
-                return Some(format!("🎮 {name}"));
-            }
-        }
-    }
-    None
+    RawPresenceDto::deserialize(p).ok()?.activity_label()
 }
 
 fn resolve_role_color_hex(roles: &[String], guild: &GuildInfo) -> Option<String> {
@@ -11420,76 +11431,228 @@ fn status_group(status: &str) -> &'static str {
     }
 }
 
-fn parse_member(value: &Value, guild: &GuildInfo) -> Option<MemberRow> {
-    let user = value.get("user")?;
-    let id = field_str(user, "id")?;
-    let status = value
-        .get("presence")
-        .and_then(|presence| field_str(presence, "status"))
-        .unwrap_or("offline");
-    let raw_username = field_str(user, "username").unwrap_or(id);
-    let raw_display_name = field_str(value, "nick")
-        .or_else(|| field_str(user, "global_name"))
-        .or_else(|| field_str(user, "display_name"))
-        .unwrap_or(raw_username);
-    let is_snowflake = raw_display_name.len() >= 15
-        && raw_display_name.len() <= 22
-        && raw_display_name.bytes().all(|b| b.is_ascii_digit());
-    let display_name = if is_snowflake {
-        format!(
-            "Участник {}",
-            &raw_display_name[raw_display_name.len().saturating_sub(4)..]
-        )
-    } else {
-        raw_display_name.to_string()
-    };
-    let username = if is_snowflake {
-        format!(
-            "user_{}",
-            &raw_username[raw_username.len().saturating_sub(4)..]
-        )
-    } else {
-        raw_username.to_string()
-    };
-    let mut roles: Vec<String> = array(value.get("roles"))
-        .iter()
-        .filter_map(|role| role.as_str().map(str::to_string))
-        .collect();
-    // Старшая роль первой: позиция из READY, неизвестные роли — в конце.
-    roles.sort_by_key(|role| {
-        std::cmp::Reverse(
-            guild
-                .roles
-                .iter()
-                .find(|info| &info.id == role)
-                .map(|info| info.position)
-                .unwrap_or(i64::MIN),
-        )
-    });
-    roles.dedup();
-    let role_name = roles
-        .first()
-        .and_then(|role| guild.roles.iter().find(|info| &info.id == role))
-        .map(|info| info.name.clone());
-    let role_color = resolve_role_color_hex(&roles, guild);
-    let clan_tag = extract_user_clan_tag(Some(user));
-    let activity = extract_presence_activity(value.get("presence"));
-    Some(MemberRow {
-        id: id.to_string(),
-        username: username.to_string(),
-        display_name: display_name.to_string(),
-        avatar: field_str(value, "avatar")
-            .or_else(|| field_str(user, "avatar"))
-            .map(str::to_string),
-        status: status.to_string(),
-        bot: field_bool(user, "bot"),
-        roles,
-        role_name,
-        role_color,
-        clan_tag,
-        activity,
-        group: status_group(status).to_string(),
-    })
+/// Serde DTO for raw guild member item in `GUILD_MEMBER_LIST_UPDATE` ops (`TAURI-DATA-06`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawGuildMemberDto {
+    /// Embedded Discord user profile (`user`).
+    #[serde(deserialize_with = "deserialize_opt_user_dto")]
+    pub user: Option<RawUserDto>,
+    /// Guild-specific nickname (`nick`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub nick: Option<String>,
+    /// Guild-specific avatar hash (`avatar`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub avatar: Option<String>,
+    /// Assigned role Snowflake IDs (`roles`).
+    #[serde(deserialize_with = "deserialize_member_role_strs")]
+    pub roles: Vec<String>,
+    /// Embedded member presence snapshot (`presence`).
+    #[serde(deserialize_with = "deserialize_opt_presence_dto")]
+    pub presence: Option<RawPresenceDto>,
+}
+
+impl RawGuildMemberDto {
+    /// Converts the deserialized DTO into a validated [`MemberRow`] according to guild roles and presences.
+    ///
+    /// # Errors
+    /// Returns [`DataError::Parse`] if `user` or `user.id` is missing or empty.
+    #[inline]
+    #[must_use = "returns the validated MemberRow result"]
+    fn into_member_row(
+        self,
+        guild: &GuildInfo,
+        path: &Path,
+        at: &str,
+    ) -> Result<MemberRow, DataError> {
+        let user = self
+            .user
+            .ok_or_else(|| DataError::parse(path, format!("{at} без member.user.id")))?;
+        let id = user
+            .id
+            .clone()
+            .ok_or_else(|| DataError::parse(path, format!("{at} без member.user.id")))?;
+        let status = self
+            .presence
+            .as_ref()
+            .and_then(|p| p.status.as_deref())
+            .unwrap_or("offline");
+        let raw_username = user.username.as_deref().unwrap_or(&id);
+        let raw_display_name = self
+            .nick
+            .as_deref()
+            .or_else(|| user.global_name.as_deref())
+            .or_else(|| user.display_name.as_deref())
+            .unwrap_or(raw_username);
+        let is_snowflake = raw_display_name.len() >= 15
+            && raw_display_name.len() <= 22
+            && raw_display_name.bytes().all(|b| b.is_ascii_digit());
+        let display_name = if is_snowflake {
+            format!(
+                "Участник {}",
+                &raw_display_name[raw_display_name.len().saturating_sub(4)..]
+            )
+        } else {
+            raw_display_name.to_string()
+        };
+        let username = if is_snowflake {
+            format!(
+                "user_{}",
+                &raw_username[raw_username.len().saturating_sub(4)..]
+            )
+        } else {
+            raw_username.to_string()
+        };
+        let mut roles = self.roles;
+        roles.sort_by_key(|role| {
+            std::cmp::Reverse(
+                guild
+                    .roles
+                    .iter()
+                    .find(|info| &info.id == role)
+                    .map(|info| info.position)
+                    .unwrap_or(i64::MIN),
+            )
+        });
+        roles.dedup();
+        let role_name = roles
+            .first()
+            .and_then(|role| guild.roles.iter().find(|info| &info.id == role))
+            .map(|info| info.name.clone());
+        let role_color = resolve_role_color_hex(&roles, guild);
+        let clan_tag = user.clan_tag();
+        let activity = self.presence.as_ref().and_then(|p| p.activity_label());
+        Ok(MemberRow {
+            id,
+            username,
+            display_name,
+            avatar: self.avatar.or(user.avatar),
+            status: status.to_string(),
+            bot: user.bot,
+            roles,
+            role_name,
+            role_color,
+            clan_tag,
+            activity,
+            group: status_group(status).to_string(),
+        })
+    }
+}
+
+/// Serde DTO for a single property diff inside a Discord guild audit log entry (`TAURI-DATA-08`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct AuditLogChangeDto {
+    /// Changed property key (e.g. `"name"`, `"nick"`, `"$add"`, `"token"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub key: Option<String>,
+    /// Previous property value before the action, if present.
+    pub old_value: Option<Value>,
+    /// New property value after the action, if present.
+    pub new_value: Option<Value>,
+}
+
+/// Serde DTO for a single entry in `GET /guilds/{guild_id}/audit-logs` (`TAURI-DATA-08`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct AuditLogEntryDto {
+    /// Audit log entry Snowflake ID (`None` if missing, empty, or `"nil"`).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub id: Option<String>,
+    /// Numeric Discord `AuditLogActionType` code (e.g. `1` = GuildUpdate, `22` = MemberBanAdd).
+    #[serde(deserialize_with = "deserialize_ready_opt_u16")]
+    pub action_type: Option<u16>,
+    /// Snowflake ID of the user or app that performed the action (`None` if system/unknown).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub user_id: Option<String>,
+    /// Snowflake ID of the affected target entity (`None` if not applicable).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub target_id: Option<String>,
+    /// Optional moderator reason (`1..=512` chars).
+    #[serde(deserialize_with = "deserialize_ready_opt_str")]
+    pub reason: Option<String>,
+    /// List of property changes (`changes[]`) recorded in this entry.
+    #[serde(deserialize_with = "deserialize_ready_vec_dto")]
+    pub changes: Vec<AuditLogChangeDto>,
+    /// Optional action-specific metadata (`options`), preserved as raw JSON value.
+    pub options: Option<Value>,
+}
+
+impl AuditLogEntryDto {
+    /// Validates that the audit log entry contains a non-empty `id` and `action_type`.
+    ///
+    /// # Errors
+    /// Returns [`DataError::Parse`] if `id` or `action_type` is missing or invalid.
+    #[inline]
+    pub fn validate(&self, path: &Path) -> Result<(&str, u16), DataError> {
+        let id = self
+            .id
+            .as_deref()
+            .ok_or_else(|| DataError::parse(path, "audit_log_entry без строкового id"))?;
+        let action_type = self.action_type.ok_or_else(|| {
+            DataError::parse(
+                path,
+                format!("audit_log_entry {id} без числового action_type"),
+            )
+        })?;
+        Ok((id, action_type))
+    }
+}
+
+/// Serde DTO for the top-level `GET /guilds/{guild_id}/audit-logs` payload (`TAURI-DATA-08`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawGuildAuditLogDto {
+    /// Audit log entries ordered newest-first (`audit_log_entries`).
+    #[serde(deserialize_with = "deserialize_ready_vec_dto")]
+    pub audit_log_entries: Vec<AuditLogEntryDto>,
+    /// Users referenced by `user_id` or `target_id` in `audit_log_entries` (`users`).
+    #[serde(deserialize_with = "deserialize_ready_vec_dto")]
+    pub users: Vec<RawUserDto>,
+    /// Webhooks referenced in the audit log (`webhooks`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub webhooks: Vec<Value>,
+    /// Guild scheduled events referenced in the audit log (`guild_scheduled_events`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub guild_scheduled_events: Vec<Value>,
+    /// Partial integration objects referenced in the audit log (`integrations`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub integrations: Vec<Value>,
+    /// Threads referenced in the audit log (`threads`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub threads: Vec<Value>,
+    /// Application commands referenced in the audit log (`application_commands`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub application_commands: Vec<Value>,
+    /// Auto moderation rules referenced in the audit log (`auto_moderation_rules`).
+    #[serde(deserialize_with = "deserialize_ready_vec_value")]
+    pub auto_moderation_rules: Vec<Value>,
+}
+
+impl RawGuildAuditLogDto {
+    /// Looks up a referenced user by Snowflake ID in `self.users`.
+    #[inline]
+    #[must_use]
+    pub fn find_user(&self, user_id: &str) -> Option<&RawUserDto> {
+        self.users.iter().find(|u| u.id.as_deref() == Some(user_id))
+    }
+}
+
+/// Deserializes a raw guild member JSON value via [`RawGuildMemberDto`] into a [`MemberRow`].
+///
+/// # Errors
+/// Returns [`DataError::Parse`] if deserialization fails or `member.user.id` is missing.
+#[inline]
+#[must_use = "returns the parsed MemberRow result"]
+fn parse_guild_member(
+    value: &Value,
+    guild: &GuildInfo,
+    path: &Path,
+    at: &str,
+) -> Result<MemberRow, DataError> {
+    let dto = RawGuildMemberDto::deserialize(value)
+        .map_err(|_| DataError::parse(path, format!("{at} без member.user.id")))?;
+    dto.into_member_row(guild, path, at)
 }
 
 /// Участники гильдии из всех `GUILD_MEMBER_LIST_UPDATE` + роли/имя/счётчик из READY.
@@ -11523,24 +11686,16 @@ fn collect_members(
                         continue;
                     }
                 }
+                let at = format!(
+                    "GUILD_MEMBER_LIST_UPDATE: элемент ops[{op_index}].items[{item_index}]"
+                );
                 let Some(member) = item.get("member") else {
                     return Err(DataError::parse(
                         &frame.path,
-                        format!(
-                            "GUILD_MEMBER_LIST_UPDATE: элемент ops[{op_index}].items[{item_index}] \
-                             без member и без group"
-                        ),
+                        format!("{at} без member и без group"),
                     ));
                 };
-                let mut row = parse_member(member, guild).ok_or_else(|| {
-                    DataError::parse(
-                        &frame.path,
-                        format!(
-                            "GUILD_MEMBER_LIST_UPDATE: элемент ops[{op_index}].items[{item_index}] \
-                             без member.user.id"
-                        ),
-                    )
-                })?;
+                let mut row = parse_guild_member(member, guild, &frame.path, &at)?;
                 row.group = group
                     .clone()
                     .unwrap_or_else(|| status_group(&row.status).to_string());
@@ -12081,6 +12236,7 @@ pub fn members_page(
     };
     if live_active {
         if let Some(live_d) = live_ready_opt {
+            let _ = in_memory_cache().update_from_ready_value(&live_d);
             frames.push(Frame {
                 kind: "READY".to_string(),
                 data: live_d,
@@ -12206,19 +12362,19 @@ pub struct SearchFilters {
     pub pinned: Option<bool>,
 }
 
-/// Найденное сообщение: та же строка, что в чате, плюс метаданные канала
-/// для строки результата (имя канала/гильдии может отсутствовать, если
-/// канал не попал в READY).
+/// Found message in search results: the chat [`MessageRow`] plus channel/guild metadata
+/// and an optional FTS5 highlighted match snippet (`snippet(messages_fts, -1, '<b>', '</b>', '...', 15)`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchHit {
     pub message: MessageRow,
     pub channel_name: Option<String>,
     pub guild_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub snippet: Option<String>,
 }
 
-/// Страница результатов поиска. `total` — сколько совпало во всех фикстурах,
-/// `scanned` — сколько сообщений просмотрено (для честного «найдено / загружено»).
+/// Page of local search results (`total` matched messages, `scanned` indexed messages).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchPage {
@@ -12232,7 +12388,7 @@ pub struct SearchPage {
     pub loaded_rows_limit: usize,
 }
 
-/// Пустая/пробельная строка фильтра = фильтр не задан.
+/// Blank/whitespace filter string is normalized to `None` (no restriction).
 fn normalized(value: Option<&str>) -> Option<String> {
     value
         .map(str::trim)
@@ -12240,7 +12396,7 @@ fn normalized(value: Option<&str>) -> Option<String> {
         .map(str::to_string)
 }
 
-/// `YYYY-MM-DD` — единственный принимаемый формат даты (как в `day` строки).
+/// Validates that `value` has the exact `YYYY-MM-DD` date shape.
 fn ensure_day(value: &str) -> Result<(), DataError> {
     ensure_input_len(value, "дата")?;
     let bytes = value.as_bytes();
@@ -12260,17 +12416,13 @@ fn ensure_day(value: &str) -> Result<(), DataError> {
     Ok(())
 }
 
-fn matches_query(row: &MessageRow, query_lower: &str) -> bool {
-    query_lower.is_empty() || row.content.to_lowercase().contains(query_lower)
-}
-
 fn matches_mention(row: &MessageRow, mention_id: &str) -> bool {
     row.mentions.iter().any(|id| id == mention_id)
         || row.content.contains(&format!("<@{mention_id}>"))
         || row.content.contains(&format!("<@!{mention_id}>"))
 }
 
-/// Проверяет один фильтр по строке. Значения уже обрезаны и провалидированы.
+/// Validates secondary R-10 filters on a candidate row returned by the FTS5 index.
 fn matches_filters(row: &MessageRow, filters: &SearchFilters) -> bool {
     if let Some(author) = filters.author_id.as_deref().map(str::trim) {
         if row.author.id != author {
@@ -12310,12 +12462,78 @@ fn matches_filters(row: &MessageRow, filters: &SearchFilters) -> bool {
     true
 }
 
-/// Локальный поиск по снятым фикстурам: тот же набор сообщений, что отдают
-/// `messages_page`, но по всем каналам сразу, с фильтрами R-10.
+/// Cached SQLite FTS5 index entry for a given fixture root directory.
+struct CachedFtsFixtureIndex {
+    engine: Fts5SearchEngine,
+    messages_by_id: HashMap<String, MessageRow>,
+    channels: HashMap<String, ChannelInfo>,
+    scanned: usize,
+}
+
+fn build_fixture_fts_index(root: &Path) -> Result<CachedFtsFixtureIndex, DataError> {
+    let frames = read_frames(root)?;
+    let channels = channel_index(&frames);
+    let mut channel_ids: Vec<String> = known_channels(&frames).into_iter().collect();
+    channel_ids.sort();
+
+    let mut records = Vec::new();
+    let mut messages_by_id = HashMap::new();
+    let mut scanned = 0;
+
+    for channel_id in channel_ids {
+        let rows = collect_messages(&frames, &channel_id)?;
+        scanned += rows.len();
+        for row in rows {
+            records.push(Fts5MessageRecord {
+                id: row.id.clone(),
+                channel_id: row.channel_id.clone(),
+                author_id: row.author.id.clone(),
+                content: row.content.clone(),
+            });
+            messages_by_id.insert(row.id.clone(), row);
+        }
+    }
+
+    let mut engine = Fts5SearchEngine::open_in_memory()
+        .map_err(|err| DataError::invalid_arg(format!("FTS5 init failed: {err}")))?;
+    engine
+        .index_messages(&records)
+        .map_err(|err| DataError::invalid_arg(format!("FTS5 indexing failed: {err}")))?;
+
+    Ok(CachedFtsFixtureIndex {
+        engine,
+        messages_by_id,
+        channels,
+        scanned,
+    })
+}
+
+/// Executes an indexed SQLite FTS5 search (`messages_fts` with `unicode61` tokenizer)
+/// and returns BM25-ranked results with `snippet(messages_fts, -1, '<b>', '</b>', '...', 15)`.
 ///
-/// Сортировка — время, затем id, затем канал (детерминированная при равных
-/// timestamp). `limit` — `1..=100`; курсор — id последнего результата.
-/// Нет совпадений — пустая страница с `total: 0`, это не ошибка.
+/// # Errors
+///
+/// Returns [`DataError`] if the fixture root cannot be indexed or the FTS5 query fails.
+pub fn search_messages(
+    root: &Path,
+    query: &str,
+    channel_id: Option<&str>,
+    author_id: Option<&str>,
+    limit: usize,
+    offset: usize,
+) -> Result<Vec<Fts5SearchHit>, DataError> {
+    let index = build_fixture_fts_index(root)?;
+    index
+        .engine
+        .search_messages(query, channel_id, author_id, limit, offset)
+        .map_err(|err| DataError::invalid_arg(format!("FTS5 search error: {err}")))
+}
+
+/// Local full-text message search across fixture channels backed by SQLite FTS5 (`RW51-EPIC4-T2`).
+///
+/// Replaces O(N) linear vector scanning with indexed FTS5 lookup (`messages_fts`, `unicode61`),
+/// while preserving R-10 filter semantics, deterministic sorting (`timestamp`, `id`, `channel_id`),
+/// and cursor pagination (`limit` in `1..=100`).
 pub fn search_page(
     root: &Path,
     query: &str,
@@ -12343,8 +12561,6 @@ pub fn search_page(
     {
         ensure_day(day)?;
     }
-    // Пустая строка из поля ввода — «фильтр не задан», а не «искать пустое»:
-    // иначе `authorId: ""` отдавал бы нулевой результат на пустом UI.
     let filters = SearchFilters {
         author_id: normalized(filters.author_id.as_deref()),
         channel_id: normalized(filters.channel_id.as_deref()),
@@ -12356,28 +12572,53 @@ pub fn search_page(
     };
     let limit = page_limit(limit)?;
 
-    let frames = read_frames(root)?;
-    let channels = channel_index(&frames);
+    let cached = build_fixture_fts_index(root)?;
+    let scanned = cached.scanned;
+
+    // Combine query and `filters.content` into the FTS5 query when possible.
+    let combined_fts_query = match (query.is_empty(), filters.content.as_deref()) {
+        (false, Some(extra)) => format!("{query} {extra}"),
+        (false, None) => query.to_string(),
+        (true, Some(extra)) => extra.to_string(),
+        (true, None) => String::new(),
+    };
+
+    let fts_hits = cached
+        .engine
+        .search_messages(
+            &combined_fts_query,
+            filters.channel_id.as_deref(),
+            filters.author_id.as_deref(),
+            scanned.max(100),
+            0,
+        )
+        .map_err(|err| DataError::invalid_arg(format!("FTS5 query failed: {err}")))?;
+
     let query_lower = query.to_lowercase();
-    let mut channel_ids: Vec<String> = known_channels(&frames).into_iter().collect();
-    channel_ids.sort();
-    let mut hits: Vec<SearchHit> = Vec::new();
-    let mut scanned = 0;
-    for channel_id in channel_ids {
-        let rows = collect_messages(&frames, &channel_id)?;
-        scanned += rows.len();
-        let info = channels.get(&channel_id);
-        for row in rows {
-            if !matches_query(&row, &query_lower) || !matches_filters(&row, &filters) {
-                continue;
-            }
-            hits.push(SearchHit {
-                message: row,
-                channel_name: info.and_then(|info| info.name.clone()),
-                guild_name: info.and_then(|info| info.guild_name.clone()),
-            });
+    let mut hits: Vec<SearchHit> = Vec::with_capacity(fts_hits.len());
+    for fts_hit in fts_hits {
+        let Some(row) = cached.messages_by_id.get(&fts_hit.message_id) else {
+            continue;
+        };
+        if (!query_lower.is_empty() && !row.content.to_lowercase().contains(&query_lower))
+            || !matches_filters(row, &filters)
+        {
+            continue;
         }
+        let info = cached.channels.get(&row.channel_id);
+        let snippet = if combined_fts_query.is_empty() {
+            None
+        } else {
+            Some(fts_hit.snippet)
+        };
+        hits.push(SearchHit {
+            message: row.clone(),
+            channel_name: info.and_then(|info| info.name.clone()),
+            guild_name: info.and_then(|info| info.guild_name.clone()),
+            snippet,
+        });
     }
+
     hits.sort_by(|left, right| {
         left.message
             .timestamp
@@ -13440,5 +13681,233 @@ mod dm_voice_stream_tests {
                 "broadcaster stream_token must not be wiped by duplicate voice_connect or self stream_watch"
             );
         }
+    }
+
+    #[test]
+    fn day_of_extracts_valid_iso8601_dates_and_rejects_invalid() {
+        // Valid ISO-8601 timestamps and date-only strings
+        assert_eq!(
+            day_of(Some("2026-10-19T12:34:56.789000+00:00")).as_deref(),
+            Some("2026-10-19")
+        );
+        assert_eq!(
+            day_of(Some("2026-04-19T12:00:00.000Z")).as_deref(),
+            Some("2026-04-19")
+        );
+        assert_eq!(
+            day_of(Some("2026-10-20t00:00:00z")).as_deref(),
+            Some("2026-10-20")
+        );
+        assert_eq!(
+            day_of(Some("2026-10-19T23:59:59-05:30")).as_deref(),
+            Some("2026-10-19")
+        );
+        assert_eq!(
+            day_of(Some("2026-10-19 08:30:00")).as_deref(),
+            Some("2026-10-19")
+        );
+        assert_eq!(day_of(Some("2026-10-19")).as_deref(), Some("2026-10-19"));
+        assert_eq!(day_of(Some(" 2026-10-19 ")).as_deref(), Some("2026-10-19"));
+        // Leap years: 2024 (div 4), 2000 (div 400)
+        assert_eq!(
+            day_of(Some("2024-02-29T00:00:00Z")).as_deref(),
+            Some("2024-02-29")
+        );
+        assert_eq!(day_of(Some("2000-02-29")).as_deref(), Some("2000-02-29"));
+
+        // Invalid inputs, calendar dates, and suffixes
+        assert_eq!(day_of(None), None);
+        assert_eq!(day_of(Some("")), None);
+        assert_eq!(day_of(Some("   ")), None);
+        assert_eq!(day_of(Some("nil")), None);
+        assert_eq!(day_of(Some("2026-00-10")), None);
+        assert_eq!(day_of(Some("2026-13-01T00:00:00Z")), None);
+        assert_eq!(day_of(Some("2026-04-31T00:00:00Z")), None);
+        assert_eq!(day_of(Some("2026-02-29T00:00:00Z")), None);
+        assert_eq!(day_of(Some("1900-02-29T00:00:00Z")), None);
+        assert_eq!(day_of(Some("+202-10-19T00:00:00Z")), None);
+        assert_eq!(day_of(Some("2026-10-19garbage")), None);
+        assert_eq!(day_of(Some("2026-10-19T25:00:00Z")), None);
+        assert_eq!(day_of(Some("2026-10-19T12:60:00Z")), None);
+        assert_eq!(day_of(Some("2026-10-19T12:00:00.")), None);
+        assert_eq!(day_of(Some("2026-10-19T12:00:00+25:00")), None);
+    }
+
+    #[test]
+    fn raw_guild_audit_log_dto_parses_entries_users_and_changes() {
+        let json = r#"{
+            "audit_log_entries": [
+                {
+                    "id": "1558237752917758108",
+                    "action_type": 22,
+                    "user_id": "479659568322969611",
+                    "target_id": "999888777666555444",
+                    "reason": "Spamming invites",
+                    "changes": [
+                        {
+                            "key": "nick",
+                            "old_value": "old_nick",
+                            "new_value": "new_nick"
+                        }
+                    ],
+                    "options": {
+                        "delete_member_days": "7"
+                    }
+                },
+                {
+                    "id": "1558237752917758109",
+                    "action_type": "20",
+                    "user_id": "nil",
+                    "target_id": null,
+                    "reason": "",
+                    "changes": null
+                }
+            ],
+            "users": [
+                {
+                    "id": "479659568322969611",
+                    "username": "moderator_one",
+                    "global_name": "Moderator One",
+                    "bot": false
+                }
+            ],
+            "webhooks": [{"id": "1"}],
+            "threads": null
+        }"#;
+
+        let dto: RawGuildAuditLogDto =
+            serde_json::from_str(json).expect("RawGuildAuditLogDto must deserialize");
+        assert_eq!(dto.audit_log_entries.len(), 2);
+        assert_eq!(dto.users.len(), 1);
+        assert_eq!(dto.webhooks.len(), 1);
+        assert!(dto.threads.is_empty());
+
+        let first = &dto.audit_log_entries[0];
+        assert_eq!(first.id.as_deref(), Some("1558237752917758108"));
+        assert_eq!(first.action_type, Some(22));
+        assert_eq!(first.user_id.as_deref(), Some("479659568322969611"));
+        assert_eq!(first.target_id.as_deref(), Some("999888777666555444"));
+        assert_eq!(first.reason.as_deref(), Some("Spamming invites"));
+        assert_eq!(first.changes.len(), 1);
+        assert_eq!(first.changes[0].key.as_deref(), Some("nick"));
+        assert_eq!(
+            first.changes[0].old_value.as_ref().and_then(|v| v.as_str()),
+            Some("old_nick")
+        );
+        assert_eq!(
+            first.changes[0].new_value.as_ref().and_then(|v| v.as_str()),
+            Some("new_nick")
+        );
+        assert_eq!(
+            first
+                .options
+                .as_ref()
+                .and_then(|o| o.get("delete_member_days"))
+                .and_then(|v| v.as_str()),
+            Some("7")
+        );
+        assert_eq!(
+            first.validate(Path::new("audit.json")).unwrap(),
+            ("1558237752917758108", 22)
+        );
+
+        let second = &dto.audit_log_entries[1];
+        assert_eq!(second.action_type, Some(20));
+        assert_eq!(second.user_id, None);
+        assert_eq!(second.target_id, None);
+        assert_eq!(second.reason, None);
+        assert!(second.changes.is_empty());
+
+        let actor = dto
+            .find_user("479659568322969611")
+            .expect("actor user must resolve");
+        assert_eq!(actor.username.as_deref(), Some("moderator_one"));
+        assert!(dto.find_user("000").is_none());
+    }
+
+    #[test]
+    fn audit_log_entry_dto_rejects_missing_id_or_action_type_on_validate() {
+        let missing_id: AuditLogEntryDto =
+            serde_json::from_str(r#"{"id":"nil","action_type":22}"#).unwrap();
+        assert!(missing_id.validate(Path::new("audit.json")).is_err());
+
+        let missing_action: AuditLogEntryDto =
+            serde_json::from_str(r#"{"id":"123456","action_type":999999}"#).unwrap();
+        assert_eq!(missing_action.action_type, None);
+        assert!(missing_action.validate(Path::new("audit.json")).is_err());
+    }
+
+    #[test]
+    fn channel_row_and_dto_parsed_permission_overwrites_harmonize_with_permissions_dto() {
+        let raw_channel_json = serde_json::json!({
+            "id": "1173958353802776576",
+            "name": "secret-lounge",
+            "type": 0,
+            "permission_overwrites": [
+                {
+                    "id": "1014537851418980372",
+                    "type": 0,
+                    "allow": "1024",
+                    "deny": "2048"
+                },
+                {
+                    "id": 479659568322969611u64,
+                    "type": "member",
+                    "allow": 8,
+                    "deny": 0
+                }
+            ]
+        });
+
+        let dto: RawGuildChannelDto =
+            serde_json::from_value(raw_channel_json).expect("deserialize channel dto");
+        let parsed_dto = dto.parsed_permission_overwrites();
+        assert_eq!(parsed_dto.len(), 2);
+        assert_eq!(parsed_dto[0].id, "1014537851418980372");
+        assert_eq!(parsed_dto[0].kind, crate::permissions::OverwriteKind::Role);
+        assert_eq!(parsed_dto[0].allow, 1024);
+        assert_eq!(parsed_dto[0].deny, 2048);
+        assert_eq!(parsed_dto[1].id, "479659568322969611");
+        assert_eq!(
+            parsed_dto[1].kind,
+            crate::permissions::OverwriteKind::Member
+        );
+        assert_eq!(parsed_dto[1].allow, 8);
+        assert_eq!(parsed_dto[1].deny, 0);
+
+        let row = dto
+            .into_channel_row(
+                Some("1014537851418980372"),
+                Path::new("fixture.json"),
+                "channels[0]",
+            )
+            .expect("valid channel row");
+        let parsed_row = row.parsed_permission_overwrites();
+        assert_eq!(parsed_row, parsed_dto);
+    }
+
+    #[test]
+    fn fts5_search_messages_and_search_page_highlight_snippets() {
+        let Ok(root) = fixtures_root() else {
+            return;
+        };
+        if !root.exists() {
+            return;
+        }
+        let hits = search_messages(&root, "call of duty", None, None, 10, 0)
+            .expect("fts5 search_messages");
+        assert_eq!(hits.len(), 1);
+        assert!(hits[0].snippet.contains("<b>"));
+        assert!(hits[0].snippet.contains("</b>"));
+
+        let page = search_page(&root, "call of duty", &SearchFilters::default(), None, None)
+            .expect("fts5 search_page");
+        assert_eq!(page.total, 1);
+        assert!(
+            page.items[0]
+                .snippet
+                .as_deref()
+                .is_some_and(|s| s.contains("<b>") && s.contains("</b>"))
+        );
     }
 }

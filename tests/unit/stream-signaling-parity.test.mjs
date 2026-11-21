@@ -182,7 +182,7 @@ describe("TASK-761: Gateway OP 4 VOICE_STATE_UPDATE self_stream flag", () => {
 });
 
 describe("TASK-778: Gateway OP 18/19/22 & Voice OP 1 SELECT_PROTOCOL Source Parity", () => {
-  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs"), "utf8");
+  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs"), "utf8");
   const mainRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/main.rs"), "utf8");
 
   it("T778-1: queue_live_stream_delete in ws.rs clears LAST_STREAM_KEY for instant stream restart", () => {
@@ -280,9 +280,12 @@ describe("TASK-778: Gateway OP 18/19/22 & Voice OP 1 SELECT_PROTOCOL Source Pari
       /16\s*=>\s*\{[\s\S]{0,600}?VOICE_BACKEND_VERSION[\s\S]{0,600}?build_voice_v8_heartbeat_op3\(/,
       "run_rtc_task in ws.rs must handle incoming Voice Opcode 16 and respond with OP 3 heartbeat/ping",
     );
+    const callbackStart = wsRs.indexOf('"video_callback" => {');
+    const callbackEnd = wsRs.indexOf('"error" => {', callbackStart);
+    assert.ok(callbackStart > 0 && callbackEnd > callbackStart, "video_callback arm must exist");
     assert.match(
-      wsRs,
-      /"video_callback"\s*=>\s*\{[\s\S]{0,1600}?build_voice_v8_video_op12\(/,
+      wsRs.slice(callbackStart, callbackEnd),
+      /build_voice_v8_video_op12\(/,
       "run_rtc_task in ws.rs must emit OP 12 VIDEO with video_ssrc and rtx_ssrc on native video_callback",
     );
   });

@@ -13,6 +13,18 @@
  * @module ui/features/composer-autocomplete
  */
 
+import {
+  computePosition,
+  flip,
+  shift,
+  offset,
+  autoUpdate,
+} from "@floating-ui/dom";
+import { computeFloatingPosition } from "./floating-popover.js";
+
+/** Флаг интеграции с `@floating-ui/dom`. */
+export const isFloatingUiDomPowered = true;
+
 /**
  * Максимальное число подсказок в выпадающем списке автодополнения.
  */
@@ -28,18 +40,41 @@ export const AUTOCOMPLETE_KINDS = Object.freeze({
   SLASH: "/",
 });
 
+/** Префикс триггера эмодзи-шорткодов. */
+export const EMOJI_AUTOCOMPLETE_PREFIX = ":";
+
 /**
  * Русские заголовки секций автодополнения по типу триггера.
- * @type {Readonly<{ slash: string, user: string, channel: string }>}
+ * @type {Readonly<{ slash: string, user: string, channel: string, emoji: string }>}
  */
 export const AUTOCOMPLETE_HEADERS_RU = Object.freeze({
   slash: "КОМАНДЫ",
   user: "УЧАСТНИКИ И РОЛИ",
   channel: "ТЕКСТОВЫЕ КАНАЛЫ",
+  emoji: "ЭМОДЗИ",
 });
 
 /**
- * @typedef {"slash" | "user" | "channel"} AutocompleteTriggerKind
+ * Базовый каталог эмодзи-шорткодов для автодополнения `:emoji`.
+ * @type {ReadonlyArray<{ name: string, unicode: string, keywords: readonly string[] }>}
+ */
+export const DEFAULT_AUTOCOMPLETE_EMOJIS = Object.freeze([
+  { name: "smile", unicode: "😄", keywords: ["happy", "joy", "улыбка"] },
+  { name: "grin", unicode: "😁", keywords: ["smile", "happy"] },
+  { name: "joy", unicode: "😂", keywords: ["laugh", "tears", "смех"] },
+  { name: "heart", unicode: "❤️", keywords: ["love", "сердце"] },
+  { name: "fire", unicode: "🔥", keywords: ["lit", "hot", "огонь"] },
+  { name: "rocket", unicode: "🚀", keywords: ["launch", "ship", "ракета"] },
+  { name: "thumbsup", unicode: "👍", keywords: ["ok", "yes", "лайк"] },
+  { name: "tada", unicode: "🎉", keywords: ["party", "celebrate", "праздник"] },
+  { name: "thinking", unicode: "🤔", keywords: ["think", "hmm", "думаю"] },
+  { name: "eyes", unicode: "👀", keywords: ["look", "see", "глаза"] },
+  { name: "100", unicode: "💯", keywords: ["hundred", "perfect"] },
+  { name: "sparkles", unicode: "✨", keywords: ["magic", "stars"] },
+]);
+
+/**
+ * @typedef {"slash" | "user" | "channel" | "emoji"} AutocompleteTriggerKind
  */
 
 /**
@@ -90,12 +125,21 @@ export const AUTOCOMPLETE_HEADERS_RU = Object.freeze({
  * @property {ReadonlyArray<any>} [users]
  * @property {ReadonlyArray<any>} [channels]
  * @property {ReadonlyArray<any>} [commands]
+ * @property {ReadonlyArray<any>} [emojis]
  */
 
 /**
  * @typedef {object} ComposerAutocompleteControllerOptions
  * @property {any} container
+ * @property {any} [anchor]
+ * @property {any} [referenceEl]
+ * @property {"top" | "top-start" | "top-end" | "bottom" | "bottom-start" | "bottom-end"} [placement]
+ * @property {number} [offset]
  * @property {(payload: InsertReplacementPayload) => void} [onInsertReplacement]
+ * @property {any} [users]
+ * @property {any} [channels]
+ * @property {any} [commands]
+ * @property {any} [emojis]
  */
 
 /**
@@ -148,6 +192,17 @@ export function detectAutocompleteTrigger(text, cursorIndex) {
     const startIndex = beforeCursor.length - prefix.length - query.length;
     return {
       kind: prefix === AUTOCOMPLETE_KINDS.USER ? "user" : "channel",
+      query,
+      startIndex,
+    };
+  }
+
+  const emojiMatch = /(?:^|\s):([a-z0-9_+-]*)$/i.exec(beforeCursor);
+  if (emojiMatch !== null && emojiMatch[1] !== undefined) {
+    const query = emojiMatch[1];
+    const startIndex = beforeCursor.length - 1 - query.length;
+    return {
+      kind: "emoji",
       query,
       startIndex,
     };
@@ -208,7 +263,7 @@ function replaceElementChildren(targetEl, nodes) {
  * Фильтрует список кандидатов под активный триггер и ограничивает длину `AUTOCOMPLETE_MAX_SUGGESTIONS`.
  *
  * @param {AutocompleteTrigger} trigger
- * @param {{ users?: ReadonlyArray<any>, channels?: ReadonlyArray<any>, commands?: ReadonlyArray<any> }} sources
+ * @param {{ users?: ReadonlyArray<any>, channels?: ReadonlyArray<any>, commands?: ReadonlyArray<any>, emojis?: ReadonlyArray<any> }} sources
  * @returns {any[]}
  */
 function filterSuggestions(trigger, sources) {
@@ -236,6 +291,23 @@ function filterSuggestions(trigger, sources) {
         return fields.some(
           (val) => typeof val === "string" && val.toLowerCase().includes(needle),
         );
+      })
+      .slice(0, AUTOCOMPLETE_MAX_SUGGESTIONS);
+  }
+
+  if (trigger.kind === "emoji") {
+    const list = Array.isArray(sources.emojis) ? sources.emojis : DEFAULT_AUTOCOMPLETE_EMOJIS;
+    return list
+      .filter((item) => {
+        if (!item || typeof item !== "object") return false;
+        const name = String(item.name ?? item.shortcode ?? item.id ?? "").toLowerCase();
+        if (name.length > 0 && name.includes(needle)) return true;
+        if (Array.isArray(item.keywords)) {
+          return item.keywords.some(
+            (/** @type {any} */ kw) => typeof kw === "string" && kw.toLowerCase().includes(needle),
+          );
+        }
+        return false;
       })
       .slice(0, AUTOCOMPLETE_MAX_SUGGESTIONS);
   }
@@ -268,6 +340,11 @@ function formatOptionLabel(kind, item) {
   if (kind === "channel") {
     return `#${String(item.name ?? item.id ?? "")}`;
   }
+  if (kind === "emoji") {
+    const shortcode = String(item.name ?? item.shortcode ?? item.id ?? "").replace(/^:+|:+$/g, "");
+    const glyph = String(item.unicode ?? item.emoji ?? item.char ?? "").trim();
+    return glyph ? `${glyph} :${shortcode}:` : `:${shortcode}:`;
+  }
   const primary = String(item.displayName ?? item.globalName ?? item.name ?? item.username ?? item.id ?? "");
   const secondary = typeof item.username === "string" && item.username !== primary ? ` (@${item.username})` : "";
   return `@${primary}${secondary}`;
@@ -287,8 +364,78 @@ function buildReplacementToken(kind, item) {
   if (kind === "channel") {
     return `<#${String(item.id ?? "")}>`;
   }
+  if (kind === "emoji") {
+    const glyph = String(item.unicode ?? item.emoji ?? item.char ?? "").trim();
+    if (glyph) return `${glyph} `;
+    const shortcode = String(item.name ?? item.shortcode ?? item.id ?? "").replace(/^:+|:+$/g, "");
+    if (item.id && item.custom) return `<:${shortcode}:${String(item.id)}> `;
+    return `:${shortcode}: `;
+  }
   const cmdName = String(item.name ?? item.command ?? "").replace(/^\/+/, "");
   return `/${cmdName} `;
+}
+
+/**
+ * Позиционирует всплывающий список автодополнения относительно элемента ввода через `@floating-ui/dom`
+ * (`computePosition`, `offset`, `flip`, `shift`) с безопасным фоллбэком для headless-окружения Node.
+ *
+ * @param {any} anchorEl
+ * @param {any} floatingEl
+ * @param {{
+ *   placement?: "top" | "top-start" | "top-end" | "bottom" | "bottom-start" | "bottom-end",
+ *   offset?: number,
+ *   padding?: number,
+ * }} [options]
+ * @returns {Promise<{ x: number, y: number, placement: string }>}
+ */
+export async function positionAutocompletePopover(anchorEl, floatingEl, options = {}) {
+  const placement = options.placement || "top-start";
+  const gap = Number.isFinite(Number(options.offset)) ? Number(options.offset) : 8;
+  const padding = Number.isFinite(Number(options.padding)) ? Number(options.padding) : 8;
+
+  /** @type {{ x: number, y: number, placement: string }} */
+  let result;
+
+  if (
+    typeof window !== "undefined" &&
+    anchorEl &&
+    floatingEl &&
+    typeof anchorEl.getBoundingClientRect === "function" &&
+    typeof floatingEl.getBoundingClientRect === "function"
+  ) {
+    const pos = await computePosition(anchorEl, floatingEl, {
+      placement,
+      strategy: "fixed",
+      middleware: [offset(gap), flip(), shift({ padding })],
+    });
+    result = { x: pos.x, y: pos.y, placement: pos.placement };
+  } else {
+    const refRect =
+      typeof anchorEl?.getBoundingClientRect === "function"
+        ? anchorEl.getBoundingClientRect()
+        : { x: 0, y: 0, width: 400, height: 44 };
+    const flRect =
+      typeof floatingEl?.getBoundingClientRect === "function"
+        ? floatingEl.getBoundingClientRect()
+        : { width: 280, height: 180 };
+    result = computeFloatingPosition(refRect, flRect, {
+      placement,
+      offset: gap,
+      padding,
+    });
+  }
+
+  if (floatingEl?.style) {
+    floatingEl.style.position = "fixed";
+    floatingEl.style.left = `${Math.round(result.x)}px`;
+    floatingEl.style.top = `${Math.round(result.y)}px`;
+    floatingEl.style.zIndex = "1000";
+  }
+  if (typeof floatingEl?.setAttribute === "function") {
+    floatingEl.setAttribute("data-placement", result.placement);
+  }
+
+  return result;
 }
 
 /**
@@ -302,6 +449,9 @@ export function createComposerAutocompleteController(options) {
   }
 
   const { container, onInsertReplacement } = options;
+  const anchorEl = options.anchor ?? options.referenceEl ?? null;
+  const placement = options.placement ?? "top-start";
+  const offsetGap = options.offset ?? 8;
   const doc = resolveDocument(container);
 
   /** @type {AutocompleteTrigger | null} */
@@ -314,11 +464,25 @@ export function createComposerAutocompleteController(options) {
   let currentItems = [];
   /** @type {number} */
   let activeIndex = 0;
+  /** @type {(() => void) | null} */
+  let stopAutoUpdate = null;
+
+  function cleanupPositioning() {
+    if (typeof stopAutoUpdate === "function") {
+      try {
+        stopAutoUpdate();
+      } catch {
+        // ignore cleanup error
+      }
+      stopAutoUpdate = null;
+    }
+  }
 
   /**
    * Закрывает всплывающее окно автодополнения и очищает DOM-контейнер.
    */
   function close() {
+    cleanupPositioning();
     currentTrigger = null;
     currentItems = [];
     activeIndex = 0;
@@ -361,6 +525,23 @@ export function createComposerAutocompleteController(options) {
     });
 
     replaceElementChildren(container, [listbox]);
+
+    if (anchorEl) {
+      const updatePos = () => {
+        void positionAutocompletePopover(anchorEl, container, {
+          placement,
+          offset: offsetGap,
+        });
+      };
+      updatePos();
+      if (!stopAutoUpdate && typeof window !== "undefined" && typeof autoUpdate === "function") {
+        try {
+          stopAutoUpdate = autoUpdate(anchorEl, container, updatePos);
+        } catch {
+          stopAutoUpdate = null;
+        }
+      }
+    }
   }
 
   /**
@@ -387,9 +568,10 @@ export function createComposerAutocompleteController(options) {
     }
 
     const filtered = filterSuggestions(trigger, {
-      users: params.users,
-      channels: params.channels,
-      commands: params.commands,
+      users: params.users ?? options.users,
+      channels: params.channels ?? options.channels,
+      commands: params.commands ?? options.commands,
+      emojis: params.emojis ?? options.emojis,
     });
 
     if (filtered.length === 0) {
@@ -457,5 +639,14 @@ export function createComposerAutocompleteController(options) {
     moveSelection,
     confirmSelection,
     close,
+    isOpen() {
+      return currentTrigger !== null && currentItems.length > 0;
+    },
+    getActiveIndex() {
+      return activeIndex;
+    },
+    getTrigger() {
+      return currentTrigger;
+    },
   };
 }

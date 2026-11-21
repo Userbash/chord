@@ -159,3 +159,13 @@ The following practices are invalid and will result in rejected pull requests:
 7. **Recovery & Reconnection:** Gateway Resume (Opcode 6) → Identify (Opcode 2), voice stream reconnection, corrupt store fallback.
 8. **Backward & Forward Compatibility:** Schema migrations, parsing historical format variations.
 9. **Observability & Diagnostics:** Telemetry logging, error stacks, token redacting (`mfa.[REDACTED]`).
+
+---
+
+## 14. Modularization & Sub-Controller Verification Mandate
+
+When decomposing monolithic files (`app.js`, `voice.js`, `settings.js`) into modular sub-controllers (`ui/features/*.js`):
+1. **Zero-Crash Interaction Contract:** Every user interaction handler (clicks, keybinds, media toggles) must be tested for unhandled exceptions (`TypeError`, `ReferenceError`). Mocks must include all properties accessed on `ctx`.
+2. **Meta Wiring Gates:** Any new modular sub-controller must register its required dependencies and invariants in `tests/meta/modular-wiring-contract.test.mjs`.
+3. **No Phantom Early Returns:** UI render functions must test that container elements (e.g. `#voice-panel`) are populated when the container exists in DOM, and verify that missing non-critical dependencies do not abort rendering.
+4. **Behavioral Invariant Preservation:** Existing static assertions in regression suites (e.g. `tests/unit/stream-pip-minimize-channel-switch-task806.test.mjs`) must remain valid; hoisting or renaming variables must preserve public interfaces and test contracts.

@@ -35,7 +35,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 pub use chord_client::rest_failure;
 
 #[path = "../src/gifts.rs"]

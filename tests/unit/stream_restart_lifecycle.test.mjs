@@ -12,7 +12,13 @@ const REPO_ROOT = path.resolve(__dirname, "../..");
 describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
   const dataRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/data.rs"), "utf8");
   const mainRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/main.rs"), "utf8");
-  const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
+  const appJs = [
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-renderer.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer-controls.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stream-controller.js"), "utf8"),
+  ].join("\n");
 
   it("SR1: data.rs defines reset_live_stream_state clearing stream tokens and stopping RTC", () => {
     assert.match(
@@ -27,7 +33,7 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
     );
     assert.match(
       dataRs,
-      /discord_core::ws::stop_live_stream_rtc_session\(\)/,
+      /chord_core::ws::stop_live_stream_rtc_session\(\)/,
       "reset_live_stream_state must call stop_live_stream_rtc_session()",
     );
   });
@@ -35,7 +41,7 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
   it("SR2: voice_stream_start and voice_stream_stop invoke data::reset_live_stream_state", () => {
     const startIdx = mainRs.indexOf("async fn voice_stream_start");
     assert.ok(startIdx > 0, "voice_stream_start must exist in main.rs");
-    const startBody = mainRs.slice(startIdx, startIdx + 1800);
+    const startBody = mainRs.slice(startIdx, mainRs.indexOf("\n}", startIdx) + 2);
     assert.match(
       startBody,
       /data::reset_live_stream_state\(\)/,
@@ -44,7 +50,7 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
 
     const stopIdx = mainRs.indexOf("async fn voice_stream_stop");
     assert.ok(stopIdx > 0, "voice_stream_stop must exist in main.rs");
-    const stopBody = mainRs.slice(stopIdx, stopIdx + 1800);
+    const stopBody = mainRs.slice(stopIdx, mainRs.indexOf("\n}", stopIdx) + 2);
     assert.match(
       stopBody,
       /data::reset_live_stream_state\(\)/,
@@ -55,7 +61,7 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
   it("SR3: voice_disconnect tears down active stream via delete queue and resets state", () => {
     const disconnIdx = mainRs.indexOf("async fn voice_disconnect");
     assert.ok(disconnIdx > 0, "voice_disconnect must exist in main.rs");
-    const disconnBody = mainRs.slice(disconnIdx, disconnIdx + 1000);
+    const disconnBody = mainRs.slice(disconnIdx, mainRs.indexOf("\n}", disconnIdx) + 2);
     assert.match(
       disconnBody,
       /queue_live_stream_delete/,
@@ -85,15 +91,15 @@ describe("Stream Restart Lifecycle & Broadcaster Teardown Contracts", () => {
     );
     assert.match(
       appJs,
-      /stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(true\);/,
+      /stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(true\);/,
       "stopStageBtn must invoke closeStageViewer(true) to stop stream",
     );
     assert.match(
       appJs,
-      /closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(false\);/,
+      /closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(false\);/,
       "closeStageBtn for broadcaster must invoke closeStageViewer(false) to minimize into PIP",
     );
-    const viewerClosePattern = /if\s*\(isSelfStream\)\s*\{[\s\S]*?if\s*\(stopStream\s*&&\s*activeVoiceConnection\)[\s\S]*?invoke\("voice_stream_stop"/;
+    const viewerClosePattern = /if\s*\(isSelfStream\)\s*\{[\s\S]*?if\s*\(stopStream\s*&&\s*(?:activeVoiceConnection|activeConn)\)[\s\S]*?(?:ctx\.)?invoke\("voice_stream_stop"/;
     assert.match(
       appJs,
       viewerClosePattern,

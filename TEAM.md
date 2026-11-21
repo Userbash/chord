@@ -40,13 +40,19 @@ Each worker is an independent specialist responsible strictly for their assigned
 
 ## 3. Agent Routing and Model Policy
 
-### 3.1. Prohibition of `codex`
-- Codex limits are exhausted: launching workers with `--agent codex` is strictly prohibited under all circumstances.
+### 3.1. Prohibition of `codex` and `deepseek`
+- Launching workers with `--agent codex` or `deepseek`/`opencode` is strictly prohibited under all circumstances.
 
-### 3.2. Gemini Model Line (`--agent antigravity`)
-- **`gemini-4-carbon-high` (`--effort high` / `xhigh`):** Reserved for P0 core challenges (zero-copy ring buffers, DAVE MLS v1 cryptography, AppState Tokio<->GPUI async bridge).
-- **`gemini-4-argon-high` / `medium`:** Standard for validation, code reviews, QA mutation testing, and standard BFF REST services.
-- **`gemini-3.8-flash-high` / `medium` / `low`:** For UI components, layout styling, preferences modals, system tray, and documentation sync.
+### 3.2. Complexity-First Gemini Model & Effort Matrix (`--agent antigravity`)
+Queue priority (`P0–P3`) determines **execution order only**. Model and `--effort` are selected strictly by **technical complexity (`Tier S–XL`)** and **agent role (Worker vs Orchestrator)**:
+- **Tier S — Routine Code (`gemini-4-hydrogen-low`, `--effort low`, max `medium`):** Routine single-step code changes, CI/config tweaks (`H-FIX-17`), one-line switches (`P0-1.1`), packaging manifests (`TASK-1015A`/`1016*`), and mock cleanup (`P2-3.2`).
+- **Tier S — Design & Docs (`gemini-3.8-flash-low`, `--effort low`):** Design specs & tokens (`G3`) and documentation/parity matrices (`G6`).
+- **Tier M — Routine Adapters (`gemini-4-hydrogen-medium`, `--effort medium`, allowed `low`/`medium`):** Repetitive boilerplate adapters, module splits (`P2-3.1`), HTTP header/locale utilities (`P2-1.1`), and local fixture/smoke tooling (`G0`).
+- **Tier M — UI & Light Infra (`gemini-3.8-flash-medium` / `flash-high` `--effort medium`, `gemini-4-argon-low` `--effort low`):** UI components, modals, settings (`G2`), PM acceptance checklists (`ACCEPT.md`), DevOps scripts, and lightweight `P2/P3` D-Bus/IPC helpers.
+- **Tier L (`gemini-4-argon-medium` `--effort medium` / `gemini-4-argon-high` `--effort high`):** `argon-medium` for standard BFF REST services, Voice/Platform session wiring, and QA contract tests; `argon-high` for complex Gateway/WS state machines, technical mutation reviews (`5/5`), and `G7 RE` protocol tracing.
+- **Tier XL (`gemini-4-carbon-high`, `--effort high`; `xhigh` only on architectural escalation):** Exclusively for zero-copy ring buffers, DAVE MLS v1 / SRTP / AES-GCM cryptography, and the `AppState` Tokio<->GPUI async bridge.
+- **Orchestrator (Argon) (`gemini-pro-orchestrator-argon`, `--effort medium`, allowed `low`/`medium`/`high`):** Wave Coordinator / Team Lead (`orchestrator_argon`) — queue dispatch (`P0–P3`), write-scope isolation, 1-to-1 slot rotation, and branch integration.
+- **Orchestrator (Carbon) (`gemini-pro-orchestrator`, `--effort high`, allowed `medium`/`high`/`xhigh`):** Chief Architect & Escalation Lead (`orchestrator_carbon`) — system architecture, cross-module contracts, conflict/escalation arbitration, and XL gate sign-off.
 
 ### 3.3. Worker Spawning via Orca CLI
 All workers operate in isolated Orca worktrees branched from `unstable` and are launched via `orca orchestration worker-start`:
@@ -58,13 +64,13 @@ orca worktree create \
   --base-branch unstable \
   --branch feature/task-123-voice-mixer
 
-# 2. Launch worker terminal
+# 2. Launch worker terminal with complexity-appropriate model & effort
 orca orchestration worker-start \
   --run run_a9411d4ae3c4 \
   --worktree branch:feature/task-123-voice-mixer \
   --agent antigravity \
-  --model gemini-4-argon-high \
-  --effort high
+  --model gemini-4-argon-medium \
+  --effort medium
 ```
 
 ---

@@ -1,12 +1,1175 @@
-use crate::state::AppState;
+use crate::state::{AppState, MessageAttachment};
 use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;
+use chord_core::rest::client::{
+    AttachmentUploadError, AttachmentUploadSlot, MAX_ATTACHMENT_SIZE_BYTES,
+    MAX_ATTACHMENTS_PER_MESSAGE, MultipartUploadFile, PendingAttachmentSpec,
+    sanitize_attachment_filename,
+};
 use gpui::*;
 use gpui_kit::component::StyledExt;
+use std::sync::{Mutex, OnceLock};
+
+/// Фаза жизненного цикла прикреплённого файла в композере чата (`P2-2.2`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub enum AttachmentUploadPhase {
+    #[default]
+    Pending,
+    Uploading,
+    Ready,
+    Failed(String),
+}
+
+/// Прикреплённый файл в очереди отправки сообщения (`ChatView`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StagedAttachment {
+    pub id: u64,
+    pub filename: String,
+    pub content_type: String,
+    pub size_bytes: u64,
+    pub bytes: Vec<u8>,
+    pub phase: AttachmentUploadPhase,
+    pub upload_url: Option<String>,
+    pub uploaded_filename: Option<String>,
+}
+
+/// Состояние панели прикреплённых файлов композера (`<= 10` файлов, каждый `<= 25 MiB`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct AttachmentComposerState {
+    pub staged: Vec<StagedAttachment>,
+    pub next_id: u64,
+    pub error_banner: Option<String>,
+    pub is_uploading: bool,
+}
+
+#[allow(dead_code)]
+impl AttachmentComposerState {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn stage_file(
+        &mut self,
+        filename: &str,
+        content_type: &str,
+        bytes: Vec<u8>,
+    ) -> Result<u64, AttachmentUploadError> {
+        let size_bytes = bytes.len() as u64;
+        self.stage_file_with_size(filename, content_type, size_bytes, bytes)
+    }
+
+    pub fn stage_file_with_size(
+        &mut self,
+        filename: &str,
+        content_type: &str,
+        size_bytes: u64,
+        bytes: Vec<u8>,
+    ) -> Result<u64, AttachmentUploadError> {
+        if self.staged.len() >= MAX_ATTACHMENTS_PER_MESSAGE {
+            let err = AttachmentUploadError::AttachmentLimitExceeded;
+            self.error_banner = Some(err.to_string());
+            return Err(err);
+        }
+        let clean_name = match sanitize_attachment_filename(filename) {
+            Ok(name) => name,
+            Err(err) => {
+                self.error_banner = Some(err.to_string());
+                return Err(err);
+            }
+        };
+        if size_bytes == 0 || size_bytes > MAX_ATTACHMENT_SIZE_BYTES as u64 {
+            let err = AttachmentUploadError::AttachmentTooLarge {
+                size: size_bytes,
+                limit: MAX_ATTACHMENT_SIZE_BYTES as u64,
+            };
+            self.error_banner = Some(err.to_string());
+            return Err(err);
+        }
+
+        let id = self.next_id;
+        self.next_id += 1;
+        self.error_banner = None;
+        self.staged.push(StagedAttachment {
+            id,
+            filename: clean_name,
+            content_type: if content_type.trim().is_empty() {
+                "application/octet-stream".to_string()
+            } else {
+                content_type.trim().to_string()
+            },
+            size_bytes,
+            bytes,
+            phase: AttachmentUploadPhase::Pending,
+            upload_url: None,
+            uploaded_filename: None,
+        });
+        Ok(id)
+    }
+
+    pub fn remove_by_id(&mut self, id: u64) -> Option<StagedAttachment> {
+        let pos = self.staged.iter().position(|item| item.id == id)?;
+        let removed = self.staged.remove(pos);
+        if self.staged.len() < MAX_ATTACHMENTS_PER_MESSAGE {
+            self.error_banner = None;
+        }
+        Some(removed)
+    }
+
+    pub fn remove_at(&mut self, index: usize) -> Option<StagedAttachment> {
+        if index >= self.staged.len() {
+            return None;
+        }
+        let removed = self.staged.remove(index);
+        if self.staged.len() < MAX_ATTACHMENTS_PER_MESSAGE {
+            self.error_banner = None;
+        }
+        Some(removed)
+    }
+
+    pub fn clear(&mut self) {
+        self.staged.clear();
+        self.error_banner = None;
+        self.is_uploading = false;
+    }
+
+    #[must_use]
+    pub fn count(&self) -> usize {
+        self.staged.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.staged.is_empty()
+    }
+
+    #[must_use]
+    pub fn total_bytes(&self) -> u64 {
+        self.staged.iter().map(|item| item.size_bytes).sum()
+    }
+
+    #[must_use]
+    pub fn can_send(&self, draft_text: &str) -> bool {
+        (!draft_text.trim().is_empty() || !self.staged.is_empty()) && !self.is_uploading
+    }
+
+    pub fn mark_uploading(&mut self) {
+        self.is_uploading = true;
+        self.error_banner = None;
+        for item in &mut self.staged {
+            item.phase = AttachmentUploadPhase::Uploading;
+        }
+    }
+
+    pub fn mark_slots_ready(&mut self, slots: &[AttachmentUploadSlot]) {
+        for slot in slots {
+            if let Some(item) = self.staged.iter_mut().find(|a| a.id == slot.id) {
+                item.phase = AttachmentUploadPhase::Ready;
+                item.upload_url = Some(slot.upload_url.clone());
+                item.uploaded_filename = Some(slot.upload_filename.clone());
+            }
+        }
+    }
+
+    pub fn complete_send_success(&mut self) -> Vec<StagedAttachment> {
+        self.is_uploading = false;
+        self.error_banner = None;
+        std::mem::take(&mut self.staged)
+    }
+
+    pub fn handle_send_error(&mut self, error: &AttachmentUploadError) {
+        self.is_uploading = false;
+        let msg = error.to_string();
+        self.error_banner = Some(msg.clone());
+        for item in &mut self.staged {
+            item.phase = AttachmentUploadPhase::Failed(msg.clone());
+        }
+    }
+
+    pub fn retry_failed(&mut self) -> bool {
+        let mut had_failed = false;
+        for item in &mut self.staged {
+            if matches!(item.phase, AttachmentUploadPhase::Failed(_)) {
+                item.phase = AttachmentUploadPhase::Pending;
+                had_failed = true;
+            }
+        }
+        if had_failed {
+            self.error_banner = None;
+        }
+        had_failed
+    }
+
+    #[must_use]
+    pub fn to_pending_specs(&self) -> Vec<PendingAttachmentSpec> {
+        self.staged
+            .iter()
+            .map(|item| PendingAttachmentSpec {
+                filename: item.filename.clone(),
+                file_size: item.size_bytes,
+                content_type: item.content_type.clone(),
+                id: item.id,
+            })
+            .collect()
+    }
+
+    #[must_use]
+    pub fn to_multipart_files(&self) -> Vec<MultipartUploadFile> {
+        self.staged
+            .iter()
+            .enumerate()
+            .map(|(idx, item)| MultipartUploadFile {
+                field_index: idx,
+                filename: item.filename.clone(),
+                content_type: item.content_type.clone(),
+                bytes: item.bytes.clone(),
+            })
+            .collect()
+    }
+
+    #[must_use]
+    pub fn format_byte_size(bytes: u64) -> String {
+        const KIB: f64 = 1024.0;
+        const MIB: f64 = 1024.0 * 1024.0;
+        if bytes >= 1024 * 1024 {
+            format!("{:.1} MB", (bytes as f64) / MIB)
+        } else if bytes >= 1024 {
+            format!("{:.1} KB", (bytes as f64) / KIB)
+        } else {
+            format!("{bytes} B")
+        }
+    }
+}
+
+fn global_composer_state() -> &'static Mutex<AttachmentComposerState> {
+    static STATE: OnceLock<Mutex<AttachmentComposerState>> = OnceLock::new();
+    STATE.get_or_init(|| Mutex::new(AttachmentComposerState::new()))
+}
+
+/// Состояние загрузки истории сообщений канала (`GET /channels/{id}/messages?limit=50`) в `ChatView` (`W4-2`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub enum ChannelHistoryLoadState {
+    #[default]
+    Idle,
+    Loading {
+        channel_id: String,
+        before: Option<String>,
+        limit: u32,
+    },
+    Loaded {
+        channel_id: String,
+        count: usize,
+        has_more: bool,
+    },
+    Empty {
+        channel_id: String,
+    },
+    Error {
+        channel_id: String,
+        error: String,
+        status_code: Option<u16>,
+        retry_after_ms: Option<u64>,
+    },
+}
+
+/// Фаза оптимистичной отправки сообщения (`POST /channels/{id}/messages`) с отслеживанием `nonce` (`W4-2`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum OptimisticSendPhase {
+    Pending,
+    Confirmed {
+        message_id: String,
+    },
+    Failed {
+        error: String,
+        status_code: Option<u16>,
+        retry_after_ms: Option<u64>,
+    },
+}
+
+/// Активная ссылка на цитируемое сообщение (`message_reference`) в композере канала (`W4-2`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReplyTargetSpec {
+    pub channel_id: String,
+    pub message_id: String,
+    pub author_name: String,
+}
+
+/// Запись оптимистичного исходящего сообщения для сопоставления по `nonce` и повтора при сбое (`W4-2`).
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PendingOutboundMessage {
+    pub nonce: String,
+    pub optimistic_id: String,
+    pub channel_id: String,
+    pub content: String,
+    pub reply_to_message_id: Option<String>,
+    pub staged_attachments: Vec<StagedAttachment>,
+    pub phase: OptimisticSendPhase,
+}
+
+#[derive(Debug, Default)]
+struct ChatRestControllerState {
+    history_states: std::collections::HashMap<String, ChannelHistoryLoadState>,
+    reply_targets: std::collections::HashMap<String, ReplyTargetSpec>,
+    outbound_by_nonce: std::collections::HashMap<String, PendingOutboundMessage>,
+    nonce_counter: u64,
+}
+
+fn global_chat_rest_controller_state() -> &'static Mutex<ChatRestControllerState> {
+    static STATE: OnceLock<Mutex<ChatRestControllerState>> = OnceLock::new();
+    STATE.get_or_init(|| Mutex::new(ChatRestControllerState::default()))
+}
 
 pub struct ChatView;
 
+#[allow(dead_code)]
 impl ChatView {
+    /// Сбросить состояние контроллера `ChatView` (композер вложений, состояния истории каналов,
+    /// цели ответов и очередь оптимистичных `nonce`).
+    pub fn reset_controller_state() {
+        {
+            let mut guard = global_composer_state().lock().expect("composer lock");
+            guard.clear();
+            guard.next_id = 0;
+        }
+        {
+            let mut ctrl = global_chat_rest_controller_state()
+                .lock()
+                .expect("chat rest controller lock");
+            ctrl.history_states.clear();
+            ctrl.reply_targets.clear();
+            ctrl.outbound_by_nonce.clear();
+            ctrl.nonce_counter = 0;
+        }
+    }
+
+    /// Получить текущее состояние загрузки истории канала (`Idle` / `Loading` / `Loaded` / `Empty` / `Error`).
+    #[must_use]
+    pub fn channel_history_state(channel_id: &str) -> ChannelHistoryLoadState {
+        global_chat_rest_controller_state()
+            .lock()
+            .expect("chat rest controller lock")
+            .history_states
+            .get(channel_id.trim())
+            .cloned()
+            .unwrap_or(ChannelHistoryLoadState::Idle)
+    }
+
+    /// Начать переключение канала в `ChatView`: переводит канал в `ChannelHistoryLoadState::Loading` (`limit=50`).
+    pub fn begin_channel_switch(state: &mut AppState, channel_id: &str) {
+        let clean = channel_id.trim().to_string();
+        state.selected_channel_id = Some(clean.clone());
+        let mut ctrl = global_chat_rest_controller_state()
+            .lock()
+            .expect("chat rest controller lock");
+        ctrl.history_states.insert(
+            clean.clone(),
+            ChannelHistoryLoadState::Loading {
+                channel_id: clean,
+                before: None,
+                limit: Self::PAGINATION_LIMIT,
+            },
+        );
+    }
+
+    /// Переключить активный канал и загрузить начальную страницу истории (`GET /channels/{id}/messages?limit=50`)
+    /// с переходом `Loading -> Loaded | Empty | Error`.
+    pub async fn switch_channel_with_transport<T: crate::net::RestTransport + ?Sized>(
+        state: &mut AppState,
+        transport: &T,
+        pool: &crate::net::Http2ConnectionPool,
+        pool_config: &crate::net::Http2PoolConfig,
+        token: &str,
+        channel_id: &str,
+    ) -> Result<ChannelHistoryLoadState, chord_core::rest::client::ChatRestError> {
+        let clean_channel = channel_id.trim().to_string();
+        Self::begin_channel_switch(state, &clean_channel);
+
+        let real_channel_id = if clean_channel.starts_with("dm-") {
+            let recipient = clean_channel.trim_start_matches("dm-");
+            state
+                .dm_channels
+                .get(recipient)
+                .cloned()
+                .unwrap_or_else(|| clean_channel.clone())
+        } else {
+            clean_channel.clone()
+        };
+
+        match crate::net::fetch_channel_messages_typed_with_transport(
+            transport,
+            pool,
+            pool_config,
+            token,
+            &real_channel_id,
+            None,
+            Self::PAGINATION_LIMIT,
+        )
+        .await
+        {
+            Ok((mut msgs, _metrics)) => {
+                for m in &mut msgs {
+                    m.channel_id = clean_channel.clone();
+                }
+                let next_state = if msgs.is_empty() {
+                    state.messages.insert(clean_channel.clone(), Vec::new());
+                    state.mark_channel_history_exhausted(&clean_channel);
+                    ChannelHistoryLoadState::Empty {
+                        channel_id: clean_channel.clone(),
+                    }
+                } else {
+                    let count = msgs.len();
+                    let has_more = count >= Self::PAGINATION_LIMIT as usize;
+                    if !has_more {
+                        state.mark_channel_history_exhausted(&clean_channel);
+                    }
+                    state.messages.insert(clean_channel.clone(), msgs);
+                    ChannelHistoryLoadState::Loaded {
+                        channel_id: clean_channel.clone(),
+                        count,
+                        has_more,
+                    }
+                };
+                global_chat_rest_controller_state()
+                    .lock()
+                    .expect("chat rest controller lock")
+                    .history_states
+                    .insert(clean_channel, next_state.clone());
+                Ok(next_state)
+            }
+            Err(err) => {
+                let retry_after_ms = match &err {
+                    chord_core::rest::client::ChatRestError::RateLimited { retry_after } => {
+                        Some(retry_after.as_millis() as u64)
+                    }
+                    _ => None,
+                };
+                let err_state = ChannelHistoryLoadState::Error {
+                    channel_id: clean_channel.clone(),
+                    error: err.to_string(),
+                    status_code: err.status_code(),
+                    retry_after_ms,
+                };
+                global_chat_rest_controller_state()
+                    .lock()
+                    .expect("chat rest controller lock")
+                    .history_states
+                    .insert(clean_channel, err_state);
+                Err(err)
+            }
+        }
+    }
+
+    /// Пагинация более старых сообщений (`GET /channels/{id}/messages?before={oldest_id}&limit=50`)
+    /// через переданный транспорт с сохранением позиции скролла и дедупликацией.
+    pub async fn paginate_channel_history_with_transport<T: crate::net::RestTransport + ?Sized>(
+        state: &mut AppState,
+        transport: &T,
+        pool: &crate::net::Http2ConnectionPool,
+        pool_config: &crate::net::Http2PoolConfig,
+        token: &str,
+        channel_id: &str,
+    ) -> Result<usize, chord_core::rest::client::ChatRestError> {
+        let clean_channel = channel_id.trim().to_string();
+        if state.has_reached_history_top(&clean_channel) {
+            return Ok(0);
+        }
+
+        let oldest_id = match state
+            .messages
+            .get(&clean_channel)
+            .and_then(|msgs| msgs.first())
+        {
+            Some(first) => first.id.clone(),
+            None => return Ok(0),
+        };
+
+        state.is_paginating = true;
+        {
+            let mut ctrl = global_chat_rest_controller_state()
+                .lock()
+                .expect("chat rest controller lock");
+            ctrl.history_states.insert(
+                clean_channel.clone(),
+                ChannelHistoryLoadState::Loading {
+                    channel_id: clean_channel.clone(),
+                    before: Some(oldest_id.clone()),
+                    limit: Self::PAGINATION_LIMIT,
+                },
+            );
+        }
+
+        let real_channel_id = if clean_channel.starts_with("dm-") {
+            let recipient = clean_channel.trim_start_matches("dm-");
+            state
+                .dm_channels
+                .get(recipient)
+                .cloned()
+                .unwrap_or_else(|| clean_channel.clone())
+        } else {
+            clean_channel.clone()
+        };
+
+        let previous_top_item = state.chat_scroll_handle.top_item();
+
+        match crate::net::fetch_channel_messages_typed_with_transport(
+            transport,
+            pool,
+            pool_config,
+            token,
+            &real_channel_id,
+            Some(&oldest_id),
+            Self::PAGINATION_LIMIT,
+        )
+        .await
+        {
+            Ok((mut older_messages, _metrics)) => {
+                for m in &mut older_messages {
+                    m.channel_id = clean_channel.clone();
+                }
+                let page_len = older_messages.len();
+                let has_more = page_len >= Self::PAGINATION_LIMIT as usize;
+                if !has_more {
+                    state.mark_channel_history_exhausted(&clean_channel);
+                }
+                if older_messages.is_empty() {
+                    state.is_paginating = false;
+                    let total_count = state.messages.get(&clean_channel).map_or(0, Vec::len);
+                    global_chat_rest_controller_state()
+                        .lock()
+                        .expect("chat rest controller lock")
+                        .history_states
+                        .insert(
+                            clean_channel.clone(),
+                            ChannelHistoryLoadState::Loaded {
+                                channel_id: clean_channel,
+                                count: total_count,
+                                has_more: false,
+                            },
+                        );
+                    return Ok(0);
+                }
+
+                let current_feed = state.messages.entry(clean_channel.clone()).or_default();
+                let existing_ids: std::collections::HashSet<String> =
+                    current_feed.iter().map(|m| m.id.clone()).collect();
+                let mut prepended = Vec::with_capacity(older_messages.len() + current_feed.len());
+                let mut seen = std::collections::HashSet::new();
+
+                for msg in older_messages {
+                    if !existing_ids.contains(&msg.id) && seen.insert(msg.id.clone()) {
+                        prepended.push(msg);
+                    }
+                }
+                let prepended_count = prepended.len();
+
+                let old_items = std::mem::take(current_feed);
+                for msg in old_items {
+                    if seen.insert(msg.id.clone()) {
+                        prepended.push(msg);
+                    }
+                }
+                let total_count = prepended.len();
+                *current_feed = prepended;
+
+                let target_item = previous_top_item + prepended_count;
+                state.chat_scroll_handle.scroll_to_top_of_item(target_item);
+                state.is_paginating = false;
+
+                global_chat_rest_controller_state()
+                    .lock()
+                    .expect("chat rest controller lock")
+                    .history_states
+                    .insert(
+                        clean_channel.clone(),
+                        ChannelHistoryLoadState::Loaded {
+                            channel_id: clean_channel,
+                            count: total_count,
+                            has_more,
+                        },
+                    );
+
+                Ok(prepended_count)
+            }
+            Err(err) => {
+                state.is_paginating = false;
+                let retry_after_ms = match &err {
+                    chord_core::rest::client::ChatRestError::RateLimited { retry_after } => {
+                        Some(retry_after.as_millis() as u64)
+                    }
+                    _ => None,
+                };
+                global_chat_rest_controller_state()
+                    .lock()
+                    .expect("chat rest controller lock")
+                    .history_states
+                    .insert(
+                        clean_channel.clone(),
+                        ChannelHistoryLoadState::Error {
+                            channel_id: clean_channel,
+                            error: err.to_string(),
+                            status_code: err.status_code(),
+                            retry_after_ms,
+                        },
+                    );
+                Err(err)
+            }
+        }
+    }
+
+    /// Установить активное цитируемое сообщение (`message_reference`) для канала.
+    pub fn set_reply_target(channel_id: &str, message_id: &str, author_name: &str) {
+        let clean_channel = channel_id.trim().to_string();
+        let mut ctrl = global_chat_rest_controller_state()
+            .lock()
+            .expect("chat rest controller lock");
+        ctrl.reply_targets.insert(
+            clean_channel.clone(),
+            ReplyTargetSpec {
+                channel_id: clean_channel,
+                message_id: message_id.trim().to_string(),
+                author_name: author_name.trim().to_string(),
+            },
+        );
+    }
+
+    /// Очистить активное цитируемое сообщение для канала.
+    pub fn clear_reply_target(channel_id: &str) {
+        global_chat_rest_controller_state()
+            .lock()
+            .expect("chat rest controller lock")
+            .reply_targets
+            .remove(channel_id.trim());
+    }
+
+    /// Получить активное цитируемое сообщение для канала.
+    #[must_use]
+    pub fn active_reply_target(channel_id: &str) -> Option<ReplyTargetSpec> {
+        global_chat_rest_controller_state()
+            .lock()
+            .expect("chat rest controller lock")
+            .reply_targets
+            .get(channel_id.trim())
+            .cloned()
+    }
+
+    /// Начать оптимистичную отправку сообщения из композера:
+    /// создаёт локальное сообщение со статусом `OptimisticSendPhase::Pending`, очищает `draft_text`,
+    /// фиксирует `nonce`, `reply_to_message_id` и прикреплённые вложения.
+    pub fn begin_optimistic_send(
+        state: &mut AppState,
+        explicit_nonce: Option<String>,
+    ) -> Result<PendingOutboundMessage, chord_core::rest::client::ChatRestError> {
+        use chord_core::rest::client::{
+            ChatRestError, MAX_MESSAGE_CONTENT_CHARS, MAX_MESSAGE_NONCE_CHARS,
+        };
+
+        let channel_id = state
+            .selected_channel_id
+            .clone()
+            .ok_or_else(|| ChatRestError::InvalidChannelId(String::new()))?;
+        if channel_id.trim().is_empty() {
+            return Err(ChatRestError::InvalidChannelId(channel_id));
+        }
+
+        let staged_attachments = {
+            let mut comp = global_composer_state().lock().expect("composer lock");
+            if state.draft_text.trim().is_empty() && comp.staged.is_empty() {
+                return Err(ChatRestError::EmptyMessage);
+            }
+            let content_chars = state.draft_text.chars().count();
+            if content_chars > MAX_MESSAGE_CONTENT_CHARS {
+                return Err(ChatRestError::ContentTooLong {
+                    len: content_chars,
+                    max: MAX_MESSAGE_CONTENT_CHARS,
+                });
+            }
+            comp.mark_uploading();
+            comp.staged.clone()
+        };
+
+        let mut ctrl = global_chat_rest_controller_state()
+            .lock()
+            .expect("chat rest controller lock");
+        let nonce = match explicit_nonce {
+            Some(n) => {
+                let trimmed = n.trim().to_string();
+                if trimmed.is_empty()
+                    || trimmed.chars().count() > MAX_MESSAGE_NONCE_CHARS
+                    || trimmed.chars().any(char::is_control)
+                {
+                    return Err(ChatRestError::InvalidNonce(n));
+                }
+                trimmed
+            }
+            None => {
+                ctrl.nonce_counter += 1;
+                format!("109900000000000{:04}", ctrl.nonce_counter)
+            }
+        };
+
+        let reply_to_message_id = ctrl
+            .reply_targets
+            .get(channel_id.trim())
+            .map(|r| r.message_id.clone());
+
+        let content = std::mem::take(&mut state.draft_text);
+        let optimistic_id = format!("opt-{nonce}");
+
+        let preview_attachments: Vec<MessageAttachment> = staged_attachments
+            .iter()
+            .map(|item| MessageAttachment {
+                id: format!("att-{}", item.id),
+                filename: item.filename.clone(),
+                url: item.upload_url.clone().unwrap_or_else(|| {
+                    format!(
+                        "https://cdn.discordapp.com/attachments/{}/att-{}/{}",
+                        channel_id, item.id, item.filename
+                    )
+                }),
+                size_bytes: item.size_bytes,
+            })
+            .collect();
+
+        let optimistic_msg = crate::state::Message {
+            id: optimistic_id.clone(),
+            channel_id: channel_id.clone(),
+            author: crate::state::UserSummary {
+                id: state.current_user.id.clone(),
+                username: state.current_user.username.clone(),
+                global_name: state.current_user.global_name.clone(),
+                avatar: state.current_user.avatar.clone(),
+                is_bot: false,
+            },
+            content: content.clone(),
+            timestamp: "Отправка...".to_string(),
+            edited_timestamp: None,
+            attachments: preview_attachments,
+            reactions: Vec::new(),
+            is_pinned: false,
+            message_kind: crate::state::MessageKind::Default,
+        };
+
+        let feed = state.messages.entry(channel_id.clone()).or_default();
+        if let Some(existing) = feed.iter_mut().find(|m| m.id == optimistic_id) {
+            *existing = optimistic_msg;
+        } else {
+            feed.push(optimistic_msg);
+        }
+
+        let record = PendingOutboundMessage {
+            nonce: nonce.clone(),
+            optimistic_id,
+            channel_id,
+            content,
+            reply_to_message_id,
+            staged_attachments,
+            phase: OptimisticSendPhase::Pending,
+        };
+        ctrl.outbound_by_nonce.insert(nonce, record.clone());
+        Ok(record)
+    }
+
+    /// Завершить оптимистичную отправку сообщения по `nonce` через `POST /channels/{id}/messages`:
+    /// при успехе обновляет сообщение в ленте на серверный `id` (`Confirmed`) и очищает вложения/ответ;
+    /// при ошибке переводит в `OptimisticSendPhase::Failed` и сохраняет вложения для повтора.
+    pub async fn complete_optimistic_send_with_transport<T: crate::net::RestTransport + ?Sized>(
+        state: &mut AppState,
+        transport: &T,
+        pool: &crate::net::Http2ConnectionPool,
+        pool_config: &crate::net::Http2PoolConfig,
+        token: &str,
+        nonce: &str,
+    ) -> Result<crate::state::Message, chord_core::rest::client::ChatRestError> {
+        use chord_core::rest::client::ChatRestError;
+
+        let pending = {
+            let ctrl = global_chat_rest_controller_state()
+                .lock()
+                .expect("chat rest controller lock");
+            ctrl.outbound_by_nonce
+                .get(nonce.trim())
+                .cloned()
+                .ok_or_else(|| ChatRestError::InvalidNonce(nonce.to_string()))?
+        };
+
+        let real_channel_id = if pending.channel_id.starts_with("dm-") {
+            let recipient = pending.channel_id.trim_start_matches("dm-");
+            state
+                .dm_channels
+                .get(recipient)
+                .cloned()
+                .unwrap_or_else(|| pending.channel_id.clone())
+        } else {
+            pending.channel_id.clone()
+        };
+
+        let multipart_files: Vec<MultipartUploadFile> = pending
+            .staged_attachments
+            .iter()
+            .enumerate()
+            .map(|(idx, item)| MultipartUploadFile {
+                field_index: idx,
+                filename: item.filename.clone(),
+                content_type: item.content_type.clone(),
+                bytes: item.bytes.clone(),
+            })
+            .collect();
+
+        let options = crate::net::LiveMessageSendOptions {
+            content: pending.content.clone(),
+            nonce: Some(pending.nonce.clone()),
+            tts: false,
+            reply_to_message_id: pending.reply_to_message_id.clone(),
+            attachments: multipart_files,
+        };
+
+        match crate::net::send_message_options_with_transport(
+            transport,
+            pool,
+            pool_config,
+            token,
+            &real_channel_id,
+            &options,
+        )
+        .await
+        {
+            Ok((mut confirmed_msg, _echoed_nonce, _metrics)) => {
+                confirmed_msg.channel_id = pending.channel_id.clone();
+
+                // Обновляем сообщение в ленте на месте (без дублирования)
+                let feed = state
+                    .messages
+                    .entry(pending.channel_id.clone())
+                    .or_default();
+                let mut replaced = false;
+                let mut duplicate_idx = None;
+                for (idx, item) in feed.iter_mut().enumerate() {
+                    if item.id == pending.optimistic_id || item.id == confirmed_msg.id {
+                        if !replaced {
+                            *item = confirmed_msg.clone();
+                            replaced = true;
+                        } else {
+                            duplicate_idx = Some(idx);
+                        }
+                    }
+                }
+                if let Some(idx) = duplicate_idx {
+                    feed.remove(idx);
+                }
+                if !replaced {
+                    feed.push(confirmed_msg.clone());
+                }
+
+                // Очищаем прикреплённые вложения композера и активный ответ
+                {
+                    let mut comp = global_composer_state().lock().expect("composer lock");
+                    comp.complete_send_success();
+                }
+                {
+                    let mut ctrl = global_chat_rest_controller_state()
+                        .lock()
+                        .expect("chat rest controller lock");
+                    ctrl.reply_targets.remove(&pending.channel_id);
+                    if let Some(entry) = ctrl.outbound_by_nonce.get_mut(&pending.nonce) {
+                        entry.phase = OptimisticSendPhase::Confirmed {
+                            message_id: confirmed_msg.id.clone(),
+                        };
+                    }
+                }
+
+                Ok(confirmed_msg)
+            }
+            Err(err) => {
+                let retry_after_ms = match &err {
+                    ChatRestError::RateLimited { retry_after } => {
+                        Some(retry_after.as_millis() as u64)
+                    }
+                    _ => None,
+                };
+                let err_msg = err.to_string();
+
+                {
+                    let mut comp = global_composer_state().lock().expect("composer lock");
+                    comp.is_uploading = false;
+                    comp.error_banner = Some(err_msg.clone());
+                    for item in &mut comp.staged {
+                        item.phase = AttachmentUploadPhase::Failed(err_msg.clone());
+                    }
+                }
+                {
+                    let mut ctrl = global_chat_rest_controller_state()
+                        .lock()
+                        .expect("chat rest controller lock");
+                    if let Some(entry) = ctrl.outbound_by_nonce.get_mut(&pending.nonce) {
+                        entry.phase = OptimisticSendPhase::Failed {
+                            error: err_msg,
+                            status_code: err.status_code(),
+                            retry_after_ms,
+                        };
+                    }
+                }
+
+                Err(err)
+            }
+        }
+    }
+
+    /// Полный цикл оптимистичной отправки сообщения (`begin_optimistic_send` + `complete_optimistic_send_with_transport`).
+    pub async fn submit_live_message_with_transport<T: crate::net::RestTransport + ?Sized>(
+        state: &mut AppState,
+        transport: &T,
+        pool: &crate::net::Http2ConnectionPool,
+        pool_config: &crate::net::Http2PoolConfig,
+        token: &str,
+        explicit_nonce: Option<String>,
+    ) -> Result<crate::state::Message, chord_core::rest::client::ChatRestError> {
+        let pending = Self::begin_optimistic_send(state, explicit_nonce)?;
+        Self::complete_optimistic_send_with_transport(
+            state,
+            transport,
+            pool,
+            pool_config,
+            token,
+            &pending.nonce,
+        )
+        .await
+    }
+
+    /// Повторить отправку ранее неудавшегося оптимистичного сообщения с сохранением того же `nonce`.
+    pub async fn retry_failed_message_with_transport<T: crate::net::RestTransport + ?Sized>(
+        state: &mut AppState,
+        transport: &T,
+        pool: &crate::net::Http2ConnectionPool,
+        pool_config: &crate::net::Http2PoolConfig,
+        token: &str,
+        nonce: &str,
+    ) -> Result<crate::state::Message, chord_core::rest::client::ChatRestError> {
+        {
+            let mut comp = global_composer_state().lock().expect("composer lock");
+            comp.retry_failed();
+            comp.mark_uploading();
+        }
+        {
+            let mut ctrl = global_chat_rest_controller_state()
+                .lock()
+                .expect("chat rest controller lock");
+            if let Some(entry) = ctrl.outbound_by_nonce.get_mut(nonce.trim()) {
+                entry.phase = OptimisticSendPhase::Pending;
+            }
+        }
+        Self::complete_optimistic_send_with_transport(
+            state,
+            transport,
+            pool,
+            pool_config,
+            token,
+            nonce,
+        )
+        .await
+    }
+
+    /// Получить текущую фазу оптимистичного сообщения по его `nonce`.
+    #[must_use]
+    pub fn optimistic_message_phase(nonce: &str) -> Option<OptimisticSendPhase> {
+        global_chat_rest_controller_state()
+            .lock()
+            .expect("chat rest controller lock")
+            .outbound_by_nonce
+            .get(nonce.trim())
+            .map(|entry| entry.phase.clone())
+    }
+
+    /// Сопоставить входящее сообщение Gateway `MESSAGE_CREATE` с оптимистичной очередью по `nonce` или `id`:
+    /// если совпадение найдено, обновляет запись на месте без создания дубля и возвращает `true`.
+    pub fn reconcile_incoming_message(
+        state: &mut AppState,
+        channel_id: &str,
+        mut incoming: crate::state::Message,
+        nonce: Option<&str>,
+    ) -> bool {
+        let clean_channel = channel_id.trim().to_string();
+        incoming.channel_id = clean_channel.clone();
+
+        let matched_optimistic_id = nonce.and_then(|n| {
+            let mut ctrl = global_chat_rest_controller_state()
+                .lock()
+                .expect("chat rest controller lock");
+            if let Some(entry) = ctrl.outbound_by_nonce.get_mut(n.trim()) {
+                entry.phase = OptimisticSendPhase::Confirmed {
+                    message_id: incoming.id.clone(),
+                };
+                Some(entry.optimistic_id.clone())
+            } else {
+                None
+            }
+        });
+
+        let feed = state.messages.entry(clean_channel).or_default();
+        let mut updated = false;
+        let mut duplicate_idx = None;
+        for (idx, msg) in feed.iter_mut().enumerate() {
+            let matches_id = msg.id == incoming.id;
+            let matches_opt = matched_optimistic_id
+                .as_ref()
+                .is_some_and(|opt_id| &msg.id == opt_id);
+            if matches_id || matches_opt {
+                if !updated {
+                    *msg = incoming.clone();
+                    updated = true;
+                } else {
+                    duplicate_idx = Some(idx);
+                }
+            }
+        }
+        if let Some(idx) = duplicate_idx {
+            feed.remove(idx);
+        }
+        if !updated {
+            feed.push(incoming);
+        }
+        updated
+    }
+    /// Добавить вложение в очередь композера.
+    pub fn stage_attachment(
+        filename: &str,
+        content_type: &str,
+        bytes: Vec<u8>,
+    ) -> Result<u64, AttachmentUploadError> {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        guard.stage_file(filename, content_type, bytes)
+    }
+
+    /// Удалить прикреплённый файл по идентификатору.
+    pub fn remove_staged_attachment(id: u64) -> Option<StagedAttachment> {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        guard.remove_by_id(id)
+    }
+
+    /// Очистить все прикреплённые файлы композера.
+    pub fn clear_staged_attachments() {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        guard.clear();
+        guard.next_id = 0;
+    }
+
+    /// Количество прикреплённых файлов в композере.
+    #[must_use]
+    pub fn staged_attachment_count() -> usize {
+        global_composer_state()
+            .lock()
+            .expect("composer lock")
+            .count()
+    }
+
+    /// Суммарный размер прикреплённых файлов в байтах.
+    #[must_use]
+    pub fn staged_total_bytes() -> u64 {
+        global_composer_state()
+            .lock()
+            .expect("composer lock")
+            .total_bytes()
+    }
+
+    /// Снимок текущего состояния композера вложений.
+    #[must_use]
+    pub fn composer_snapshot() -> AttachmentComposerState {
+        global_composer_state()
+            .lock()
+            .expect("composer lock")
+            .clone()
+    }
+
+    /// Зафиксировать ошибку загрузки вложений в композере (сохраняет файлы для повтора).
+    pub fn record_upload_error(error: &AttachmentUploadError) {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        guard.handle_send_error(error);
+    }
+
+    /// Отправить сообщение из композера вместе с прикреплёнными вложениями.
+    pub fn submit_composer_message(state: &mut AppState) -> Result<bool, AttachmentUploadError> {
+        let mut guard = global_composer_state().lock().expect("composer lock");
+        if !guard.can_send(&state.draft_text) {
+            return Err(AttachmentUploadError::EmptyContentAndAttachments);
+        }
+
+        let staged_items = guard.complete_send_success();
+        drop(guard);
+
+        let text = std::mem::take(&mut state.draft_text);
+        let trimmed = text.trim().to_string();
+
+        if !trimmed.is_empty() {
+            state.send_message(trimmed);
+            if !staged_items.is_empty()
+                && let Some(cid) = state.selected_channel_id.as_ref()
+                && let Some(feed) = state.messages.get_mut(cid)
+                && let Some(last_msg) = feed.last_mut()
+            {
+                for item in staged_items {
+                    last_msg.attachments.push(MessageAttachment {
+                        id: format!("att-{}", item.id),
+                        filename: item.filename.clone(),
+                        url: item.upload_url.unwrap_or_else(|| {
+                            format!(
+                                "https://cdn.discordapp.com/attachments/{}/att-{}/{}",
+                                cid, item.id, item.filename
+                            )
+                        }),
+                        size_bytes: item.size_bytes,
+                    });
+                }
+            }
+            return Ok(true);
+        }
+
+        if let Some(cid) = state.selected_channel_id.clone() {
+            let attachments: Vec<MessageAttachment> = staged_items
+                .into_iter()
+                .map(|item| MessageAttachment {
+                    id: format!("att-{}", item.id),
+                    filename: item.filename.clone(),
+                    url: item.upload_url.unwrap_or_else(|| {
+                        format!(
+                            "https://cdn.discordapp.com/attachments/{}/att-{}/{}",
+                            cid, item.id, item.filename
+                        )
+                    }),
+                    size_bytes: item.size_bytes,
+                })
+                .collect();
+            let feed = state.messages.entry(cid.clone()).or_default();
+            let msg_id = format!("msg-att-{}", feed.len() + 1);
+            feed.push(crate::state::Message {
+                id: msg_id,
+                channel_id: cid,
+                author: crate::state::UserSummary {
+                    id: state.current_user.id.clone(),
+                    username: state.current_user.username.clone(),
+                    global_name: state.current_user.global_name.clone(),
+                    avatar: state.current_user.avatar.clone(),
+                    is_bot: false,
+                },
+                content: String::new(),
+                timestamp: "Только что".to_string(),
+                edited_timestamp: None,
+                attachments,
+                reactions: Vec::new(),
+                is_pinned: false,
+                message_kind: crate::state::MessageKind::Default,
+            });
+            return Ok(true);
+        }
+
+        Ok(false)
+    }
+
     /// Порог смещения скролла от верхнего края для инициирования пагинации (offset < 10)
     pub const PAGINATION_SCROLL_OFFSET_THRESHOLD: f32 = 10.0;
 
@@ -775,10 +1938,13 @@ impl ChatView {
                                     .hover(|s| s.bg(DISCORD_THEME.bg_hover))
                                     .on_mouse_down(
                                         MouseButton::Right,
-                                        cx.listener(move |this, _, _, cx| {
-                                            this.state.open_context_menu(&msg_id);
-                                            cx.notify();
-                                        }),
+                                        {
+                                            let menu_msg_id = msg_id.clone();
+                                            cx.listener(move |this, _, _, cx| {
+                                                this.state.open_context_menu(&menu_msg_id);
+                                                cx.notify();
+                                            })
+                                        },
                                     )
                                     // Аватар автора
                                     .child(
@@ -834,6 +2000,62 @@ impl ChatView {
                                             )
                                             // Текст сообщения с поддержкой Markdown и Codeblock
                                             .child(Self::render_formatted_content(&msg.content))
+                                            // Вложения сообщения (Attachments)
+                                            .children(if !msg.attachments.is_empty() {
+                                                Some(
+                                                    div()
+                                                        .flex()
+                                                        .flex_wrap()
+                                                        .gap(px(8.))
+                                                        .pt(px(4.))
+                                                        .children(msg.attachments.into_iter().map(
+                                                            |att| {
+                                                                div()
+                                                                    .px(px(10.))
+                                                                    .py(px(6.))
+                                                                    .rounded(px(6.))
+                                                                    .bg(DISCORD_THEME.bg_secondary)
+                                                                    .border_1()
+                                                                    .border_color(
+                                                                        DISCORD_THEME.border_subtle,
+                                                                    )
+                                                                    .flex()
+                                                                    .items_center()
+                                                                    .gap(px(8.))
+                                                                    .child(
+                                                                        div()
+                                                                            .text_size(px(14.))
+                                                                            .child("📎"),
+                                                                    )
+                                                                    .child(
+                                                                        div()
+                                                                            .text_size(px(13.))
+                                                                            .font_weight(
+                                                                                FontWeight::BOLD,
+                                                                            )
+                                                                            .text_color(
+                                                                                DISCORD_THEME
+                                                                                    .text_header,
+                                                                            )
+                                                                            .child(att.filename),
+                                                                    )
+                                                                    .child(
+                                                                        div()
+                                                                            .text_size(px(11.))
+                                                                            .text_color(
+                                                                                DISCORD_THEME
+                                                                                    .text_muted,
+                                                                            )
+                                                                            .child(AttachmentComposerState::format_byte_size(
+                                                                                att.size_bytes,
+                                                                            )),
+                                                                    )
+                                                            },
+                                                        )),
+                                                )
+                                            } else {
+                                                None
+                                            })
                                             // Реакции
                                             .child(div().flex().gap(px(6.)).pt(px(4.)).children(
                                                 msg.reactions.into_iter().map(|reaction| {
@@ -872,6 +2094,11 @@ impl ChatView {
                                                                 .child(reaction.count.to_string()),
                                                         )
                                                 }),
+                                            ))
+                                            // Интерактивные кнопки сообщения (Interactive Buttons по референсу txtsd/kind)
+                                            .child(Self::render_interactive_components(
+                                                state.get_message_components(&msg_id),
+                                                &msg_id,
                                             )),
                                     )
                                     // Плавающий бар быстрых действий над сообщением (Floating Action Bar on Hover)
@@ -889,9 +2116,178 @@ impl ChatView {
                     }))
             })
             // 3. Нижнее поле ввода сообщения
-            .child(
+            .child({
+                let composer = Self::composer_snapshot();
                 div()
                     .p(px(16.))
+                    .v_flex()
+                    .gap(px(8.))
+                    // Баннер ошибки загрузки вложений (если есть)
+                    .children(composer.error_banner.as_ref().map(|err_msg| {
+                        div()
+                            .id("attachment-error-banner")
+                            .px(px(12.))
+                            .py(px(6.))
+                            .rounded(px(6.))
+                            .bg(gpui::rgba(0xF23F4322))
+                            .border_1()
+                            .border_color(DISCORD_THEME.status_dnd)
+                            .flex()
+                            .items_center()
+                            .justify_between()
+                            .child(
+                                div()
+                                    .text_size(px(12.))
+                                    .font_weight(FontWeight::BOLD)
+                                    .text_color(DISCORD_THEME.status_dnd)
+                                    .child(format!("⚠️ {err_msg}")),
+                            )
+                            .child(
+                                div()
+                                    .id("btn-retry-attachments")
+                                    .cursor_pointer()
+                                    .px(px(8.))
+                                    .py(px(2.))
+                                    .rounded(px(4.))
+                                    .bg(DISCORD_THEME.bg_secondary)
+                                    .text_size(px(11.))
+                                    .text_color(DISCORD_THEME.text_header)
+                                    .child("Повторить")
+                                    .on_mouse_down(
+                                        MouseButton::Left,
+                                        cx.listener(|_this, _, _, cx| {
+                                            if let Ok(mut guard) = global_composer_state().lock() {
+                                                guard.retry_failed();
+                                            }
+                                            cx.notify();
+                                        }),
+                                    ),
+                            )
+                    }))
+                    // Панель предпросмотра прикреплённых файлов (Staged Attachments Bar)
+                    .children(if !composer.staged.is_empty() {
+                        let total_str =
+                            AttachmentComposerState::format_byte_size(composer.total_bytes());
+                        let count_str = format!(
+                            "Вложения ({}/{MAX_ATTACHMENTS_PER_MESSAGE}) • {total_str}",
+                            composer.count()
+                        );
+                        Some(
+                            div()
+                                .id("attachment-staging-bar")
+                                .p(px(10.))
+                                .rounded(px(8.))
+                                .bg(DISCORD_THEME.bg_secondary)
+                                .border_1()
+                                .border_color(DISCORD_THEME.border_subtle)
+                                .v_flex()
+                                .gap(px(8.))
+                                .child(
+                                    div()
+                                        .flex()
+                                        .items_center()
+                                        .justify_between()
+                                        .child(
+                                            div()
+                                                .text_size(px(11.))
+                                                .font_weight(FontWeight::BOLD)
+                                                .text_color(DISCORD_THEME.text_muted)
+                                                .child(count_str),
+                                        )
+                                        .child(
+                                            div()
+                                                .id("btn-clear-attachments")
+                                                .cursor_pointer()
+                                                .px(px(6.))
+                                                .py(px(2.))
+                                                .rounded(px(4.))
+                                                .hover(|s| s.bg(DISCORD_THEME.bg_hover))
+                                                .text_size(px(11.))
+                                                .text_color(DISCORD_THEME.status_dnd)
+                                                .child("Очистить все ✕")
+                                                .on_mouse_down(
+                                                    MouseButton::Left,
+                                                    cx.listener(|_this, _, _, cx| {
+                                                        ChatView::clear_staged_attachments();
+                                                        cx.notify();
+                                                    }),
+                                                ),
+                                        ),
+                                )
+                                .child(
+                                    div().flex().flex_wrap().gap(px(8.)).children(
+                                        composer.staged.into_iter().map(|att| {
+                                            let att_id = att.id;
+                                            let phase_badge = match &att.phase {
+                                                AttachmentUploadPhase::Pending => "⏳ Ожидает",
+                                                AttachmentUploadPhase::Uploading => "⬆️ Загрузка...",
+                                                AttachmentUploadPhase::Ready => "✅ Готово",
+                                                AttachmentUploadPhase::Failed(_) => "❌ Ошибка",
+                                            };
+                                            div()
+                                                .id(format!("staged-attachment-card-{att_id}"))
+                                                .px(px(10.))
+                                                .py(px(6.))
+                                                .rounded(px(6.))
+                                                .bg(DISCORD_THEME.bg_tertiary)
+                                                .border_1()
+                                                .border_color(DISCORD_THEME.border_subtle)
+                                                .flex()
+                                                .items_center()
+                                                .gap(px(8.))
+                                                .child(
+                                                    div()
+                                                        .text_size(px(12.))
+                                                        .font_weight(FontWeight::BOLD)
+                                                        .text_color(DISCORD_THEME.text_header)
+                                                        .child(att.filename),
+                                                )
+                                                .child(
+                                                    div()
+                                                        .text_size(px(11.))
+                                                        .text_color(DISCORD_THEME.text_muted)
+                                                        .child(
+                                                            AttachmentComposerState::format_byte_size(
+                                                                att.size_bytes,
+                                                            ),
+                                                        ),
+                                                )
+                                                .child(
+                                                    div()
+                                                        .text_size(px(10.))
+                                                        .text_color(DISCORD_THEME.blurple)
+                                                        .child(phase_badge),
+                                                )
+                                                .child(
+                                                    div()
+                                                        .id(format!(
+                                                            "btn-remove-attachment-{att_id}"
+                                                        ))
+                                                        .cursor_pointer()
+                                                        .px(px(4.))
+                                                        .rounded(px(3.))
+                                                        .hover(|s| s.bg(DISCORD_THEME.bg_hover))
+                                                        .text_size(px(11.))
+                                                        .text_color(DISCORD_THEME.status_dnd)
+                                                        .child("✕")
+                                                        .on_mouse_down(
+                                                            MouseButton::Left,
+                                                            cx.listener(move |_this, _, _, cx| {
+                                                                let _ =
+                                                                    ChatView::remove_staged_attachment(
+                                                                        att_id,
+                                                                    );
+                                                                cx.notify();
+                                                            }),
+                                                        ),
+                                                )
+                                        }),
+                                    ),
+                                ),
+                        )
+                    } else {
+                        None
+                    })
                     .child(
                         div()
                             .h(px(44.))
@@ -909,6 +2305,7 @@ impl ChatView {
                                     .gap(px(12.))
                                     .child(
                                         div()
+                                            .id("btn-attach-file")
                                             .size(px(24.))
                                             .rounded_full()
                                             .bg(DISCORD_THEME.text_muted)
@@ -920,7 +2317,20 @@ impl ChatView {
                                             .text_color(DISCORD_THEME.bg_primary)
                                             .font_weight(FontWeight::BOLD)
                                             .text_size(px(14.))
-                                            .child("+"),
+                                            .child("+")
+                                            .on_mouse_down(
+                                                MouseButton::Left,
+                                                cx.listener(|_this, _, _, cx| {
+                                                    let next_num =
+                                                        ChatView::staged_attachment_count() + 1;
+                                                    let _ = ChatView::stage_attachment(
+                                                        &format!("attachment_{next_num}.png"),
+                                                        "image/png",
+                                                        vec![0x89, b'P', b'N', b'G'],
+                                                    );
+                                                    cx.notify();
+                                                }),
+                                            ),
                                     )
                                     // Поле ввода текста / плейсхолдер
                                     .child(
@@ -1010,12 +2420,11 @@ impl ChatView {
                                             .on_mouse_down(
                                                 MouseButton::Left,
                                                 cx.listener(|this, _, _, cx| {
-                                                    let trimmed = this.state.draft_text.trim();
-                                                    if !trimmed.is_empty() {
-                                                        let text = std::mem::take(
-                                                            &mut this.state.draft_text,
-                                                        );
-                                                        this.state.send_message(text);
+                                                    if ChatView::submit_composer_message(
+                                                        &mut this.state,
+                                                    )
+                                                    .is_ok()
+                                                    {
                                                         cx.notify();
                                                     }
                                                 }),
@@ -1057,8 +2466,8 @@ impl ChatView {
                         } else {
                             div().h(px(20.)).into_any_element()
                         }
-                    }),
-            )
+                    })
+            })
     }
 
     pub fn render_floating_action_bar(
@@ -1340,5 +2749,111 @@ impl ChatView {
             }
         }
         block
+    }
+
+    /// Renders interactive message components (ActionRow button grids)
+    /// conforming to Discord API v9 specification and reference `txtsd/kind`.
+    ///
+    /// # Supported button styles:
+    /// * `Primary` (type 1) — Discord Blurple accent style
+    /// * `Secondary` (type 2) — Neutral dark gray background
+    /// * `Success` (type 3) — Green confirmation style
+    /// * `Danger` (type 4) — Red destructive/warning style
+    /// * `Link` (type 5) — Outbound hyperlink button with external icon
+    pub fn render_interactive_components(
+        components: &[crate::state::MessageComponentRow],
+        msg_id: &str,
+    ) -> impl IntoElement {
+        if components.is_empty() {
+            return div().into_any_element();
+        }
+
+        div()
+            .v_flex()
+            .gap(px(6.))
+            .pt(px(4.))
+            .children(components.iter().enumerate().map(|(row_idx, row)| {
+                div()
+                    .flex()
+                    .flex_wrap()
+                    .gap(px(8.))
+                    .children(row.components.iter().enumerate().map(|(btn_idx, btn)| {
+                        let is_disabled = btn.disabled;
+                        let (bg_color, hover_bg, text_color) = match btn.style {
+                            crate::state::ButtonStyle::Primary => (
+                                DISCORD_THEME.blurple,
+                                DISCORD_THEME.blurple_hover,
+                                DISCORD_THEME.text_header,
+                            ),
+                            crate::state::ButtonStyle::Secondary => (
+                                DISCORD_THEME.bg_secondary,
+                                DISCORD_THEME.bg_hover,
+                                DISCORD_THEME.text_normal,
+                            ),
+                            crate::state::ButtonStyle::Success => (
+                                DISCORD_THEME.status_online,
+                                DISCORD_THEME.status_online,
+                                DISCORD_THEME.text_header,
+                            ),
+                            crate::state::ButtonStyle::Danger => (
+                                DISCORD_THEME.status_dnd,
+                                DISCORD_THEME.status_dnd,
+                                DISCORD_THEME.text_header,
+                            ),
+                            crate::state::ButtonStyle::Link => (
+                                DISCORD_THEME.bg_secondary,
+                                DISCORD_THEME.bg_hover,
+                                DISCORD_THEME.text_normal,
+                            ),
+                        };
+
+                        let mut button_div = div()
+                            .id(format!("msg-{msg_id}-btn-{row_idx}-{btn_idx}"))
+                            .h(px(32.))
+                            .px(px(12.))
+                            .rounded(px(4.))
+                            .bg(if is_disabled {
+                                DISCORD_THEME.bg_secondary
+                            } else {
+                                bg_color
+                            })
+                            .flex()
+                            .items_center()
+                            .justify_center()
+                            .gap(px(6.))
+                            .text_size(px(13.))
+                            .font_weight(FontWeight::BOLD)
+                            .text_color(if is_disabled {
+                                DISCORD_THEME.text_muted
+                            } else {
+                                text_color
+                            });
+
+                        if !is_disabled {
+                            button_div = button_div
+                                .cursor_pointer()
+                                .hover(move |s| s.bg(hover_bg));
+                        }
+
+                        if let Some(ref emoji) = btn.emoji_name {
+                            button_div = button_div.child(
+                                div().text_size(px(14.)).child(emoji.clone()),
+                            );
+                        }
+
+                        if let Some(ref label) = btn.label {
+                            button_div = button_div.child(label.clone());
+                        }
+
+                        if btn.style == crate::state::ButtonStyle::Link {
+                            button_div = button_div.child(
+                                div().text_size(px(11.)).text_color(DISCORD_THEME.text_muted).child("↗"),
+                            );
+                        }
+
+                        button_div
+                    }))
+            }))
+            .into_any_element()
     }
 }

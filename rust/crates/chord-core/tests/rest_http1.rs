@@ -98,9 +98,7 @@ fn encode_request_checks_supplied_content_length() {
     let headers = [pair("Content-Length", "1")];
     assert!(matches!(
         encode_request(HttpMethod::Post, "/x", &headers, b"ab"),
-        Err(chord_core::rest::http1::Http1Error::InvalidContentLength(
-            _
-        ))
+        Err(chord_core::rest::http1::Http1Error::InvalidContentLength(_))
     ));
 
     let headers = [pair("Content-Length", "2")];

@@ -24,8 +24,8 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::client::{ApiAuth, ApiClient, ApiConfig};
-use discord_core::rest::guilds::{
+use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig};
+use chord_core::rest::guilds::{
     build_guild_create_headers, build_guild_create_http_request, parse_guild_create_response,
     CreatedGuild, CreatedGuildChannel, CreatedGuildRole, GuildCreateChannelSpec,
     GuildCreateRequest, GuildCreateRestError, CHANNEL_TYPE_GUILD_CATEGORY, CHANNEL_TYPE_GUILD_TEXT,
@@ -36,10 +36,10 @@ use discord_core::rest::guilds::{
     SYSTEM_CHANNEL_FLAG_SUPPRESS_JOIN_NOTIFICATION_REPLIES,
     SYSTEM_CHANNEL_FLAG_SUPPRESS_PREMIUM_SUBSCRIPTIONS,
 };
-use discord_core::rest::identity::ClientIdentity;
-use discord_core::rest::routes::HttpMethod;
-use discord_core::rest::super_properties::SuperProperties;
-use discord_core::rest::transport::{HttpRequest, HttpResponse};
+use chord_core::rest::identity::ClientIdentity;
+use chord_core::rest::routes::HttpMethod;
+use chord_core::rest::super_properties::SuperProperties;
+use chord_core::rest::transport::{HttpRequest, HttpResponse};
 
 use chord_client::guilds::{
     clear_local_created_guilds, create_guild_full, local_created_guild_snapshot,

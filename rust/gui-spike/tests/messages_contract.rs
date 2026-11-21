@@ -1,4 +1,4 @@
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::messages::{
     ack_message, delete_message, edit_message, reply_message, send_message, AckBulkEntry,
     AckMessageOptions, AckTransport, DiscordMessageSender, DiscordReadState, MessageActions,

@@ -34,9 +34,11 @@ chord-i18n = { path = "../crates/chord-i18n" }
 chord-media = { path = "../crates/chord-media" }
 chord-ui = { path = "../crates/chord-ui" }
 chord-updater = { path = "../crates/chord-updater" }
+audio-spike = { path = "../audio-spike" }
+dave-spike = { path = "../dave-spike" }
 # RW-39/NET-C2: keyring (`org.freedesktop.secrets` через libsecret) — только path-dep.
 # `Keyring` там `!Send`, поэтому backend держит его в потоке-владельце.
-chord-platform = { path = "../crates/chord-platform" }
+chord-platform = { path = "../crates/chord-platform", default-features = false, features = ["ashpd-tokio"] }
 thiserror = "2"
 # Проверка токена — `ApiClient::get` из ядра; tokio уже в графе (tauri/discord-core),
 # поэтому офлайн-сборке новая версия не нужна.
@@ -45,3 +47,28 @@ nix = { version = "0.29", features = ["signal"], default-features = false }
 # XDG Desktop Portal (PipeWire screen capture on Wayland) — locally cached 0.13.13
 ashpd = { version = "0.13", default-features = false, features = ["tokio", "screencast"] }
 enumflags2 = "0.7"
+base64 = "0.21"
+percent-encoding = "2.3"
+url = { version = "2.5", features = ["serde"] }
+reqwest = { package = "gpui-pre-reqwest", version = "0.12.15", default-features = false, features = ["rustls-tls-webpki-roots", "json", "http2"] }
+tempfile = "3"
+sha2 = "0.10"
+hex = "0.4"
+subtle = "2.6"
+uuid = { version = "1", features = ["v4"] }
+
+# RW51-EPIC1-T1: `specta` and `tauri-specta` E2E TypeScript/JSDoc contract generation metadata.
+# Offline-safe configuration (`--offline`) exported via `src/bindings.rs::generate_specta_builder()`.
+[package.metadata.specta]
+engine = "specta"
+adapter = "tauri-specta"
+bindings_js = "ui/bindings.js"
+bindings_dts = "ui/bindings.d.ts"
+strict_no_any = true
+
+[profile.dev]
+debug = 1
+
+[profile.test]
+debug = 1
+

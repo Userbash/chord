@@ -22,7 +22,9 @@ mod net;
 pub mod perf_benchmark;
 pub mod pipewire_portal;
 pub mod platform;
+mod process_rss;
 pub mod quality_gate;
+pub mod session;
 mod state;
 mod storage;
 mod theme;
@@ -48,19 +50,6 @@ fn detect_display_backend() -> &'static str {
         (false, true) => "x11",
         (false, false) => "headless",
     }
-}
-
-fn read_vmrss_kb() -> u64 {
-    std::fs::read_to_string("/proc/self/status")
-        .ok()
-        .and_then(|status| {
-            status
-                .lines()
-                .find(|line| line.starts_with("VmRSS:"))
-                .and_then(|line| line.split_whitespace().nth(1))
-                .and_then(|val| val.parse::<u64>().ok())
-        })
-        .unwrap_or(1024)
 }
 
 fn run_headless_smoke() -> i32 {
@@ -94,27 +83,47 @@ fn run_headless_smoke() -> i32 {
     let fps_budget_ok = frame_ok && tick_us < 8_300;
 
     let theme_ok = theme::DISCORD_THEME.bg_primary != theme::DISCORD_THEME.bg_secondary;
-    let vmrss_kb = read_vmrss_kb();
+    let vmrss_kb = match process_rss::current_process_rss_kb() {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("smoke: EnvFail: RSS measurement unavailable: {error}");
+            return 2;
+        }
+    };
     let vmrss_mb = (vmrss_kb as f64) / 1024.0;
+    let all_ok = sqlite_wal_ok && fps_budget_ok && theme_ok && vmrss_mb < 60.0;
+    let status = if all_ok { "ok" } else { "degraded" };
 
-    let report = serde_json::json!({
-        "status": if sqlite_wal_ok && fps_budget_ok && theme_ok && vmrss_mb < 60.0 { "ok" } else { "degraded" },
-        "display_backend": backend,
-        "window_width": 1280,
-        "window_height": 720,
-        "min_width": 900,
-        "min_height": 550,
-        "guilds": guild_count,
-        "channels": channel_count,
-        "sqlite_wal_ok": sqlite_wal_ok,
-        "fps_budget_ok": fps_budget_ok,
-        "frame_tick_us": tick_us,
-        "vmrss_kb": vmrss_kb,
-        "vmrss_mb": (vmrss_mb * 100.0).round() / 100.0,
-    });
+    // OPT-4: --smoke=summary → одна строка вместо JSON blob.
+    // AI-воркер читает "SMOKE ok guilds=5 vmrss=42MB" — не нужен JSON-парсинг (экономия ~480 токен/вызов).
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    let summary_mode = args.iter().any(|a| a == "--smoke=summary");
 
-    println!("GPUI_SMOKE_OK {report}");
-    if report["status"] == "ok" { 0 } else { 1 }
+    if summary_mode {
+        println!(
+            "SMOKE {status} backend={backend} guilds={guild_count} ch={channel_count} \
+             sqlite={sqlite_wal_ok} fps={fps_budget_ok} tick={tick_us}us vmrss={vmrss_mb:.1}MB"
+        );
+    } else {
+        // Режим по умолчанию — полный JSON (для CI/machines)
+        let report = serde_json::json!({
+            "status": status,
+            "display_backend": backend,
+            "window_width": 1280,
+            "window_height": 720,
+            "min_width": 900,
+            "min_height": 550,
+            "guilds": guild_count,
+            "channels": channel_count,
+            "sqlite_wal_ok": sqlite_wal_ok,
+            "fps_budget_ok": fps_budget_ok,
+            "frame_tick_us": tick_us,
+            "vmrss_kb": vmrss_kb,
+            "vmrss_mb": (vmrss_mb * 100.0).round() / 100.0,
+        });
+        println!("GPUI_SMOKE_OK {report}");
+    }
+    if all_ok { 0 } else { 1 }
 }
 
 fn main() {
@@ -135,6 +144,11 @@ fn main() {
         .ok()
         .or_else(|| std::env::var("SPIKE_EXIT_AFTER_MS").ok())
         .and_then(|v| v.parse::<u64>().ok());
+
+    let shutdown_coordinator = session::runtime::install_os_signal_shutdown_hook(
+        session::runtime::ShutdownCoordinator::new(),
+    );
+    let shutdown_for_run = shutdown_coordinator.clone();
 
     gpui_kit::application().run(move |cx| {
         gpui_kit::init(cx);
@@ -163,13 +177,17 @@ fn main() {
         .expect("Не удалось открыть главное окно Discord GPUI");
 
         if let Some(ms) = exit_after_ms {
+            let shutdown_for_timer = shutdown_for_run.clone();
             cx.spawn(async move |cx| {
                 cx.background_executor()
                     .timer(std::time::Duration::from_millis(ms))
                     .await;
-                let _ = cx.update(|cx| cx.quit());
+                shutdown_for_timer.request_shutdown(session::runtime::ShutdownReason::AppQuit);
+                cx.update(|cx| cx.quit());
             })
             .detach();
         }
     });
+
+    shutdown_coordinator.request_shutdown(session::runtime::ShutdownReason::AppQuit);
 }

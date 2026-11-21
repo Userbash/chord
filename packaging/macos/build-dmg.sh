@@ -503,6 +503,23 @@ write_info_plist() {
       </array>
     </dict>
   </array>
+  <key>CFBundleDocumentTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>Discord GPUI Server Invite</string>
+      <key>CFBundleTypeRole</key>
+      <string>Viewer</string>
+      <key>CFBundleTypeExtensions</key>
+      <array>
+        <string>discord-invite</string>
+      </array>
+      <key>CFBundleTypeMIMETypes</key>
+      <array>
+        <string>application/x-discord-gpui-invite</string>
+      </array>
+    </dict>
+  </array>
 </dict>
 </plist>
 EOF

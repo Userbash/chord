@@ -53,6 +53,7 @@ __pycache__/
 rust/dist/discord-gui-spike
 rust/dist/discord-gpui
 rust/dist/chord
+rust/dist/chord-client
 rust/dist/*.tar.gz
 rust/dist/*.AppImage*
 rust/dist/discord-rs

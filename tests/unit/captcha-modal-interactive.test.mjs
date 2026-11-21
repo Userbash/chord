@@ -615,7 +615,7 @@ describe("4. TASK-818: Локальный мост hcaptcha-bridge.html, уст�
   const LIVE_DISCORD_RQDATA =
     "92gRgMZWCdUQfzt8d4cRs6IEgLCIW0Qa6MSSRei9SZlx0LjIJRCa1VfxlC9rQ/HzGp37O5B93wKfHfj9W+p31FWTAk7Il8+TqZhagyzlF+4I6mz7usMdpt81pCY64gZOkuSg3LfdPmDM5g==aubnoMnDsiDpk4id";
   const LIVE_DISCORD_RQTOKEN =
-    "ImE0d1BkU1hNRHVSYWZuaEpzR29RL3ZwN1ZrNUNhT21pUUszNFIvdndKMGJXbnVlaG5ucDlCSWx0T05OWGMveEl5QnNlSGc9PVlTNEJoak5RRFh6V3BMV3Ui.avNdig.8VqYH8cc9HvDEBQHHl-FMuU1qHY";
+    "mock_captcha_rqtoken_live_discord_sanitized_token_value";
   const LIVE_DISCORD_SESSION_ID = "7d05ae83-ba3b-4b61-9a33-c08ce00e1eed";
 
   it("шаблон rust/gui-spike/ui/assets/hcaptcha-bridge.html существует, содержит api.js, sitekey b2b02ab5-7dae-4d6f-830e-7b55634c888b, rqdata, dark theme и postMessage мост без AccessDenied", () => {

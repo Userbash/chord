@@ -1,3 +1,5 @@
+//! Interactive CAPTCHA verification modal rendered inside the GPUI workspace.
+
 use crate::state::AppState;
 use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;

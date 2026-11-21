@@ -2,14 +2,14 @@
 //! Фаззинг `Aes128GcmTruncated8` (DAVE v1 media AEAD) и верификации повреждённых
 //! сообщений MLS `Proposal` (op:27) и `Commit` / `Welcome` (op:29/30) без утечек памяти.
 
-use discord_voice::DaveMlsEngine;
-use discord_voice::crypto::CryptoError;
-use discord_voice::crypto::gcm::Aes128GcmTruncated8;
-use discord_voice::dave_v1::{
+use chord_voice::DaveMlsEngine;
+use chord_voice::crypto::CryptoError;
+use chord_voice::crypto::gcm::Aes128GcmTruncated8;
+use chord_voice::dave_v1::{
     DaveFrameDecryptor, DaveFrameEncryptor, DaveHashRatchet, DaveMlsGroupContext,
     DaveMlsKeySchedule, DaveVoiceSession,
 };
-use discord_voice::srtp::EncryptionMode;
+use chord_voice::srtp::EncryptionMode;
 use libfuzzer_sys::fuzz_target;
 use std::cell::RefCell;
 

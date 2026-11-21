@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты интерактивного радара участников голосового канала `SpatialRadar`
  * с расстановкой аватаров в пространстве и сохранением координат в SQLite (TASK-1017B):
- * - SUB-1017B-0: Статический и компиляционный контракт `rust/discord-gpui/src/voice/spatial_radar.rs`
+ * - SUB-1017B-0: Статический и компиляционный контракт `rust/chord-gpui/src/voice/spatial_radar.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, соблюдение лимитов
  *   `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, чистый `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -27,7 +27,7 @@
  *   `400/401/403/404/413/429 retry_after_ms/5xx`; пустой радар `0` пиров; прогрев `skeleton`/`HTTP 202`;
  *   права `VIEW_CHANNEL`/`CONNECT`/`SPEAK`/`AGE_GATED_SPACES`; откат при повреждении страницы SQLite;
  *   маскирование секретов).
- * - SUB-1017B-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/voice/spatial_radar.rs`.
+ * - SUB-1017B-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/voice/spatial_radar.rs`.
  */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -51,7 +51,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/voice/spatial_radar.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/voice/spatial_radar.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const RE_VOICE_CANDIDATES_PATH = "/home/sanya/re-deep/voice/ui/01-candidates.json";
@@ -66,7 +66,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/voice/spatial_radar.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/voice/spatial_radar.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -183,7 +183,7 @@ function oracleRadarXyToPolar(xPx, yPx, snapStepDeg = null) {
   return { azimuthDeg, distanceM, clampedRadiusPx };
 }
 
-describe("TASK-1017B: Интерактивный радар участников голосового канала SpatialRadar с сохранением координат в SQLite (rust/discord-gpui/src/voice/spatial_radar.rs)", () => {
+describe("TASK-1017B: Интерактивный радар участников голосового канала SpatialRadar с сохранением координат в SQLite (rust/chord-gpui/src/voice/spatial_radar.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "spatial-radar-1017b-"));
     testBinPath = join(workDir, "spatial_radar_1017b_test");
@@ -195,7 +195,7 @@ describe("TASK-1017B: Интерактивный радар участников
     }
   });
 
-  it("SUB-1017B-0: проверяет статический и компиляционный контракт rust/discord-gpui/src/voice/spatial_radar.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, 0 .unwrap()/.expect() и отсутствие секретов)", () => {
+  it("SUB-1017B-0: проверяет статический и компиляционный контракт rust/chord-gpui/src/voice/spatial_radar.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, 0 .unwrap()/.expect() и отсутствие секретов)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,

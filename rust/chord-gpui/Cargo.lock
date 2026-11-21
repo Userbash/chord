@@ -1006,6 +1006,98 @@ dependencies = [
 ]
 
 [[package]]
+name = "chord-codec"
+version = "0.1.0"
+dependencies = [
+ "zstd",
+]
+
+[[package]]
+name = "chord-core"
+version = "0.1.0"
+dependencies = [
+ "chord-codec",
+ "chord-json",
+ "chord-voice",
+ "futures-util",
+ "httparse",
+ "rustls",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-rustls",
+ "tokio-tungstenite",
+ "twilight-model",
+ "twilight-util",
+ "webpki-roots 1.0.11",
+]
+
+[[package]]
+name = "chord-gpui"
+version = "0.1.0"
+dependencies = [
+ "aes-gcm",
+ "async-channel",
+ "chacha20poly1305",
+ "chord-codec",
+ "chord-core",
+ "chord-i18n",
+ "chord-json",
+ "chord-media",
+ "chord-platform",
+ "chord-store",
+ "chord-voice",
+ "cpal",
+ "gpui-component",
+ "gpui-kit",
+ "gpui-pre",
+ "gpui-webview",
+ "hkdf",
+ "hmac",
+ "image",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tokio",
+]
+
+[[package]]
+name = "chord-i18n"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+]
+
+[[package]]
+name = "chord-json"
+version = "0.1.0"
+
+[[package]]
+name = "chord-media"
+version = "0.1.0"
+
+[[package]]
+name = "chord-platform"
+version = "0.1.0"
+dependencies = [
+ "cpal",
+ "libc",
+]
+
+[[package]]
+name = "chord-store"
+version = "0.1.0"
+
+[[package]]
+name = "chord-voice"
+version = "0.1.0"
+dependencies = [
+ "chord-json",
+ "serde",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1687,90 +1779,6 @@ dependencies = [
  "option-ext",
  "redox_users 0.5.2",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "discord-codec"
-version = "0.1.0"
-dependencies = [
- "zstd",
-]
-
-[[package]]
-name = "discord-core"
-version = "0.1.0"
-dependencies = [
- "discord-codec",
- "discord-json",
- "discord-voice",
- "futures-util",
- "httparse",
- "rustls",
- "tokio",
- "tokio-rustls",
- "tokio-tungstenite",
- "webpki-roots 1.0.11",
-]
-
-[[package]]
-name = "discord-gpui"
-version = "0.1.0"
-dependencies = [
- "aes-gcm",
- "async-channel",
- "chacha20poly1305",
- "cpal",
- "discord-codec",
- "discord-core",
- "discord-i18n",
- "discord-json",
- "discord-media",
- "discord-platform",
- "discord-store",
- "discord-voice",
- "gpui-component",
- "gpui-kit",
- "gpui-pre",
- "gpui-webview",
- "image",
- "rusqlite",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "discord-i18n"
-version = "0.1.0"
-dependencies = [
- "discord-json",
-]
-
-[[package]]
-name = "discord-json"
-version = "0.1.0"
-
-[[package]]
-name = "discord-media"
-version = "0.1.0"
-
-[[package]]
-name = "discord-platform"
-version = "0.1.0"
-dependencies = [
- "libc",
-]
-
-[[package]]
-name = "discord-store"
-version = "0.1.0"
-
-[[package]]
-name = "discord-voice"
-version = "0.1.0"
-dependencies = [
- "discord-json",
- "serde",
 ]
 
 [[package]]
@@ -5580,6 +5588,15 @@ checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
 
 [[package]]
 name = "ordered-float"
+version = "2.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68f19d67e5a2795c94e73e0bb1cc1a7edeb2e28efd39e2e1c9b7a40c1108b11c"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "ordered-float"
 version = "5.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c7c9e0d9b23589f26070720bac724174bfec1083e82f7854cdd0267518343c0"
@@ -7102,6 +7119,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-value"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3a1a3341211875ef120e117ea7fd5228530ae7e7036a779fdc9117be6b3282c"
+dependencies = [
+ "ordered-float 2.10.1",
+ "serde",
+]
+
+[[package]]
 name = "serde_bytes"
 version = "0.11.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8233,6 +8260,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "twilight-model"
+version = "0.15.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "276bd50f4817b3b421395afac89f5d7b61fdfd0f00a28b2a7db983e4878b4a1a"
+dependencies = [
+ "bitflags 1.3.2",
+ "serde",
+ "serde-value",
+ "serde_repr",
+ "time",
+]
+
+[[package]]
+name = "twilight-util"
+version = "0.15.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe3149347d8222e042a55deba80cd32f93f14770bbb845b8e4cfbd70a5062c56"
+dependencies = [
+ "twilight-model",
+]
+
+[[package]]
 name = "typenum"
 version = "1.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8967,7 +9016,7 @@ dependencies = [
  "objc2-metal 0.3.2",
  "objc2-quartz-core 0.3.2",
  "once_cell",
- "ordered-float",
+ "ordered-float 5.5.0",
  "parking_lot",
  "portable-atomic",
  "portable-atomic-util",

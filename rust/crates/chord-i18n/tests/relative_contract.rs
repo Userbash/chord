@@ -260,10 +260,7 @@ fn t09_oracle_matrix_matches_exactly() {
             if let Some(value) = object.get("unit").and_then(chord_json::JsonValue::as_str) {
                 units.insert(value.to_owned());
             }
-            if let Some(value) = object
-                .get("style")
-                .and_then(chord_json::JsonValue::as_str)
-            {
+            if let Some(value) = object.get("style").and_then(chord_json::JsonValue::as_str) {
                 styles.insert(value.to_owned());
             }
             if let Some(value) = object

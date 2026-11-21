@@ -1,13 +1,24 @@
-# Discord Lab & Discord GPUI — Documentation Index
+# Chord — Documentation Index
 
-Welcome to the comprehensive documentation for **Discord Lab & Discord GPUI Client**.
+Welcome to the comprehensive documentation for **Chord**.
+
+> **Document Authority & Entry Hierarchy:**
+> - **External Contributors:** [`README.md`](../README.md) + [`CONTRIBUTING.md`](../CONTRIBUTING.md) + [`AI-AGENTS.md`](../AI-AGENTS.md)
+> - **Internal Workers:** [`AGENTS.md`](../AGENTS.md) + [`TEST-POLICY.md`](../TEST-POLICY.md)
+> - **Historical Plans:** Archived wave plans (`CODEX-WORKERS.md`, `WAVE-PLAN.md`, `DEVELOPMENT-PROMPT.md`) live in [`docs/archive/rust-client/`](archive/rust-client/).
 
 ## 1. Quick Navigation
 
 | Document | Link | Purpose |
 | :--- | :--- | :--- |
 | **Main Overview** | [`README.md`](../README.md) | Architecture, benchmarks, features, quick start |
+| **Comprehensive Guide** | [`GUIDE.md`](GUIDE.md) | Unified user guide, beta testing instructions, shortcuts, audio/video streaming, debugging |
+| **User Guide** | [`USER-GUIDE.md`](USER-GUIDE.md) | Features, shortcuts, keyring troubleshooting, media cache, integrations |
+| **Architecture Reference** | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Crate inventory, REST v9, 64-bit permissions, SQLite WAL, UI catalog, i18n |
+| **AI Collaboration Guide** | [`AI-AGENTS.md`](../AI-AGENTS.md) | AMCP v2.0 protocol, multi-agent rules, review gates |
+| **AI Swarm Standard** | [`specs/AI-SWARM-ENGINEERING-STANDARD.md`](specs/AI-SWARM-ENGINEERING-STANDARD.md) | ASES-1.0 standard for 10–100 concurrent AI agents, dynamic leases & merge queue |
 | **Contributing Guide** | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Clean-Room rules, TDD, code style, PRs |
+| **Developer Alpha Limitations** | [`DEVELOPER_ALPHA_LIMITATIONS.md`](DEVELOPER_ALPHA_LIMITATIONS.md) | Known gaps and roadmap in Developer Alpha Preview |
 | **License** | [`LICENSE`](../LICENSE) | GNU General Public License v3.0 |
 | **Beta Testing Guide** | [`BETA-TESTING-GUIDE.md`](BETA-TESTING-GUIDE.md) | How to test the v1.0.0-beta.1 native release |
 | **System Requirements** | [`SYSTEM-REQUIREMENTS.md`](SYSTEM-REQUIREMENTS.md) | Linux libraries, Vulkan, PipeWire, llvmpipe |
@@ -23,15 +34,21 @@ Welcome to the comprehensive documentation for **Discord Lab & Discord GPUI Clie
 
 ```
 rust/
-├── discord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
+├── chord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
 └── crates/
-    ├── discord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls
-    ├── discord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°
-    ├── discord-media/    # Zero-copy audio buffers, two-tier LRU media cache
-    ├── discord-platform/ # XDG autostart, system tray, D-Bus, FFI Keyring, Spotify MPRIS
-    ├── discord-store/    # SQLite FTS5 full-text search, WAL mode, encrypted store
-    ├── discord-codec/    # ETF binary codec (zip-bomb safe) & zstd streams
-    └── discord-i18n/     # Internationalization: 36 locales, xxh64 hashed keys
+    ├── chord-app/          # Application bootstrap, lifecycle & integration wiring
+    ├── chord-core/         # REST API v9, Gateway v9, Forums, Threads, Polls
+    ├── chord-voice/        # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°
+    ├── chord-media/        # Zero-copy audio buffers, two-tier LRU media cache
+    ├── chord-platform/     # XDG autostart, system tray, D-Bus, FFI Keyring, Spotify MPRIS
+    ├── chord-store/        # SQLite FTS5 full-text search, WAL mode, encrypted store
+    ├── chord-codec/        # ETF binary codec (zip-bomb safe) & zstd streams
+    ├── chord-i18n/         # Internationalization: 36 locales, xxh64 hashed keys
+    ├── chord-ui/           # Shared GPUI UI primitives & component library
+    ├── chord-json/         # Zero-copy / strict JSON helpers
+    ├── chord-perf/         # Frame budget & memory benchmarking utilities
+    ├── chord-updater/      # Auto-update checker & release verification
+    └── chord-conformance/  # Protocol conformance tests & clean-room oracle checks
 ```
 
 ### Key Technical Specs:

@@ -3,7 +3,7 @@
 - **Task**: `TASK-790` (`G6 Tech Writer` / `G5 Voice & Platform` / `G1 Backend`)
 - **Related Tasks**: `TASK-761`, `TASK-775`, `TASK-776`, `TASK-777`, `TASK-778`, `TASK-779`
 - **Key Modules**:
-  - [`rust/crates/discord-core/src/ws.rs`](rust/crates/discord-core/src/ws.rs) — native C addon `DV_SCOPE_FIX_C` (`/tmp/dv_scope_fix.node`), JS runner `DV_BRIDGE_JS` (`/tmp/discord_voice_dave_bridge.js`), Gateway signaling (`OP 4/18/19/20/22`), and Voice WS `v=8` (`OP 0/1/2/4/5/12/15/16/21/22/24`).
+  - [`rust/crates/chord-core/src/ws.rs`](rust/crates/chord-core/src/ws.rs) — native C addon `DV_SCOPE_FIX_C` (`/tmp/dv_scope_fix.node`), JS runner `DV_BRIDGE_JS` (`/tmp/discord_voice_dave_bridge.js`), Gateway signaling (`OP 4/18/19/20/22`), and Voice WS `v=8` (`OP 0/1/2/4/5/12/15/16/21/22/24`).
   - [`rust/gui-spike/src/data.rs`](rust/gui-spike/src/data.rs) — stream state management (`reset_live_stream_state`), KWin window enumeration (`query_kwin_active_windows`), and on-the-fly capture target updates (`set_system_audio_device("set_capture_source")`).
   - [`rust/gui-spike/src/main.rs`](rust/gui-spike/src/main.rs) — Tauri IPC commands `voice_stream_start`, `voice_stream_stop`, `voice_stream_watch`, `voice_stream_set_paused`.
   - [`rust/gui-spike/ui/app.js`](rust/gui-spike/ui/app.js) — UI components for Stage Viewer (`#live-stream-stage-viewer`), floating PiP preview (`#live-stream-pip-preview`), and hot-switching capture targets (`switchLiveStreamSource`).
@@ -14,7 +14,7 @@
 
 ### 1.1. Root Cause of Standard WebRTC Capture Failures in Linux Wayland
 
-The native module [`discord_voice.node`](rust/crates/discord-core/src/ws.rs#L2892) launches inside a child Node.js process with the environment variable `XDG_SESSION_TYPE=x11` (to activate the synchronous X11 capturer within WebRTC and bypass blocking portal prompts on every window change).
+The native module [`discord_voice.node`](rust/crates/chord-core/src/ws.rs#L2892) launches inside a child Node.js process with the environment variable `XDG_SESSION_TYPE=x11` (to activate the synchronous X11 capturer within WebRTC and bypass blocking portal prompts on every window change).
 
 Within `discord_voice.node`, the `SetScreenshareSourceLinux` invocation instantiates one of two WebRTC classes:
 1. With `type: "window"` (`type: 2`), `webrtc::WindowCapturerX11` is instantiated. In a KDE Plasma Wayland session, native Wayland application windows lack X11 XID handles, using KWin UUIDs such as `{6ad0aefd-103b-4fa1-b650-3e016c818a00}` instead. Passing this UUID or `"0"` to `SelectSource` causes an XID parse error (`0`), failing `SelectSource(0)` and resetting the capturer pointer to `nullptr`:
@@ -54,7 +54,7 @@ flowchart TD
 
 ### 1.3. XShm Prologue Patching and Ring Buffer in `/tmp/dv_scope_fix.node`
 
-Upon initialization in `napi_register_module_v1` ([`ws.rs:2803-2880`](rust/crates/discord-core/src/ws.rs#L2803-L2880)), the `/tmp/dv_scope_fix.node` module:
+Upon initialization in `napi_register_module_v1` ([`ws.rs:2803-2880`](rust/crates/chord-core/src/ws.rs#L2803-L2880)), the `/tmp/dv_scope_fix.node` module:
 1. Preloads shared libraries into `RTLD_GLOBAL`: `libffmpeg.so`, `libopenh264-2.7.0-linux64.8.so`, `libturbojpeg.so.0`, `libX11.so.6`, `libXext.so.6`, `libgio-2.0.so.0`, and configures the OpenH264 library path via `ff_libopenh264_set_library_path` / `ff_libopenh264_load_library`.
 2. Patches the machine code prologue (`patch_prologue`, 12-byte `movabs rax, <hook>; jmp rax`) for:
    - `XShmQueryVersion` → `hook_XShmQueryVersion` (always reports XShm v1.1 support without shared pixmaps).
@@ -65,7 +65,7 @@ Upon initialization in `napi_register_module_v1` ([`ws.rs:2803-2880`](rust/crate
 
 ### 1.4. Capture Target Routing via `/dev/shm/discord_capture_target.txt` and KWin `ScreenShot2`
 
-In [`capture_kwin_dbus_to_ring`](rust/crates/discord-core/src/ws.rs#L2292-L2437), on every capture cycle iteration:
+In [`capture_kwin_dbus_to_ring`](rust/crates/chord-core/src/ws.rs#L2292-L2437), on every capture cycle iteration:
 1. **Impulse Trigger Check `/dev/shm/discord_capture_kick.bin`**:
    - If present, unlinked immediately, `g_last_capture_req_ms` is updated, and current frame is written to `/dev/shm/discord_live_preview_thumb.jpg`.
 2. **Read and Normalize `/dev/shm/discord_capture_target.txt`**:
@@ -137,10 +137,10 @@ sequenceDiagram
 
 ### 2.1. Main Gateway Opcodes: `OP 18`, `OP 19`, and Related `OP 4/20/22`
 
-All outbound packets to the main gateway are encoded into Erlang External Term Format (`ETF`) via `discord_codec::etf::encode` ([`ws.rs:1176-1469`](rust/crates/discord-core/src/ws.rs#L1176-L1469)). For compatibility with `wetf` (`null: "atom"`), `null` values must be encoded as `EtfValue::Atom("nil")`, and boolean fields as `EtfValue::Atom("true" | "false")`.
+All outbound packets to the main gateway are encoded into Erlang External Term Format (`ETF`) via `discord_codec::etf::encode` ([`ws.rs:1176-1469`](rust/crates/chord-core/src/ws.rs#L1176-L1469)). For compatibility with `wetf` (`null: "atom"`), `null` values must be encoded as `EtfValue::Atom("nil")`, and boolean fields as `EtfValue::Atom("true" | "false")`.
 
 #### 1. `Gateway OP 18 STREAM_CREATE`
-- **Functions**: [`queue_live_stream_create`](rust/crates/discord-core/src/ws.rs#L1342-L1381) and auto-dispatch upon `self_stream: true` in [`queue_live_voice_state_ext`](rust/crates/discord-core/src/ws.rs#L1264-L1305).
+- **Functions**: [`queue_live_stream_create`](rust/crates/chord-core/src/ws.rs#L1342-L1381) and auto-dispatch upon `self_stream: true` in [`queue_live_voice_state_ext`](rust/crates/chord-core/src/ws.rs#L1264-L1305).
 - **Purpose**: Initiates a `Go Live` session in a guild voice channel (`type: "guild"`) or direct call (`type: "call"`).
 - **Format of `stream_key`**:
   - Guild: `guild:{guild_id}:{channel_id}:{user_id}` (4 segments; `server_id` at index `1`, `channel_id` at index `2`).
@@ -160,7 +160,7 @@ All outbound packets to the main gateway are encoded into Erlang External Term F
 - Dispatched concurrently with `Gateway OP 4 VOICE_STATE_UPDATE` with `"self_stream": true` and `"flags": 2`.
 
 #### 2. `Gateway OP 19 STREAM_DELETE`
-- **Functions**: [`queue_live_stream_delete`](rust/crates/discord-core/src/ws.rs#L1412-L1443), called from `voice_stream_stop`, `voice_disconnect` ([`main.rs:1510-1553`](rust/gui-spike/src/main.rs#L1510-L1553)) and `queue_live_voice_state_ext` on `self_stream: false`.
+- **Functions**: [`queue_live_stream_delete`](rust/crates/chord-core/src/ws.rs#L1412-L1443), called from `voice_stream_stop`, `voice_disconnect` ([`main.rs:1510-1553`](rust/gui-spike/src/main.rs#L1510-L1553)) and `queue_live_voice_state_ext` on `self_stream: false`.
 - **Purpose**: Stops broadcaster's stream or disconnects a viewer.
 - **Payload Schema**:
   ```json
@@ -173,29 +173,29 @@ All outbound packets to the main gateway are encoded into Erlang External Term F
   ```
 - **Stream Restart Invariants**:
   When invoking `queue_live_stream_delete` and `voice_stream_stop`:
-  1. [`clear_last_stream_key()`](rust/crates/discord-core/src/ws.rs#L1330-L1337) clears cached `LAST_STREAM_KEY`.
+  1. [`clear_last_stream_key()`](rust/crates/chord-core/src/ws.rs#L1330-L1337) clears cached `LAST_STREAM_KEY`.
   2. [`data::reset_live_stream_state()`](rust/gui-spike/src/data.rs) resets `LOCAL_SELF_STREAM` to `false`, clears `stream_launched_token = None`, and terminates child stream worker via `stop_live_stream_rtc_session()`.
 
 #### 3. Related Gateway Opcodes (`OP 20` and `OP 22`)
-- **`Gateway OP 20 STREAM_WATCH`** ([`queue_live_stream_watch`](rust/crates/discord-core/src/ws.rs#L1385-L1407)): `{"op": 20, "d": {"stream_key": "..."}}`.
-- **`Gateway OP 22 STREAM_SET_PAUSED`** ([`queue_live_stream_set_paused`](rust/crates/discord-core/src/ws.rs#L1447-L1469)): `{"op": 22, "d": {"stream_key": "...", "paused": true|false}}`.
+- **`Gateway OP 20 STREAM_WATCH`** ([`queue_live_stream_watch`](rust/crates/chord-core/src/ws.rs#L1385-L1407)): `{"op": 20, "d": {"stream_key": "..."}}`.
+- **`Gateway OP 22 STREAM_SET_PAUSED`** ([`queue_live_stream_set_paused`](rust/crates/chord-core/src/ws.rs#L1447-L1469)): `{"op": 22, "d": {"stream_key": "...", "paused": true|false}}`.
 
 ---
 
 ### 2.2. Voice & Stream Gateway Opcodes (Voice WS `v=8`: `OP 1`, `OP 12`, `OP 16`, `OP 22`)
 
-Upon receiving `STREAM_CREATE` and `STREAM_SERVER_UPDATE`, [`start_live_stream_rtc_session`](rust/crates/discord-core/src/ws.rs#L4240-L4357) establishes a second WebSocket connection `wss://{endpoint}/?v=8` and spawns `node /tmp/discord_voice_dave_bridge.js` with `DV_CONTEXT="stream"`.
+Upon receiving `STREAM_CREATE` and `STREAM_SERVER_UPDATE`, [`start_live_stream_rtc_session`](rust/crates/chord-core/src/ws.rs#L4240-L4357) establishes a second WebSocket connection `wss://{endpoint}/?v=8` and spawns `node /tmp/discord_voice_dave_bridge.js` with `DV_CONTEXT="stream"`.
 
 > [!IMPORTANT]
 > **Microphone Isolation in Stream Worker (`ws.rs:5192-5217`)**: The `DV_CONTEXT="stream"` process never connects to the physical microphone (`PULSE_SOURCE` set to `{default_sink}.monitor` or `__discord_stream_no_mic__`), preventing the stream ADM from muting or hijacking the main voice audio channel.
 
 #### 1. `Voice OP 16 VOICE_BACKEND_VERSION`
-- **Location**: [`ws.rs:5325`](rust/crates/discord-core/src/ws.rs#L5325).
+- **Location**: [`ws.rs:5325`](rust/crates/chord-core/src/ws.rs#L5325).
 - **Timing**: Dispatched immediately after `Voice OP 0 IDENTIFY`.
 - **Payload**: `{"op": 16, "d": {}}`.
 
 #### 2. `Voice OP 1 SELECT_PROTOCOL`
-- **Location**: [`ws.rs:5576-5580`](rust/crates/discord-core/src/ws.rs#L5576-L5580) and [`ws.rs:5997-6018`](rust/crates/discord-core/src/ws.rs#L5997-L6018).
+- **Location**: [`ws.rs:5576-5580`](rust/crates/chord-core/src/ws.rs#L5576-L5580) and [`ws.rs:5997-6018`](rust/crates/chord-core/src/ws.rs#L5997-L6018).
 - **Timing**: Following `Voice OP 2 READY` and 74-byte UDP IP Discovery.
 - **Payload**:
   ```json
@@ -224,8 +224,8 @@ Upon receiving `STREAM_CREATE` and `STREAM_SERVER_UPDATE`, [`start_live_stream_r
 
 #### 3. `Voice OP 12 VIDEO`
 - **Location**:
-  - Outbound TX: [`ws.rs:5653-5674`](rust/crates/discord-core/src/ws.rs#L5653-L5674).
-  - Inbound RX: [`ws.rs:5889-5948`](rust/crates/discord-core/src/ws.rs#L5889-L5948).
+  - Outbound TX: [`ws.rs:5653-5674`](rust/crates/chord-core/src/ws.rs#L5653-L5674).
+  - Inbound RX: [`ws.rs:5889-5948`](rust/crates/chord-core/src/ws.rs#L5889-L5948).
 - **Broadcaster Mode (`is_self_broadcaster == true`)**:
   ```json
   {
@@ -258,7 +258,7 @@ Upon receiving `STREAM_CREATE` and `STREAM_SERVER_UPDATE`, [`start_live_stream_r
   ```
 
 #### 4. `Voice OP 22 DAVE_MLS_EXECUTE_TRANSITION`
-- **Location**: [`ws.rs:4936-4945`](rust/crates/discord-core/src/ws.rs#L4936-L4945), [`ws.rs:5765-5781`](rust/crates/discord-core/src/ws.rs#L5765-L5781), handler in [`ws.rs:3766-3782`](rust/crates/discord-core/src/ws.rs#L3766-L3782).
+- **Location**: [`ws.rs:4936-4945`](rust/crates/chord-core/src/ws.rs#L4936-L4945), [`ws.rs:5765-5781`](rust/crates/chord-core/src/ws.rs#L5765-L5781), handler in [`ws.rs:3766-3782`](rust/crates/chord-core/src/ws.rs#L3766-L3782).
 - When receiving `Voice OP 22`:
   1. Sends `{"cmd": "dave_execute_transition", "transitionId": tid}` to native bridge.
   2. Bridge calls `conn.executeSecureFramesTransition(tid)`.
@@ -290,7 +290,7 @@ Upon receiving `STREAM_CREATE` and `STREAM_SERVER_UPDATE`, [`start_live_stream_r
 
 ### 3.1. Log File and Runtime Artifact Layout
 
-When launching `discord_voice.node`, [`DV_BRIDGE_JS`](rust/crates/discord-core/src/ws.rs#L2900-L2904) partitions log and data directories based on `DV_CONTEXT`:
+When launching `discord_voice.node`, [`DV_BRIDGE_JS`](rust/crates/chord-core/src/ws.rs#L2900-L2904) partitions log and data directories based on `DV_CONTEXT`:
 
 | Component | `DV_CONTEXT` | WebRTC Log Directory | Data Directory | Local HTTP Frame Server |
 |---|---|---|---|---|

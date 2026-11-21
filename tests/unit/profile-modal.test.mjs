@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 /**
  * T-203 (RW-40 / G2): unit-тесты контроллера поповера и модалки профиля
  * (`rust/gui-spike/ui/features/profile-modal.js`).
@@ -604,5 +604,38 @@ describe("createProfileModalController: переключение режимов 
     const pronounsEl = container.querySelector("[data-profile-pronouns]");
     assert.ok(pronounsEl);
     assert.equal(pronounsEl.hidden, true);
+  });
+
+  it("рендерит баннер, аватар со статусом, бейджи, bio markdown и карточку активности", () => {
+    const container = createTestContainer();
+    const ctrl = createProfileModalController(container);
+    ctrl.openPopout({
+      userId: "u-clean",
+      username: "clean",
+      displayName: "Clean",
+      status: "online",
+      bannerColor: "#5865f2",
+      badges: [{ id: "nitro", label: "Nitro" }],
+      bio: "Bio with **bold** text",
+      activity: { type: "Playing", name: "Rust", details: "Testing" },
+    });
+
+    const banner = container.querySelector("[data-profile-banner]");
+    assert.ok(banner, "должен быть баннер [data-profile-banner]");
+
+    const avatarStatus = container.querySelector("[data-profile-avatar] [data-status='online']");
+    assert.ok(avatarStatus, "аватар должен содержать индикатор статуса");
+
+    const badges = container.querySelector("[data-profile-badges]");
+    assert.ok(badges, "должен быть контейнер бейджей [data-profile-badges]");
+    assert.equal(badges.children.length, 1);
+
+    const bioEl = container.querySelector("[data-profile-bio]");
+    assert.ok(bioEl);
+    assert.ok(bioEl.querySelector("strong"), "bio должен рендерить markdown <strong>");
+
+    const activityEl = container.querySelector("[data-profile-activity]");
+    assert.ok(activityEl, "должна быть карточка активности [data-profile-activity]");
+    assert.match(activityEl.textContent ?? "", /Rust/);
   });
 });

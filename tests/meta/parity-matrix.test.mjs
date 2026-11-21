@@ -12,6 +12,7 @@ import assert from "node:assert/strict";
 import { readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { canonicalRustSourcePath } from "../../scripts/source-paths.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const MATRIX_PATH = "waves/RW-40/PARITY/MERGE-READINESS-V0.5.0.md";
@@ -298,7 +299,7 @@ describe("TASK-632: матрица паритета v0.5.0 и релизные �
       }
 
       for (const repoPath of repoPaths) {
-        const exists = await stat(join(root, repoPath)).then(
+        const exists = await stat(join(root, canonicalRustSourcePath(repoPath))).then(
           () => true,
           () => false,
         );

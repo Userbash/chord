@@ -80,6 +80,22 @@ impl Default for CurrentUser {
     }
 }
 
+/// Папка серверов из пакета READY по спецификации Discord API v9 и референсу `diamondburned/dissent`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct GuildFolder {
+    /// Уникальный Snowflake ID папки (`None` для серверов без группировки)
+    pub id: Option<u64>,
+    /// Пользовательское наименование папки (опционально)
+    #[serde(default)]
+    pub name: Option<String>,
+    /// Числовой цвет акцента папки в формате RGB (например `0x5865F2`)
+    #[serde(default)]
+    pub color: Option<u32>,
+    /// Список идентификаторов гильдий, входящих в данную папку
+    #[serde(default)]
+    pub guild_ids: Vec<String>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum ChannelType {
     #[default]
@@ -186,6 +202,124 @@ pub struct Message {
     pub is_pinned: bool,
     #[serde(default)]
     pub message_kind: MessageKind,
+}
+
+/// Discord API v9 Button style enumeration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(from = "u8", into = "u8")]
+pub enum ButtonStyle {
+    /// 1 = Primary (Discord Blurple accent style)
+    Primary,
+    /// 2 = Secondary (Neutral gray style)
+    Secondary,
+    /// 3 = Success (Green confirmation style)
+    Success,
+    /// 4 = Danger (Red destructive action style)
+    Danger,
+    /// 5 = Link (Hyperlink redirecting to external URL)
+    Link,
+}
+
+impl From<u8> for ButtonStyle {
+    fn from(val: u8) -> Self {
+        match val {
+            1 => Self::Primary,
+            2 => Self::Secondary,
+            3 => Self::Success,
+            4 => Self::Danger,
+            5 => Self::Link,
+            _ => Self::Secondary,
+        }
+    }
+}
+
+impl From<ButtonStyle> for u8 {
+    fn from(style: ButtonStyle) -> Self {
+        match style {
+            ButtonStyle::Primary => 1,
+            ButtonStyle::Secondary => 2,
+            ButtonStyle::Success => 3,
+            ButtonStyle::Danger => 4,
+            ButtonStyle::Link => 5,
+        }
+    }
+}
+
+/// Interactive message button (Discord Component Type 2: Button).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InteractiveButtonComponent {
+    /// Component type (always 2 for buttons).
+    #[serde(default = "default_button_type")]
+    pub component_type: u8,
+    /// Button visual style: Primary, Secondary, Success, Danger, Link.
+    pub style: ButtonStyle,
+    /// Human-readable label displayed on the button.
+    #[serde(default)]
+    pub label: Option<String>,
+    /// Unique action identifier for bot interaction callbacks (`custom_id`).
+    #[serde(default)]
+    pub custom_id: Option<String>,
+    /// Target external URL (only valid for `ButtonStyle::Link`).
+    #[serde(default)]
+    pub url: Option<String>,
+    /// Whether the button is disabled / non-interactive.
+    #[serde(default)]
+    pub disabled: bool,
+    /// Optional emoji character or custom name.
+    #[serde(default)]
+    pub emoji_name: Option<String>,
+}
+
+fn default_button_type() -> u8 {
+    2
+}
+
+/// Interactive message component row (Discord Component Type 1: ActionRow).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MessageComponentRow {
+    /// Component type (always 1 for ActionRow).
+    #[serde(default = "default_action_row_type")]
+    pub component_type: u8,
+    /// List of child components within the row (up to 5 buttons).
+    #[serde(default)]
+    pub components: Vec<InteractiveButtonComponent>,
+}
+
+fn default_action_row_type() -> u8 {
+    1
+}
+
+/// Interaction callback payload sent upon clicking an interactive button (`POST /api/v9/interactions`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InteractionCallbackPayload {
+    /// Interaction type: 3 = MESSAGE_COMPONENT.
+    #[serde(rename = "type")]
+    pub interaction_type: u8,
+    /// Application ID owning the interaction.
+    pub application_id: String,
+    /// Guild ID where the interaction took place (if applicable).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guild_id: Option<String>,
+    /// Target channel ID.
+    pub channel_id: String,
+    /// ID of the message hosting the clicked button.
+    pub message_id: String,
+    /// Active gateway session ID.
+    pub session_id: String,
+    /// Clicked component data payload.
+    pub data: InteractionComponentData,
+    /// Client nonce for idempotency and deduplication.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nonce: Option<String>,
+}
+
+/// Nested component data inside an interaction payload.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InteractionComponentData {
+    /// Component type (2 = Button).
+    pub component_type: u8,
+    /// The button's `custom_id`.
+    pub custom_id: String,
 }
 
 /// Состояние голосового/видео вызова в личном сообщении (Direct Call)

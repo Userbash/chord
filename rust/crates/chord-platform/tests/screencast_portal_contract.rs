@@ -45,7 +45,9 @@ fn complete_dbus_auth_and_hello(stream: &mut UnixStream, server_serial: &mut u32
     stream.read_exact(&mut nul).expect("read nul byte");
     assert_eq!(nul[0], 0);
 
-    let mut reader = BufReader::new(stream.try_clone().expect("clone stream"));
+    // BEGIN and binary Hello may arrive in one write. Avoid reading binary bytes
+    // into the auth buffer that is dropped before the recvmsg-based message reader.
+    let mut reader = BufReader::with_capacity(1, stream.try_clone().expect("clone stream"));
     let mut auth_line = String::new();
     reader.read_line(&mut auth_line).expect("read AUTH");
     assert!(auth_line.starts_with("AUTH EXTERNAL "));
@@ -82,6 +84,73 @@ fn complete_dbus_auth_and_hello(stream: &mut UnixStream, server_serial: &mut u32
     .expect("build Hello reply");
     *server_serial += 1;
     stream.write_all(&hello_reply).expect("write Hello reply");
+}
+
+fn assert_auth_reply(stream: &mut UnixStream, expected: &[u8]) {
+    let mut reply = vec![0u8; expected.len()];
+    stream
+        .read_exact(&mut reply)
+        .expect("read complete auth reply");
+    assert_eq!(reply, expected);
+}
+
+#[test]
+fn mock_auth_keeps_binary_hello_when_begin_and_hello_are_coalesced() {
+    let (mut client, mut server) = UnixStream::pair().expect("socketpair");
+    client
+        .set_read_timeout(Some(Duration::from_secs(1)))
+        .expect("client timeout");
+    server
+        .set_read_timeout(Some(Duration::from_secs(1)))
+        .expect("server timeout");
+    let mock = std::thread::spawn(move || {
+        complete_dbus_auth_and_hello(&mut server, &mut 1);
+    });
+    client
+        .write_all(b"\0AUTH EXTERNAL 31303030\r\n")
+        .expect("AUTH");
+    assert_auth_reply(&mut client, b"OK 0123456789abcdef0123456789abcdef\r\n");
+    client
+        .write_all(b"NEGOTIATE_UNIX_FD\r\n")
+        .expect("NEGOTIATE_UNIX_FD");
+    assert_auth_reply(&mut client, b"AGREE_UNIX_FD\r\n");
+    let hello = message::build(
+        MessageType::MethodCall,
+        1,
+        &[
+            (
+                FIELD_PATH,
+                Value::String("/org/freedesktop/DBus".to_string()),
+            ),
+            (
+                FIELD_INTERFACE,
+                Value::String("org.freedesktop.DBus".to_string()),
+            ),
+            (FIELD_MEMBER, Value::String("Hello".to_string())),
+            (
+                message::FIELD_DESTINATION,
+                Value::String("org.freedesktop.DBus".to_string()),
+            ),
+        ],
+        "",
+        &[],
+    )
+    .expect("Hello frame");
+    let mut request = b"BEGIN\r\n".to_vec();
+    request.extend_from_slice(&hello);
+    client
+        .write_all(&request)
+        .expect("coalesced BEGIN and Hello");
+    let mut response = Vec::new();
+    let read_result = client.read_to_end(&mut response);
+    let mock_result = mock.join();
+    assert!(
+        mock_result.is_ok(),
+        "mock must retain the binary Hello bytes after BEGIN"
+    );
+    read_result.expect("complete Hello response");
+    let reply = message::parse(&response).expect("parse Hello response");
+    assert_eq!(reply.body, vec![Value::String(":1.88".to_string())]);
 }
 
 #[test]

@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      override_pause:
+        description: "Override pause until 2026-12-01 (set to 'run')"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -11,31 +17,39 @@ permissions:
 jobs:
   test:
     name: fmt-clippy-test-bench
+    # CI/CD paused until 2026-12-01 per project directive
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.override_pause == 'run'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: rust
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libhunspell-dev libglib2.0-dev libsecret-1-dev pkg-config
       - name: Local CI contract
         run: bash scripts/ci.sh --online --skip-release
 
-  # QA-M2-04: browser fixture-e2e на pinned Chromium. Live/CDP здесь запрещён:
-  # набор собирается с `! -name 'live-*'`, live-переменная снимается через `env -u`.
+  # QA-M2-04: browser fixture-e2e on pinned Chromium. Live/CDP is forbidden here:
+  # the suite is collected with `! -name 'live-*'`, and the live variable is unset via `env -u`.
   qa-browser:
     name: qa-browser
+    # CI/CD paused until 2026-12-01 per project directive
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.override_pause == 'run'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
-      - name: Установка зависимостей
+      - name: Install dependencies
         run: npm ci
       - name: Pinned Chromium
         id: chrome
@@ -45,31 +59,35 @@ jobs:
           install-dependencies: "true"
       - name: CHROME_BIN
         run: echo "CHROME_BIN=${{ steps.chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
-      - name: "Preflight: браузер обязателен"
+      - name: "Preflight: browser required"
         run: |
           set -euo pipefail
-          : "${CHROME_BIN:?CHROME_BIN не задан — browser-job не может уйти в skip}"
-          test -x "$CHROME_BIN" || { echo "::error::CHROME_BIN=$CHROME_BIN не исполняется"; exit 1; }
+          : "${CHROME_BIN:?CHROME_BIN is not set — browser-job cannot skip}"
+          test -x "$CHROME_BIN" || { echo "::error::CHROME_BIN=$CHROME_BIN is not executable"; exit 1; }
           "$CHROME_BIN" --version
           node --version
           mkdir -p .gate
-      - name: "Meta: контракт qa-browser"
-        run: node --test --test-concurrency=1 tests/meta/ci-browser.test.mjs
-      - name: Fixture browser e2e (live исключён)
+      - name: "Meta: qa-browser contract"
+        run: |
+          node --test --test-concurrency=1 tests/meta/ci-browser.test.mjs tests/meta/fixture-e2e-selection.test.mjs
+          python3 tests/meta/fixture-junit-validator.test.py
+      - name: Fixture browser e2e (live excluded)
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t files < <(find tests/e2e -maxdepth 1 -type f -name '*.e2e.test.mjs' ! -name 'live-*' | sort)
+          mapfile -t files < <(find tests/e2e -maxdepth 1 -type f -name '*.test.mjs' ! -name 'live-*' | sort)
           if [[ "${#files[@]}" -eq 0 ]]; then
-            echo "::error::fixture-файлы tests/e2e/*.e2e.test.mjs не найдены"
+            echo "::error::fixture files tests/e2e/*.test.mjs not found"
             exit 1
           fi
-          printf 'fixture-набор: %s\n' "${files[*]}"
+          printf 'fixture-suite: %s\n' "${files[*]}"
           env -u DISCORD_LAB_LIVE_CDP -u CHROME_PATH \
             node --test --test-concurrency=1 \
               --test-reporter=spec --test-reporter-destination=stdout \
               --test-reporter=junit --test-reporter-destination=.gate/qa-browser-junit.xml \
               "${files[@]}" 2>&1 | tee .gate/qa-browser-e2e.log
+      - name: Validate fixture JUnit (no skips or empty runs)
+        run: python3 scripts/validate-fixture-junit.py .gate/qa-browser-junit.xml
       - name: Upload .gate
         if: always()
         uses: actions/upload-artifact@v4
@@ -79,16 +97,16 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  # T3 live: отдельная джоба, выключена в обычном CI. Включается только в согласованное
-  # окно с защищённым DISCORD_LAB_LIVE_CDP; fixture-браузеру live не нужен.
+  # T3 live: separate job, disabled in regular CI. Enabled only in an agreed
+  # window with protected DISCORD_LAB_LIVE_CDP; fixture browser does not need live.
   qa-live:
     name: qa-live (disabled, T3)
     if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
@@ -98,7 +116,7 @@ jobs:
           DISCORD_LAB_LIVE_CDP: ${{ secrets.DISCORD_LAB_LIVE_CDP }}
         run: |
           set -euo pipefail
-          : "${DISCORD_LAB_LIVE_CDP:?live endpoint не задан}"
+          : "${DISCORD_LAB_LIVE_CDP:?live endpoint is not set}"
           npm run gate:qualify
 
   package:
@@ -106,7 +124,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:

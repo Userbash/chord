@@ -241,11 +241,13 @@ export function planFor(changed) {
       add("node --test tests/meta/design-breakpoints.test.mjs", `${raw}: breakpoints`);
     } else if (raw.startsWith("rust/gui-spike/ui/app.js") || raw.startsWith("rust/gui-spike/ui/index.html")) {
       frontend(raw);
+      add("node --test tests/meta/modular-wiring-contract.test.mjs", `${raw}: modular wiring & DI invariant`);
     } else if (raw.startsWith("rust/gui-spike/ui/features/join-server.js")) {
       add("node --test tests/unit/join-server.test.mjs", `${raw}: invite UI`);
       add("node --test tests/unit/gui-spike-features.test.mjs", `${raw}: shared UI`);
-    } else if (raw.startsWith("rust/gui-spike/ui/features/voice.js")) {
+    } else if (raw.startsWith("rust/gui-spike/ui/features/voice") && !Object.hasOwn(UI_MODULE_TESTS, raw)) {
       add("node --test tests/unit/voice-ui.test.mjs", `${raw}: voice UI`);
+      add("node --test tests/meta/modular-wiring-contract.test.mjs", `${raw}: modular wiring & DI invariant`);
     } else if (raw.startsWith("rust/gui-spike/ui/features/chat.js")) {
       addTest("tests/unit/attachments-render.test.mjs", `${raw}: вложения (features/chat.js)`);
       addTest("tests/unit/channel-switch.test.mjs", `${raw}: channel switch`);
@@ -269,8 +271,8 @@ export function planFor(changed) {
       frontend(raw);
     } else if (under(raw, "rust/gui-spike/src/")) {
       add("cargo test --offline --manifest-path rust/gui-spike/Cargo.toml", `${raw}: gui backend`);
-    } else if (under(raw, "rust/crates/discord-core/")) {
-      add("cargo test --offline --manifest-path rust/Cargo.toml -p discord-core", `${raw}: core`);
+    } else if (under(raw, "rust/crates/chord-core/")) {
+      add("cargo test --offline --manifest-path rust/Cargo.toml -p chord-core", `${raw}: core`);
     } else if (under(raw, "rust/crates/")) {
       add("cargo test --offline --manifest-path rust/Cargo.toml --workspace", `${raw}: crate`);
     } else if (raw.startsWith("rust/")) {

@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты правой сплит-панели треда `ThreadSidebar` (360px)
  * с независимым виртуальным скроллом и буфером сообщений (TASK-1002B):
- * - SUB-1002B-0: Статический и компиляционный контракт `rust/discord-gpui/src/chat/thread_sidebar.rs`
+ * - SUB-1002B-0: Статический и компиляционный контракт `rust/chord-gpui/src/chat/thread_sidebar.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде, соблюдение лимитов
  *   `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, чистый `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -51,7 +51,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-gpui/src/chat/thread_sidebar.rs";
+const MODULE_REL_PATH = "rust/chord-gpui/src/chat/thread_sidebar.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const FRONTEND_D03_REPO_PATH = join(ROOT, "docs", "re", "frontend-d03.json");
@@ -61,7 +61,7 @@ const PERMISSIONS_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-core",
+  "chord-core",
   "src",
   "permissions.rs",
 );
@@ -69,7 +69,7 @@ const REPLY_THREAD_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-ui",
+  "chord-ui",
   "src",
   "reply_thread.rs",
 );
@@ -88,7 +88,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/chat/thread_sidebar.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/chat/thread_sidebar.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -139,7 +139,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1002B: Правая сплит-панель треда ThreadSidebar (360px) с независимым буфером сообщений и виртуальным скроллом (rust/discord-gpui/src/chat/thread_sidebar.rs)", () => {
+describe("TASK-1002B: Правая сплит-панель треда ThreadSidebar (360px) с независимым буфером сообщений и виртуальным скроллом (rust/chord-gpui/src/chat/thread_sidebar.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "thread-sidebar-1002b-"));
     testBinPath = join(workDir, "thread_sidebar_1002b_test");
@@ -151,7 +151,7 @@ describe("TASK-1002B: Правая сплит-панель треда ThreadSide
     }
   });
 
-  it("SUB-1002B-0: модуль rust/discord-gpui/src/chat/thread_sidebar.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
+  it("SUB-1002B-0: модуль rust/chord-gpui/src/chat/thread_sidebar.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,

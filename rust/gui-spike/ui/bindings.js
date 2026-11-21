@@ -46,12 +46,16 @@ export function parsePermissionBits(raw) {
 /**
  * Normalizes a raw guild payload from READY / REST / cache into a strict `GuildSyncSummaryDto`.
  *
- * @param {Record<string, any> | null | undefined} raw
+ * @param {import("./bindings.d.ts").GuildSyncSummaryDto | Record<string, unknown> | null | undefined} rawInput
  * @returns {import("./bindings.d.ts").GuildSyncSummaryDto | null}
  */
-export function normalizeGuildDto(raw) {
-  if (!raw || typeof raw !== "object") return null;
-  const props = raw.properties && typeof raw.properties === "object" ? raw.properties : {};
+export function normalizeGuildDto(rawInput) {
+  if (!rawInput || typeof rawInput !== "object") return null;
+  const raw = /** @type {Record<string, unknown>} */ (rawInput);
+  const props =
+    raw.properties && typeof raw.properties === "object"
+      ? /** @type {Record<string, unknown>} */ (raw.properties)
+      : {};
   const id = String(raw.id || props.id || "").trim();
   if (!id) return null;
   const name = String(raw.name || props.name || id);
@@ -66,17 +70,21 @@ export function normalizeGuildDto(raw) {
       ? raw.my_roles
       : [];
   const myRoles = lurker ? [] : rawMyRoles.map((r) => String(r)).filter(Boolean);
-  const roles = Array.isArray(raw.roles) ? raw.roles : [];
+  const roles = Array.isArray(raw.roles)
+    ? /** @type {Array<{ id: string; name: string; color?: number; position?: number; permissions?: string }>} */ (raw.roles)
+    : [];
   const features = Array.isArray(raw.features)
     ? raw.features.map(String)
     : Array.isArray(props.features)
       ? props.features.map(String)
       : [];
-  const channels = Array.isArray(raw.channels) ? raw.channels : [];
+  const channels = Array.isArray(raw.channels)
+    ? /** @type {Array<Record<string, unknown>>} */ (raw.channels)
+    : [];
   const channelCategories = Array.isArray(raw.channelCategories)
-    ? raw.channelCategories
+    ? /** @type {Array<Record<string, unknown>>} */ (raw.channelCategories)
     : Array.isArray(raw.channel_categories)
-      ? raw.channel_categories
+      ? /** @type {Array<Record<string, unknown>>} */ (raw.channel_categories)
       : [];
 
   return {
@@ -99,15 +107,17 @@ export function normalizeGuildDto(raw) {
  * Computes effective channel permissions (`twilight-util::permission_calculator` + `lurkerPermissionsMask`).
  *
  * @param {{
- *   guild: Record<string, any> | null | undefined,
- *   channel: Record<string, any> | null | undefined,
- *   parentCategory?: Record<string, any> | null | undefined,
+ *   guild: import("./bindings.d.ts").GuildSyncSummaryDto | Record<string, unknown> | null | undefined,
+ *   channel: Record<string, unknown> | null | undefined,
+ *   parentCategory?: Record<string, unknown> | null | undefined,
  *   currentUserId?: string | null
  * }} params
  * @returns {import("./bindings.d.ts").ChannelAccessDto}
  */
 export function evaluateChannelAccessDto({ guild, channel, parentCategory, currentUserId }) {
   const dto = normalizeGuildDto(guild);
+  const guildRecord =
+    guild && typeof guild === "object" ? /** @type {Record<string, unknown>} */ (guild) : null;
   const chType = Number(channel?.type ?? 0);
   const isVoice = chType === 2 || chType === 13 || channel?.kind === "voice";
   if (!dto) {
@@ -134,8 +144,15 @@ export function evaluateChannelAccessDto({ guild, channel, parentCategory, curre
 
   if (!isOwner && dto.roles.length > 0) {
     const memberRoleSet = new Set(dto.myRoles);
-    if (!dto.lurker && uid && Array.isArray(guild?.members)) {
-      const me = guild.members.find((m) => String(m?.user?.id || m?.user_id || m?.id || "") === uid);
+    if (!dto.lurker && uid && Array.isArray(guildRecord?.members)) {
+      const members = /** @type {Array<Record<string, unknown>>} */ (guildRecord.members);
+      const me = members.find((m) => {
+        const userObj =
+          m && typeof m.user === "object" && m.user !== null
+            ? /** @type {Record<string, unknown>} */ (m.user)
+            : null;
+        return String(userObj?.id || m?.user_id || m?.id || "") === uid;
+      });
       if (me && Array.isArray(me.roles)) {
         for (const r of me.roles) memberRoleSet.add(String(r));
       }
@@ -162,9 +179,10 @@ export function evaluateChannelAccessDto({ guild, channel, parentCategory, curre
       effective = ALL_PERMISSIONS_MASK;
     } else {
       effective = basePerms;
-      const applyOverwrites = (overwrites) => {
+      const applyOverwrites = (/** @type {unknown} */ overwrites) => {
         if (!Array.isArray(overwrites) || overwrites.length === 0) return;
-        const everyoneOw = overwrites.find((ow) => ow && String(ow.id || "") === dto.id);
+        const owList = /** @type {Array<Record<string, unknown>>} */ (overwrites);
+        const everyoneOw = owList.find((ow) => ow && String(ow.id || "") === dto.id);
         if (everyoneOw) {
           effective &= ~parsePermissionBits(everyoneOw.deny);
           effective |= parsePermissionBits(everyoneOw.allow);
@@ -172,7 +190,7 @@ export function evaluateChannelAccessDto({ guild, channel, parentCategory, curre
         if (!dto.lurker) {
           let allowRoles = 0n;
           let denyRoles = 0n;
-          for (const ow of overwrites) {
+          for (const ow of owList) {
             if (!ow || typeof ow !== "object") continue;
             const owId = String(ow.id || "");
             const owType = ow.type;
@@ -186,7 +204,7 @@ export function evaluateChannelAccessDto({ guild, channel, parentCategory, curre
           effective |= allowRoles;
 
           if (uid) {
-            const memberOw = overwrites.find(
+            const memberOw = owList.find(
               (ow) =>
                 ow &&
                 (ow.type === 1 || ow.type === "1" || ow.type === "member") &&
@@ -268,39 +286,82 @@ export function evaluateChannelAccessDto({ guild, channel, parentCategory, curre
 /**
  * Creates typed Tauri IPC command wrappers bound to an `invoke(cmd, args)` function.
  *
- * @param {(cmd: string, args?: Record<string, unknown>) => Promise<any>} invokeFn
+ * @param {(cmd: string, args?: Record<string, unknown>) => Promise<unknown>} invokeFn
+ * @returns {Readonly<import("./bindings.d.ts").TypedCommands>}
  */
 export function createTypedCommands(invokeFn) {
   return Object.freeze({
+    /**
+     * Fetches the initial READY snapshot (`ReadyPayloadDto`).
+     * @returns {Promise<import("./bindings.d.ts").ReadyPayloadDto>}
+     */
+    async ready() {
+      const raw = await invokeFn("ready");
+      return /** @type {import("./bindings.d.ts").ReadyPayloadDto} */ (raw);
+    },
+
     /**
      * Fetches the full live state snapshot (`LiveSyncSnapshotDto`).
      * @returns {Promise<import("./bindings.d.ts").LiveSyncSnapshotDto>}
      */
     async syncLiveState() {
-      const raw = await invokeFn("voice_set_audio_device", {
+      const rawObj = await invokeFn("voice_set_audio_device", {
         kind: "dm_friends_sync",
         deviceId: "",
       });
-      const guilds = Array.isArray(raw?.guilds)
-        ? raw.guilds.map((g) => normalizeGuildDto(g)).filter(Boolean)
+      const raw =
+        rawObj && typeof rawObj === "object"
+          ? /** @type {Record<string, unknown>} */ (rawObj)
+          : {};
+      const guilds = Array.isArray(raw.guilds)
+        ? raw.guilds
+            .map((g) =>
+              normalizeGuildDto(
+                g && typeof g === "object" ? /** @type {Record<string, unknown>} */ (g) : null
+              )
+            )
+            .filter(
+              /** @returns {g is import("./bindings.d.ts").GuildSyncSummaryDto} */
+              (g) => g !== null
+            )
         : [];
       return {
-        ok: Boolean(raw?.ok),
-        live: Boolean(raw?.live),
-        currentUser: raw?.currentUser || {},
-        dmChannels: Array.isArray(raw?.dmChannels) ? raw.dmChannels : [],
-        relationships: Array.isArray(raw?.relationships) ? raw.relationships : [],
-        guilds: /** @type {import("./bindings.d.ts").GuildSyncSummaryDto[]} */ (guilds),
-        voiceStates: raw?.voiceStates || {},
-        readStates: raw?.readStates || {},
-        userGuildSettings: raw?.userGuildSettings || {},
-        rtc: raw?.rtc || undefined,
+        ok: Boolean(raw.ok),
+        live: Boolean(raw.live),
+        currentUser:
+          raw.currentUser && typeof raw.currentUser === "object"
+            ? /** @type {Record<string, unknown>} */ (raw.currentUser)
+            : {},
+        dmChannels: Array.isArray(raw.dmChannels)
+          ? /** @type {Array<Record<string, unknown>>} */ (raw.dmChannels)
+          : [],
+        relationships: Array.isArray(raw.relationships)
+          ? /** @type {Array<Record<string, unknown>>} */ (raw.relationships)
+          : [],
+        guilds,
+        voiceStates:
+          raw.voiceStates && typeof raw.voiceStates === "object"
+            ? /** @type {Record<string, Array<Record<string, unknown>>>} */ (raw.voiceStates)
+            : {},
+        readStates:
+          raw.readStates && typeof raw.readStates === "object"
+            ? /** @type {Record<string, unknown>} */ (raw.readStates)
+            : {},
+        userGuildSettings:
+          raw.userGuildSettings && typeof raw.userGuildSettings === "object"
+            ? /** @type {Record<string, unknown>} */ (raw.userGuildSettings)
+            : {},
+        rtc:
+          raw.rtc && typeof raw.rtc === "object"
+            ? /** @type {import("./bindings.d.ts").VoiceRtcStatusDto} */ (raw.rtc)
+            : undefined,
       };
     },
 
     /**
      * Connects or updates the live voice state (`OP 4 VOICE_STATE_UPDATE` + RTC).
-     * @param {{ guildId: string | null, channelId: string | null, selfMute: boolean, selfDeaf: boolean, selfVideo?: boolean, selfStream?: boolean }} opts
+     * @param {import("./bindings.d.ts").VoiceConnectOptionsDto} opts
+     * @returns {Promise<import("./bindings.d.ts").VoiceConnectResultDto>}
      */
     async voiceConnect(opts) {
       const encoded = [
@@ -311,10 +372,11 @@ export function createTypedCommands(invokeFn) {
         opts.selfVideo ? "1" : "0",
         opts.selfStream ? "1" : "0",
       ].join(":");
-      return invokeFn("voice_set_audio_device", {
+      const res = await invokeFn("voice_set_audio_device", {
         kind: "voice_connect",
         deviceId: encoded,
       });
+      return /** @type {import("./bindings.d.ts").VoiceConnectResultDto} */ (res);
     },
 
     /**
@@ -322,10 +384,156 @@ export function createTypedCommands(invokeFn) {
      * @returns {Promise<import("./bindings.d.ts").VoiceRtcStatusDto>}
      */
     async voiceRtcStatus() {
-      return invokeFn("voice_set_audio_device", {
+      const res = await invokeFn("voice_set_audio_device", {
         kind: "voice_rtc_status",
         deviceId: "",
       });
+      return /** @type {import("./bindings.d.ts").VoiceRtcStatusDto} */ (res);
+    },
+
+    /**
+     * Reads channel read states (`read_state`).
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async readState() {
+      const raw = await invokeFn("read_state");
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(raw) ? raw : []);
+    },
+
+    /**
+     * Reads channels list (`channels`).
+     * @param {string | null} [guildId]
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async channels(guildId) {
+      const args = guildId !== undefined && guildId !== null ? { guildId } : {};
+      const raw = await invokeFn("channels", args);
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(raw) ? raw : []);
+    },
+
+    /**
+     * Reads messages page (`messages_page`).
+     * @param {string} channelId
+     * @param {string | null} [cursor]
+     * @param {string | null} [before]
+     * @param {string | null} [position]
+     * @param {number | null} [limit]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async messagesPage(channelId, cursor, before, position, limit) {
+      /** @type {Record<string, unknown>} */
+      const args = { channelId };
+      if (cursor) args.cursor = cursor;
+      if (before) args.before = before;
+      if (position) args.position = position;
+      if (limit != null) args.limit = limit;
+      const raw = await invokeFn("messages_page", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
+     * Reads members page (`members_page`).
+     * @param {string | null} [guildId]
+     * @param {string | null} [cursor]
+     * @param {number | null} [limit]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async membersPage(guildId, cursor, limit) {
+      /** @type {Record<string, unknown>} */
+      const args = {};
+      if (guildId) args.guildId = guildId;
+      if (cursor) args.cursor = cursor;
+      if (limit != null) args.limit = limit;
+      const raw = await invokeFn("members_page", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
+     * Reads settings payload (`settings`).
+     * @param {string | null} [section]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async settings(section) {
+      const args = section ? { section } : {};
+      const raw = await invokeFn("settings", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
+     * Pins a message in a guild/DM channel.
+     * @param {string} channelId
+     * @param {string} messageId
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async pinMessage(channelId, messageId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      if (typeof messageId !== "string" || !messageId.trim()) {
+        throw new TypeError("messageId must be a non-empty string");
+      }
+      const res = await invokeFn("pin_channel_message", {
+        channel_id: channelId.trim(),
+        message_id: messageId.trim(),
+      });
+      return /** @type {Record<string, unknown>} */ (res && typeof res === "object" ? res : {});
+    },
+
+    /**
+     * Unpins a message from a channel.
+     * @param {string} channelId
+     * @param {string} messageId
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async unpinMessage(channelId, messageId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      if (typeof messageId !== "string" || !messageId.trim()) {
+        throw new TypeError("messageId must be a non-empty string");
+      }
+      const res = await invokeFn("unpin_channel_message", {
+        channel_id: channelId.trim(),
+        message_id: messageId.trim(),
+      });
+      return /** @type {Record<string, unknown>} */ (res && typeof res === "object" ? res : {});
+    },
+
+    /**
+     * Fetches all pinned messages in a channel.
+     * @param {string} channelId
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async listPins(channelId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      const res = await invokeFn("list_channel_pins", {
+        channel_id: channelId.trim(),
+      });
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(res) ? res : []);
     },
   });
 }
+
+/**
+ * Default generated `tauri-specta` command client bound to the global Tauri IPC bridge.
+ * @type {Readonly<import("./bindings.d.ts").TypedCommands>}
+ */
+export const commands = createTypedCommands((cmd, args) => {
+  const g = /** @type {Record<string, unknown>} */ (globalThis);
+  const internals =
+    g.__TAURI_INTERNALS__ && typeof g.__TAURI_INTERNALS__ === "object"
+      ? /** @type {Record<string, unknown>} */ (g.__TAURI_INTERNALS__)
+      : null;
+  const tauriInvoke =
+    internals && typeof internals.invoke === "function"
+      ? /** @type {(c: string, a?: Record<string, unknown>) => Promise<unknown>} */ (
+          internals.invoke
+        )
+      : null;
+  if (!tauriInvoke) {
+    return Promise.reject(new Error(`Tauri IPC invoke unavailable for command: ${cmd}`));
+  }
+  return args !== undefined ? tauriInvoke(cmd, args) : tauriInvoke(cmd);
+});

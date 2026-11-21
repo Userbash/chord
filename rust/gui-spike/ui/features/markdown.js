@@ -1,70 +1,134 @@
 // @ts-check
 /// <reference lib="dom" />
 /**
- * M-08 (RW-40): безопасный markdown и упоминания сообщений Discord.
+ * M-08 / RW-53 W03 (G2): модульный AST-токеннизатор и безопасный DOM-рендер
+ * сообщений Discord.
  *
- * Контракт (заморожен тестами `tests/unit/gui-spike-model.test.mjs`, describe «M-08»):
- *   parseMessageMarkdown(text, context) -> Token[]      — чистый разбор, без DOM;
+ * Контракт:
+ *   parseMessageMarkdown(text, context) -> Token[]      — чистый AST-разбор, без DOM;
  *   renderMessageMarkdown(container, text, context)     — сборка DOM.
  *
  * Безопасность (P0):
  * - сырой HTML никогда не разбирается: текст сообщения попадает в DOM только через
- *   `textContent`/`createTextNode`, разметка не собирается строками и не пишется
- *   в разбор HTML-парсером;
- * - ссылкой становится только абсолютный http(s)-URL (проверка через `new URL()`),
+ *   `textContent`/`createTextNode`, разметка не собирается строками;
+ * - ссылкой становится только абсолютный http(s)-URL (`safeHref`),
  *   поэтому `javascript:`, `data:`, `vbscript:`, `file:` и `//host` остаются текстом;
  * - у ссылки всегда `rel="noopener noreferrer"` и `target="_blank"`;
- * - имена из `context` (пользователи/каналы/роли) — тоже недоверенные данные:
- *   подставляются только как текст;
- * - внутри инлайн-кода и блоков кода markdown и упоминания не разбираются.
- *
- * Упоминания: `<@123>`/`<@!123>` → `@имя` + `data-user-id`, `<#456>` → `#имя` +
- * `data-channel-id`, `<@&789>` → `@имя` + `data-role-id`, `@everyone`/`@here` —
- * целым словом. Неизвестный id → `@пользователь` / `#канал` / `@роль`.
+ * - имена из `context` (пользователи/каналы/роли) подставляются только как текст;
+ * - внутри инлайн-кода и блоков кода markdown, упоминания, эмодзи и timestamp не разбираются.
  */
 
 /** @typedef {{ type: "text", value: string }} TextToken */
 /** @typedef {{ type: "code", value: string }} CodeToken */
 /** @typedef {{ type: "code_block", value: string, language: string }} CodeBlockToken */
-/** @typedef {{ type: "bold" | "italic" | "strikethrough" | "spoiler", children: InlineToken[] }} MarkToken */
+/** @typedef {{ type: "bold" | "italic" | "underline" | "strikethrough" | "spoiler", children: InlineToken[] }} MarkToken */
 /** @typedef {{ type: "quote", children: InlineToken[] }} QuoteToken */
 /** @typedef {{ type: "link", href: string, children: InlineToken[] }} LinkToken */
 /** @typedef {{ type: "user_mention", id: string, label: string }} UserMentionToken */
 /** @typedef {{ type: "channel_mention", id: string, label: string }} ChannelMentionToken */
 /** @typedef {{ type: "role_mention", id: string, label: string }} RoleMentionToken */
 /** @typedef {{ type: "everyone" | "here", label: string }} BroadcastToken */
+/** @typedef {import("./emojis.js").CustomEmojiToken} CustomEmojiToken */
+/** @typedef {import("./emojis.js").UnicodeEmojiToken} UnicodeEmojiToken */
+/** @typedef {import("./emojis.js").EmojiToken} EmojiToken */
+/** @typedef {import("./markdown-helper.js").TimestampToken} TimestampToken */
 /**
- * @typedef {TextToken | CodeToken | MarkToken | LinkToken | UserMentionToken | ChannelMentionToken | RoleMentionToken | BroadcastToken} InlineToken
+ * @typedef {TextToken | CodeToken | MarkToken | LinkToken | TimestampToken | UserMentionToken | ChannelMentionToken | RoleMentionToken | BroadcastToken | CustomEmojiToken | UnicodeEmojiToken} InlineToken
  */
 /** @typedef {InlineToken | CodeBlockToken | QuoteToken} Token */
+
+import {
+  BROADCAST_RE,
+  DEFAULT_MENTION_FALLBACKS,
+  MAX_MENTION_ID,
+  MENTION_RE,
+  createMentionElement,
+  extractMentions,
+  formatMentionLabel,
+  normalizeMentionContext,
+  readAnyMention,
+  readBroadcast,
+  readMention,
+  toMentionRecord,
+} from "./mentions.js";
+
+import {
+  CUSTOM_EMOJI_RE,
+  DISCORD_EMOJI_CDN_BASE,
+  DISCORD_SHORTCODE_EMOJIS,
+  MAX_EMOJI_ID,
+  MAX_EMOJI_NAME,
+  MIN_EMOJI_NAME,
+  SHORTCODE_EMOJI_RE,
+  buildCustomEmojiUrl,
+  createEmojiElement,
+  extractEmojis,
+  readCustomEmoji,
+  readEmoji,
+  readShortcodeEmoji,
+  replaceEmojiShortcodes,
+} from "./emojis.js";
+
+import {
+  TIMESTAMP_STYLES,
+  extractSpoilerSpans,
+  formatRelativeTimestampRu,
+  formatTimestampText,
+  isWordChar,
+  parseDiscordTimestampTag,
+  readCodeSpan,
+  readTimestampTag,
+  safeHref,
+  tokenizeCodeLines,
+} from "./markdown-helper.js";
+
+export {
+  BROADCAST_RE,
+  CUSTOM_EMOJI_RE,
+  DEFAULT_MENTION_FALLBACKS,
+  DISCORD_EMOJI_CDN_BASE,
+  DISCORD_SHORTCODE_EMOJIS,
+  MAX_EMOJI_ID,
+  MAX_EMOJI_NAME,
+  MAX_MENTION_ID,
+  MENTION_RE,
+  MIN_EMOJI_NAME,
+  SHORTCODE_EMOJI_RE,
+  TIMESTAMP_STYLES,
+  buildCustomEmojiUrl,
+  createEmojiElement,
+  createMentionElement,
+  extractEmojis,
+  extractMentions,
+  extractSpoilerSpans,
+  formatMentionLabel,
+  formatRelativeTimestampRu,
+  formatTimestampText,
+  normalizeMentionContext,
+  parseDiscordTimestampTag,
+  readAnyMention,
+  readBroadcast,
+  readCustomEmoji,
+  readEmoji,
+  readMention,
+  readShortcodeEmoji,
+  readTimestampTag,
+  replaceEmojiShortcodes,
+  safeHref,
+  toMentionRecord,
+  tokenizeCodeLines,
+};
 
 /**
  * Справочники имён для упоминаний. Значения — произвольные строки из Discord,
  * поэтому считаются недоверенными (только текст).
- * @typedef {{
- *   users?: Record<string, string> | Map<string, string>,
- *   channels?: Record<string, string> | Map<string, string>,
- *   roles?: Record<string, string> | Map<string, string>,
- * }} MentionContext
+ * @typedef {import("./mentions.js").MentionContext} MentionContext
  */
 
-/** @typedef {{ users: Record<string, string>, channels: Record<string, string>, roles: Record<string, string> }} NormalizedContext */
-
-/** Только эти схемы допустимы в `href` (M-08, P0). */
-const SAFE_PROTOCOLS = Object.freeze(["http:", "https:"]);
+/** @typedef {import("./mentions.js").NormalizedMentionContext} NormalizedContext */
 
 /** Предел вложенности инлайн-форматирования: защита от патологического ввода. */
 const MAX_INLINE_DEPTH = 8;
-
-/** Максимальная длина id упоминания (Discord snowflake — 64 бита). */
-const MAX_MENTION_ID = 32;
-
-/** Роль раньше пользователя: `<@&789>` не должно распознаться как `<@…>`. */
-const MENTION_RE = new RegExp(
-  `^(?:<@&(\\d{1,${MAX_MENTION_ID}})>|<@!?(\\d{1,${MAX_MENTION_ID}})>|<#(\\d{1,${MAX_MENTION_ID}})>)`,
-);
-
-const BROADCAST_RE = /^@(everyone|here)\b/;
 
 /** Открывающая строка блока кода: ``` или ```js. */
 const FENCE_RE = /^\s*```([A-Za-z0-9_+-]*)\s*$/;
@@ -72,149 +136,21 @@ const FENCE_RE = /^\s*```([A-Za-z0-9_+-]*)\s*$/;
 /** Закрывающая строка блока кода. */
 const CLOSING_FENCE_RE = /^\s*```\s*$/;
 
-/** Строка цитаты: `> текст`. */
+/** Однострочная/последовательная цитата: `> текст`. */
 const QUOTE_RE = /^\s*>\s?(.*)$/;
 
-/** @type {ReadonlyArray<readonly [string, "bold" | "italic" | "strikethrough" | "spoiler"]>} */
+/** Многострочная цитата до конца сообщения: `>>> текст`. */
+const MULTILINE_QUOTE_RE = /^\s*>>>\s?(.*)$/;
+
+/** @type {ReadonlyArray<readonly [string, "bold" | "underline" | "strikethrough" | "spoiler" | "italic"]>} */
 const MARKERS = [
   ["**", "bold"],
+  ["__", "underline"],
   ["~~", "strikethrough"],
   ["||", "spoiler"],
   ["*", "italic"],
+  ["_", "italic"],
 ];
-
-/**
- * @param {Record<string, string> | Map<string, string> | undefined} source
- * @returns {Record<string, string>}
- */
-function toRecord(source) {
-  if (!source) return {};
-  if (source instanceof Map) {
-    /** @type {Record<string, string>} */
-    const record = {};
-    for (const [key, value] of source) {
-      if (typeof value === "string") record[key] = value;
-    }
-    return record;
-  }
-  return source;
-}
-
-/**
- * Безопасный `href`: только абсолютный http(s). Всё прочее — `null`.
- * @param {string} value
- * @returns {string | null}
- */
-function safeHref(value) {
-  const raw = value.trim();
-  if (raw === "") return null;
-  /** @type {URL} */
-  let url;
-  try {
-    url = new URL(raw);
-  } catch {
-    // Относительный/битый адрес (`//host`, `example.com`) не навигируется:
-    // в спайке без сети ссылка должна быть только явной и абсолютной.
-    return null;
-  }
-  return SAFE_PROTOCOLS.includes(url.protocol) ? url.href : null;
-}
-
-/**
- * @param {Record<string, string>} source
- * @param {string} id
- * @param {string} prefix
- * @param {string} fallback
- * @returns {string}
- */
-function mentionLabel(source, id, prefix, fallback) {
-  const name = source[id];
-  return typeof name === "string" && name !== "" ? `${prefix}${name}` : fallback;
-}
-
-/**
- * Инлайн-код: обратные кавычки одинаковой длины открывают и закрывают фрагмент.
- * @param {string} text
- * @param {number} start
- * @returns {{ value: string, end: number } | null}
- */
-function readCodeSpan(text, start) {
-  let length = 0;
-  while (text.charAt(start + length) === "`") length += 1;
-  const contentStart = start + length;
-  let cursor = contentStart;
-  while (cursor < text.length) {
-    if (text.charAt(cursor) !== "`") {
-      cursor += 1;
-      continue;
-    }
-    let run = 0;
-    while (text.charAt(cursor + run) === "`") run += 1;
-    if (run === length) return { value: text.slice(contentStart, cursor), end: cursor + run };
-    cursor += run;
-  }
-  return null;
-}
-
-/**
- * @param {string} text
- * @param {number} start
- * @param {NormalizedContext} context
- * @returns {{ token: InlineToken, end: number } | null}
- */
-function readMention(text, start, context) {
-  const match = MENTION_RE.exec(text.slice(start));
-  if (!match) return null;
-  const end = start + match[0].length;
-  const roleId = match[1];
-  const userId = match[2];
-  const channelId = match[3];
-  if (roleId) {
-    return {
-      token: { type: "role_mention", id: roleId, label: mentionLabel(context.roles, roleId, "@", "@роль") },
-      end,
-    };
-  }
-  if (userId) {
-    return {
-      token: {
-        type: "user_mention",
-        id: userId,
-        label: mentionLabel(context.users, userId, "@", "@пользователь"),
-      },
-      end,
-    };
-  }
-  if (channelId) {
-    return {
-      token: {
-        type: "channel_mention",
-        id: channelId,
-        label: mentionLabel(context.channels, channelId, "#", "#канал"),
-      },
-      end,
-    };
-  }
-  return null;
-}
-
-/**
- * `@everyone`/`@here` — только целым словом: `почта@everyone.com` и `@everyoneX`
- * остаются текстом.
- * @param {string} text
- * @param {number} start
- * @returns {{ token: BroadcastToken, end: number } | null}
- */
-function readBroadcast(text, start) {
-  // Граница слова с Unicode: «почта@everyone.com» не содержит упоминания,
-  // хотя кириллическая «а» не входит в ASCII-класс \w.
-  if (start > 0 && /[\p{L}\p{N}_@#]/u.test(text.charAt(start - 1))) return null;
-  const match = BROADCAST_RE.exec(text.slice(start));
-  if (!match) return null;
-  const name = match[1];
-  if (name !== "everyone" && name !== "here") return null;
-  return { token: { type: name, label: `@${name}` }, end: start + match[0].length };
-}
 
 /**
  * `[подпись](адрес)`: ссылкой становится только проверенный http(s)-адрес.
@@ -244,7 +180,7 @@ function readLink(text, start, context, depth) {
 }
 
 /**
- * Парные маркеры `**`, `~~`, `||`, `*`. Незакрытый маркер остаётся текстом.
+ * Парные маркеры `**`, `__`, `~~`, `||`, `*`, `_`. Незакрытый маркер остаётся текстом.
  * @param {string} text
  * @param {number} start
  * @param {NormalizedContext} context
@@ -254,8 +190,12 @@ function readLink(text, start, context, depth) {
 function readMark(text, start, context, depth) {
   for (const [marker, type] of MARKERS) {
     if (!text.startsWith(marker, start)) continue;
-    // Одиночная «*» не должна съедать начало «**».
+    // Одиночные `*` и `_` не должны съедать начало `**` и `__`.
     if (marker === "*" && text.startsWith("**", start)) continue;
+    if (marker === "_" && text.startsWith("__", start)) continue;
+    // `_italic_` не срабатывает внутри идентификаторов (`foo_bar_baz`).
+    if (marker === "_" && start > 0 && isWordChar(text.charAt(start - 1))) continue;
+
     const contentStart = start + marker.length;
     let searchFrom = contentStart;
     for (;;) {
@@ -265,7 +205,15 @@ function readMark(text, start, context, depth) {
         searchFrom = close + 1;
         continue;
       }
-      // Пустое содержимое (`****`, `~~~~`) — литерал, а не формат.
+      if (marker === "_" && (text.charAt(close - 1) === "_" || text.charAt(close + 1) === "_")) {
+        searchFrom = close + 1;
+        continue;
+      }
+      if (marker === "_" && isWordChar(text.charAt(close + 1))) {
+        searchFrom = close + 1;
+        continue;
+      }
+      // Пустое содержимое (`****`, `~~~~`, `____`) — литерал, а не формат.
       if (close === contentStart) {
         searchFrom = close + 1;
         continue;
@@ -280,8 +228,7 @@ function readMark(text, start, context, depth) {
 }
 
 /**
- * Инлайн-разбор: код и упоминания имеют приоритет над форматированием, поэтому
- * внутри кода markdown не действует.
+ * Инлайн-разбор: код, timestamp, упоминания и эмодзи имеют приоритет над форматированием.
  * @param {string} text
  * @param {NormalizedContext} context
  * @param {number} depth
@@ -309,7 +256,16 @@ function parseInline(text, context, depth) {
       }
     }
     if (char === "<") {
-      const mention = readMention(text, index, context);
+      const timestamp = readTimestampTag(text, index);
+      if (timestamp) {
+        flush();
+        tokens.push(timestamp.token);
+        index = timestamp.end;
+        continue;
+      }
+    }
+    if (char === "<" || char === "@") {
+      const mention = readAnyMention(text, index, context);
       if (mention) {
         flush();
         tokens.push(mention.token);
@@ -317,12 +273,12 @@ function parseInline(text, context, depth) {
         continue;
       }
     }
-    if (char === "@") {
-      const broadcast = readBroadcast(text, index);
-      if (broadcast) {
+    if (char === "<" || char === ":") {
+      const emoji = readEmoji(text, index);
+      if (emoji) {
         flush();
-        tokens.push(broadcast.token);
-        index = broadcast.end;
+        tokens.push(emoji.token);
+        index = emoji.end;
         continue;
       }
     }
@@ -335,7 +291,7 @@ function parseInline(text, context, depth) {
         continue;
       }
     }
-    if (depth < MAX_INLINE_DEPTH && "*~|".includes(char)) {
+    if (depth < MAX_INLINE_DEPTH && "*_~|".includes(char)) {
       const mark = readMark(text, index, context, depth);
       if (mark) {
         flush();
@@ -391,6 +347,19 @@ function parseBlocks(text, context) {
       tokens.push({ type: "code_block", value: code.join("\n"), language });
       continue;
     }
+    const multiQuote = MULTILINE_QUOTE_RE.exec(line);
+    if (multiQuote) {
+      flushParagraph();
+      /** @type {string[]} */
+      const quoted = [multiQuote[1] ?? ""];
+      index += 1;
+      while (index < lines.length) {
+        quoted.push(lines[index] ?? "");
+        index += 1;
+      }
+      tokens.push({ type: "quote", children: parseInline(quoted.join("\n"), context, 0) });
+      continue;
+    }
     if (QUOTE_RE.test(line)) {
       flushParagraph();
       /** @type {string[]} */
@@ -417,7 +386,7 @@ function parseBlocks(text, context) {
 }
 
 /**
- * Разбирает текст сообщения в токены. DOM не нужен.
+ * Разбирает текст сообщения в AST-токены. DOM не нужен.
  * @param {string} text
  * @param {MentionContext} [context]
  * @returns {Token[]}
@@ -426,11 +395,7 @@ export function parseMessageMarkdown(text, context = {}) {
   if (typeof text !== "string") {
     throw new TypeError("parseMessageMarkdown: text должен быть строкой");
   }
-  return parseBlocks(text, {
-    users: toRecord(context?.users),
-    channels: toRecord(context?.channels),
-    roles: toRecord(context?.roles),
-  });
+  return parseBlocks(text, normalizeMentionContext(context));
 }
 
 /**
@@ -442,20 +407,6 @@ export function parseMessageMarkdown(text, context = {}) {
 function element(doc, tagName, className) {
   const node = doc.createElement(tagName);
   node.className = className;
-  return node;
-}
-
-/**
- * @param {Document} doc
- * @param {"user" | "channel" | "role"} kind
- * @param {string} id
- * @param {string} label
- * @returns {HTMLElement}
- */
-function mentionNode(doc, kind, id, label) {
-  const node = element(doc, "span", `mention mention--${kind}`);
-  node.setAttribute(`data-${kind}-id`, id);
-  node.textContent = label;
   return node;
 }
 
@@ -488,6 +439,94 @@ function revealSpoiler(node) {
 }
 
 /**
+ * Копирует текст в буфер обмена без падения в headless/test-окружении.
+ * @param {string} text
+ * @param {HTMLElement} button
+ */
+function copyCodeToClipboard(text, button) {
+  const nav = /** @type {{ clipboard?: { writeText?: (value: string) => Promise<void> } } | undefined} */ (
+    globalThis.navigator
+  );
+  try {
+    const maybePromise = nav?.clipboard?.writeText?.(text);
+    if (maybePromise && typeof maybePromise.catch === "function") {
+      maybePromise.catch(() => {});
+    }
+  } catch {
+    // Буфер обмена может быть недоступен в sandbox/headless.
+  }
+  button.setAttribute("data-copied", "true");
+  button.textContent = "Скопировано";
+  if (typeof globalThis.setTimeout === "function") {
+    globalThis.setTimeout(() => {
+      button.setAttribute("data-copied", "false");
+      button.textContent = "Копировать";
+    }, 1500);
+  }
+}
+
+/**
+ * Рендерит многострочный блок кода с заголовком, кнопкой копирования и безопасной
+ * подсветкой синтаксиса (только `textContent`/`createTextNode`).
+ * @param {Document} doc
+ * @param {CodeBlockToken} token
+ * @returns {HTMLElement}
+ */
+function renderCodeBlock(doc, token) {
+  const pre = element(doc, "pre", "md-code-block");
+  pre.setAttribute("data-language", token.language);
+
+  const header = element(doc, "div", "md-code-header");
+  const langLabel = element(doc, "span", "md-code-lang");
+  langLabel.textContent = token.language || "text";
+  const copyBtn = element(doc, "button", "md-code-copy");
+  copyBtn.setAttribute("type", "button");
+  copyBtn.setAttribute("aria-label", "Копировать код");
+  copyBtn.setAttribute("data-copied", "false");
+  copyBtn.textContent = "Копировать";
+  copyBtn.addEventListener("click", () => copyCodeToClipboard(token.value, copyBtn));
+  header.append(langLabel, copyBtn);
+
+  const code = element(doc, "code", "md-code");
+  const parts = tokenizeCodeLines(token.value, token.language);
+  if (parts.length === 0) {
+    code.textContent = token.value;
+  } else {
+    for (const part of parts) {
+      if (part.type === "plain") {
+        code.append(doc.createTextNode(part.value));
+      } else {
+        const span = element(doc, "span", `md-hl md-hl--${part.type}`);
+        span.textContent = part.value;
+        code.append(span);
+      }
+    }
+  }
+
+  pre.append(header, code);
+  return pre;
+}
+
+/**
+ * Рендерит Discord timestamp `<t:UNIX[:STYLE]>` в `<time class="md-timestamp">`.
+ * @param {Document} doc
+ * @param {TimestampToken} token
+ * @returns {HTMLElement}
+ */
+function renderTimestamp(doc, token) {
+  const node = element(doc, "time", "md-timestamp");
+  const date = new Date(token.unixSeconds * 1000);
+  if (!Number.isNaN(date.getTime())) {
+    node.setAttribute("datetime", date.toISOString());
+  }
+  node.setAttribute("data-unix", String(token.unixSeconds));
+  node.setAttribute("data-style", token.style);
+  node.setAttribute("title", formatTimestampText(token.unixSeconds, "F"));
+  node.textContent = formatTimestampText(token.unixSeconds, token.style);
+  return node;
+}
+
+/**
  * @param {Document} doc
  * @param {InlineToken[]} children
  * @param {HTMLElement} parent
@@ -512,15 +551,12 @@ function renderToken(doc, token, parent) {
       parent.append(code);
       return;
     }
-    case "code_block": {
-      const pre = element(doc, "pre", "md-code-block");
-      pre.setAttribute("data-language", token.language);
-      const code = element(doc, "code", "md-code");
-      code.textContent = token.value;
-      pre.append(code);
-      parent.append(pre);
+    case "code_block":
+      parent.append(renderCodeBlock(doc, token));
       return;
-    }
+    case "timestamp":
+      parent.append(renderTimestamp(doc, token));
+      return;
     case "bold": {
       const node = element(doc, "strong", "md-bold");
       renderChildren(doc, token.children, node);
@@ -529,6 +565,12 @@ function renderToken(doc, token, parent) {
     }
     case "italic": {
       const node = element(doc, "em", "md-italic");
+      renderChildren(doc, token.children, node);
+      parent.append(node);
+      return;
+    }
+    case "underline": {
+      const node = element(doc, "u", "md-underline");
       renderChildren(doc, token.children, node);
       parent.append(node);
       return;
@@ -563,22 +605,16 @@ function renderToken(doc, token, parent) {
       return;
     }
     case "user_mention":
-      parent.append(mentionNode(doc, "user", token.id, token.label));
-      return;
     case "channel_mention":
-      parent.append(mentionNode(doc, "channel", token.id, token.label));
-      return;
     case "role_mention":
-      parent.append(mentionNode(doc, "role", token.id, token.label));
-      return;
     case "everyone":
-    case "here": {
-      const node = element(doc, "span", `mention mention--${token.type}`);
-      node.setAttribute("data-mention", token.type);
-      node.textContent = token.label;
-      parent.append(node);
+    case "here":
+      parent.append(createMentionElement(doc, token));
       return;
-    }
+    case "custom_emoji":
+    case "unicode_emoji":
+      parent.append(createEmojiElement(doc, token));
+      return;
   }
 }
 

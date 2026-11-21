@@ -15,7 +15,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::attachments::{
     build_message_attachments, refresh_attachment_urls, request_upload_slots,
     request_upload_slots_with_tier, upload_attachment_bytes, upload_put_command, upload_put_input,

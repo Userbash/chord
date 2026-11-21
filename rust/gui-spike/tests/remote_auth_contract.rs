@@ -31,7 +31,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 pub use chord_client::rest_failure;
 
 #[path = "../src/remote_auth.rs"]
@@ -63,7 +63,7 @@ const ORACLE_FP: &str = "0uv6U28HWAbeOqpRLBRM5dXoiwNX7Qb16u7OpPLeREQ";
 const ORACLE_ENC_NONCE: &str = "gPKYtFQZUa+Zl4LT9L0ABlCjKtLFv9Rvw/zeOMtdN732DqZm6Q21ImLM9TLNBhjMcd+vheywl9GX6SlAd6MbHbZjXi39fiJuH7gGCL8CDXqLjC4GrXf2fe2JE8lzzThREtGZEij1GGuD2V7TabRNLY4LQfFDEQrzCUuFpyg2Lec1B5Xrvp/ry90A/pGeVwryYLTa3lv7x7ppESet92ldk+HkLhTlkJXdWEqwF4DRcW3EOHDq4sMpnUvhvu72Kv3AFf6JVuTSJHV7/cXaRZvCls9wBd3HGK0ysxhKeG+ipFnnvVFpOZIBlzLm6y6AIWYukTS55pJHiSYfdoTP1wG3bQ==";
 const ORACLE_NONCE_PROOF: &str = "ZGlzY29yZC1yZW1vdGUtYXV0aC12Mi1ub25jZS0zMmI";
 const ORACLE_ENC_USER: &str = "DVSaUnpHZbfHebeKRJduBO1TlxLpz1umCw1Z2CU3PjJQ9A9QRoIYZ6cmSJGJ7KYL/IYNa7N9YJtwk0/YNUeNCIfeMT4u3qpTP/j8sMXy0d4QPa5iUiQlUUNipSliwTw7O99YZTBMd3m83On+emfoKAAj2vBWJShzgjNudSRmO75W2sDb6fy6IlA3GwwyqTy701NBMZNJbema+k93m4pC128AbdVU2tb+CmbkYlTC6c/7Cxzl3u0ICyfrqeAecctys0ol4U2izVjQFJYqOvVy7NKvt2yStiCM0uJqdGk1oV6QDvJKaE1kMKxovG5fcUn9x7EpjOhYzJ3Yc/4fu/xZYw==";
-const ORACLE_ENC_TOKEN: &str = "vP8BC1XIw3azPqThsJ4WyTLDAshi4IiDTfTRbfnHkz6jv+i7WKtvokAOdjUqIwo30+X1OQag72COjBcGetVdDsuTJXiUX+7hh3TWhyh7y9T/Q5adZVfmSYEWFFEdwoGjKa8zVtN8pZggGXb545uo1R6JFpPLj3y803RM+OrzPTctA+TJMhnC+mSi0iK3uppzkexKGfb+Y1fdYwGErZNHLrFtzluO99VjoCI9/ilfG13f9W3CblW9oFap1kU+MInobEVr5TBfJGJmnWbSgGx0Gq3wtAID6nOGJz+99DQKMaMLQ7NtxzWr6WEb+5ZE12f6XIyq00rVrNXndo/eMJ9OyA==";
+const ORACLE_ENC_TOKEN: &str = "FWRHKspqvO61U3uaJW/DjLxk6koNzAjjqOw7h54eO4Eo4r5EWqJli152ixSpC13xrsa8r1wkULCJIiek49Sep4dT22f9xL/jhiPD8sApbikBN47Rk5cFi1VpjpBjqpr+WgiNwCH8Q1580l1jDOaK3WVhRTRfZvf7Aq2CUP6mbME1w6qSjNA3olW52WiiHostg4GVeF4R7jJToujDeYWusDvsxQQdzVDawKegzWdUG3NE9csHFQCwCdxGWuhK3yGxZzruBERCpMn8vAl0LZMFmFShHc0h4jzKYtOjZIC9G5aEQVZv0WCYxqRophlob3tLUw5I3k7P6n+GIcOaejkd1g==";
 
 fn hex_128(hex: &str) -> [u8; 128] {
     assert_eq!(hex.len(), 256);
@@ -153,7 +153,7 @@ fn t01_constants_and_webcrypto_oracle_spki_fingerprint_and_oaep_decryption() {
         .expect("decrypt WebCrypto token");
     assert_eq!(
         token,
-        "MTMwMTg4MDc0MDI0NTQwNTcwNw.Gh7K9x.test_remote_auth_decrypted_token_v2"
+        "chord_mock_remote_auth_decrypted_token_v2_sanitized"
     );
 }
 
@@ -701,7 +701,7 @@ fn t08_rest_endpoints_ticket_exchange_mobile_scanner_and_redaction() {
     assert_eq!(login_res.fingerprint, ORACLE_FP);
     assert_eq!(
         login_res.decrypted_token(),
-        "MTMwMTg4MDc0MDI0NTQwNTcwNw.Gh7K9x.test_remote_auth_decrypted_token_v2"
+        "chord_mock_remote_auth_decrypted_token_v2_sanitized"
     );
 
     let calls = transport.recorded();

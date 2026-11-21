@@ -29,6 +29,11 @@
       "command": "node",
       "args": ["scripts/mcp-design-wireframe.mjs"],
       "description": "Design tokens, SVG wireframes and layout visualizer for Discord GPUI components"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "description": "Autonomous browser driving, semantic accessibility tree inspection, and self-healing UI test execution"
     }
   }
 }

@@ -194,7 +194,7 @@ describe("TASK-622: Расширенный 15/15 мутационный сьют
 
   it("MUT-04: Переполнение кольцевого буфера LatestFrameSlot (LatestFrameSlot ring buffer overflow)", () => {
     const bufferSource = readFileSync(
-      join(root, "rust", "crates", "discord-media", "src", "buffer.rs"),
+      join(root, "rust", "crates", "chord-media", "src", "buffer.rs"),
       "utf8",
     );
 
@@ -271,7 +271,7 @@ describe("TASK-622: Расширенный 15/15 мутационный сьют
 
   it("MUT-05: Искажение заголовка DAVE MLS v1 (Corrupted DAVE MLS v1 header)", () => {
     const srtpSource = readFileSync(
-      join(root, "rust", "crates", "discord-voice", "src", "srtp.rs"),
+      join(root, "rust", "crates", "chord-voice", "src", "srtp.rs"),
       "utf8",
     );
 
@@ -325,7 +325,7 @@ describe("TASK-622: Расширенный 15/15 мутационный сьют
 
   it("MUT-06: Подмена размера экрана ScreenCapturer (ScreenCapturer screen size tampering)", () => {
     const mediaSource = readFileSync(
-      join(root, "rust", "crates", "discord-media", "src", "capture", "x11.rs"),
+      join(root, "rust", "crates", "chord-media", "src", "capture", "x11.rs"),
       "utf8",
     );
 
@@ -613,7 +613,7 @@ describe("TASK-622: Расширенный 15/15 мутационный сьют
 
   it("MUT-14: Отказ бэкенда захвата экрана PipeWire / X11 (Screen Capture Backend Failure & Fallback)", () => {
     const portalSource = readFileSync(
-      join(root, "rust", "crates", "discord-platform", "src", "screencast.rs"),
+      join(root, "rust", "crates", "chord-platform", "src", "screencast.rs"),
       "utf8",
     );
 
@@ -647,7 +647,7 @@ describe("TASK-622: Расширенный 15/15 мутационный сьют
 
   it("MUT-15: Повреждение зашифрованного хранилища токенов Keyring (Keyring SafeStorage Tampering)", () => {
     const keyringSource = readFileSync(
-      join(root, "rust", "crates", "discord-platform", "src", "keyring.rs"),
+      join(root, "rust", "crates", "chord-platform", "src", "keyring.rs"),
       "utf8",
     );
 

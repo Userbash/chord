@@ -438,11 +438,14 @@ export class ShimElement {
   }
 
   /**
-   * @param {string} type
+   * @param {string | any} typeOrEvent
    * @param {Partial<ShimEvent>} [init]
    * @returns {ShimEvent}
    */
-  dispatchEvent(type, init = {}) {
+  dispatchEvent(typeOrEvent, init = {}) {
+    const isObj = typeof typeOrEvent === "object" && typeOrEvent !== null;
+    const type = isObj ? typeOrEvent.type : typeOrEvent;
+    const eventInit = isObj ? typeOrEvent : init;
     /** @type {ShimEvent} */
     const event = {
       type,
@@ -454,7 +457,7 @@ export class ShimElement {
       },
       stopPropagation() { /** @type {any} */ (event).stopped = true; },
       stopImmediatePropagation() { /** @type {any} */ (event).immediateStopped = true; /** @type {any} */ (event).stopped = true; },
-      ...init,
+      ...eventInit,
     };
     /** @type {ShimElement | null} */
     let current = this;
@@ -752,7 +755,7 @@ function parseCompound(text) {
     } else if (token.startsWith(".")) {
       compound.classes.push(token.slice(1));
     } else if (token.startsWith("[")) {
-      const match = token.match(/^\[\s*([\w-]+)\s*(?:=\s*"?([^"\]]*)"?\s*)?\]$/);
+      const match = token.match(/^\[\s*([\w-]+)\s*(?:=\s*["']?([^"'\]]*)["']?\s*)?\]$/);
       if (match) compound.attrs.push([match[1] ?? "", match[2] ?? ""]);
     } else {
       compound.tag = token.toLowerCase();

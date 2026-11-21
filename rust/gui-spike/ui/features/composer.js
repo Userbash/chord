@@ -8,6 +8,8 @@
  * с 1800 символов (CMP-06). Отправки нет — спайк без сети, это видно в
  * `#composer-hint`/`.chat-notice`.
  */
+import { createKeybindingsHandler } from "tinykeys";
+import { createComposerAutocompleteController } from "./composer-autocomplete.js";
 import { UIError, asUIError } from "./errors.js";
 import {
   createAttachmentsController,
@@ -24,6 +26,78 @@ import {
   applySpoilerFilename,
   extractFilesFromTransferEvent,
 } from "./attachments.js";
+
+/** Флаг интеграции навигации композера с `tinykeys`. */
+export const isTinykeysPowered = true;
+
+export const COMPOSER_MIN_HEIGHT_PX = 44;
+export const COMPOSER_MAX_HEIGHT_PX = 240;
+
+/**
+ * Автоматически подстраивает высоту `<textarea>` под содержимое в пределах `[minHeight, maxHeight]`.
+ *
+ * @param {any} inputEl
+ * @param {{ minHeight?: number, maxHeight?: number }} [options]
+ * @returns {number}
+ */
+export function autoResizeComposerInput(inputEl, options = {}) {
+  if (!inputEl || !inputEl.style) return 0;
+  const minHeight = Number.isFinite(Number(options.minHeight))
+    ? Number(options.minHeight)
+    : COMPOSER_MIN_HEIGHT_PX;
+  const maxHeight = Number.isFinite(Number(options.maxHeight))
+    ? Number(options.maxHeight)
+    : COMPOSER_MAX_HEIGHT_PX;
+
+  inputEl.style.height = "auto";
+  const rawScrollHeight =
+    typeof inputEl.scrollHeight === "number" && Number.isFinite(inputEl.scrollHeight) && inputEl.scrollHeight > 0
+      ? inputEl.scrollHeight
+      : minHeight;
+  const nextHeight = Math.min(maxHeight, Math.max(minHeight, rawScrollHeight));
+  inputEl.style.height = `${nextHeight}px`;
+  inputEl.style.overflowY = rawScrollHeight > maxHeight ? "auto" : "hidden";
+  if (typeof inputEl.setAttribute === "function") {
+    inputEl.setAttribute("data-expanded", nextHeight > minHeight ? "true" : "false");
+  }
+  return nextHeight;
+}
+
+/**
+ * Нормализует синтетические события клавиатуры (в т.ч. в unit-тестах),
+ * чтобы `tinykeys`'s `createKeybindingsHandler` мог проверять `code` и `getModifierState`.
+ *
+ * @param {any} event
+ * @returns {any}
+ */
+function normalizeKeyboardEventForTinykeys(event) {
+  if (!event || typeof event !== "object") return event;
+  if (event.key && event.code && typeof event.getModifierState === "function") {
+    return event;
+  }
+  const key = String(event.key ?? "");
+  const code = event.code || key;
+  /** @param {string} mod */
+  const getModifierState =
+    typeof event.getModifierState === "function"
+      ? (/** @type {string} */ mod) => event.getModifierState(mod)
+      : (/** @type {string} */ mod) => {
+          if (mod === "Shift") return Boolean(event.shiftKey);
+          if (mod === "Control") return Boolean(event.ctrlKey);
+          if (mod === "Meta") return Boolean(event.metaKey);
+          if (mod === "Alt") return Boolean(event.altKey);
+          return false;
+        };
+  return new Proxy(event, {
+    get(target, prop) {
+      if (prop === "code") return code;
+      if (prop === "getModifierState") return getModifierState;
+      if (prop === "currentTarget") return target.currentTarget ?? target.target ?? null;
+      const val = Reflect.get(target, prop, target);
+      return typeof val === "function" ? val.bind(target) : val;
+    },
+  });
+}
 
 export {
   createAttachmentsController,
@@ -1845,6 +1919,12 @@ const SEND_MESSAGE_COMMAND = "send_message";
  *   onChange?: ((items: any[], state: any) => void) | null,
  *   onError?: ((error: any) => void) | null,
  *   attachmentsController?: ReturnType<typeof createAttachmentsController> | null,
+ *   autocompleteContainer?: any,
+ *   users?: any[],
+ *   channels?: any[],
+ *   commands?: any[],
+ *   emojis?: any[],
+ *   onEditLastMessage?: any,
  * }} [options]
  * @returns {ReturnType<typeof createAttachmentsController>}
  */
@@ -1945,6 +2025,12 @@ export function mountComposerAttachments(options = {}) {
  *   onChange?: ((items: any[], state: any) => void) | null,
  *   onError?: ((error: any) => void) | null,
  *   attachmentsController?: ReturnType<typeof createAttachmentsController> | null,
+ *   autocompleteContainer?: any,
+ *   users?: any[],
+ *   channels?: any[],
+ *   commands?: any[],
+ *   emojis?: any[],
+ *   onEditLastMessage?: any,
  * }} [options]
  */
 export function createMessageComposer(options = {}) {
@@ -1982,6 +2068,29 @@ export function createMessageComposer(options = {}) {
     composerEl,
     inputEl,
   });
+
+  const acContainer = options.autocompleteContainer ?? null;
+  const autocompleteController = acContainer
+    ? createComposerAutocompleteController({
+        container: acContainer,
+        users: options.users ?? [],
+        channels: options.channels ?? [],
+        commands: options.commands ?? [],
+        emojis: options.emojis ?? [],
+        onInsertReplacement: (replacement) => {
+          if (!inputEl) return;
+          if (typeof replacement === "object" && replacement !== null && "newText" in replacement) {
+            inputEl.value = replacement.newText;
+            const nextCursor = replacement.newCursorIndex ?? replacement.newText.length;
+            inputEl.selectionStart = nextCursor;
+            inputEl.selectionEnd = nextCursor;
+          } else if (typeof replacement === "string") {
+            inputEl.value = replacement;
+          }
+          autoResizeComposerInput(inputEl);
+        },
+      })
+    : null;
 
   let destroyed = false;
   let submitting = false;
@@ -2082,8 +2191,51 @@ export function createMessageComposer(options = {}) {
   }
 
   if (inputEl) {
+    listen(inputEl, "input", () => {
+      if (destroyed) return;
+      autoResizeComposerInput(inputEl);
+      if (autocompleteController) {
+        autocompleteController.updateFromInput({
+          text: inputEl.value ?? "",
+          cursorIndex: inputEl.selectionEnd ?? inputEl.selectionStart ?? (inputEl.value?.length ?? 0),
+        });
+      }
+    });
+
     listen(inputEl, "keydown", (event) => {
       if (destroyed) return;
+      const isAcOpen = autocompleteController && (
+        typeof autocompleteController.isOpen === "function"
+          ? autocompleteController.isOpen()
+          : Boolean(autocompleteController.isOpen)
+      );
+      if (isAcOpen) {
+        if (event?.key === "ArrowDown") {
+          event?.preventDefault?.();
+          autocompleteController.moveSelection(1);
+          return;
+        }
+        if (event?.key === "ArrowUp") {
+          event?.preventDefault?.();
+          autocompleteController.moveSelection(-1);
+          return;
+        }
+        if (event?.key === "Enter" || event?.key === "Tab") {
+          event?.preventDefault?.();
+          autocompleteController.confirmSelection();
+          return;
+        }
+        if (event?.key === "Escape") {
+          event?.preventDefault?.();
+          autocompleteController.close();
+          return;
+        }
+      }
+      if (event?.key === "ArrowUp" && !String(inputEl.value ?? "").trim()) {
+        event?.preventDefault?.();
+        options.onEditLastMessage?.();
+        return;
+      }
       if (event?.key === "Enter" && !event?.shiftKey) {
         event?.preventDefault?.();
         void submit();

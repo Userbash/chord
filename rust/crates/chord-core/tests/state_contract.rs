@@ -29,12 +29,7 @@ fn minimal_state_with_guild(guild_id: u64) -> State {
     state
 }
 
-fn message_frame(
-    seq: u64,
-    id: u64,
-    channel_id: u64,
-    content: &str,
-) -> chord_codec::etf::EtfValue {
+fn message_frame(seq: u64, id: u64, channel_id: u64, content: &str) -> chord_codec::etf::EtfValue {
     frame(
         "MESSAGE_CREATE",
         seq,

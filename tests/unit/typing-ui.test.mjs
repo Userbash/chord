@@ -3,7 +3,7 @@
  * P-03-UI (RW-40): «Печатает…» в композере и исходящий `send_typing`.
  *
  * Оракулы — артефакты, не реализация:
- *   - `rust/crates/discord-core/src/state/typing/types.rs`:
+ *   - `rust/crates/chord-core/src/state/typing/types.rs`:
  *     `TYPING_TTL_MS = 10_000`, активность — `now_ms < expires_at_ms`;
  *   - `waves/RW-40/PARITY/G6-REPORT-RW40-02.md` §3.6: IPC
  *     `send_typing { channelId }` → `void | {messageSendCooldownMs?,
@@ -40,7 +40,7 @@ import { CHAT_ROWS } from "../../rust/gui-spike/ui/features/chat.js";
 /* ---------- независимые оракулы ---------- */
 
 const CORE_TYPES = readFileSync(
-  new URL("../../rust/crates/discord-core/src/state/typing/types.rs", import.meta.url),
+  new URL("../../rust/crates/chord-core/src/state/typing/types.rs", import.meta.url),
   "utf8",
 );
 /** TTL из core, а не из UI-константы (сравнение значений, не источника). */

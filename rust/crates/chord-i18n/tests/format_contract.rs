@@ -16,10 +16,7 @@ fn all_locale_numbers_match_the_independent_intl_oracle() {
     for locale in SUPPORTED_LOCALES {
         let expected = locales.get(locale).unwrap().get("number").unwrap();
         for number in ["0", "1", "1.5", "1234", "1234567", "1234567.89"] {
-            if let Some(want) = expected
-                .get(number)
-                .and_then(chord_json::JsonValue::as_str)
-            {
+            if let Some(want) = expected.get(number).and_then(chord_json::JsonValue::as_str) {
                 let got = format_number(number.parse().unwrap(), locale);
                 assert_eq!(got, want, "{locale} {number}");
             }

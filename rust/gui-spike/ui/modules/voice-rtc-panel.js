@@ -21,6 +21,153 @@ export const VOICE_CALL_PHASE_LABELS = Object.freeze({
 });
 
 /**
+ * Человекочитаемые подписи состояний сквозного шифрования DAVE MLS v1 (`STAGE-10.BFF.6`).
+ */
+export const DAVE_E2EE_STATE_LABELS = Object.freeze({
+  encrypted: "🔒 DAVE E2EE",
+  waiting_for_peer: "⏳ DAVE E2EE",
+  handshaking: "🔑 DAVE MLS",
+  recovering: "🔄 DAVE MLS",
+  downgrade_blocked: "⚠️ DAVE Защита",
+  disconnected: "",
+});
+
+const DAVE_E2EE_STATE_COLORS = Object.freeze({
+  encrypted: "#23a55a",
+  waiting_for_peer: "#f0b232",
+  handshaking: "#f0b232",
+  recovering: "#f0b232",
+  downgrade_blocked: "#f23f43",
+  disconnected: "#80848e",
+});
+
+/**
+ * @typedef {"encrypted" | "waiting_for_peer" | "handshaking" | "recovering" | "downgrade_blocked" | "disconnected"} DaveE2eeUiState
+ */
+
+/**
+ * @typedef {{
+ *   state: DaveE2eeUiState,
+ *   isEncrypted: boolean,
+ *   daveVerified: boolean,
+ *   protocolVersion: number,
+ *   epoch: number | null,
+ *   privacyCode: string | null,
+ *   privacyCodeChunks: string[],
+ *   badgeLabel: string,
+ *   tooltip: string,
+ *   statusColor: string,
+ * }} DaveE2eeIndicatorView
+ */
+
+/**
+ * Вычисляет индикатор состояния DAVE E2EE (`DaveVoiceBridge`) для голосового интерфейса.
+ *
+ * @param {Record<string, any> | null | undefined} statusOrE2ee
+ * @returns {DaveE2eeIndicatorView}
+ */
+export function resolveDaveE2eeIndicatorView(statusOrE2ee) {
+  if (!statusOrE2ee || typeof statusOrE2ee !== "object") {
+    return {
+      state: "disconnected",
+      isEncrypted: false,
+      daveVerified: false,
+      protocolVersion: 0,
+      epoch: null,
+      privacyCode: null,
+      privacyCodeChunks: [],
+      badgeLabel: DAVE_E2EE_STATE_LABELS.disconnected,
+      tooltip: "Голосовое соединение не активно",
+      statusColor: DAVE_E2EE_STATE_COLORS.disconnected,
+    };
+  }
+
+  const raw =
+    statusOrE2ee.e2ee && typeof statusOrE2ee.e2ee === "object"
+      ? statusOrE2ee.e2ee
+      : statusOrE2ee;
+  const rawState = String(raw.state ?? "").trim().toLowerCase();
+  const isStage = Boolean(raw.isStageChannel || raw.isStageVoiceChannel);
+  const downgradeBlocked = Boolean(raw.downgradeBlocked ?? raw.downgrade_blocked);
+  const protoVer = Number(
+    raw.protocolVersion ?? raw.protocol_version ?? raw.daveProtocolVersion ?? 0,
+  );
+  const epochRaw = raw.epoch;
+  const epoch =
+    typeof epochRaw === "number" && Number.isFinite(epochRaw) && epochRaw > 0
+      ? epochRaw
+      : null;
+
+  const isEncrypted = Boolean(
+    (raw.isEndToEndEncrypted ?? raw.is_end_to_end_encrypted ?? rawState === "encrypted") &&
+      protoVer >= 1,
+  );
+
+  const rawCode = typeof raw.privacyCode === "string"
+    ? raw.privacyCode.trim()
+    : typeof raw.privacy_code === "string"
+      ? raw.privacy_code.trim()
+      : "";
+  /** @type {string[]} */
+  const chunks = /^\d{30}$/.test(rawCode)
+    ? Array.from({ length: 6 }, (_, idx) => rawCode.slice(idx * 5, (idx + 1) * 5))
+    : rawCode
+      ? rawCode.split(/\s+/)
+      : [];
+  const validChunks =
+    !isStage && chunks.length === 6 && chunks.every((c) => /^\d{5}$/.test(c))
+      ? chunks
+      : [];
+  const normalizedCode = validChunks.length === 6 ? validChunks.join(" ") : null;
+  const daveVerified = isEncrypted && !isStage && validChunks.length === 6;
+
+  /** @type {DaveE2eeUiState} */
+  let state = "disconnected";
+  if (isEncrypted) {
+    state = "encrypted";
+  } else if (downgradeBlocked || rawState === "downgrade_blocked") {
+    state = "downgrade_blocked";
+  } else if (rawState === "recovering" || Number(raw.resets ?? 0) > 0) {
+    state = "recovering";
+  } else if (rawState === "waiting_for_peer" || Boolean(raw.waitingForPeer ?? raw.waiting_for_peer)) {
+    state = "waiting_for_peer";
+  } else if (
+    rawState === "handshaking" ||
+    rawState === "negotiating" ||
+    rawState === "signaling" ||
+    rawState === "connected"
+  ) {
+    state = "handshaking";
+  }
+
+  const tooltip =
+    state === "encrypted"
+      ? `Сквозное шифрование DAVE MLS v1 активно${epoch ? ` • Эпоха ${epoch}` : ""}`
+      : state === "waiting_for_peer"
+        ? "DAVE MLS v1: ожидание собеседника для обмена ключами"
+        : state === "handshaking"
+          ? "DAVE MLS v1: выполняется согласование ключей группы"
+          : state === "recovering"
+            ? "DAVE MLS v1: пересборка ключевой эпохи (Op 31)"
+            : state === "downgrade_blocked"
+              ? "Заблокирована попытка понижения версии шифрования DAVE"
+              : "Голосовое соединение не активно";
+
+  return {
+    state,
+    isEncrypted,
+    daveVerified,
+    protocolVersion: Number.isFinite(protoVer) ? protoVer : 0,
+    epoch,
+    privacyCode: normalizedCode,
+    privacyCodeChunks: validChunks,
+    badgeLabel: DAVE_E2EE_STATE_LABELS[state],
+    tooltip,
+    statusColor: DAVE_E2EE_STATE_COLORS[state],
+  };
+}
+
+/**
  * @typedef {"signaling" | "negotiating" | "connected" | "afk" | "error" | "timeout" | "disconnected"} VoiceCallPhase
  */
 
@@ -188,6 +335,8 @@ export function renderVoiceRtcPhaseDom(panelEl, statusOrPhase, options = {}) {
   if (view.phase === "disconnected") {
     panelEl.removeAttribute?.("data-rtc-state");
     panelEl.setAttribute("data-call-phase", "disconnected");
+    panelEl.setAttribute("data-dave-e2ee-state", "disconnected");
+    panelEl.setAttribute("data-dave-verified", "false");
     const statusDot =
       panelEl.querySelector?.(".voice-status-dot") ??
       panelEl.querySelector?.("[data-voice-status-dot]");
@@ -195,12 +344,41 @@ export function renderVoiceRtcPhaseDom(panelEl, statusOrPhase, options = {}) {
       statusDot.dataset.state = "disconnected";
       statusDot.dataset.phase = "disconnected";
     }
+    const e2eePill = panelEl.querySelector?.("#live-voice-e2ee-pill");
+    if (e2eePill && e2eePill.style) {
+      e2eePill.style.display = "none";
+    }
     const existingRetry = panelEl.querySelector?.("[data-voice-retry-btn]");
     existingRetry?.remove?.();
     return view;
   }
 
   const isObj = typeof statusOrPhase === "object" && statusOrPhase !== null;
+  const e2eeView = resolveDaveE2eeIndicatorView(isObj ? statusOrPhase : null);
+  panelEl.setAttribute("data-dave-e2ee-state", e2eeView.state);
+  panelEl.setAttribute("data-dave-protocol-version", String(e2eeView.protocolVersion));
+  panelEl.setAttribute("data-dave-verified", e2eeView.daveVerified ? "true" : "false");
+  const e2eePill =
+    panelEl.querySelector?.("#live-voice-e2ee-pill") ??
+    doc?.getElementById?.("live-voice-e2ee-pill");
+  if (e2eePill) {
+    if (view.phase === "afk" || e2eeView.state === "disconnected") {
+      if (e2eePill.style) e2eePill.style.display = "none";
+    } else {
+      if (e2eePill.style) {
+        e2eePill.style.display = "";
+        e2eePill.style.color = e2eeView.statusColor;
+      }
+      e2eePill.textContent = e2eeView.badgeLabel;
+      e2eePill.title = e2eeView.tooltip;
+      e2eePill.setAttribute?.("data-dave-e2ee-state", e2eeView.state);
+      e2eePill.setAttribute?.("data-dave-verified", e2eeView.daveVerified ? "true" : "false");
+      e2eePill.setAttribute?.(
+        "data-dave-epoch",
+        e2eeView.epoch !== null ? String(e2eeView.epoch) : "0",
+      );
+    }
+  }
   const selfStream = Boolean(isObj && (statusOrPhase.selfStream || statusOrPhase.screenShareOn));
   const rtcState = view.isConnected ? (selfStream ? "streaming" : "connected") : view.phase;
 

@@ -5,9 +5,7 @@
 
 mod support;
 
-use chord_core::state::{
-    Effect, EventPayload, MemberListId, MemberListRange, State, apply_frame,
-};
+use chord_core::state::{Effect, EventPayload, MemberListId, MemberListRange, State, apply_frame};
 use support::state_fixture::{int, load, map, text};
 
 fn event(name: &str) -> chord_core::codec::etf::EtfValue {

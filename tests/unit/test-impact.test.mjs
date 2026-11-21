@@ -84,13 +84,13 @@ describe("test-impact: rust/gui-spike/ui/features/join-server.js", () => {
   });
 });
 
-describe("test-impact: rust/crates/discord-core", () => {
+describe("test-impact: rust/crates/chord-core", () => {
   it("каталог и файл крейта дают targeted cargo discord-core, а не workspace", () => {
-    for (const changed of [["rust/crates/discord-core"], ["rust/crates/discord-core/src/lib.rs"]]) {
+    for (const changed of [["rust/crates/chord-core"], ["rust/crates/chord-core/src/lib.rs"]]) {
       const plan = planFor(changed);
       const cargo = plan.commands.filter((c) => c.startsWith("cargo "));
       assert.deepEqual(cargo, [
-        "cargo test --offline --manifest-path rust/Cargo.toml -p discord-core",
+        "cargo test --offline --manifest-path rust/Cargo.toml -p chord-core",
       ], `${changed}: cargo-команда должна быть targeted и offline`);
       assert.equal(plan.tier, "T1 (batch)", `${changed}: Rust-код — T1`);
       assertNoLivePlan(plan, String(changed));
@@ -98,7 +98,7 @@ describe("test-impact: rust/crates/discord-core", () => {
   });
 
   it("прочий крейт остаётся workspace-прогоном", () => {
-    const plan = planFor(["rust/crates/discord-platform/src/lib.rs"]);
+    const plan = planFor(["rust/crates/chord-platform/src/lib.rs"]);
     assert.ok(
       plan.commands.includes("cargo test --offline --manifest-path rust/Cargo.toml --workspace"),
       "чужой крейт должен идти workspace-прогоном",

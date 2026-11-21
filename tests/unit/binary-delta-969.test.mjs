@@ -545,7 +545,7 @@ describe("TASK-969: Генератор бинарных дельта-патче�
 
     // 1. Маскирование секретных токенов в сообщениях об ошибках
     const rawMfa = "mfa." + "aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789_secretTokenData";
-    const rawBot = "Bot " + "MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef";
+    const rawBot = "Bot " + "mock_bot_token_delta_test_123456";
     const rawGhp = "ghp_" + "1234567890abcdefghijklmnopqrstuvwxyzABCD";
     const sanitized = maskSensitiveTokens(`Ошибка обновления: ${rawMfa} | ${rawBot} | ${rawGhp}`);
     assert.ok(sanitized.includes("mfa.***"));

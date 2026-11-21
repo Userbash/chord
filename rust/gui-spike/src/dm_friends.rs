@@ -532,9 +532,35 @@ pub trait DmFriendsTransport: Send + Sync {
     ) -> Pin<Box<dyn Future<Output = Result<HttpResponse, DmFriendsError>> + Send + 'a>>;
 }
 
-/// Валидирует snowflake ID (строго непустая строка из ASCII-цифр, парсящаяся в `u64 > 0`).
+/// Validates that an identifier string is a decimal Discord Snowflake ID.
+///
+/// Delegates to [`crate::net::is_snowflake`] to ensure the string is non-empty,
+/// contains strictly ASCII decimal digits, and parses into a `u64`.
+///
+/// # Arguments
+/// * `id` - Identifier string slice to validate.
+///
+/// # Returns
+/// `true` if valid 64-bit snowflake; otherwise `false`.
+#[inline]
+#[must_use]
+pub fn is_snowflake(id: &str) -> bool {
+    crate::net::is_snowflake(id)
+}
+
+/// Validates a Discord Snowflake ID as a non-zero `u64`.
+///
+/// Ensures `id` is a valid decimal snowflake ([`is_snowflake`]) and strictly greater than `0`.
+///
+/// # Arguments
+/// * `id` - Identifier string slice to validate and parse.
+///
+/// # Errors
+/// Returns [`DmFriendsError::InvalidSnowflakeId`] if `id` is empty, contains non-digit bytes,
+/// overflows `u64`, or equals `0`.
+#[inline]
 pub fn validate_snowflake_id(id: &str) -> Result<u64, DmFriendsError> {
-    if id.is_empty() || id != id.trim() || !id.bytes().all(|b| b.is_ascii_digit()) {
+    if !is_snowflake(id) {
         return Err(DmFriendsError::InvalidSnowflakeId {
             value: id.to_string(),
         });
@@ -607,57 +633,207 @@ fn u64_val(value: Option<&serde_json::Value>) -> Option<u64> {
     }
 }
 
-fn parse_user_obj(obj: &serde_json::Value) -> Option<ResolvedDmUser> {
-    let id = opt_str(obj.get("id"))?;
-    let username = opt_str(obj.get("username")).unwrap_or_default();
-    let global_name = opt_str(obj.get("global_name"));
-    let discriminator = opt_str(obj.get("discriminator")).unwrap_or_else(|| "0".to_string());
-    let avatar = opt_str(obj.get("avatar"));
-    let bot = bool_val(obj.get("bot"));
-    Some(ResolvedDmUser {
-        id,
-        username,
-        global_name,
-        discriminator,
-        avatar,
-        bot,
-    })
+/// Serde deserializer for an optional Discord string/numeric field, ignoring empty and `"nil"` sentinels.
+fn deserialize_opt_etf_str<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(opt_str(Some(&val)))
 }
 
-fn parse_private_channel_obj(
-    obj: &serde_json::Value,
-    users_by_id: &BTreeMap<String, ResolvedDmUser>,
-) -> Result<PrivateChannelRecord, DmFriendsError> {
-    let id = opt_str(obj.get("id")).ok_or(DmFriendsError::InvalidResponse)?;
-    let raw_type = i64_val(obj.get("type")).unwrap_or(CHANNEL_TYPE_DM);
-    let channel_type = PrivateChannelType::from_i64(raw_type);
-    let flags = u64_val(obj.get("flags")).unwrap_or(0);
-    let last_message_id = opt_str(obj.get("last_message_id"));
-    let name = opt_str(obj.get("name"));
-    let icon = opt_str(obj.get("icon"));
-    let owner_id = opt_str(obj.get("owner_id"));
-    let is_message_request = bool_val(obj.get("is_message_request"));
-    let is_message_request_timestamp = opt_str(obj.get("is_message_request_timestamp"));
-    let is_spam = bool_val(obj.get("is_spam"));
+/// Serde deserializer for a Discord boolean field accepting bools, `"true"`/`"1"`, or `1`.
+fn deserialize_etf_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(bool_val(Some(&val)))
+}
 
+/// Raw Serde DTO for deserializing a Discord user payload from Gateway READY or REST responses.
+#[derive(Debug, Deserialize, Default)]
+#[serde(default)]
+struct RawDmUserDto {
+    /// Snowflake ID (string or numeric in ETF), `None` if missing, empty, or `"nil"`.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    id: Option<String>,
+    /// Account username, defaulting to empty if absent or `"nil"`.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    username: Option<String>,
+    /// Optional global display name.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    global_name: Option<String>,
+    /// Legacy 4-digit discriminator or `"0"` for Pomelo accounts.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    discriminator: Option<String>,
+    /// Optional avatar hash.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    avatar: Option<String>,
+    /// Whether the user is a bot account.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    bot: bool,
+}
+
+impl TryFrom<RawDmUserDto> for ResolvedDmUser {
+    type Error = ();
+
+    fn try_from(dto: RawDmUserDto) -> Result<Self, Self::Error> {
+        let id = dto.id.ok_or(())?;
+        Ok(Self {
+            id,
+            username: dto.username.unwrap_or_default(),
+            global_name: dto.global_name,
+            discriminator: dto.discriminator.unwrap_or_else(|| "0".to_string()),
+            avatar: dto.avatar,
+            bot: dto.bot,
+        })
+    }
+}
+
+/// Parses a Discord user JSON object into a strongly-typed [`ResolvedDmUser`].
+///
+/// Uses Serde deserialization via [`RawDmUserDto`] to handle string and numeric IDs,
+/// default modern usernames without discriminator to `"0"`, and ignore ETF sentinel values (`"nil"`).
+///
+/// # Arguments
+/// * `obj` - Raw JSON object representing the user.
+///
+/// # Returns
+/// `Some(ResolvedDmUser)` if a valid user ID is present; otherwise `None`.
+#[inline]
+fn parse_user_obj(obj: &serde_json::Value) -> Option<ResolvedDmUser> {
+    let dto = RawDmUserDto::deserialize(obj).ok()?;
+    ResolvedDmUser::try_from(dto).ok()
+}
+
+/// Serde deserializer for an optional Discord `i64` field accepting numbers or numeric strings.
+fn deserialize_opt_etf_i64<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(i64_val(Some(&val)))
+}
+
+/// Serde deserializer for a Discord `u64` field accepting numbers or numeric strings, defaulting to `0`.
+fn deserialize_etf_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(u64_val(Some(&val)).unwrap_or(0))
+}
+
+/// Serde deserializer for a `nicks` map, filtering out null or `"nil"` sentinel values.
+fn deserialize_etf_nicks<'de, D>(deserializer: D) -> Result<BTreeMap<String, String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
     let mut nicks = BTreeMap::new();
-    if let Some(nicks_obj) = obj.get("nicks").and_then(serde_json::Value::as_object) {
-        for (uid, nick_val) in nicks_obj {
+    if let Some(obj) = val.as_object() {
+        for (uid, nick_val) in obj {
             if let Some(nick_str) = opt_str(Some(nick_val)) {
                 nicks.insert(uid.clone(), nick_str);
             }
         }
     }
+    Ok(nicks)
+}
+
+/// Serde deserializer for an optional JSON array, returning an empty `Vec` on `null` or non-array values.
+fn deserialize_opt_vec<'de, D>(deserializer: D) -> Result<Vec<serde_json::Value>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(val.as_array().cloned().unwrap_or_default())
+}
+
+/// Raw Serde DTO for deserializing a Discord private channel (DM or Group DM) payload.
+#[derive(Debug, Deserialize, Default)]
+#[serde(default)]
+struct RawPrivateChannelDto {
+    /// Channel snowflake ID (string or numeric in ETF).
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    id: Option<String>,
+    /// Numeric Discord channel type (`1` = DM, `3` = Group DM).
+    #[serde(rename = "type", deserialize_with = "deserialize_opt_etf_i64")]
+    channel_type: Option<i64>,
+    /// Channel bitflags (`1 << 1` = pinned).
+    #[serde(deserialize_with = "deserialize_etf_u64")]
+    flags: u64,
+    /// Optional snowflake ID of the last message.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    last_message_id: Option<String>,
+    /// Optional Group DM name.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    name: Option<String>,
+    /// Optional Group DM icon hash.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    icon: Option<String>,
+    /// Optional Group DM owner user ID.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    owner_id: Option<String>,
+    /// Whether the channel is flagged as a message request.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    is_message_request: bool,
+    /// Optional timestamp of the message request.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    is_message_request_timestamp: Option<String>,
+    /// Whether the channel is flagged as spam.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    is_spam: bool,
+    /// Per-recipient custom nicknames keyed by user ID.
+    #[serde(deserialize_with = "deserialize_etf_nicks")]
+    nicks: BTreeMap<String, String>,
+    /// Embedded recipient user objects or IDs.
+    #[serde(deserialize_with = "deserialize_opt_vec")]
+    recipients: Vec<serde_json::Value>,
+    /// Recipient user IDs when `recipients` is omitted.
+    #[serde(deserialize_with = "deserialize_opt_vec")]
+    recipient_ids: Vec<serde_json::Value>,
+}
+
+/// Parses a private channel object (DM or Group DM) from Gateway READY or REST API responses.
+///
+/// Uses Serde deserialization via [`RawPrivateChannelDto`], maps raw Discord channel types
+/// (`1` = DM, `3` = Group DM), resolves recipient lists against `users_by_id`, and applies
+/// custom nicknames when available.
+///
+/// # Arguments
+/// * `obj` - Raw JSON value of the channel payload.
+/// * `users_by_id` - Lookup map of resolved users from the session.
+///
+/// # Returns
+/// `Ok(PrivateChannelRecord)` on valid channel structure, or `Err(DmFriendsError::InvalidResponse)`.
+fn parse_private_channel_obj(
+    obj: &serde_json::Value,
+    users_by_id: &BTreeMap<String, ResolvedDmUser>,
+) -> Result<PrivateChannelRecord, DmFriendsError> {
+    let dto = RawPrivateChannelDto::deserialize(obj).map_err(|_| DmFriendsError::InvalidResponse)?;
+    let id = dto.id.ok_or(DmFriendsError::InvalidResponse)?;
+    let channel_type = PrivateChannelType::from_i64(dto.channel_type.unwrap_or(CHANNEL_TYPE_DM));
 
     let mut recipient_ids = Vec::new();
     let mut recipients = Vec::new();
 
-    if let Some(rec_objs) = obj.get("recipients").and_then(serde_json::Value::as_array) {
-        for rec_val in rec_objs {
-            if let Some(user) = parse_user_obj(rec_val) {
-                recipient_ids.push(user.id.clone());
-                recipients.push(user);
-            } else if let Some(uid) = opt_str(Some(rec_val)) {
+    for rec_val in &dto.recipients {
+        if let Some(user) = parse_user_obj(rec_val) {
+            recipient_ids.push(user.id.clone());
+            recipients.push(user);
+        } else if let Some(uid) = opt_str(Some(rec_val)) {
+            if let Some(user) = users_by_id.get(&uid) {
+                recipients.push(user.clone());
+            }
+            recipient_ids.push(uid);
+        }
+    }
+
+    if recipient_ids.is_empty() {
+        for uid_val in &dto.recipient_ids {
+            if let Some(uid) = opt_str(Some(uid_val)) {
                 if let Some(user) = users_by_id.get(&uid) {
                     recipients.push(user.clone());
                 }
@@ -666,37 +842,349 @@ fn parse_private_channel_obj(
         }
     }
 
-    if let Some(id_list) = obj
-        .get("recipient_ids")
-        .and_then(serde_json::Value::as_array)
-    {
-        if recipient_ids.is_empty() {
-            for uid_val in id_list {
-                if let Some(uid) = opt_str(Some(uid_val)) {
-                    if let Some(user) = users_by_id.get(&uid) {
-                        recipients.push(user.clone());
-                    }
-                    recipient_ids.push(uid);
-                }
-            }
-        }
-    }
-
     Ok(PrivateChannelRecord {
         id,
         channel_type,
-        flags,
-        last_message_id,
+        flags: dto.flags,
+        last_message_id: dto.last_message_id,
         recipient_ids,
         recipients,
-        name,
-        icon,
-        owner_id,
-        nicks,
-        is_message_request,
-        is_message_request_timestamp,
-        is_spam,
+        name: dto.name,
+        icon: dto.icon,
+        owner_id: dto.owner_id,
+        nicks: dto.nicks,
+        is_message_request: dto.is_message_request,
+        is_message_request_timestamp: dto.is_message_request_timestamp,
+        is_spam: dto.is_spam,
     })
+}
+
+/// Serde deserializer for an optional embedded user object, returning `None` on null or invalid payloads.
+fn deserialize_opt_dm_user<'de, D>(deserializer: D) -> Result<Option<ResolvedDmUser>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    Ok(parse_user_obj(&val))
+}
+
+/// Raw Serde DTO for deserializing a Discord relationship entry from Gateway READY payloads.
+#[derive(Debug, Deserialize, Default)]
+#[serde(default)]
+struct RawRelationshipDto {
+    /// Relationship snowflake ID (string or numeric in ETF).
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    id: Option<String>,
+    /// Target user snowflake ID, if explicitly provided.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    user_id: Option<String>,
+    /// Numeric Discord relationship type (`1..=4`).
+    #[serde(rename = "type", deserialize_with = "deserialize_opt_etf_i64")]
+    relationship_type: Option<i64>,
+    /// Optional custom friend nickname.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    nickname: Option<String>,
+    /// Optional ISO-8601 timestamp when the relationship was established.
+    #[serde(deserialize_with = "deserialize_opt_etf_str")]
+    since: Option<String>,
+    /// Whether an incoming friend request is flagged as spam.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    is_spam_request: bool,
+    /// Whether the target user is currently ignored.
+    #[serde(deserialize_with = "deserialize_etf_bool")]
+    user_ignored: bool,
+    /// Optional inline user object embedded in the relationship entry.
+    #[serde(deserialize_with = "deserialize_opt_dm_user")]
+    user: Option<ResolvedDmUser>,
+}
+
+/// Parses a relationship entry from Gateway READY into a [`RelationshipRecord`].
+///
+/// Uses Serde deserialization via [`RawRelationshipDto`], resolves `id` and `user_id`
+/// fallbacks, and attaches either the inline user or a matching entry from `users_by_id`.
+///
+/// # Arguments
+/// * `rel_val` - Raw JSON value of the relationship entry.
+/// * `users_by_id` - Lookup map of resolved users from the session.
+///
+/// # Returns
+/// `Ok(RelationshipRecord)` on valid relationship data, or `Err(DmFriendsError::InvalidResponse)`.
+fn parse_relationship_obj(
+    rel_val: &serde_json::Value,
+    users_by_id: &BTreeMap<String, ResolvedDmUser>,
+) -> Result<RelationshipRecord, DmFriendsError> {
+    let dto = RawRelationshipDto::deserialize(rel_val).map_err(|_| DmFriendsError::InvalidResponse)?;
+    let inline_user = dto.user;
+    let id = dto
+        .id
+        .or_else(|| dto.user_id.clone())
+        .or_else(|| inline_user.as_ref().map(|u| u.id.clone()))
+        .ok_or(DmFriendsError::InvalidResponse)?;
+    let user_id = dto
+        .user_id
+        .or_else(|| inline_user.as_ref().map(|u| u.id.clone()))
+        .unwrap_or_else(|| id.clone());
+    let raw_type = dto
+        .relationship_type
+        .ok_or(DmFriendsError::InvalidResponse)?;
+    let relationship_type = RelationshipType::from_i64(raw_type);
+    let user = inline_user.or_else(|| users_by_id.get(&user_id).cloned());
+
+    Ok(RelationshipRecord {
+        id,
+        user_id,
+        relationship_type,
+        nickname: dto.nickname,
+        since: dto.since,
+        is_spam_request: dto.is_spam_request,
+        user_ignored: dto.user_ignored,
+        user,
+    })
+}
+
+/// Запись состояния прочтения канала (`READY.read_state.entries[]`).
+pub type ReadStateRow = crate::data::ReadStateEntry;
+
+/// Serde deserializer for an optional ETF string/numeric field, returning `Result<Option<String>, String>`
+/// so invalid non-scalar types (`bool`, `array`, `object`) are caught instead of silently ignored.
+fn deserialize_read_state_opt_str<'de, D>(
+    deserializer: D,
+) -> Result<Result<Option<String>, &'static str>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<serde_json::Value>::deserialize(deserializer)?;
+    match val {
+        None | Some(serde_json::Value::Null) => Ok(Ok(None)),
+        Some(serde_json::Value::String(s)) if s == "nil" || s == "null" || s.trim().is_empty() => {
+            Ok(Ok(None))
+        }
+        Some(serde_json::Value::String(s)) => Ok(Ok(Some(s))),
+        Some(serde_json::Value::Number(n)) if n.is_u64() || n.is_i64() => {
+            Ok(Ok(Some(n.to_string())))
+        }
+        Some(_) => Ok(Err("должно быть строкой или null")),
+    }
+}
+
+/// Serde deserializer for an optional ETF `u64` field, returning `Result<Option<u64>, &'static str>`.
+fn deserialize_read_state_opt_u64<'de, D>(
+    deserializer: D,
+) -> Result<Result<Option<u64>, &'static str>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<serde_json::Value>::deserialize(deserializer)?;
+    match val {
+        None | Some(serde_json::Value::Null) => Ok(Ok(None)),
+        Some(serde_json::Value::String(s)) if s == "nil" || s == "null" || s.trim().is_empty() => {
+            Ok(Ok(None))
+        }
+        Some(serde_json::Value::String(s)) => s
+            .trim()
+            .parse::<u64>()
+            .ok()
+            .or_else(|| s.trim().parse::<i64>().ok().map(|v| v.max(0) as u64))
+            .map(|v| Ok(Some(v)))
+            .ok_or(())
+            .or(Ok(Err("должно быть числом u64"))),
+        Some(serde_json::Value::Number(n)) => n
+            .as_u64()
+            .or_else(|| n.as_i64().map(|v| v.max(0) as u64))
+            .map(|v| Ok(Some(v)))
+            .ok_or(())
+            .or(Ok(Err("должно быть числом u64"))),
+        Some(_) => Ok(Err("должно быть числом u64")),
+    }
+}
+
+/// Serde deserializer for an optional ETF `i64` field, returning `Result<Option<i64>, &'static str>`.
+fn deserialize_read_state_opt_i64<'de, D>(
+    deserializer: D,
+) -> Result<Result<Option<i64>, &'static str>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<serde_json::Value>::deserialize(deserializer)?;
+    match val {
+        None | Some(serde_json::Value::Null) => Ok(Ok(None)),
+        Some(serde_json::Value::String(s)) if s == "nil" || s == "null" || s.trim().is_empty() => {
+            Ok(Ok(None))
+        }
+        Some(serde_json::Value::String(s)) => s
+            .trim()
+            .parse::<i64>()
+            .map(|v| Ok(Some(v)))
+            .or(Ok(Err("должно быть числом i64"))),
+        Some(serde_json::Value::Number(n)) => n
+            .as_i64()
+            .map(|v| Ok(Some(v)))
+            .ok_or(())
+            .or(Ok(Err("должно быть числом i64"))),
+        Some(_) => Ok(Err("должно быть числом i64")),
+    }
+}
+
+fn default_ok_none<T>() -> Result<Option<T>, &'static str> {
+    Ok(None)
+}
+
+/// Data Transfer Object (DTO) for deserializing a `READY.read_state.entries[]` record via Serde (`TAURI-DTO-04`).
+///
+/// Eliminates manual `as_u64` / `as_str` field extraction while preserving ETF `"nil"` sentinel
+/// filtering, `snake_case` and `camelCase` field aliases, and strict schema validation.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(default)]
+pub struct RawReadStateDto {
+    /// Target channel or resource Snowflake ID (`id` or `channel_id` / `channelId`).
+    #[serde(
+        alias = "channel_id",
+        alias = "channelId",
+        deserialize_with = "deserialize_read_state_opt_str",
+        default = "default_ok_none"
+    )]
+    pub id: Result<Option<String>, &'static str>,
+    /// Optional read-state bitflags (`flags`).
+    #[serde(
+        deserialize_with = "deserialize_read_state_opt_u64",
+        default = "default_ok_none"
+    )]
+    pub flags: Result<Option<u64>, &'static str>,
+    /// Optional last acknowledged message Snowflake ID (`last_message_id` / `lastMessageId`).
+    #[serde(
+        alias = "lastMessageId",
+        deserialize_with = "deserialize_read_state_opt_str",
+        default = "default_ok_none"
+    )]
+    pub last_message_id: Result<Option<String>, &'static str>,
+    /// Optional ISO-8601 timestamp of the last pinned message (`last_pin_timestamp` / `lastPinTimestamp`).
+    #[serde(
+        alias = "lastPinTimestamp",
+        deserialize_with = "deserialize_read_state_opt_str",
+        default = "default_ok_none"
+    )]
+    pub last_pin_timestamp: Result<Option<String>, &'static str>,
+    /// Optional read-state view counter (`last_viewed` / `lastViewed`).
+    #[serde(
+        alias = "lastViewed",
+        deserialize_with = "deserialize_read_state_opt_u64",
+        default = "default_ok_none"
+    )]
+    pub last_viewed: Result<Option<u64>, &'static str>,
+    /// Optional unread mention counter (`mention_count` / `mentionCount`).
+    #[serde(
+        alias = "mentionCount",
+        deserialize_with = "deserialize_read_state_opt_u64",
+        default = "default_ok_none"
+    )]
+    pub mention_count: Result<Option<u64>, &'static str>,
+    /// Optional badge counter for non-channel read states (`badge_count` / `badgeCount`).
+    #[serde(
+        alias = "badgeCount",
+        deserialize_with = "deserialize_read_state_opt_i64",
+        default = "default_ok_none"
+    )]
+    pub badge_count: Result<Option<i64>, &'static str>,
+    /// Optional last acknowledged entity Snowflake ID for badge read states (`last_acked_id` / `lastAckedId`).
+    #[serde(
+        alias = "lastAckedId",
+        deserialize_with = "deserialize_read_state_opt_str",
+        default = "default_ok_none"
+    )]
+    pub last_acked_id: Result<Option<String>, &'static str>,
+    /// Optional numeric read-state type (`read_state_type` / `readStateType`).
+    #[serde(
+        alias = "readStateType",
+        deserialize_with = "deserialize_read_state_opt_i64",
+        default = "default_ok_none"
+    )]
+    pub read_state_type: Result<Option<i64>, &'static str>,
+}
+
+impl Default for RawReadStateDto {
+    #[inline]
+    fn default() -> Self {
+        Self {
+            id: Ok(None),
+            flags: Ok(None),
+            last_message_id: Ok(None),
+            last_pin_timestamp: Ok(None),
+            last_viewed: Ok(None),
+            mention_count: Ok(None),
+            badge_count: Ok(None),
+            last_acked_id: Ok(None),
+            read_state_type: Ok(None),
+        }
+    }
+}
+
+impl RawReadStateDto {
+    /// Converts the deserialized DTO into a validated [`ReadStateRow`] ([`crate::data::ReadStateEntry`]).
+    ///
+    /// # Errors
+    /// Returns [`crate::data::DataError::Parse`] if `id` is missing/empty or if any field has an invalid type.
+    #[inline]
+    pub fn into_read_state(self) -> Result<ReadStateRow, crate::data::DataError> {
+        self.into_read_state_at(Path::new("002-READY.json"), "READY.read_state.entries[0]")
+    }
+
+    /// Converts the deserialized DTO into a validated [`ReadStateRow`] with explicit fixture path and location context.
+    ///
+    /// # Arguments
+    /// * `path` - Source fixture path for [`crate::data::DataError`] diagnostics.
+    /// * `at` - JSON location descriptor (e.g. `"READY.read_state.entries[0]"`).
+    ///
+    /// # Errors
+    /// Returns [`crate::data::DataError::Parse`] if `id` is missing/empty or if any field has an invalid type.
+    #[inline]
+    pub fn into_read_state_at(
+        self,
+        path: &Path,
+        at: &str,
+    ) -> Result<ReadStateRow, crate::data::DataError> {
+        let channel_id = self
+            .id
+            .map_err(|_| crate::data::DataError::parse(path, format!("{at}: нет строкового id")))?
+            .ok_or_else(|| {
+                crate::data::DataError::parse(path, format!("{at}: нет строкового id"))
+            })?;
+        let flags = self.flags.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле flags {msg}"))
+        })?;
+        let last_message_id = self.last_message_id.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле last_message_id {msg}"))
+        })?;
+        let last_pin_timestamp = self.last_pin_timestamp.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле last_pin_timestamp {msg}"))
+        })?;
+        let last_viewed = self.last_viewed.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле last_viewed {msg}"))
+        })?;
+        let mention_count = self.mention_count.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле mention_count {msg}"))
+        })?;
+        let badge_count = self.badge_count.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле badge_count {msg}"))
+        })?;
+        let last_acked_id = self.last_acked_id.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле last_acked_id {msg}"))
+        })?;
+        let read_state_type = self.read_state_type.map_err(|msg| {
+            crate::data::DataError::parse(path, format!("{at}: поле read_state_type {msg}"))
+        })?;
+
+        Ok(ReadStateRow {
+            channel_id,
+            flags,
+            last_message_id,
+            last_pin_timestamp,
+            last_viewed,
+            mention_count,
+            badge_count,
+            last_acked_id,
+            read_state_type,
+        })
+    }
 }
 
 /// Разбирает `READY` JSON (`d.users`, `d.private_channels`, `d.relationships`) без единого сетевого вызова.
@@ -732,32 +1220,7 @@ pub fn parse_ready_dm_friends(
     let mut relationships = Vec::new();
     if let Some(rel_arr) = d.get("relationships").and_then(serde_json::Value::as_array) {
         for rel_val in rel_arr {
-            let inline_user = rel_val.get("user").and_then(parse_user_obj);
-            let id = opt_str(rel_val.get("id"))
-                .or_else(|| opt_str(rel_val.get("user_id")))
-                .or_else(|| inline_user.as_ref().map(|u| u.id.clone()))
-                .ok_or(DmFriendsError::InvalidResponse)?;
-            let user_id = opt_str(rel_val.get("user_id"))
-                .or_else(|| inline_user.as_ref().map(|u| u.id.clone()))
-                .unwrap_or_else(|| id.clone());
-            let raw_type = i64_val(rel_val.get("type")).ok_or(DmFriendsError::InvalidResponse)?;
-            let relationship_type = RelationshipType::from_i64(raw_type);
-            let nickname = opt_str(rel_val.get("nickname"));
-            let since = opt_str(rel_val.get("since"));
-            let is_spam_request = bool_val(rel_val.get("is_spam_request"));
-            let user_ignored = bool_val(rel_val.get("user_ignored"));
-            let user = inline_user.or_else(|| users.get(&user_id).cloned());
-
-            relationships.push(RelationshipRecord {
-                id,
-                user_id,
-                relationship_type,
-                nickname,
-                since,
-                is_spam_request,
-                user_ignored,
-                user,
-            });
+            relationships.push(parse_relationship_obj(rel_val, &users)?);
         }
     }
 
@@ -1367,5 +1830,47 @@ impl DiscordDmFriends {
         input: &FriendRequestTagInput,
     ) -> Result<(), DmFriendsError> {
         send_friend_request(self.transport.as_ref(), &self.token, input).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn raw_read_state_dto_deserializes_and_converts_into_read_state_row() {
+        let raw = serde_json::json!({
+            "id": "123456789012345678",
+            "flags": 2,
+            "last_message_id": "987654321098765432",
+            "last_pin_timestamp": "nil",
+            "last_viewed": "4310",
+            "mention_count": 3,
+            "badge_count": 0,
+            "last_acked_id": 1294268550826950656_u64,
+            "read_state_type": 2
+        });
+
+        let dto = RawReadStateDto::deserialize(&raw).expect("valid RawReadStateDto");
+        let row = dto.into_read_state().expect("into_read_state");
+        assert_eq!(row.channel_id, "123456789012345678");
+        assert_eq!(row.flags, Some(2));
+        assert_eq!(row.last_message_id.as_deref(), Some("987654321098765432"));
+        assert_eq!(row.last_pin_timestamp, None);
+        assert_eq!(row.last_viewed, Some(4310));
+        assert_eq!(row.mention_count, Some(3));
+        assert_eq!(row.badge_count, Some(0));
+        assert_eq!(row.last_acked_id.as_deref(), Some("1294268550826950656"));
+        assert_eq!(row.read_state_type, Some(2));
+
+        // Missing or nil id returns DataError::Parse
+        let missing_id = serde_json::json!({ "id": "nil", "mention_count": 1 });
+        let err_dto = RawReadStateDto::deserialize(&missing_id).expect("deserialize");
+        assert!(err_dto.into_read_state().is_err());
+
+        // Invalid field type returns DataError::Parse
+        let bad_flags = serde_json::json!({ "id": "123", "flags": "not-a-number" });
+        let bad_dto = RawReadStateDto::deserialize(&bad_flags).expect("deserialize");
+        assert!(bad_dto.into_read_state().is_err());
     }
 }

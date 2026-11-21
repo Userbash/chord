@@ -12,7 +12,7 @@ const REPO_ROOT = path.resolve(__dirname, "../..");
 describe("Stream Broadcaster Handshake, Source Normalization & Format Parity", () => {
   const dataRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/data.rs"), "utf8");
   const mainRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/main.rs"), "utf8");
-  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs"), "utf8");
+  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs"), "utf8");
 
   it("SB1: data.rs reset_live_stream_state resets LOCAL_SELF_STREAM to false", () => {
     const fnIdx = dataRs.indexOf("pub fn reset_live_stream_state()");
@@ -33,7 +33,7 @@ describe("Stream Broadcaster Handshake, Source Normalization & Format Parity", (
     );
     assert.match(
       dataRs,
-      /discord_core::ws::clear_last_stream_key\(\)/,
+      /chord_core::ws::clear_last_stream_key\(\)/,
       "data.rs reset_live_stream_state must invoke clear_last_stream_key()",
     );
   });

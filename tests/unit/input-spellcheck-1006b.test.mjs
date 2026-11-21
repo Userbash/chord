@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты рендеринга волнистых опечаток (#f23f43) в TextView
  * и всплывающего контекстного меню замены при клике ПКМ (TASK-1006B):
- * - SUB-1006B-0: Статический и компиляционный контракт `rust/discord-gpui/src/chat/input_spellcheck.rs`
+ * - SUB-1006B-0: Статический и компиляционный контракт `rust/chord-gpui/src/chat/input_spellcheck.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, соблюдение лимитов
  *   `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк, чистый `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -28,7 +28,7 @@
  *   `offset=9975`, громкость `0..200%`, бейдж `99+`; ошибки HTTP `400/401/403/404/413/429 retry_after_ms/5xx`;
  *   пустые тексты и 0 вариантов замены; `skeleton`/`HTTP 202`; права `VIEW_CHANNEL`/`SEND_MESSAGES`/`AGE_GATED_SPACES`;
  *   восстановление/отмена меню; маскирование секретов в логах телеметрии).
- * - SUB-1006B-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/chat/input_spellcheck.rs`.
+ * - SUB-1006B-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/chat/input_spellcheck.rs`.
  */
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -60,7 +60,7 @@ import {
 } from "../../scripts/verify-spellchecker.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/chat/input_spellcheck.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/chat/input_spellcheck.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const RE_DEEP_FRONTEND_D03_PATH = "/home/sanya/re-deep/frontend-d03.json";
@@ -74,7 +74,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/chat/input_spellcheck.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/chat/input_spellcheck.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -125,7 +125,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1006B: Красная волнистая линия #f23f43 в TextView и всплывающее меню вариантов при клике ПКМ (rust/discord-gpui/src/chat/input_spellcheck.rs)", () => {
+describe("TASK-1006B: Красная волнистая линия #f23f43 в TextView и всплывающее меню вариантов при клике ПКМ (rust/chord-gpui/src/chat/input_spellcheck.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "input-spellcheck-1006b-"));
     testBinPath = join(workDir, "input_spellcheck_1006b_test");
@@ -137,7 +137,7 @@ describe("TASK-1006B: Красная волнистая линия #f23f43 в Te
     }
   });
 
-  it("SUB-1006B-0: проверяет статический и компиляционный контракт rust/discord-gpui/src/chat/input_spellcheck.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, 0 .unwrap()/.expect() и отсутствие секретов)", () => {
+  it("SUB-1006B-0: проверяет статический и компиляционный контракт rust/chord-gpui/src/chat/input_spellcheck.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, 0 .unwrap()/.expect() и отсутствие секретов)", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Отсутствует Rust-модуль ${RUST_MODULE_REL_PATH}`,

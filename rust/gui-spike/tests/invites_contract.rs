@@ -20,8 +20,8 @@
 //! фиксирует target/тело. `routes::ROUTES` остаётся frozen D-02 (49 строк с POST
 //! сообщения): invites подключены явным `[S]`-расширением каталога (D-108).
 
-use discord_core::rest::routes::{self, HttpMethod};
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::routes::{self, HttpMethod};
+use chord_core::rest::transport::HttpResponse;
 use chord_client::invites::{
     accept_invite, can_user_create_channel_invite, create_channel_invite,
     create_channel_invite_guarded, resolve_invite, AcceptRequest, AcceptedInvite,
@@ -46,7 +46,7 @@ const ORACLE_ACCEPT_KEYS: [&str; 3] = [
 
 /// Выдержка frozen D-02: 47 live-маршрутов. Invite-ручек в ней нет — это
 /// доказывает, что контракт не подогнан под захват.
-const D02_TSV: &str = include_str!("../../crates/discord-core/tests/data/rest-routes-47.tsv");
+const D02_TSV: &str = include_str!("../../crates/chord-core/tests/data/rest-routes-47.tsv");
 
 /// Исходный invite-объект (`[S]`, §1.4): вложенные `guild`/`channel`, snake_case.
 const RESOLVE_BODY: &str = r#"{
@@ -1611,7 +1611,7 @@ fn accept_invite_with_captcha_sends_captcha_key_and_decodes_accepted_guild() {
 /// Предотвращает ошибки 404/notFound и исключает лишние сетевые запросы при отсутствии прав.
 #[test]
 fn be_p2_task_809_create_invite_permission_guards_and_missing_permissions_error() {
-    use discord_core::permissions::{ADMINISTRATOR, CREATE_INSTANT_INVITE, VIEW_CHANNEL};
+    use chord_core::permissions::{ADMINISTRATOR, CREATE_INSTANT_INVITE, VIEW_CHANNEL};
 
     // 1. Проверка чистой функции can_user_create_channel_invite
     assert!(can_user_create_channel_invite(CREATE_INSTANT_INVITE));

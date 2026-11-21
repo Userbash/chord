@@ -1,14 +1,14 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты пользовательских тем оформления и динамической CSS палитры (TASK-985):
- * - SUB-985-0: Статический контракт нативного модуля `rust/discord-gpui/src/custom_themes.rs`
+ * - SUB-985-0: Статический контракт нативного модуля `rust/chord-gpui/src/custom_themes.rs`
  *   (`#![forbid(unsafe_code)]`, лимиты `scripts/quality-gate.mjs`: функции < 50 строк,
  *   модуль < 800 строк, 0 `.unwrap()`/`.expect()` в продуктовом коде, чистый `rustfmt --check --edition 2024`
  *   и компиляция `rustc --test --edition 2024 -D warnings`).
  * - SUB-985-1: Сверка с независимыми оракулами репозитория (`waves/kanban-board.json` карточка `TASK-985`,
  *   `rust/gui-spike/ui/tokens.css` 204 базовых токена, `waves/RW-40/theme-spec.json` 57 переопределений Light,
  *   `rust/gui-spike/ui/features/token-map.js` 25 канонических соответствий, `docs/re/frontend-d03.json`,
- *   `docs/reference-projects/sources/Serein/extensions/themes/midnight.serein-extension`).
+ *   pinned `tests/fixtures/themes/serein/midnight.serein-extension`).
  * - SUB-985-2: Горячее переключение тем (`dark`, `light`, `midnight`, `amoled` и пользовательских тем)
  *   без перезагрузки интерфейса (`reloaded === false`, `domReloadCount === 0`), динамическая инъекция
  *   CSS-переменных в `documentElement`, машина состояний `theme-preview` (`dark -> highlight theme -> applied`)
@@ -37,7 +37,7 @@ import {
 } from "../../scripts/quality-gate.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/custom_themes.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/custom_themes.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const JS_MODULE_REL_PATH = "rust/gui-spike/ui/features/custom-themes.js";
 const JS_MODULE_PATH = join(ROOT, JS_MODULE_REL_PATH);
@@ -47,14 +47,13 @@ const THEME_SPEC_JSON_PATH = join(ROOT, "waves", "RW-40", "theme-spec.json");
 const FRONTEND_D03_JSON_PATH = join(ROOT, "docs", "re", "frontend-d03.json");
 const SEREIN_MIDNIGHT_PATH = join(
   ROOT,
-  "docs",
-  "reference-projects",
-  "sources",
-  "Serein",
-  "extensions",
+  "tests",
+  "fixtures",
   "themes",
+  "serein",
   "midnight.serein-extension",
 );
+const SEREIN_PROVENANCE_PATH = join(ROOT, "tests", "fixtures", "themes", "serein", "upstream.json");
 
 /** @type {string} */
 let workDir = "";
@@ -322,6 +321,11 @@ describe("TASK-985: Пользовательские темы оформлени
     assert.equal(BUILTIN_THEME_PALETTES.light.colorScheme, "light");
     assert.equal(BUILTIN_THEME_PALETTES.dark.colorScheme, "dark");
 
+    // Keep the independent palette tied to immutable upstream bytes, not an ignored local clone.
+    const provenance = JSON.parse(readFileSync(SEREIN_PROVENANCE_PATH, "utf8"));
+    assert.equal(provenance.commit, "04f348092910a77cc317516b25577ad006cb708b");
+    assert.equal(createHash("sha256").update(readFileSync(SEREIN_MIDNIGHT_PATH)).digest("hex"), provenance.sha256);
+
     // 3. Полная сверка с файлами оракулов репозитория
     const oracleReport = verifyCustomThemesOracleParity({
       kanbanBoardPath: KANBAN_BOARD_PATH,
@@ -526,7 +530,7 @@ describe("TASK-985: Пользовательские темы оформлени
     assert.equal(dimReport.emergencyRecoveryChecked, true);
 
     const rawLog =
-      'ThemeSync Authorization: Bearer mfa.secret_token_1234567890abcd token="MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz0123456789abcdef"';
+      'ThemeSync Authorization: Bearer mfa.secret_token_1234567890abcd token="dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz0123456789abcdef"';
     const redacted = redactThemeTelemetryLogs(rawLog);
     assert.doesNotMatch(redacted, /mfa\.secret_token/);
     assert.doesNotMatch(redacted, /MTIzNDU2Nzg5MDEyMzQ1Njc4/);

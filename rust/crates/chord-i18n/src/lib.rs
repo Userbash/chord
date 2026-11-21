@@ -205,10 +205,7 @@ fn parse_ast(v: &chord_json::JsonValue, path: String, depth: usize) -> Result<As
         });
     }
     if let Some(a) = v.as_array() {
-        if a.first()
-            .and_then(chord_json::JsonValue::as_i64)
-            .is_none()
-        {
+        if a.first().and_then(chord_json::JsonValue::as_i64).is_none() {
             let nodes = a
                 .iter()
                 .enumerate()

@@ -25,7 +25,7 @@ const authJs = readFileSync(`${uiDir}features/auth.js`, "utf8");
 const authCss = readFileSync(`${uiDir}components/auth.css`, "utf8");
 
 /** Сырой user-токен в формате Discord (три base64-сегмента), заведомо фейковый. */
-const TOKEN = "MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK";
+const TOKEN = "mock_user_token_sanitized_42";
 /** Пароль и коды — фейковые, проверяем, что они не остаются в DOM. */
 const PASSWORD = "fake-password-DO-NOT-LEAK";
 const TOTP = "123456";

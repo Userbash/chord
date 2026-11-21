@@ -10,7 +10,12 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../..");
 
 describe("TASK-807: Устранение спама polling аудиоустройств (voice_set_audio_device)", () => {
-  const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
+  const appJs = [
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-connection-controller.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-state-sync.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-renderer.js"), "utf8"),
+  ].join("\n");
 
   it("T807-1: pollAudioDeviceLevels и функции управления таймерами объявлены в app.js", () => {
     assert.match(
@@ -58,7 +63,7 @@ describe("TASK-807: Устранение спама polling аудиоустро
     );
     assert.match(
       fnBody,
-      /VOICE_AUDIO_DEVICES_IPC_CMD/,
+      /VOICE_AUDIO_DEVICES_IPC_CMD|ctx\.ipcCmds\.audioDevices/,
       "pollAudioDeviceLevels must query audio devices when settings are open",
     );
 
@@ -102,7 +107,7 @@ describe("TASK-807: Устранение спама polling аудиоустро
     );
     assert.match(
       syncBody,
-      /VOICE_SET_AUDIO_DEVICE_IPC_CMD/,
+      /VOICE_SET_AUDIO_DEVICE_IPC_CMD|ipcCmds\.setAudioDevice/,
       "syncVoiceMuteStateWithBackend must route through VOICE_SET_AUDIO_DEVICE_IPC_CMD only when changed or forced",
     );
   });

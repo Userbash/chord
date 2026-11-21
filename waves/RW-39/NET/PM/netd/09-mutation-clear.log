@@ -42,7 +42,7 @@ test at tests/unit/gui-spike-auth.test.mjs:293:3
   AssertionError [ERR_ASSERTION]: токен остался в поле после submit
   + actual - expected
   
-  + '  MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK  '
+  + '  mock_user_token_sanitized_42  '
   - ''
   
       at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:304:14
@@ -54,7 +54,7 @@ test at tests/unit/gui-spike-auth.test.mjs:293:3
       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: '  MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK  ',
+    actual: '  mock_user_token_sanitized_42  ',
     expected: '',
     operator: 'strictEqual',
     diff: 'simple'
@@ -65,7 +65,7 @@ test at tests/unit/gui-spike-auth.test.mjs:346:3
   AssertionError [ERR_ASSERTION]: поле не очищено после ошибки
   + actual - expected
   
-  + 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK'
+  + 'mock_user_token_sanitized_42'
   - ''
   
       at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:358:16
@@ -77,7 +77,7 @@ test at tests/unit/gui-spike-auth.test.mjs:346:3
       at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK',
+    actual: 'mock_user_token_sanitized_42',
     expected: '',
     operator: 'strictEqual',
     diff: 'simple'
@@ -105,7 +105,7 @@ test at tests/unit/gui-spike-auth.test.mjs:381:3
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
   + actual - expected
   
-  + 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK'
+  + 'mock_user_token_sanitized_42'
   - ''
   
       at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:391:16
@@ -115,7 +115,7 @@ test at tests/unit/gui-spike-auth.test.mjs:381:3
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: true,
     code: 'ERR_ASSERTION',
-    actual: 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK',
+    actual: 'mock_user_token_sanitized_42',
     expected: '',
     operator: 'strictEqual',
     diff: 'simple'
@@ -160,7 +160,7 @@ test at tests/unit/gui-spike-auth.test.mjs:548:3
   AssertionError [ERR_ASSERTION]: поле токена не очищено
   + actual - expected
   
-  + 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK'
+  + 'mock_user_token_sanitized_42'
   - ''
   
       at file:///home/user/orca/project/tests/unit/gui-spike-auth.test.mjs:554:14
@@ -170,7 +170,7 @@ test at tests/unit/gui-spike-auth.test.mjs:548:3
       at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: 'MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK',
+    actual: 'mock_user_token_sanitized_42',
     expected: '',
     operator: 'strictEqual',
     diff: 'simple'

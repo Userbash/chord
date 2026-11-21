@@ -3,7 +3,7 @@
  * V-07-UI-VOICE-DEVICES (RW-40): контроллер «Голос и видео» — red-first тесты.
  *
  * Оракул — не реализация, а принятые контракты:
- * - `rust/crates/discord-voice/src/devices.rs`: `isDefault`-откат при hot-plug,
+ * - `rust/crates/chord-voice/src/devices.rs`: `isDefault`-откат при hot-plug,
  *   `DeviceFallback` / `NoDeviceAvailable`, `effective_mute = user_mute || self_deaf`,
  *   `DEFAULT_VAD_THRESHOLD_DB`, `DEFAULT_*_VOLUME`, `MAX_*_VOLUME`, `threshold_db: i8`;
  * - `waves/RW-40/DESIGN/VOICE.md` §2.4, §3.1–§3.5 (mute/deafen, устройства, hot-plug,
@@ -37,7 +37,7 @@ function resolveOracleFile(relPath) {
 }
 const spec = JSON.parse(readFileSync(resolveOracleFile("waves/RW-40/DESIGN/voice-spec.json"), "utf8"));
 const rustDevices = readFileSync(
-  resolveOracleFile("rust/crates/discord-voice/src/devices.rs"),
+  resolveOracleFile("rust/crates/chord-voice/src/devices.rs"),
   "utf8",
 );
 const moduleSource = readFileSync(

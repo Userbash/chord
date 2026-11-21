@@ -1,3 +1,5 @@
+//! Bottom-left voice connection status bar and audio/mic/deafen control panel.
+
 use crate::state::AppState;
 use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;

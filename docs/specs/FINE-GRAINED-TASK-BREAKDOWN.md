@@ -12,7 +12,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1001A: Network Protocol, Gateway Parser, and Forum REST API
 - **Department:** `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-core/src/forum.rs`
+  - `rust/crates/chord-core/src/forum.rs`
   - `tests/unit/forum-protocol-1001a.test.mjs`
 - **Oracle:** `docs/re/gateway-schema.json` (event `CHANNEL_CREATE`, flag `type: 15`), `docs/re/rest-d02.json` (`GET /channels/{id}/threads/active`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -24,7 +24,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1001B: Forum Post Grid UI `ForumGridView`
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/channels/forum_view.rs`
+  - `rust/chord-gpui/src/channels/forum_view.rs`
   - `tests/unit/forum-view-1001b.test.mjs`
 - **Oracle:** `docs/re/frontend-d03.json` (post card layout and tag filtering).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -40,7 +40,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1002A: Thread Lifecycle and Auto-Archive
 - **Department:** `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-core/src/threads.rs`
+  - `rust/crates/chord-core/src/threads.rs`
   - `tests/unit/threads-lifecycle-1002a.test.mjs`
 - **Oracle:** `docs/re/rest-d02.json` (`POST /channels/{id}/messages/{msg_id}/threads`, `PATCH /channels/{id}`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -52,7 +52,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1002B: Thread Sidebar `ThreadSidebar`
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/chat/thread_sidebar.rs`
+  - `rust/chord-gpui/src/chat/thread_sidebar.rs`
   - `tests/unit/thread-sidebar-1002b.test.mjs`
 - **Oracle:** `docs/re/frontend-d03.json` (360px chat split panel).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -68,7 +68,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1003A: Audio Recorder and Waveform Computation
 - **Department:** `G5 Voice / Platform` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-voice/src/voice_message_recorder.rs`
+  - `rust/crates/chord-voice/src/voice_message_recorder.rs`
   - `tests/unit/voice-recorder-1003a.test.mjs`
 - **Oracle:** `docs/re/rest-d02.json` (`flags: 8192`, `audio/ogg; codecs=opus`, parameter `waveform`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -80,7 +80,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1003B: Interactive Player `VoiceMessagePlayer`
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/chat/voice_player.rs`
+  - `rust/chord-gpui/src/chat/voice_player.rs`
   - `tests/unit/voice-player-1003b.test.mjs`
 - **Oracle:** `docs/re/ui7/` (voice message player component).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -96,7 +96,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1004A: Poll Data Model and REST Voting
 - **Department:** `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-core/src/polls.rs`
+  - `rust/crates/chord-core/src/polls.rs`
   - `tests/unit/polls-core-1004a.test.mjs`
 - **Oracle:** `docs/re/rest-d02.json` (`PUT /channels/{id}/polls/{msg_id}/answers/{answer_id}`, `DELETE ...`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -108,7 +108,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1004B: Poll UI Card `PollCardView`
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/chat/poll_view.rs`
+  - `rust/chord-gpui/src/chat/poll_view.rs`
   - `tests/unit/poll-view-1004b.test.mjs`
 - **Oracle:** `docs/re/frontend-d03.json` (poll card block in messages).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -124,7 +124,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1005A: Emoji Parser and Disk LRU Cache
 - **Department:** `G1 Backend` | **Priority:** `P2`
 - **Files:**
-  - `rust/crates/discord-media/src/emoji_cache.rs`
+  - `rust/crates/chord-media/src/emoji_cache.rs`
   - `tests/unit/emoji-cache-1005a.test.mjs`
 - **Oracle:** `docs/re/frontend-d03.json` (emoji regex and CDN URLs).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -136,7 +136,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1005B: Emoji & Sticker Picker `EmojiPickerModal`
 - **Department:** `G2 Frontend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/chat/emoji_picker.rs`
+  - `rust/chord-gpui/src/chat/emoji_picker.rs`
   - `tests/unit/emoji-picker-1005b.test.mjs`
 - **Oracle:** `docs/re/ui8/` (emoji and sticker picker popover).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -152,7 +152,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1006A: FFI Bindings for `libenchant-2` / `hunspell`
 - **Department:** `G1 Backend` | **Priority:** `P2`
 - **Files:**
-  - `rust/crates/discord-platform/src/spellcheck.rs`
+  - `rust/crates/chord-platform/src/spellcheck.rs`
   - `tests/unit/spellcheck-ffi-1006a.test.mjs`
 - **Oracle:** System dictionaries `/usr/share/hunspell/*.dic`.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -164,7 +164,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1006B: Squiggly Underline Rendering and Context Menu in `MessageBar`
 - **Department:** `G2 Frontend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/chat/input_spellcheck.rs`
+  - `rust/chord-gpui/src/chat/input_spellcheck.rs`
   - `tests/unit/input-spellcheck-1006b.test.mjs`
 - **Oracle:** Discord text box rendering standard.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -182,7 +182,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1012A: Soundboard Protocol and SFX Caching
 - **Department:** `G5 Voice / Platform` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-voice/src/soundboard_protocol.rs`
+  - `rust/crates/chord-voice/src/soundboard_protocol.rs`
   - `tests/unit/soundboard-protocol-1012a.test.mjs`
 - **Oracle:** `docs/re/voice-deep.md` (Voice Gateway Opcode 18 `SOUNDBOARD_SOUND`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -194,7 +194,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1012B: Soundboard SFX Mixer into Outbound RTP
 - **Department:** `G5 Voice / Platform` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-voice/src/soundboard_mixer.rs`
+  - `rust/crates/chord-voice/src/soundboard_mixer.rs`
   - `tests/unit/soundboard-mixer-1012b.test.mjs`
 - **Oracle:** RFC 3550 and Opus RTP packetization standard.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -206,7 +206,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1012C: Soundboard Button Grid `SoundboardGridView`
 - **Department:** `G2 Frontend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/voice/soundboard_view.rs`
+  - `rust/chord-gpui/src/voice/soundboard_view.rs`
   - `tests/unit/soundboard-view-1012c.test.mjs`
 - **Oracle:** `docs/re/voice/ui7/` (soundboard selection view).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -222,7 +222,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1017A: Binaural HRTF Spatial Audio Filter
 - **Department:** `G5 Voice / Platform` | **Priority:** `P2`
 - **Files:**
-  - `rust/crates/discord-voice/src/spatial_audio.rs`
+  - `rust/crates/chord-voice/src/spatial_audio.rs`
   - `tests/unit/spatial-audio-filter-1017a.test.mjs`
 - **Oracle:** ISO Head-Related Transfer Function (HRTF) KEMAR dataset.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -234,7 +234,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1017B: Participant Spatial Radar UI
 - **Department:** `G2 Frontend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/voice/spatial_radar.rs`
+  - `rust/chord-gpui/src/voice/spatial_radar.rs`
   - `tests/unit/spatial-radar-1017b.test.mjs`
 - **Oracle:** Discord spatial audio layout radar.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -250,7 +250,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1011A: Low-Level RTCP Metrics Collector
 - **Department:** `G5 Voice / Platform` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-voice/src/rtc_metrics.rs`
+  - `rust/crates/chord-voice/src/rtc_metrics.rs`
   - `tests/unit/rtc-metrics-1011a.test.mjs`
 - **Oracle:** `waves/RW-40/RE-AUDIT/RE-GAP-22-VOICE-DIAGNOSTICS.md`.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -262,7 +262,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1011B: 60 FPS Graph Overlay `RtcDiagnosticsHud`
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/voice/rtc_hud.rs`
+  - `rust/chord-gpui/src/voice/rtc_hud.rs`
   - `tests/unit/rtc-hud-1011b.test.mjs`
 - **Oracle:** WebRTC Internals screen in official Discord.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -278,7 +278,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1010A: System Idle Detector (D-Bus / Wayland)
 - **Department:** `G1 Backend` | **Priority:** `P2`
 - **Files:**
-  - `rust/crates/discord-platform/src/idle_monitor.rs`
+  - `rust/crates/chord-platform/src/idle_monitor.rs`
   - `tests/unit/idle-monitor-1010a.test.mjs`
 - **Oracle:** D-Bus `org.freedesktop.ScreenSaver` and Wayland `ext-idle-notifier-v1`.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -290,7 +290,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1010B: AFK Channel Auto-Move Logic
 - **Department:** `G5 Voice / Platform` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/voice/afk_handler.rs`
+  - `rust/chord-gpui/src/voice/afk_handler.rs`
   - `tests/unit/afk-handler-1010b.test.mjs`
 - **Oracle:** `docs/re/gateway-schema.json` (Voice State Update Opcode 4).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -308,7 +308,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1007A: Role Model and 64-Bit Permission Bitmask Validator
 - **Department:** `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-core/src/roles.rs`
+  - `rust/crates/chord-core/src/roles.rs`
   - `tests/unit/roles-permissions-1007a.test.mjs`
 - **Oracle:** `docs/re/rest-d02.json` (`GET /guilds/{id}/roles`, `PATCH /guilds/{id}/roles`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -320,7 +320,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1007B: Role Hierarchy Drag-and-Drop UI
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/guild/roles_hierarchy.rs`
+  - `rust/chord-gpui/src/guild/roles_hierarchy.rs`
   - `tests/unit/roles-hierarchy-1007b.test.mjs`
 - **Oracle:** Discord role settings view.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -332,7 +332,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1007C: Interactive Permission Matrix
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/guild/permissions_matrix.rs`
+  - `rust/chord-gpui/src/guild/permissions_matrix.rs`
   - `tests/unit/permissions-matrix-1007c.test.mjs`
 - **Oracle:** Discord role permissions view.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -348,7 +348,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1008A: Audit Log Parser and Change Decoder
 - **Department:** `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-core/src/audit_log.rs`
+  - `rust/crates/chord-core/src/audit_log.rs`
   - `tests/unit/audit-log-parser-1008a.test.mjs`
 - **Oracle:** `docs/re/rest-d02.json` (`GET /guilds/{id}/audit-logs`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -360,7 +360,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1008B: Filterable Audit Log Viewer `AuditLogViewer`
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/guild/audit_log_view.rs`
+  - `rust/chord-gpui/src/guild/audit_log_view.rs`
   - `tests/unit/audit-log-view-1008b.test.mjs`
 - **Oracle:** Server Settings Audit Log view.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -376,7 +376,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1009A: TOTP 2FA Modal Dialog `TotpDialog`
 - **Department:** `G2 Frontend` | **Priority:** `P1`
 - **Files:**
-  - `rust/discord-gpui/src/auth/totp_view.rs`
+  - `rust/chord-gpui/src/auth/totp_view.rs`
   - `tests/unit/totp-view-1009a.test.mjs`
 - **Oracle:** Discord 2FA entry dialog.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -388,7 +388,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1009B: Session Manager and Remote Revocation
 - **Department:** `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-core/src/sessions_manager.rs`
+  - `rust/crates/chord-core/src/sessions_manager.rs`
   - `tests/unit/sessions-manager-1009b.test.mjs`
 - **Oracle:** `docs/re/rest-d02.json` (`GET /users/@me/auth/sessions`, `DELETE ...`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -404,7 +404,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1021A: Encryption Key Derivation from Linux Keyring
 - **Department:** `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-store/src/keyring_crypto.rs`
+  - `rust/crates/chord-store/src/keyring_crypto.rs`
   - `tests/unit/keyring-crypto-1021a.test.mjs`
 - **Oracle:** Linux Secret Service API (`org.freedesktop.secrets`).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -416,7 +416,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1021B: Transparent SQLite Page Encryption (AES-256-GCM)
 - **Department:** `G1 Backend` | **Priority:** `P1`
 - **Files:**
-  - `rust/crates/discord-store/src/encrypted_sqlite.rs`
+  - `rust/crates/chord-store/src/encrypted_sqlite.rs`
   - `tests/unit/encrypted-sqlite-1021b.test.mjs`
 - **Oracle:** SQLite VFS page encryption / SQLCipher specification.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -434,7 +434,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1013A: D-Bus MPRIS Client and Gateway Presence
 - **Department:** `G1 Backend` | **Priority:** `P2`
 - **Files:**
-  - `rust/crates/discord-platform/src/spotify_mpris.rs`
+  - `rust/crates/chord-platform/src/spotify_mpris.rs`
   - `tests/unit/spotify-mpris-1013a.test.mjs`
 - **Oracle:** D-Bus `org.mpris.MediaPlayer2` and Gateway Opcode 3 `STATUS_UPDATE` (activity type 2).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -446,7 +446,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1013B: Spotify Profile Widget and Listen Along Action
 - **Department:** `G2 Frontend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/profile/spotify_widget.rs`
+  - `rust/chord-gpui/src/profile/spotify_widget.rs`
   - `tests/unit/spotify-widget-1013b.test.mjs`
 - **Oracle:** Spotify card in Discord user profile.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -462,7 +462,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1014A: Gamepad Driver via `gilrs`
 - **Department:** `G1 Backend` | **Priority:** `P2`
 - **Files:**
-  - `rust/crates/discord-platform/src/gamepad_driver.rs`
+  - `rust/crates/chord-platform/src/gamepad_driver.rs`
   - `tests/unit/gamepad-driver-1014a.test.mjs`
 - **Oracle:** `docs/feature-backlog.md` (card `R6-01` Steam Deck Game Mode).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -474,7 +474,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1014B: GPUI Spatial Navigation Grid and On-Screen Keyboard
 - **Department:** `G2 Frontend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/input/gamepad_focus.rs`
+  - `rust/chord-gpui/src/input/gamepad_focus.rs`
   - `tests/unit/gamepad-focus-1014b.test.mjs`
 - **Oracle:** Steam Deck Big Picture UI standard.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -490,7 +490,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1015A: XDG Autostart Desktop Entry Generator
 - **Department:** `DevOps / Integration` | **Priority:** `P2`
 - **Files:**
-  - `rust/crates/discord-platform/src/autostart_xdg.rs`
+  - `rust/crates/chord-platform/src/autostart_xdg.rs`
   - `tests/unit/autostart-xdg-1015a.test.mjs`
 - **Oracle:** FreeDesktop XDG Autostart Specification.
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -502,7 +502,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 #### Task TASK-1015B: Silent Minimized Tray Startup
 - **Department:** `G1 Backend` | **Priority:** `P2`
 - **Files:**
-  - `rust/discord-gpui/src/platform/minimized_launch.rs`
+  - `rust/chord-gpui/src/platform/minimized_launch.rs`
   - `tests/unit/minimized-launch-1015b.test.mjs`
 - **Oracle:** `docs/feature-backlog.md` (card `R4-02` Tray and hidden start).
 - **Implementation Micro-Plan (Micro-TDD):**
@@ -532,7 +532,7 @@ Each epic is decomposed into **atomic tasks**, and each task is divided into **S
 - **Department:** `DevOps / Integration` | **Priority:** `P2`
 - **Files:**
   - `packaging/macos/build-dmg.sh`
-  - `rust/discord-gpui/src/platform/macos_vibrancy.rs`
+  - `rust/chord-gpui/src/platform/macos_vibrancy.rs`
   - `tests/unit/macos-packaging-1016b.test.mjs`
 - **Oracle:** `docs/feature-backlog.md` (card `R6-04` macOS packaging).
 - **Implementation Micro-Plan (Micro-TDD):**

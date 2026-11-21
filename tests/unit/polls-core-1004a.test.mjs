@@ -3,7 +3,7 @@
  * Контрактные и модульные тесты модели опроса `Poll`, REST-голосования
  * `PUT /channels/{id}/polls/{msg_id}/answers/{answer_id}` (`PUT /polls/{id}/answers/{id}`)
  * и математики процентных шкал (TASK-1004A):
- * - SUB-1004A-0: Статический и компиляционный контракт `rust/crates/discord-core/src/polls.rs`
+ * - SUB-1004A-0: Статический и компиляционный контракт `rust/crates/chord-core/src/polls.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`:
  *   функции < 50 строк, модуль < 800 строк, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -53,7 +53,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/crates/discord-core/src/polls.rs";
+const MODULE_REL_PATH = "rust/crates/chord-core/src/polls.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const RE_REST_D02_PATH = "/home/sanya/re-deep/rest-d02.json";
@@ -73,7 +73,7 @@ const DISPATCH_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-core",
+  "chord-core",
   "src",
   "dispatch.rs",
 );
@@ -84,7 +84,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/crates/discord-core/src/polls.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/crates/chord-core/src/polls.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -135,7 +135,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1004A: Десериализация Poll, эндпоинты PUT /polls/{id}/answers/{id} и математика процентных шкал (rust/crates/discord-core/src/polls.rs)", () => {
+describe("TASK-1004A: Десериализация Poll, эндпоинты PUT /polls/{id}/answers/{id} и математика процентных шкал (rust/crates/chord-core/src/polls.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "polls-core-1004a-"));
     testBinPath = join(workDir, "polls_core_1004a_test");
@@ -147,7 +147,7 @@ describe("TASK-1004A: Десериализация Poll, эндпоинты PUT 
     }
   });
 
-  it("SUB-1004A-0: проверяет статический и компиляционный контракт rust/crates/discord-core/src/polls.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, secret-scan и rustc --test -D warnings)", () => {
+  it("SUB-1004A-0: проверяет статический и компиляционный контракт rust/crates/chord-core/src/polls.rs (<50 строк/fn, <800 строк/файл, #![forbid(unsafe_code)], rustfmt 2024, secret-scan и rustc --test -D warnings)", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Отсутствует Rust-модуль ${MODULE_REL_PATH}`,
@@ -448,7 +448,7 @@ describe("TASK-1004A: Десериализация Poll, эндпоинты PUT 
     assert.match(run.stdout, /test tests::test_sub_1004a_4_.*ok/);
   });
 
-  it("SUB-1004A-5: убивает 5/5 контрольных мутаций в rust/crates/discord-core/src/polls.rs (100% mutation kill rate: деление на 0 при 0 голосов, прием голоса в истекший опрос, обход allow_multiselect, искажение округления процентов, пропуск декремента при remove_poll_vote)", () => {
+  it("SUB-1004A-5: убивает 5/5 контрольных мутаций в rust/crates/chord-core/src/polls.rs (100% mutation kill rate: деление на 0 при 0 голосов, прием голоса в истекший опрос, обход allow_multiselect, искажение округления процентов, пропуск декремента при remove_poll_vote)", () => {
     assert.ok(existsSync(MODULE_PATH), "Модуль polls.rs должен существовать");
     const originalRust = readFileSync(MODULE_PATH, "utf8");
     const originalMd5 = createHash("md5").update(originalRust).digest("hex");

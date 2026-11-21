@@ -117,3 +117,153 @@
     max-height: 84vh;
   }
 }
+
+
+/* =============================================================================
+ * Cleanroom Discord QuickSwitcher (03-quickswitcher.html) Styles & Overrides
+ * Classes: .quickswitcher_ac6cb0, .input_ac6cb0, .resultsArea_ac6cb0,
+ * .scroller_ac6cb0, .result__71961, .content__71961, .contentDefault__71961,
+ * .contentUnread__71961, .header__71961, .name__71961, .match__71961,
+ * .note__71961, .misc__71961, .miscContainer_ac6cb0, .protip_ac6cb0,
+ * .pro__30cbe, .tip__30cbe, .tutorial__73f2a
+ * ========================================================================== */
+
+.quickswitcher_ac6cb0,
+.quick-switcher-panel.quickswitcher_ac6cb0 {
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+.input_ac6cb0 {
+  width: 100%;
+  height: 56px;
+  padding: 0 52px 0 18px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  outline: 0;
+  background: transparent;
+  color: var(--text-strong);
+  font: inherit;
+  font-size: 18px;
+  box-sizing: border-box;
+}
+
+.input_ac6cb0:focus-visible {
+  box-shadow: inset 0 0 0 var(--focus-ring-width) var(--focus-ring);
+}
+
+.resultsArea_ac6cb0 {
+  position: relative;
+  max-height: min(70vh, 560px);
+  overflow: auto;
+}
+
+.result__71961,
+.quick-switcher-option.result__71961 {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.result__71961:hover,
+.result__71961[aria-selected="true"],
+.result__71961.selected__71961 {
+  background: var(--state-selected);
+  color: var(--text-strong);
+}
+
+.content__71961 {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.header__71961 {
+  padding: 8px 16px;
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.iconContainer__71961 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.name__71961 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.match__71961 {
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note__71961,
+.username__71961 {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+}
+
+.misc__71961,
+.miscContainer_ac6cb0 {
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.protip_ac6cb0 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+}
+
+.pro__30cbe {
+  color: var(--accent);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+}
+
+.tip__30cbe {
+  color: var(--text-muted);
+}
+
+.autocompleteQuerySymbol_ac6cb0 {
+  padding: 1px 4px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  color: var(--text-strong);
+  font-family: var(--font-mono);
+}

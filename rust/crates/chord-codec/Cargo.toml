@@ -13,3 +13,5 @@ unsafe_code = "forbid"
 # держит окно/историю отдельно. ruzstd этого не умеет — до завершения кадра он удерживает
 # последние window_size байт (находка F-GW-01, task-137).
 zstd = { workspace = true }
+# Потоковый декомпрессор zlib-ng / flate2 (`zlib-stream`) для Discord Gateway payload (STAGE-05.1.2).
+flate2 = { workspace = true }

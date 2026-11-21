@@ -38,83 +38,372 @@ fn clipboard_bytes_cache() -> &'static Mutex<HashMap<String, Vec<u8>>> {
     CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
+/// Decodes a URL-encoded filesystem path or URI string conforming to RFC 3986.
+/// Strips an optional `file://` scheme prefix and uses the audited `percent_encoding` library.
+///
+/// # Arguments:
+/// * `raw` — Input string containing a raw or percent-encoded filesystem path.
+///
+/// # Returns:
+/// * `String` — Decoded canonical filesystem path.
 fn percent_decode_path(raw: &str) -> String {
     let stripped = raw.trim().strip_prefix("file://").unwrap_or(raw.trim());
-    let bytes = stripped.as_bytes();
-    let mut out = Vec::with_capacity(bytes.len());
-    let mut i = 0;
-    while i < bytes.len() {
-        if bytes[i] == b'%' && i + 2 < bytes.len() {
-            if let (Some(h), Some(l)) = (
-                (bytes[i + 1] as char).to_digit(16),
-                (bytes[i + 2] as char).to_digit(16),
-            ) {
-                out.push(((h << 4) | l) as u8);
-                i += 3;
-                continue;
-            }
-        }
-        out.push(bytes[i]);
-        i += 1;
-    }
-    String::from_utf8_lossy(&out).into_owned()
+    percent_encoding::percent_decode_str(stripped)
+        .decode_utf8_lossy()
+        .into_owned()
 }
 
-fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
-    if let Ok(out) = std::process::Command::new("python3")
-        .arg("-c")
-        .arg(
-            "import sys, os, urllib.parse\n\
-             import gi\n\
-             gi.require_version('Gtk', '3.0')\n\
-             from gi.repository import Gtk, Gdk\n\
-             cb = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)\n\
-             pb = cb.wait_for_image()\n\
-             if pb is not None:\n\
-                 ok, buf = pb.save_to_bufferv('png', [], [])\n\
-                 if ok and len(buf) > 0:\n\
-                     sys.stdout.buffer.write(b'FILE:clipboard.png\\n' + buf)\n\
-                     sys.exit(0)\n\
-             uris = cb.wait_for_uris()\n\
-             if not uris:\n\
-                 txt = cb.wait_for_text() or ''\n\
-                 if txt.strip().startswith('file://'):\n\
-                     uris = [line.strip() for line in txt.splitlines() if line.strip().startswith('file://')]\n\
-             if uris:\n\
-                 p = urllib.parse.unquote(urllib.parse.urlparse(uris[0]).path)\n\
-                 if os.path.isfile(p):\n\
-                     with open(p, 'rb') as f:\n\
-                         data = f.read()\n\
-                     if len(data) > 0:\n\
-                         name = os.path.basename(p) or 'file.bin'\n\
-                         sys.stdout.buffer.write(('FILE:' + name + '\\n').encode('utf-8') + data)\n\
-                         sys.exit(0)\n\
-             sys.exit(1)\n",
-        )
-        .output()
-    {
-        if out.status.success() && out.stdout.starts_with(b"FILE:") {
-            if let Some(nl) = out.stdout.iter().position(|&b| b == b'\n') {
-                let name = String::from_utf8_lossy(&out.stdout[5..nl]).trim().to_string();
-                let data = out.stdout[nl + 1..].to_vec();
-                if !data.is_empty() {
-                    return Some((if name.is_empty() { "clipboard.png".to_string() } else { name }, data));
-                }
-            }
+/// Parses the first existing file payload from a `text/uri-list` MIME payload.
+///
+/// # Arguments:
+/// * `uri_list` — Raw UTF-8 string containing line-delimited URI entries.
+///
+/// # Returns:
+/// * `Some((filename, bytes))` — First successfully read file attachment.
+/// * `None` — If no valid or accessible file paths were found.
+fn parse_uri_list_first_file(uri_list: &str) -> Option<(String, Vec<u8>)> {
+    for line in uri_list.lines() {
+        let trim = line.trim();
+        if trim.is_empty() || trim.starts_with('#') {
+            continue;
         }
-    }
-    if let Ok(out) = std::process::Command::new("wl-paste")
-        .args(["--type", "image/png"])
-        .output()
-    {
-        if out.status.success() && !out.stdout.is_empty() {
-            return Some(("clipboard.png".to_string(), out.stdout));
+        let decoded = percent_decode_path(trim);
+        if let Ok(data) = std::fs::read(&decoded) {
+            if !data.is_empty() {
+                let fname = std::path::Path::new(&decoded)
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("file.bin")
+                    .to_string();
+                return Some((fname, data));
+            }
         }
     }
     None
 }
 
-fn resolve_clipboard_or_uri_files(files: &[AttachmentFileSpec]) -> Vec<AttachmentFileSpec> {
+/// Default maximum wait duration (`250 ms`) for a clipboard read operation before
+/// returning `None` to prevent stalling UI or async worker threads.
+pub const DEFAULT_CLIPBOARD_TIMEOUT_MS: u64 = 250;
+
+/// Safe abstraction over system clipboard file or image extraction.
+///
+/// Enables deterministic headless and CI testing without invoking external X11/Wayland utilities,
+/// and supports bounded-timeout execution so slow or hung clipboard daemons cannot stall UI threads.
+pub trait ClipboardReader: Send + Sync {
+    /// Reads an image or file attachment from the clipboard if available.
+    ///
+    /// # Returns:
+    /// * `Some((filename, bytes))` — Extracted clipboard file name and non-empty binary payload.
+    /// * `None` — If the clipboard is empty, holds unsupported data, or is unavailable.
+    #[must_use]
+    fn read_file_or_image(&self) -> Option<(String, Vec<u8>)>;
+
+    /// Reads an image or file attachment from the clipboard with an upper time bound.
+    ///
+    /// Returns `None` immediately if `timeout` is zero or if the underlying clipboard operation
+    /// does not complete before `timeout` elapses.
+    #[must_use]
+    fn read_file_or_image_with_timeout(
+        &self,
+        timeout: std::time::Duration,
+    ) -> Option<(String, Vec<u8>)> {
+        if timeout.is_zero() {
+            return None;
+        }
+        self.read_file_or_image()
+    }
+}
+
+/// Runs an external clipboard utility command (`wl-paste` or `xclip`) with non-blocking polling
+/// and a strict wall-clock timeout, killing and reaping the child process if it exceeds `timeout`.
+#[must_use]
+fn run_clipboard_command_with_timeout(
+    program: &str,
+    args: &[&str],
+    timeout: std::time::Duration,
+) -> Option<Vec<u8>> {
+    use std::io::Read;
+    use std::process::{Command, Stdio};
+    use std::time::{Duration, Instant};
+
+    if timeout.is_zero() {
+        return None;
+    }
+
+    let mut child = Command::new(program)
+        .args(args)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .spawn()
+        .ok()?;
+
+    let mut stdout_pipe = child.stdout.take()?;
+    let reader_handle = std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        let _ = stdout_pipe.read_to_end(&mut buf);
+        buf
+    });
+
+    let start = Instant::now();
+    let poll_interval = Duration::from_millis(5);
+    loop {
+        match child.try_wait() {
+            Ok(Some(status)) => {
+                if !status.success() {
+                    return None;
+                }
+                let out = reader_handle.join().ok()?;
+                return if out.is_empty() { None } else { Some(out) };
+            }
+            Ok(None) => {
+                if start.elapsed() >= timeout {
+                    let _ = child.kill();
+                    let _ = child.wait();
+                    return None;
+                }
+                std::thread::sleep(poll_interval.min(timeout.saturating_sub(start.elapsed())));
+            }
+            Err(_) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return None;
+            }
+        }
+    }
+}
+
+/// Default production [`ClipboardReader`] backed by Wayland (`wl-paste`) and X11 (`xclip`)
+/// with non-blocking timeout enforcement.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SystemClipboardReader {
+    timeout_ms: u64,
+}
+
+impl Default for SystemClipboardReader {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SystemClipboardReader {
+    /// Creates a new [`SystemClipboardReader`] with [`DEFAULT_CLIPBOARD_TIMEOUT_MS`].
+    #[inline]
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            timeout_ms: DEFAULT_CLIPBOARD_TIMEOUT_MS,
+        }
+    }
+
+    /// Creates a [`SystemClipboardReader`] with a custom per-command timeout in milliseconds.
+    #[inline]
+    #[must_use]
+    pub const fn with_timeout_ms(timeout_ms: u64) -> Self {
+        Self { timeout_ms }
+    }
+
+    /// Returns the configured per-command timeout in milliseconds.
+    #[inline]
+    #[must_use]
+    pub const fn timeout_ms(&self) -> u64 {
+        self.timeout_ms
+    }
+}
+
+impl ClipboardReader for SystemClipboardReader {
+    fn read_file_or_image(&self) -> Option<(String, Vec<u8>)> {
+        self.read_file_or_image_with_timeout(std::time::Duration::from_millis(self.timeout_ms))
+    }
+
+    fn read_file_or_image_with_timeout(
+        &self,
+        timeout: std::time::Duration,
+    ) -> Option<(String, Vec<u8>)> {
+        if timeout.is_zero() {
+            return None;
+        }
+        // 1. Try Wayland clipboard via wl-paste
+        if std::env::var_os("WAYLAND_DISPLAY").is_some() {
+            if let Some(stdout) = run_clipboard_command_with_timeout(
+                "wl-paste",
+                &["--type", "image/png", "--no-newline"],
+                timeout,
+            ) {
+                return Some(("clipboard.png".to_string(), stdout));
+            }
+            if let Some(stdout) =
+                run_clipboard_command_with_timeout("wl-paste", &["--type", "text/uri-list"], timeout)
+            {
+                let s = String::from_utf8_lossy(&stdout);
+                if let Some(res) = parse_uri_list_first_file(&s) {
+                    return Some(res);
+                }
+            }
+        }
+        // 2. Try X11 clipboard via xclip
+        if let Some(stdout) = run_clipboard_command_with_timeout(
+            "xclip",
+            &["-selection", "clipboard", "-t", "image/png", "-o"],
+            timeout,
+        ) {
+            return Some(("clipboard.png".to_string(), stdout));
+        }
+        // 3. Try xclip target text/uri-list
+        if let Some(stdout) = run_clipboard_command_with_timeout(
+            "xclip",
+            &["-selection", "clipboard", "-t", "text/uri-list", "-o"],
+            timeout,
+        ) {
+            let s = String::from_utf8_lossy(&stdout);
+            if let Some(res) = parse_uri_list_first_file(&s) {
+                return Some(res);
+            }
+        }
+        None
+    }
+}
+
+/// Wrapper [`ClipboardReader`] that enforces an explicit timeout and non-blocking channel wait
+/// around any inner [`ClipboardReader`] implementation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TimeoutClipboardReader<R> {
+    inner: R,
+    timeout: std::time::Duration,
+}
+
+impl<R: ClipboardReader> TimeoutClipboardReader<R> {
+    /// Wraps `inner` with the specified maximum `timeout`.
+    #[inline]
+    #[must_use]
+    pub const fn new(inner: R, timeout: std::time::Duration) -> Self {
+        Self { inner, timeout }
+    }
+
+    /// Returns the configured timeout duration.
+    #[inline]
+    #[must_use]
+    pub const fn timeout(&self) -> std::time::Duration {
+        self.timeout
+    }
+}
+
+impl<R: ClipboardReader + Clone + 'static> ClipboardReader for TimeoutClipboardReader<R> {
+    fn read_file_or_image(&self) -> Option<(String, Vec<u8>)> {
+        self.read_file_or_image_with_timeout(self.timeout)
+    }
+
+    fn read_file_or_image_with_timeout(
+        &self,
+        timeout: std::time::Duration,
+    ) -> Option<(String, Vec<u8>)> {
+        let effective = self.timeout.min(timeout);
+        if effective.is_zero() {
+            return None;
+        }
+        let reader = self.inner.clone();
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let _ = tx.send(reader.read_file_or_image_with_timeout(effective));
+        });
+        rx.recv_timeout(effective).ok().flatten()
+    }
+}
+
+/// Mockable in-memory [`ClipboardReader`] for headless and CI test environments.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct MockClipboardReader {
+    entry: Option<(String, Vec<u8>)>,
+    simulated_delay: std::time::Duration,
+}
+
+impl MockClipboardReader {
+    /// Creates an empty [`MockClipboardReader`] that always returns `None`.
+    #[inline]
+    #[must_use]
+    pub const fn empty() -> Self {
+        Self {
+            entry: None,
+            simulated_delay: std::time::Duration::ZERO,
+        }
+    }
+
+    /// Creates a [`MockClipboardReader`] seeded with a fixed filename and byte payload.
+    ///
+    /// # Arguments:
+    /// * `filename` — Logical attachment filename to return.
+    /// * `bytes` — Binary payload; if empty, `read_file_or_image` returns `None`.
+    #[must_use]
+    pub fn with_file(filename: impl Into<String>, bytes: Vec<u8>) -> Self {
+        let filename = filename.into();
+        if filename.trim().is_empty() || bytes.is_empty() {
+            Self {
+                entry: None,
+                simulated_delay: std::time::Duration::ZERO,
+            }
+        } else {
+            Self {
+                entry: Some((filename, bytes)),
+                simulated_delay: std::time::Duration::ZERO,
+            }
+        }
+    }
+
+    /// Configures a simulated delay on this [`MockClipboardReader`] to test timeout protection.
+    #[inline]
+    #[must_use]
+    pub const fn with_simulated_delay(mut self, delay: std::time::Duration) -> Self {
+        self.simulated_delay = delay;
+        self
+    }
+}
+
+impl ClipboardReader for MockClipboardReader {
+    fn read_file_or_image(&self) -> Option<(String, Vec<u8>)> {
+        if !self.simulated_delay.is_zero() {
+            std::thread::sleep(self.simulated_delay);
+        }
+        self.entry.clone()
+    }
+
+    fn read_file_or_image_with_timeout(
+        &self,
+        timeout: std::time::Duration,
+    ) -> Option<(String, Vec<u8>)> {
+        if timeout.is_zero() || self.simulated_delay > timeout {
+            return None;
+        }
+        self.entry.clone()
+    }
+}
+
+/// Attempts to read an image or file attachment from the host system clipboard
+/// using [`SystemClipboardReader`] with bounded timeout protection.
+///
+/// Probes Wayland (`wl-paste`) or X11 (`xclip`) interfaces for `image/png` or `text/uri-list`.
+///
+/// # Returns:
+/// * `Some((filename, data))` — The clipboard image or file binary contents.
+/// * `None` — If clipboard does not contain supported media, times out, or tools are unavailable.
+#[inline]
+#[must_use]
+pub fn read_system_clipboard_file_or_image() -> Option<(String, Vec<u8>)> {
+    SystemClipboardReader::new().read_file_or_image()
+}
+
+/// Resolves clipboard or local `file://` URI attachment specs using the provided [`ClipboardReader`].
+///
+/// When a spec has `is_clip == true` and `file_size <= 1`, attempts to populate its real filename,
+/// byte size, and in-memory upload cache from a local `file://` path or the `clipboard` reader
+/// with [`DEFAULT_CLIPBOARD_TIMEOUT_MS`] protection.
+#[must_use]
+pub fn resolve_clipboard_or_uri_files_with<R: ClipboardReader + ?Sized>(
+    files: &[AttachmentFileSpec],
+    clipboard: &R,
+) -> Vec<AttachmentFileSpec> {
+    let timeout = std::time::Duration::from_millis(DEFAULT_CLIPBOARD_TIMEOUT_MS);
     files
         .iter()
         .map(|spec| {
@@ -143,23 +432,30 @@ fn resolve_clipboard_or_uri_files(files: &[AttachmentFileSpec]) -> Vec<Attachmen
                         }
                     }
                 }
-                if let Some((name, bytes)) = read_system_clipboard_file_or_image() {
-                    let len = bytes.len() as u64;
-                    if let Ok(mut guard) = clipboard_bytes_cache().lock() {
-                        guard.insert(spec.id.clone(), bytes.clone());
-                        guard.insert("__latest__".to_string(), bytes);
+                if let Some((name, bytes)) = clipboard.read_file_or_image_with_timeout(timeout) {
+                    if !bytes.is_empty() {
+                        let len = bytes.len() as u64;
+                        if let Ok(mut guard) = clipboard_bytes_cache().lock() {
+                            guard.insert(spec.id.clone(), bytes.clone());
+                            guard.insert("__latest__".to_string(), bytes);
+                        }
+                        return AttachmentFileSpec {
+                            filename: name,
+                            file_size: len,
+                            id: spec.id.clone(),
+                            is_clip: true,
+                        };
                     }
-                    return AttachmentFileSpec {
-                        filename: name,
-                        file_size: len,
-                        id: spec.id.clone(),
-                        is_clip: true,
-                    };
                 }
             }
             spec.clone()
         })
         .collect()
+}
+
+#[must_use]
+fn resolve_clipboard_or_uri_files(files: &[AttachmentFileSpec]) -> Vec<AttachmentFileSpec> {
+    resolve_clipboard_or_uri_files_with(files, &SystemClipboardReader::new())
 }
 
 /// §1.5 (`RE-DEEP-REA.md:122-125`): базовый лимит на файл по формуле
@@ -1296,5 +1592,91 @@ mod tests {
         assert!(!entity_too_large_code(br#"{"code":50035}"#));
         assert!(!entity_too_large_code(b""));
         assert!(!entity_too_large_code(b"[]"));
+    }
+
+    #[test]
+    fn mock_clipboard_reader_resolves_clip_specs_in_headless_env() {
+        let empty = MockClipboardReader::empty();
+        assert_eq!(empty.read_file_or_image(), None);
+        assert_eq!(MockClipboardReader::with_file("", vec![1, 2]).read_file_or_image(), None);
+        assert_eq!(MockClipboardReader::with_file("a.png", Vec::new()).read_file_or_image(), None);
+
+        let reader = MockClipboardReader::with_file("pasted.png", vec![0x89, 0x50, 0x4E, 0x47]);
+        assert_eq!(
+            reader.read_file_or_image(),
+            Some(("pasted.png".to_string(), vec![0x89, 0x50, 0x4E, 0x47]))
+        );
+
+        let specs = vec![
+            AttachmentFileSpec {
+                filename: "placeholder.png".to_string(),
+                file_size: 1,
+                id: "clip-test-1".to_string(),
+                is_clip: true,
+            },
+            AttachmentFileSpec {
+                filename: "regular.txt".to_string(),
+                file_size: 1,
+                id: "reg-test-2".to_string(),
+                is_clip: false,
+            },
+        ];
+
+        let resolved = resolve_clipboard_or_uri_files_with(&specs, &reader);
+        assert_eq!(resolved.len(), 2);
+        assert_eq!(
+            resolved[0],
+            AttachmentFileSpec {
+                filename: "pasted.png".to_string(),
+                file_size: 4,
+                id: "clip-test-1".to_string(),
+                is_clip: true,
+            }
+        );
+        assert_eq!(resolved[1], specs[1]);
+    }
+
+    #[test]
+    fn clipboard_reader_timeout_prevents_blocking_ui_thread() {
+        use std::time::Duration;
+
+        let sys_default = SystemClipboardReader::default();
+        assert_eq!(sys_default.timeout_ms(), DEFAULT_CLIPBOARD_TIMEOUT_MS);
+        let sys_zero = SystemClipboardReader::with_timeout_ms(0);
+        assert_eq!(sys_zero.read_file_or_image(), None);
+
+        // Zero timeout on command runner returns immediately without spawning or blocking
+        assert_eq!(
+            run_clipboard_command_with_timeout("sleep", &["5"], Duration::ZERO),
+            None
+        );
+
+        // Stalled child process ("sleep 5") is terminated and reaped within the short timeout
+        let start = std::time::Instant::now();
+        assert_eq!(
+            run_clipboard_command_with_timeout("sleep", &["5"], Duration::from_millis(20)),
+            None
+        );
+        assert!(start.elapsed() < Duration::from_secs(1));
+
+        // Slow MockClipboardReader exceeding timeout yields None without stalling
+        let slow_reader = MockClipboardReader::with_file("slow.png", vec![1, 2, 3])
+            .with_simulated_delay(Duration::from_secs(2));
+        assert_eq!(
+            slow_reader.read_file_or_image_with_timeout(Duration::from_millis(10)),
+            None
+        );
+
+        let wrapped_slow = TimeoutClipboardReader::new(slow_reader, Duration::from_millis(15));
+        assert_eq!(wrapped_slow.timeout(), Duration::from_millis(15));
+        assert_eq!(wrapped_slow.read_file_or_image(), None);
+
+        // Fast reader within timeout succeeds via TimeoutClipboardReader
+        let fast_reader = MockClipboardReader::with_file("fast.png", vec![9, 8, 7]);
+        let wrapped_fast = TimeoutClipboardReader::new(fast_reader, Duration::from_millis(100));
+        assert_eq!(
+            wrapped_fast.read_file_or_image(),
+            Some(("fast.png".to_string(), vec![9, 8, 7]))
+        );
     }
 }

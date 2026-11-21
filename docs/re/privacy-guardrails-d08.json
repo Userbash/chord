@@ -1,0 +1,103 @@
+{
+  "task": "D-08",
+  "title": "Platform Privacy Guardrails",
+  "target": "Platform Shell",
+  "version": "1.0.162",
+  "provenance": {
+    "mainArch": "docs/re/main-arch.md",
+    "mainArchJson": "docs/re/main-arch.json",
+    "voiceDeep": "docs/re/voice-deep.md",
+    "backendIpc": "docs/re/backend-ipc.md",
+    "restD02": "docs/re/rest-d02.md",
+    "vesktopAnalysis": "docs/vesktop-analysis.md"
+  },
+  "webrtcIpHandlingPolicies": {
+    "default": "default",
+    "defaultPublicAndPrivateInterfaces": "default_public_and_private_interfaces",
+    "defaultPublicInterfaceOnly": "default_public_interface_only",
+    "disableNonProxiedUdp": "disable_non_proxied_udp",
+    "recommendedNativeDefault": "default_public_interface_only",
+    "udpDiscoveryPacketBytes": 74,
+    "udpKeepalivePacketBytes": 8,
+    "mediaSocketRotationIntervalMs": 60080,
+    "publicIpMaskToken": "<PUB_IP>"
+  },
+  "mediaSessionIsolation": {
+    "disabledChromiumFeaturesBase": [
+      "WinRetrieveSuggestionsOnlyOnDemand",
+      "HardwareMediaKeyHandling",
+      "MediaSessionService",
+      "UseEcoQoSForBackgroundProcess",
+      "IntensiveWakeUpThrottling",
+      "AllowAggressiveThrottlingWithWebSocket"
+    ],
+    "disabledChromiumFeaturesDarwinPre24": [
+      "ScreenCaptureKitMac",
+      "ScreenCaptureKitMacWindow",
+      "ScreenCaptureKitMacScreen",
+      "ScreenCaptureKitPickerScreen",
+      "ScreenCaptureKitStreamPickerSonoma",
+      "WarmScreenCaptureSonoma",
+      "UseSCContentSharingPicker"
+    ],
+    "disabledChromiumFeaturesLinux": [
+      "WaylandWpColorManagerV1"
+    ],
+    "hijackMediaSessionFeatures": [
+      "HardwareMediaKeyHandling",
+      "MediaSessionService"
+    ],
+    "spotifyMprisIsolation": {
+      "busName": "org.mpris.MediaPlayer2.spotify",
+      "objectPath": "/org/mpris/MediaPlayer2",
+      "playerInterface": "org.mpris.MediaPlayer2.Player",
+      "clientRegistersMediaPlayer2Bus": false,
+      "gatewayStatusUpdateOpcode": 3,
+      "activityTypeListening": 2
+    }
+  },
+  "autoplaySuppression": {
+    "legacyElectronSwitch": "--autoplay-policy=no-user-gesture-required",
+    "hardenedSwitch": "--autoplay-policy=document-user-activation-required",
+    "defaultNativePolicy": "DocumentUserActivationRequired",
+    "policies": [
+      "NoUserGestureRequired",
+      "UserGestureRequired",
+      "DocumentUserActivationRequired"
+    ],
+    "rules": {
+      "inlineVideoEmbedAutoplayAudioAllowed": false,
+      "mutedLoopingPreviewAllowedWhenVisible": true,
+      "explicitUserGestureUnmutesSingleTarget": true,
+      "voiceCallRtcPlayoutExemptWhenJoined": true,
+      "uiSoundCuesRespectNotificationDefaults": true
+    }
+  },
+  "telemetryAndPrivacyChecklist": {
+    "requiredItemCount": 12,
+    "blockedTelemetryDomains": [
+      "dc-telemetry.net",
+      "o64374.ingest.sentry.io",
+      "sentry.io"
+    ],
+    "blockedTelemetryPaths": [
+      "/api/v9/science",
+      "/api/v9/metrics",
+      "/api/v9/track"
+    ],
+    "checklistIds": [
+      "D08-CHK-01",
+      "D08-CHK-02",
+      "D08-CHK-03",
+      "D08-CHK-04",
+      "D08-CHK-05",
+      "D08-CHK-06",
+      "D08-CHK-07",
+      "D08-CHK-08",
+      "D08-CHK-09",
+      "D08-CHK-10",
+      "D08-CHK-11",
+      "D08-CHK-12"
+    ]
+  }
+}

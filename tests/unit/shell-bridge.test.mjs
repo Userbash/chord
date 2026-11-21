@@ -17,6 +17,7 @@ import assert from "node:assert/strict";
 import {
   SHELL_MODAL_LAYERS,
   createShellFeatureBridge,
+  createTauriEventListener,
 } from "../../rust/gui-spike/ui/features/shell-bridge.js";
 
 /**
@@ -302,5 +303,69 @@ describe("createShellFeatureBridge — регистрация и стек сло
     assert.deepEqual(res, { ok: true });
     assert.deepEqual(ipcCalls, [{ command: "select_channel", payload: { channelId: "100" } }]);
     assert.deepEqual(navCalls, [{ guildId: "1", channelId: "100" }]);
+  });
+});
+
+describe("createTauriEventListener — реактивный слушатель и intervalMs fallback", () => {
+  it("выполняет initialFetch при запуске и передаёт данные в onEvent", async () => {
+    /** @type {unknown[]} */
+    const received = [];
+    const listener = createTauriEventListener({
+      event: "test-event",
+      initialFetch: () => ({ status: "initial" }),
+      onEvent: (payload) => {
+        received.push(payload);
+      },
+      autoStart: true,
+    });
+
+    await new Promise((r) => setTimeout(r, 20));
+    assert.equal(received.length, 1);
+    assert.deepEqual(received[0], { status: "initial" });
+    await listener.stop();
+  });
+
+  it("периодически вызывает initialFetch с заданным intervalMs", async () => {
+    let fetchCount = 0;
+    /** @type {unknown[]} */
+    const received = [];
+    const listener = createTauriEventListener({
+      event: "test-interval-event",
+      intervalMs: 50,
+      initialFetch: () => {
+        fetchCount += 1;
+        return { count: fetchCount };
+      },
+      onEvent: (payload) => {
+        received.push(payload);
+      },
+      autoStart: true,
+    });
+
+    // Ожидаем несколько тиков таймера
+    await new Promise((r) => setTimeout(r, 170));
+    assert.ok(received.length >= 3, `Ожидалось >= 3 тиков, получено ${received.length}`);
+    await listener.stop();
+
+    const countAfterStop = received.length;
+    await new Promise((r) => setTimeout(r, 120));
+    assert.equal(received.length, countAfterStop, "После stop() новые тики не должны вызываться");
+  });
+
+  it("emitMock доставляет пэйлоад в onEvent", async () => {
+    /** @type {unknown[]} */
+    const received = [];
+    const listener = createTauriEventListener({
+      event: "mock-event",
+      onEvent: (payload) => {
+        received.push(payload);
+      },
+      autoStart: true,
+    });
+
+    listener.emitMock({ msg: "hello" });
+    assert.equal(received.length, 1);
+    assert.deepEqual(received[0], { msg: "hello" });
+    await listener.stop();
   });
 });

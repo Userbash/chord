@@ -1,43 +1,47 @@
-//! Движок расчёта битовых масок прав доступа Discord API v9 (TASK-619).
+//! Discord API v9 permission bitmask and channel overwrite calculator (`RW51-EPIC3-T3`).
 //!
-//! Оракулы:
-//! - `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` (`@9770000..9774000`, модуль `136722` `BigFlagUtils`
-//!   и константы `Permissions` `eC = Object.freeze({...})`):
-//!   - 41 битовый флаг `0..=40` (`CREATE_INSTANT_INVITE = 1 << 0` .. `MODERATE_MEMBERS = 1 << 40`);
-//!   - базовые права: `everyone_role_perms | (OR всех ролей участника)`;
-//!   - если `user_id == owner_id` или `(base_perms & ADMINISTRATOR) != 0` — возвращается [`ALL_PERMISSIONS`];
-//!   - канальные перезаписи (`PermissionOverwrite`):
-//!     1) `@everyone` (`overwrite_type == 0 && id == guild_id`): `perms = (perms & !deny) | allow`;
-//!     2) роли участника (`overwrite_type == 0 && id != guild_id && member_role_ids.contains(&id)`):
-//!        аккумуляция `role_allow |= allow`, `role_deny |= deny`, затем `perms = (perms & !role_deny) | role_allow`;
-//!     3) участник (`overwrite_type == 1 && id == user_id`): `perms = (perms & !member_deny) | member_allow`;
-//!   - если итоговые права содержат `ADMINISTRATOR` (`(perms & ADMINISTRATOR) != 0`),
-//!     возвращается [`ALL_PERMISSIONS`] (полный обход канальных ограничений).
+//! Powered by `twilight_util::permission_calculator::PermissionCalculator` and
+//! `twilight_model::guild::Permissions`, providing full 64-bit permission resolution,
+//! guild owner and `ADMINISTRATOR` bypass, 3-tier channel overwrite hierarchy
+//! (`@everyone` -> `roles` -> `member`), and member restriction masks
+//! (`lurker`, `pending`, `timed_out`, `quarantined`).
 
 use std::fmt;
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not};
 use std::str::FromStr;
 
-/// Маска полных прав доступа (все 64 бита включены, соответствует обходу владельца сервера и `ADMINISTRATOR`).
+pub use twilight_model::channel::{
+    ChannelType as TwilightChannelType,
+    permission_overwrite::{
+        PermissionOverwrite as TwilightPermissionOverwrite, PermissionOverwriteType,
+    },
+};
+pub use twilight_model::guild::Permissions as TwilightPermissions;
+use twilight_model::id::{
+    Id,
+    marker::{GenericMarker, GuildMarker, RoleMarker, UserMarker},
+};
+pub use twilight_util::permission_calculator::PermissionCalculator;
+
+/// Full 64-bit permissions mask (returned on guild owner or `ADMINISTRATOR` bypass).
 pub const ALL_PERMISSIONS: u64 = u64::MAX;
 
-/// Маска всех 41 специфицированных флагов Discord API v9 (`0..=40`).
+/// Mask of all 41 standard Discord API v9 flags (`0..=40`).
 pub const ALL_V9_DEFINED_PERMISSIONS: u64 = (1u64 << 41) - 1;
 
-/// Тип канальной перезаписи: роль (`0`).
+/// Channel overwrite target type: role (`0`).
 pub const OVERWRITE_TYPE_ROLE: u8 = 0;
 
-/// Тип канальной перезаписи: конкретный участник (`1`).
+/// Channel overwrite target type: member (`1`).
 pub const OVERWRITE_TYPE_MEMBER: u8 = 1;
 
-/// Официальная маска `lurkerPermissionsMask` (`VIEW_CHANNEL | READ_MESSAGE_HISTORY = 66560`)
-/// из `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0` (`y = a.kg(VIEW_CHANNEL, READ_MESSAGE_HISTORY)`).
+/// Official `lurkerPermissionsMask` (`VIEW_CHANNEL | READ_MESSAGE_HISTORY = 66560`).
 pub const LURKER_PERMISSIONS_MASK: u64 = VIEW_CHANNEL | READ_MESSAGE_HISTORY;
 
-/// Маска прав участника в режиме тайм-аута (`communication_disabled_until > now`, `v = 66560`).
+/// Permission mask applied to timed-out guild members (`66560`).
 pub const TIMED_OUT_PERMISSIONS_MASK: u64 = VIEW_CHANNEL | READ_MESSAGE_HISTORY;
 
-/// Маска прав участника в карантине AutoMod (`b = VIEW_CHANNEL | READ_MESSAGE_HISTORY | CHANGE_NICKNAME = 67175424`).
+/// Permission mask applied to AutoMod-quarantined guild members (`67175424`).
 pub const QUARANTINED_PERMISSIONS_MASK: u64 = VIEW_CHANNEL | READ_MESSAGE_HISTORY | CHANGE_NICKNAME;
 
 pub const CREATE_INSTANT_INVITE: u64 = 1 << 0;
@@ -82,7 +86,44 @@ pub const SEND_MESSAGES_IN_THREADS: u64 = 1 << 38;
 pub const USE_EMBEDDED_ACTIVITIES: u64 = 1 << 39;
 pub const MODERATE_MEMBERS: u64 = 1 << 40;
 
-/// 64-битное поле флагов прав доступа Discord v9.
+/// 32 non-root, non-conditional carrier bit positions in [`TwilightPermissions`] used to
+/// evaluate arbitrary 32-bit permission slices via [`PermissionCalculator::in_channel`].
+const SAFE_CARRIER_BITS: [u64; 32] = [
+    1 << 0,
+    1 << 4,
+    1 << 6,
+    1 << 8,
+    1 << 9,
+    1 << 12,
+    1 << 13,
+    1 << 14,
+    1 << 15,
+    1 << 16,
+    1 << 17,
+    1 << 18,
+    1 << 20,
+    1 << 21,
+    1 << 22,
+    1 << 23,
+    1 << 24,
+    1 << 25,
+    1 << 28,
+    1 << 29,
+    1 << 31,
+    1 << 32,
+    1 << 33,
+    1 << 34,
+    1 << 35,
+    1 << 36,
+    1 << 37,
+    1 << 38,
+    1 << 39,
+    1 << 40,
+    1 << 41,
+    1 << 42,
+];
+
+/// 64-bit Discord v9 permission bitfield wrapper.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct Permissions(pub u64);
 
@@ -133,49 +174,49 @@ impl Permissions {
     pub const EMPTY: Self = Self(0);
     pub const ALL: Self = Self(ALL_PERMISSIONS);
 
-    /// Создаёт обёртку над битовой маской `bits`.
+    /// Creates a `Permissions` wrapper from raw 64-bit flags.
     #[must_use]
     pub const fn from_bits(bits: u64) -> Self {
         Self(bits)
     }
 
-    /// Возвращает сырое 64-битное значение маски.
+    /// Returns the underlying 64-bit mask.
     #[must_use]
     pub const fn bits(self) -> u64 {
         self.0
     }
 
-    /// Проверяет наличие требуемого права `required_perm` с учётом флага `ADMINISTRATOR`.
+    /// Checks whether `required_perm` is granted (including `ADMINISTRATOR` bypass).
     #[must_use]
     pub const fn has(self, required_perm: u64) -> bool {
         has_permission(self.0, required_perm)
     }
 
-    /// Проверяет точное вхождение битов `flag` без учёта `ADMINISTRATOR`.
+    /// Checks exact bitwise containment of `flag` without `ADMINISTRATOR` bypass.
     #[must_use]
     pub const fn contains(self, flag: u64) -> bool {
         (self.0 & flag) == flag
     }
 
-    /// Добавляет битовую маску `bits` (`BigFlagUtils.add` / `WQ`).
+    /// Returns a new `Permissions` with `bits` added.
     #[must_use]
     pub const fn add(self, bits: u64) -> Self {
         Self(self.0 | bits)
     }
 
-    /// Снимает биты `bits` (`BigFlagUtils.remove` / `TF`).
+    /// Returns a new `Permissions` with `bits` removed.
     #[must_use]
     pub const fn remove(self, bits: u64) -> Self {
         Self(self.0 & !bits)
     }
 
-    /// Оставляет только биты, входящие в `mask` (`BigFlagUtils.filter` / `pb`).
+    /// Returns a new `Permissions` retaining only bits present in `mask`.
     #[must_use]
     pub const fn filter(self, mask: u64) -> Self {
         Self(self.0 & mask)
     }
 
-    /// Разбирает каноническую десятичную строку `u64` прав доступа Discord API v9 (`BigFlagUtils.deserialize` / `iu`).
+    /// Parses a canonical decimal `u64` permission string from Discord API v9.
     pub fn from_decimal_str(s: &str) -> Result<Self, PermissionParseError> {
         if s.is_empty() {
             return Err(PermissionParseError::Empty);
@@ -195,23 +236,23 @@ impl Permissions {
     }
 }
 
-/// Ошибка разбора десятичной строки битовой маски прав доступа.
+/// Error returned when parsing a decimal permission bitmask string fails.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum PermissionParseError {
-    /// Пустая строка.
+    /// Input string is empty.
     Empty,
-    /// Строка содержит нецифровой символ (например `-`, пробел или буквы).
+    /// Input string contains a non-ASCII-digit character.
     InvalidDigit,
-    /// Значение превышает `u64::MAX` (`18446744073709551615`).
+    /// Parsed value exceeds `u64::MAX`.
     Overflow,
 }
 
 impl fmt::Display for PermissionParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Empty => f.write_str("пустая строка битовой маски прав"),
-            Self::InvalidDigit => f.write_str("недопустимый символ в десятичной маске прав"),
-            Self::Overflow => f.write_str("переполнение 64-битной маски прав"),
+            Self::Empty => f.write_str("empty permission bitmask string"),
+            Self::InvalidDigit => f.write_str("invalid character in decimal permission bitmask"),
+            Self::Overflow => f.write_str("64-bit permission bitmask overflow"),
         }
     }
 }
@@ -226,7 +267,6 @@ impl fmt::Display for Permissions {
 
 impl FromStr for Permissions {
     type Err = PermissionParseError;
-
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::from_decimal_str(s)
     }
@@ -246,7 +286,6 @@ impl From<Permissions> for u64 {
 
 impl BitOr for Permissions {
     type Output = Self;
-
     fn bitor(self, rhs: Self) -> Self::Output {
         Self(self.0 | rhs.0)
     }
@@ -254,7 +293,6 @@ impl BitOr for Permissions {
 
 impl BitOr<u64> for Permissions {
     type Output = Self;
-
     fn bitor(self, rhs: u64) -> Self::Output {
         Self(self.0 | rhs)
     }
@@ -274,7 +312,6 @@ impl BitOrAssign<u64> for Permissions {
 
 impl BitAnd for Permissions {
     type Output = Self;
-
     fn bitand(self, rhs: Self) -> Self::Output {
         Self(self.0 & rhs.0)
     }
@@ -282,7 +319,6 @@ impl BitAnd for Permissions {
 
 impl BitAnd<u64> for Permissions {
     type Output = Self;
-
     fn bitand(self, rhs: u64) -> Self::Output {
         Self(self.0 & rhs)
     }
@@ -302,7 +338,6 @@ impl BitAndAssign<u64> for Permissions {
 
 impl BitXor for Permissions {
     type Output = Self;
-
     fn bitxor(self, rhs: Self) -> Self::Output {
         Self(self.0 ^ rhs.0)
     }
@@ -316,26 +351,36 @@ impl BitXorAssign for Permissions {
 
 impl Not for Permissions {
     type Output = Self;
-
     fn not(self) -> Self::Output {
         Self(!self.0)
     }
 }
 
-/// Перезапись прав доступа на уровне канала (`permission_overwrites[i]`).
-///
-/// Крейт `discord-core` не зависит от `serde` (см. `Cargo.toml:10`), поэтому для
-/// сериализации/десериализации предоставлены методы поверх `chord_json` и конверсия из [`crate::ready::PermissionOverwrite`].
+/// Channel-level permission overwrite entry (`permission_overwrites[i]`).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct PermissionOverwrite {
-    /// Snowflake ID роли (`overwrite_type == 0`) или участника (`overwrite_type == 1`).
+    /// Target role (`overwrite_type == 0`) or member (`overwrite_type == 1`) snowflake ID.
     pub id: u64,
-    /// Тип цели перезаписи: `0` — роль (`OVERWRITE_TYPE_ROLE`), `1` — участник (`OVERWRITE_TYPE_MEMBER`).
+    /// Target kind: `0` for role (`OVERWRITE_TYPE_ROLE`), `1` for member (`OVERWRITE_TYPE_MEMBER`).
     pub overwrite_type: u8,
-    /// Битовая маска явно разрешённых прав.
+    /// Explicitly allowed permission bits.
     pub allow: u64,
-    /// Битовая маска явно запрещённых прав.
+    /// Explicitly denied permission bits.
     pub deny: u64,
+}
+
+impl PermissionOverwrite {
+    /// Converts this overwrite into a `twilight_model` [`TwilightPermissionOverwrite`],
+    /// substituting `zero_sentinel` if `self.id == 0`.
+    #[must_use]
+    pub fn to_twilight_overwrite(self, zero_sentinel: u64) -> TwilightPermissionOverwrite {
+        TwilightPermissionOverwrite {
+            allow: TwilightPermissions::from_bits_truncate(self.allow),
+            deny: TwilightPermissions::from_bits_truncate(self.deny),
+            id: map_nonzero_id::<GenericMarker>(self.id, zero_sentinel),
+            kind: PermissionOverwriteType::from(self.overwrite_type),
+        }
+    }
 }
 
 impl From<crate::ready::PermissionOverwrite> for PermissionOverwrite {
@@ -355,9 +400,78 @@ impl From<&crate::ready::PermissionOverwrite> for PermissionOverwrite {
     }
 }
 
-/// Вычисляет базовые права участника на уровне гильдии (шаги 1–2 официального алгоритма Discord v9):
-/// 1. `base_perms = everyone_role_perms | (OR всех member_roles_perms)`.
-/// 2. Если `user_id == owner_id` или `(base_perms & ADMINISTRATOR) != 0`, возвращается [`ALL_PERMISSIONS`].
+fn find_zero_sentinel(
+    guild_id: u64,
+    user_id: u64,
+    roles: &[u64],
+    ows: &[PermissionOverwrite],
+) -> u64 {
+    let mut candidate = 1u64;
+    while candidate == guild_id
+        || candidate == user_id
+        || roles.contains(&candidate)
+        || ows.iter().any(|o| o.id == candidate)
+    {
+        candidate = candidate.wrapping_add(1).max(1);
+    }
+    candidate
+}
+
+fn map_nonzero_id<M>(raw: u64, zero_sentinel: u64) -> Id<M> {
+    Id::new(if raw == 0 { zero_sentinel.max(1) } else { raw })
+}
+
+const fn encode_half_to_twilight(half: u32) -> TwilightPermissions {
+    let mut bits = 0u64;
+    let mut idx = 0;
+    while idx < 32 {
+        if (half & (1u32 << idx)) != 0 {
+            bits |= SAFE_CARRIER_BITS[idx];
+        }
+        idx += 1;
+    }
+    TwilightPermissions::from_bits_truncate(bits)
+}
+
+const fn decode_half_from_twilight(perms: TwilightPermissions) -> u32 {
+    let raw = perms.bits();
+    let mut out = 0u32;
+    let mut idx = 0;
+    while idx < 32 {
+        if (raw & SAFE_CARRIER_BITS[idx]) != 0 {
+            out |= 1u32 << idx;
+        }
+        idx += 1;
+    }
+    out
+}
+
+#[allow(clippy::cast_possible_truncation)]
+fn compute_half_via_twilight(
+    base_half: u32,
+    tw_guild_id: Id<GuildMarker>,
+    tw_user_id: Id<UserMarker>,
+    tw_roles: &[(Id<RoleMarker>, TwilightPermissions)],
+    overwrites: &[PermissionOverwrite],
+    shift: u32,
+    zero_sentinel: u64,
+) -> u32 {
+    let everyone = encode_half_to_twilight(base_half) | TwilightPermissions::VIEW_CHANNEL;
+    let tw_overwrites: Vec<TwilightPermissionOverwrite> = overwrites
+        .iter()
+        .map(|ov| TwilightPermissionOverwrite {
+            allow: encode_half_to_twilight((ov.allow >> shift) as u32),
+            deny: encode_half_to_twilight((ov.deny >> shift) as u32),
+            id: map_nonzero_id::<GenericMarker>(ov.id, zero_sentinel),
+            kind: PermissionOverwriteType::from(ov.overwrite_type),
+        })
+        .collect();
+    let calc = PermissionCalculator::new(tw_guild_id, tw_user_id, everyone, tw_roles);
+    let resolved = calc.in_channel(TwilightChannelType::GuildCategory, &tw_overwrites);
+    decode_half_from_twilight(resolved)
+}
+
+/// Computes guild-level base permissions for a member using [`PermissionCalculator::root`].
 #[must_use]
 pub fn compute_base_permissions(
     owner_id: u64,
@@ -365,33 +479,43 @@ pub fn compute_base_permissions(
     everyone_role_perms: u64,
     member_roles_perms: &[u64],
 ) -> u64 {
-    if user_id == owner_id {
+    let sentinel = find_zero_sentinel(1, user_id, &[owner_id], &[]);
+    let tw_owner_id = map_nonzero_id::<UserMarker>(owner_id, sentinel);
+    let tw_user_id = map_nonzero_id::<UserMarker>(user_id, sentinel);
+    let tw_roles: Vec<(Id<RoleMarker>, TwilightPermissions)> = member_roles_perms
+        .iter()
+        .enumerate()
+        .map(|(i, &p)| {
+            (
+                Id::new((i as u64).saturating_add(2)),
+                TwilightPermissions::from_bits_truncate(p),
+            )
+        })
+        .collect();
+
+    let calc = PermissionCalculator::new(
+        Id::new(1),
+        tw_user_id,
+        TwilightPermissions::from_bits_truncate(everyone_role_perms),
+        &tw_roles,
+    )
+    .owner_id(tw_owner_id);
+
+    let root = calc.root();
+    if root.is_all() || root.contains(TwilightPermissions::ADMINISTRATOR) {
         return ALL_PERMISSIONS;
     }
 
-    let mut base_perms = everyone_role_perms;
+    let mut high_bits = everyone_role_perms & !TwilightPermissions::all().bits();
     for &role_perms in member_roles_perms {
-        base_perms |= role_perms;
+        high_bits |= role_perms & !TwilightPermissions::all().bits();
     }
-
-    if (base_perms & ADMINISTRATOR) != 0 {
-        return ALL_PERMISSIONS;
-    }
-
-    base_perms
+    root.bits() | high_bits
 }
 
-/// Вычисляет эффективные права участника в канале с учётом канальных перезаписей
-/// (шаги 3–4 официального алгоритма Discord v9):
-/// - Если `(base_perms & ADMINISTRATOR) != 0`, немедленно возвращается [`ALL_PERMISSIONS`].
-/// - Шаг 3a: применяется перезапись `@everyone` (`overwrite_type == 0 && id == guild_id`):
-///   `perms = (perms & !deny) | allow`.
-/// - Шаг 3b: суммируются побитовым ИЛИ `role_allow` и `role_deny` для всех ролей из `member_role_ids`
-///   (`overwrite_type == 0 && id != guild_id`), затем `perms = (perms & !role_deny) | role_allow`.
-/// - Шаг 3c: применяется персональная перезапись участника (`overwrite_type == 1 && id == user_id`):
-///   `perms = (perms & !member_deny) | member_allow`.
-/// - Шаг 4: если `(perms & ADMINISTRATOR) != 0`, возвращается [`ALL_PERMISSIONS`].
+/// Computes effective channel permissions using [`PermissionCalculator::in_channel`].
 #[must_use]
+#[allow(clippy::cast_possible_truncation)]
 pub fn compute_channel_permissions(
     base_perms: u64,
     guild_id: u64,
@@ -403,46 +527,46 @@ pub fn compute_channel_permissions(
         return ALL_PERMISSIONS;
     }
 
-    let mut perms = base_perms;
+    let sentinel = find_zero_sentinel(guild_id, user_id, member_role_ids, overwrites);
+    let tw_guild_id = map_nonzero_id::<GuildMarker>(guild_id, sentinel);
+    let tw_user_id = map_nonzero_id::<UserMarker>(user_id, sentinel);
+    let tw_roles: Vec<(Id<RoleMarker>, TwilightPermissions)> = member_role_ids
+        .iter()
+        .map(|&rid| {
+            (
+                map_nonzero_id::<RoleMarker>(rid, sentinel),
+                TwilightPermissions::empty(),
+            )
+        })
+        .collect();
 
-    // 3a) @everyone overwrite (id == guild_id, overwrite_type == 0)
-    for ov in overwrites {
-        if ov.overwrite_type == OVERWRITE_TYPE_ROLE && ov.id == guild_id {
-            perms = (perms & !ov.deny) | ov.allow;
-        }
-    }
+    let low = compute_half_via_twilight(
+        base_perms as u32,
+        tw_guild_id,
+        tw_user_id,
+        &tw_roles,
+        overwrites,
+        0,
+        sentinel,
+    );
+    let high = compute_half_via_twilight(
+        (base_perms >> 32) as u32,
+        tw_guild_id,
+        tw_user_id,
+        &tw_roles,
+        overwrites,
+        32,
+        sentinel,
+    );
 
-    // 3b) Role overwrites: accumulate all role_allow (OR) and role_deny (OR) for member's roles
-    let mut role_allow = 0u64;
-    let mut role_deny = 0u64;
-    for ov in overwrites {
-        if ov.overwrite_type == OVERWRITE_TYPE_ROLE
-            && ov.id != guild_id
-            && member_role_ids.contains(&ov.id)
-        {
-            role_allow |= ov.allow;
-            role_deny |= ov.deny;
-        }
-    }
-    perms = (perms & !role_deny) | role_allow;
-
-    // 3c) Member overwrite (id == user_id, overwrite_type == 1)
-    for ov in overwrites {
-        if ov.overwrite_type == OVERWRITE_TYPE_MEMBER && ov.id == user_id {
-            perms = (perms & !ov.deny) | ov.allow;
-        }
-    }
-
-    // Step 4: ADMINISTRATOR bypass
+    let perms = u64::from(low) | (u64::from(high) << 32);
     if (perms & ADMINISTRATOR) != 0 {
         return ALL_PERMISSIONS;
     }
-
     perms
 }
 
-/// Проверяет, содержит ли вычисленная маска `computed_perms` требуемое право (или набор прав) `required_perm`.
-/// Наличие бита [`ADMINISTRATOR`] в `computed_perms` автоматически разрешает любое право.
+/// Checks whether `computed_perms` grants `required_perm` (including `ADMINISTRATOR` bypass).
 #[must_use]
 pub const fn has_permission(computed_perms: u64, required_perm: u64) -> bool {
     if (computed_perms & ADMINISTRATOR) != 0 {
@@ -451,12 +575,12 @@ pub const fn has_permission(computed_perms: u64, required_perm: u64) -> bool {
     (computed_perms & required_perm) == required_perm
 }
 
-/// Описание роли гильдии для расчёта базовых прав (`id` и 64-битная маска `permissions`).
+/// Guild role permission descriptor (`id` and 64-bit `permissions` mask).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct RolePermissions {
-    /// Snowflake ID роли (`id == guild_id` для роли `@everyone`).
+    /// Role snowflake ID (`id == guild_id` for `@everyone`).
     pub id: u64,
-    /// Битовая маска прав роли.
+    /// Role 64-bit permission bitmask.
     pub permissions: u64,
 }
 
@@ -481,64 +605,43 @@ impl From<(u64, u64)> for RolePermissions {
     }
 }
 
-/// Ограничительные флаги состояния участника в гильдии (`4d2a64cb5df5fc4e_0@9771400`).
+/// Member restriction flags in a guild (`lurker`, `is_pending`, `is_timed_out`, `is_quarantined`).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct MemberRestrictions {
-    /// Режим предпросмотра сервера (`lurker == true`).
+    /// Server preview mode (`lurker == true`).
     pub is_lurker: bool,
-    /// Не пройдено принятие правил (`isPending == true`).
+    /// Pending membership screening (`isPending == true`).
     pub is_pending: bool,
-    /// Активен тайм-аут модерации (`communicationDisabledUntil > now`).
+    /// Active moderation timeout (`communicationDisabledUntil > now`).
     pub is_timed_out: bool,
-    /// Участник помещён в карантин AutoMod (`AUTOMOD_QUARANTINED_*`).
+    /// AutoMod quarantine active (`AUTOMOD_QUARANTINED_*`).
     pub is_quarantined: bool,
 }
 
-/// Полный результат резолвинга прав доступа пользователя в канале гильдии
-/// (`Base Guild Permissions -> @everyone Overwrite -> Role Overwrites -> Member Overwrite`).
+/// Complete channel permission resolution output for a guild member.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct ResolvedPermissions {
-    /// Базовые права на уровне гильдии (`compute_base_permissions`).
     pub base_bits: u64,
-    /// Сырые права после наложения канальных перезаписей (`compute_channel_permissions`).
     pub channel_bits: u64,
-    /// Эффективные права в канале с учётом неявных зависимостей (`!VIEW_CHANNEL`, `!SEND_MESSAGES`, `!CONNECT`)
-    /// и ограничительных масок (`lurker`, `pending`, `timed_out`, `quarantined`).
     pub effective_bits: u64,
-    /// Доступ к просмотру канала (`VIEW_CHANNEL`).
     pub can_view: bool,
-    /// Чтение истории сообщений в канале (`VIEW_CHANNEL && READ_MESSAGE_HISTORY`).
     pub can_read_history: bool,
-    /// Отправка сообщений в канал (`VIEW_CHANNEL && SEND_MESSAGES`).
     pub can_send: bool,
-    /// Прикрепление файлов в канал (`VIEW_CHANNEL && SEND_MESSAGES && ATTACH_FILES`).
     pub can_attach: bool,
-    /// Встраивание ссылок (`VIEW_CHANNEL && SEND_MESSAGES && EMBED_LINKS`).
     pub can_embed_links: bool,
-    /// Добавление реакций (`VIEW_CHANNEL && ADD_REACTIONS`).
     pub can_add_reactions: bool,
-    /// Удаление чужих сообщений в канале (`VIEW_CHANNEL && MANAGE_MESSAGES`).
     pub can_delete_others: bool,
-    /// Исключение участников из гильдии (`KICK_MEMBERS`).
     pub can_kick: bool,
-    /// Блокировка участников в гильдии (`BAN_MEMBERS`).
     pub can_ban: bool,
-    /// Управление каналом (`VIEW_CHANNEL && MANAGE_CHANNELS`).
     pub can_manage_channels: bool,
-    /// Управление правами/ролями (`VIEW_CHANNEL && MANAGE_ROLES`).
     pub can_manage_roles: bool,
-    /// Подключение к голосовому каналу (`VIEW_CHANNEL && CONNECT`).
     pub can_connect: bool,
-    /// Голос в голосовом канале (`VIEW_CHANNEL && CONNECT && SPEAK`).
     pub can_speak: bool,
-    /// Трансляция экрана / видео в голосовом канале (`VIEW_CHANNEL && CONNECT && STREAM`).
     pub can_stream: bool,
-    /// Полный административный доступ (`ADMINISTRATOR`).
     pub is_admin: bool,
 }
 
-/// Вычисляет базовые права участника по полному списку ролей гильдии `guild_roles` и списку ID ролей участника `member_role_ids`.
-/// Роль `@everyone` определяется совпадением `role.id == guild_id`.
+/// Resolves guild base permissions from the full `guild_roles` list and `member_role_ids`.
 #[must_use]
 pub fn resolve_guild_base_permissions(
     guild_id: u64,
@@ -548,20 +651,18 @@ pub fn resolve_guild_base_permissions(
     member_role_ids: &[u64],
 ) -> u64 {
     let mut everyone_perms = 0u64;
-    let mut combined_member_perms = 0u64;
+    let mut member_perms = Vec::new();
     for role in guild_roles {
         if role.id == guild_id {
             everyone_perms |= role.permissions;
         } else if member_role_ids.contains(&role.id) {
-            combined_member_perms |= role.permissions;
+            member_perms.push(role.permissions);
         }
     }
-
-    compute_base_permissions(owner_id, user_id, everyone_perms, &[combined_member_perms])
+    compute_base_permissions(owner_id, user_id, everyone_perms, &member_perms)
 }
 
-/// Выполняет полный цикл расчёта прав пользователя в канале (`base -> @everyone -> roles -> member`)
-/// со всеми неявными зависимостями Discord v9 и возвращает структуру [`ResolvedPermissions`].
+/// Resolves channel permissions with default (unrestricted) member flags.
 #[must_use]
 pub fn resolve_permissions(
     base_perms: u64,
@@ -580,9 +681,43 @@ pub fn resolve_permissions(
     )
 }
 
-/// Выполняет полный цикл расчёта прав пользователя в канале с учётом ограничительных флагов
-/// состояния участника (`lurker`, `is_pending`, `is_timed_out`, `is_quarantined`)
-/// по эталонному алгоритму `w()` / `U()` из `/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0`.
+fn apply_implicit_and_restriction_masks(
+    channel_bits: u64,
+    is_admin: bool,
+    restrictions: MemberRestrictions,
+) -> u64 {
+    if is_admin {
+        return ALL_PERMISSIONS;
+    }
+    let mut eff = channel_bits;
+    if restrictions.is_quarantined {
+        eff &= QUARANTINED_PERMISSIONS_MASK;
+    }
+    if restrictions.is_timed_out {
+        eff &= TIMED_OUT_PERMISSIONS_MASK;
+    }
+    if restrictions.is_lurker || restrictions.is_pending {
+        eff &= LURKER_PERMISSIONS_MASK;
+    }
+    if (eff & VIEW_CHANNEL) == 0 {
+        return 0;
+    }
+    if (eff & SEND_MESSAGES) == 0 {
+        eff &= !(SEND_TTS_MESSAGES | MENTION_EVERYONE | ATTACH_FILES | EMBED_LINKS);
+    }
+    if (eff & CONNECT) == 0 {
+        eff &= !(SPEAK
+            | STREAM
+            | USE_VAD
+            | MUTE_MEMBERS
+            | DEAFEN_MEMBERS
+            | MOVE_MEMBERS
+            | PRIORITY_SPEAKER);
+    }
+    eff
+}
+
+/// Resolves channel permissions taking into account member restriction masks and implicit dependencies.
 #[must_use]
 pub fn resolve_permissions_with_restrictions(
     base_perms: u64,
@@ -594,43 +729,9 @@ pub fn resolve_permissions_with_restrictions(
 ) -> ResolvedPermissions {
     let channel_bits =
         compute_channel_permissions(base_perms, guild_id, user_id, member_role_ids, overwrites);
-
-    let has_admin = (channel_bits & ADMINISTRATOR) != 0;
     let is_lurker_or_pending = restrictions.is_lurker || restrictions.is_pending;
-    let is_admin = has_admin && !is_lurker_or_pending;
-
-    let effective_bits = if is_admin {
-        ALL_PERMISSIONS
-    } else {
-        let mut eff = channel_bits;
-        if restrictions.is_quarantined {
-            eff &= QUARANTINED_PERMISSIONS_MASK;
-        }
-        if restrictions.is_timed_out {
-            eff &= TIMED_OUT_PERMISSIONS_MASK;
-        }
-        if is_lurker_or_pending {
-            eff &= LURKER_PERMISSIONS_MASK;
-        }
-
-        if (eff & VIEW_CHANNEL) == 0 {
-            0
-        } else {
-            if (eff & SEND_MESSAGES) == 0 {
-                eff &= !(SEND_TTS_MESSAGES | MENTION_EVERYONE | ATTACH_FILES | EMBED_LINKS);
-            }
-            if (eff & CONNECT) == 0 {
-                eff &= !(SPEAK
-                    | STREAM
-                    | USE_VAD
-                    | MUTE_MEMBERS
-                    | DEAFEN_MEMBERS
-                    | MOVE_MEMBERS
-                    | PRIORITY_SPEAKER);
-            }
-            eff
-        }
-    };
+    let is_admin = (channel_bits & ADMINISTRATOR) != 0 && !is_lurker_or_pending;
+    let effective_bits = apply_implicit_and_restriction_masks(channel_bits, is_admin, restrictions);
 
     let is_restricted =
         is_lurker_or_pending || restrictions.is_timed_out || restrictions.is_quarantined;
@@ -643,38 +744,27 @@ pub fn resolve_permissions_with_restrictions(
     };
 
     let can_view = (effective_bits & VIEW_CHANNEL) != 0;
-    let can_read_history = can_view && (effective_bits & READ_MESSAGE_HISTORY) != 0;
     let can_send = can_view && (effective_bits & SEND_MESSAGES) != 0;
-    let can_attach = can_send && (effective_bits & ATTACH_FILES) != 0;
-    let can_embed_links = can_send && (effective_bits & EMBED_LINKS) != 0;
-    let can_add_reactions = can_view && (effective_bits & ADD_REACTIONS) != 0;
-    let can_delete_others = can_view && (effective_bits & MANAGE_MESSAGES) != 0;
-    let can_kick = (guild_mod_bits & KICK_MEMBERS) != 0;
-    let can_ban = (guild_mod_bits & BAN_MEMBERS) != 0;
-    let can_manage_channels = can_view && (effective_bits & MANAGE_CHANNELS) != 0;
-    let can_manage_roles = can_view && (effective_bits & MANAGE_ROLES) != 0;
     let can_connect = can_view && (effective_bits & CONNECT) != 0;
-    let can_speak = can_connect && (effective_bits & SPEAK) != 0;
-    let can_stream = can_connect && (effective_bits & STREAM) != 0;
 
     ResolvedPermissions {
         base_bits: base_perms,
         channel_bits,
         effective_bits,
         can_view,
-        can_read_history,
+        can_read_history: can_view && (effective_bits & READ_MESSAGE_HISTORY) != 0,
         can_send,
-        can_attach,
-        can_embed_links,
-        can_add_reactions,
-        can_delete_others,
-        can_kick,
-        can_ban,
-        can_manage_channels,
-        can_manage_roles,
+        can_attach: can_send && (effective_bits & ATTACH_FILES) != 0,
+        can_embed_links: can_send && (effective_bits & EMBED_LINKS) != 0,
+        can_add_reactions: can_view && (effective_bits & ADD_REACTIONS) != 0,
+        can_delete_others: can_view && (effective_bits & MANAGE_MESSAGES) != 0,
+        can_kick: (guild_mod_bits & KICK_MEMBERS) != 0,
+        can_ban: (guild_mod_bits & BAN_MEMBERS) != 0,
+        can_manage_channels: can_view && (effective_bits & MANAGE_CHANNELS) != 0,
+        can_manage_roles: can_view && (effective_bits & MANAGE_ROLES) != 0,
         can_connect,
-        can_speak,
-        can_stream,
+        can_speak: can_connect && (effective_bits & SPEAK) != 0,
+        can_stream: can_connect && (effective_bits & STREAM) != 0,
         is_admin,
     }
 }

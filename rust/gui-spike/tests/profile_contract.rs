@@ -23,7 +23,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
-use discord_core::rest::transport::HttpResponse;
+use chord_core::rest::transport::HttpResponse;
 use chord_client::profile::{
     build_user_profile_path, parse_retry_after_ms, parse_user_profile, ConnectedAccount,
     DiscordProfileApi, GuildMemberProfile, MutualGuild, ProfileBadge, ProfileError, ProfileQuery,

@@ -125,13 +125,14 @@ impl RouteSpec {
 }
 
 /// Пары «метод, шаблон» всех маршрутов вне захвата D-02 (`[S]`/сырой захват).
-const STATIC_EXTENSION_ROUTES: [(HttpMethod, &str); 6] = [
+const STATIC_EXTENSION_ROUTES: [(HttpMethod, &str); 7] = [
     (HttpMethod::Post, "/channels/{id}/messages"),
     (HttpMethod::Get, GUILD_SEARCH_PATH),
     (HttpMethod::Post, TYPING_PATH),
     (HttpMethod::Get, INVITE_PATH),
     (HttpMethod::Post, INVITE_PATH),
     (HttpMethod::Get, CHANNEL_SEARCH_PATH),
+    (HttpMethod::Post, CHANNEL_ATTACHMENTS_PATH),
 ];
 
 /// Конструктор элемента каталога (приватный: состав каталога фиксирован оракулом).
@@ -374,8 +375,20 @@ pub const CHANNEL_SEARCH_PATH: &str = "/channels/{id}/messages/search";
 /// ([`RouteSpec::is_static_extension`]), хотя и находится внутри [`ROUTES`].
 pub const GUILD_SEARCH_PATH: &str = "/guilds/{id}/messages/search";
 
+/// `POST /channels/{id}/attachments` — выделение pre-signed слотов загрузки вложений в канале (`P2-2.2`).
+pub const CHANNEL_ATTACHMENTS_PATH: &str = "/channels/{id}/attachments";
+
+/// Ключи тела `POST /channels/{id}/attachments`.
+pub const CHANNEL_ATTACHMENTS_BODY_KEYS: [&str; 1] = ["files"];
+
+/// Максимальное количество вложений в одном сообщении Discord (`10`).
+pub const MAX_ATTACHMENTS_PER_MESSAGE: usize = 10;
+
+/// Максимальный размер одного файла вложения для стандартного аккаунта (`25 MiB = 26_214_400` байт).
+pub const MAX_ATTACHMENT_SIZE_BYTES: usize = 25 * 1024 * 1024;
+
 /// Статический список `[S]`-расширений: `find` возвращает `&'static RouteSpec`.
-static EXTENSIONS: [RouteSpec; 4] = [
+static EXTENSIONS: [RouteSpec; 5] = [
     route(HttpMethod::Post, TYPING_PATH, &[]),
     route(HttpMethod::Get, INVITE_PATH, &[]),
     route(HttpMethod::Post, INVITE_PATH, &INVITE_ACCEPT_BODY_KEYS),
@@ -385,7 +398,18 @@ static EXTENSIONS: [RouteSpec; 4] = [
         &[],
         MESSAGES_SEARCH_QUERY_PARAMS,
     ),
+    route(
+        HttpMethod::Post,
+        CHANNEL_ATTACHMENTS_PATH,
+        &CHANNEL_ATTACHMENTS_BODY_KEYS,
+    ),
 ];
+
+/// Возвращает статическую спецификацию маршрута `POST /channels/{id}/attachments`.
+#[must_use]
+pub fn attachment_upload_route_spec() -> &'static RouteSpec {
+    &EXTENSIONS[4]
+}
 
 /// Ошибки рендера пути.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -564,23 +588,11 @@ impl From<PathRenderError> for QueryError {
 /// RFC 3986 percent-encoding компонента query-параметра (ключ или значение).
 ///
 /// Символы `A-Z`, `a-z`, `0-9`, `-`, `_`, `.`, `~` (unreserved) остаются без изменений.
-/// Все остальные байты кодируются в верхнем регистре `%XX`.
+/// Все остальные байты кодируются в верхнем регистре `%XX` через `percent_encoding`.
 /// Экранирует `+` (%2B), `#` (%23), `&` (%26), пробел (%20), кириллицу и другие UTF-8 байты.
 #[must_use]
 pub fn encode_query_component(input: &str) -> String {
-    let mut encoded = String::with_capacity(input.len());
-    for &byte in input.as_bytes() {
-        match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
-                encoded.push(byte as char);
-            }
-            _ => {
-                use std::fmt::Write;
-                let _ = write!(encoded, "%{:02X}", byte);
-            }
-        }
-    }
-    encoded
+    super::bridge::encode_rfc3986_query_value(input)
 }
 
 /// Конструктор query-строки запроса.
@@ -801,7 +813,10 @@ pub struct ChannelMessagesParams<'a> {
 }
 
 fn validate_snowflake_cursor(param: &'static str, value: &str) -> Result<(), QueryError> {
-    if value.is_empty() || !value.bytes().all(|b| b.is_ascii_digit()) || value == "0" {
+    if value.is_empty()
+        || !value.bytes().all(|b| b.is_ascii_digit())
+        || value.parse::<u64>().map_or(true, |v| v == 0)
+    {
         return Err(QueryError::InvalidParamValue {
             param,
             reason: format!("cursor must be a valid positive numeric snowflake, got '{value}'"),
@@ -953,4 +968,89 @@ pub fn build_channel_search_path(
     qb.param_opt("max_id", params.max_id);
 
     Ok(qb.build_with_path(&base))
+}
+
+/// Собрать URL пути для выделения слотов загрузки вложений (`POST /channels/{id}/attachments`).
+///
+/// Валидирует `channel_id` как непустой положительный Snowflake (`1..=u64::MAX`, только ASCII-цифры).
+pub fn build_channel_attachments_path(channel_id: &str) -> Result<String, QueryError> {
+    let spec = attachment_upload_route_spec();
+    let base = render_path(spec, &[channel_id])?;
+    if !channel_id.bytes().all(|b| b.is_ascii_digit())
+        || channel_id.parse::<u64>().map_or(true, |v| v == 0)
+    {
+        return Err(QueryError::InvalidParamValue {
+            param: "channel_id",
+            reason: format!(
+                "channel_id must be a valid positive numeric snowflake, got '{channel_id}'"
+            ),
+        });
+    }
+    Ok(base)
+}
+
+/// Шаблон маршрута сообщений канала (`GET`/`POST /channels/{id}/messages`).
+pub const CHANNEL_MESSAGES_PATH: &str = "/channels/{id}/messages";
+
+/// Дефолтный лимит выборки истории сообщений канала (`?limit=50`).
+pub const DEFAULT_MESSAGES_HISTORY_LIMIT: u32 = 50;
+
+/// Максимальный лимит выборки истории сообщений канала (`?limit=100`).
+pub const MAX_MESSAGES_HISTORY_LIMIT: u32 = 100;
+
+/// Возвращает статическую спецификацию маршрута отправки сообщения (`POST /channels/{id}/messages`).
+#[must_use]
+pub fn channel_messages_post_route_spec() -> &'static RouteSpec {
+    &ROUTES[0]
+}
+
+/// Возвращает статическую спецификацию маршрута истории сообщений (`GET /channels/{id}/messages`).
+#[must_use]
+pub fn channel_messages_get_route_spec() -> &'static RouteSpec {
+    &ROUTES[1]
+}
+
+fn validate_channel_snowflake(channel_id: &str) -> Result<(), QueryError> {
+    if channel_id.is_empty()
+        || !channel_id.bytes().all(|b| b.is_ascii_digit())
+        || channel_id.parse::<u64>().map_or(true, |v| v == 0)
+    {
+        return Err(QueryError::InvalidParamValue {
+            param: "channel_id",
+            reason: format!(
+                "channel_id must be a valid positive numeric snowflake, got '{channel_id}'"
+            ),
+        });
+    }
+    Ok(())
+}
+
+/// Собрать URL пути для отправки сообщения в канал (`POST /channels/{id}/messages`).
+///
+/// Валидирует `channel_id` как непустой положительный Snowflake (`1..=u64::MAX`, только ASCII-цифры).
+pub fn build_channel_messages_send_path(channel_id: &str) -> Result<String, QueryError> {
+    let spec = channel_messages_post_route_spec();
+    let base = render_path(spec, &[channel_id])?;
+    validate_channel_snowflake(channel_id)?;
+    Ok(base)
+}
+
+/// Собрать URL пути для выборки истории сообщений канала (`GET /channels/{id}/messages?limit={limit}&before={before}`).
+///
+/// По умолчанию использует `limit = 50` ([`DEFAULT_MESSAGES_HISTORY_LIMIT`]); проверяет `channel_id`
+/// и опциональный курсор `before` как положительные Snowflake (`1..=u64::MAX`), а `limit` — в диапазоне `1..=100`.
+pub fn build_channel_history_path(
+    channel_id: &str,
+    before: Option<&str>,
+    limit: Option<u32>,
+) -> Result<String, QueryError> {
+    validate_channel_snowflake(channel_id)?;
+    let effective_limit = limit.unwrap_or(DEFAULT_MESSAGES_HISTORY_LIMIT);
+    let params = ChannelMessagesParams {
+        limit: Some(effective_limit),
+        before,
+        after: None,
+        around: None,
+    };
+    build_channel_messages_path(channel_id, &params)
 }

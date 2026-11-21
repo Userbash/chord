@@ -1,15 +1,16 @@
-# Beta Tester's Guide for `discord-gpui` (`v1.0.0-beta.1`)
+# Beta Tester's Guide for `chord-gpui` (`v1.0.0-beta.1`)
 
+> **Notice:** This document is consolidated alongside the user guide into the unified master guide: [`docs/GUIDE.md`](GUIDE.md).  
 > **Document Status:** `Published Beta Testing Guide (v1.0.0-beta.1)`  
-> **Target Release Package:** [`rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz`](rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz)  
-> **Executable Binary:** [`rust/dist/discord-gpui`](rust/dist/discord-gpui) (`42 MB`, stripped ELF 64-bit, Thin LTO, `opt-level = 3`)  
+> **Target Release Package:** [`rust/dist/chord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz`](rust/dist/chord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz)  
+> **Executable Binary:** [`rust/dist/chord-gpui`](rust/dist/chord-gpui) (`42 MB`, stripped ELF 64-bit, Thin LTO, `opt-level = 3`)  
 > **Checksums:** [`rust/dist/SHA256SUMS`](rust/dist/SHA256SUMS)  
 
 ---
 
 ## 1. System Requirements & Supported Linux Distributions
 
-The native **`discord-gpui`** client is built on a 100% Rust UI stack (**`gpui-kit` + WGPU**) rendering at 120 FPS without Electron or Chromium. RAM usage averages **11–35 MB VmRSS** (under a strict budget limit of `< 60 MB`).
+The native **`chord-gpui`** client is built on a 100% Rust UI stack (**`gpui-kit` + WGPU**) rendering at 120 FPS without Electron or Chromium. RAM usage averages **11–35 MB VmRSS** (under a strict budget limit of `< 60 MB`).
 
 ### 1.1. Minimum and Recommended Requirements
 
@@ -42,7 +43,7 @@ sha256sum -c rust/dist/SHA256SUMS
 
 ### 2.2. Launch in One Command
 ```bash
-# Extract and launch the native binary
+# Extract and launch the native binary (Beta 1 archive uses the legacy discord-gpui artifact name)
 tar -xzf rust/dist/discord-gpui-v1.0.0-beta.1-linux-x86_64.tar.gz
 cd discord-gpui-v1.0.0-beta.1/
 ./discord-gpui
@@ -65,7 +66,7 @@ Enable detailed logs for troubleshooting:
 RUST_LOG=info ./discord-gpui
 
 # Run with full debug tracing for WebRTC and Gateway
-RUST_LOG=debug,discord_voice=trace,discord_core=trace ./discord-gpui
+RUST_LOG=debug,chord_voice=trace,chord_core=trace ./discord-gpui
 ```
 
 *Note: All authentication tokens and passwords are automatically redacted (`mfa.[REDACTED]`) in all log files.*
@@ -88,7 +89,7 @@ A clear and concise description of what the bug is.
 - **Client Version:** `v1.0.0-beta.1`
 
 ### Steps to Reproduce
-1. Launch `./discord-gpui`
+1. Launch `./chord-gpui`
 2. Connect to voice channel 'Lounge'
 3. Start screen share
 4. See error
@@ -106,7 +107,7 @@ Stream freezes after 5 seconds.
 
 ### GDB Backtrace (If Crash Occurred)
 ```bash
-gdb -batch -ex "thread apply all bt full" ./discord-gpui core
+gdb -batch -ex "thread apply all bt full" ./chord-gpui core
 ```
 ```
 

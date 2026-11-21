@@ -1,3 +1,5 @@
+//! GPUI user interface components, panels, modals, and root workspace layout.
+
 pub mod account_switcher;
 pub mod call_overlay;
 pub mod captcha_modal;

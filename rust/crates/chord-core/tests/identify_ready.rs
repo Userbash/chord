@@ -24,9 +24,7 @@ use chord_core::identify::{
     IdentifyProperties, PresenceInfo, build_identify, qos_token_client_provided,
 };
 use chord_core::ready::ReadySummary;
-use chord_core::ws::{
-    GatewayPipe, RunOptions, RunOutcome, connect_and_run, connect_and_run_with,
-};
+use chord_core::ws::{GatewayPipe, RunOptions, RunOutcome, connect_and_run, connect_and_run_with};
 use futures_util::{SinkExt, StreamExt};
 use std::fs;
 use std::future::Future;

@@ -1,8 +1,40 @@
-// @ts-check
+import { signal, effect, batch } from "@preact/signals-core";
+
+export const isSignalsCorePowered = typeof signal === "function";
+
 /**
- * T-212 (RW-40 / G2): UI-контроллер панели пилюль реакций и модального окна
- * списка отреагировавших пользователей (`reactions-ui.js`).
- *
+ * Стандартный набор 5 быстрых эмодзи для ховер-плашки сообщения.
+ * @type {ReadonlyArray<string>}
+ */
+export const DEFAULT_HOVER_QUICK_REACTIONS = Object.freeze(["👍", "❤️", "😂", "🎉", "🔥"]);
+
+/**
+ * Формирует список из 5 быстрых реакций для ховер-плашки.
+ * @param {ReadonlyArray<string>} [frequentList]
+ * @returns {string[]}
+ */
+export function getHoverQuickReactions(frequentList = []) {
+  const result = [];
+  const seen = new Set();
+  const list = Array.isArray(frequentList) ? frequentList : [];
+  for (const emoji of list) {
+    if (emoji && !seen.has(emoji)) {
+      seen.add(emoji);
+      result.push(emoji);
+      if (result.length >= 5) break;
+    }
+  }
+  for (const emoji of DEFAULT_HOVER_QUICK_REACTIONS) {
+    if (result.length >= 5) break;
+    if (!seen.has(emoji)) {
+      seen.add(emoji);
+      result.push(emoji);
+    }
+  }
+  return result;
+}
+
+/**
  * Контрактные оракулы:
  * - `waves/RW-40/DESIGN/REACTIONS-EXTENDED-SPEC.md`
  * - `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md` (FE-P0-03, FE-P0-04)
@@ -90,6 +122,7 @@ export const REACTIONS_EMPTY_STATE_RU = "Нет реакций";
  * @typedef {object} ReactionsUiControllerOptions
  * @property {(emoji: string, reactionType: 0 | 1, nextActive: boolean) => void} [onToggleReaction]
  * @property {(messageIdOrEmoji: string, reactionsWithUsers?: any) => void} [onOpenReactors]
+ * @property {() => void} [onOpenPicker]
  */
 
 /**
@@ -364,6 +397,8 @@ export function createReactionsUiController(containerEl, options = {}) {
       btn.appendChild(countSpan);
 
       btn.addEventListener("click", () => {
+        btn.setAttribute("data-reaction-pulse", "true");
+        btn.classList?.add?.("reaction--pulse");
         if (typeof options.onToggleReaction === "function") {
           const reactionType = meBurst
             ? REACTION_TYPES.BURST
@@ -572,8 +607,78 @@ export function createReactionsUiController(containerEl, options = {}) {
     return dialog;
   }
 
+  const reactionsSignal = signal(/** @type {any[]} */ ([]));
+
+  /**
+   * Обновляет реактивные данные панели реакций и перерисовывает кнопки.
+   * @param {ReadonlyArray<ReactionBarItem>} nextReactions
+   */
+  function updateReactions(nextReactions) {
+    const list = Array.isArray(nextReactions) ? nextReactions : [];
+    reactionsSignal.value = list;
+    if (reactionBarEl) {
+      renderReactionBar(list);
+    }
+  }
+
+  /**
+   * @returns {import("@preact/signals-core").Signal<any[]>}
+   */
+  function getReactionsSignal() {
+    return reactionsSignal;
+  }
+
+  /**
+   * Рендерит ховер-плашку быстрых реакций над сообщением.
+   * @param {ReadonlyArray<string>} [emojis]
+   * @returns {any}
+   */
+  function renderHoverReactionBar(emojis = DEFAULT_HOVER_QUICK_REACTIONS) {
+    const bar = doc.createElement("div");
+    bar.setAttribute("class", "hover-reaction-bar");
+    const list = Array.isArray(emojis) ? emojis : DEFAULT_HOVER_QUICK_REACTIONS;
+    for (const emoji of list) {
+      const btn = doc.createElement("button");
+      btn.setAttribute("type", "button");
+      btn.setAttribute("class", "hover-reaction-quick-btn");
+      btn.setAttribute("data-quick-reaction", emoji);
+      btn.textContent = emoji;
+      btn.addEventListener("click", () => {
+        options.onToggleReaction?.(emoji, REACTION_TYPES.NORMAL, true);
+      });
+      bar.appendChild(btn);
+    }
+    const addBtn = doc.createElement("button");
+    addBtn.setAttribute("type", "button");
+    addBtn.setAttribute("class", "hover-reaction-add-btn");
+    addBtn.setAttribute("data-add-reaction-btn", "true");
+    addBtn.setAttribute("aria-label", "Добавить реакцию");
+    addBtn.textContent = "+";
+    addBtn.addEventListener("click", () => {
+      options.onOpenPicker?.();
+    });
+    bar.appendChild(addBtn);
+    return bar;
+  }
+
+  function destroy() {
+    closeReactorsModal();
+    if (reactionBarEl) {
+      if (typeof reactionBarEl.remove === "function") {
+        reactionBarEl.remove();
+      } else if (reactionBarEl.parentNode && typeof reactionBarEl.parentNode.removeChild === "function") {
+        reactionBarEl.parentNode.removeChild(reactionBarEl);
+      }
+      reactionBarEl = null;
+    }
+  }
+
   return {
     renderReactionBar,
+    renderHoverReactionBar,
+    updateReactions,
+    getReactionsSignal,
+    destroy,
     openReactorsModal,
     selectEmojiTab,
     closeReactorsModal,

@@ -140,3 +140,100 @@ export function buildGuildChannelTree(channels, collapsedCategoryIds = []) {
 }
 
 export default buildGuildChannelTree;
+
+const MAX_BADGE_CAP = 99;
+
+/**
+ * Format an unread/mention badge count, capping at "99+".
+ * @param {number} count
+ * @returns {string}
+ */
+function formatBadgeCount(count) {
+  const safe = Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
+  if (safe === 0) return '';
+  return safe > MAX_BADGE_CAP ? `${MAX_BADGE_CAP}+` : String(safe);
+}
+
+/**
+ * Immutably toggle a category id in the collapsed category list.
+ * @param {string[]} collapsedCategoryIds
+ * @param {string} categoryId
+ * @returns {string[]}
+ */
+export function toggleCategoryCollapsed(collapsedCategoryIds, categoryId) {
+  const list = Array.isArray(collapsedCategoryIds) ? collapsedCategoryIds : [];
+  if (!categoryId) return list.slice();
+  return list.includes(categoryId)
+    ? list.filter((id) => id !== categoryId)
+    : [...list, categoryId];
+}
+
+/**
+ * Build the server guild rail model with active/unread pill states and mention badges.
+ * @param {Array<{id: string, name: string, icon?: string|null, unread?: boolean, mentionCount?: number}>} guilds
+ * @param {string|null} [activeGuildId]
+ */
+export function buildServerGuildRail(guilds, activeGuildId = null) {
+  const list = Array.isArray(guilds) ? guilds : [];
+  return list.map((guild) => {
+    const rawMention = guild.mentionCount;
+    const mentionCount = typeof rawMention === 'number' && Number.isFinite(rawMention) && rawMention > 0
+      ? Math.floor(rawMention)
+      : 0;
+    const unread = Boolean(guild.unread) || mentionCount > 0;
+    const active = activeGuildId !== null && guild.id === activeGuildId;
+    const pillState = active ? 'active' : unread ? 'unread' : 'none';
+    return {
+      id: String(guild.id),
+      name: String(guild.name ?? ''),
+      icon: guild.icon ?? null,
+      active,
+      unread,
+      mentionCount,
+      badgeText: formatBadgeCount(mentionCount),
+      pillState,
+    };
+  });
+}
+
+/**
+ * Resolve unread indicator state for a single channel row.
+ * @param {{unread?: boolean, mentionCount?: number}} channel
+ */
+export function resolveChannelUnreadIndicator(channel) {
+  const rawMention = channel?.mentionCount;
+  const mentionCount = typeof rawMention === 'number' && Number.isFinite(rawMention) && rawMention > 0
+    ? Math.floor(rawMention)
+    : 0;
+  const hasUnread = Boolean(channel?.unread) || mentionCount > 0;
+  return {
+    hasUnread,
+    mentionCount,
+    badgeText: formatBadgeCount(mentionCount),
+    boldTitle: hasUnread,
+    pillVisible: hasUnread,
+  };
+}
+
+/**
+ * Build voice channel participant pills with a visible cap and overflow counter.
+ * @param {Array<{userId: string, displayName?: string, avatarUrl?: string|null, muted?: boolean, deafened?: boolean, speaking?: boolean}>} participants
+ * @param {number} [maxVisible]
+ */
+export function buildVoiceParticipantPills(participants, maxVisible = 6) {
+  const list = Array.isArray(participants) ? participants : [];
+  const cap = Number.isFinite(maxVisible) && maxVisible > 0 ? Math.floor(maxVisible) : 6;
+  const visiblePills = list.slice(0, cap).map((p) => ({
+    userId: String(p.userId),
+    displayName: String(p.displayName ?? ''),
+    avatarUrl: p.avatarUrl ?? null,
+    muted: Boolean(p.muted),
+    deafened: Boolean(p.deafened),
+    speaking: Boolean(p.speaking),
+  }));
+  return {
+    visiblePills,
+    overflowCount: Math.max(0, list.length - visiblePills.length),
+    totalCount: list.length,
+  };
+}

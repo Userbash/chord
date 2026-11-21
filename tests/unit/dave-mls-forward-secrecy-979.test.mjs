@@ -2,13 +2,13 @@
 /**
  * Контрактные и модульные тесты верификации Forward Secrecy и смены эпох DAVE MLS v1
  * при выходе пира (TASK-979):
- * - SUB-979-0: Статический и структурный контракт `rust/discord-voice/src/dave/tests.rs`
+ * - SUB-979-0: Статический и структурный контракт `rust/chord-voice/src/dave/tests.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде, лимиты `quality-gate.mjs`
  *   < 50 строк на функцию и < 800 строк на файл, `rustfmt --check --edition 2024`,
  *   `rustc --test --edition 2024 -D warnings`, 0 утечек в `secret-scan.mjs`, маскирование
  *   `<скрыто>` в `Debug`, очистка `zeroize_slice` через `black_box(0)` и `Drop`, сверка с
  *   независимыми оракулами `/home/sanya/re-deep/voice-deep.md`, `/home/sanya/re-deep/native-re.md`,
- *   `waves/kanban-board.json` и `rust/crates/discord-voice/src/dave_v1/`).
+ *   `waves/kanban-board.json` и `rust/crates/chord-voice/src/dave_v1/`).
  * - SUB-979-1: Независимый крипто-оракул `node:crypto` для RFC 9420 MLS 1.0 Key Schedule
  *   (SHA-256, HMAC-SHA256, HKDF-Extract/Expand, `VLBytes`, `GroupContext`, `ExpandWithLabel`,
  *   `joiner_secret`, `welcome_secret`, `epoch_secret`, `exporter_secret`, `epoch_authenticator`,
@@ -43,14 +43,14 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-voice/src/dave/tests.rs";
+const MODULE_REL_PATH = "rust/chord-voice/src/dave/tests.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_PATH = join(ROOT, "waves", "kanban-board.json");
 const CRATE_DAVE_MOD_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-voice",
+  "chord-voice",
   "src",
   "dave_v1",
   "mod.rs",
@@ -59,7 +59,7 @@ const CRATE_DAVE_MLS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-voice",
+  "chord-voice",
   "src",
   "dave_v1",
   "mls.rs",
@@ -68,7 +68,7 @@ const CRATE_DAVE_SESSION_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-voice",
+  "chord-voice",
   "src",
   "dave_v1",
   "session.rs",
@@ -82,7 +82,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-voice/src/dave/tests.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-voice/src/dave/tests.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -329,7 +329,7 @@ function oracleDeriveEpoch(
   };
 }
 
-describe("TASK-979: Верификация Forward Secrecy и смены эпох DAVE MLS v1 при выходе пира (rust/discord-voice/src/dave/tests.rs)", () => {
+describe("TASK-979: Верификация Forward Secrecy и смены эпох DAVE MLS v1 при выходе пира (rust/chord-voice/src/dave/tests.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "dave-mls-fs-979-"));
     testBinPath = join(workDir, "dave_mls_fs_979_test");
@@ -341,7 +341,7 @@ describe("TASK-979: Верификация Forward Secrecy и смены эпо�
     }
   });
 
-  it("SUB-979-0: модуль rust/discord-voice/src/dave/tests.rs существует, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
+  it("SUB-979-0: модуль rust/chord-voice/src/dave/tests.rs существует, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл), secret-scan и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,
@@ -603,7 +603,7 @@ describe("TASK-979: Верификация Forward Secrecy и смены эпо�
     assert.match(run.stdout, /test tests::test_sub_979_4_.*ok/);
   });
 
-  it("SUB-979-5: убивает 5/5 контрольных мутаций модуля rust/discord-voice/src/dave/tests.rs (100% mutation kill rate)", () => {
+  it("SUB-979-5: убивает 5/5 контрольных мутаций модуля rust/chord-voice/src/dave/tests.rs (100% mutation kill rate)", () => {
     assert.ok(existsSync(MODULE_PATH), "Исходник модуля должен существовать");
     const source = readFileSync(MODULE_PATH, "utf8");
 
@@ -644,7 +644,7 @@ describe("TASK-979: Верификация Forward Secrecy и смены эпо�
       ROOT,
       "rust",
       "crates",
-      "discord-voice",
+      "chord-voice",
       "src",
     ).replaceAll("\\", "/");
     const mutants = mutationSpecs.map((spec) => {
@@ -658,7 +658,7 @@ describe("TASK-979: Верификация Forward Secrecy и смены эпо�
         operator: spec.operator,
         mutatedSource: source
           .replaceAll(
-            "../../../crates/discord-voice/src/",
+            "../../../crates/chord-voice/src/",
             `${cratesVoiceSrcDir}/`,
           )
           .replace(spec.from, spec.to),

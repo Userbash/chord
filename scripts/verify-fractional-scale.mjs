@@ -12,9 +12,9 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DEFAULT_KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
-const DEFAULT_DESKTOP_MATRIX_PATH = join(ROOT, "rust", "discord-gpui", "src", "manual_qa", "desktop_matrix.rs");
-const DEFAULT_GPUI_STATE_PATH = join(ROOT, "rust", "discord-gpui", "src", "state", "mod.rs");
-const DEFAULT_GPUI_SSIM_PATH = join(ROOT, "rust", "discord-gpui", "src", "visual_regression", "ssim.rs");
+const DEFAULT_DESKTOP_MATRIX_PATH = join(ROOT, "rust", "chord-gpui", "src", "manual_qa", "desktop_matrix.rs");
+const DEFAULT_GPUI_STATE_PATH = join(ROOT, "rust", "chord-gpui", "src", "state", "mod.rs");
+const DEFAULT_GPUI_SSIM_PATH = join(ROOT, "rust", "chord-gpui", "src", "visual_regression", "ssim.rs");
 
 export const FRACTIONAL_SCALE_DESIGN_TOKENS = Object.freeze({
   background: "#1e1f22",

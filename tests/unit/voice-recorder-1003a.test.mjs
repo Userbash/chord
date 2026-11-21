@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты аудио-рекордера голосовых сообщений и вычисления Waveform (TASK-1003A):
- * - SUB-1003A-0: Статический и компиляционный контракт `rust/crates/discord-voice/src/voice_message_recorder.rs`
+ * - SUB-1003A-0: Статический и компиляционный контракт `rust/crates/chord-voice/src/voice_message_recorder.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в продуктовом коде, лимиты `scripts/quality-gate.mjs`
  *   < 50 строк на функцию и < 800 строк на модуль, `rustfmt --check --edition 2024`, компиляция
  *   `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -52,7 +52,7 @@ import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const RECORDER_MOD_REL_PATH =
-  "rust/crates/discord-voice/src/voice_message_recorder.rs";
+  "rust/crates/chord-voice/src/voice_message_recorder.rs";
 const RECORDER_MOD_PATH = join(ROOT, RECORDER_MOD_REL_PATH);
 
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");

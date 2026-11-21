@@ -371,6 +371,54 @@
   color: var(--text-on-warning);
 }
 
+/* Sticky date divider («18 ноября 2026 г.») & jump-to-bottom unread pill. */
+.chat-sticky-date-divider {
+  position: sticky;
+  top: var(--space-2);
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  pointer-events: none;
+  margin-top: var(--space-2);
+}
+
+.chat-sticky-date-divider[hidden] {
+  display: none;
+}
+
+.chat-sticky-date-label {
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3, var(--surface-2));
+  color: var(--text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-small);
+  box-shadow: var(--shadow-popover);
+}
+
+.chat-jump-bottom-pill {
+  position: sticky;
+  bottom: var(--space-4);
+  z-index: var(--z-popover);
+  align-self: center;
+  padding: var(--space-2) var(--space-5);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-ui);
+  cursor: pointer;
+  box-shadow: var(--shadow-popover);
+}
+
+.chat-jump-bottom-pill[hidden] {
+  display: none;
+}
+
 /* M-07: видимая ошибка ack — рядом с полосой, без оверлея и retry-цикла. */
 .chat-ack-note {
   margin: 0;

@@ -1835,3 +1835,329 @@ impl Default for ScreenCastCapturePipeline {
         Self::new()
     }
 }
+
+/// Разрешает процессам воркеров/потомков того же пользователя ptrace/pidfd_getfd (Yama LSM).
+#[cfg(target_os = "linux")]
+pub fn allow_ptrace_yama() {
+    unsafe {
+        libc::prctl(0x59616d61, !0usize as libc::c_ulong, 0, 0, 0);
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+pub fn allow_ptrace_yama() {}
+
+#[cfg(target_os = "linux")]
+unsafe fn send_fd_over_unix_socket(sock_fd: i32, fd_to_send: i32) {
+    unsafe {
+        let mut dummy: [u8; 1] = [0];
+        let mut iov = libc::iovec {
+            iov_base: dummy.as_mut_ptr() as *mut libc::c_void,
+            iov_len: 1,
+        };
+        let mut cmsg_buf = [0u8; 64];
+        let mut msg = libc::msghdr {
+            msg_name: std::ptr::null_mut(),
+            msg_namelen: 0,
+            msg_iov: &mut iov,
+            msg_iovlen: 1,
+            msg_control: cmsg_buf.as_mut_ptr() as *mut libc::c_void,
+            msg_controllen: 64,
+            msg_flags: 0,
+        };
+        let cmsg = libc::CMSG_FIRSTHDR(&msg);
+        if !cmsg.is_null() {
+            (*cmsg).cmsg_level = libc::SOL_SOCKET;
+            (*cmsg).cmsg_type = libc::SCM_RIGHTS;
+            let cmsg_space = libc::CMSG_SPACE(std::mem::size_of::<i32>() as u32) as usize;
+            let cmsg_len = libc::CMSG_LEN(std::mem::size_of::<i32>() as u32) as usize;
+            (*cmsg).cmsg_len = cmsg_len;
+            msg.msg_controllen = cmsg_space;
+            let data_ptr = libc::CMSG_DATA(cmsg) as *mut i32;
+            *data_ptr = fd_to_send;
+            libc::sendmsg(sock_fd, &msg, 0);
+        }
+    }
+}
+
+/// Запускает легковесный Unix domain сокет для надёжной передачи дескриптора PipeWire (SCM_RIGHTS).
+#[cfg(target_os = "linux")]
+pub fn start_pipewire_fd_server(pipewire_fd: i32) {
+    use std::os::fd::AsRawFd;
+    use std::os::unix::net::UnixListener;
+
+    let sock_path = "/dev/shm/discord_pipewire_fd.sock";
+    let _ = std::fs::remove_file(sock_path);
+    if let Ok(listener) = UnixListener::bind(sock_path) {
+        let _ = std::fs::set_permissions(
+            sock_path,
+            std::os::unix::fs::PermissionsExt::from_mode(0o666),
+        );
+        std::thread::Builder::new()
+            .name("pipewire-fd-server".to_string())
+            .spawn(move || {
+                for stream in listener.incoming() {
+                    match stream {
+                        Ok(s) => {
+                            let stream_fd = s.as_raw_fd();
+                            unsafe {
+                                send_fd_over_unix_socket(stream_fd, pipewire_fd);
+                            }
+                        }
+                        Err(_) => break,
+                    }
+                }
+            })
+            .ok();
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+pub fn start_pipewire_fd_server(_pipewire_fd: i32) {}
+
+// ============================================================================
+// ashpd Wayland PipeWire ScreenCast Portal Integration
+// ============================================================================
+
+/// Проверяет, запущена ли сессия под Wayland (`WAYLAND_DISPLAY` задан и непуст).
+#[must_use]
+pub fn is_wayland_session() -> bool {
+    std::env::var_os("WAYLAND_DISPLAY").is_some_and(|v| !v.is_empty())
+}
+
+/// Преобразует [`PortalSourceTypes`] во флаги `ashpd::desktop::screencast::SourceType`.
+#[must_use]
+pub fn to_ashpd_source_types(
+    source_types: PortalSourceTypes,
+) -> enumflags2::BitFlags<ashpd::desktop::screencast::SourceType> {
+    use ashpd::desktop::screencast::SourceType;
+    use enumflags2::BitFlags;
+
+    let mut flags = BitFlags::empty();
+    let bits = source_types.bits();
+    if bits & PortalSourceTypes::MONITOR.bits() != 0 {
+        flags |= SourceType::Monitor;
+    }
+    if bits & PortalSourceTypes::WINDOW.bits() != 0 {
+        flags |= SourceType::Window;
+    }
+    if bits & PortalSourceTypes::VIRTUAL.bits() != 0 {
+        flags |= SourceType::Virtual;
+    }
+    flags
+}
+
+/// Преобразует [`PortalCursorMode`] в `ashpd::desktop::screencast::CursorMode`.
+#[must_use]
+pub const fn to_ashpd_cursor_mode(
+    mode: PortalCursorMode,
+) -> ashpd::desktop::screencast::CursorMode {
+    use ashpd::desktop::screencast::CursorMode;
+    match mode {
+        PortalCursorMode::Hidden => CursorMode::Hidden,
+        PortalCursorMode::Embedded => CursorMode::Embedded,
+        PortalCursorMode::Metadata => CursorMode::Metadata,
+    }
+}
+
+/// Преобразует [`PortalPersistMode`] в `ashpd::desktop::PersistMode`.
+#[must_use]
+pub const fn to_ashpd_persist_mode(mode: PortalPersistMode) -> ashpd::desktop::PersistMode {
+    use ashpd::desktop::PersistMode;
+    match mode {
+        PortalPersistMode::DoNotPersist => PersistMode::DoNot,
+        PortalPersistMode::ApplicationRunning => PersistMode::Application,
+        PortalPersistMode::ExplicitlyRevoked => PersistMode::ExplicitlyRevoked,
+    }
+}
+
+/// Преобразует `ashpd::desktop::screencast::Stream` в [`PortalStreamInfo`].
+#[must_use]
+pub fn stream_info_from_ashpd(stream: &ashpd::desktop::screencast::Stream) -> PortalStreamInfo {
+    use ashpd::desktop::screencast::SourceType;
+    let source_type = match stream.source_type() {
+        Some(SourceType::Monitor) | None => PortalSourceTypes::MONITOR.bits(),
+        Some(SourceType::Window) => PortalSourceTypes::WINDOW.bits(),
+        Some(SourceType::Virtual) => PortalSourceTypes::VIRTUAL.bits(),
+    };
+    let size = stream.size().and_then(|(w, h)| {
+        let wu = u32::try_from(w).ok()?;
+        let hu = u32::try_from(h).ok()?;
+        Some((wu, hu))
+    });
+    PortalStreamInfo {
+        node_id: stream.pipe_wire_node_id(),
+        id: stream.id().map(str::to_owned),
+        source_type,
+        position: stream.position(),
+        size,
+        mapping_id: stream.mapping_id().map(str::to_owned),
+    }
+}
+
+/// Активная сессия Wayland PipeWire захвата экрана через `ashpd::desktop::screencast`.
+pub struct WaylandScreencastSession {
+    session: ashpd::desktop::Session<ashpd::desktop::screencast::Screencast>,
+    pipewire_fd: OwnedPipeWireFd,
+    streams: Vec<PortalStreamInfo>,
+    restore_token: Option<String>,
+}
+
+impl fmt::Debug for WaylandScreencastSession {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("WaylandScreencastSession")
+            .field("pipewire_fd", &self.pipewire_fd)
+            .field("streams", &self.streams)
+            .field("has_restore_token", &self.restore_token.is_some())
+            .finish_non_exhaustive()
+    }
+}
+
+impl WaylandScreencastSession {
+    /// Открывает сессию `org.freedesktop.portal.ScreenCast` через `ashpd`,
+    /// запрашивает источники и получает PipeWire remote fd.
+    pub async fn open(options: &ScreenCastOptions) -> Result<Self, PortalRequestError> {
+        use ashpd::desktop::screencast::{
+            OpenPipeWireRemoteOptions, Screencast, SelectSourcesOptions, StartCastOptions,
+        };
+        use std::os::unix::io::IntoRawFd;
+
+        options.validate()?;
+
+        let proxy = Screencast::new()
+            .await
+            .map_err(|e| PortalRequestError::Dbus(format!("ashpd Screencast::new: {e}")))?;
+
+        let session = proxy
+            .create_session(Default::default())
+            .await
+            .map_err(map_ashpd_error)?;
+
+        let mut select_opts = SelectSourcesOptions::default()
+            .set_sources(to_ashpd_source_types(options.source_types))
+            .set_multiple(options.multiple)
+            .set_cursor_mode(to_ashpd_cursor_mode(options.cursor_mode))
+            .set_persist_mode(to_ashpd_persist_mode(options.persist_mode));
+        if let Some(ref token) = options.restore_token
+            && !token.is_empty()
+        {
+            select_opts = select_opts.set_restore_token(token.as_str());
+        }
+
+        if let Err(err) = proxy.select_sources(&session, select_opts).await {
+            let _ = session.close().await;
+            return Err(map_ashpd_error(err));
+        }
+
+        let start_req = match proxy
+            .start(
+                &session,
+                None::<&ashpd::WindowIdentifier>,
+                StartCastOptions::default(),
+            )
+            .await
+        {
+            Ok(req) => req,
+            Err(err) => {
+                let _ = session.close().await;
+                return Err(map_ashpd_error(err));
+            }
+        };
+
+        let response = match start_req.response() {
+            Ok(resp) => resp,
+            Err(err) => {
+                let _ = session.close().await;
+                return Err(map_ashpd_error(err));
+            }
+        };
+
+        let streams: Vec<PortalStreamInfo> = response
+            .streams()
+            .iter()
+            .map(stream_info_from_ashpd)
+            .collect();
+        if streams.is_empty() {
+            let _ = session.close().await;
+            return Err(PortalRequestError::EmptyStreams);
+        }
+
+        let restore_token = response.restore_token().map(str::to_owned);
+        let owned_fd = match proxy
+            .open_pipe_wire_remote(&session, OpenPipeWireRemoteOptions::default())
+            .await
+        {
+            Ok(fd) => fd,
+            Err(err) => {
+                let _ = session.close().await;
+                return Err(map_ashpd_error(err));
+            }
+        };
+
+        let pipewire_fd = match OwnedPipeWireFd::from_raw_fd_checked(owned_fd.into_raw_fd()) {
+            Ok(fd) => fd,
+            Err(err) => {
+                let _ = session.close().await;
+                return Err(err);
+            }
+        };
+
+        Ok(Self {
+            session,
+            pipewire_fd,
+            streams,
+            restore_token,
+        })
+    }
+
+    /// Синхронная обёртка для открытия сессии портала `ashpd` вне async-контекста.
+    pub fn open_blocking(options: &ScreenCastOptions) -> Result<Self, PortalRequestError> {
+        options.validate()?;
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .map_err(|e| PortalRequestError::Dbus(format!("tokio runtime: {e}")))?;
+        rt.block_on(Self::open(options))
+    }
+
+    /// Возвращает RAII-дескриптор сокета PipeWire remote.
+    #[must_use]
+    pub const fn pipewire_fd(&self) -> &OwnedPipeWireFd {
+        &self.pipewire_fd
+    }
+
+    /// Возвращает список согласованных потоков PipeWire.
+    #[must_use]
+    pub fn streams(&self) -> &[PortalStreamInfo] {
+        &self.streams
+    }
+
+    /// Возвращает `node_id` основного потока PipeWire.
+    #[must_use]
+    pub fn primary_node_id(&self) -> Option<u32> {
+        self.streams.first().map(|s| s.node_id)
+    }
+
+    /// Возвращает токен восстановления сессии (если выдан порталом).
+    #[must_use]
+    pub fn restore_token(&self) -> Option<&str> {
+        self.restore_token.as_deref()
+    }
+
+    /// Закрывает сессию портала `org.freedesktop.portal.Session.Close`.
+    pub async fn close(self) -> Result<(), PortalRequestError> {
+        self.session.close().await.map_err(map_ashpd_error)
+    }
+}
+
+fn map_ashpd_error(err: ashpd::Error) -> PortalRequestError {
+    match err {
+        ashpd::Error::Response(ashpd::desktop::ResponseError::Cancelled) => {
+            PortalRequestError::ConsentDenied
+        }
+        ashpd::Error::Response(ashpd::desktop::ResponseError::Other) => {
+            PortalRequestError::ConsentAborted
+        }
+        other => PortalRequestError::Dbus(format!("ashpd: {other}")),
+    }
+}

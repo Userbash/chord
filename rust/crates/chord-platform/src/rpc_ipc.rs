@@ -148,7 +148,7 @@ pub enum RpcIpcError {
     AllSlotsBusy,
     /// Каталог размещения IPC-сокета имеет небезопасные права доступа или владельца.
     UnsafeDirectory(String),
-    /// Подключившийся процесс принадлежит другому пользователю ОС (`SO_PEERCRED`).
+    /// Подключившийся процесс принадлежит другому пользователю ОС (`SO_PEERCRED`/`getpeereid`).
     UnauthorizedPeer { peer_uid: u32, expected_uid: u32 },
     /// Ошибка ввода-вывода Unix-сокета.
     IoError(String),
@@ -1313,7 +1313,7 @@ pub fn build_rpc_error_frame_for_payload(raw_payload: &str) -> IpcFrame {
 pub type RpcIpcListener = DiscordRpcListener;
 
 /// Локальный серверный слушатель Unix domain socket `discord-ipc-0..9`
-/// (с защитой прав `0o600`, проверкой `SO_PEERCRED`, очисткой мёртвых сокетов `remove_stale`
+/// (с защитой прав `0o600`, проверкой `SO_PEERCRED`/`getpeereid`, очисткой мёртвых сокетов `remove_stale`
 /// и проверкой `(device, inode)` при удалении в `Drop`).
 #[derive(Debug)]
 pub struct DiscordRpcListener {
@@ -1323,6 +1323,9 @@ pub struct DiscordRpcListener {
     device: u64,
     inode: u64,
     uid: u32,
+    /// Символическая ссылка в каталоге `/tmp/discord-ipc-<slot>` для эмуляции
+    /// официального сокета Discord (по референсу `arrpc` из Vesktop).
+    emulated_tmp_symlink: Option<PathBuf>,
 }
 
 impl DiscordRpcListener {
@@ -1396,10 +1399,78 @@ impl DiscordRpcListener {
             device: meta.dev(),
             inode: meta.ino(),
             uid,
+            emulated_tmp_symlink: None,
         };
         fs::set_permissions(path, fs::Permissions::from_mode(RPC_SOCKET_MODE))
             .map_err(|e| RpcIpcError::IoError(e.to_string()))?;
         Ok(owned)
+    }
+
+    /// Enables `/tmp/discord-ipc-<slot>` socket emulation following the `arrpc` (Vesktop) reference.
+    ///
+    /// Many native games and libraries (including those running under Wine, Proton, or Steam Flatpak)
+    /// hardcode the path `/tmp/discord-ipc-0` rather than honoring `$XDG_RUNTIME_DIR`.
+    /// When the primary socket listener is bound elsewhere, this method creates a symbolic link
+    /// from `/tmp/discord-ipc-<slot>` to the primary socket file.
+    ///
+    /// # Safety and invariants:
+    /// * Checks `/tmp` directory permissions and verifies the sticky-bit (`0o1000`).
+    /// * Safely cleans up stale sockets or dead symlinks owned by the current UID.
+    /// * Guarantees removal of the symlink upon `Drop`.
+    ///
+    /// # Returns:
+    /// * `Ok(Some(path))` — symlink successfully created in `/tmp`.
+    /// * `Ok(None)` — already in `/tmp`, or slot in `/tmp` is active by another process.
+    /// * `Err(RpcIpcError)` — permission or I/O failure.
+    pub fn enable_tmp_socket_emulation(&mut self) -> Result<Option<PathBuf>, RpcIpcError> {
+        let Some(slot) = self.slot else {
+            return Ok(None);
+        };
+        let tmp_dir = Path::new("/tmp");
+
+        // If the primary socket is already inside /tmp, no emulation symlink is needed
+        if let (Ok(canon_self), Ok(canon_tmp)) = (self.path.canonicalize(), tmp_dir.canonicalize())
+            && canon_self.starts_with(&canon_tmp)
+        {
+            return Ok(None);
+        }
+
+        validate_ipc_dir_permissions(tmp_dir, self.uid)?;
+        let tmp_socket_path = tmp_dir.join(format!("{UNIX_SOCKET_PREFIX}{slot}"));
+
+        // Check if an existing socket or symlink already occupies the slot in /tmp
+        if let Ok(meta) = fs::symlink_metadata(&tmp_socket_path) {
+            if meta.file_type().is_symlink() {
+                if let Ok(target) = fs::read_link(&tmp_socket_path)
+                    && target == self.path
+                {
+                    self.emulated_tmp_symlink = Some(tmp_socket_path.clone());
+                    return Ok(Some(tmp_socket_path));
+                }
+                // Remove obsolete symlink owned by current user
+                if meta.uid() == self.uid {
+                    let _ = fs::remove_file(&tmp_socket_path);
+                }
+            } else if meta.file_type().is_socket()
+                && !remove_stale_socket(&tmp_socket_path, self.uid)
+            {
+                // Socket is currently occupied by an active process
+                return Ok(None);
+            }
+        }
+
+        std::os::unix::fs::symlink(&self.path, &tmp_socket_path).map_err(|e| {
+            RpcIpcError::IoError(format!("Failed to create /tmp IPC emulation symlink: {e}"))
+        })?;
+
+        self.emulated_tmp_symlink = Some(tmp_socket_path.clone());
+        Ok(Some(tmp_socket_path))
+    }
+
+    /// Возвращает путь к эмулированной символической ссылке в `/tmp`, если она активна.
+    #[must_use]
+    pub fn emulated_tmp_symlink(&self) -> Option<&Path> {
+        self.emulated_tmp_symlink.as_deref()
     }
 
     /// Возвращает путь к привязанному сокету.
@@ -1445,12 +1516,12 @@ impl DiscordRpcListener {
             .map_err(|e| RpcIpcError::IoError(e.to_string()))
     }
 
-    /// Принимает входящее соединение и проверяет, что `SO_PEERCRED` UID совпадает с владельцем слушателя.
+    /// Принимает входящее соединение и проверяет, что `SO_PEERCRED`/`getpeereid` UID совпадает с владельцем слушателя.
     pub fn accept(&self) -> Result<UnixStream, RpcIpcError> {
         self.accept_checked_with_expected_uid(self.uid)
     }
 
-    /// Принимает входящее соединение и сверяет `SO_PEERCRED` UID с явно переданным `expected_uid`.
+    /// Принимает входящее соединение и сверяет `SO_PEERCRED`/`getpeereid` UID с явно переданным `expected_uid`.
     pub fn accept_checked_with_expected_uid(
         &self,
         expected_uid: u32,
@@ -1472,6 +1543,16 @@ impl DiscordRpcListener {
 
 impl Drop for DiscordRpcListener {
     fn drop(&mut self) {
+        // Clean up emulated `/tmp/discord-ipc-<slot>` symlink if it was created and belongs to us
+        if let Some(ref symlink_path) = self.emulated_tmp_symlink
+            && let Ok(meta) = fs::symlink_metadata(symlink_path)
+            && meta.file_type().is_symlink()
+            && meta.uid() == self.uid
+        {
+            let _ = fs::remove_file(symlink_path);
+        }
+
+        // Clean up primary socket file if dev and inode match our created instance
         if let Ok(meta) = fs::symlink_metadata(&self.path)
             && meta.file_type().is_socket()
             && meta.dev() == self.device
@@ -1513,9 +1594,14 @@ fn effective_uid() -> u32 {
     unsafe { libc::geteuid() }
 }
 
-#[allow(unsafe_code)]
 fn peer_uid(stream: &UnixStream) -> Result<u32, RpcIpcError> {
     use std::os::fd::AsRawFd;
+    peer_uid_for_fd(stream.as_raw_fd())
+}
+
+#[cfg(any(target_os = "linux", target_os = "android"))]
+#[allow(unsafe_code)] // This adapter contains only the checked native credential query.
+fn peer_uid_for_fd(raw: libc::c_int) -> Result<u32, RpcIpcError> {
     let mut cred = libc::ucred {
         pid: 0,
         uid: u32::MAX,
@@ -1525,7 +1611,7 @@ fn peer_uid(stream: &UnixStream) -> Result<u32, RpcIpcError> {
     // SAFETY: getsockopt с SOL_SOCKET/SO_PEERCRED заполняет выровненную структуру libc::ucred.
     let rc = unsafe {
         libc::getsockopt(
-            stream.as_raw_fd(),
+            raw,
             libc::SOL_SOCKET,
             libc::SO_PEERCRED,
             (&raw mut cred).cast::<libc::c_void>(),
@@ -1538,6 +1624,28 @@ fn peer_uid(stream: &UnixStream) -> Result<u32, RpcIpcError> {
         ));
     }
     Ok(cred.uid)
+}
+
+#[cfg(any(
+    target_vendor = "apple",
+    target_os = "freebsd",
+    target_os = "dragonfly",
+    target_os = "openbsd",
+    target_os = "netbsd"
+))]
+#[allow(unsafe_code)] // This adapter contains only the checked native credential query.
+fn peer_uid_for_fd(raw: libc::c_int) -> Result<u32, RpcIpcError> {
+    let mut uid: libc::uid_t = 0;
+    let mut gid: libc::gid_t = 0;
+    // SAFETY: getpeereid only queries the socket identified by raw; an invalid fd
+    // returns an OS error. Both output pointers reference live, aligned local values.
+    let result = unsafe { libc::getpeereid(raw, &raw mut uid, &raw mut gid) };
+    if result != 0 {
+        return Err(RpcIpcError::IoError(
+            std::io::Error::last_os_error().to_string(),
+        ));
+    }
+    Ok(uid)
 }
 
 /// Серверная машина состояний одной клиентской RPC IPC-сессии (`serve_ipc` в `Serein`).
@@ -2214,6 +2322,33 @@ mod tests {
     use super::*;
 
     #[test]
+    fn peer_uid_query_matches_effective_uid_oracle() {
+        use std::os::fd::AsRawFd;
+        use std::process::Command;
+
+        let output = Command::new("id").arg("-u").output().expect("id -u");
+        assert!(output.status.success(), "id -u must succeed");
+        let expected: u32 = String::from_utf8(output.stdout)
+            .expect("id output is UTF-8")
+            .trim()
+            .parse()
+            .expect("numeric effective UID");
+        let (stream, _peer) = UnixStream::pair().expect("socketpair");
+        assert_eq!(
+            peer_uid_for_fd(stream.as_raw_fd()).expect("peer UID"),
+            expected
+        );
+    }
+
+    #[test]
+    fn peer_uid_query_rejects_invalid_descriptor() {
+        assert!(matches!(
+            peer_uid_for_fd(-1),
+            Err(RpcIpcError::IoError(message)) if !message.is_empty()
+        ));
+    }
+
+    #[test]
     fn encode_and_decode_ipc_frame_roundtrip_and_bounds() {
         let json = r#"{"v":1,"client_id":"123456789012345678"}"#;
         let encoded = encode_ipc_frame(RpcOpCode::Handshake, json).unwrap();
@@ -2385,5 +2520,33 @@ mod tests {
         assert!(ack_reply.payload.contains("nonce-abc-123"));
         let server_parsed = handle.join().unwrap();
         assert_eq!(server_parsed, Some(activity));
+    }
+
+    #[test]
+    fn test_arrpc_tmp_socket_emulation() {
+        let temp_dir =
+            std::env::temp_dir().join(format!("chord-ipc-arrpc-test-{}", std::process::id()));
+        let _ = fs::create_dir_all(&temp_dir);
+        let socket_path = temp_dir.join("discord-ipc-0");
+        let mut listener = DiscordRpcListener::bind_path_with_slot(&socket_path, Some(0)).unwrap();
+        assert_eq!(listener.slot(), Some(0));
+
+        // Проверяем, что метод эмуляции /tmp/discord-ipc-0 вызывается без паники
+        let res = listener.enable_tmp_socket_emulation();
+        // В зависимости от прав доступа к системному /tmp в тестовом окружении
+        match res {
+            Ok(Some(path)) => {
+                assert!(path.starts_with("/tmp"));
+                assert!(path.ends_with("discord-ipc-0"));
+                assert_eq!(listener.emulated_tmp_symlink(), Some(path.as_path()));
+            }
+            Ok(None) => {
+                // Путь в /tmp занят или уже в /tmp
+            }
+            Err(_) => {
+                // Если нет прав на /tmp в песочнице
+            }
+        }
+        let _ = fs::remove_dir_all(&temp_dir);
     }
 }

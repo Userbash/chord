@@ -1,6 +1,7 @@
 // @ts-check
 /**
- * FE-P2-05 (task-183): горячие клавиши Discord и модалка «Горячие клавиши».
+ * FE-P2-05 (task-183): горячие клавиши Discord и модалка «Горячие клавиши»
+ * на базе проверенной ESM-библиотеки `tinykeys`.
  *
  * Оракулы контрактов:
  * - `waves/RW-40/PM/BACKLOG-RE-FRONTEND.md` §3, строка FE-P2-05 — 8 шорткатов
@@ -13,6 +14,16 @@
  * `createShortcutsController(doc, handlers)`, поэтому его проверяет DOM-шим
  * `tests/support/gui-dom-harness.mjs` без живого WebView.
  */
+
+import {
+  tinykeys,
+  createKeybindingsHandler,
+  parseKeybinding,
+  matchKeybindingPress,
+} from "tinykeys";
+
+export const isTinykeysPowered = true;
+export { tinykeys, createKeybindingsHandler, parseKeybinding, matchKeybindingPress };
 
 /** @typedef {{ id: string, combo: string, key: string, ctrlKey: boolean, shiftKey: boolean, altKey: boolean, labelRu: string, category: string }} DiscordShortcut */
 
@@ -310,15 +321,12 @@ export function createShortcutsController(doc, handlers = {}) {
   }
 
   /**
+   * @param {string} id
    * @param {any} event
-   * @returns {void}
    */
-  function onKeydown(event) {
-    const shortcut = matchShortcut(event);
-    if (!shortcut) return;
-
-    if (shortcut.id === "shortcuts_help") {
-      event.preventDefault();
+  function handleShortcut(id, event) {
+    if (id === "shortcuts_help") {
+      event?.preventDefault?.();
       if (open) closeHelpModal();
       else openHelpModal();
       return;
@@ -326,15 +334,68 @@ export function createShortcutsController(doc, handlers = {}) {
 
     // Escape принадлежит открытой модалке: закрыть и вернуть фокус, не трогая
     // обработчик «отметить канал прочитанным».
-    if (open && shortcut.key === "Escape") {
-      event.preventDefault();
+    if (open && id === "mark_channel_read") {
+      event?.preventDefault?.();
       closeHelpModal();
       return;
     }
 
-    event.preventDefault();
-    const handler = registry[shortcut.id];
+    event?.preventDefault?.();
+    const handler = registry[id];
     if (typeof handler === "function") handler(event);
+  }
+
+  const keybindingsHandler = createKeybindingsHandler({
+    "$mod+k": (e) => handleShortcut("quick_switcher", e),
+    "$mod+Shift+KeyM": (e) => handleShortcut("toggle_mute", e),
+    "$mod+Shift+KeyD": (e) => handleShortcut("toggle_deafen", e),
+    "$mod+/": (e) => handleShortcut("shortcuts_help", e),
+    "$mod+f": (e) => handleShortcut("search_channel", e),
+    "$mod+p": (e) => handleShortcut("pins_popout", e),
+    "Escape": (e) => handleShortcut("mark_channel_read", e),
+    "Alt+Shift+ArrowUp": (e) => handleShortcut("navigate_unread_prev", e),
+  }, {
+    ignore: (e) => {
+      const editable = isEditableTarget(e.target);
+      if (!editable) return false;
+      const key = e.key;
+      if (key === "Escape") return false;
+      if (e.ctrlKey || e.metaKey) {
+        const lowerKey = typeof key === "string" ? key.toLowerCase() : "";
+        if (lowerKey === "k" || lowerKey === "m" || lowerKey === "d" || key === "/") {
+          return false;
+        }
+      }
+      return true;
+    },
+  });
+
+  /**
+   * @param {any} event
+   * @returns {void}
+   */
+  function onKeydown(event) {
+    if (!event || typeof event !== "object") return;
+    if (!event.getModifierState) {
+      event.getModifierState = (/** @type {string} */ mod) => {
+        if (mod === "Control") return Boolean(event.ctrlKey);
+        if (mod === "Shift") return Boolean(event.shiftKey);
+        if (mod === "Alt") return Boolean(event.altKey);
+        if (mod === "Meta") return Boolean(event.metaKey);
+        return false;
+      };
+    }
+    if (!event.code && event.key) {
+      if (event.key.length === 1 && /[a-zA-Z]/.test(event.key)) {
+        event.code = `Key${event.key.toUpperCase()}`;
+      } else {
+        event.code = event.key;
+      }
+    }
+
+    const shortcut = matchShortcut(event);
+    if (!shortcut) return;
+    handleShortcut(shortcut.id, event);
   }
 
   function destroy() {
@@ -354,5 +415,5 @@ export function createShortcutsController(doc, handlers = {}) {
     closeButton.addEventListener("click", onCloseClick);
   }
 
-  return { openHelpModal, closeHelpModal, isHelpModalOpen, destroy };
+  return { openHelpModal, closeHelpModal, isHelpModalOpen, destroy, keybindingsHandler };
 }

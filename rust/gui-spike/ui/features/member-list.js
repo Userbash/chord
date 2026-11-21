@@ -12,6 +12,39 @@
  * @module ui/features/member-list
  */
 
+import { createVirtualizer, isTanstackVirtualPowered } from "./virtualizer.js";
+import {
+  computeFloatingPosition,
+  positionFloatingElement,
+  isFloatingUiDomPowered,
+} from "./floating-popover.js";
+
+export { isTanstackVirtualPowered, isFloatingUiDomPowered };
+
+/**
+ * Высота заголовка ролевой группы по умолчанию (px).
+ * @type {number}
+ */
+export const DEFAULT_GROUP_HEADER_HEIGHT_PX = 28;
+
+/**
+ * Высота строки участника по умолчанию (px).
+ * @type {number}
+ */
+export const DEFAULT_MEMBER_ROW_HEIGHT_PX = 42;
+
+/**
+ * Высота вьюпорта по умолчанию (px).
+ * @type {number}
+ */
+export const DEFAULT_VIEWPORT_HEIGHT_PX = 600;
+
+/**
+ * Количество запасных строк сверх видимого окна.
+ * @type {number}
+ */
+export const DEFAULT_OVERSCAN = 8;
+
 /**
  * Русские заголовки стандартных групп участников («В сети» и «Не в сети»).
  * @type {Readonly<{ online: string, offline: string }>}
@@ -22,13 +55,32 @@ export const DEFAULT_GROUP_LABELS_RU = Object.freeze({
 });
 
 /**
+ * Человекочитаемые подписи статусов присутствия (включая mobile и streaming).
+ * @type {Readonly<Record<string, string>>}
+ */
+export const PRESENCE_STATUS_LABELS = Object.freeze({
+  online: "В сети",
+  idle: "Неактивен",
+  dnd: "Не беспокоить",
+  offline: "Не в сети",
+  mobile: "В сети (с телефона)",
+  streaming: "Стримит",
+});
+
+/**
  * Допустимые активные статусы присутствия (не считающиеся `offline`).
  * @type {ReadonlySet<string>}
  */
-const ONLINE_PRESENCE_STATUSES = new Set(["online", "idle", "dnd"]);
+const ONLINE_PRESENCE_STATUSES = new Set([
+  "online",
+  "idle",
+  "dnd",
+  "mobile",
+  "streaming",
+]);
 
 /**
- * @typedef {"online" | "idle" | "dnd" | "offline"} MemberPresenceStatus
+ * @typedef {"online" | "idle" | "dnd" | "offline" | "mobile" | "streaming"} MemberPresenceStatus
  */
 
 /**
@@ -66,12 +118,40 @@ const ONLINE_PRESENCE_STATUSES = new Set(["online", "idle", "dnd"]);
  */
 
 /**
+ * @typedef {object} MemberContextMenuPayload
+ * @property {string} userId
+ * @property {GuildMemberEntry} member
+ * @property {any} anchorElement
+ * @property {any} virtualReference
+ * @property {{ x: number, y: number, placement: string }} position
+ * @property {any} event
+ */
+
+/**
+ * @typedef {object} MemberHoverPayload
+ * @property {string} userId
+ * @property {GuildMemberEntry} member
+ * @property {any} anchorElement
+ * @property {{ x: number, y: number, placement: string }} position
+ * @property {any} event
+ */
+
+/**
  * @typedef {object} MemberListControllerOptions
  * @property {any} [container]
  * @property {ReadonlyArray<GuildMemberEntry>} [members]
  * @property {ReadonlyArray<GuildRoleEntry>} [roles]
  * @property {boolean} [visible]
+ * @property {number} [viewportHeight]
+ * @property {number} [rowHeight]
+ * @property {number} [headerHeight]
+ * @property {number} [overscan]
+ * @property {any} [contextMenuEl]
+ * @property {any} [hoverCardEl]
  * @property {(payload: SelectMemberPayload) => void} [onSelectMember]
+ * @property {(payload: MemberContextMenuPayload) => void} [onMemberContextMenu]
+ * @property {(payload: MemberHoverPayload) => void} [onMemberHover]
+ * @property {(payload: { userId: string, member: GuildMemberEntry, anchorElement: any, event: any }) => void} [onMemberHoverEnd]
  */
 
 /**
@@ -101,15 +181,17 @@ function getMemberSortName(member) {
   return typeof member?.username === "string" ? member.username : "";
 }
 
+const RU_COLLATOR = new Intl.Collator("ru");
+
 /**
- * Сравнивает двух участников по алфавиту (`displayName || username`) через `localeCompare('ru')`.
+ * Сравнивает двух участников по алфавиту (`displayName || username`) через `Intl.Collator('ru')`.
  *
  * @param {GuildMemberEntry} a
  * @param {GuildMemberEntry} b
  * @returns {number}
  */
 function compareMembersRu(a, b) {
-  return getMemberSortName(a).localeCompare(getMemberSortName(b), "ru");
+  return RU_COLLATOR.compare(getMemberSortName(a), getMemberSortName(b));
 }
 
 /**
@@ -361,7 +443,90 @@ function applyElementRoleColor(el, hexColor) {
 }
 
 /**
- * Создаёт контроллер правого сайдбара списка участников гильдии.
+ * Выравнивает список ролевых групп в плоский массив элементов для виртуализации.
+ *
+ * @param {ReadonlyArray<MemberRoleGroup>} groups
+ * @returns {Array<
+ *   | { type: "header", key: string, groupId: string, label: string, count: number }
+ *   | { type: "member", key: string, groupId: string, member: GuildMemberEntry }
+ * >}
+ */
+export function flattenMemberGroups(groups) {
+  /** @type {Array<{ type: "header", key: string, groupId: string, label: string, count: number } | { type: "member", key: string, groupId: string, member: GuildMemberEntry }>} */
+  const flat = [];
+  for (const group of groups) {
+    flat.push({
+      type: "header",
+      key: `h:${group.id}`,
+      groupId: group.id,
+      label: group.label,
+      count: group.count,
+    });
+    for (let i = 0; i < group.members.length; i++) {
+      const member = group.members[i];
+      if (!member) continue;
+      flat.push({
+        type: "member",
+        key: `m:${group.id}:${String(member.userId ?? i)}`,
+        groupId: group.id,
+        member,
+      });
+    }
+  }
+  return flat;
+}
+
+/**
+ * Вычисляет координаты плавающего элемента через `@floating-ui/dom` (с синхронным фолбэком для DOM-шимов).
+ *
+ * @param {any} reference
+ * @param {any} event
+ * @param {{ placement?: "top" | "top-start" | "top-end" | "bottom" | "bottom-start" | "bottom-end" | "right" | "left", offset?: number, padding?: number, width?: number, height?: number }} [opts]
+ */
+function computeAnchorPosition(reference, event, opts = {}) {
+  const hasPointer =
+    event &&
+    typeof event.clientX === "number" &&
+    typeof event.clientY === "number" &&
+    (event.clientX !== 0 || event.clientY !== 0);
+  const rect = hasPointer
+    ? { x: event.clientX, y: event.clientY, width: 0, height: 0 }
+    : typeof reference?.getBoundingClientRect === "function"
+      ? reference.getBoundingClientRect()
+      : { left: 0, top: 0, width: 220, height: 42 };
+  const refRect = {
+    x: Number(rect.left ?? rect.x ?? 0),
+    y: Number(rect.top ?? rect.y ?? 0),
+    width: Number(rect.width ?? 0),
+    height: Number(rect.height ?? 0),
+  };
+  const virtualReference = {
+    getBoundingClientRect: () => ({
+      x: refRect.x,
+      y: refRect.y,
+      left: refRect.x,
+      top: refRect.y,
+      right: refRect.x + refRect.width,
+      bottom: refRect.y + refRect.height,
+      width: refRect.width,
+      height: refRect.height,
+    }),
+  };
+  const position = computeFloatingPosition(
+    refRect,
+    { width: opts.width ?? 220, height: opts.height ?? 180 },
+    {
+      placement: opts.placement ?? "bottom-start",
+      offset: opts.offset ?? 6,
+      padding: opts.padding ?? 8,
+    },
+  );
+  return { virtualReference, position };
+}
+
+/**
+ * Создаёт контроллер правого сайдбара списка участников гильдии
+ * с виртуализацией на базе `@tanstack/virtual-core` и триггерами `@floating-ui/dom`.
  *
  * Поддерживает вызов как `createMemberListController({ container, onSelectMember, members, roles })`,
  * так и `createMemberListController(container, options)`.
@@ -389,16 +554,59 @@ export function createMemberListController(configOrContainer, maybeOptions = {})
   }
   const doc = resolveDocument(container);
 
+  const headerHeight =
+    typeof options.headerHeight === "number" && options.headerHeight > 0
+      ? options.headerHeight
+      : DEFAULT_GROUP_HEADER_HEIGHT_PX;
+  const rowHeight =
+    typeof options.rowHeight === "number" && options.rowHeight > 0
+      ? options.rowHeight
+      : DEFAULT_MEMBER_ROW_HEIGHT_PX;
+  const overscan =
+    typeof options.overscan === "number" && options.overscan >= 0
+      ? options.overscan
+      : DEFAULT_OVERSCAN;
+  let currentViewportHeight =
+    typeof options.viewportHeight === "number" && options.viewportHeight > 0
+      ? options.viewportHeight
+      : Number(container.clientHeight || container.boxHeight || DEFAULT_VIEWPORT_HEIGHT_PX);
+
   /** @type {GuildMemberEntry[]} */
   let currentMembers = Array.isArray(options.members) ? [...options.members] : [];
   /** @type {GuildRoleEntry[]} */
   let currentRoles = Array.isArray(options.roles) ? [...options.roles] : [];
   /** @type {boolean} */
   let visible = options.visible !== false;
+  /** @type {MemberRoleGroup[]} */
+  let currentGroups = [];
+  /** @type {ReturnType<typeof flattenMemberGroups>} */
+  let flatItems = [];
 
   const root = doc.createElement("aside");
   root.setAttribute("data-member-list", "");
   root.setAttribute("aria-label", "Участники сервера");
+  root.setAttribute("role", "list");
+  if (root.style && typeof root.style.setProperty === "function") {
+    root.style.setProperty("overflow-y", "auto");
+    root.style.setProperty("position", "relative");
+  }
+
+  const sizer = doc.createElement("div");
+  sizer.setAttribute("data-member-list-sizer", "");
+  if (sizer.style && typeof sizer.style.setProperty === "function") {
+    sizer.style.setProperty("position", "relative");
+    sizer.style.setProperty("width", "100%");
+  }
+  root.appendChild(sizer);
+
+  const virtualizer = createVirtualizer({
+    count: 0,
+    estimateSize: (idx) => (flatItems[idx]?.type === "header" ? headerHeight : rowHeight),
+    overscan,
+    scrollOffset: 0,
+    viewportSize: currentViewportHeight,
+    getItemKey: (idx) => flatItems[idx]?.key ?? String(idx),
+  });
 
   function syncVisibilityDom() {
     root.hidden = !visible;
@@ -410,86 +618,267 @@ export function createMemberListController(configOrContainer, maybeOptions = {})
     }
   }
 
-  function renderDom() {
-    const groups = groupMembersByHoistedRole(currentMembers, currentRoles);
-    /** @type {any[]} */
-    const groupNodes = [];
+  /**
+   * @param {{ type: "header", groupId: string, label: string, count: number }} entry
+   * @param {{ index: number, start: number, size: number }} vItem
+   */
+  function buildHeaderNode(entry, vItem) {
+    const headerEl = doc.createElement("h3");
+    headerEl.setAttribute("data-member-group-header", entry.groupId);
+    headerEl.setAttribute("data-group-id", entry.groupId);
+    headerEl.setAttribute("data-group-count", String(entry.count));
+    headerEl.setAttribute("data-index", String(vItem.index));
+    headerEl.setAttribute("role", "heading");
+    headerEl.textContent = `${entry.label} — ${entry.count}`;
+    if (headerEl.style && typeof headerEl.style.setProperty === "function") {
+      headerEl.style.setProperty("position", "absolute");
+      headerEl.style.setProperty("top", "0px");
+      headerEl.style.setProperty("left", "0px");
+      headerEl.style.setProperty("width", "100%");
+      headerEl.style.setProperty("height", `${vItem.size}px`);
+      headerEl.style.setProperty("transform", `translateY(${vItem.start}px)`);
+    }
+    return headerEl;
+  }
 
-    for (const group of groups) {
-      const groupSection = doc.createElement("section");
-      groupSection.setAttribute("data-member-group", group.id);
-      groupSection.setAttribute("role", "group");
-      groupSection.setAttribute("aria-label", `${group.label} — ${group.count}`);
+  /**
+   * @param {{ type: "member", groupId: string, member: GuildMemberEntry }} entry
+   * @param {{ index: number, start: number, size: number }} vItem
+   */
+  function buildMemberNode(entry, vItem) {
+    const member = entry.member;
+    const userId = String(member.userId ?? "");
+    const displayName = getMemberSortName(member);
+    const status = normalizePresenceStatus(member.status);
+    const statusLabel = PRESENCE_STATUS_LABELS[status] ?? status;
+    const roleHexColor = resolveMemberRoleHexColor(member, currentRoles);
 
-      const headerEl = doc.createElement("h3");
-      headerEl.setAttribute("data-member-group-header", group.id);
-      headerEl.setAttribute("data-group-id", group.id);
-      headerEl.setAttribute("data-group-count", String(group.count));
-      headerEl.textContent = `${group.label} — ${group.count}`;
-      groupSection.appendChild(headerEl);
+    const itemEl = doc.createElement("div");
+    itemEl.setAttribute("data-member-item", userId);
+    itemEl.setAttribute("data-user-id", userId);
+    itemEl.setAttribute("data-group-id", entry.groupId);
+    itemEl.setAttribute("data-index", String(vItem.index));
+    itemEl.setAttribute("data-status", status);
+    itemEl.setAttribute("data-context-menu-trigger", "member");
+    itemEl.setAttribute("data-hover-card-trigger", "member");
+    itemEl.setAttribute("role", "listitem");
+    itemEl.setAttribute("tabindex", "0");
+    itemEl.setAttribute("aria-label", `${displayName}, ${statusLabel}`);
 
-      for (const member of group.members) {
-        const userId = String(member.userId ?? "");
-        const displayName = getMemberSortName(member);
-        const status = normalizePresenceStatus(member.status);
-        const roleHexColor = resolveMemberRoleHexColor(member, currentRoles);
-
-        const itemEl = doc.createElement("div");
-        itemEl.setAttribute("data-member-item", userId);
-        itemEl.setAttribute("data-user-id", userId);
-        itemEl.setAttribute("role", "listitem");
-        itemEl.setAttribute("tabindex", "0");
-
-        if (roleHexColor) {
-          applyElementRoleColor(itemEl, roleHexColor);
-        }
-
-        const statusDotEl = doc.createElement("span");
-        statusDotEl.setAttribute("data-status", status);
-        statusDotEl.setAttribute("aria-hidden", "true");
-        itemEl.appendChild(statusDotEl);
-
-        const nameEl = doc.createElement("span");
-        nameEl.setAttribute("data-member-name", "");
-        nameEl.textContent = displayName;
-        if (roleHexColor) {
-          applyElementRoleColor(nameEl, roleHexColor);
-        }
-        itemEl.appendChild(nameEl);
-
-        if (member.isOwner === true) {
-          const ownerBadgeEl = doc.createElement("span");
-          ownerBadgeEl.setAttribute("data-owner-badge", "");
-          ownerBadgeEl.setAttribute("aria-label", "Владелец сервера");
-          ownerBadgeEl.setAttribute("title", "Владелец сервера");
-          ownerBadgeEl.textContent = "👑";
-          itemEl.appendChild(ownerBadgeEl);
-        }
-
-        if (typeof member.customStatus === "string" && member.customStatus.trim().length > 0) {
-          const customStatusEl = doc.createElement("span");
-          customStatusEl.setAttribute("data-custom-status", "");
-          customStatusEl.setAttribute("data-member-custom-status", "");
-          customStatusEl.textContent = member.customStatus;
-          itemEl.appendChild(customStatusEl);
-        }
-
-        itemEl.addEventListener("click", () => {
-          if (typeof options.onSelectMember === "function") {
-            options.onSelectMember({
-              userId,
-              anchorElement: itemEl,
-            });
-          }
-        });
-
-        groupSection.appendChild(itemEl);
-      }
-
-      groupNodes.push(groupSection);
+    if (itemEl.style && typeof itemEl.style.setProperty === "function") {
+      itemEl.style.setProperty("position", "absolute");
+      itemEl.style.setProperty("top", "0px");
+      itemEl.style.setProperty("left", "0px");
+      itemEl.style.setProperty("width", "100%");
+      itemEl.style.setProperty("height", `${vItem.size}px`);
+      itemEl.style.setProperty("transform", `translateY(${vItem.start}px)`);
     }
 
-    replaceElementChildren(root, groupNodes);
+    if (roleHexColor) {
+      applyElementRoleColor(itemEl, roleHexColor);
+    }
+
+    const statusDotEl = doc.createElement("span");
+    statusDotEl.setAttribute("data-status", status);
+    statusDotEl.setAttribute("data-presence-badge", status);
+    statusDotEl.setAttribute("title", statusLabel);
+    statusDotEl.setAttribute("aria-hidden", "true");
+    itemEl.appendChild(statusDotEl);
+
+    const nameEl = doc.createElement("span");
+    nameEl.setAttribute("data-member-name", "");
+    nameEl.textContent = displayName;
+    if (roleHexColor) {
+      applyElementRoleColor(nameEl, roleHexColor);
+    }
+    itemEl.appendChild(nameEl);
+
+    if (member.isOwner === true) {
+      const ownerBadgeEl = doc.createElement("span");
+      ownerBadgeEl.setAttribute("data-owner-badge", "");
+      ownerBadgeEl.setAttribute("aria-label", "Владелец сервера");
+      ownerBadgeEl.setAttribute("title", "Владелец сервера");
+      ownerBadgeEl.textContent = "👑";
+      itemEl.appendChild(ownerBadgeEl);
+    }
+
+    if (typeof member.customStatus === "string" && member.customStatus.trim().length > 0) {
+      const customStatusEl = doc.createElement("span");
+      customStatusEl.setAttribute("data-custom-status", "");
+      customStatusEl.setAttribute("data-member-custom-status", "");
+      customStatusEl.textContent = member.customStatus;
+      itemEl.appendChild(customStatusEl);
+    }
+
+    itemEl.addEventListener("click", () => {
+      if (typeof options.onSelectMember === "function") {
+        options.onSelectMember({
+          userId,
+          anchorElement: itemEl,
+        });
+      }
+    });
+
+    /**
+     * @param {any} event
+     */
+    const handleContextMenuTrigger = (event) => {
+      if (typeof event?.preventDefault === "function") {
+        event.preventDefault();
+      }
+      const { virtualReference, position } = computeAnchorPosition(itemEl, event, {
+        placement: "bottom-start",
+        offset: 4,
+        padding: 8,
+        width: 220,
+        height: 240,
+      });
+      if (options.contextMenuEl) {
+        void positionFloatingElement(virtualReference, options.contextMenuEl, {
+          placement: "bottom-start",
+          offset: 4,
+          padding: 8,
+        });
+      }
+      if (typeof options.onMemberContextMenu === "function") {
+        options.onMemberContextMenu({
+          userId,
+          member,
+          anchorElement: itemEl,
+          virtualReference,
+          position,
+          event,
+        });
+      }
+    };
+
+    itemEl.addEventListener("contextmenu", handleContextMenuTrigger);
+    itemEl.addEventListener("keydown", (/** @type {any} */ event) => {
+      const key = event && "key" in event ? String(event.key) : "";
+      if (key === "ContextMenu" || (key === "F10" && event.shiftKey)) {
+        handleContextMenuTrigger(event);
+      }
+    });
+
+    /**
+     * @param {any} event
+     */
+    const handleHoverStart = (event) => {
+      const { position } = computeAnchorPosition(itemEl, null, {
+        placement: "left",
+        offset: 8,
+        padding: 12,
+        width: 300,
+        height: 220,
+      });
+      if (options.hoverCardEl) {
+        void positionFloatingElement(itemEl, options.hoverCardEl, {
+          placement: "left",
+          offset: 8,
+          padding: 12,
+        });
+      }
+      if (typeof options.onMemberHover === "function") {
+        options.onMemberHover({
+          userId,
+          member,
+          anchorElement: itemEl,
+          position,
+          event,
+        });
+      }
+    };
+
+    /**
+     * @param {any} event
+     */
+    const handleHoverEnd = (event) => {
+      if (typeof options.onMemberHoverEnd === "function") {
+        options.onMemberHoverEnd({
+          userId,
+          member,
+          anchorElement: itemEl,
+          event,
+        });
+      }
+    };
+
+    itemEl.addEventListener("mouseenter", handleHoverStart);
+    itemEl.addEventListener("mouseleave", handleHoverEnd);
+
+    return itemEl;
+  }
+
+  function paintVisibleWindow() {
+    const totalSize = virtualizer.getTotalSize();
+    if (sizer.style && typeof sizer.style.setProperty === "function") {
+      sizer.style.setProperty("height", `${totalSize}px`);
+    } else {
+      sizer.setAttribute("style", `position: relative; width: 100%; height: ${totalSize}px`);
+    }
+
+    const vItems = virtualizer.getVirtualItems();
+    /** @type {any[]} */
+    const nodes = [];
+    for (const vItem of vItems) {
+      const entry = flatItems[vItem.index];
+      if (!entry) continue;
+      if (entry.type === "header") {
+        nodes.push(buildHeaderNode(entry, vItem));
+      } else {
+        nodes.push(buildMemberNode(entry, vItem));
+      }
+    }
+    replaceElementChildren(sizer, nodes);
+  }
+
+  function renderDom() {
+    currentGroups = groupMembersByHoistedRole(currentMembers, currentRoles);
+    flatItems = flattenMemberGroups(currentGroups);
+    virtualizer.setCount(flatItems.length);
+    virtualizer.setScrollWindow(Number(root.scrollTop || 0), currentViewportHeight);
+    paintVisibleWindow();
+  }
+
+  if (typeof root.addEventListener === "function") {
+    root.addEventListener("scroll", () => {
+      const nextViewport = Number(root.clientHeight || root.boxHeight || currentViewportHeight);
+      if (nextViewport > 0) {
+        currentViewportHeight = nextViewport;
+      }
+      virtualizer.setScrollWindow(Number(root.scrollTop || 0), currentViewportHeight);
+      paintVisibleWindow();
+    });
+  }
+
+  /**
+   * Прокручивает виртуализованный список участников к заданному `scrollTop`.
+   *
+   * @param {number} scrollTop
+   * @param {number} [nextViewportHeight]
+   */
+  function scrollTo(scrollTop, nextViewportHeight) {
+    const clampedTop = Math.max(0, Number(scrollTop) || 0);
+    if (typeof nextViewportHeight === "number" && nextViewportHeight > 0) {
+      currentViewportHeight = nextViewportHeight;
+    }
+    root.scrollTop = clampedTop;
+    virtualizer.setScrollWindow(clampedTop, currentViewportHeight);
+    paintVisibleWindow();
+  }
+
+  /**
+   * Прокручивает виртуализованный список к индексу плоского элемента.
+   *
+   * @param {number} index
+   * @param {{ align?: "start" | "center" | "end" | "auto" }} [opts]
+   * @returns {number}
+   */
+  function scrollToIndex(index, opts = {}) {
+    const nextOffset = virtualizer.scrollToIndex(index, opts);
+    root.scrollTop = nextOffset;
+    paintVisibleWindow();
+    return nextOffset;
   }
 
   /**
@@ -543,9 +932,13 @@ export function createMemberListController(configOrContainer, maybeOptions = {})
   return {
     root,
     element: root,
+    sizer,
+    virtualizer,
     render,
     setMembers: render,
     toggleVisibility,
+    scrollTo,
+    scrollToIndex,
     /** @returns {boolean} */
     isVisible() {
       return visible;
@@ -553,6 +946,15 @@ export function createMemberListController(configOrContainer, maybeOptions = {})
     /** @returns {MemberRoleGroup[]} */
     getGroups() {
       return groupMembersByHoistedRole(currentMembers, currentRoles);
+    },
+    getFlatItems() {
+      return flatItems;
+    },
+    getVirtualItems() {
+      return virtualizer.getVirtualItems();
+    },
+    getTotalSize() {
+      return virtualizer.getTotalSize();
     },
   };
 }

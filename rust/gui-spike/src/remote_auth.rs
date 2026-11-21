@@ -30,13 +30,14 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{LazyLock, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use chord_client::auth::IdentityContext;
+use chord_client::rest_failure::RestFailure;
 use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
 use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
 use chord_core::API_V9_BASE;
-use chord_client::auth::IdentityContext;
-use chord_client::rest_failure::RestFailure;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use subtle::ConstantTimeEq;
 
 // ---------------------------------------------------------------------------
 // Константы протокола Remote Auth v2 (`QR_CHUNK` 52423 и `4d2a64cb5df5fc4e_0`)
@@ -228,29 +229,23 @@ impl From<RestFailure> for RemoteAuthError {
 // Кодирование Base64 / Base64URL и SHA-256 (FIPS 180-4)
 // ---------------------------------------------------------------------------
 
-/// Кодирует байты в стандартный Base64 с `=`-паддингом (`btoa` в `QR_CHUNK` 52423).
+/// Encodes bytes into standard Base64 format with '=' padding (RFC 4648 §4).
 #[must_use]
 pub fn encode_base64_standard(bytes: &[u8]) -> String {
-    chord_core::rest::base64::encode(bytes)
+    use base64::Engine;
+    base64::engine::general_purpose::STANDARD.encode(bytes)
 }
 
-/// Кодирует байты в URL-safe Base64 без `=`-паддинга (`O(e)` в `QR_CHUNK` 52423):
-/// `btoa(...).replace(/\//g, "_").replace(/\+/g, "-").replace(/={1,2}$/, "")`.
+/// Encodes bytes into URL-safe Base64 without '=' padding (RFC 4648 §5).
 #[must_use]
 pub fn encode_base64url_nopad(bytes: &[u8]) -> String {
-    chord_core::rest::base64::encode(bytes)
-        .trim_end_matches('=')
-        .bytes()
-        .map(|b| match b {
-            b'+' => '-',
-            b'/' => '_',
-            other => char::from(other),
-        })
-        .collect()
+    use base64::Engine;
+    base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(bytes)
 }
 
-/// Декодирует строку Base64 (стандартный алфавит `+/=` или URL-safe `-_` без паддинга).
+/// Decodes a Base64 string encoded in either standard format (`+/=`) or URL-safe format (`-_` without padding).
 pub fn decode_base64_flexible(encoded: &str) -> Result<Vec<u8>, RemoteAuthError> {
+    use base64::Engine;
     let trimmed = encoded.trim();
     if trimmed.is_empty() {
         return Err(RemoteAuthError::Crypto {
@@ -258,135 +253,39 @@ pub fn decode_base64_flexible(encoded: &str) -> Result<Vec<u8>, RemoteAuthError>
         });
     }
 
-    let mut out = Vec::with_capacity((trimmed.len() * 3) / 4 + 3);
-    let mut buf = 0u32;
-    let mut bits = 0u8;
-    let mut seen_pad = false;
-
-    for ch in trimmed.bytes() {
-        if ch == b'=' {
-            seen_pad = true;
-            continue;
-        }
-        if seen_pad {
-            return Err(RemoteAuthError::Crypto {
-                reason: "символы после '=' в Base64".to_string(),
-            });
-        }
-        let val = match ch {
-            b'A'..=b'Z' => ch - b'A',
-            b'a'..=b'z' => ch - b'a' + 26,
-            b'0'..=b'9' => ch - b'0' + 52,
-            b'+' | b'-' => 62,
-            b'/' | b'_' => 63,
-            _ => {
-                return Err(RemoteAuthError::Crypto {
-                    reason: "недопустимый символ Base64".to_string(),
-                });
-            }
-        };
-        buf = (buf << 6) | u32::from(val);
-        bits += 6;
-        if bits >= 8 {
-            bits -= 8;
-            out.push(((buf >> bits) & 0xff) as u8);
-        }
+    // Try standard Base64 first
+    if let Ok(bytes) = base64::engine::general_purpose::STANDARD.decode(trimmed.as_bytes()) {
+        return Ok(bytes);
     }
 
-    if bits >= 6 || ((buf & ((1u32 << bits) - 1)) != 0) {
-        return Err(RemoteAuthError::Crypto {
-            reason: "некорректный хвост битов Base64".to_string(),
-        });
+    // Fall back to URL-safe with or without padding
+    if let Ok(bytes) = base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(trimmed.as_bytes()) {
+        return Ok(bytes);
+    }
+    if let Ok(bytes) = base64::engine::general_purpose::URL_SAFE.decode(trimmed.as_bytes()) {
+        return Ok(bytes);
     }
 
-    Ok(out)
+    Err(RemoteAuthError::Crypto {
+        reason: "недопустимый формат Base64".to_string(),
+    })
 }
 
-/// Вычисляет дайджест SHA-256 (FIPS 180-4) от произвольного среза байтов.
+/// Computes the standard SHA-256 cryptographic digest (FIPS 180-4) of an arbitrary byte slice.
+///
+/// Uses the hardware-accelerated `sha2` crate.
+///
+/// # Arguments
+/// * `data` - Input byte slice to hash.
+///
+/// # Returns
+/// A 32-byte array containing the SHA-256 digest.
 #[must_use]
 pub fn sha256_bytes(data: &[u8]) -> [u8; 32] {
-    const K: [u32; 64] = [
-        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
-        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
-        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
-        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
-        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
-        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
-        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
-        0xc67178f2,
-    ];
-    let mut state: [u32; 8] = [
-        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
-        0x5be0cd19,
-    ];
-
-    let bit_len = (data.len() as u64).wrapping_mul(8);
-    let mut padded = Vec::with_capacity((data.len() + 9).div_ceil(64) * 64);
-    padded.extend_from_slice(data);
-    padded.push(0x80);
-    while (padded.len() % 64) != 56 {
-        padded.push(0);
-    }
-    padded.extend_from_slice(&bit_len.to_be_bytes());
-
-    for chunk in padded.as_chunks::<64>().0 {
-        let mut w = [0u32; 64];
-        for (i, word) in chunk.as_chunks::<4>().0.iter().enumerate() {
-            w[i] = u32::from_be_bytes(*word);
-        }
-        for i in 16..64 {
-            let s0 = w[i - 15].rotate_right(7) ^ w[i - 15].rotate_right(18) ^ (w[i - 15] >> 3);
-            let s1 = w[i - 2].rotate_right(17) ^ w[i - 2].rotate_right(19) ^ (w[i - 2] >> 10);
-            w[i] = w[i - 16]
-                .wrapping_add(s0)
-                .wrapping_add(w[i - 7])
-                .wrapping_add(s1);
-        }
-
-        let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = state;
-        for i in 0..64 {
-            let s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
-            let ch = (e & f) ^ ((!e) & g);
-            let temp1 = h
-                .wrapping_add(s1)
-                .wrapping_add(ch)
-                .wrapping_add(K[i])
-                .wrapping_add(w[i]);
-            let s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
-            let maj = (a & b) ^ (a & c) ^ (b & c);
-            let temp2 = s0.wrapping_add(maj);
-
-            h = g;
-            g = f;
-            f = e;
-            e = d.wrapping_add(temp1);
-            d = c;
-            c = b;
-            b = a;
-            a = temp1.wrapping_add(temp2);
-        }
-
-        state[0] = state[0].wrapping_add(a);
-        state[1] = state[1].wrapping_add(b);
-        state[2] = state[2].wrapping_add(c);
-        state[3] = state[3].wrapping_add(d);
-        state[4] = state[4].wrapping_add(e);
-        state[5] = state[5].wrapping_add(f);
-        state[6] = state[6].wrapping_add(g);
-        state[7] = state[7].wrapping_add(h);
-    }
-
-    let mut out = [0u8; 32];
-    for (i, word) in state.iter().enumerate() {
-        let bytes = word.to_be_bytes();
-        out[i * 4] = bytes[0];
-        out[i * 4 + 1] = bytes[1];
-        out[i * 4 + 2] = bytes[2];
-        out[i * 4 + 3] = bytes[3];
-    }
-    out
+    use sha2::Digest;
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(data);
+    hasher.finalize().into()
 }
 
 /// Вычисляет `fingerprint` публичного ключа SPKI (`publicKeyFingerprint` в `QR_CHUNK` 52423):
@@ -413,16 +312,20 @@ pub fn format_remote_auth_qr_url(fingerprint: &str) -> Result<String, RemoteAuth
     Ok(format!("{REMOTE_AUTH_QR_URL_PREFIX}{fp}"))
 }
 
-/// Функция генерации маски MGF1-SHA-256 (RFC 8017 §B.2.1).
+/// Mask Generation Function 1 (MGF1) using SHA-256 (RFC 8017 §B.2.1).
+///
+/// Deterministically expands the given seed into a pseudo-random byte stream of length `len`
+/// using iterative SHA-256 hashing.
 fn mgf1_sha256(seed: &[u8], len: usize) -> Vec<u8> {
+    use sha2::{Digest, Sha256};
     let mut out = Vec::with_capacity(len.div_ceil(32) * 32);
     let mut counter = 0u32;
-    let mut buf = Vec::with_capacity(seed.len() + 4);
     while out.len() < len {
-        buf.clear();
-        buf.extend_from_slice(seed);
-        buf.extend_from_slice(&counter.to_be_bytes());
-        out.extend_from_slice(&sha256_bytes(&buf));
+        let mut hasher = Sha256::new();
+        hasher.update(seed);
+        hasher.update(counter.to_be_bytes());
+        let hash = hasher.finalize();
+        out.extend_from_slice(&hash);
         counter += 1;
     }
     out.truncate(len);
@@ -430,359 +333,27 @@ fn mgf1_sha256(seed: &[u8], len: usize) -> Vec<u8> {
 }
 
 // ---------------------------------------------------------------------------
-// Арифметика большой разрядности для RSA-2048 (`BigUint` на 32-битных словах)
+// Арифметика большой разрядности для RSA-2048 (`BigUint` вынесен в `biguint.rs`)
 // ---------------------------------------------------------------------------
 
-/// Беззнаковое целое произвольной точности в little-endian представлении по `u32`-словам.
-#[derive(Clone, PartialEq, Eq, Default)]
-struct BigUint {
-    limbs: Vec<u32>,
-}
+#[path = "biguint.rs"]
+pub mod biguint;
+use self::biguint::{invert_65537_mod, BigUint};
 
-impl BigUint {
-    fn from_u32(val: u32) -> Self {
-        if val == 0 {
-            Self { limbs: Vec::new() }
-        } else {
-            Self { limbs: vec![val] }
-        }
-    }
-
-    fn from_be_bytes(bytes: &[u8]) -> Self {
-        let mut limbs = Vec::with_capacity(bytes.len().div_ceil(4));
-        for chunk in bytes.rchunks(4) {
-            let mut word = 0u32;
-            for &b in chunk {
-                word = (word << 8) | u32::from(b);
-            }
-            limbs.push(word);
-        }
-        let mut res = Self { limbs };
-        res.trim();
-        res
-    }
-
-    fn to_be_bytes_padded(&self, len: usize) -> Vec<u8> {
-        let mut out = vec![0u8; len];
-        for (i, &word) in self.limbs.iter().enumerate() {
-            let bytes = word.to_le_bytes();
-            for (j, &b) in bytes.iter().enumerate() {
-                let pos = i * 4 + j;
-                if pos < len {
-                    out[len - 1 - pos] = b;
-                }
-            }
-        }
-        out
-    }
-
-    fn trim(&mut self) {
-        while self.limbs.last() == Some(&0) {
-            self.limbs.pop();
-        }
-    }
-
-    fn is_zero(&self) -> bool {
-        self.limbs.is_empty()
-    }
-
-    fn is_odd(&self) -> bool {
-        self.limbs.first().is_some_and(|w| (w & 1) == 1)
-    }
-
-    fn bit_len(&self) -> usize {
-        match self.limbs.last() {
-            None => 0,
-            Some(&top) => (self.limbs.len() - 1) * 32 + (32 - top.leading_zeros() as usize),
-        }
-    }
-
-    fn get_bit(&self, bit_idx: usize) -> bool {
-        let word_idx = bit_idx / 32;
-        let bit_offset = bit_idx % 32;
-        self.limbs
-            .get(word_idx)
-            .is_some_and(|&w| ((w >> bit_offset) & 1) == 1)
-    }
-
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        use std::cmp::Ordering;
-        if self.limbs.len() != other.limbs.len() {
-            return self.limbs.len().cmp(&other.limbs.len());
-        }
-        for (&a, &b) in self.limbs.iter().rev().zip(other.limbs.iter().rev()) {
-            if a != b {
-                return a.cmp(&b);
-            }
-        }
-        Ordering::Equal
-    }
-
-    fn add_u32(&self, rhs: u32) -> Self {
-        let mut limbs = self.limbs.clone();
-        let mut carry = u64::from(rhs);
-        for w in &mut limbs {
-            if carry == 0 {
-                break;
-            }
-            let sum = u64::from(*w) + carry;
-            *w = sum as u32;
-            carry = sum >> 32;
-        }
-        if carry != 0 {
-            limbs.push(carry as u32);
-        }
-        let mut res = Self { limbs };
-        res.trim();
-        res
-    }
-
-    fn sub_u32(&self, rhs: u32) -> Self {
-        let mut limbs = self.limbs.clone();
-        let mut borrow = i64::from(rhs);
-        for w in &mut limbs {
-            if borrow == 0 {
-                break;
-            }
-            let diff = i64::from(*w) - borrow;
-            if diff < 0 {
-                *w = (diff + (1i64 << 32)) as u32;
-                borrow = 1;
-            } else {
-                *w = diff as u32;
-                borrow = 0;
-            }
-        }
-        let mut res = Self { limbs };
-        res.trim();
-        res
-    }
-
-    fn mul(&self, rhs: &Self) -> Self {
-        if self.is_zero() || rhs.is_zero() {
-            return Self::default();
-        }
-        let mut out = vec![0u32; self.limbs.len() + rhs.limbs.len()];
-        for (i, &a) in self.limbs.iter().enumerate() {
-            let mut carry = 0u64;
-            for (j, &b) in rhs.limbs.iter().enumerate() {
-                let prod = u64::from(a) * u64::from(b) + u64::from(out[i + j]) + carry;
-                out[i + j] = prod as u32;
-                carry = prod >> 32;
-            }
-            out[i + rhs.limbs.len()] = carry as u32;
-        }
-        let mut res = Self { limbs: out };
-        res.trim();
-        res
-    }
-
-    fn mul_u32(&self, rhs: u32) -> Self {
-        if self.is_zero() || rhs == 0 {
-            return Self::default();
-        }
-        let mut limbs = Vec::with_capacity(self.limbs.len() + 1);
-        let mut carry = 0u64;
-        for &w in &self.limbs {
-            let prod = u64::from(w) * u64::from(rhs) + carry;
-            limbs.push(prod as u32);
-            carry = prod >> 32;
-        }
-        if carry != 0 {
-            limbs.push(carry as u32);
-        }
-        Self { limbs }
-    }
-
-    fn div_rem_u32(&self, divisor: u32) -> (Self, u32) {
-        let mut quot = vec![0u32; self.limbs.len()];
-        let mut rem = 0u64;
-        let div = u64::from(divisor);
-        for (i, &w) in self.limbs.iter().enumerate().rev() {
-            let cur = (rem << 32) | u64::from(w);
-            quot[i] = (cur / div) as u32;
-            rem = cur % div;
-        }
-        let mut res = Self { limbs: quot };
-        res.trim();
-        (res, rem as u32)
-    }
-
-    /// Остаток от деления `self % modulus` по алгоритму Кнута D (`b = 2^32`).
-    fn rem(&self, modulus: &Self) -> Self {
-        if self.cmp(modulus) == std::cmp::Ordering::Less {
-            return self.clone();
-        }
-        let n = modulus.limbs.len();
-        if n == 1 {
-            let (_, r) = self.div_rem_u32(modulus.limbs[0]);
-            return Self::from_u32(r);
-        }
-
-        let m = self.limbs.len();
-        let shift = modulus.limbs[n - 1].leading_zeros();
-        let v = modulus.shl_bits(shift);
-        let mut u = self.shl_bits(shift);
-        u.limbs.resize(m + 1, 0);
-        let vn1 = u64::from(v.limbs[n - 1]);
-        let vn2 = u64::from(v.limbs[n - 2]);
-
-        for j in (0..=(m - n)).rev() {
-            let uj_n = u64::from(u.limbs[j + n]);
-            let uj_n1 = u64::from(u.limbs[j + n - 1]);
-            let uj_n2 = u64::from(u.limbs[j + n - 2]);
-            let dividend = (uj_n << 32) | uj_n1;
-            let mut qhat = dividend / vn1;
-            let mut rhat = dividend % vn1;
-            while qhat >= (1u64 << 32) || (qhat * vn2 > ((rhat << 32) | uj_n2)) {
-                qhat -= 1;
-                rhat += vn1;
-                if rhat >= (1u64 << 32) {
-                    break;
-                }
-            }
-
-            if qhat == 0 {
-                continue;
-            }
-
-            let mut k = 0i128;
-            for i in 0..n {
-                let p = i128::from(qhat) * i128::from(v.limbs[i]);
-                let t = i128::from(u.limbs[j + i]) - k - (p & 0xffff_ffff);
-                u.limbs[j + i] = t as u32;
-                k = (p >> 32) - (t >> 32);
-            }
-            let t = i128::from(u.limbs[j + n]) - k;
-            u.limbs[j + n] = t as u32;
-            if t < 0 {
-                let mut carry = 0u64;
-                for i in 0..n {
-                    let sum = u64::from(u.limbs[j + i]) + u64::from(v.limbs[i]) + carry;
-                    u.limbs[j + i] = sum as u32;
-                    carry = sum >> 32;
-                }
-                u.limbs[j + n] = u.limbs[j + n].wrapping_add(carry as u32);
-            }
-        }
-
-        u.limbs.truncate(n);
-        u.trim();
-        u.shr_bits(shift)
-    }
-
-    fn shl_bits(&self, shift: u32) -> Self {
-        if shift == 0 || self.is_zero() {
-            return self.clone();
-        }
-        let mut limbs = Vec::with_capacity(self.limbs.len() + 1);
-        let mut carry = 0u32;
-        for &w in &self.limbs {
-            limbs.push((w << shift) | carry);
-            carry = w >> (32 - shift);
-        }
-        if carry != 0 {
-            limbs.push(carry);
-        }
-        Self { limbs }
-    }
-
-    fn shr_bits(&self, shift: u32) -> Self {
-        if shift == 0 || self.is_zero() {
-            return self.clone();
-        }
-        let mut limbs = vec![0u32; self.limbs.len()];
-        let mut carry = 0u32;
-        for (i, &w) in self.limbs.iter().enumerate().rev() {
-            limbs[i] = (w >> shift) | carry;
-            carry = w << (32 - shift);
-        }
-        let mut res = Self { limbs };
-        res.trim();
-        res
-    }
-
-    /// Возведение в степень по модулю `self^exp mod modulus` (4-битное окно).
-    fn mod_pow(&self, exp: &Self, modulus: &Self) -> Self {
-        if exp.is_zero() {
-            return Self::from_u32(1);
-        }
-        let base = self.rem(modulus);
-        let mut table = Vec::with_capacity(16);
-        table.push(Self::from_u32(1));
-        table.push(base.clone());
-        for i in 2..16 {
-            let next = table[i - 1].mul(&base).rem(modulus);
-            table.push(next);
-        }
-
-        let total_bits = exp.bit_len();
-        let top_nibble = total_bits.div_ceil(4);
-        let mut acc = Self::from_u32(1);
-
-        for nibble_idx in (0..top_nibble).rev() {
-            for _ in 0..4 {
-                acc = acc.mul(&acc).rem(modulus);
-            }
-            let base_bit = nibble_idx * 4;
-            let mut win = 0usize;
-            for b in 0..4 {
-                if exp.get_bit(base_bit + b) {
-                    win |= 1 << b;
-                }
-            }
-            if win != 0 {
-                acc = acc.mul(&table[win]).rem(modulus);
-            }
-        }
-        acc
-    }
-
-    /// Быстрое возведение в публичную экспоненту `65537` (`2^16 + 1`): 16 возведений в квадрат + 1 умножение.
-    fn mod_pow_65537(&self, modulus: &Self) -> Self {
-        let base = self.rem(modulus);
-        let mut acc = base.clone();
-        for _ in 0..16 {
-            acc = acc.mul(&acc).rem(modulus);
-        }
-        acc.mul(&base).rem(modulus)
-    }
-}
-
-/// Вычисляет мультипликативно обратное `65537^-1 mod phi`, используя тождество:
-/// `65537 * d = k * phi + 1`, где `k = (65537 - (phi mod 65537)^-1) mod 65537`.
-fn invert_65537_mod(phi: &BigUint) -> Option<BigUint> {
-    const E: i64 = 65_537;
-    let (_, rem_u32) = phi.div_rem_u32(RSA_PUBLIC_EXPONENT);
-    if rem_u32 == 0 {
-        return None;
-    }
-
-    // Расширенный алгоритм Евклида для `rem_u32^-1 mod 65537`:
-    let (mut t, mut new_t) = (0i64, 1i64);
-    let (mut r, mut new_r) = (E, i64::from(rem_u32));
-    while new_r != 0 {
-        let q = r / new_r;
-        (t, new_t) = (new_t, t - q * new_t);
-        (r, new_r) = (new_r, r - q * new_r);
-    }
-    if r != 1 {
-        return None;
-    }
-    if t < 0 {
-        t += E;
-    }
-    let k = ((E - t) % E) as u32;
-    let num = phi.mul_u32(k).add_u32(1);
-    let (d, zero_rem) = num.div_rem_u32(RSA_PUBLIC_EXPONENT);
-    debug_assert_eq!(zero_rem, 0);
-    Some(d)
-}
-
-fn decode_hex_128(hex: &str) -> [u8; 128] {
+/// Decodes a 256-character hexadecimal string representing a 1024-bit prime factor into a 128-byte array.
+///
+/// Uses the audited `hex` crate for bounds-checked decoding, replacing the legacy
+/// per-byte slicing and parsing loop.
+///
+/// # Arguments
+/// * `hex_str` - 256-character ASCII hexadecimal string.
+///
+/// # Returns
+/// A 128-byte array containing the decoded big-endian prime number bytes.
+fn decode_hex_128(hex_str: &str) -> [u8; 128] {
     let mut out = [0u8; 128];
-    for (i, dst) in out.iter_mut().enumerate() {
-        *dst = u8::from_str_radix(&hex[i * 2..i * 2 + 2], 16).unwrap_or(0);
+    if hex::decode_to_slice(hex_str.trim(), &mut out).is_err() {
+        debug_assert!(false, "invalid 128-byte hex string provided for RSA prime");
     }
     out
 }
@@ -1123,20 +694,19 @@ impl Rsa2048KeyPair {
             db[i] = masked_db[i] ^ db_mask[i];
         }
 
-        // Константно-временная проверка `Y == 0` и `lHash' == SHA-256("")`:
+        // Constant-time validation of leading Y byte and lHash using subtle crate:
         let expected_lhash = sha256_bytes(b"");
-        let mut diff = y;
-        for i in 0..RSA_OAEP_HASH_LEN {
-            diff |= db[i] ^ expected_lhash[i];
-        }
+        let lhash_matches: bool = db[..RSA_OAEP_HASH_LEN].ct_eq(&expected_lhash).into();
+        let y_zero: bool = y.ct_eq(&0).into();
 
         let mut sep_idx: Option<usize> = None;
+        let mut malformed_padding = false;
         for (idx, &byte) in db.iter().enumerate().skip(RSA_OAEP_HASH_LEN) {
             if sep_idx.is_none() {
                 if byte == 0x01 {
                     sep_idx = Some(idx);
                 } else if byte != 0x00 {
-                    diff |= 1;
+                    malformed_padding = true;
                 }
             }
         }
@@ -1146,7 +716,7 @@ impl Rsa2048KeyPair {
                 reason: "не найден разделитель 0x01 в блоке EME-OAEP".to_string(),
             });
         };
-        if diff != 0 {
+        if !lhash_matches || !y_zero || malformed_padding {
             return Err(RemoteAuthError::Crypto {
                 reason: "ошибка проверки метки EME-OAEP (SHA-256)".to_string(),
             });

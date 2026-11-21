@@ -29,8 +29,31 @@ import {
   reactionsFor,
   requestReaction,
 } from "./reactions.js";
-import { AUTHORS, extrasFor } from "./rows.js";
+import { AUTHORS, dayDivider, extrasFor } from "./rows.js";
 import { VirtualList } from "./virtual-list.js";
+
+const STICKY_DATE_FORMATTER = new Intl.DateTimeFormat("ru-RU", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+/**
+ * Форматирует ISO-дату или Date в русскую подпись разделителя («18 ноября 2026 г.»).
+ * @param {string | Date} value
+ * @returns {string}
+ */
+export function formatStickyDateLabel(value) {
+  if (!value) return "";
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string"
+      ? new Date(value.length === 10 ? `${value}T00:00:00Z` : value)
+      : null;
+  if (!date || Number.isNaN(date.getTime())) return "";
+  return STICKY_DATE_FORMATTER.format(date);
+}
 
 export const CHAT_ROWS = 100_000;
 export const CHAT_PAGE_SIZE = 100;
@@ -3494,12 +3517,127 @@ export function createChatScreen(options) {
     getRow: (/** @type {number} */ index) => (heights.has(index) ? null : store.getRow(index)),
     ensureRange: (/** @type {number} */ first, /** @type {number} */ last) => store.ensureRange(first, last),
   };
+  const container = /** @type {HTMLElement | null} */ (
+    /** @type {any} */ (options.list).parentNode ?? null
+  );
+  let unreadPillCount = 0;
+  const stickyDateDivider = container ? document.createElement("div") : null;
+  const stickyDateLabel = container ? document.createElement("span") : null;
+  if (container && stickyDateDivider && stickyDateLabel) {
+    stickyDateDivider.className = "chat-sticky-date-divider";
+    stickyDateDivider.setAttribute("role", "status");
+    stickyDateDivider.setAttribute("aria-live", "off");
+    stickyDateDivider.setAttribute("hidden", "");
+    stickyDateDivider.style.display = "none";
+    stickyDateLabel.className = "chat-sticky-date-label";
+    stickyDateDivider.append(stickyDateLabel);
+    container.append(stickyDateDivider);
+  }
+  const jumpBottomPill = container ? document.createElement("button") : null;
+  if (container && jumpBottomPill) {
+    jumpBottomPill.type = "button";
+    jumpBottomPill.className = "chat-jump-bottom-pill";
+    jumpBottomPill.setAttribute("aria-label", "Перейти к последним сообщениям");
+    jumpBottomPill.setAttribute("hidden", "");
+    jumpBottomPill.style.display = "none";
+    jumpBottomPill.textContent = "К последним сообщениям";
+    container.append(jumpBottomPill);
+  }
+
+  /** @param {number} firstIndex */
+  function syncStickyDate(firstIndex) {
+    if (!stickyDateDivider || !stickyDateLabel) return;
+    let label = "";
+    let iso = "";
+    if (virtualReady && isChannelMode() && channel) {
+      const items = channelWindows.get(channel.id)?.items ?? [];
+      const item = items[Math.max(0, Math.min(items.length - 1, firstIndex))];
+      if (item) {
+        iso = item.day || item.iso.slice(0, 10);
+        label = formatStickyDateLabel(item.iso || item.day);
+      }
+    } else if (firstIndex >= 0 && firstIndex < CHAT_ROWS) {
+      const div = dayDivider(firstIndex);
+      iso = div.iso.slice(0, 10);
+      label = div.label;
+    }
+    if (!label) {
+      stickyDateDivider.setAttribute("hidden", "");
+      stickyDateDivider.style.display = "none";
+      return;
+    }
+    stickyDateDivider.removeAttribute("hidden");
+    stickyDateDivider.style.display = "";
+    stickyDateDivider.setAttribute("data-iso", iso);
+    stickyDateLabel.textContent = label;
+  }
+
+  /** @param {boolean} atBottom */
+  function syncJumpBottomPill(atBottom) {
+    if (!jumpBottomPill) return;
+    if (atBottom) {
+      unreadPillCount = 0;
+      jumpBottomPill.setAttribute("hidden", "");
+      jumpBottomPill.style.display = "none";
+      jumpBottomPill.removeAttribute("data-unread-count");
+      return;
+    }
+    jumpBottomPill.removeAttribute("hidden");
+    jumpBottomPill.style.display = "";
+    if (unreadPillCount > 0) {
+      jumpBottomPill.setAttribute("data-unread-count", String(unreadPillCount));
+      jumpBottomPill.textContent = `Новые сообщения (${unreadPillCount})`;
+      jumpBottomPill.setAttribute("aria-label", `Новые сообщения: ${unreadPillCount}. Перейти вниз`);
+    } else {
+      jumpBottomPill.removeAttribute("data-unread-count");
+      jumpBottomPill.textContent = "К последним сообщениям";
+      jumpBottomPill.setAttribute("aria-label", "Перейти к последним сообщениям");
+    }
+  }
+
+  /** @param {number} count */
+  function setUnreadPillCount(count) {
+    unreadPillCount = Math.max(0, Number(count) || 0);
+    const atBottom = isChannelMode()
+      ? options.list.scrollTop + options.list.clientHeight >= options.list.scrollHeight - 48
+      : list.totalHeight <= options.list.clientHeight ||
+        options.list.scrollTop + options.list.clientHeight >= list.totalHeight - 48;
+    syncJumpBottomPill(atBottom && unreadPillCount === 0);
+  }
+
+  function jumpToBottom() {
+    unreadPillCount = 0;
+    if (isChannelMode()) {
+      const target = Math.max(0, options.list.scrollHeight - options.list.clientHeight);
+      if (typeof options.list.scrollTo === "function") {
+        options.list.scrollTo({ top: target, behavior: "smooth" });
+      } else {
+        options.list.scrollTop = target;
+      }
+    } else {
+      list.scrollToIndex(CHAT_ROWS - 1, { align: "end", behavior: "smooth" });
+    }
+    syncJumpBottomPill(true);
+  }
+
+  if (jumpBottomPill) {
+    jumpBottomPill.addEventListener("click", () => jumpToBottom());
+  }
+
+  let virtualReady = false;
   const list = new VirtualList({
     container: options.list,
     source,
     heights: /** @type {any} */ (heights),
     render: renderChatRow,
     onError: options.onError,
+    onScroll: ({ firstVisibleIndex, atBottom }) => {
+      if (!virtualReady) return;
+      if (!isChannelMode()) {
+        syncStickyDate(firstVisibleIndex);
+        syncJumpBottomPill(atBottom);
+      }
+    },
   });
   // D-04: модель высот — единственный источник (26/48/+22), строка-трек 44 из
   // RW-38 больше не участвует. Строку собираем из той же константы модели,
@@ -3510,11 +3648,10 @@ export function createChatScreen(options) {
   );
   // Чат открывается на последнем сообщении, как в реальном клиенте.
   list.scrollToIndex(CHAT_ROWS - 1);
+  syncStickyDate(list.firstVisibleIndex());
+  syncJumpBottomPill(true);
 
   const onError = options.onError ?? (() => {});
-  const container = /** @type {HTMLElement | null} */ (
-    /** @type {any} */ (options.list).parentNode ?? null
-  );
   const sentMessages = document.createElement("div");
   sentMessages.className = "chat-sent-messages";
   sentMessages.setAttribute("aria-live", "polite");
@@ -3718,6 +3855,7 @@ export function createChatScreen(options) {
   function isChannelMode() {
     return mode === "channel";
   }
+  virtualReady = true;
 
   /**
    * Канал для live-команд: реальный snowflake в режиме канала, синтетический
@@ -4525,7 +4663,7 @@ export function createChatScreen(options) {
       void ackIfNeeded(id);
       return;
     }
-    if (isChannelMode() && channel) {
+    if (virtualReady && isChannelMode() && channel) {
       const previous = channelWindows.get(channel.id);
       if (previous) previous.scroll = host.scrollTop;
     }
@@ -4540,6 +4678,7 @@ export function createChatScreen(options) {
     }
     host.setAttribute("data-mode", "channel");
     host.setAttribute("data-channel-id", id);
+    host.style.display = "";
     const header = document.querySelector("#chat-header");
     if (header) header.setAttribute("data-channel-id", id);
     const title = document.querySelector(".chat-title-text");
@@ -4845,6 +4984,7 @@ export function createChatScreen(options) {
           // Tombstone до конца сессии: PageStore после выгрузки страницы отдаст
           // строку снова, поэтому удаление живёт в индексе высот/источнике.
           heights.mark(index);
+          list.measureElement(index, 0);
           node.removeAttribute("data-state");
           node.style.display = "";
           relayout();
@@ -4885,7 +5025,7 @@ export function createChatScreen(options) {
    */
   function jumpTo(index) {
     try {
-      list.scrollToIndex(index);
+      list.scrollToIndex(index, { align: "center", behavior: "smooth" });
       const node = list.rows.get(index);
       if (node) node.classList.add("is-highlight");
       // Подсветка живёт 1000 ms (SRCH-16); таймер не держит процесс.
@@ -4915,6 +5055,8 @@ export function createChatScreen(options) {
   const onScrollHistory = () => {
     if (!isChannelMode() || !channel) return;
     const remaining = options.list.scrollHeight - options.list.clientHeight - options.list.scrollTop;
+    syncStickyDate(0);
+    syncJumpBottomPill(remaining <= 48);
     if (options.list.scrollTop <= CHANNEL_LOAD_TOP_EDGE_PX) void loadOlderHistory();
     if (remaining <= CHANNEL_LOAD_EDGE_PX) void loadMoreHistory();
   };
@@ -4971,6 +5113,8 @@ export function createChatScreen(options) {
         instance.refresh();
       };
     },
+    jumpToBottom,
+    setUnreadPillCount,
     sendMessage,
     openChannel,
     /** L-02-UI: live-пилюля из dispatch-события (PLAN §3.5). */

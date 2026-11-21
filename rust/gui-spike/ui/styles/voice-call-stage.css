@@ -1,0 +1,301 @@
+/* rust/gui-spike/ui/styles/voice-call-stage.css */
+/* Канонические стили полноэкранной сцены звонка Discord (Cleanroom Parity D-03 / Voice Stage) */
+
+.voice-call-stage-root {
+  width: 100%;
+  flex-shrink: 0;
+  background: var(--background-floating, #111214);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border-subtle, #2b2d31);
+  transition: min-height 200ms ease, height 200ms ease;
+  z-index: 10;
+}
+
+/* Сцена по умолчанию в режиме звонка (минимум 280px в шапке чата, либо на всю высоту при fullscreen) */
+.voice-call-stage-root[data-mode="compact"] {
+  min-height: 240px;
+  max-height: 360px;
+}
+
+.voice-call-stage-root[data-mode="focused"],
+.voice-call-stage-root[data-mode="stream"] {
+  min-height: 380px;
+  height: 55vh;
+}
+
+/* Верхняя полоса информации о звонке */
+.voice-call-stage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+}
+
+.voice-call-header-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.voice-call-header-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-normal, #f2f3f5);
+}
+
+.voice-call-header-badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--status-danger, #f23f43);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.voice-call-header-badge-quality {
+  padding: 3px 8px;
+  border-radius: var(--radius-sm, 4px);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--text-muted, #949ba4);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Сетка участников по центру */
+.voice-call-stage-grid {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 60px 20px 80px 20px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Карточка участника с аватаром (Скриншот 1) */
+.voice-call-participant-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 150ms ease;
+}
+
+.voice-call-avatar-wrapper {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-experiment, #5865f2);
+  transition: box-shadow 120ms ease;
+}
+
+.voice-call-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.voice-call-avatar-placeholder {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Зеленое кольцо говорящего участника */
+.voice-call-participant-card[data-speaking="true"] .voice-call-avatar-wrapper {
+  box-shadow: 0 0 0 4px var(--status-positive, #23a55a);
+}
+
+.voice-call-participant-name {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-normal, #f2f3f5);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 3px 10px;
+  border-radius: var(--radius-sm, 4px);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Видеопоток демонстрации экрана (Скриншот 2) */
+.voice-call-stream-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  border-radius: var(--radius-md, 8px);
+  overflow: hidden;
+}
+
+.voice-call-stream-video,
+.voice-call-stream-canvas,
+.voice-call-stream-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000000;
+}
+
+.voice-call-stream-overlay-tag {
+  position: absolute;
+  bottom: 84px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 4px);
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+/* Плавающий док управления звонком (Floating Control Bar на обоих скриншотах) */
+.voice-call-floating-dock {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-lg, 24px);
+  background: rgba(17, 18, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  z-index: 30;
+}
+
+/* Сгруппированные кнопки управления */
+.voice-call-btn-group {
+  display: flex;
+  align-items: center;
+  background: var(--background-secondary-alt, #2b2d31);
+  border-radius: var(--radius-lg, 20px);
+  overflow: hidden;
+}
+
+.voice-call-dock-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--interactive-normal, #b5bac1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--radius-lg, 20px);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.voice-call-dock-btn:hover {
+  background: var(--background-modifier-hover, rgba(255, 255, 255, 0.07));
+  color: var(--interactive-hover, #ffffff);
+}
+
+.voice-call-dock-btn[data-active="true"] {
+  color: var(--status-positive, #23a55a);
+}
+
+.voice-call-dock-btn[data-danger="true"] {
+  background: var(--status-danger, #f23f43);
+  color: #ffffff;
+  width: 52px;
+  border-radius: var(--radius-lg, 20px);
+}
+
+.voice-call-dock-btn[data-danger="true"]:hover {
+  background: #da373c;
+}
+
+.voice-call-dock-chevron {
+  width: 20px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--interactive-normal, #b5bac1);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: -4px;
+  margin-right: 4px;
+}
+
+.voice-call-dock-chevron:hover {
+  color: #ffffff;
+}
+
+.voice-call-dock-btn[data-muted="true"] {
+  background: rgba(242, 63, 67, 0.22);
+  color: #f23f43;
+}
+
+.voice-call-participant-card[data-ringing="true"] .voice-call-avatar-wrapper {
+  opacity: 0.6;
+}
+
+.voice-call-participant-ringing {
+  margin-top: 4px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: rgba(240, 178, 50, 0.18);
+  color: #f0b232;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.voice-call-participant-mute-icon {
+  margin-left: 4px;
+  color: #f23f43;
+  font-size: 11px;
+}
+
+.voice-call-header-timer {
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: #2b2d31;
+  color: #b5bac1;
+  font-size: 11px;
+  font-weight: 600;
+}

@@ -151,6 +151,10 @@ pub enum TrayMenuAction {
     VoiceSettings,
     /// Проверить наличие обновлений клиента.
     CheckForUpdates,
+    /// Открыть окно «О программе».
+    About,
+    /// Перезапустить приложение.
+    Restart,
     /// Завершить работу приложения.
     Quit,
 }
@@ -244,6 +248,30 @@ impl TrayMenuItem {
         }
     }
 
+    /// Создает пункт «О программе».
+    pub fn about() -> Self {
+        Self {
+            action: TrayMenuAction::About,
+            label: "О программе".to_string(),
+            item_type: TrayMenuItemType::Normal,
+            checked: false,
+            enabled: true,
+            visible: true,
+        }
+    }
+
+    /// Создает пункт «Перезапустить».
+    pub fn restart() -> Self {
+        Self {
+            action: TrayMenuAction::Restart,
+            label: "Перезапустить".to_string(),
+            item_type: TrayMenuItemType::Normal,
+            checked: false,
+            enabled: true,
+            visible: true,
+        }
+    }
+
     /// Создает пункт «Выйти из Discord».
     pub fn quit() -> Self {
         Self {
@@ -288,6 +316,18 @@ impl TrayMenu {
                 deafen,
                 TrayMenuItem::voice_settings(),
                 TrayMenuItem::check_for_updates(),
+                TrayMenuItem::quit(),
+            ],
+        }
+    }
+
+    /// Создает 4-пунктовое меню оболочки (R4-02: Open, About, Restart, Quit).
+    pub fn shell_menu() -> Self {
+        Self {
+            items: vec![
+                TrayMenuItem::open(),
+                TrayMenuItem::about(),
+                TrayMenuItem::restart(),
                 TrayMenuItem::quit(),
             ],
         }
@@ -544,6 +584,8 @@ pub struct TrayController<B: TrayBackend> {
     unread_count: u32,
     window_visible: bool,
     quitting: bool,
+    about_requested: bool,
+    restart_requested: bool,
 }
 
 impl<B: TrayBackend> TrayController<B> {
@@ -569,6 +611,8 @@ impl<B: TrayBackend> TrayController<B> {
             unread_count,
             window_visible: false,
             quitting: false,
+            about_requested: false,
+            restart_requested: false,
         };
 
         // Инициализация бэкенда, если он есть
@@ -585,6 +629,26 @@ impl<B: TrayBackend> TrayController<B> {
     /// Создает headless-контроллер без физического трея (для тестов или серверов).
     pub fn new_headless(minimize_policy: MinimizeToTrayPolicy) -> Self {
         Self::new(None, minimize_policy)
+    }
+
+    /// Устанавливает начальную видимость главного окна (например, при `--start-minimized`).
+    pub fn with_window_visible(mut self, visible: bool) -> Self {
+        self.window_visible = visible;
+        self
+    }
+
+    /// Устанавливает видимость главного окна.
+    pub fn set_window_visible(&mut self, visible: bool) {
+        self.window_visible = visible;
+    }
+
+    /// Заменяет контекстное меню трея и синхронизирует его с бэкендом.
+    pub fn set_menu(&mut self, menu: TrayMenu) -> Result<(), TrayError> {
+        self.menu = menu;
+        if let Some(b) = self.backend.as_mut() {
+            b.set_menu(&self.menu)?;
+        }
+        Ok(())
     }
 
     /// Доступ к бэкенду трея.
@@ -620,6 +684,18 @@ impl<B: TrayBackend> TrayController<B> {
     /// Находится ли клиент в процессе завершения работы.
     pub fn is_quitting(&self) -> bool {
         self.quitting
+    }
+
+    /// Запрошен ли перезапуск приложения из трея.
+    pub fn is_restart_requested(&self) -> bool {
+        self.restart_requested
+    }
+
+    /// Извлекает и сбрасывает флаг запроса окна «О программе».
+    pub fn take_about_requested(&mut self) -> bool {
+        let was = self.about_requested;
+        self.about_requested = false;
+        was
     }
 
     /// Обновляет параметры голосового звонка и синхронизирует иконку и меню.
@@ -688,8 +764,24 @@ impl<B: TrayBackend> TrayController<B> {
                 CloseDisposition::HideToTray
             }
             TrayMenuAction::CheckForUpdates => CloseDisposition::HideToTray,
+            TrayMenuAction::About => {
+                self.window_visible = true;
+                self.about_requested = true;
+                CloseDisposition::HideToTray
+            }
+            TrayMenuAction::Restart => {
+                self.quitting = true;
+                self.restart_requested = true;
+                if let Some(b) = self.backend.as_mut() {
+                    let _ = b.destroy();
+                }
+                CloseDisposition::QuitProcess
+            }
             TrayMenuAction::Quit => {
                 self.quitting = true;
+                if let Some(b) = self.backend.as_mut() {
+                    let _ = b.destroy();
+                }
                 CloseDisposition::QuitProcess
             }
         }

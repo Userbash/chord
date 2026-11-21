@@ -1,8 +1,8 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты интеграции ИИ-шумоподавления RNNoise / Krisp
- * (SIMD AVX2 аудиофильтр в `rust/discord-voice/src/rnnoise.rs`, SNR > 15 dB, задержка < 5 мс) — TASK-983:
- * - SUB-983-0: Статический и структурный контракт `rust/discord-voice/src/rnnoise.rs`
+ * (SIMD AVX2 аудиофильтр в `rust/chord-voice/src/rnnoise.rs`, SNR > 15 dB, задержка < 5 мс) — TASK-983:
+ * - SUB-983-0: Статический и структурный контракт `rust/chord-voice/src/rnnoise.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде, лимиты `scripts/quality-gate.mjs`
  *   < 50 строк на функцию и < 800 строк на модуль, `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, 0 утечек в `secret-scan.mjs`).
@@ -10,7 +10,7 @@
  *   `support_avx2`, `support_avx512_bf16`), параметров кадра (`48kHz mono, 10ms frame` = 480 сэмплов),
  *   дизайн-токенов и интерактивных состояний `rnnoise-toggle` (`active`, `show SNR boost`, `filtering`)
  *   с независимыми оракулами `waves/kanban-board.json`, `docs/re/native-re.md`, `docs/re/native-re.json`,
- *   `docs/re/voice-deep.md` и `rust/crates/discord-voice/src/noise.rs`.
+ *   `docs/re/voice-deep.md` и `rust/crates/chord-voice/src/noise.rs`.
  * - SUB-983-2: Независимый математический оракул 8-канального SIMD AVX2 (`Avx2SimdLane8`, 256-бит `f32x8`
  *   FMA / dot-product), 24 критических полос Bark/ERB и рекуррентной ячейки GRU (`z_t`, `r_t`, `h_t`).
  * - SUB-983-3: Фильтрация стационарного шума окружения и импульсного шума механической клавиатуры
@@ -40,7 +40,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-voice/src/rnnoise.rs";
+const MODULE_REL_PATH = "rust/chord-voice/src/rnnoise.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
 const NATIVE_RE_MD_PATH = join(ROOT, "docs", "re", "native-re.md");
@@ -50,7 +50,7 @@ const CRATE_NOISE_RS_PATH = join(
   ROOT,
   "rust",
   "crates",
-  "discord-voice",
+  "chord-voice",
   "src",
   "noise.rs",
 );
@@ -61,7 +61,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-voice/src/rnnoise.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-voice/src/rnnoise.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -162,7 +162,7 @@ function oracleComputeSnrImprovementDb(cleanSpeech, noisyInput, filteredOutput) 
   };
 }
 
-describe("TASK-983: ИИ-шумоподавление RNNoise / Krisp (SIMD AVX2 фильтр в rust/discord-voice/src/rnnoise.rs, SNR > 15 dB, задержка < 5 мс)", () => {
+describe("TASK-983: ИИ-шумоподавление RNNoise / Krisp (SIMD AVX2 фильтр в rust/chord-voice/src/rnnoise.rs, SNR > 15 dB, задержка < 5 мс)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "voice-rnnoise-983-"));
     testBinPath = join(workDir, "rnnoise_983_test");
@@ -174,7 +174,7 @@ describe("TASK-983: ИИ-шумоподавление RNNoise / Krisp (SIMD AVX2
     }
   });
 
-  it("SUB-983-0: модуль rust/discord-voice/src/rnnoise.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
+  it("SUB-983-0: модуль rust/chord-voice/src/rnnoise.rs существует, запрещает unsafe, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,
@@ -311,7 +311,7 @@ describe("TASK-983: ИИ-шумоподавление RNNoise / Krisp (SIMD AVX2
     assert.match(crateNoiseSrc, /pub const DEFAULT_RNNOISE_SUPPRESSION_DB: u8 = 30;/);
     assert.match(crateNoiseSrc, /pub const DEFAULT_KRISP_SUPPRESSION_DB: u8 = 45;/);
 
-    // 4. Проверяем наличие всех констант оракулов и дизайн-токенов в rust/discord-voice/src/rnnoise.rs
+    // 4. Проверяем наличие всех констант оракулов и дизайн-токенов в rust/chord-voice/src/rnnoise.rs
     const source = readFileSync(MODULE_PATH, "utf8");
     for (const tokenVal of Object.values(card983.design_tokens)) {
       assert.ok(
@@ -420,7 +420,7 @@ describe("TASK-983: ИИ-шумоподавление RNNoise / Krisp (SIMD AVX2
     assert.match(run.stdout, /test tests::test_sub_983_4_.*ok/);
   });
 
-  it("SUB-983-5: убивает 5/5 контрольных мутаций модуля rust/discord-voice/src/rnnoise.rs (100% mutation kill rate)", () => {
+  it("SUB-983-5: убивает 5/5 контрольных мутаций модуля rust/chord-voice/src/rnnoise.rs (100% mutation kill rate)", () => {
     assert.ok(existsSync(MODULE_PATH), "Исходник модуля должен существовать");
     const source = readFileSync(MODULE_PATH, "utf8");
 

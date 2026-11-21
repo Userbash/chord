@@ -1,14 +1,213 @@
 use crate::state::{AppState, PresenceStatus};
 use crate::theme::DISCORD_THEME;
 use crate::ui::AppLayout;
+use chord_platform::rpc_ipc::RpcActivity;
 use gpui::*;
 use gpui_kit::component::StyledExt;
+
+/// Модель отображения блока Rich Presence (`SET_ACTIVITY`, `P2-2.3`) в `UserProfileCard`.
+#[allow(dead_code)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RichPresenceBlockViewModel {
+    pub header_label: String,
+    pub name: String,
+    pub details: Option<String>,
+    pub state_line: Option<String>,
+    pub party_text: Option<String>,
+    pub timestamps_text: Option<String>,
+    pub large_image: Option<String>,
+    pub large_text: Option<String>,
+    pub small_image: Option<String>,
+    pub small_text: Option<String>,
+    pub buttons: Vec<(String, String)>,
+}
+
+impl RichPresenceBlockViewModel {
+    #[must_use]
+    pub fn from_rpc_activity(activity: &RpcActivity) -> Self {
+        let header_label = match activity.activity_type {
+            0 => "ИГРАЕТ В ИГРУ",
+            1 => "СТРИМИТ",
+            2 => "СЛУШАЕТ",
+            3 => "СМОТРИТ",
+            4 => "ПОЛЬЗОВАТЕЛЬСКИЙ СТАТУС",
+            5 => "СОРЕВНУЕТСЯ В",
+            _ => "АКТИВНОСТЬ",
+        }
+        .to_string();
+
+        let name = activity
+            .name
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .unwrap_or("Rich Presence")
+            .to_string();
+
+        let details = activity
+            .details
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string);
+
+        let party_text = activity
+            .party
+            .as_ref()
+            .and_then(|p| p.size)
+            .map(|[cur, max]| format!("({cur} из {max})"));
+
+        let raw_state = activity
+            .state
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string);
+
+        let state_line = match (&raw_state, &party_text) {
+            (Some(st), Some(pt)) => Some(format!("{st} {pt}")),
+            (Some(st), None) => Some(st.clone()),
+            (None, Some(pt)) => Some(pt.clone()),
+            (None, None) => None,
+        };
+
+        let timestamps_text = activity.timestamps.as_ref().and_then(|ts| {
+            let norm = ts.normalized_millis();
+            match (norm.start, norm.end) {
+                (Some(start), Some(end)) => {
+                    let total_secs = end.saturating_sub(start) / 1000;
+                    let mins = total_secs / 60;
+                    let secs = total_secs % 60;
+                    Some(format!("{mins:02}:{secs:02} осталось"))
+                }
+                (Some(start), None) => Some(format!("В процессе (с {start} мс)")),
+                (None, Some(end)) => Some(format!("До {end} мс")),
+                (None, None) => None,
+            }
+        });
+
+        let (large_image, large_text, small_image, small_text) = match &activity.assets {
+            Some(assets) => (
+                assets
+                    .large_image
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(ToString::to_string),
+                assets
+                    .large_text
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(ToString::to_string),
+                assets
+                    .small_image
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(ToString::to_string),
+                assets
+                    .small_text
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(ToString::to_string),
+            ),
+            None => (None, None, None, None),
+        };
+
+        let buttons = activity
+            .buttons
+            .iter()
+            .take(chord_platform::rpc_ipc::MAX_RPC_BUTTONS)
+            .map(|b| (b.label.clone(), b.url.clone()))
+            .collect();
+
+        Self {
+            header_label,
+            name,
+            details,
+            state_line,
+            party_text,
+            timestamps_text,
+            large_image,
+            large_text,
+            small_image,
+            small_text,
+            buttons,
+        }
+    }
+
+    #[must_use]
+    pub fn from_member_activity_text(text: &str) -> Option<Self> {
+        let trimmed = text.trim();
+        if trimmed.is_empty() {
+            return None;
+        }
+        Some(Self {
+            header_label: "АКТИВНОСТЬ".to_string(),
+            name: trimmed.to_string(),
+            details: None,
+            state_line: None,
+            party_text: None,
+            timestamps_text: None,
+            large_image: None,
+            large_text: None,
+            small_image: None,
+            small_text: None,
+            buttons: Vec::new(),
+        })
+    }
+}
 
 /// Карточка пользователя (User Profile Popover)
 /// Реализует окно профиля по эталону /home/sanya/re-deep/ui/06-profile-popout.html
 pub struct UserProfileCard;
 
 impl UserProfileCard {
+    /// Возвращает актуальную модель блока Rich Presence для открытой карточки пользователя
+    /// (или активной сессии `SET_ACTIVITY`), либо `None`, если активность очищена (`activity == None`).
+    #[must_use]
+    pub fn rich_presence_block(state: &AppState) -> Option<RichPresenceBlockViewModel> {
+        let is_current_user_profile = match &state.selected_member_profile {
+            Some(member) => {
+                (!state.current_user.id.is_empty() && member.id == state.current_user.id)
+                    || (!state.current_user.username.is_empty()
+                        && member.username == state.current_user.username)
+            }
+            None => true,
+        };
+
+        if is_current_user_profile {
+            if let Some(ref rpc) = state.active_rpc_activity {
+                return Some(RichPresenceBlockViewModel::from_rpc_activity(rpc));
+            }
+            if let Some(ref member) = state.selected_member_profile
+                && let Some(ref act_text) = member.activity
+            {
+                return RichPresenceBlockViewModel::from_member_activity_text(act_text);
+            }
+            return None;
+        }
+
+        if let Some(ref member) = state.selected_member_profile {
+            if let Some(ref act_text) = member.activity {
+                return RichPresenceBlockViewModel::from_member_activity_text(act_text);
+            }
+            if let Some(ref rpc) = state.active_rpc_activity {
+                return Some(RichPresenceBlockViewModel::from_rpc_activity(rpc));
+            }
+        }
+
+        None
+    }
+
+    #[allow(dead_code)]
+    #[must_use]
+    pub fn has_active_rich_presence(state: &AppState) -> bool {
+        Self::rich_presence_block(state).is_some()
+    }
+
     pub fn render(
         state: &AppState,
         _window: &mut Window,
@@ -25,7 +224,7 @@ impl UserProfileCard {
             .clone()
             .unwrap_or_else(|| username.clone());
         let status = member.status;
-        let activity = member.activity.clone();
+        let rich_presence = Self::rich_presence_block(state);
         let roles = member.roles.clone();
 
         div()
@@ -165,27 +364,77 @@ impl UserProfileCard {
                             )
                             // Разделитель
                             .child(div().h(px(1.)).w_full().bg(DISCORD_THEME.border_subtle))
-                            // Пользовательский статус или активность
-                            .child(
+                            // Живой блок Rich Presence (P2-2.3), скрывается при activity == None
+                            .children(rich_presence.map(|block| {
                                 div()
                                     .v_flex()
-                                    .gap(px(2.))
+                                    .gap(px(4.))
+                                    .p(px(8.))
+                                    .rounded(px(6.))
+                                    .bg(DISCORD_THEME.bg_primary)
+                                    .border_1()
+                                    .border_color(DISCORD_THEME.border_subtle)
                                     .child(
                                         div()
                                             .text_size(px(11.))
                                             .font_weight(FontWeight::BOLD)
                                             .text_color(DISCORD_THEME.text_muted)
-                                            .child("АКТИВНОСТЬ"),
+                                            .child(block.header_label),
                                     )
                                     .child(
                                         div()
                                             .text_size(px(13.))
+                                            .font_weight(FontWeight::BOLD)
+                                            .text_color(DISCORD_THEME.text_header)
+                                            .child(block.name),
+                                    )
+                                    .children(block.details.map(|details| {
+                                        div()
+                                            .text_size(px(12.))
                                             .text_color(DISCORD_THEME.text_normal)
-                                            .child(activity.unwrap_or_else(|| {
-                                                "Играет в GPUI Rust Engine".into()
-                                            })),
-                                    ),
-                            )
+                                            .child(details)
+                                    }))
+                                    .children(block.state_line.map(|st| {
+                                        div()
+                                            .text_size(px(12.))
+                                            .text_color(DISCORD_THEME.text_muted)
+                                            .child(st)
+                                    }))
+                                    .children(block.timestamps_text.map(|ts| {
+                                        div()
+                                            .text_size(px(11.))
+                                            .text_color(DISCORD_THEME.text_muted)
+                                            .child(ts)
+                                    }))
+                                    .children(block.large_text.or(block.large_image).map(
+                                        |asset_caption| {
+                                            div()
+                                                .text_size(px(11.))
+                                                .text_color(DISCORD_THEME.text_muted)
+                                                .child(format!("🖼 {asset_caption}"))
+                                        },
+                                    ))
+                                    .children(if block.buttons.is_empty() {
+                                        None
+                                    } else {
+                                        Some(div().v_flex().gap(px(4.)).pt(px(4.)).children(
+                                            block.buttons.into_iter().map(|(label, _url)| {
+                                                div()
+                                                    .h(px(28.))
+                                                    .w_full()
+                                                    .rounded(px(4.))
+                                                    .bg(DISCORD_THEME.bg_active)
+                                                    .flex()
+                                                    .items_center()
+                                                    .justify_center()
+                                                    .text_size(px(12.))
+                                                    .font_weight(FontWeight::MEDIUM)
+                                                    .text_color(DISCORD_THEME.text_header)
+                                                    .child(label)
+                                            }),
+                                        ))
+                                    })
+                            }))
                             // Роли на сервере
                             .child(
                                 div()

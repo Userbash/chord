@@ -2,7 +2,7 @@
 /**
  * Контрактные и модульные тесты контроля перегрузки сети WebRTC BWE (GCC, адаптация
  * видеобитрейта 500..8000 kbps по RTCP REMB и TWCC) — TASK-982:
- * - SUB-982-0: Статический и структурный контракт `rust/discord-voice/src/congestion.rs`
+ * - SUB-982-0: Статический и структурный контракт `rust/chord-voice/src/congestion.rs`
  *   (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде, лимиты `quality-gate.mjs`
  *   < 50 строк на функцию и < 800 строк на модуль, `rustfmt --check --edition 2024`,
  *   компиляция `rustc --test --edition 2024 -D warnings` без предупреждений, `secret-scan.mjs`).
@@ -36,7 +36,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const MODULE_REL_PATH = "rust/discord-voice/src/congestion.rs";
+const MODULE_REL_PATH = "rust/chord-voice/src/congestion.rs";
 const MODULE_PATH = join(ROOT, MODULE_REL_PATH);
 const SCRIPT_PATH = join(ROOT, "scripts", "verify-bwe.mjs");
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");
@@ -50,7 +50,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-voice/src/congestion.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-voice/src/congestion.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -113,7 +113,7 @@ describe("TASK-982: Контроль перегрузки WebRTC BWE (GCC, REMB/
     }
   });
 
-  it("SUB-982-0: модуль rust/discord-voice/src/congestion.rs существует, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
+  it("SUB-982-0: модуль rust/chord-voice/src/congestion.rs существует, проходит rustfmt 2024, лимиты размера (<50 строк на fn, <800 на файл) и компилируется без предупреждений", () => {
     assert.ok(
       existsSync(MODULE_PATH),
       `Модуль ${MODULE_REL_PATH} должен существовать`,
@@ -477,7 +477,7 @@ describe("TASK-982: Контроль перегрузки WebRTC BWE (GCC, REMB/
     assert.match(run.stdout, /test tests::test_sub_982_4_.*ok/);
   });
 
-  it("SUB-982-5: убивает 5/5 контрольных мутаций модуля rust/discord-voice/src/congestion.rs (100% mutation kill rate)", () => {
+  it("SUB-982-5: убивает 5/5 контрольных мутаций модуля rust/chord-voice/src/congestion.rs (100% mutation kill rate)", () => {
     assert.ok(existsSync(MODULE_PATH), "Исходник модуля должен существовать");
     const source = readFileSync(MODULE_PATH, "utf8");
 

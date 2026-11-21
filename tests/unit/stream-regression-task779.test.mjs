@@ -19,10 +19,15 @@ const CAPTURE_TARGET_SHM_PATH = "/dev/shm/discord_capture_target.txt";
 const CAPTURE_KICK_SHM_PATH = "/dev/shm/discord_capture_kick.bin";
 
 describe("TASK-779: Комплексный регрессионный сьют трансляции экрана (WebRTC, Stage Viewer/PIP, Hot Window Switch)", () => {
-  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/discord-core/src/ws.rs"), "utf8");
+  const wsRs = fs.readFileSync(path.join(REPO_ROOT, "rust/crates/chord-core/src/ws.rs"), "utf8");
   const dataRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/data.rs"), "utf8");
   const mainRs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/src/main.rs"), "utf8");
-  const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
+  const appJs = [
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stage-viewer-controls.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stream-controller.js"), "utf8"),
+  ].join("\n");
 
   describe("1. Контракт WebRTC: sourceId: '-1', type: 'screen', исключение сброса захватчика в nil", () => {
     it("T779-1a: ws.rs applyScreenBroadcast и set_stream_source всегда передают type: 'screen', sourceId: '-1' и не сбрасывают захватчик в nil", () => {
@@ -203,22 +208,25 @@ describe("TASK-779: Комплексный регрессионный сьют �
       assert.match(fnBody, /stopStageBtn\.id\s*=\s*"stage-stop-stream-btn"/);
       assert.match(fnBody, /closeStageBtn\.id\s*=\s*"stage-close-viewer-btn"/);
 
-      // Minimize и крестик ✕ у стримера вызывают closeStageViewer(false) (свернуть в PIP, стрим продолжается)
+      const controlsIdx = appJs.indexOf("function buildStageViewerTopBar(");
+      const controlsBody = controlsIdx > 0 ? appJs.slice(controlsIdx, controlsIdx + 15000) : fnBody;
+
+      // Minimize и крестик ✕ у стримера вызывают closeStageViewer(false) / onCloseStage(false) (свернуть в PIP, стрим продолжается)
       assert.match(
-        fnBody,
-        /minimizeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(false\);\s*\}\)/,
+        controlsBody,
+        /minimizeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(false\);\s*\}\)/,
         "Кнопка 'Свернуть 🗕' должна вызывать closeStageViewer(false)",
       );
       assert.match(
-        fnBody,
-        /closeStageBtn\.textContent\s*=\s*"✕"[\s\S]{0,400}?closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(false\);\s*\}\)/,
+        controlsBody,
+        /closeStageBtn\.textContent\s*=\s*"✕"[\s\S]{0,400}?closeStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(false\);\s*\}\)/,
         "Крестик закрытия Stage Viewer у стримера должен сворачивать окно в PIP (closeStageViewer(false)), а не обрывать стрим",
       );
 
-      // Кнопка 'Прекратить стрим' вызывает closeStageViewer(true)
+      // Кнопка 'Прекратить стрим' вызывает closeStageViewer(true) / onCloseStage(true)
       assert.match(
-        fnBody,
-        /stopStageBtn\.textContent\s*=\s*"Прекратить стрим"[\s\S]{0,400}?stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*closeStageViewer\(true\);\s*\}\)/,
+        controlsBody,
+        /stopStageBtn\.textContent\s*=\s*"Прекратить стрим"[\s\S]{0,400}?stopStageBtn\.addEventListener\("click",\s*\(\)\s*=>\s*\{\s*(?:closeStageViewer|onCloseStage)\(true\);\s*\}\)/,
         "Кнопка 'Прекратить стрим' должна вызывать closeStageViewer(true)",
       );
 
@@ -229,12 +237,12 @@ describe("TASK-779: Комплексный регрессионный сьют �
 
       assert.match(
         closeBody,
-        /if\s*\(stopStream\s*&&\s*activeVoiceConnection\)[\s\S]*?document\.getElementById\("live-stream-pip-preview"\)\?\.remove\(\)[\s\S]*?invoke\("voice_stream_stop"/,
+        /if\s*\(stopStream\s*&&\s*(?:activeVoiceConnection|activeConn)\)[\s\S]*?document\.getElementById\("live-stream-pip-preview"\)\?\.remove\(\)[\s\S]*?(?:ctx\.)?invoke\("voice_stream_stop"/,
         "При stopStream=true должны удаляться #live-stream-pip-preview и вызываться voice_stream_stop",
       );
       assert.match(
         closeBody,
-        /else\s+if\s*\(!stopStream\)\s*\{[\s\S]{0,250}?syncFloatingStreamPipPreview\(\);\s*\}/,
+        /else\s+if\s*\(!stopStream\)\s*\{[\s\S]{0,250}?(?:ctx\.)?syncFloatingStreamPipPreview\(\);\s*\}/,
         "При stopStream=false должен вызываться syncFloatingStreamPipPreview() для показа PIP",
       );
     });
@@ -378,7 +386,9 @@ describe("TASK-779: Комплексный регрессионный сьют �
       // 2. data.rs set_capture_source пишет в /dev/shm/discord_capture_target.txt и /dev/shm/discord_capture_kick.bin
       const dataIdx = dataRs.indexOf('if kind == "set_capture_source"');
       assert.ok(dataIdx > 0, "set_capture_source должен быть в data.rs");
-      const dataBody = dataRs.slice(dataIdx, dataIdx + 2500);
+      const dataEnd = dataRs.indexOf('    if kind == "list_capture_windows"', dataIdx);
+      assert.ok(dataEnd > dataIdx, "set_capture_source must have its expected closing boundary");
+      const dataBody = dataRs.slice(dataIdx, dataEnd);
       assert.match(
         dataBody,
         /std::fs::write\("\/dev\/shm\/discord_capture_target\.txt",\s*target_handle\.as_bytes\(\)\)/,
@@ -391,14 +401,14 @@ describe("TASK-779: Комплексный регрессионный сьют �
       );
       assert.match(
         dataBody,
-        /discord_core::ws::send_native_stream_cmd\(&ucmd\)/,
+        /chord_core::ws::send_native_stream_cmd\(&ucmd\)/,
         "data.rs set_capture_source обязан отправлять команду set_stream_source в нативный мост",
       );
 
       // 3. main.rs voice_stream_start также инициализирует /dev/shm/discord_capture_target.txt
       const startIdx = mainRs.indexOf("async fn voice_stream_start");
       assert.ok(startIdx > 0, "voice_stream_start должна быть в main.rs");
-      const startBody = mainRs.slice(startIdx, startIdx + 2000);
+      const startBody = mainRs.slice(startIdx, mainRs.indexOf("\n}", startIdx) + 2);
       assert.match(
         startBody,
         /std::fs::write\("\/dev\/shm\/discord_capture_target\.txt",\s*clean_src\.as_bytes\(\)\)/,
@@ -478,7 +488,7 @@ describe("TASK-779: Комплексный регрессионный сьют �
       }
 
       /**
-       * Точная модель C-хука `capture_kwin_dbus_to_ring` из `rust/crates/discord-core/src/ws.rs`.
+       * Точная модель C-хука `capture_kwin_dbus_to_ring` из `rust/crates/chord-core/src/ws.rs`.
        */
       function readKwinTargetFromShm() {
         const raw = fs.readFileSync(CAPTURE_TARGET_SHM_PATH, "utf8");

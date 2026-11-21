@@ -13,7 +13,8 @@
 //!    - валидацию `SearchGuildMessages` (`offset <= 9975`, `limit` в `1..=25`, `content` опциональный).
 
 use chord_client::ipc_ext::{
-    validate_and_build_plan, BulkReadStateEntry, ExtendedIpcCommand, ExtendedIpcPlan,
+    validate_and_build_plan, BulkReadStateEntry, DiscordRestBridge, ExtendedIpcCommand,
+    ExtendedIpcPlan,
 };
 use serde_json::json;
 
@@ -543,6 +544,21 @@ fn search_guild_messages_builds_get_plan_with_and_without_content() {
 }
 
 #[test]
+fn search_guild_messages_percent_encodes_special_characters_safely() {
+    let special_content = ExtendedIpcCommand::SearchGuildMessages {
+        guild_id: VALID_GUILD_ID.to_string(),
+        content: Some("hello & world #1 ?".to_string()),
+        offset: 10,
+        limit: 20,
+    };
+    let plan = validate_and_build_plan(&special_content).expect("special characters must be encoded");
+    assert_eq!(
+        plan.path,
+        format!("/guilds/{VALID_GUILD_ID}/messages/search?content=hello%20%26%20world%20%231%20%3F&offset=10&limit=20")
+    );
+}
+
+#[test]
 fn search_guild_messages_enforces_offset_limit_and_guild_id_bounds() {
     // offset = 9976 (> 9975) -> Err
     let bad_offset = ExtendedIpcCommand::SearchGuildMessages {
@@ -584,4 +600,108 @@ fn search_guild_messages_enforces_offset_limit_and_guild_id_bounds() {
             "guild_id={bad_guild:?} must be rejected"
         );
     }
+}
+
+// ---------------------------------------------------------------------------
+// 7. LIB-SIMPLIFY-01: Transparent reqwest + url + serde Bridge Contract
+// ---------------------------------------------------------------------------
+
+#[test]
+fn ipc_ext_plan_resolves_url_and_typed_serde_dtos_via_transparent_bridge() {
+    use chord_client::ipc_ext::{
+        AckMessagesBulkRequestDto, DiscordRestBridge, PollVoteBodyDto,
+        UserProfileQueryDto, GuildMessageSearchQueryDto,
+    };
+
+    let profile_cmd = ExtendedIpcCommand::GetUserProfile {
+        user_id: VALID_USER_ID.to_string(),
+        with_mutual_guilds: true,
+        with_mutual_friends_count: false,
+        guild_id: Some(VALID_GUILD_ID.to_string()),
+    };
+    let profile_plan = validate_and_build_plan(&profile_cmd).expect("profile plan");
+    let resolved_url = profile_plan
+        .resolve_url("https://discord.com/api/v9")
+        .expect("url::Url resolution");
+    assert_eq!(
+        resolved_url.as_str(),
+        format!(
+            "https://discord.com/api/v9/users/{VALID_USER_ID}/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id={VALID_GUILD_ID}"
+        )
+    );
+
+    let query_dto = UserProfileQueryDto {
+        with_mutual_guilds: true,
+        with_mutual_friends_count: false,
+        guild_id: Some(VALID_GUILD_ID.to_string()),
+    };
+    assert_eq!(
+        serde_json::to_value(&query_dto).expect("serialize query dto"),
+        json!({
+            "with_mutual_guilds": true,
+            "with_mutual_friends_count": false,
+            "guild_id": VALID_GUILD_ID
+        })
+    );
+
+    let ack_dto = AckMessagesBulkRequestDto {
+        read_states: vec![BulkReadStateEntry {
+            channel_id: VALID_CHANNEL_ID.to_string(),
+            message_id: VALID_MESSAGE_ID.to_string(),
+            read_state_type: Some(2),
+        }],
+    };
+    assert_eq!(
+        serde_json::to_value(&ack_dto).expect("serialize ack dto"),
+        json!({
+            "read_states": [{
+                "channel_id": VALID_CHANNEL_ID,
+                "message_id": VALID_MESSAGE_ID,
+                "read_state_type": 2
+            }]
+        })
+    );
+
+    let poll_dto = PollVoteBodyDto {
+        answer_ids: vec![1, 4],
+    };
+    assert_eq!(
+        serde_json::to_value(&poll_dto).expect("serialize poll dto"),
+        json!({ "answer_ids": [1, 4] })
+    );
+
+    let search_dto = GuildMessageSearchQueryDto {
+        content: Some("hello & world".to_string()),
+        offset: 25,
+        limit: 10,
+    };
+    assert_eq!(
+        serde_json::to_value(&search_dto).expect("serialize search dto"),
+        json!({
+            "content": "hello & world",
+            "offset": 25,
+            "limit": 10
+        })
+    );
+
+    let bridge = DiscordRestBridge::with_anonymous_base("https://discord.com/api/v9")
+        .expect("anonymous bridge");
+    let reqwest_req = bridge
+        .build_reqwest_request(&profile_plan)
+        .expect("build reqwest::Request");
+    assert_eq!(reqwest_req.method().as_str(), "GET");
+    assert_eq!(reqwest_req.url().as_str(), resolved_url.as_str());
+}
+
+#[test]
+fn rest_request_rejects_invalid_http_method() {
+    use chord_core::rest::bridge::DiscordRestBridgeError;
+
+    let bridge = DiscordRestBridge::with_anonymous_base("https://discord.com/api/v9")
+        .expect("anonymous bridge");
+    let rt = tokio::runtime::Runtime::new().expect("tokio runtime");
+    let err = rt
+        .block_on(bridge.execute_rest_request("BAD METHOD", "/users/@me", None))
+        .expect_err("invalid HTTP method must fail");
+    assert!(matches!(err, DiscordRestBridgeError::InvalidUrl(_)));
 }

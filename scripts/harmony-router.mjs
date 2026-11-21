@@ -48,49 +48,211 @@ export const TASK_DEPENDENCIES = Object.freeze({
 });
 
 /**
- * Модельные гармоники и уровни рассуждения по приоритету и отделу
+ * Задачи экстремальной когнитивной сложности (Tier XL):
+ * только zero-copy/lock-free буферы, криптография DAVE MLS v1 / SRTP / AES-GCM,
+ * и реактивный асинхронный мост Tokio ↔ GPUI Event Loop.
+ */
+const XL_HARDCORE_TASKS = new Set([
+  'TASK-601',
+  'TASK-602',
+  'TASK-603',
+  'TASK-605',
+  'TASK-614',
+  'TASK-615',
+  'TASK-701-VOICE',
+  'TASK-702',
+  'TASK-1021B',
+]);
+
+/**
+ * Рутинные и тривиальные одношаговые задачи (Tier S · Gemini 4 Hydrogen Low):
+ * однострочные переключения, CI/config правки, desktop/MSI/DMG манифесты, очистка моков.
+ */
+const HYDROGEN_LOW_TASKS = new Set([
+  'P0-1.1',
+  'P2-1.2',
+  'P2-3.2',
+  'H-FIX-17',
+  'TASK-1015A',
+  'TASK-1016A',
+  'TASK-1016B',
+]);
+
+/**
+ * Простые рутинные утилиты, шаблонные адаптеры, i18n и системные хелперы (Tier M · Gemini 4 Hydrogen Medium).
+ */
+const HYDROGEN_MEDIUM_TASKS = new Set([
+  'P2-1.1',
+  'P2-3.1',
+  'TASK-1011A',
+  'TASK-1012A',
+  'TASK-1013A',
+]);
+
+/**
+ * Сложные задачи ядра Rust, RE-декодеров, KDF и мутационного аудита (Tier L-High):
+ * оправдывают gemini-4-argon-high + effort=high.
+ */
+const L_HIGH_TASKS = new Set([
+  'TASK-613',
+  'TASK-619',
+  'TASK-622',
+  'TASK-704',
+  'TASK-1007A',
+  'TASK-1008A',
+  'TASK-1009B',
+  'TASK-1021A',
+  'P0-1.3',
+  'P1-1.3',
+  'P1-1.4',
+  'P1-2.2',
+  'P1-2.3',
+]);
+
+/**
+ * Модельные гармоники и уровни рассуждения по сложности задачи, роли и отделу.
+ * Приоритет (P0–P3) определяет очередь выполнения, но НЕ завышает модель для простых задач.
  * @param {string} taskId
  * @param {string} priority
  * @param {string} department
- * @returns {{ agent: string, model: string, effort: 'low' | 'medium' | 'high' | 'xhigh', rationale: string }}
+ * @param {{ escalate?: boolean, orchestrator?: 'argon' | 'carbon' }} [options]
+ * @returns {{ tier: 'S' | 'M' | 'L' | 'XL', agent: string, model: string, effort: 'low' | 'medium' | 'high' | 'xhigh', rationale: string }}
  */
-export function resolveModelHarmony(taskId, priority, department) {
-  // P0 задачи ядра, криптографии, атомиков и GPUI-моста — эксклюзивно Carbon
-  if (['TASK-614', 'TASK-615', 'TASK-702'].includes(taskId) || (priority === 'P0' && department.includes('G5'))) {
+export function resolveModelHarmony(taskId, priority, department, options = {}) {
+  // 0. Роли оркестраторов (Coordinator / Chief Architect) — строго отделены от линейных воркеров
+  if (
+    options.orchestrator === 'carbon' ||
+    department.includes('Chief Architect') ||
+    department.includes('Orchestrator (Carbon)')
+  ) {
     return {
+      tier: 'XL',
       agent: 'antigravity',
-      model: 'gemini-4-carbon-high',
-      effort: 'xhigh',
-      rationale: 'P0 Hardcore Core: DAVE MLS v1, Ring Buffer zero-copy или Tokio↔GPUI AppState bridge'
+      model: 'gemini-pro-orchestrator',
+      effort: options.escalate ? 'xhigh' : 'high',
+      rationale: 'Orchestrator (Carbon): архитектор системы, кросс-модульные контракты, разбор блок-конфликтов и эскалаций Tier XL'
     };
   }
 
-  // P1 задачи бэкенда, Rust BFF, QA и RE — рабочая лошадка Argon High
-  if (priority === 'P0' || (priority === 'P1' && (department.includes('G1') || department.includes('QA') || department.includes('DevOps') || department.includes('G7')))) {
+  if (
+    options.orchestrator === 'argon' ||
+    department.includes('Coordinator') ||
+    department.includes('Team Lead') ||
+    department.includes('Orchestrator (Argon)')
+  ) {
     return {
+      tier: 'L',
+      agent: 'antigravity',
+      model: 'gemini-pro-orchestrator-argon',
+      effort: options.escalate ? 'high' : 'medium',
+      rationale: 'Orchestrator (Argon): координатор волн Orca/ECC, декомпозиция бэклога, 1-к-1 ротация слотов и интеграция веток'
+    };
+  }
+
+  // 1a. Tier S (Routine Code/CI/Packaging) — Gemini 4 Hydrogen Low
+  if (HYDROGEN_LOW_TASKS.has(taskId) || department.includes('Routine Low')) {
+    return {
+      tier: 'S',
+      agent: 'antigravity',
+      model: 'gemini-4-hydrogen-low',
+      effort: 'low',
+      rationale: 'Tier S (Hydrogen Routine Low): простые конфиги, CI/packaging манифесты, точечные фиксы и зачистка моков'
+    };
+  }
+
+  // 1b. Tier S (Specs & Docs) — Gemini 3.8 Flash Low для G3 Design и G6 Tech Writer
+  if (department.includes('G6') || department.includes('G3')) {
+    return {
+      tier: 'S',
+      agent: 'antigravity',
+      model: 'gemini-3.8-flash-low',
+      effort: 'low',
+      rationale: 'Tier S (Specs/Docs): дизайн-токены, спеки и документация без избыточных рассуждений'
+    };
+  }
+
+  // 2. Tier XL — Эксклюзивно lock-free буферы, DAVE MLS / AES-GCM криптография и мост Tokio↔GPUI
+  if (XL_HARDCORE_TASKS.has(taskId)) {
+    return {
+      tier: 'XL',
+      agent: 'antigravity',
+      model: 'gemini-4-carbon-high',
+      effort: options.escalate ? 'xhigh' : 'high',
+      rationale: 'Tier XL (Hardcore Core): DAVE MLS v1 / AES-GCM криптография, zero-copy Ring Buffer или мост Tokio↔GPUI'
+    };
+  }
+
+  // 3a. Tier M (Routine Boilerplate / Adapters) — Gemini 4 Hydrogen Medium
+  if (
+    HYDROGEN_MEDIUM_TASKS.has(taskId) ||
+    department.includes('G0') ||
+    department.includes('Routine')
+  ) {
+    return {
+      tier: 'M',
+      agent: 'antigravity',
+      model: 'gemini-4-hydrogen-medium',
+      effort: 'medium',
+      rationale: 'Tier M (Hydrogen Routine Medium): шаблонные адаптеры, локальные утилиты, рефакторинг сплитов и простые обёртки'
+    };
+  }
+
+  // 3b. Tier M — Фронтенд и UI-компоненты (G2): никогда не тратят Argon/Carbon даже при P0
+  if (department.includes('G2')) {
+    const complexUi = taskId === 'TASK-1011B' || taskId === 'TASK-616';
+    return {
+      tier: 'M',
+      agent: 'antigravity',
+      model: complexUi ? 'gemini-3.8-flash-high' : 'gemini-3.8-flash-medium',
+      effort: 'medium',
+      rationale: 'Tier M (UI/Frontend): верстка компонентов, модалки, состояния и клавиатурная навигация'
+    };
+  }
+
+  // 4. RE-аналитика (G7) и сложная ядровая/мутационная логика (Tier L-High)
+  if (department.includes('G7') || L_HIGH_TASKS.has(taskId)) {
+    return {
+      tier: 'L',
       agent: 'antigravity',
       model: 'gemini-4-argon-high',
       effort: 'high',
-      rationale: 'P1 Rust Core, BFF, QA автоматизация и RE-оракулы'
+      rationale: 'Tier L-High: глубокая RE-трассировка, сложные парсеры/права/KDF или мутационный аудит'
     };
   }
 
-  // UI компоненты, верстка, CSS токены и попапы — легковесный и быстрый Flash High/Medium
-  if (department.includes('G2') || department.includes('G3')) {
+  // 5. Инженерные задачи Rust (G1, G5), QA (G4) и DevOps — градация по сложности внутри Argon
+  if (
+    department.includes('G1') ||
+    department.includes('G5') ||
+    department.includes('G4') ||
+    department.includes('QA') ||
+    department.includes('DevOps')
+  ) {
+    if (priority === 'P2' || priority === 'P3' || department.includes('DevOps')) {
+      return {
+        tier: 'M',
+        agent: 'antigravity',
+        model: 'gemini-4-argon-low',
+        effort: 'low',
+        rationale: 'Tier M (Lightweight Rust/DevOps): локальные D-Bus/IPC адаптеры, системные утилиты и CI-скрипты'
+      };
+    }
     return {
+      tier: 'L',
       agent: 'antigravity',
-      model: 'gemini-3.8-flash-high',
+      model: 'gemini-4-argon-medium',
       effort: 'medium',
-      rationale: 'UI компоненты, CSS-токены, верстка, модалки и клавиатурная навигация'
+      rationale: 'Tier L (Standard Rust/QA): типовые BFF/REST сервисы, сессии Voice/Platform и контрактные тесты'
     };
   }
 
-  // Документация, трей, второстепенные задачи — Flash Low/Medium
+  // 6. Прочие вспомогательные рутинные задачи — экономный Hydrogen Low
   return {
+    tier: 'S',
     agent: 'antigravity',
-    model: 'gemini-3.8-flash-high',
+    model: 'gemini-4-hydrogen-low',
     effort: 'low',
-    rationale: 'Документация, системный трей, вспомогательные утилиты'
+    rationale: 'Tier S (Hydrogen Default): прочие простые рутинные задачи'
   };
 }
 
@@ -269,8 +431,8 @@ export function generateMandate(taskId) {
 
   switch (taskId) {
     case 'TASK-615':
-      writeScope = ['rust/crates/discord-voice/src/rtp/video.rs', 'rust/crates/discord-voice/tests/rtp_video_contract.rs'];
-      testCmd = 'cargo test --manifest-path rust/Cargo.toml -p discord-voice --test rtp_video_contract';
+      writeScope = ['rust/crates/chord-voice/src/rtp/video.rs', 'rust/crates/chord-voice/tests/rtp_video_contract.rs'];
+      testCmd = 'cargo test --manifest-path rust/Cargo.toml -p chord-voice --test rtp_video_contract';
       oracle = '/home/sanya/re-deep/voice-deep.md';
       break;
     case 'TASK-616':
@@ -294,73 +456,73 @@ export function generateMandate(taskId) {
       oracle = 'TEST-POLICY.md §11-§15';
       break;
     case 'TASK-702':
-      writeScope = ['rust/discord-gpui/src/state/mod.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_initial_state_and_theme_palette';
+      writeScope = ['rust/chord-gpui/src/state/mod.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_initial_state_and_theme_palette';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-703':
-      writeScope = ['rust/discord-gpui/src/theme/mod.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_initial_state_and_theme_palette';
+      writeScope = ['rust/chord-gpui/src/theme/mod.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_initial_state_and_theme_palette';
       oracle = '/home/sanya/re-deep/frontend-d03.md';
       break;
     case 'TASK-704':
-      writeScope = ['rust/discord-gpui/src/net/mod.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_rest_client_super_properties_and_rate_limit_contract';
+      writeScope = ['rust/chord-gpui/src/net/mod.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_rest_client_super_properties_and_rate_limit_contract';
       oracle = '/home/sanya/re-deep/rest-d02.md';
       break;
     case 'TASK-719':
-      writeScope = ['rust/discord-gpui/src/dispatch/mod.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_system_tray_states_and_badge_contract';
+      writeScope = ['rust/chord-gpui/src/dispatch/mod.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_system_tray_states_and_badge_contract';
       oracle = '/home/sanya/re-deep/native-re.md';
       break;
     case 'TASK-705':
-      writeScope = ['rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_120_fps_render_frame_budget_benchmark';
+      writeScope = ['rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_120_fps_render_frame_budget_benchmark';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-706':
-      writeScope = ['rust/discord-gpui/src/ui/layout.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_select_guild_and_channel_transitions';
+      writeScope = ['rust/chord-gpui/src/ui/layout.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_select_guild_and_channel_transitions';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-709':
-      writeScope = ['rust/discord-gpui/src/ui/chat_view.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_message_sending_and_feed_update';
+      writeScope = ['rust/chord-gpui/src/ui/chat_view.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_message_sending_and_feed_update';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-710':
-      writeScope = ['rust/discord-gpui/src/ui/chat_view.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_quick_switcher_and_markdown_contract';
+      writeScope = ['rust/chord-gpui/src/ui/chat_view.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_quick_switcher_and_markdown_contract';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-711':
-      writeScope = ['rust/discord-gpui/src/ui/chat_view.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_keyboard_typing_and_draft_chat_contract';
+      writeScope = ['rust/chord-gpui/src/ui/chat_view.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_keyboard_typing_and_draft_chat_contract';
       oracle = 'docs/specs/GPUI-ARCHITECTURE-MIGRATION.md';
       break;
     case 'TASK-712':
-      writeScope = ['rust/discord-gpui/src/ui/captcha_modal.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_hcaptcha_challenge_trigger_and_resolution';
+      writeScope = ['rust/chord-gpui/src/ui/captcha_modal.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_hcaptcha_challenge_trigger_and_resolution';
       oracle = '/home/sanya/re-deep/decoded/4d2a64cb5df5fc4e_0';
       break;
     case 'TASK-713':
-      writeScope = ['rust/discord-gpui/src/ui/create_guild_modal.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_create_guild_contract';
+      writeScope = ['rust/chord-gpui/src/ui/create_guild_modal.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_create_guild_contract';
       oracle = '/home/sanya/re-deep/frontend-d03.md';
       break;
     case 'TASK-714':
-      writeScope = ['rust/discord-gpui/src/ui/member_sidebar.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_member_sidebar_contract';
+      writeScope = ['rust/chord-gpui/src/ui/member_sidebar.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_member_sidebar_contract';
       oracle = '/home/sanya/re-deep/frontend-d03.md';
       break;
     case 'TASK-715':
-      writeScope = ['rust/discord-gpui/src/ui/settings_dialog.rs', 'rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_settings_dialog_contract';
+      writeScope = ['rust/chord-gpui/src/ui/settings_dialog.rs', 'rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_settings_dialog_contract';
       oracle = '/home/sanya/re-deep/ui8/';
       break;
     case 'TASK-720':
-      writeScope = ['rust/discord-gpui/tests/gpui_contract_test.rs'];
-      testCmd = 'cargo test --manifest-path rust/discord-gpui/Cargo.toml --test gpui_contract_test test_120_fps_render_frame_budget_benchmark';
+      writeScope = ['rust/chord-gpui/tests/gpui_contract_test.rs'];
+      testCmd = 'cargo test --manifest-path rust/chord-gpui/Cargo.toml --test gpui_contract_test test_120_fps_render_frame_budget_benchmark';
       oracle = 'TEST-POLICY.md §11-§15';
       break;
     default:
@@ -373,7 +535,7 @@ export function generateMandate(taskId) {
     taskId,
     writeScope,
     forbiddenPatterns: [
-      'rust/crates/discord-core/src/lib.rs',
+      'rust/crates/chord-core/src/lib.rs',
       'fixtures/**',
       'golden/**',
       'state/reducer.rs',

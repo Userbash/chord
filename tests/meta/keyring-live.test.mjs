@@ -19,7 +19,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
-const CONTRACT = "rust/crates/discord-platform/tests/keyring_contract.rs";
+const CONTRACT = "rust/crates/chord-platform/tests/keyring_contract.rs";
 const GATE = "scripts/gate.mjs";
 
 /** Ожидаемый live-набор: имена k01…k12 не переименовываются и не удаляются. */
@@ -167,7 +167,7 @@ describe("PLAT-02 T2: live-фаза гейта видима и не пропус
     assert.ok(phase, "в scripts/gate.mjs нет const keyringLivePhase");
     assert.match(phase, /command: "cargo"/u, "фаза keyring-live должна запускать cargo");
     assert.match(phase, /"--offline"/u, "фаза keyring-live должна работать офлайн");
-    assert.match(phase, /"-p",\s*"discord-platform"/u, "фаза должна брать пакет discord-platform");
+    assert.match(phase, /"-p",\s*"chord-platform"/u, "фаза должна брать пакет chord-platform");
     assert.match(phase, /"--test",\s*"keyring_contract"/u, "фаза должна гонять keyring_contract");
     assert.match(phase, /"--",\s*"--ignored"/u, "без `-- --ignored` live-кейсы не запустятся");
     assert.match(phase, /timeoutMs: 900000/u, "timeoutMs фазы должен совпадать с workspace-rust");
@@ -243,7 +243,7 @@ describe("PLAT-02 T3: cargo подтверждает ignored-набор", () => 
   it("в дефолтном прогоне 0 passed и 12 ignored", () => {
     let output;
     try {
-      output = cargo(["test", "--offline", "-p", "discord-platform", "--test", "keyring_contract"]);
+      output = cargo(["test", "--offline", "-p", "chord-platform", "--test", "keyring_contract"]);
     } catch (error) {
       // cargo отсутствует или тесты упали — это провал, а не skip (гейт всё равно требует cargo).
       assert.fail(`cargo test keyring_contract не выполнился: ${spawnError(error).slice(-2000)}`);
@@ -259,7 +259,7 @@ describe("PLAT-02 T3: cargo подтверждает ignored-набор", () => 
     let output;
     try {
       output = cargo([
-        "test", "--offline", "-p", "discord-platform", "--test", "keyring_contract", "--",
+        "test", "--offline", "-p", "chord-platform", "--test", "keyring_contract", "--",
         "--list", "--ignored",
       ]);
     } catch (error) {

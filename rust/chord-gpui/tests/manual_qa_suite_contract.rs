@@ -11,6 +11,8 @@ mod manual_qa;
 mod media;
 #[path = "../src/net/mod.rs"]
 mod net;
+#[path = "../src/platform/mod.rs"]
+mod platform;
 #[path = "../src/state/mod.rs"]
 mod state;
 #[path = "../src/storage/mod.rs"]
@@ -693,7 +695,7 @@ fn test_manual_qa_suite_spec_document_and_100_percent_coverage_oracle() {
         "SUB-908-2",
         "SUB-908-3",
         "40003",
-        "25 МБ",
+        "25 MB",
         "Push-to-Talk",
         "720p",
         "1080p",
@@ -706,13 +708,13 @@ fn test_manual_qa_suite_spec_document_and_100_percent_coverage_oracle() {
         "Sway",
         "X11",
         "XShmGetImage",
-        "2000 символов",
+        "2000 characters",
         "RTL",
-        "10 кликов в секунду",
-        "30 секунд",
+        "10 clicks per second",
+        "30 seconds",
         "GDB",
         "Bug-bash",
-        "/home/sanya/re-deep/",
+        "docs/re/voice-deep.md",
     ] {
         assert!(
             content.contains(required_marker),

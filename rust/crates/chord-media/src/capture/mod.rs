@@ -9,8 +9,10 @@ use std::fmt;
 
 use crate::{PixelLayout, VideoFrame};
 
+pub mod audio_node_filter;
 pub mod portal;
 pub mod sources;
+pub mod wayland_portal;
 pub mod x11;
 
 use self::portal::{PipeWireFrameBuffer, PortalSessionState, PortalStream};

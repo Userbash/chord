@@ -18,9 +18,9 @@ use std::sync::{mpsc, Arc, Condvar, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
 
-use discord_core::rest::client::ApiError;
-use discord_core::rest::transport::{HttpError, HttpResponse};
-use discord_core::Me;
+use chord_core::rest::client::ApiError;
+use chord_core::rest::transport::{HttpError, HttpResponse};
+use chord_core::Me;
 use chord_client::auth::{
     self, AuthBackend, AuthError, AuthState, AuthStateEmitter, AuthStatus, IdentityContext,
     LoginOutcome, LoginTransport, LoginView, SmsChallenge, ThreadedStore, TokenStore,
@@ -29,10 +29,10 @@ use chord_client::auth::{
 };
 use serde_json::Value;
 
-/// Реальный по форме токен Discord (3 сегмента через точку, `AUTH-RE.md` T-06).
-const TOKEN: &str = "MTIzNDU2Nzg5MDEyMzQ1Njc4.GaBcDe.abcdefghijklmnopqrstuvwxyz123";
+/// Токен Chord (3 сегмента через точку).
+const TOKEN: &str = "chord_mock_token_alpha.mockpart.chord_mock_token_signature_one";
 /// Второй токен: проверяем замену значения, а не «первое попавшееся».
-const TOKEN2: &str = "OTg3NjU0MzIxMDk4NzY1NDMy.FeDcBa.zyxwvutsrqponmlkjihgfedcba321";
+const TOKEN2: &str = "chord_mock_token_beta.mockpart.chord_mock_token_signature_two";
 
 /// Пользователь, которого вернул бы `GET /users/@me` (форма 2026: discriminator "0").
 fn me() -> Me {
@@ -795,8 +795,8 @@ fn threaded_store_times_out_instead_of_waiting_forever() {
 
 #[test]
 fn core_errors_map_to_typed_auth_errors() {
-    use discord_core::rest::client::ApiError;
-    use discord_core::rest::transport::HttpError;
+    use chord_core::rest::client::ApiError;
+    use chord_core::rest::transport::HttpError;
     use std::time::Duration;
 
     assert_eq!(
@@ -826,9 +826,9 @@ fn core_errors_map_to_typed_auth_errors() {
     );
 
     // Битый JSON и тело ошибки Discord — через настоящий парсер ядра.
-    let parse = discord_core::parse_me(b"{\"id\": ").expect_err("битый JSON");
+    let parse = chord_core::parse_me(b"{\"id\": ").expect_err("битый JSON");
     assert_eq!(auth::map_me_error(&parse, TOKEN).kind(), "Parse");
-    let unauthorized = discord_core::parse_me(UNAUTHORIZED_BODY.as_bytes())
+    let unauthorized = chord_core::parse_me(UNAUTHORIZED_BODY.as_bytes())
         .expect_err("тело 401 не является пользователем");
     assert_eq!(
         auth::map_me_error(&unauthorized, TOKEN),
@@ -849,7 +849,7 @@ fn identity_context_is_complete_for_auth_headers() {
     assert_eq!(identity.super_properties.native_build_number, 94_186);
     assert_eq!(
         identity.super_properties.browser_user_agent,
-        discord_core::rest::http1::DEFAULT_USER_AGENT
+        chord_core::rest::http1::DEFAULT_USER_AGENT
     );
 
     // Реальная identity читает среду, но не сеть и не keyring, и кэширует UUID на процесс.

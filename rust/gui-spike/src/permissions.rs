@@ -56,9 +56,10 @@ pub struct RolePermission {
     pub position: i64,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum OverwriteKind {
+    #[default]
     Role,
     Member,
 }
@@ -73,6 +74,109 @@ pub struct PermissionOverwriteDef {
 }
 
 pub type ChannelOverwrite = PermissionOverwriteDef;
+
+/// Serde DTO for deserializing a raw Discord channel permission overwrite entry (`TAURI-DTO-06`).
+///
+/// Supports both string and numeric Snowflake IDs (`id`), numeric (`0`/`1`) or string
+/// (`"0"`/`"1"`/`"role"`/`"member"`) overwrite target types (`type` or `kind`), and
+/// decimal string or numeric `u64` permission bitmasks (`allow` and `deny`).
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct RawPermissionOverwriteDto {
+    /// Target role or member Snowflake ID (`id`), parsed from a string or unsigned integer.
+    #[serde(deserialize_with = "deserialize_snowflake_id")]
+    pub id: String,
+    /// Overwrite target kind (`type` or `kind`: `0`/`"role"` = [`OverwriteKind::Role`], `1`/`"member"` = [`OverwriteKind::Member`]).
+    #[serde(
+        rename = "type",
+        alias = "kind",
+        deserialize_with = "deserialize_overwrite_kind"
+    )]
+    pub kind: OverwriteKind,
+    /// Allowed permission bitmask (`allow`), parsed from a decimal string or `u64`.
+    #[serde(deserialize_with = "deserialize_perm_bits")]
+    pub allow: u64,
+    /// Denied permission bitmask (`deny`), parsed from a decimal string or `u64`.
+    #[serde(deserialize_with = "deserialize_perm_bits")]
+    pub deny: u64,
+}
+
+impl RawPermissionOverwriteDto {
+    /// Converts the deserialized DTO into a validated [`PermissionOverwriteDef`],
+    /// returning `None` if `id` is empty.
+    #[inline]
+    #[must_use]
+    pub fn into_overwrite_def(self) -> Option<PermissionOverwriteDef> {
+        if self.id.is_empty() {
+            return None;
+        }
+        Some(PermissionOverwriteDef {
+            id: self.id,
+            kind: self.kind,
+            allow: self.allow,
+            deny: self.deny,
+        })
+    }
+
+    /// Alias for [`Self::into_overwrite_def`].
+    #[inline]
+    #[must_use]
+    pub fn into_permission_overwrite_def(self) -> Option<PermissionOverwriteDef> {
+        self.into_overwrite_def()
+    }
+}
+
+impl TryFrom<RawPermissionOverwriteDto> for PermissionOverwriteDef {
+    type Error = &'static str;
+
+    #[inline]
+    fn try_from(dto: RawPermissionOverwriteDto) -> Result<Self, Self::Error> {
+        dto.into_overwrite_def()
+            .ok_or("permission overwrite missing id")
+    }
+}
+
+impl From<PermissionOverwriteDef> for RawPermissionOverwriteDto {
+    #[inline]
+    fn from(def: PermissionOverwriteDef) -> Self {
+        Self {
+            id: def.id,
+            kind: def.kind,
+            allow: def.allow,
+            deny: def.deny,
+        }
+    }
+}
+
+/// Serde DTO for deserializing a raw Discord role permission entry (`TAURI-DTO-06`).
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct RawRolePermissionDto {
+    /// Role Snowflake ID (`id`), parsed from a string or unsigned integer.
+    #[serde(deserialize_with = "deserialize_snowflake_id")]
+    pub id: String,
+    /// Role permission bitmask (`permissions`), parsed from a decimal string or `u64`.
+    #[serde(deserialize_with = "deserialize_perm_bits")]
+    pub permissions: u64,
+    /// Role hierarchy position (`position`).
+    pub position: i64,
+}
+
+impl RawRolePermissionDto {
+    /// Converts the deserialized DTO into a validated [`RolePermissionDef`],
+    /// returning `None` if `id` is empty.
+    #[inline]
+    #[must_use]
+    pub fn into_role_permission_def(self) -> Option<RolePermissionDef> {
+        if self.id.is_empty() {
+            return None;
+        }
+        Some(RolePermissionDef {
+            id: self.id,
+            permissions: self.permissions,
+        })
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -393,18 +497,16 @@ impl PermissionCalculator<'static> {
         let mut everyone_perms = PERM_VIEW_CHANNEL | PERM_READ_MESSAGE_HISTORY;
         let mut role_defs = Vec::with_capacity(roles_json.len());
         for r in roles_json {
-            let rid = r.get("id").and_then(Value::as_str).unwrap_or_default();
-            if rid.is_empty() {
+            let Ok(role_dto) = RawRolePermissionDto::deserialize(r) else {
                 continue;
+            };
+            let Some(role_def) = role_dto.into_role_permission_def() else {
+                continue;
+            };
+            if role_def.id == guild_id {
+                everyone_perms = role_def.permissions;
             }
-            let perms = parse_perm_bits(r.get("permissions"));
-            if rid == guild_id {
-                everyone_perms = perms;
-            }
-            role_defs.push(RolePermissionDef {
-                id: rid.to_string(),
-                permissions: perms,
-            });
+            role_defs.push(role_def);
         }
 
         let calc =
@@ -420,73 +522,138 @@ impl PermissionCalculator<'static> {
         for ch in channels_json {
             let ch_type = ch.get("type").and_then(Value::as_u64).unwrap_or(0);
             if ch_type == 4 {
-                if let Some(cid) = ch.get("id").and_then(Value::as_str) {
+                let cid = parse_snowflake_id(ch.get("id"));
+                if !cid.is_empty() {
                     let ows = parse_overwrites_from_json(
                         ch.get("permission_overwrites")
                             .or_else(|| ch.get("permissionOverwrites")),
                     );
-                    category_overwrites_by_id.insert(cid.to_string(), ows);
+                    category_overwrites_by_id.insert(cid, ows);
                 }
             }
         }
 
         let mut map = std::collections::HashMap::with_capacity(channels_json.len());
         for ch in channels_json {
-            let Some(cid) = ch.get("id").and_then(Value::as_str) else {
+            let cid = parse_snowflake_id(ch.get("id"));
+            if cid.is_empty() {
                 continue;
-            };
-            let parent_id = ch
-                .get("parent_id")
-                .or_else(|| ch.get("parentId"))
-                .and_then(Value::as_str)
-                .unwrap_or_default();
+            }
+            let parent_id =
+                parse_snowflake_id(ch.get("parent_id").or_else(|| ch.get("parentId")));
             let cat_ows = category_overwrites_by_id
-                .get(parent_id)
+                .get(&parent_id)
                 .map(Vec::as_slice)
                 .unwrap_or(&[]);
             let ch_ows = parse_overwrites_from_json(
                 ch.get("permission_overwrites")
                     .or_else(|| ch.get("permissionOverwrites")),
             );
-            map.insert(cid.to_string(), calc.allowed_access(cat_ows, &ch_ows));
+            map.insert(cid, calc.allowed_access(cat_ows, &ch_ows));
         }
         map
     }
 }
 
+/// Parses a JSON array of raw Discord permission overwrites into validated [`PermissionOverwriteDef`] items
+/// via Serde deserialization of [`RawPermissionOverwriteDto`].
+#[inline]
+#[must_use]
 pub fn parse_overwrites_from_json(raw: Option<&Value>) -> Vec<PermissionOverwriteDef> {
     let Some(arr) = raw.and_then(Value::as_array) else {
         return Vec::new();
     };
     let mut out = Vec::with_capacity(arr.len());
     for item in arr {
-        let id = item
-            .get("id")
-            .and_then(Value::as_str)
-            .unwrap_or_default()
-            .to_string();
-        if id.is_empty() {
-            continue;
-        }
-        let kind = match item.get("type") {
-            Some(Value::Number(n)) if n.as_u64() == Some(1) => OverwriteKind::Member,
-            Some(Value::String(s)) if s == "1" || s.eq_ignore_ascii_case("member") => {
-                OverwriteKind::Member
+        if let Ok(dto) = RawPermissionOverwriteDto::deserialize(item) {
+            if let Some(def) = dto.into_overwrite_def() {
+                out.push(def);
             }
-            _ => OverwriteKind::Role,
-        };
-        let allow = parse_perm_bits(item.get("allow"));
-        let deny = parse_perm_bits(item.get("deny"));
-        out.push(PermissionOverwriteDef {
-            id,
-            kind,
-            allow,
-            deny,
-        });
+        }
     }
     out
 }
 
+/// Custom Serde deserializer for Snowflake IDs accepting either string or unsigned integer JSON/ETF values.
+///
+/// Returns an empty string if the field is null, empty, `"nil"`, `"null"`, or non-scalar.
+#[inline]
+pub fn deserialize_snowflake_id<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<Value>::deserialize(deserializer)?;
+    Ok(parse_snowflake_id(val.as_ref()))
+}
+
+/// Extracts a Snowflake ID string from an optional JSON value (string or non-negative integer).
+#[inline]
+#[must_use]
+pub fn parse_snowflake_id(val: Option<&Value>) -> String {
+    match val {
+        Some(Value::String(s)) => {
+            let trimmed = s.trim();
+            if trimmed.is_empty() || trimmed == "nil" || trimmed == "null" {
+                String::new()
+            } else {
+                trimmed.to_string()
+            }
+        }
+        Some(Value::Number(n)) => {
+            if let Some(u) = n.as_u64() {
+                u.to_string()
+            } else if let Some(i) = n.as_i64() {
+                if i >= 0 {
+                    i.to_string()
+                } else {
+                    String::new()
+                }
+            } else {
+                String::new()
+            }
+        }
+        _ => String::new(),
+    }
+}
+
+/// Custom Serde deserializer for [`OverwriteKind`] accepting numeric (`0`/`1`) or string (`"0"`/`"1"`/`"role"`/`"member"`) values.
+#[inline]
+pub fn deserialize_overwrite_kind<'de, D>(deserializer: D) -> Result<OverwriteKind, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<Value>::deserialize(deserializer)?;
+    let kind = match val {
+        Some(Value::Number(n)) if n.as_u64() == Some(1) => OverwriteKind::Member,
+        Some(Value::String(s)) => {
+            let trimmed = s.trim();
+            if trimmed == "1" || trimmed.eq_ignore_ascii_case("member") {
+                OverwriteKind::Member
+            } else {
+                OverwriteKind::Role
+            }
+        }
+        _ => OverwriteKind::Role,
+    };
+    Ok(kind)
+}
+
+/// Custom Serde deserializer for a 64-bit permission bitmask (`allow`, `deny`, `permissions`) from a decimal string or `u64`.
+#[inline]
+pub fn deserialize_perm_bits<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let val = Option::<Value>::deserialize(deserializer)?;
+    Ok(parse_perm_bits(val.as_ref()))
+}
+
+/// Parses a 64-bit permission bitfield from an optional JSON value (either numeric or decimal string).
+///
+/// Handles Discord REST/Gateway variations where permissions may arrive as stringified integers
+/// or native JSON numbers. Returns `0` if absent or malformed.
+#[inline]
+#[must_use]
 pub fn parse_perm_bits(val: Option<&Value>) -> u64 {
     match val {
         Some(Value::String(s)) => s.trim().parse::<u64>().unwrap_or(0),
@@ -495,6 +662,10 @@ pub fn parse_perm_bits(val: Option<&Value>) -> u64 {
     }
 }
 
+/// Evaluates high-level channel access flags according to Discord permission semantics.
+///
+/// Applies `lurkerPermissionsMask` when viewing servers without membership,
+/// or `TIMED_OUT_PERMISSIONS_MASK` for pending/quarantined members.
 pub fn evaluate_channel_access_policy(
     effective_perms: u64,
     is_voice_channel: bool,
@@ -620,5 +791,108 @@ mod tests {
             calc_with_role.in_channel(&[], &overwrites) & PERM_SEND_MESSAGES,
             0
         );
+    }
+
+    #[test]
+    fn raw_permission_overwrite_dto_deserializes_string_and_numeric_snowflakes_and_bitmasks() {
+        let json_str_id = serde_json::json!({
+            "id": "1057598992449552425",
+            "type": 0,
+            "allow": "274877908992",
+            "deny": "2048"
+        });
+        let dto_str: RawPermissionOverwriteDto =
+            serde_json::from_value(json_str_id).expect("deserialize string snowflake");
+        assert_eq!(dto_str.id, "1057598992449552425");
+        assert_eq!(dto_str.kind, OverwriteKind::Role);
+        assert_eq!(dto_str.allow, PERM_SEND_MESSAGES_IN_THREADS | PERM_SEND_MESSAGES);
+        assert_eq!(dto_str.deny, PERM_SEND_MESSAGES);
+
+        let json_int_id = serde_json::json!({
+            "id": 999888777666555444u64,
+            "type": 1,
+            "allow": 3145728u64,
+            "deny": 0
+        });
+        let dto_int: RawPermissionOverwriteDto =
+            serde_json::from_value(json_int_id).expect("deserialize integer snowflake");
+        assert_eq!(dto_int.id, "999888777666555444");
+        assert_eq!(dto_int.kind, OverwriteKind::Member);
+        assert_eq!(dto_int.allow, PERM_CONNECT | PERM_SPEAK);
+        assert_eq!(dto_int.deny, 0);
+
+        let json_kind_alias = serde_json::json!({
+            "id": "777",
+            "kind": "member",
+            "allow": "1024",
+            "deny": "0"
+        });
+        let dto_alias: RawPermissionOverwriteDto =
+            serde_json::from_value(json_kind_alias).expect("deserialize kind alias");
+        assert_eq!(dto_alias.id, "777");
+        assert_eq!(dto_alias.kind, OverwriteKind::Member);
+        assert_eq!(dto_alias.allow, PERM_VIEW_CHANNEL);
+
+        let empty_dto: RawPermissionOverwriteDto =
+            serde_json::from_value(serde_json::json!({ "id": "nil", "type": 0 }))
+                .expect("deserialize nil id");
+        assert!(empty_dto.into_overwrite_def().is_none());
+    }
+
+    #[test]
+    fn parse_overwrites_from_json_and_guild_channel_permissions_support_etf_numeric_ids() {
+        let raw_overwrites = serde_json::json!([
+            {
+                "id": 100000000000000001u64,
+                "type": "0",
+                "allow": "0",
+                "deny": "2048"
+            },
+            {
+                "id": "200000000000000002",
+                "type": "1",
+                "allow": 2048,
+                "deny": 0
+            },
+            {
+                "id": "",
+                "type": 0,
+                "allow": 1024,
+                "deny": 0
+            }
+        ]);
+        let parsed = parse_overwrites_from_json(Some(&raw_overwrites));
+        assert_eq!(parsed.len(), 2);
+        assert_eq!(parsed[0].id, "100000000000000001");
+        assert_eq!(parsed[0].kind, OverwriteKind::Role);
+        assert_eq!(parsed[0].deny, PERM_SEND_MESSAGES);
+        assert_eq!(parsed[1].id, "200000000000000002");
+        assert_eq!(parsed[1].kind, OverwriteKind::Member);
+        assert_eq!(parsed[1].allow, PERM_SEND_MESSAGES);
+
+        let roles_json = vec![serde_json::json!({
+            "id": 100000000000000001u64,
+            "permissions": "68608"
+        })];
+        let channels_json = vec![serde_json::json!({
+            "id": 300000000000000003u64,
+            "type": 0,
+            "permission_overwrites": raw_overwrites
+        })];
+        let perms_map = PermissionCalculator::compute_guild_channel_permissions(
+            "100000000000000001",
+            None,
+            "200000000000000002",
+            &[],
+            &roles_json,
+            &channels_json,
+            false,
+            false,
+        );
+        let access = perms_map
+            .get("300000000000000003")
+            .expect("channel access computed");
+        assert!(access.can_view);
+        assert!(access.can_send);
     }
 }

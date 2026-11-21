@@ -8,7 +8,6 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use chord_core::rest::client::{ApiAuth, ApiClient, ApiConfig, ApiRetryPolicy};
-use chord_core::rest::identity::SystemSources;
 use chord_core::rest::routes::{self, HttpMethod};
 use chord_core::rest::search::compute_429_exponential_backoff_ms;
 use chord_core::rest::transport::{HttpClientConfig, HttpResponse};
@@ -42,40 +41,35 @@ pub const MAX_SEARCH_CACHE_ENTRIES: usize = 64;
 /// Задержка повтора при HTTP 202 по умолчанию (`SEARCH-202-NSFW-RE.md` §5.2: 5000 мс).
 pub const DEFAULT_SEARCH_202_RETRY_AFTER_MS: u64 = 5000;
 
-/// Генерирует новый UUID v4 (RFC 4122).
+/// Generates a new random RFC 4122 UUID v4 string.
+///
+/// # Returns
+/// A canonical 36-character hyphenated lowercase UUID v4 string.
+#[inline]
 #[must_use]
 pub fn generate_uuid_v4() -> String {
-    chord_core::rest::identity::uuid_v4(&SystemSources)
+    uuid::Uuid::new_v4().to_string()
 }
 
-/// Детерминированный генератор UUID v4 для воспроизводимых тестов.
+/// Generates a deterministic RFC 4122 UUID v4 string from a 64-bit seed for reproducible tests.
+///
+/// # Arguments
+/// * `seed` - Deterministic 64-bit seed value.
+///
+/// # Returns
+/// A canonical 36-character hyphenated lowercase UUID v4 string derived from `seed`.
+#[inline]
 #[must_use]
 pub fn deterministic_uuid_v4(seed: u64) -> String {
-    struct SeedSources(u64);
-    impl chord_core::rest::identity::IdentitySources for SeedSources {
-        fn env_var(&self, _: &str) -> Option<String> {
-            None
-        }
-        fn read_text(&self, _: &str) -> Option<String> {
-            None
-        }
-        fn random_bytes(&self, out: &mut [u8]) {
-            let mut state = self.0;
-            for byte in out.iter_mut() {
-                state = state
-                    .wrapping_mul(6364136223846793005)
-                    .wrapping_add(1442695040888963407);
-                *byte = (state >> 33) as u8;
-            }
-        }
-        fn os(&self) -> &'static str {
-            "linux"
-        }
-        fn arch(&self) -> &'static str {
-            "x86_64"
-        }
-    }
-    chord_core::rest::identity::uuid_v4(&SeedSources(seed))
+    let le: [u8; 8] = seed.to_le_bytes();
+    let be: [u8; 8] = seed.to_be_bytes();
+    let bytes: [u8; 16] = [
+        le[0], le[1], le[2], le[3], le[4], le[5], le[6], le[7], be[0], be[1], be[2], be[3], be[4],
+        be[5], be[6], be[7],
+    ];
+    uuid::Builder::from_random_bytes(bytes)
+        .into_uuid()
+        .to_string()
 }
 
 /// Сессия поиска сообщений: держит `session_id`, обновляет `query_id` на новый запрос
@@ -1136,56 +1130,57 @@ fn parse_429_retry_after_ms(headers: &[(String, String)], body: &[u8]) -> Option
     None
 }
 
-fn parse_hit_message_value(value: &Value) -> Option<SearchHitMessage> {
-    let obj = value.as_object()?;
-    let id = obj.get("id")?.as_str()?.to_string();
-    let channel_id = obj
-        .get("channel_id")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let author_obj = obj.get("author").and_then(Value::as_object);
-    let author_id = author_obj
-        .and_then(|a| a.get("id"))
-        .and_then(Value::as_str)
-        .map(str::to_string);
-    let author_username = author_obj
-        .and_then(|a| a.get("username"))
-        .and_then(Value::as_str)
-        .map(str::to_string);
-    let content = obj
-        .get("content")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let timestamp = obj
-        .get("timestamp")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let hit = obj.get("hit").and_then(Value::as_bool).unwrap_or(false);
-    let pinned = obj.get("pinned").and_then(Value::as_bool).unwrap_or(false);
-    let attachments_count = obj
-        .get("attachments")
-        .and_then(Value::as_array)
-        .map_or(0, Vec::len);
-    let embeds_count = obj
-        .get("embeds")
-        .and_then(Value::as_array)
-        .map_or(0, Vec::len);
+/// Serde DTO for author of a search hit message (`TAURI-DTO-05`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawSearchHitAuthorDto {
+    pub id: Option<String>,
+    pub username: Option<String>,
+}
 
-    Some(SearchHitMessage {
-        id,
-        channel_id,
-        author_id,
-        author_username,
-        content,
-        timestamp,
-        hit,
-        pinned,
-        attachments_count,
-        embeds_count,
-    })
+/// Serde DTO for raw search hit message item inside Discord search response (`TAURI-DTO-05`).
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default)]
+pub struct RawSearchHitMessageDto {
+    pub id: Option<String>,
+    pub channel_id: Option<String>,
+    pub author: Option<RawSearchHitAuthorDto>,
+    pub content: Option<String>,
+    pub timestamp: Option<String>,
+    pub hit: Option<bool>,
+    pub pinned: Option<bool>,
+    pub attachments: Vec<Value>,
+    pub embeds: Vec<Value>,
+}
+
+impl RawSearchHitMessageDto {
+    /// Converts deserialized DTO into [`SearchHitMessage`].
+    #[inline]
+    #[must_use]
+    pub fn into_search_hit_message(self) -> Option<SearchHitMessage> {
+        let id = self.id?;
+        let (author_id, author_username) = match self.author {
+            Some(a) => (a.id, a.username),
+            None => (None, None),
+        };
+        Some(SearchHitMessage {
+            id,
+            channel_id: self.channel_id.unwrap_or_default(),
+            author_id,
+            author_username,
+            content: self.content.unwrap_or_default(),
+            timestamp: self.timestamp.unwrap_or_default(),
+            hit: self.hit.unwrap_or(false),
+            pinned: self.pinned.unwrap_or(false),
+            attachments_count: self.attachments.len(),
+            embeds_count: self.embeds.len(),
+        })
+    }
+}
+
+fn parse_hit_message_value(value: &Value) -> Option<SearchHitMessage> {
+    let dto = serde_json::from_value::<RawSearchHitMessageDto>(value.clone()).ok()?;
+    dto.into_search_hit_message()
 }
 
 fn split_csv_owned(raw: Option<&str>) -> Vec<String> {
@@ -1227,6 +1222,16 @@ fn validate_has_tokens(value: Option<&str>) -> Result<Vec<&str>, SearchError> {
     Ok(tokens)
 }
 
+/// Validates and parses a Discord 64-bit Snowflake ID string.
+///
+/// Ensures the input string is non-empty, contains strictly ASCII decimal digits,
+/// and fits within a standard 64-bit unsigned integer (`u64`).
+///
+/// # Arguments
+/// * `value` - Candidate snowflake string slice.
+///
+/// # Returns
+/// `Ok(u64)` on valid format, or `Err(SearchError::InvalidArg)` if malformed.
 fn parse_snowflake(value: &str) -> Result<u64, SearchError> {
     if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
         return Err(SearchError::InvalidArg);
@@ -1234,18 +1239,23 @@ fn parse_snowflake(value: &str) -> Result<u64, SearchError> {
     value.parse::<u64>().map_err(|_| SearchError::InvalidArg)
 }
 
+/// Percent-encodes a URI query parameter value conforming to RFC 3986.
+///
+/// Uses the audited `percent-encoding` crate with standard unreserved characters
+/// `[A-Za-z0-9-_.~]`, eliminating manual byte manipulation and lookup tables.
+///
+/// # Arguments
+/// * `value` - Raw string slice to encode.
+///
+/// # Returns
+/// An RFC 3986 percent-encoded string.
 fn percent_encode(value: &str) -> String {
-    let mut encoded = String::new();
-    for byte in value.as_bytes() {
-        if byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.' | b'~') {
-            encoded.push(*byte as char);
-        } else {
-            encoded.push('%');
-            encoded.push(char::from(b"0123456789ABCDEF"[(byte >> 4) as usize]));
-            encoded.push(char::from(b"0123456789ABCDEF"[(byte & 0x0f) as usize]));
-        }
-    }
-    encoded
+    const QUERY_VALUE: &percent_encoding::AsciiSet = &percent_encoding::NON_ALPHANUMERIC
+        .remove(b'-')
+        .remove(b'_')
+        .remove(b'.')
+        .remove(b'~');
+    percent_encoding::utf8_percent_encode(value, QUERY_VALUE).to_string()
 }
 
 #[cfg(test)]

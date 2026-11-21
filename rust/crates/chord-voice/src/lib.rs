@@ -15,6 +15,7 @@ pub mod dave;
 pub mod dave_v1;
 pub mod devices;
 pub mod media;
+pub mod media_constraints;
 pub mod noise;
 pub mod ptt;
 pub mod reception;
@@ -25,6 +26,7 @@ pub mod rtp;
 pub mod session;
 pub mod srtp;
 pub mod stats;
+pub mod stream_quality;
 pub mod udp;
 
 pub use noise::{
@@ -1673,8 +1675,8 @@ impl SeqAckTracker {
     /// Извлекает верхнеуровневое поле `"seq"` из текстового JSON-кадра RTC WebSocket v8
     /// и обновляет `seq_ack`.
     pub fn update_from_json(&mut self, raw: &str) -> Result<Option<u16>, VoiceError> {
-        let root = chord_json::parse(raw)
-            .map_err(|_| VoiceError::invalid("invalid voice JSON frame"))?;
+        let root =
+            chord_json::parse(raw).map_err(|_| VoiceError::invalid("invalid voice JSON frame"))?;
         let Some(seq_field) = root.get("seq") else {
             return Ok(None);
         };

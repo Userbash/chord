@@ -13,10 +13,10 @@ members = ["."]
 [dependencies]
 arbitrary = "1.4.2"
 libfuzzer-sys = "0.4.13"
-discord-codec = { path = "../crates/discord-codec" }
-discord-json = { path = "../crates/discord-json" }
-discord-core = { path = "../crates/discord-core" }
-discord-voice = { path = "../crates/discord-voice" }
+chord-codec = { path = "../crates/chord-codec" }
+chord-json = { path = "../crates/chord-json" }
+chord-core = { path = "../crates/chord-core" }
+chord-voice = { path = "../crates/chord-voice" }
 
 [[bin]]
 name = "fuzz_gateway_json_etf"

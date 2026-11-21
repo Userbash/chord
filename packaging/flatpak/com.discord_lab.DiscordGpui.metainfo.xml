@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.discord_lab.DiscordGpui</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT OR Apache-2.0</project_license>
+  <name>Discord GPUI</name>
+  <summary>Native Rust GPUI Discord client</summary>
+  <description>
+    <p>
+      Discord GPUI is a native, high-performance Discord desktop client built in Rust with GPUI,
+      featuring hardware-accelerated rendering, PipeWire audio/screen capture, and end-to-end
+      encrypted voice via DAVE MLS v1.
+    </p>
+  </description>
+  <developer id="com.discord_lab">
+    <name>Discord Lab Contributors</name>
+  </developer>
+  <launchable type="desktop-id">com.discord_lab.DiscordGpui.desktop</launchable>
+  <url type="homepage">https://github.com/discord-lab/discord-gpui</url>
+  <url type="bugtracker">https://github.com/discord-lab/discord-gpui/issues</url>
+  <provides>
+    <binary>discord-gpui</binary>
+  </provides>
+  <categories>
+    <category>Network</category>
+    <category>InstantMessaging</category>
+    <category>Chat</category>
+  </categories>
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-chat">intense</content_attribute>
+    <content_attribute id="social-audio">intense</content_attribute>
+  </content_rating>
+  <releases>
+    <release version="1.0.0" date="2026-11-21">
+      <description>
+        <p>Initial store metadata release supporting stable and canary build channels.</p>
+      </description>
+    </release>
+  </releases>
+</component>

@@ -1,7 +1,7 @@
 // @ts-check
 /**
  * Контрактные и модульные тесты интеграции со Spotify по D-Bus MPRIS (Listen Along — TASK-1013):
- * - SUB-1013-0: Статический и компиляционный контракт `rust/discord-gpui/src/integrations/spotify_mpris.rs`
+ * - SUB-1013-0: Статический и компиляционный контракт `rust/chord-gpui/src/integrations/spotify_mpris.rs`
  *   и `scripts/verify-spotify.mjs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()` в prod-коде,
  *   соблюдение лимитов `scripts/quality-gate.mjs`: функции < 50 строк, модуль < 800 строк,
  *   чистый `rustfmt --check --edition 2024`, компиляция `rustc --test --edition 2024 -D warnings`
@@ -27,7 +27,7 @@
  * - SUB-1013-4: Кнопка «Слушать вместе» (Listen Along) и синхронизация воспроизведения через Spotify Connect Web API
  *   (`PUT https://api.spotify.com/v1/me/player/play`), расчёт прогресса таймлайна трека в реальном времени,
  *   покрытие всех 9 обязательных измерений `TEST-POLICY.md` и проверка CLI `scripts/verify-spotify.mjs` (коды `0 / 1 / 2`).
- * - SUB-1013-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/discord-gpui/src/integrations/spotify_mpris.rs`
+ * - SUB-1013-5: Мутационный гейт `5/5` (`100%` kill rate) для `rust/chord-gpui/src/integrations/spotify_mpris.rs`
  *   и `scripts/verify-spotify.mjs` по контракту `scripts/quality-gate.mjs`.
  */
 import assert from "node:assert/strict";
@@ -52,7 +52,7 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const RUST_MODULE_REL_PATH = "rust/discord-gpui/src/integrations/spotify_mpris.rs";
+const RUST_MODULE_REL_PATH = "rust/chord-gpui/src/integrations/spotify_mpris.rs";
 const RUST_MODULE_PATH = join(ROOT, RUST_MODULE_REL_PATH);
 const SCRIPT_REL_PATH = "scripts/verify-spotify.mjs";
 const SCRIPT_PATH = join(ROOT, SCRIPT_REL_PATH);
@@ -69,7 +69,7 @@ let workDir = "";
 let testBinPath = "";
 
 /**
- * Компилирует `rust/discord-gpui/src/integrations/spotify_mpris.rs` через `rustc --test --edition 2024 -D warnings`.
+ * Компилирует `rust/chord-gpui/src/integrations/spotify_mpris.rs` через `rustc --test --edition 2024 -D warnings`.
  * @param {string} sourcePath
  * @param {string} outputBin
  * @returns {{ status: number | null, stdout: string, stderr: string }}
@@ -120,7 +120,7 @@ function runCompiledRustTests(binPath, filter) {
   };
 }
 
-describe("TASK-1013: Интеграция со Spotify по D-Bus MPRIS (Listen Along — rust/discord-gpui/src/integrations/spotify_mpris.rs)", () => {
+describe("TASK-1013: Интеграция со Spotify по D-Bus MPRIS (Listen Along — rust/chord-gpui/src/integrations/spotify_mpris.rs)", () => {
   before(() => {
     workDir = mkdtempSync(join(tmpdir(), "spotify-mpris-1013-"));
     testBinPath = join(workDir, "spotify_mpris_1013_test");
@@ -132,7 +132,7 @@ describe("TASK-1013: Интеграция со Spotify по D-Bus MPRIS (Listen 
     }
   });
 
-  it("SUB-1013-0: модули rust/discord-gpui/src/integrations/spotify_mpris.rs и scripts/verify-spotify.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
+  it("SUB-1013-0: модули rust/chord-gpui/src/integrations/spotify_mpris.rs и scripts/verify-spotify.mjs существуют, соблюдают лимиты (<50 строк на fn, <800 на файл), запрещают unsafe и компилируются без предупреждений", () => {
     assert.ok(
       existsSync(RUST_MODULE_PATH),
       `Модуль ${RUST_MODULE_REL_PATH} должен существовать`,
@@ -611,7 +611,7 @@ describe("TASK-1013: Интеграция со Spotify по D-Bus MPRIS (Listen 
     assert.match(rustRun.stdout, /test tests::test_sub_1013_4_.*ok/);
   });
 
-  it("SUB-1013-5: убивает 5/5 контрольных мутаций в rust/discord-gpui/src/integrations/spotify_mpris.rs и scripts/verify-spotify.mjs (100% mutation kill rate)", () => {
+  it("SUB-1013-5: убивает 5/5 контрольных мутаций в rust/chord-gpui/src/integrations/spotify_mpris.rs и scripts/verify-spotify.mjs (100% mutation kill rate)", () => {
     assert.ok(existsSync(testBinPath), "Тестовый бинарник Rust должен быть собран");
 
     const originalRust = readFileSync(RUST_MODULE_PATH, "utf8");

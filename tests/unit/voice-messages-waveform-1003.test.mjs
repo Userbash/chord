@@ -2,8 +2,8 @@
 /**
  * Контрактные и модульные тесты голосовых сообщений с Waveform в чате (OGG Opus 48kHz mono 32kbps,
  * 256 байт base64 waveform, флаг IS_VOICE_MESSAGE = 8192, интерактивный плеер GPUI 1x/1.5x/2x) — TASK-1003:
- * - SUB-1003-0: Статический и структурный контракт `rust/crates/discord-voice/src/voice_message.rs`
- *   и `rust/discord-gpui/src/chat/voice_message_player.rs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()`
+ * - SUB-1003-0: Статический и структурный контракт `rust/crates/chord-voice/src/voice_message.rs`
+ *   и `rust/chord-gpui/src/chat/voice_message_player.rs` (`#![forbid(unsafe_code)]`, 0 `.unwrap()`/`.expect()`
  *   в prod-коде, лимиты `scripts/quality-gate.mjs` < 50 строк на функцию и < 800 строк на модуль,
  *   `rustfmt --check --edition 2024`, компиляция `rustc --test --edition 2024 -D warnings` без предупреждений,
  *   0 утечек в `secret-scan.mjs`).
@@ -16,7 +16,7 @@
  *   кодирования в контейнер OGG Opus 32 kbps VBR (`OggS`, `OpusHead`, `OpusTags`, CRC-32), расчёта RMS-амплитуд
  *   и нормализации в 256-байтный массив `0..=255` (base64 `waveform`, 344 символа) и формирования REST-запросов
  *   загрузки (`POST /channels/{id}/attachments` -> `PUT` -> `POST /channels/{id}/messages` с `flags: 8192`).
- * - SUB-1003-3: Независимый оракул интерактивного плеера `VoiceMessagePlayer` (`rust/discord-gpui/src/chat/voice_message_player.rs`):
+ * - SUB-1003-3: Независимый оракул интерактивного плеера `VoiceMessagePlayer` (`rust/chord-gpui/src/chat/voice_message_player.rs`):
  *   декодирование base64 `waveform`, рендеринг 32 / 64 / 128 полосок волны с динамической подсветкой прогресса
  *   (`#23a55a`), мгновенная перемотка кликом по волне (`seek_by_click_x`) и переключение скорости
  *   `1x -> 1.5x -> 2x -> 1x` с сохранением высоты тона (WSOLA pitch preservation).
@@ -49,9 +49,9 @@ import {
 import { scanTextForSecrets } from "../../scripts/secret-scan.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
-const VOICE_MOD_REL_PATH = "rust/crates/discord-voice/src/voice_message.rs";
+const VOICE_MOD_REL_PATH = "rust/crates/chord-voice/src/voice_message.rs";
 const VOICE_MOD_PATH = join(ROOT, VOICE_MOD_REL_PATH);
-const PLAYER_MOD_REL_PATH = "rust/discord-gpui/src/chat/voice_message_player.rs";
+const PLAYER_MOD_REL_PATH = "rust/chord-gpui/src/chat/voice_message_player.rs";
 const PLAYER_MOD_PATH = join(ROOT, PLAYER_MOD_REL_PATH);
 
 const KANBAN_BOARD_PATH = join(ROOT, "waves", "kanban-board.json");

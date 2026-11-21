@@ -1,5 +1,8 @@
 # AGENTS.md — Agent and Coordinator Rules for discord-lab
 
+> **Authority Hierarchy for Internal Workers:**
+> Internal workers follow **only** [`AGENTS.md`](AGENTS.md) + [`TEST-POLICY.md`](TEST-POLICY.md) (plus their assigned task spec). External contributors follow `README.md` + `CONTRIBUTING.md` + `AI-AGENTS.md`.
+
 For quick onboarding, first read `PROJECT-CONTEXT.md`; open full documents only as needed for a specific task card. Do not load entire sprint histories or massive wave plans without direct need.
 
 You are working in the `discord-lab` repository (local CLI: Discord protocol analysis via Frida/CDP + native Rust GPUI client `discord-gpui`).
@@ -46,10 +49,20 @@ relevant rules in `PROCESS.md` / `TEAM.md` / `TEST-POLICY.md`, and the current s
 
 1. **Worker Spawning via Orca Orchestration:**
    - Workers run as supervised terminal processes in dedicated worktrees via `orca worktree create --name <name> --base-branch unstable --branch <type>/task-<id>-<slug>` and `orca orchestration worker-start --run <run_id> --worktree branch:<type>/task-<id>-<slug> ...`.
-2. **Model Selection Policy:**
-   - **`gemini-4-carbon-high` (`--effort high` / `xhigh`):** Reserved for the most demanding core P0 challenges (zero-copy ring buffers, DAVE MLS v1 cryptography, AppState Tokio<->GPUI async sync).
-   - **`gemini-4-argon-high` / `medium`:** Standard for validation, code reviews, mutation testing (QA / DevOps verification), and standard BFF REST services.
-   - **`gemini-3.8-flash-high` / `medium` / `low`:** Used for UI layout, modal dialogues, preferences, tray integrations, and documentation sync.
+2. **Complexity-First Model & Effort Policy (Queue Priority ≠ Model Tier):**
+   - Queue priority (`P0–P3`) governs **execution order only** — never spend heavy models or high `--effort` on trivial `P0` tasks.
+   - **Tier S — Routine Code & Configs (`gemini-4-hydrogen-low`, `--effort low`):** Routine single-step code edits, one-line switches (`P0-1.1`, `P2-1.2`, `P2-3.2`), CI/config tweaks (`H-FIX-17`), packaging manifests, formatting, and mock cleanup. Allowed efforts: `low` (escalate to `medium` only on broken deps).
+   - **Tier S — Design & Docs (`gemini-3.8-flash-low`, `--effort low`):** Design specs & CSS/GPUI tokens (`G3`), parity matrices & release documentation (`G6`).
+   - **Tier M — Routine Adapters & UI (`gemini-4-hydrogen-medium`, `--effort medium` / `gemini-3.8-flash-medium|high`, `--effort medium` / `gemini-4-argon-low`, `--effort low`):**
+     - `gemini-4-hydrogen-medium` (`effort: medium`, allowed `low`/`medium`): Routine boilerplate wrappers, local utilities, `state/` module splits (`P2-3.1`), `Accept-Language` / HTTP header plumbing (`P2-1.1`), i18n, and repetitive fixture/smoke updates.
+     - `gemini-3.8-flash-medium` / `flash-high` (`effort: medium`): UI views, modals, preferences (`G2`), PM DoD acceptance (`ACCEPT.md`).
+     - `gemini-4-argon-low` (`effort: low`, allowed `low`/`medium`): DevOps release/gate scripts, lightweight `P2/P3` D-Bus/IPC/autostart adapters, offline unit/contract test expansion.
+   - **Tier L — Standard Core / QA / Review (`gemini-4-argon-medium`, `--effort medium` / `gemini-4-argon-high`, `--effort high`):** `argon-medium` for standard Rust BFF/REST, Voice/Platform sessions, and QA suites (`G4`); `argon-high` (allowed `medium`/`high`) only for complex Gateway/permissions parsers, `5/5` mutation technical reviews (`REVIEW.md`), and deep `G7 RE` tracing.
+   - **Tier XL — Hardcore Core (`gemini-4-carbon-high`, `--effort high`; `xhigh` only on escalation):** Reserved exclusively for zero-copy/lock-free ring buffers, DAVE MLS v1 / SRTP / AES-GCM cryptography, and the reactive `Tokio <-> GPUI AppState` bridge (`gemini-4-carbon-low`/`medium` may only be used for bounded sub-components of XL crates).
+   - **Orchestrator Tiers (Non-Worker Coordination Roles):**
+     - **Orchestrator (Argon) (`gemini-pro-orchestrator-argon`, `--effort medium`, allowed `low`/`medium`/`high`):** Wave Coordinator / Team Lead (`orchestrator_argon`) — backlog triage by `P0–P3`, non-overlapping `write-scope` assignment, 1-to-1 slot rotation (`<= 6` slots, `< 25 GiB` RAM), PR cherry-pick/merge integration.
+     - **Orchestrator (Carbon) (`gemini-pro-orchestrator`, `--effort high`, allowed `medium`/`high`/`xhigh`):** Chief Architect & Escalation Lead (`orchestrator_carbon`) — cross-crate architectural design, resolving multi-worker merge/spec conflicts, Tier XL arbitration, and twice-failed step re-planning.
+   - **`codex` and `deepseek`/`opencode` are strictly prohibited.**
 
 ---
 

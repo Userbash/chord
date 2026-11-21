@@ -10,25 +10,33 @@ const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, "../..");
 
 describe("TASK-806: Автоматическое сворачивание трансляции в плавающий PiP при смене канала", () => {
-  const appJs = fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8");
+  const appJs = [
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/app.js"), "utf8"),
+    fs.readFileSync(path.join(REPO_ROOT, "rust/gui-spike/ui/features/voice-stream-controller.js"), "utf8"),
+  ].join("\n");
+  const channelSwitchJs = fs.readFileSync(
+    path.join(REPO_ROOT, "rust/gui-spike/ui/features/channel-switch-permissions.js"),
+    "utf8",
+  );
+  const uiBundleSource = `${appJs}\n${channelSwitchJs}`;
 
   it("T806-1: minimizeStageViewerToPip и onChannelSwitch объявлены в app.js", () => {
     assert.match(
-      appJs,
+      uiBundleSource,
       /function\s+minimizeStageViewerToPip\s*\(/,
-      "app.js must declare minimizeStageViewerToPip()",
+      "app.js or channel-switch-permissions.js must declare minimizeStageViewerToPip()",
     );
     assert.match(
-      appJs,
+      uiBundleSource,
       /(?:function\s+onChannelSwitch|const\s+onChannelSwitch\s*=)/,
-      "app.js must declare onChannelSwitch",
+      "app.js or channel-switch-permissions.js must declare onChannelSwitch",
     );
   });
 
   it("T806-2: chat.openChannel и дерево каналов сворачивают #live-stream-stage-viewer при смене канала", () => {
-    const openChannelIdx = appJs.indexOf("chat.openChannel = async (target, controls) =>");
-    assert.ok(openChannelIdx > 0, "chat.openChannel must exist in app.js");
-    const openChannelBody = appJs.slice(openChannelIdx, openChannelIdx + 1200);
+    const openChannelIdx = uiBundleSource.indexOf("chat.openChannel = async (");
+    assert.ok(openChannelIdx > 0, "chat.openChannel must exist in app.js or channel-switch-permissions.js");
+    const openChannelBody = uiBundleSource.slice(openChannelIdx, openChannelIdx + 1200);
 
     assert.match(
       openChannelBody,

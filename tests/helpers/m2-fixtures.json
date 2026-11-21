@@ -35,7 +35,7 @@
     }
   },
   "login": {
-    "token": "MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK",
+    "token": "mock_user_token_sanitized_42",
     "outcome": {
       "status": "ready",
       "stored": true,

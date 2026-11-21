@@ -4,7 +4,7 @@
  * проекции 6 из них.
  *
  * Оракулы — артефакты, а не текущая реализация:
- *   - `rust/crates/discord-core/src/dispatch.rs`: 21 имя провода
+ *   - `rust/crates/chord-core/src/dispatch.rs`: 21 имя провода
  *     `DispatchKind::as_str` — канонический список форвардимых типов;
  *   - `rust/gui-spike/src/net.rs`: `DISPATCH_EVENT`, `FORWARDED_DISPATCHES`
  *     (бэкенд — подмножество UI) и конверт `DispatchPayload` = `{kind, data}`;
@@ -52,7 +52,7 @@ const NET_RS = readFileSync(
   "utf8",
 );
 const CORE_DISPATCH_RS = readFileSync(
-  new URL("../../rust/crates/discord-core/src/dispatch.rs", import.meta.url),
+  new URL("../../rust/crates/chord-core/src/dispatch.rs", import.meta.url),
   "utf8",
 );
 const fixturesDir = fileURLToPath(new URL("../../fixtures/gateway/by-type/", import.meta.url));

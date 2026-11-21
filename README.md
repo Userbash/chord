@@ -1,20 +1,48 @@
-# Chord — High-Performance Native GPU Client & Protocol Engine
+# Chord — High-Performance, Zero-Electron Alternative Discord Client & Protocol Engine
 
 <p align="center">
   <img src="assets/branding/chord-icon-harmonic.png" alt="Chord Logo" width="160" height="160" />
 </p>
 
 <p align="center">
-  <strong>Chord</strong> (formerly <em>discord-lab / discord-gpui</em>) is a high-performance, GPU-accelerated desktop client written in pure Rust (GPUI/WGPU 120 FPS), featuring an independent clean-room protocol analysis suite and media engine.
+  <strong>Chord</strong> is an ultra-fast, lightweight, open-source alternative desktop client and clean-room protocol engine for Discord. Built in pure Rust with <strong>Tauri 2</strong> (primary daily driver) and an experimental native GPU engine, Chord delivers native Linux PipeWire screen sharing, next-gen <strong>DAVE MLS v1 E2EE voice encryption</strong>, built-in Krisp neural noise cancellation, and a ~10x lower memory footprint than Electron.
 </p>
 
+<p align="center">
+  <a href="#-quick-start--build-instructions"><strong>Quick Start</strong></a> •
+  <a href="docs/GOOD_FIRST_ISSUES.md"><strong>Good First Issues</strong></a> •
+  <a href="#1-why-chord-benchmarks--unique-advantages"><strong>Why Chord?</strong></a> •
+  <a href="#2-workspace-crate-architecture"><strong>Architecture</strong></a> •
+  <a href="#3-protocol-research-suite-chord-cli--re"><strong>Protocol CLI</strong></a> •
+  <a href="#4-quality-engineering-strict-tdd--mutation-gates"><strong>Quality Gates</strong></a> •
+  <a href="#7-contributing--collaboration"><strong>Contributing</strong></a>
+</p>
+
+<p align="center">
+  <code>discord-client</code> • <code>tauri</code> • <code>rust</code> • <code>alternative-discord-client</code> • <code>dave-mls</code> • <code>e2ee-voice</code> • <code>webrtc</code> • <code>pipewire</code> • <code>wayland</code> • <code>zero-electron</code> • <code>lightweight-discord</code> • <code>linux-desktop</code> • <code>krisp-noise-suppression</code>
+</p>
+
+> ### ⚡ 10-Second Overview (Get Started Instantly)
+> - **1. What is it?** A native, zero-Electron alternative Discord desktop client engineered in pure Rust & Tauri 2. Features **DAVE MLS v1 E2EE audio**, native **Wayland/PipeWire screensharing with system audio**, and **~150 MB RAM** footprint.
+> - **2. How to run in 3 commands?**
+>   ```bash
+>   git clone https://github.com/Userbash/chord.git && cd chord
+>   npm run precheck
+>   bash scripts/gui-run.sh start
+>   ```
+> - **3. How to help?** Pick a beginner-friendly task from [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md) or see [CONTRIBUTING.md](CONTRIBUTING.md). Community outreach kit: [docs/COMMUNITY_OUTREACH.md](docs/COMMUNITY_OUTREACH.md).
+
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange.svg)](https://www.rust-lang.org/)
-[![GPUI](https://img.shields.io/badge/gui-GPUI%20%2F%20WGPU-blue.svg)](https://github.com/zed-industries/zed)
+[![Tauri 2](https://img.shields.io/badge/gui-Tauri%202%20%2F%20WebKit-blue.svg)](rust/gui-spike/)
+[![GPUI](https://img.shields.io/badge/gui-GPUI%20%2F%20WGPU-lightgrey.svg)](rust/chord-gpui/)
 [![Tests](https://img.shields.io/badge/tests-1500%2B%20100%25%20green-brightgreen.svg)](tests/)
 [![Mutations](https://img.shields.io/badge/mutations-5%2F5%20killed-success.svg)](waves/)
-[![RAM](https://img.shields.io/badge/memory-%3C%2060%20MB%20RAM-blueviolet.svg)](docs/rust-client/STATUS.md)
-[![DAVE E2EE](https://img.shields.io/badge/security-DAVE%20MLS%20v1%20E2EE-darkgreen.svg)](rust/crates/discord-voice/)
+[![RAM](https://img.shields.io/badge/memory-%3C%20180%20MB%20RAM-blueviolet.svg)](docs/rust-client/STATUS.md)
+[![DAVE E2EE](https://img.shields.io/badge/security-DAVE%20MLS%20v1%20E2EE-darkgreen.svg)](rust/crates/chord-voice/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![AI Collaboration](https://img.shields.io/badge/AI%20collaboration-AMCP%20v1.0-blueviolet.svg)](AI-AGENTS.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome%20(human%20%26%20AI)-brightgreen.svg)](CONTRIBUTING.md)
+[![CI Gate](https://img.shields.io/badge/CI-8%20gate%20checks-blue.svg)](.github/workflows/ai-collab-gate.yml)
 
 > [!IMPORTANT]
 > **Open-Source Non-Affiliation and Trademark Notice:**
@@ -24,27 +52,45 @@
 
 > [!WARNING]
 > ### 🚨 Current Status: Open-Source Developer Alpha / Tech Preview (v0.1.0-alpha)
-> **Chord is in active development.** While the core network engine, DAVE MLS v1 E2EE, voice engine, and Wayland screensharing are functional, high-level features such as **Direct Messages (DMs)**, **`@` mention autocomplete**, and **custom emoji popups** are incomplete or in alpha.
+> **Chord is in active development.** The primary desktop client is powered by **Tauri 2 (`rust/gui-spike`)**, delivering a full Discord-compatible UI with 144/144 verified features, complete WebSocket Gateway v9 state machine, DAVE MLS v1 E2EE voice encryption, PipeWire DMA-BUF screenshare, and Krisp neural noise cancellation.
 > 
-> **Do not use your main Discord account!** Use only developer/test accounts.  
+> **Do not use your main Discord account!** Use only developer/test accounts during the alpha phase.  
 > 👉 **Read the full feature matrix, known limitations, and bug reports in [docs/DEVELOPER_ALPHA_LIMITATIONS.md](docs/DEVELOPER_ALPHA_LIMITATIONS.md).**
 
 ---
 
-## 1. Why Discord GPUI? (Key Benchmarks)
+## 1. Why Chord? (Benchmarks & Unique Advantages)
 
-Official Discord desktop runs inside Electron/Chromium, frequently demanding 800 MB to 1.5 GB of RAM, suffering from CPU rendering frame drops, Wayland screensharing limitations, and sluggish startup. `discord-gpui` replaces this stack with native compiled Rust and hardware-accelerated WGPU rendering.
+Official Discord desktop runs inside Electron/Chromium, demanding 800 MB to 1.5 GB of RAM, suffering from CPU rendering frame drops, broken screensharing on Wayland, and sluggish startup. Web wrappers (WebCord, ArmCord) still carry full Chromium overhead, while older native clients (Ripcord) have broken voice because Discord migrated to DAVE MLS E2EE encryption. Emerging native Rust alternatives like [Serein (ViceVerse-cz/Serein)](https://github.com/ViceVerse-cz/Serein) demonstrate the power of pure Rust with immediate-mode `egui`/`wgpu`.
 
-| Metric / Feature | Official Discord (Electron) | Native `discord-gpui` (Rust) | Advantage |
-| :--- | :---: | :---: | :---: |
-| **Idle RAM Consumption** | 800 MB – 1.4 GB | **11.26 MB** VmRSS (budget < 60 MB) | **~100x less memory** |
-| **Rendering Frame Rate (FPS)** | 30–60 FPS (Chromium lags) | **120 FPS** (Hardware WGPU Vulkan/Metal) | **Zero-lag smooth scrolling** |
-| **Cold Startup Time** | 4.5 – 9.0 seconds | **< 480 ms** (SQLite WAL cache hydration) | **~15x faster startup** |
-| **Voice End-to-End Encryption (E2EE)** | Partial in WebRTC | **DAVE MLS v1 (`RFC 9420`)** 100% Parity | **Quantum-ready forward secrecy** |
-| **Binary Package Size** | 180 – 250 MB | **42 MB** (Stripped ELF with Thin LTO) | **Lightweight footprint** |
-| **Linux Screen Sharing** | Black screen on Wayland / No audio | **PipeWire Portal + DMA-BUF zero-copy** with audio | **Full Wayland/PipeWire support** |
-| **Realtime Spellchecker** | Chromium Hunspell (memory leaks) | **Native FFI libenchant/hunspell** (<50 lines/fn) | **Zero leaks, native speed** |
-| **Handheld / Console UI** | None | **Steam Deck Gamepad Navigation + SteamOS OSD** | **Full gamepad support** |
+Chord builds upon these native principles with a **high-performance Rust core**, a **lightweight Tauri 2 desktop client**, and an experimental **GPUI WGPU engine**:
+
+| Metric / Capability | Official Discord (Electron) | Web Wrappers (WebCord/ArmCord) | Ripcord (C++/Qt) | [Serein](https://github.com/ViceVerse-cz/Serein) (Rust + egui) | **Chord (Tauri 2 + Rust)** |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Idle Memory (RAM)** | 800 MB – 1.6 GB | 450 MB – 900 MB | 30 MB – 60 MB | **~130 MB** (single process) | **~150–180 MB** (or 11 MB GPUI headless) |
+| **Engine Architecture** | Heavy Chromium + Node.js | Chromium Webview wrapper | Native Qt4/5 (closed) | Pure Rust + `egui` / `wgpu` | **Compiled Rust Core + Tauri 2 & GPUI** |
+| **Cold Startup Time** | 4.5 – 9.0 seconds | 3.5 – 6.0 seconds | < 1.0 second | < 400 ms | **< 480 ms** |
+| **DAVE MLS v1 E2EE Voice** | Supported (proprietary blob) | Supported (browser WebRTC) | ❌ **Broken (No DAVE)** | 🟢 Supported (native DAVE) | 🟢 **100% Pure Rust DAVE (`RFC 9420`)** |
+| **Linux Wayland Screenshare** | Black screen / No audio | Variable browser portal | ❌ None | ⚠️ Experimental Portal (unverified) | 🟢 **PipeWire DMA-BUF Zero-Copy + Audio** |
+| **Background Noise Filter** | Krisp (closed blob) | Basic browser WebRTC NS | ❌ None | RNNoise + Sonora AEC3 | 🟢 **Krisp Neural NC + WebRTC APM + VAD** |
+| **Audio & Spatial DSP** | Standard stereo | WebAudio API | Basic | Opus + AGC | 🟢 **360° KEMAR HRTF 3D Audio + Soundboard** |
+| **Discord UI & Feature Parity** | 100% | 100% (embeds website) | ~30% (outdated UI) | ~75% (Custom egui canvas UI) | 🟢 **92%+ (144/144 UI Feature Suites)** |
+| **Plugin & Extension Model** | ❌ Disallowed | Vencord / Web plugins | ❌ None | 🟢 Git-backed `.serein-extension` | 🟢 **Tauri IPC Plugins + CSS Design Tokens** |
+| **Quality & Mutation Rigor** | Proprietary internal QA | Community smoke tests | Unknown | `cargo xtask check` | 🟢 **12 Tiers (T0–T4), 5/5 Mutation Gate** |
+| **Open Source License** | ❌ Proprietary | 🟢 Open Source (MIT) | ❌ Closed Source | 🟢 Open Source (MIT/Apache-2.0) | 🟢 **100% Open Source (GPL-3.0)** |
+
+### Architectural Comparison: Chord vs. Serein (ViceVerse-cz/Serein)
+Both **Chord** and [**Serein**](https://github.com/ViceVerse-cz/Serein) share the vision of freeing Discord users from Electron's heavy footprint using pure Rust:
+- **UI Engine & Layout:** Serein implements an immediate-mode GUI using `egui` and `wgpu`. While extremely lightweight, immediate-mode UI redraws every frame on the GPU and presents a custom canvas look. In contrast, Chord's primary desktop client pairs a Rust BFF with Tauri 2 and WebKitGTK/Blink, offering pixel-perfect fidelity with Discord's actual CSS design tokens (5,132 variables), smooth virtualized chat scrolling, and complete accessibility (ARIA/WCAG), alongside an experimental Zed-inspired GPUI engine.
+- **Voice & Media Pipeline:** Serein provides a native voice engine with RNNoise and Sonora AEC3. Chord features full pure-Rust DAVE MLS v1 (`RFC 9420`) with cryptographic KeyRatchets, truncated 8-byte tags, verified PipeWire DMA-BUF zero-copy screensharing with system audio loopback, Krisp neural noise cancellation, and a binaural KEMAR 360° HRTF spatial audio filter.
+- **Extensibility:** Serein features an innovative Git-backed extension and theme package ecosystem (`.serein-extension`). Chord uses modular Tauri 2 IPC plugins, reactive `@preact/signals-core` state bridges, and verified clean-room reverse-engineered contracts.
+
+### Key Architectural Strengths:
+1. **Zero-Electron Lightweight Footprint**: Enjoy fluid responsiveness without sacrificing gigabytes of RAM.
+2. **Next-Gen DAVE MLS v1 E2EE Encryption**: The **only** independent open-source client implementing the complete `RFC 9420` MLS cryptographic ratchet in pure Rust (`rust/crates/chord-voice`). Voice works on modern encrypted Discord voice servers!
+3. **First-Class Linux Wayland & PipeWire Integration**: Zero-copy DMA-BUF desktop/window streaming via XDG Desktop Portal with direct PipeWire audio loopback mixing.
+4. **Krisp Neural Noise Suppression**: Pure native voice activity detection (VAD) and noise cancellation without proprietary binary background processes.
+5. **Strict Engineering & Reliability Pyramid**: 144 verified UI features, 315+ automated test suites, 100% mutation kill rate, and sub-second pre-commit checks.
 
 ---
 
@@ -54,58 +100,54 @@ The repository is structured as a modular Rust monorepo:
 
 ```
 rust/
-├── discord-gpui/         # Native GPU desktop application (GPUI/WGPU 120 FPS)
-│   └── (chord-gpui)      # Canonical alias symlink for Chord
+├── gui-spike/          # Primary Client: Tauri 2 Desktop Client (WebKitGTK/Blink + Rust BFF)
+├── chord-gpui/         # Experimental: Native GPU desktop application (WGPU / GPUI prototype)
 └── crates/
-    ├── discord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls, Permissions
-    ├── discord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°
-    ├── discord-media/    # Zero-copy audio buffers, two-tier LRU/disk media & emoji cache
-    ├── discord-platform/ # XDG autostart, system tray, D-Bus, FFI Keyring, Spotify MPRIS
-    ├── discord-store/    # SQLite FTS5 full-text search, WAL mode, encrypted storage
-    ├── discord-codec/    # ETF binary codec (decompression bomb protection) & zstd streams
-    └── discord-i18n/     # Internationalization: 36 locales, xxh64 hashed translation keys
+    ├── chord-core/     # REST API v9, Gateway v9, Forums, Threads, Polls, Permissions
+    ├── chord-voice/    # WebRTC, RTP/RTCP, DAVE MLS v1 E2EE, Soundboard, HRTF 360°
+    ├── chord-media/    # Zero-copy audio buffers, two-tier LRU/disk media & emoji cache
+    ├── chord-platform/ # XDG autostart, system tray, D-Bus, FFI Keyring, Spotify MPRIS
+    ├── chord-store/    # SQLite FTS5 full-text search, WAL mode, encrypted storage
+    ├── chord-codec/    # ETF binary codec (decompression bomb protection) & zstd streams
+    └── chord-i18n/     # Internationalization: 36 locales, xxh64 hashed translation keys
 ```
 
-### Crate Highlights:
-1. **`discord-gpui` (Application Front-End)**:
-   - Three-panel layout: Server Rail (72px), Channel Sidebar (240px), Virtualized Chat view (100k+ messages at < 60 MB RAM), and Member list (240px).
-   - Forum Channels (Type 15) with 2-column `ForumGridView` layout.
-   - Nested Threads (Types 11/12) with a 360px `ThreadSidebar`.
-   - Discord Polls with real-time voting, live progress bars, and zero-division protection (`PollCardView`).
-   - Voice Message Player (`VoiceMessagePlayer`) with 256-byte RMS waveforms and 1x/1.5x/2x playback rates.
-   - Emoji & Sticker Picker modal (`EmojiPickerModal`, 380x420px with 8x32px grid and search).
-   - Soundboard Grid (`SoundboardGridView`) with custom hotkeys and live microphone mixing.
-   - Interactive 2D Spatial Audio Radar (`SpatialRadar`) on WGPU with SQLite coordinate persistence.
-   - 60 FPS WebRTC Telemetry overlay (`RtcDiagnosticsHud`).
-   - Complete Settings suite: All 8 core Discord client settings sections.
-2. **`discord-core` (Network & Protocol Core)**:
+### Feature Highlights:
+1. **Primary Desktop Client (`rust/gui-spike/`)**:
+   - **Modern Discord UI**: Server Rail (72px), Channel Sidebar (240px), Virtualized Chat view (100k+ messages at smooth 60 FPS), and Member list (240px).
+   - **Rich Markdown & Media**: Full Discord formatting, code syntax highlighting, spoilered text `||`, inline images, and video players.
+   - **Voice & Video Channels**: Multi-stream voice grid, speaking indicators (Voice Ring), Krisp toggle, and screen share viewer.
+   - **Forum Channels & Nested Threads**: Type 15 forum channels and Types 11/12 threaded conversations.
+   - **Interactive Polls & Reactions**: Custom animated WebP/GIF emojis, sticker picker, and live poll vote progress.
+   - **Pins & Context Menus**: Pinned message drawer, message action menus, reply quotes, and edit history.
+   - **Settings Suite**: Complete Audio/Video DSP configuration, input/output device selector, keybinds, and appearance themes.
+2. **`chord-core` (Network & Protocol Core)**:
    - WebSocket Gateway v9 state machine (`HELLO`, `Heartbeat`, `IDENTIFY`, `RESUME`, `VOICE_STATE_UPDATE`).
    - HTTP/2 connection pooling with intelligent bucket-aware rate limiting and `retry_after_ms` backoff.
    - 64-bit guild role hierarchy and permissions calculation engine.
-3. **`discord-voice` (Voice & Real-Time Media Engine)**:
+3. **`chord-voice` (Voice & Real-Time Media Engine)**:
    - **DAVE E2EE MLS v1 (`RFC 9420`)**: Cryptographic ratchets (`DaveHashRatchet`), truncated 8-byte tags (`Aes128GcmTruncated8`), epoch rollouts, and commit verification.
    - Voice Recording: 48 kHz mono recording encoded into OGG Opus 32 kbps VBR.
    - Soundboard: Voice Opcode 18 (`SOUNDBOARD_SOUND`), LRU Opus sound cache, and microphone linear mixer with soft `tanh()` clipping.
    - 3D Spatial Audio: 360-degree binaural KEMAR HRTF 512-point FFT filter.
    - Adaptive Jitter Buffer (20–60 ms) and Packet Loss Concealment (PLC).
-4. **`discord-platform` (OS & Desktop Integration)**:
+4. **`chord-platform` (OS & Desktop Integration)**:
    - XDG autostart generator and system tray daemon (`--start-minimized`, VmRSS < 8 MB).
    - Spotify D-Bus MPRIS client (Opcode 3 `LISTENING` presence & "Listen Along" synchronization).
-   - Gamepad navigation via `gilrs` and on-screen keyboard trigger for Steam Deck / SteamOS.
    - Secure OS credential storage via FFI to `libsecret` / Linux Keyring.
    - Real-time native spellchecking via FFI to `libenchant-2` / `hunspell`.
-5. **`discord-media` (Media & Cache Layer)**:
+5. **`chord-media` (Media & Cache Layer)**:
    - Zero-copy ring buffers (`AudioRingBuffer`) for high-throughput audio capture and playback.
    - Two-tier cache: 256 MB RAM LRU cache + persistent disk cache with HTTP ETag validation.
 
 ---
 
-## 3. Protocol Research Suite (`chord` / `discord-lab` CLI & RE)
+## 3. Protocol Research Suite (Chord CLI & RE)
 
 The repository provides automated tools for non-invasive dynamic analysis of running Discord processes using Frida and the Chrome DevTools Protocol (CDP):
 
 ```bash
-# Main research CLI (bin/chord.mjs or bin/discord-lab.mjs)
+# Main research CLI
 node bin/chord.mjs --help                # View available commands
 node bin/chord.mjs pids                  # List Discord processes discovered by Frida
 node bin/chord.mjs inventory --pid <PID> # Module and symbol inventory (JSON/CSV)
@@ -125,7 +167,7 @@ Supported CLI commands:
 - `domains` — Categorizes functions into architectural domains and generates coverage reports
 - `static` — Extracts static symbol tables and cross-references from binary artifacts
 
-Research specifications and oracle documentation are located in `docs/re/`:
+Research specifications and clean-room oracle documentation are located in `docs/re/`:
 - `gateway-protocol.md`: Gateway traces, ETF big-integer handling, zstd streams, and READY handshakes.
 - `rest-d02.md`: REST v9 endpoints, headers, `X-Super-Properties`, and error structures.
 - `voice-deep.md`: RTC signaling, RTP/RTCP packet structures, SRTP, and DAVE MLS crypto modes.
@@ -143,46 +185,68 @@ This project enforces strict engineering quality standards (**Strict TDD** and *
      /---\      
     /     \     T3: Release & Mutation Gate (5/5 mutations killed, ASan/TSan, SBOM)
    /-------\    
-  /         \   T2: Integration & E2E (GPUI Headless Smoke, 50 E2E Journeys, SSIM >0.995)
+  /         \   T2: Integration & E2E (Tauri Headless, 50 E2E Journeys, SSIM >0.995)
  /-----------\  
 /             \ T1: Worker Gate (Clippy -D warnings, Typecheck, 147 Meta, 920+ Unit)
 ───────────────
 T0: Targeted    (Targeted test impact: node scripts/test-impact.mjs --run, <1 sec)
 ```
 
-- **100% Pass Rate**: 147 architectural meta-tests, 920+ unit tests, 391+ GPUI contract tests.
-- **5/5 Mutation Kill Rate**: Every PR passes through an automated mutation fuzzer that verifies 100% of injected faults are killed by tests.
-- **Visual Regression Testing**: SSIM > 0.995 across 15 reference screens using deterministic JSON masks.
-- **Chaos Engineering**: 53 automated resilience scenarios (PipeWire disconnection, 20–60ms network jitter, Gateway disconnects).
+- **100% Pass Rate**: 147 architectural meta-tests, 920+ unit tests, 144 UI feature suites.
+- **5/5 Mutation Kill Rate**: Every PR passes through an automated mutation fuzzer verifying 100% of injected faults are killed by tests.
+- **Visual Regression Testing**: SSIM > 0.995 across reference screens using deterministic JSON masks.
+- **Resilience Testing**: Automated tests for PipeWire recovery, network jitter, and Gateway reconnections.
 
 ---
 
 ## 5. Quick Start & Build Instructions
 
 ### Prerequisites:
-- **Rust**: 1.85+ (Edition 2024, `rustup default stable`)
-- **System Libraries (Linux)**: `libasound2-dev`, `libpipewire-0.3-dev`, `libsecret-1-dev`, `libenchant-2-dev` (or `hunspell`)
-- **Node.js**: 24+ (for running the test harness and Kanban dashboard)
+- **Rust**: 1.85+ (Edition 2024 / 2021, `rustup default stable`)
+- **System Libraries (Linux)**: `libwebkit2gtk-4.1-dev` (or `4.0`), `libpipewire-0.3-dev`, `libasound2-dev`, `libsecret-1-dev`, `libenchant-2-dev` (or `hunspell`)
+- **Node.js**: 24+ (for running the test harness and fast prechecks)
 
-### Building the Native Client:
+### 🚀 Running the Primary Desktop Client (Tauri 2):
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Userbash/discord-lab.git
-cd discord-lab
+git clone https://github.com/Userbash/chord.git
+cd chord
 
-# 2. Build the optimized release binary
-cargo build --release --manifest-path rust/Cargo.toml -p discord-gpui
+# 2. Run instant pre-flight sanity check (< 1 sec)
+npm run precheck
 
-# 3. Launch the native client
-./rust/target/release/discord-gpui
+# 3. Launch the desktop client
+bash scripts/gui-run.sh start
 
-# 4. Explore protocol analysis CLI
-node bin/chord.mjs --help
+# Or build the standalone release binary directly:
+cargo build --release --manifest-path rust/gui-spike/Cargo.toml
+./rust/gui-spike/target/release/chord-client
+```
+
+### Alternative: Native GPUI Client (Experimental / Prototype):
+```bash
+# Bootstrap GPUI dependencies
+node scripts/bootstrap-gpui.mjs
+node scripts/bootstrap-gpui.mjs --check
+
+# Build and run the GPUI binary
+cargo build --locked --release --manifest-path rust/chord-gpui/Cargo.toml
+./rust/chord-gpui/target/release/chord-gpui
 ```
 
 ### Running Tests:
+
+Portability verification on 2026-11-14: Linux native tests and Windows Node/browser
+checks were executed. Full Windows native compilation remains blocked by Unix-only
+APIs. The platform crate compiles for Intel/ARM macOS; native macOS and ARM64 GUI
+runtime validation is still required. Historical benchmark figures above are not
+cross-platform qualification. See [verification decisions](DECISIONS.md).
+
 ```bash
-# Architectural and documentation meta-tests (147 tests)
+# Ultra-fast parallel sanity check (< 1 second)
+npm run precheck
+
+# Architectural and documentation meta-tests
 npm run test:meta
 
 # All unit and contract tests
@@ -195,13 +259,48 @@ node scripts/test-impact.mjs --run
 node scripts/gate.mjs --scope worker
 ```
 
-### Visual Kanban Board:
+### Visual Kanban Board & Project Map:
 ```bash
 # Export the latest interactive HTML Kanban dashboard
 node scripts/mcp-kanban-board.mjs --export
 
 # Open the Kanban board in your default browser
 xdg-open waves/kanban-board.html
+
+# Automatically synchronize the Project Map (docs/map.md)
+npm run map:sync
+```
+
+### Remote Debugging & Programmatic Control:
+Chord provides full remote inspection and headless control capabilities out-of-the-box:
+
+```bash
+# 1. Launch with WebKit / Chromium Remote DevTools enabled
+WEBKIT_INSPECTOR_SERVER=127.0.0.1:9222 TAURI_DEV_TOOLS=1 npm run tauri dev
+# Then open chrome://inspect in Chromium / Chrome and inspect 127.0.0.1:9222
+
+# 2. Programmatic Chrome DevTools Protocol (CDP) control
+node scripts/cdp.mjs eval "document.title"
+node scripts/cdp.mjs click "button[type='submit']"
+node scripts/cdp.mjs screenshot /tmp/chord-screen.png
+
+# 3. Dynamic Native Memory & WebRTC Hooking (Frida RPC)
+npm run trace:calls
+
+# 4. Remote Native Rust Debugger (GDB Server)
+gdbserver 0.0.0.0:1234 ./rust/target/debug/chord-desktop
+```
+
+### Zero-Token Automation Harness:
+To eliminate manual developer routine and avoid spending AI model tokens on repetitive tasks:
+
+```bash
+npm run git:sync        # Atomic pull -> precheck -> security-shield -> conventional commit -> dual push
+npm run map:sync        # Regenerate docs/map.md and sync roadmap metrics in 100% English
+npm run tdd:sync        # Discover and register all test suites in TDD-PLAN.md §8
+npm run audit:bridges   # Verify Thin Bridge LOC budgets (<= 600 LOC) and reject code bloat
+npm run auto:driver     # Automated Orca worker lifecycle, slot rotation, and terminal release
+```
 ```
 
 ---
@@ -209,7 +308,7 @@ xdg-open waves/kanban-board.html
 ## 6. Cross-Platform Packaging
 
 Package specifications are provided for major desktop operating systems:
-- **Linux Flatpak**: `packaging/linux/flatpak/` (`com.discord_lab.DiscordGpui`)
+- **Linux Flatpak**: `packaging/linux/flatpak/` (`com.chord_app.ChordGpui`)
 - **Linux AppImage**: `packaging/linux/appimage/` (Self-contained portable bundle)
 - **Arch Linux**: `packaging/linux/arch/PKGBUILD`
 - **Debian / Ubuntu**: `packaging/linux/debian/` (`.deb`)
@@ -218,21 +317,55 @@ Package specifications are provided for major desktop operating systems:
 
 ---
 
-## 7. Project Documentation
+## 7. Contributing & Collaboration
+
+We are actively building the modern open-source standard for Discord desktop clients. Whether you are a Rust systems programmer, a frontend UI developer, an audio/DSP engineer, or an open-source enthusiast, your contributions are welcome!
+
+### 🌟 Areas Where We Need Help:
+- **UI Themes & CSS Polish**: Enhancing Discord dark/light/midnight theme fidelity and responsive layout.
+- **Linux Distribution Testing**: Testing PipeWire screenshare and audio loopback on Arch, Fedora, Debian, NixOS, and openSUSE.
+- **Voice DSP & Codecs**: Fine-tuning WebRTC AGC, noise suppression, and Opus bitrate adaptation.
+- **Cross-Platform Support**: Testing Tauri 2 builds on Windows 11 and macOS Apple Silicon.
+
+### 🤖 AI-Assisted Development (AMCP v1.0)
+
+This project uses an **AI Multi-Model Collaboration Protocol (AMCP v1.0)** that makes it safe for multiple AI agents from different teams to contribute simultaneously without breaking each other's code.
+
+**How it works:**
+- Every PR triggers **8 automatic checks** (format, clippy, tests, secrets scan, file boundaries, contract compatibility)
+- **Branch protection** blocks merge until all checks pass — automatically
+- **CODEOWNERS** routes PR to the right reviewer automatically
+- **Labels** are applied automatically based on which files changed
+- **Dependabot** keeps dependencies updated with auto-merge for safe updates
+
+**To contribute with an AI agent:**
+1. Read [`AI-AGENTS.md`](AI-AGENTS.md) — machine-readable protocol for AI models
+2. Fork the repo, create branch from `upstream/unstable`
+3. AI writes test first (TDD), then code
+4. Push → PR → CI runs automatically → review → merge
+
+**Key rule:** One task = one AI worker = one PR. File scopes never overlap.
+
+### 📋 Documentation Directory
 
 | Document | Path | Description |
 | :--- | :--- | :--- |
+| **Comprehensive Guide** | [`docs/GUIDE.md`](docs/GUIDE.md) | Unified user guide, beta testing, shortcuts, audio/video streaming, and debugging |
+| **Contributing Guide** | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Full contribution guide for humans and AI operators |
+| **Good First Issues** | [`docs/GOOD_FIRST_ISSUES.md`](docs/GOOD_FIRST_ISSUES.md) | 5 beginner-friendly, isolated tasks for new contributors |
+| **Community Outreach** | [`docs/COMMUNITY_OUTREACH.md`](docs/COMMUNITY_OUTREACH.md) | Ready-to-use engineering diary posts for Reddit, HN, and X |
+| **AI Agents Protocol** | [`AI-AGENTS.md`](AI-AGENTS.md) | Machine-readable protocol for AI models — start here if you are an AI |
+| **AI Swarm Standard** | [`docs/specs/AI-SWARM-ENGINEERING-STANDARD.md`](docs/specs/AI-SWARM-ENGINEERING-STANDARD.md) | ASES-1.0 standard for 10–100 concurrent AI agents, dynamic leases & merge queue |
 | **Project Registry** | [`docs/PROJECT-REGISTRY.md`](docs/PROJECT-REGISTRY.md) | Canonical registry of crates, artifacts, and test contracts |
 | **Feature Backlog** | [`docs/feature-backlog.md`](docs/feature-backlog.md) | Parity matrix and feature migration backlog |
-| **Vesktop Analysis** | [`docs/vesktop-analysis.md`](docs/vesktop-analysis.md) | Architectural comparison with Vesktop / Vencord |
-| **Discord-Qt Analysis** | [`docs/discord-qt-analysis.md`](docs/discord-qt-analysis.md) | Comparative evaluation of Discord-Qt |
 | **Current Status** | [`docs/rust-client/STATUS.md`](docs/rust-client/STATUS.md) | Up-to-date memory metrics, FPS, and wave completion |
 | **Roadmap** | [`docs/rust-client/ROADMAP.md`](docs/rust-client/ROADMAP.md) | Development milestones, completed waves, and future sprints |
-| **GPUI Architecture** | [`docs/specs/GPUI-ARCHITECTURE-MIGRATION.md`](docs/specs/GPUI-ARCHITECTURE-MIGRATION.md) | Migration from WebKit to WGPU / GPUI |
+| **GPUI Architecture** | [`docs/specs/GPUI-ARCHITECTURE-MIGRATION.md`](docs/specs/GPUI-ARCHITECTURE-MIGRATION.md) | Migration and comparison between WebKit and WGPU / GPUI |
 | **DAVE MLS v1 Spec** | [`docs/specs/POST-BETA-ROADMAP-AND-CODING-INSTRUCTIONS.md`](docs/specs/POST-BETA-ROADMAP-AND-CODING-INSTRUCTIONS.md) | E2EE MLS v1 protocol implementation specification |
 | **Agent & Team Rules** | [`AGENTS.md`](AGENTS.md) | Worker protocols, orchestrator guidelines, and department write-scopes |
 | **Architecture Map** | [`docs/map.md`](docs/map.md) | Dependency graph of crates, layers, and research components |
-| **Contributing Guide** | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution standards, Clean Room methodology, and PR workflow |
+| **Vesktop Analysis** | [`docs/vesktop-analysis.md`](docs/vesktop-analysis.md) | Architectural comparison with Vesktop / Vencord |
+| **Discord Qt Analysis** | [`docs/discord-qt-analysis.md`](docs/discord-qt-analysis.md) | Clean-room native client comparison supporting the feature backlog |
 
 ---
 

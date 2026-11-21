@@ -423,7 +423,7 @@ describe("TASK-973: Стресс-тест SQLite FTS5 при конкурент�
         assert.equal(recovery.integrityCheck, "ok");
 
         // 6. Маскирование чувствительных токенов (Security)
-        const rawLog = "Auth failed for mfa.abCDef1234567890_secret and Bot MTIzNDU2Nzg5MDEyMzQ1Njc4.GhIjKl.MnOpQrStUvWxYz123456";
+        const rawLog = "Auth failed for mfa.abCDef1234567890_secret and Bot dGVzdG1vY2t0b2tlbnZhbHVl.GhIjKl.MnOpQrStUvWxYz123456";
         const masked = maskSensitiveTokens(rawLog);
         assert.ok(!masked.includes("abCDef1234567890_secret"));
         assert.ok(!masked.includes("MnOpQrStUvWxYz123456"));

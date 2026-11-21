@@ -27,7 +27,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SPIKE = ROOT / "rust" / "gui-spike"
-BINARY = SPIKE / "target" / "debug" / "discord-gui-spike"
+TARGET_DIR = Path(os.environ.get("CARGO_TARGET_DIR", str(SPIKE / "target")))
+BINARY = Path(os.environ.get("GUI_SPIKE_BIN", str(TARGET_DIR / "debug" / "chord-client"))).resolve()
 
 RAIL = [("💬", "Чат"), ("😀", "Эмодзи"), ("👥", "Участники"), ("⚙️", "Настройки")]
 # Порядок и имена — по фактическому UI-контракту (`ui/features/emoji.js`, 10 вкладок).

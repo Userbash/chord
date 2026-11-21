@@ -9,22 +9,22 @@ This section prepares the development of a **full-featured Discord client in Rus
 | `STATUS.md` | **Actual State:** 25/90 accepted, 580 tests, crates, blockers, evidence |
 | `ROADMAP.md` | **Strategic Plan:** batch waves, milestones, and architectural decisions |
 | `TEAM.md` | **Engineering Department:** seats, RACI, pipeline, WIP, worker playbook, KPI |
-| `WAVE-PLAN.md` | **Batch Plan:** 90 cards -> ~18–22 waves, ready queue, critical path, timeline |
+| `../archive/rust-client/WAVE-PLAN.md` | **Batch Plan (Archived):** historical 90-card wave schedule |
 | `CONCEPT.md` | Complete concept: product scope, principles, stack, user scenarios, success metrics |
 | `FEATURES.md` | Feature catalog (ID, purpose, RE behavior, source, phase) — 14 groups |
 | `ARCHITECTURE.md` | Target architecture, actual Cargo dependency graph, storage, Electron IPC, UI ADR |
-| `PLAN.md` | Waves P0–P8: 90 task cards with DoD, tests, dependencies, sizing, gates, risk plan |
+| `PLAN.md` | Waves P0–P8: 90 task cards (historical wave plan, retained for `rust-client-sync` meta-test) |
 | `TEST-PLAN.md` | Levels L0–L7, RE fixture manifest, ~130 test catalog, red-first protocol |
 | `MUTATION-LEDGER.md` | Mutation testing ledger: wave summary, mutant classes, survivor triage |
 | `SECURITY.md` | Threat model, trust boundaries, secrets, FFI, supply chain, security tests |
 | `ADR-1.md` | GUI toolkit decision: Tauri spike, FPS/RAM/build/startup metrics, preconditions |
 | `CODE-STANDARD.md` | **Engineering Standard:** research -> frozen contract -> red-first -> mutation/review -> gate; security, async/UI, Definition of Done |
 | `LEGAL.md` | **Legal Framework:** ToS, telemetry disabled, honest user agent, secrets/assets, live actions require approval |
-| `CODEX-WORKERS.md` | **Worker Playbook:** roles, sandbox, worker/reviewer prompts, DAG, mutation feedback loop |
+| `../archive/rust-client/CODEX-WORKERS.md` | **Worker Playbook (Archived):** historical worker/reviewer prompts and DAG |
 | `PROJECT-STRUCTURE.md` | Unified project layout: laboratory <-> repository <-> `fixtures/` <-> `rust/`, file organization rules |
 | `TRACEABILITY.md` | Features -> specifications -> fixtures -> tests: 14 group traceability matrix (141 F / 133 T) |
 | `VERIFICATION.md` | Raw evidence verification log against documentation: 20/20 checks, discrepancy analysis |
-| `DEVELOPMENT-PROMPT.md` | Working coordinator/worker prompt: map, waves, RE sources, TDD, agents, active matrix |
+| `../archive/rust-client/DEVELOPMENT-PROMPT.md` | **Coordinator Prompt (Archived):** historical coordinator/worker prompt |
 
 ## Reading Guide
 
@@ -34,7 +34,7 @@ This section prepares the development of a **full-featured Discord client in Rus
 3. **Architecture** -> `ARCHITECTURE.md` (graphs 1–7).
 4. **Planning** -> `PLAN.md` (wave map and cards P0-01...P8-05).
 5. **Test-first implementation** -> `TEST-PLAN.md` §3 (test IDs for each card).
-6. **Starting a wave** -> `TEAM.md` (roles, pipeline, WIP) and `WAVE-PLAN.md` (batch, ready queue); `DEVELOPMENT-PROMPT.md` for historical context and architecture.
+6. **Starting a wave (Archived)** -> `TEAM.md` and `../archive/rust-client/WAVE-PLAN.md`; `../archive/rust-client/DEVELOPMENT-PROMPT.md` for historical context.
 7. **File organization** -> `PROJECT-STRUCTURE.md`; **verify feature to test** -> `TRACEABILITY.md`; **data validation** -> `VERIFICATION.md` + `node verify/verify-re.mjs`.
 
 ## Sources (in this repository)

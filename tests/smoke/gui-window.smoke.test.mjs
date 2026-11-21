@@ -22,8 +22,9 @@ describe("GUI window probe (AT-SPI + X11)", () => {
 
     const dir = mkdtempSync(join(tmpdir(), "gui-window-probe-"));
     const out = join(dir, "probe.json");
+    const runsLog = join(dir, "window-runs.jsonl");
     try {
-      const result = spawnSync("python3", [probe, "--json", out, "--timeout", "30"], {
+      const result = spawnSync("python3", [probe, "--json", out, "--runs-log", runsLog, "--timeout", "30"], {
         encoding: "utf8",
         timeout: 80_000,
       });
@@ -35,6 +36,9 @@ describe("GUI window probe (AT-SPI + X11)", () => {
       assert.equal(result.status, 0, result.stderr || result.stdout);
       const report = JSON.parse(readFileSync(out, "utf8"));
       assert.equal(report.ok, true);
+      assert.equal(report.runs_log, runsLog, "проба должна писать в собственный временный журнал");
+      const journal = JSON.parse(readFileSync(runsLog, "utf8").trim());
+      assert.equal(journal.pid, report.pid, "журнал должен относиться к этому запуску пробы");
       // P1-1: отчёт и снятое окно принадлежат одному процессу пробы.
       assert.ok(Number.isInteger(report.pid) && report.pid > 0, `report.pid=${report.pid}`);
       assert.equal(report.window.pid, report.pid, "окно снято не у процесса пробы");

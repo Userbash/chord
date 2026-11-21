@@ -3400,7 +3400,7 @@ describe("D-04: переменная высота строк в живом сп�
  * без авто-retry net_connect. Реального IPC/сети/окна нет: ответы задаёт тест.
  * ========================================================================== */
 const uiDirNet = fileURLToPath(new URL("../../rust/gui-spike/ui/", import.meta.url));
-const NET_TOKEN_LEAK = "MTk4NjIyNDgzNDcxOTI1MjQ4.Cl2FMQ.fake-user-token-DO-NOT-LEAK";
+const NET_TOKEN_LEAK = "mock_user_token_sanitized_42";
 const NET_USER = {
   id: "42",
   username: "tester",

@@ -1,3 +1,5 @@
+//! Dialog window state and management service for modal workflows.
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::SystemTime;

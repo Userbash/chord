@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-REPO_DIR="/home/sanya/orca/project"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Автоматическое определение финальной исполняемой сборки
 if [[ -n "${1:-}" ]]; then
     BIN="$1"
@@ -11,8 +11,8 @@ elif [[ -f "$REPO_DIR/rust/gui-spike/target/release/discord-gui-spike" ]]; then
     BIN="$REPO_DIR/rust/gui-spike/target/release/discord-gui-spike"
 elif [[ -f "$REPO_DIR/rust/dist/discord-gui-spike" ]]; then
     BIN="$REPO_DIR/rust/dist/discord-gui-spike"
-elif [[ -f "$REPO_DIR/rust/discord-gpui/target/release/discord-gpui" ]]; then
-    BIN="$REPO_DIR/rust/discord-gpui/target/release/discord-gpui"
+elif [[ -f "$REPO_DIR/rust/chord-gpui/target/release/chord-gpui" ]]; then
+    BIN="$REPO_DIR/rust/chord-gpui/target/release/chord-gpui"
 else
     BIN="$REPO_DIR/rust/target/release/discord-gui-spike"
 fi
@@ -20,7 +20,7 @@ GDB_PY="/tmp/discord-gdb-trace.py"
 GDB_CMD="/tmp/discord-trace.gdb"
 GDB_LOG="/tmp/gdb-native-trace.log"
 UI_LOG="/tmp/live-ui-telemetry.jsonl"
-USER_SHARE_LOG="/home/sanya/.local/share/discord-client/user-telemetry.jsonl"
+USER_SHARE_LOG="${XDG_DATA_HOME:-$HOME/.local/share}/discord-client/user-telemetry.jsonl"
 UNIFIED_LOG="/tmp/discord-full-user-activity.log"
 
 if [[ ! -f "$BIN" ]]; then

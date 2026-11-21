@@ -4,11 +4,11 @@
 - **Subtasks:** `SUB-908-1`, `SUB-908-2`, `SUB-908-3`
 - **Related Specifications:** [`docs/specs/QA-AUTOMATION-STRATEGY-AND-TASKS.md`](docs/specs/QA-AUTOMATION-STRATEGY-AND-TASKS.md), [`TEST-POLICY.md`](TEST-POLICY.md), [`docs/specs/STREAM-WAYLAND-GUIDE.md`](docs/specs/STREAM-WAYLAND-GUIDE.md)
 - **Code Modules and Contract Tests:**
-  - [`rust/discord-gpui/src/manual_qa/mod.rs`](rust/discord-gpui/src/manual_qa/mod.rs)
-  - [`rust/discord-gpui/src/manual_qa/checklists.rs`](rust/discord-gpui/src/manual_qa/checklists.rs)
-  - [`rust/discord-gpui/src/manual_qa/desktop_matrix.rs`](rust/discord-gpui/src/manual_qa/desktop_matrix.rs)
-  - [`rust/discord-gpui/src/manual_qa/exploratory.rs`](rust/discord-gpui/src/manual_qa/exploratory.rs)
-  - [`rust/discord-gpui/tests/manual_qa_suite_contract.rs`](rust/discord-gpui/tests/manual_qa_suite_contract.rs)
+  - [`rust/chord-gpui/src/manual_qa/mod.rs`](rust/chord-gpui/src/manual_qa/mod.rs)
+  - [`rust/chord-gpui/src/manual_qa/checklists.rs`](rust/chord-gpui/src/manual_qa/checklists.rs)
+  - [`rust/chord-gpui/src/manual_qa/desktop_matrix.rs`](rust/chord-gpui/src/manual_qa/desktop_matrix.rs)
+  - [`rust/chord-gpui/src/manual_qa/exploratory.rs`](rust/chord-gpui/src/manual_qa/exploratory.rs)
+  - [`rust/chord-gpui/tests/manual_qa_suite_contract.rs`](rust/chord-gpui/tests/manual_qa_suite_contract.rs)
 - **Reference Clean-Room RE Oracles (`docs/re/`):**
   - `docs/re/rest-static.md` (§1 `POST /auth/login`, `/auth/mfa/totp`, `/auth/logout`, message and attachment limits)
   - `docs/re/gateway-protocol.md` and `docs/re/gateway-schema.md` (`OP 2 IDENTIFY`, `OP 4 VOICE_STATE_UPDATE`, `OP 6 RESUME`, `OP 18..22 STREAM_*`)

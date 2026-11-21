@@ -1888,7 +1888,7 @@ fn r07_router_redacts_tokens_mfa_base64_bearer() {
     let mut router = NotificationRouter::new();
 
     let secret_mfa = "mfa.super_secret_token_123456789";
-    let secret_base64 = "MTIzNDU2Nzg5MDEyMzQ1Njc4.GaBcDe.fGhIjKlMnOpQrStUvWxYz012345";
+    let secret_base64 = "mockpartone_token.parttwo.mockpartthree_token";
     let secret_bearer = "Bearer token_secret_value_999999";
 
     let content =
