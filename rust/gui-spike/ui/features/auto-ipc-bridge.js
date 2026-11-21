@@ -1,4 +1,5 @@
 // @ts-check
+import { signal } from "../state/signals.js";
 /**
  * Сгенерировано автоматически скриптом scripts/generate-ipc-bridges.mjs
  * Тонкий мост между Rust Tauri backend и JavaScript frontend.
@@ -978,4 +979,127 @@ export async function restRequest({ method, endpoint, body } = {}) {
  */
 export async function remoteAuthCancelSession() {
   return invoke("remote_auth_cancel_session", {});
+}
+
+/**
+ * Создаёт реактивный сигнал, синхронизируемый с Tauri-командой.
+ * @template T
+ * @param {string} cmd
+ * @param {T} initialValue
+ * @param {{ defaultArgs?: Record<string, any> }} [options]
+ * @returns {{
+ *   data: import("../state/signals.js").Signal<T>,
+ *   loading: import("../state/signals.js").Signal<boolean>,
+ *   error: import("../state/signals.js").Signal<Error | null>,
+ *   refresh: (args?: Record<string, any>) => Promise<T>
+ * }}
+ */
+export function createSignalCommand(cmd, initialValue, options = {}) {
+  const data = signal(initialValue);
+  const loading = signal(false);
+  const error = signal(/** @type {Error | null} */ (null));
+
+  async function refresh(args = options.defaultArgs ?? {}) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const result = await invoke(cmd, args);
+      data.value = result;
+      return result;
+    } catch (err) {
+      const normalized = err instanceof Error ? err : new Error(String(err));
+      error.value = normalized;
+      throw normalized;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  return { data, loading, error, refresh };
+}
+
+/**
+ * Подписывает сигнал на Tauri/Gateway-событие без ручного boilerplate.
+ * @template T
+ * @param {string} eventName
+ * @param {import("../state/signals.js").Signal<T>} targetSignal
+ * @param {(prev: T, payload: any) => T} [reducer]
+ * @returns {Promise<() => void>}
+ */
+export async function bindGatewayEvent(eventName, targetSignal, reducer) {
+  const listen =
+    typeof window !== "undefined"
+      ? /** @type {any} */ (window).__TAURI__?.event?.listen
+      : null;
+
+  if (typeof listen !== "function") {
+    return () => {};
+  }
+
+  const unlisten = await listen(eventName, (event) => {
+    const payload =
+      event && typeof event === "object" && "payload" in event
+        ? event.payload
+        : event;
+    targetSignal.value = reducer
+      ? reducer(targetSignal.value, payload)
+      : payload;
+  });
+
+  return typeof unlisten === "function" ? unlisten : () => {};
+}
+
+/**
+ * Декларативный роутер состояния: связывает команды Tauri, сигналы Preact и события Gateway.
+ * @param {Record<string, { command: string, initialValue: any, event?: string, reducer?: (prev: any, payload: any) => any, args?: Record<string, any> }>} routes
+ */
+export function createStateRouter(routes) {
+  /** @type {Record<string, ReturnType<typeof createSignalCommand>>} */
+  const signals = {};
+  /** @type {Array<() => void>} */
+  const unlisteners = [];
+
+  for (const [key, route] of Object.entries(routes)) {
+    signals[key] = createSignalCommand(route.command, route.initialValue, {
+      defaultArgs: route.args,
+    });
+  }
+
+  async function start({ autoFetch = false } = {}) {
+    stop();
+    for (const [key, route] of Object.entries(routes)) {
+      if (route.event) {
+        const unlisten = await bindGatewayEvent(
+          route.event,
+          signals[key].data,
+          route.reducer,
+        );
+        unlisteners.push(unlisten);
+      }
+    }
+    if (autoFetch) {
+      await Promise.all(
+        Object.entries(routes).map(([key, route]) =>
+          signals[key].refresh(route.args ?? {}),
+        ),
+      );
+    }
+  }
+
+  function stop() {
+    while (unlisteners.length > 0) {
+      const unlisten = unlisteners.pop();
+      if (typeof unlisten === "function") unlisten();
+    }
+  }
+
+  async function dispatch(key, args) {
+    const entry = signals[key];
+    if (!entry) {
+      throw new Error(`Unknown state router key: ${key}`);
+    }
+    return entry.refresh(args);
+  }
+
+  return { signals, start, stop, dispatch };
 }

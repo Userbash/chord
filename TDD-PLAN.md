@@ -123,278 +123,6 @@ Historical Context: The initial module scaffolding in `src/` was generated direc
 
 | Test | Module | Exports / Contract |
 | --- | --- | --- |
-| `tests/unit/args.test.mjs` | `src/core/args.mjs` | `parseArgs`, `parseNumericArg`, `parseRegexArg` |
-| `tests/unit/csv.test.mjs` | `src/core/csv.mjs` | `safeName`, `csv` |
-| `tests/unit/paths.test.mjs` | `src/core/paths.mjs` | `projectRoot`, `logsDir`, `functionsDir`, `screensDir`, `screenshotName`, `relativeToRoot` |
-| `tests/unit/processes.test.mjs` | `src/core/processes.mjs` | `isDiscordProcess`, `filterDiscordProcesses` |
-| `tests/unit/inventory.test.mjs` | `src/core/inventory.mjs` | `inventoryCounts`, `inventoryCsvRows`, `inventoryJson` |
-| `tests/unit/profile.test.mjs` | `src/core/ui/profile.mjs` | `topFunctions` |
-| `tests/unit/blacklist.test.mjs` | `src/core/ui/blacklist.mjs` | `isBlacklisted` |
-| `tests/unit/walk-log.test.mjs` | `src/core/ui/walk-log.mjs` | `parseVisited`, `buildWalkRecord`, `consoleIssues`, `shouldBail`, `pickNextItem` |
-| `tests/unit/walk.test.mjs` | `src/core/ui/engine.mjs`, `src/core/ui/adapters.mjs` | `runWalk`, `resolveAdapter`, `clickNavItemExpression` |
-| `tests/unit/cdp.test.mjs` | `src/core/cdp/client.mjs` | `resolveEndpoint`, `resolveTargetHint`, `listTargets`, `pickTarget`, `createCdpClient`, `evaluate`, `captureScreenshot`, `clickText`, `clickTextExpression`, `listElements`, `listElementsExpression`, `openPage` |
-| `tests/unit/cli-run.test.mjs` | `src/cli/run.mjs` | `run`, `cdp targets`, `pids`, `inventory`, `hook`, `summarize`, `domains`, `static` |
-| `tests/unit/calls.test.mjs` | `src/core/calls.mjs` | `isCallPayload`, `callLine`, `parseCallLog`, `summarizeCallLines` |
-| `tests/unit/nm.test.mjs` | `src/core/report/nm.mjs` | `parseNmPosix`, `staticFunctionsCsv` |
-| `tests/unit/domains.test.mjs` | `src/core/report/domains.mjs` | `classifyName`, `domainCsv`, `formatDomainSummary` |
-| `tests/unit/frida.test.mjs` | `src/adapters/frida.mjs` | `loadDevice`, `loadAgentSource`, `listProcesses`, `attach`, `collectInventory`, `parseHookMessage`, `startHook`, `stopHook` |
-| `tests/meta/plan-sync.test.mjs` | — | meta: §8 <-> tests <-> modules <-> exports |
-| `tests/meta/fixtures-tracked.test.mjs` | — | meta: fixtures `tests/fixtures` tracked by `git` |
-| `tests/smoke/cli.smoke.test.mjs` | `bin/chord.mjs`, `bin/discord-lab.mjs`, `src/cli/run.mjs` | `--help`, `--version` |
-| `tests/smoke/pids.smoke.test.mjs` | — | `pids` (Frida, skip-aware) |
-| `tests/smoke/inventory.smoke.test.mjs` | — | `inventory` (unreachable pid -> exit code 2) |
-| `tests/smoke/hook.smoke.test.mjs` | — | `hook` (unreachable pid -> exit code 2) |
-| `tests/smoke/summarize.smoke.test.mjs` | — | `summarize` (parity summarize-calls.sh) |
-| `tests/smoke/cxxfilt.smoke.test.mjs` | `src/adapters/cxxfilt.mjs` | `demangle` |
-| `tests/e2e/cdp-browser.e2e.test.mjs` | — | `targets`, `eval`, `clicktext`, `list`, `shot` |
-| `tests/e2e/walk-fixture.e2e.test.mjs` | — | `walk` |
-| `tests/e2e/live-discord.e2e.test.mjs` | — | `targets`, `eval` (read-only, opt-in) |
-| `tests/unit/hook-io.test.mjs` | `src/core/hook-io.mjs` | `openCallLog`, `waitForStop` |
-| `tests/unit/frida-agent.test.mjs` | — | `inventory`, `hook`, `unhook` |
-| `tests/unit/gui-spike-bench.test.mjs` | `scripts/gui-spike-bench.mjs` | `summarize`, `percentile95`, `parseStatus`, `parseCliArgs` |
-| `tests/unit/test-impact.test.mjs` | `scripts/test-impact.mjs` | `planFor`, `docs-sync`, `--full` |
-| `tests/unit/gui-spike-model.test.mjs` | `rust/gui-spike/ui/model.js` | `PageStore`, `getRow`, `ensureRange`, `stats` |
-| `tests/unit/channel-paging.test.mjs` | `rust/gui-spike/src/data.rs` | `messages_page`, `nextCursor`, `hasMore`, `loaded_rows_limit` |
-| `tests/unit/gui-spike-dom.test.mjs` | `rust/gui-spike/ui/index.html`, `rust/gui-spike/ui/app.js` | DOM contract: 4 screens, mandatory ids, constants |
-| `tests/unit/gui-spike-features.test.mjs` | `rust/gui-spike/ui/app.js`, `rust/gui-spike/ui/features/settings.js`, `rust/gui-spike/ui/features/emoji.js`, `rust/gui-spike/ui/features/search-overlay.js` | `loadApp`, `data-action`, `settings`, `emoji`, `search` |
-| `tests/unit/dm-friends-ui.test.mjs` | `rust/gui-spike/ui/features/dm-friends.js` | `createDmFriendsController`, `DM_FRIENDS_ENDPOINTS`, `FRIENDS_TABS`, `applyDmFriendsDispatch`, `sortPrivateChannels` |
-| `tests/meta/test-policy.test.mjs` | — | `TEST-POLICY`, `--no-verify`, `gate.mjs` |
-| `tests/meta/design-breakpoints.test.mjs` | — | meta: responsive shell 1600/1200/960/720 (`--layout-tree-w`, `--layout-tree-min-w`, `#member-panel`, `channel-tree`) |
-| `tests/meta/design-tokens-contrast.test.mjs` | — | meta: Design Tokens V2 and WCAG 2.2 contrast (`WCAG 2.2`, `design-tokens-v2.md`, `DESIGN-TOKENS-V2.md`, `contrastRatio`, `relativeLuminance`, `Midnight`) |
-| `tests/unit/gui-spike-regressions.test.mjs` | — | `quick-switcher`, `quick-switcher-empty`, `msg-toolbar`, `delete_message` |
-| `tests/unit/channel-switch.test.mjs` | — | `channels`, `messages_page`, `channel-item`, `chat-title-text`, `G6-D-01` |
-| `tests/unit/guild-rail.test.mjs` | — | `ready`, `guild-rail`, `data-guild-id` |
-| `tests/unit/voice-ui.test.mjs` | — | `voice-panel`, `voice-spec`, `data-state` |
-| `tests/unit/voice-devices-settings.test.mjs` | — | `createVoiceDevicesSettings`, `DeviceFallback`, `NoDeviceAvailable` |
-| `tests/unit/attachments-render.test.mjs` | — | `renderChannelMessage`, `decodeWaveform`, `IS_VOICE_MESSAGE` |
-| `tests/unit/notifications-ui.test.mjs` | — | `MUTE_TIMER_PRESETS`, `MESSAGE_NOTIFICATION_LEVELS`, `NOTIFY_HIGHLIGHTS` |
-| `tests/unit/join-server.test.mjs` | — | `join-server`, `resolve_invite`, `accept_invite` |
-| `tests/unit/create-guild.test.mjs` | `rust/gui-spike/ui/features/create-guild.js` | STUB-03, `create_guild`, `create-guild-dialog` |
-| `tests/unit/create-guild-wizard.test.mjs` | `rust/gui-spike/ui/features/create-guild.js` | `CREATE_GUILD_TEMPLATES`, `validateGuildIconDataUri`, `createCreateGuildWizard` |
-| `tests/unit/read-state-ui.test.mjs` | — | `read_state`, `ack_message`, `chat-unread-divider` |
-| `tests/unit/chat-reactions.test.mjs` | — | `toggle_reaction`, `messageId`, `reaction` |
-| `tests/unit/typing-ui.test.mjs` | — | `typing-indicator`, `send_typing`, `TYPING_RESEND_MS` |
-| `tests/unit/gui-spike-auth.test.mjs` | `rust/gui-spike/ui/features/auth.js`, `rust/gui-spike/ui/app.js` | `auth-gate`, `auth_login_token`, `auth_status` |
-| `tests/smoke/gui-spike.smoke.test.mjs` | — | live smoke: `window-ready`, `UI_SNAPSHOT` (`GUI_SPIKE_E2E=1`) |
-| `tests/smoke/gui-window.smoke.test.mjs` | `scripts/gui-window-probe.py` | AT-SPI/X11: window, elements, PNG, GBM |
-| `tests/meta/docs-sync.test.mjs` | — | meta: `HELP` <-> `README.md` (CLI commands documented) |
-| `tests/meta/backlog-sync.test.mjs` | — | meta: cards `docs/feature-backlog.md` <-> README/TASKS/map |
-| `tests/meta/rust-client-sync.test.mjs` | — | meta: Rust client plan (docs/rust-client) <-> README/TASKS/map |
-| `tests/meta/waves-sync.test.mjs` | — | meta: `waves/db.jsonl` (schema v1) <-> `STATE.md` and `evidence` |
-| `tests/meta/keyring-live.test.mjs` | — | meta: live keyring `#[ignore]` <-> `--ignored` <-> `failOnSkips` |
-| `tests/meta/ipc-path.test.mjs` | — | meta: IPC path safety — `scan` signatures `#[tauri::command]` (`PathBuf`, `File`, `path`/`root`/`dir`), `tauri-plugin-fs`/`tauri-plugin-dialog`, 0 violations |
-| `tests/meta/ci-browser.test.mjs` | — | meta: CI `qa-browser` — pinned Chromium, `CHROME_BIN`, preflight, `--test-concurrency=1`, `.gate` |
-| `tests/meta/e2e-required.test.mjs` | — | meta: `m2-scenarios.json`, `failOnSkips`, `requireBrowser`, `InfraError` |
-| `tests/meta/mutations.test.mjs` | — | `15/15`, `mutations`, `killed`, `LatestFrameSlot`, `DAVE`, `hCaptcha` |
-| `tests/meta/parity-matrix.test.mjs` | — | `MERGE-READINESS-V0.5.0.md`, `RELEASE-NOTES-V0.5.0.md`, `parseParityRows`, `verifyDomainSummary` |
-| `tests/meta/model-routing.test.mjs` | — | meta: `resolveModelHarmony`, `core_carbon`, `gemini-3.8-flash-low`, `gemini-4-argon-medium` |
-| `tests/unit/dispatch_ui.test.mjs` | — | `gateway://dispatch`, `FORWARDED_DISPATCHES`, `createDispatchBridge`, `READY`, `PRESENCE_UPDATE` |
-| `tests/unit/search-remote-real-index.test.mjs` | — | `search_remote`, `data-guild-id`, `ready`, `002-READY.json` |
-| `tests/e2e/m2-login-ready-rail.e2e.test.mjs` | — | `auth_status`, `auth_login_token`, `ready`, `002-READY.json` |
-| `tests/e2e/m2-channel-send.e2e.test.mjs` | — | `M2_IDS`, `m2Channels`, `MESSAGE_CREATE`, `openApp` |
-| `tests/e2e/m2-search-error.e2e.test.mjs` | — | `search_remote`, `data-guild-id`, `openApp` |
-| `tests/e2e/m2-invite.e2e.test.mjs` | — | `resolve_invite`, `accept_invite`, `JOIN_TEXT`, `openApp` |
-| `tests/e2e/m2-settings-reload.e2e.test.mjs` | — | `openApp`, `m2FixtureData` |
-| `tests/e2e/m2-reconnect.e2e.test.mjs` | — | `NET_STATUSES`, `NET_TEXT`, `net_connect`, `openApp` |
-| `tests/e2e/m2-voice-idle.e2e.test.mjs` | — | `VOICE_TEXT`, `disabled`, `openApp` |
-| `tests/e2e/e2e-build006.test.mjs` | — | `openApp`, `captcha-modal`, `create-guild-dialog`, `stream-viewer`, `search-popover`, `context-menu`, `advanced-settings`, `resolve_gift_code` |
-| `tests/unit/composer.test.mjs` | `rust/gui-spike/ui/features/composer.js` | `ATTACH_LIMITS`, `ATTACH_TEXT`, `GIFT_TEXT`, `createComposer`, `formatBytes` |
-| `tests/unit/server-menu.test.mjs` | `rust/gui-spike/ui/features/actions.js` | `MENU_LABELS`, `REASONS`, `loadApp` |
-| `tests/unit/account-dynamic-sync.test.mjs` | — | — |
-| `tests/unit/advanced-settings.test.mjs` | `rust/gui-spike/ui/features/advanced-settings.js` | `createAdvancedSettingsController`, `detectKeybindConflicts`, `resolveEntranceSoundForGuild`, `normalizeClipLengthSeconds` |
-| `tests/unit/appearance-settings.test.mjs` | — | — |
-| `tests/unit/attachment-helper.test.mjs` | — | — |
-| `tests/unit/attachment-validator.test.mjs` | — | — |
-| `tests/unit/attachments-ui.test.mjs` | — | — |
-| `tests/unit/audit-log.test.mjs` | — | — |
-| `tests/unit/automod-editor.test.mjs` | — | — |
-| `tests/unit/bindings-permissions.test.mjs` | — | — |
-| `tests/unit/captcha-modal.test.mjs` | `rust/gui-spike/ui/features/captcha-modal.js` | `createCaptchaModal`, `extractCaptchaChallenge`, `captcha-modal` |
-| `tests/unit/call_stream_dispatch.test.mjs` | — | — |
-| `tests/unit/call_stream_lifecycle.test.mjs` | — | — |
-| `tests/unit/stream_restart_lifecycle.test.mjs` | — | — |
-| `tests/unit/screen_color_and_window_target.test.mjs` | — | — |
-| `tests/unit/stream_broadcaster_handshake_and_source.test.mjs` | — | — |
-| `tests/unit/stream_viewer_close_and_source_switch.test.mjs` | — | — |
-| `tests/unit/krisp-vad-stability.test.mjs` | — | — |
-| `tests/unit/guild-member-update-permissions.test.mjs` | — | — |
-| `tests/unit/stream-pip-minimize-channel-switch-task806.test.mjs` | — | — |
-| `tests/unit/stream-regression-task779.test.mjs` | — | — |
-| `tests/unit/stream-stage-viewer-overlay-task805.test.mjs` | — | — |
-| `tests/unit/stream_broadcaster_watch_isolation.test.mjs` | — | — |
-| `tests/unit/task-800-av1-negotiation.test.mjs` | — | — |
-| `tests/unit/task-801-nvenc-hw-encoder.test.mjs` | — | — |
-| `tests/unit/task-802-vp8-vp9-transport-options.test.mjs` | — | — |
-| `tests/unit/task-807-poll-audio-device-levels.test.mjs` | — | — |
-| `tests/unit/task-817-captcha-webview.test.mjs` | — | — |
-| `tests/unit/voice-state-merge-anti-flicker.test.mjs` | — | — |
-| `tests/unit/reaction-verification.test.mjs` | — | — |
-| `tests/unit/rules-screening-banner-modal.test.mjs` | — | — |
-| `tests/unit/message-components.test.mjs` | — | — |
-| `tests/unit/click_message_component.test.mjs` | — | — |
-| `tests/unit/captcha-modal-interactive.test.mjs` | — | — |
-| `tests/unit/search-popover-ui.test.mjs` | — | — |
-| `tests/unit/context-menu-ui.test.mjs` | — | — |
-| `tests/meta/ci-xvfb.test.mjs` | — | — |
-| `tests/unit/channel-gate.test.mjs` | — | — |
-| `tests/unit/channel-tree.test.mjs` | — | — |
-| `tests/unit/composer-autocomplete.test.mjs` | — | — |
-| `tests/unit/context-menu.test.mjs` | — | — |
-| `tests/unit/embed-formatter.test.mjs` | — | — |
-| `tests/unit/event-banner.test.mjs` | — | — |
-| `tests/unit/events-modal.test.mjs` | — | — |
-| `tests/unit/expression-picker.test.mjs` | — | — |
-| `tests/unit/forum-filter.test.mjs` | — | — |
-| `tests/unit/forum-view.test.mjs` | — | — |
-| `tests/unit/friends-home.test.mjs` | — | — |
-| `tests/unit/gift-modal.test.mjs` | `rust/gui-spike/ui/features/gift-modal.js` | `createGiftModal`, `resolveGiftStyle`, `extractGiftCodesFromText`, `classifyGiftError` |
-| `tests/unit/guild-folders.test.mjs` | — | — |
-| `tests/unit/guild-rail-incremental.test.mjs` | — | — |
-| `tests/unit/guild-modals.test.mjs` | — | — |
-| `tests/unit/i18n.test.mjs` | — | — |
-| `tests/unit/inbox.test.mjs` | — | — |
-| `tests/unit/inbox-panel.test.mjs` | — | — |
-| `tests/unit/invite-modal.test.mjs` | — | — |
-| `tests/unit/invite-parser.test.mjs` | — | — |
-| `tests/unit/keybinds.test.mjs` | — | — |
-| `tests/unit/locale-switcher.test.mjs` | — | — |
-| `tests/unit/markdown-helper.test.mjs` | — | — |
-| `tests/unit/member-list.test.mjs` | — | — |
-| `tests/unit/members-subscriptions.test.mjs` | — | — |
-| `tests/unit/message-actions.test.mjs` | — | — |
-| `tests/unit/message-context-actions.test.mjs` | — | — |
-| `tests/unit/message-media-polls.test.mjs` | — | — |
-| `tests/unit/message-delete-voice-exit-ui.test.mjs` | — | — |
-| `tests/unit/notifications.test.mjs` | — | — |
-| `tests/unit/path1-frameworks.test.mjs` | — | — |
-| `tests/unit/pins-threads.test.mjs` | — | — |
-| `tests/unit/plural-format.test.mjs` | — | — |
-| `tests/unit/poll-card.test.mjs` | — | — |
-| `tests/unit/poll-progress.test.mjs` | — | — |
-| `tests/unit/presence-activity.test.mjs` | — | — |
-| `tests/unit/profile-modal.test.mjs` | — | — |
-| `tests/unit/qr-auth-modal.test.mjs` | `rust/gui-spike/ui/features/qr-auth-modal.js` | `createQrAuthModal`, `parseQrAuthUrl`, `evaluateQrSecurityIndicator`, `classifyQrAuthError` |
-| `tests/unit/quick-switcher.test.mjs` | — | — |
-| `tests/unit/reactions-ui.test.mjs` | — | — |
-| `tests/unit/reactive-store.test.mjs` | — | — |
-| `tests/unit/role-editor.test.mjs` | — | — |
-| `tests/unit/role-permissions.test.mjs` | — | — |
-| `tests/unit/search-panel.test.mjs` | — | — |
-| `tests/unit/search-popover.test.mjs` | — | — |
-| `tests/unit/settings-modal.test.mjs` | — | — |
-| `tests/unit/shell-bridge.test.mjs` | — | — |
-| `tests/unit/shortcuts.test.mjs` | — | — |
-| `tests/unit/slowmode.test.mjs` | — | — |
-| `tests/unit/stage-channel.test.mjs` | — | — |
-| `tests/unit/stream-viewer.test.mjs` | — | — |
-| `tests/unit/stream-viewer-ui.test.mjs` | — | — |
-| `tests/unit/stream-signaling-parity.test.mjs` | — | — |
-| `tests/unit/svg-icons.test.mjs` | — | — |
-| `tests/unit/threads-drawer.test.mjs` | — | — |
-| `tests/unit/token-map.test.mjs` | — | — |
-| `tests/unit/tooltip.test.mjs` | — | — |
-| `tests/unit/typing-indicator.test.mjs` | — | — |
-| `tests/unit/unread-bar.test.mjs` | — | — |
-| `tests/unit/user-popout.test.mjs` | — | — |
-| `tests/unit/voice-call-phases-and-server-access.test.mjs` | — | — |
-| `tests/unit/voice-grid.test.mjs` | — | — |
-| `tests/unit/voice-input-mode.test.mjs` | — | — |
-| `tests/unit/voice-quality.test.mjs` | — | — |
-| `tests/unit/voice-stage-preview.test.mjs` | — | — |
-| `tests/unit/voice-stage-ui.test.mjs` | — | — |
-| `tests/unit/voice-stream-codes-2000-2018.test.mjs` | — | — |
-| `tests/unit/voice-volume.test.mjs` | — | — |
-| `tests/unit/w7-invite-pool-and-rtc-status-bar.test.mjs` | — | — |
-| `tests/unit/afk-voice-status.test.mjs` | — | — |
-| `tests/unit/beta-release-package-958.test.mjs` | — | — |
-| `tests/unit/fuzz-report.test.mjs` | — | — |
-| `tests/unit/headless-compositor-harness.test.mjs` | — | — |
-| `tests/unit/invite-input-preserve.test.mjs` | — | — |
-| `tests/unit/quality-gate-907.test.mjs` | — | — |
-| `tests/unit/security-audit-sbom-956.test.mjs` | — | — |
-| `tests/unit/soak-test-955.test.mjs` | — | — |
-| `tests/unit/system-requirements-953.test.mjs` | — | — |
-| `tests/unit/appimage-package-961.test.mjs` | — | — |
-| `tests/unit/arch-pkgbuild-964.test.mjs` | — | — |
-| `tests/unit/battery-saver-976.test.mjs` | — | — |
-| `tests/unit/binary-delta-969.test.mjs` | — | — |
-| `tests/unit/crash-reporter-970.test.mjs` | — | — |
-| `tests/unit/dave-mls-forward-secrecy-979.test.mjs` | — | — |
-| `tests/unit/deb-package-963.test.mjs` | — | — |
-| `tests/unit/flatpak-manifest-962.test.mjs` | — | — |
-| `tests/unit/font-fallback-matrix-981.test.mjs` | — | — |
-| `tests/unit/github-actions-release-968.test.mjs` | — | — |
-| `tests/unit/i18n-coverage-972.test.mjs` | — | — |
-| `tests/unit/input-gestures-975.test.mjs` | — | — |
-| `tests/unit/ipc-security-audit-980.test.mjs` | — | — |
-| `tests/unit/pipewire-portal-971.test.mjs` | — | — |
-| `tests/unit/rpm-package-966.test.mjs` | — | — |
-| `tests/unit/snapcraft-manifest-967.test.mjs` | — | — |
-| `tests/unit/sqlite-fts5-stress-973.test.mjs` | — | — |
-| `tests/unit/update-checker-965.test.mjs` | — | — |
-| `tests/unit/voice-cpu-bench-974.test.mjs` | — | — |
-| `tests/unit/wan-network-profiles-978.test.mjs` | — | — |
-| `tests/unit/wayland-fractional-scale-977.test.mjs` | — | — |
-| `tests/unit/arm64-packaging-990.test.mjs` | — | — |
-| `tests/unit/audit-log-viewer-1008.test.mjs` | — | — |
-| `tests/unit/autostart-xdg-1015.test.mjs` | — | — |
-| `tests/unit/cross-platform-packaging-1016.test.mjs` | — | — |
-| `tests/unit/custom-emojis-stickers-1005.test.mjs` | — | — |
-| `tests/unit/custom-themes-985.test.mjs` | — | — |
-| `tests/unit/emoji-cache-1005a.test.mjs` | — | — |
-| `tests/unit/emoji-picker-1005b.test.mjs` | — | — |
-| `tests/unit/forum-channels-1001.test.mjs` | — | — |
-| `tests/unit/forum-protocol-1001a.test.mjs` | — | — |
-| `tests/unit/forum-view-1001b.test.mjs` | — | — |
-| `tests/unit/guild-roles-permissions-1007.test.mjs` | — | — |
-| `tests/unit/ingame-overlay-988.test.mjs` | — | — |
-| `tests/unit/input-spellcheck-1006b.test.mjs` | — | — |
-| `tests/unit/multi-account-switcher-987.test.mjs` | — | — |
-| `tests/unit/multi-client-stress-989.test.mjs` | — | — |
-| `tests/unit/poll-view-1004b.test.mjs` | — | — |
-| `tests/unit/polls-core-1004a.test.mjs` | — | — |
-| `tests/unit/polls-voting-1004.test.mjs` | — | — |
-| `tests/unit/rtc-diagnostics-internals-1011.test.mjs` | — | — |
-| `tests/unit/soundboard-sfx-1012.test.mjs` | — | — |
-| `tests/unit/spatial-audio-hrtf-986.test.mjs` | — | — |
-| `tests/unit/spellcheck-ffi-1006a.test.mjs` | — | — |
-| `tests/unit/spellchecker-native-1006.test.mjs` | — | — |
-| `tests/unit/spotify-mpris-presence-1013.test.mjs` | — | — |
-| `tests/unit/sqlite-encrypted-store-984.test.mjs` | — | — |
-| `tests/unit/steam-deck-gamepad-1014.test.mjs` | — | — |
-| `tests/unit/thread-sidebar-1002b.test.mjs` | — | — |
-| `tests/unit/threads-lifecycle-1002.test.mjs` | — | — |
-| `tests/unit/threads-lifecycle-1002a.test.mjs` | — | — |
-| `tests/unit/totp-sessions-1009.test.mjs` | — | — |
-| `tests/unit/voice-afk-monitor-1010.test.mjs` | — | — |
-| `tests/unit/voice-messages-waveform-1003.test.mjs` | — | — |
-| `tests/unit/voice-player-1003b.test.mjs` | — | — |
-| `tests/unit/voice-recorder-1003a.test.mjs` | — | — |
-| `tests/unit/voice-rnnoise-983.test.mjs` | — | — |
-| `tests/unit/webrtc-bwe-congestion-982.test.mjs` | — | — |
-| `tests/unit/soundboard-mixer-1012b.test.mjs` | — | — |
-| `tests/unit/soundboard-protocol-1012a.test.mjs` | — | — |
-| `tests/unit/soundboard-view-1012c.test.mjs` | — | — |
-| `tests/unit/spatial-audio-filter-1017a.test.mjs` | — | — |
-| `tests/unit/rtc-metrics-1011a.test.mjs` | — | — |
-| `tests/unit/spatial-radar-1017b.test.mjs` | — | — |
-| `tests/unit/audit-log-parser-1008a.test.mjs` | `rust/crates/chord-core/src/audit_log.rs` | `AuditLogActionType` |
-| `tests/meta/modular-wiring-contract.test.mjs` | — | — |
-| `tests/meta/specta-types.test.mjs` | — | — |
-| `tests/unit/channel-tree-controller.test.mjs` | — | — |
-| `tests/unit/context-menu-router.test.mjs` | — | — |
-| `tests/unit/emojis.test.mjs` | — | — |
-| `tests/unit/markdown-mentions.test.mjs` | — | — |
-| `tests/unit/mentions.test.mjs` | — | — |
-| `tests/unit/message-rendering-and-emoji.test.mjs` | — | — |
-| `tests/unit/modal-router.test.mjs` | — | — |
-| `tests/unit/modals-fsm-contract.test.mjs` | — | — |
-| `tests/unit/forward-modal.test.mjs` | — | — |
-| `tests/unit/inbox-popover.test.mjs` | — | — |
-| `tests/unit/rules-screening-modal.test.mjs` | — | — |
-| `tests/unit/screen-share-dialog.test.mjs` | — | — |
-| `tests/unit/signals.test.mjs` | — | — |
-| `tests/unit/voice-call-orchestrator.test.mjs` | — | — |
 
 
 ### New Feature Implementation Workflow
@@ -407,114 +135,380 @@ npm run check                            # Unified typecheck and full test pass
 
 ---
 
-
+| `tests/e2e/cdp-browser.e2e.test.mjs` | — | `targets`, `eval`, `clicktext`, `list`, `shot` |
+| `tests/e2e/e2e-build006.test.mjs` | — | `openApp`, `captcha-modal`, `create-guild-dialog`, `stream-viewer`, `search-popover`, `context-menu`, `advanced-settings`, `resolve_gift_code` |
+| `tests/e2e/live-discord.e2e.test.mjs` | — | `targets`, `eval` (read-only, opt-in) |
+| `tests/e2e/m2-channel-send.e2e.test.mjs` | — | `M2_IDS`, `m2Channels`, `MESSAGE_CREATE`, `openApp` |
+| `tests/e2e/m2-invite.e2e.test.mjs` | — | `resolve_invite`, `accept_invite`, `JOIN_TEXT`, `openApp` |
+| `tests/e2e/m2-login-ready-rail.e2e.test.mjs` | — | `auth_status`, `auth_login_token`, `ready`, `002-READY.json` |
+| `tests/e2e/m2-reconnect.e2e.test.mjs` | — | `NET_STATUSES`, `NET_TEXT`, `net_connect`, `openApp` |
+| `tests/e2e/m2-search-error.e2e.test.mjs` | — | `search_remote`, `data-guild-id`, `openApp` |
+| `tests/e2e/m2-settings-reload.e2e.test.mjs` | — | `openApp`, `m2FixtureData` |
+| `tests/e2e/m2-voice-idle.e2e.test.mjs` | — | `VOICE_TEXT`, `disabled`, `openApp` |
+| `tests/e2e/walk-fixture.e2e.test.mjs` | — | `walk` |
+| `tests/meta/backlog-sync.test.mjs` | — | meta: cards `docs/feature-backlog.md` <-> README/TASKS/map |
+| `tests/meta/ci-browser.test.mjs` | — | meta: CI `qa-browser` — pinned Chromium, `CHROME_BIN`, preflight, `--test-concurrency=1`, `.gate` |
+| `tests/meta/ci-xvfb.test.mjs` | — | — |
 | `tests/meta/cross-platform-ci-contract.test.mjs` | `.github/workflows/cross-platform.yml` | — |
-| `tests/meta/gpui-bootstrap-contract.test.mjs` | `scripts/bootstrap-gpui.mjs` | `bootstrapGpui` |
-| `tests/unit/gate-command-portability-regression.test.mjs` | `scripts/gate.mjs` | `runCommand` |
-| `tests/unit/gate-platform-portability.test.mjs` | `scripts/gate-platform.mjs` | `commandInvocation` |
-| `tests/unit/invite-summary-portability-regression.test.mjs` | `rust/gui-spike/ui/features/invite-parser.js` | `formatInviteSummaryRu` |
-| `tests/unit/source-path-migration.test.mjs` | `scripts/source-paths.mjs` | `canonicalRustSourcePath` |
-
-
-| `tests/unit/release-source-names.test.mjs` | `scripts/release.sh` | — |
-
-
-| `tests/unit/ui-fixture-cleanup-regression.test.mjs` | `tests/helpers/ui-fixture.mjs` | `cleanupUiFixture` |
-
-
+| `tests/meta/design-breakpoints.test.mjs` | — | meta: responsive shell 1600/1200/960/720 (`--layout-tree-w`, `--layout-tree-min-w`, `#member-panel`, `channel-tree`) |
+| `tests/meta/design-tokens-contrast.test.mjs` | — | meta: Design Tokens V2 and WCAG 2.2 contrast (`WCAG 2.2`, `design-tokens-v2.md`, `DESIGN-TOKENS-V2.md`, `contrastRatio`, `relativeLuminance`, `Midnight`) |
+| `tests/meta/docs-sync.test.mjs` | — | meta: `HELP` <-> `README.md` (CLI commands documented) |
+| `tests/meta/e2e-required.test.mjs` | — | meta: `m2-scenarios.json`, `failOnSkips`, `requireBrowser`, `InfraError` |
 | `tests/meta/fixture-e2e-selection.test.mjs` | `scripts/gate.mjs` | `fixtureE2eFiles` |
-| `tests/unit/arm64-build-integrity.test.mjs` | `scripts/build-arm64.sh` | — |
-
-
-| `tests/unit/slowmode-contract.test.mjs` | `rust/gui-spike/ui/features/slowmode.js` | `slowmode` |
+| `tests/meta/fixtures-tracked.test.mjs` | — | meta: fixtures `tests/fixtures` tracked by `git` |
+| `tests/meta/gpui-bootstrap-contract.test.mjs` | `scripts/bootstrap-gpui.mjs` | `bootstrapGpui` |
+| `tests/meta/ipc-path.test.mjs` | — | meta: IPC path safety — `scan` signatures `#[tauri::command]` (`PathBuf`, `File`, `path`/`root`/`dir`), `tauri-plugin-fs`/`tauri-plugin-dialog`, 0 violations |
+| `tests/meta/keyring-live.test.mjs` | — | meta: live keyring `#[ignore]` <-> `--ignored` <-> `failOnSkips` |
+| `tests/meta/model-routing.test.mjs` | — | meta: `resolveModelHarmony`, `core_carbon`, `gemini-3.8-flash-low`, `gemini-4-argon-medium` |
+| `tests/meta/modular-wiring-contract.test.mjs` | — | — |
+| `tests/meta/mutations.test.mjs` | — | `15/15`, `mutations`, `killed`, `LatestFrameSlot`, `DAVE`, `hCaptcha` |
+| `tests/meta/parity-matrix.test.mjs` | — | `MERGE-READINESS-V0.5.0.md`, `RELEASE-NOTES-V0.5.0.md`, `parseParityRows`, `verifyDomainSummary` |
+| `tests/meta/plan-sync.test.mjs` | — | meta: §8 <-> tests <-> modules <-> exports |
+| `tests/meta/rust-client-sync.test.mjs` | — | meta: Rust client plan (docs/rust-client) <-> README/TASKS/map |
+| `tests/meta/specta-types.test.mjs` | — | — |
+| `tests/meta/test-policy.test.mjs` | — | `TEST-POLICY`, `--no-verify`, `gate.mjs` |
+| `tests/meta/waves-sync.test.mjs` | — | meta: `waves/db.jsonl` (schema v1) <-> `STATE.md` and `evidence` |
+| `tests/smoke/cli.smoke.test.mjs` | `bin/chord.mjs`, `bin/discord-lab.mjs`, `src/cli/run.mjs` | `--help`, `--version` |
+| `tests/smoke/cxxfilt.smoke.test.mjs` | `src/adapters/cxxfilt.mjs` | `demangle` |
+| `tests/smoke/gui-spike.smoke.test.mjs` | — | live smoke: `window-ready`, `UI_SNAPSHOT` (`GUI_SPIKE_E2E=1`) |
+| `tests/smoke/gui-window.smoke.test.mjs` | `scripts/gui-window-probe.py` | AT-SPI/X11: window, elements, PNG, GBM |
+| `tests/smoke/hook.smoke.test.mjs` | — | `hook` (unreachable pid -> exit code 2) |
+| `tests/smoke/inventory.smoke.test.mjs` | — | `inventory` (unreachable pid -> exit code 2) |
+| `tests/smoke/pids.smoke.test.mjs` | — | `pids` (Frida, skip-aware) |
+| `tests/smoke/summarize.smoke.test.mjs` | — | `summarize` (parity summarize-calls.sh) |
+| `tests/unit/account-dynamic-sync.test.mjs` | — | — |
+| `tests/unit/advanced-settings.test.mjs` | `rust/gui-spike/ui/features/advanced-settings.js` | `createAdvancedSettingsController`, `detectKeybindConflicts`, `resolveEntranceSoundForGuild`, `normalizeClipLengthSeconds` |
+| `tests/unit/afk-voice-status.test.mjs` | — | — |
 | `tests/unit/app-shell-wiring-contract.test.mjs` | `rust/gui-spike/ui/features/app-shell-wiring.js` | `app-shell-wiring` |
+| `tests/unit/appearance-settings.test.mjs` | — | — |
+| `tests/unit/appimage-package-961.test.mjs` | — | — |
+| `tests/unit/arch-pkgbuild-964.test.mjs` | — | — |
+| `tests/unit/args.test.mjs` | `src/core/args.mjs` | `parseArgs`, `parseNumericArg`, `parseRegexArg` |
+| `tests/unit/arm64-build-integrity.test.mjs` | `scripts/build-arm64.sh` | — |
+| `tests/unit/arm64-packaging-990.test.mjs` | — | — |
+| `tests/unit/attachment-helper.test.mjs` | — | — |
+| `tests/unit/attachment-validator.test.mjs` | — | — |
+| `tests/unit/attachments-render.test.mjs` | — | `renderChannelMessage`, `decodeWaveform`, `IS_VOICE_MESSAGE` |
+| `tests/unit/attachments-ui.test.mjs` | — | — |
+| `tests/unit/audit-log-parser-1008a.test.mjs` | `rust/crates/chord-core/src/audit_log.rs` | `AuditLogActionType` |
+| `tests/unit/audit-log-view-1008b.test.mjs` | `rust/crates/chord-core/src/audit_log_view.rs` | `AuditLogViewer` |
+| `tests/unit/audit-log-viewer-1008.test.mjs` | — | — |
+| `tests/unit/audit-log.test.mjs` | — | — |
+| `tests/unit/automation-zero-token-scripts.test.mjs` | `scripts/git-sync.mjs` | `git-sync` |
+| `tests/unit/automod-editor.test.mjs` | — | — |
+| `tests/unit/autostart-xdg-1015.test.mjs` | — | — |
+| `tests/unit/battery-saver-976.test.mjs` | — | — |
+| `tests/unit/beta-release-package-958.test.mjs` | — | — |
+| `tests/unit/bff-pins-threads-contract.test.mjs` | `rust/gui-spike/ui/features/pins-threads.js` | `createPinsThreadsController` |
+| `tests/unit/binary-delta-969.test.mjs` | — | — |
+| `tests/unit/bindings-permissions.test.mjs` | — | — |
+| `tests/unit/blacklist.test.mjs` | `src/core/ui/blacklist.mjs` | `isBlacklisted` |
+| `tests/unit/call_stream_dispatch.test.mjs` | — | — |
+| `tests/unit/call_stream_lifecycle.test.mjs` | — | — |
+| `tests/unit/calls.test.mjs` | `src/core/calls.mjs` | `isCallPayload`, `callLine`, `parseCallLog`, `summarizeCallLines` |
+| `tests/unit/captcha-modal-interactive.test.mjs` | — | — |
+| `tests/unit/captcha-modal.test.mjs` | `rust/gui-spike/ui/features/captcha-modal.js` | `createCaptchaModal`, `extractCaptchaChallenge`, `captcha-modal` |
+| `tests/unit/cdp.test.mjs` | `src/core/cdp/client.mjs` | `resolveEndpoint`, `resolveTargetHint`, `listTargets`, `pickTarget`, `createCdpClient`, `evaluate`, `captureScreenshot`, `clickText`, `clickTextExpression`, `listElements`, `listElementsExpression`, `openPage` |
+| `tests/unit/channel-gate.test.mjs` | — | — |
+| `tests/unit/channel-navigation.test.mjs` | `rust/gui-spike/ui/features/channel-tree.js` | `CHANNEL_TYPES` |
 | `tests/unit/channel-node-renderer-contract.test.mjs` | `rust/gui-spike/ui/features/channel-node-renderer.js` | `channel-node-renderer` |
+| `tests/unit/channel-paging.test.mjs` | `rust/gui-spike/src/data.rs` | `messages_page`, `nextCursor`, `hasMore`, `loaded_rows_limit` |
 | `tests/unit/channel-switch-permissions-contract.test.mjs` | `rust/gui-spike/ui/features/channel-switch-permissions.js` | `channel-switch-permissions` |
+| `tests/unit/channel-switch.test.mjs` | — | `channels`, `messages_page`, `channel-item`, `chat-title-text`, `G6-D-01` |
+| `tests/unit/channel-tree-controller.test.mjs` | — | — |
+| `tests/unit/channel-tree.test.mjs` | — | — |
 | `tests/unit/chat-helpers-bridge-contract.test.mjs` | `rust/gui-spike/ui/features/chat-helpers-bridge.js` | `chat-helpers-bridge` |
+| `tests/unit/chat-reactions.test.mjs` | — | `toggle_reaction`, `messageId`, `reaction` |
+| `tests/unit/chat-virtualizer-tanstack.test.mjs` | `rust/gui-spike/ui/features/virtualizer.js` | `VirtualList` |
+| `tests/unit/chord-store-rusqlite-worker-lib-simplify-02.test.mjs` | `rust/crates/chord-store/src/worker.rs` | `STORE_MANIFEST` |
+| `tests/unit/cli-run.test.mjs` | `src/cli/run.mjs` | `run`, `cdp targets`, `pids`, `inventory`, `hook`, `summarize`, `domains`, `static` |
+| `tests/unit/click_message_component.test.mjs` | — | — |
+| `tests/unit/composer-autocomplete.test.mjs` | — | — |
 | `tests/unit/composer-popovers-bridge-contract.test.mjs` | `rust/gui-spike/ui/features/composer-popovers-bridge.js` | `composer-popovers-bridge` |
+| `tests/unit/composer.test.mjs` | `rust/gui-spike/ui/features/composer.js` | `ATTACH_LIMITS`, `ATTACH_TEXT`, `GIFT_TEXT`, `createComposer`, `formatBytes` |
+| `tests/unit/context-menu-router.test.mjs` | — | — |
+| `tests/unit/context-menu-ui.test.mjs` | — | — |
+| `tests/unit/context-menu.test.mjs` | — | — |
+| `tests/unit/core-ui-adapters-contract.test.mjs` | `src/core/ui/adapters.mjs` | `resolveAdapter`, `clickNavItemExpression` |
+| `tests/unit/core-ui-engine-contract.test.mjs` | `src/core/ui/engine.mjs` | `runWalk` |
+| `tests/unit/crash-reporter-970.test.mjs` | — | — |
+| `tests/unit/create-guild-wizard.test.mjs` | `rust/gui-spike/ui/features/create-guild.js` | `CREATE_GUILD_TEMPLATES`, `validateGuildIconDataUri`, `createCreateGuildWizard` |
+| `tests/unit/create-guild.test.mjs` | `rust/gui-spike/ui/features/create-guild.js` | STUB-03, `create_guild`, `create-guild-dialog` |
+| `tests/unit/cross-platform-packaging-1016.test.mjs` | — | — |
+| `tests/unit/csv.test.mjs` | `src/core/csv.mjs` | `safeName`, `csv` |
+| `tests/unit/custom-emojis-stickers-1005.test.mjs` | — | — |
+| `tests/unit/custom-themes-985.test.mjs` | — | — |
+| `tests/unit/dave-e2ee-spike-lib-simplify-05.test.mjs` | `rust/dave-spike/src/bridge.rs` | `DaveVoiceBridge` |
+| `tests/unit/dave-mls-forward-secrecy-979.test.mjs` | — | — |
+| `tests/unit/deb-package-963.test.mjs` | — | — |
 | `tests/unit/discord-native-bridge-contract.test.mjs` | `rust/gui-spike/ui/features/discord-native-bridge.js` | `discord-native-bridge` |
+| `tests/unit/dispatch_ui.test.mjs` | — | `gateway://dispatch`, `FORWARDED_DISPATCHES`, `createDispatchBridge`, `READY`, `PRESENCE_UPDATE` |
 | `tests/unit/dispatch-bridge-contract.test.mjs` | `rust/gui-spike/ui/features/dispatch-bridge.js` | `dispatch-bridge` |
 | `tests/unit/dispatch-model-contract.test.mjs` | `rust/gui-spike/ui/features/dispatch-model.js` | `dispatch-model` |
 | `tests/unit/dispatch-view-contract.test.mjs` | `rust/gui-spike/ui/features/dispatch-view.js` | `dispatch-view` |
+| `tests/unit/distribution-packaging-r4-08.test.mjs` | `scripts/package-dist.mjs` | `package-dist` |
+| `tests/unit/dm-friends-ui.test.mjs` | `rust/gui-spike/ui/features/dm-friends.js` | `createDmFriendsController`, `DM_FRIENDS_ENDPOINTS`, `FRIENDS_TABS`, `applyDmFriendsDispatch`, `sortPrivateChannels` |
+| `tests/unit/domains.test.mjs` | `src/core/report/domains.mjs` | `classifyName`, `domainCsv`, `formatDomainSummary` |
+| `tests/unit/embed-formatter.test.mjs` | — | — |
 | `tests/unit/embeds-contract.test.mjs` | `rust/gui-spike/ui/features/embeds.js` | `embeds` |
+| `tests/unit/emoji-cache-1005a.test.mjs` | — | — |
+| `tests/unit/emoji-picker-1005b.test.mjs` | — | — |
+| `tests/unit/emoji-reactions-contract.test.mjs` | `rust/gui-spike/ui/features/reactions.js` | `EMOJI_CATEGORIES` |
+| `tests/unit/emojis.test.mjs` | — | — |
+| `tests/unit/encrypted-sqlite-1021b.test.mjs` | `rust/crates/chord-store/src/encrypted_sqlite.rs` | `encrypted_sqlite` |
 | `tests/unit/errors-contract.test.mjs` | `rust/gui-spike/ui/features/errors.js` | `errors` |
+| `tests/unit/esm-libraries-integration.test.mjs` | `rust/gui-spike/ui/state/signals.js` | `signal` |
+| `tests/unit/event-banner.test.mjs` | — | — |
+| `tests/unit/events-modal.test.mjs` | — | — |
+| `tests/unit/expression-picker.test.mjs` | — | — |
 | `tests/unit/expressions-manager-contract.test.mjs` | `rust/gui-spike/ui/features/expressions-manager.js` | `expressions-manager` |
+| `tests/unit/flatpak-manifest-962.test.mjs` | — | — |
 | `tests/unit/floating-popover-contract.test.mjs` | `rust/gui-spike/ui/features/floating-popover.js` | `floating-popover` |
+| `tests/unit/font-fallback-matrix-981.test.mjs` | — | — |
+| `tests/unit/forum-channels-1001.test.mjs` | — | — |
+| `tests/unit/forum-filter.test.mjs` | — | — |
+| `tests/unit/forum-protocol-1001a.test.mjs` | — | — |
+| `tests/unit/forum-view-1001b.test.mjs` | — | — |
+| `tests/unit/forum-view.test.mjs` | — | — |
+| `tests/unit/forward-modal.test.mjs` | — | — |
+| `tests/unit/frida-agent.test.mjs` | — | `inventory`, `hook`, `unhook` |
+| `tests/unit/frida.test.mjs` | `src/adapters/frida.mjs` | `loadDevice`, `loadAgentSource`, `listProcesses`, `attach`, `collectInventory`, `parseHookMessage`, `startHook`, `stopHook` |
+| `tests/unit/friends-home.test.mjs` | — | — |
+| `tests/unit/fuzz-report.test.mjs` | — | — |
+| `tests/unit/gamepad-driver-1014a.test.mjs` | `rust/crates/chord-platform/src/gamepad_driver.rs` | `gamepad_driver` |
+| `tests/unit/gate-command-portability-regression.test.mjs` | `scripts/gate.mjs` | `runCommand` |
+| `tests/unit/gate-platform-portability.test.mjs` | `scripts/gate-platform.mjs` | `commandInvocation` |
+| `tests/unit/gift-modal.test.mjs` | `rust/gui-spike/ui/features/gift-modal.js` | `createGiftModal`, `resolveGiftStyle`, `extractGiftCodesFromText`, `classifyGiftError` |
+| `tests/unit/github-actions-release-968.test.mjs` | — | — |
+| `tests/unit/gui-spike-auth.test.mjs` | `rust/gui-spike/ui/features/auth.js`, `rust/gui-spike/ui/app.js` | `auth-gate`, `auth_login_token`, `auth_status` |
+| `tests/unit/gui-spike-bench.test.mjs` | `scripts/gui-spike-bench.mjs` | `summarize`, `percentile95`, `parseStatus`, `parseCliArgs` |
+| `tests/unit/gui-spike-dom.test.mjs` | `rust/gui-spike/ui/index.html`, `rust/gui-spike/ui/app.js` | DOM contract: 4 screens, mandatory ids, constants |
+| `tests/unit/gui-spike-features.test.mjs` | `rust/gui-spike/ui/app.js`, `rust/gui-spike/ui/features/settings.js`, `rust/gui-spike/ui/features/emoji.js`, `rust/gui-spike/ui/features/search-overlay.js` | `loadApp`, `data-action`, `settings`, `emoji`, `search` |
+| `tests/unit/gui-spike-model.test.mjs` | `rust/gui-spike/ui/model.js` | `PageStore`, `getRow`, `ensureRange`, `stats` |
+| `tests/unit/gui-spike-regressions.test.mjs` | — | `quick-switcher`, `quick-switcher-empty`, `msg-toolbar`, `delete_message` |
 | `tests/unit/guild-boost-contract.test.mjs` | `rust/gui-spike/ui/features/guild-boost.js` | `guild-boost` |
+| `tests/unit/guild-folders.test.mjs` | — | — |
+| `tests/unit/guild-member-update-permissions.test.mjs` | — | — |
+| `tests/unit/guild-modals.test.mjs` | — | — |
+| `tests/unit/guild-rail-incremental.test.mjs` | — | — |
+| `tests/unit/guild-rail.test.mjs` | — | `ready`, `guild-rail`, `data-guild-id` |
+| `tests/unit/guild-roles-permissions-1007.test.mjs` | — | — |
+| `tests/unit/headless-compositor-harness.test.mjs` | — | — |
+| `tests/unit/heartbeat-ack-stage-05-2-2.test.mjs` | `rust/crates/chord-core/src/heartbeat.rs` | `HEARTBEAT_RS` |
+| `tests/unit/heartbeat-loop-stage-05-2-1.test.mjs` | `rust/crates/chord-core/src/heartbeat.rs` | `HEARTBEAT_RS` |
+| `tests/unit/hook-io.test.mjs` | `src/core/hook-io.mjs` | `openCallLog`, `waitForStop` |
+| `tests/unit/i18n-coverage-972.test.mjs` | — | — |
+| `tests/unit/i18n.test.mjs` | — | — |
+| `tests/unit/identify-opcode2-stage-05-3-1.test.mjs` | `rust/crates/chord-core/src/identify.rs` | `IDENTIFY_OP` |
+| `tests/unit/inbox-panel.test.mjs` | — | — |
+| `tests/unit/inbox-popover.test.mjs` | — | — |
+| `tests/unit/inbox.test.mjs` | — | — |
+| `tests/unit/ingame-overlay-988.test.mjs` | — | — |
+| `tests/unit/input-gestures-975.test.mjs` | — | — |
+| `tests/unit/input-spellcheck-1006b.test.mjs` | — | — |
+| `tests/unit/inventory.test.mjs` | `src/core/inventory.mjs` | `inventoryCounts`, `inventoryCsvRows`, `inventoryJson` |
+| `tests/unit/invite-input-preserve.test.mjs` | — | — |
+| `tests/unit/invite-modal.test.mjs` | — | — |
+| `tests/unit/invite-parser.test.mjs` | — | — |
+| `tests/unit/invite-summary-portability-regression.test.mjs` | `rust/gui-spike/ui/features/invite-parser.js` | `formatInviteSummaryRu` |
 | `tests/unit/ipc-bindings-contract.test.mjs` | `rust/gui-spike/ui/features/ipc-bindings.js` | `ipc-bindings` |
+| `tests/unit/ipc-security-audit-980.test.mjs` | — | — |
+| `tests/unit/join-server.test.mjs` | — | `join-server`, `resolve_invite`, `accept_invite` |
+| `tests/unit/keybinds.test.mjs` | — | — |
+| `tests/unit/keyring-crypto-1021a.test.mjs` | `rust/crates/chord-store/src/keyring_crypto.rs` | `SecretServiceProvider` |
+| `tests/unit/krisp-vad-stability.test.mjs` | — | — |
 | `tests/unit/live-emoji-picker-contract.test.mjs` | `rust/gui-spike/ui/features/live-emoji-picker.js` | `live-emoji-picker` |
 | `tests/unit/live-settings-enhancer-contract.test.mjs` | `rust/gui-spike/ui/features/live-settings-enhancer.js` | `live-settings-enhancer` |
-| `tests/unit/message-interaction-controller-contract.test.mjs` | `rust/gui-spike/ui/features/message-interaction-controller.js` | `message-interaction-controller` |
-| `tests/unit/message-toolbar-contract.test.mjs` | `rust/gui-spike/ui/features/message-toolbar.js` | `message-toolbar` |
-| `tests/unit/moderation-panel-contract.test.mjs` | `rust/gui-spike/ui/features/moderation-panel.js` | `moderation-panel` |
-| `tests/unit/onboarding-wizard-contract.test.mjs` | `rust/gui-spike/ui/features/onboarding-wizard.js` | `onboarding-wizard` |
-| `tests/unit/pins-threads-wiring-contract.test.mjs` | `rust/gui-spike/ui/features/pins-threads-wiring.js` | `pins-threads-wiring` |
-| `tests/unit/reactive-components-contract.test.mjs` | `rust/gui-spike/ui/features/reactive-components.js` | `reactive-components` |
-| `tests/unit/rows-contract.test.mjs` | `rust/gui-spike/ui/features/rows.js` | `rows` |
-| `tests/unit/rtc-quality-status-bar-contract.test.mjs` | `rust/gui-spike/ui/features/rtc-quality-status-bar.js` | `rtc-quality-status-bar` |
-| `tests/unit/screens-contract.test.mjs` | `rust/gui-spike/ui/features/screens.js` | `screens` |
-| `tests/unit/search-overlay-contract.test.mjs` | `rust/gui-spike/ui/features/search-overlay.js` | `search-overlay` |
-| `tests/unit/shell-controllers-registry-contract.test.mjs` | `rust/gui-spike/ui/features/shell-controllers-registry.js` | `shell-controllers-registry` |
-| `tests/unit/slash-command-picker-contract.test.mjs` | `rust/gui-spike/ui/features/slash-command-picker.js` | `slash-command-picker` |
-| `tests/unit/soundboard-picker-contract.test.mjs` | `rust/gui-spike/ui/features/soundboard-picker.js` | `soundboard-picker` |
-| `tests/unit/stage-request-queue-contract.test.mjs` | `rust/gui-spike/ui/features/stage-request-queue.js` | `stage-request-queue` |
-| `tests/unit/thread-badge-contract.test.mjs` | `rust/gui-spike/ui/features/thread-badge.js` | `thread-badge` |
-| `tests/unit/virtual-list-contract.test.mjs` | `rust/gui-spike/ui/features/virtual-list.js` | `virtual-list` |
-| `tests/unit/virtualizer-contract.test.mjs` | `rust/gui-spike/ui/features/virtualizer.js` | `virtualizer` |
-| `tests/unit/voice-connection-controller-contract.test.mjs` | `rust/gui-spike/ui/features/voice-connection-controller.js` | `voice-connection-controller` |
-| `tests/unit/voice-diagnostics-contract.test.mjs` | `rust/gui-spike/ui/features/voice-diagnostics.js` | `voice-diagnostics` |
-| `tests/unit/voice-dm-call-stage-contract.test.mjs` | `rust/gui-spike/ui/features/voice-dm-call-stage.js` | `voice-dm-call-stage` |
-| `tests/unit/voice-invite-and-devices-contract.test.mjs` | `rust/gui-spike/ui/features/voice-invite-and-devices.js` | `voice-invite-and-devices` |
-| `tests/unit/voice-participant-menu-contract.test.mjs` | `rust/gui-spike/ui/features/voice-participant-menu.js` | `voice-participant-menu` |
-| `tests/unit/voice-popouts-controller-contract.test.mjs` | `rust/gui-spike/ui/features/voice-popouts-controller.js` | `voice-popouts-controller` |
-| `tests/unit/voice-sound-effects-contract.test.mjs` | `rust/gui-spike/ui/features/voice-sound-effects.js` | `voice-sound-effects` |
-| `tests/unit/voice-stage-renderer-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stage-renderer.js` | `voice-stage-renderer` |
-| `tests/unit/voice-stage-viewer-controls-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stage-viewer-controls.js` | `voice-stage-viewer-controls` |
-| `tests/unit/voice-stage-viewer-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stage-viewer.js` | `voice-stage-viewer` |
-| `tests/unit/voice-state-sync-contract.test.mjs` | `rust/gui-spike/ui/features/voice-state-sync.js` | `voice-state-sync` |
-| `tests/unit/voice-stream-controller-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stream-controller.js` | `voice-stream-controller` |
-| `tests/unit/voice-stream-menus-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stream-menus.js` | `voice-stream-menus` |
-| `tests/unit/webhooks-editor-contract.test.mjs` | `rust/gui-spike/ui/features/webhooks-editor.js` | `webhooks-editor` |
-| `tests/unit/typed-pins-commands-contract.test.mjs` | `rust/gui-spike/ui/bindings.js` | `createTypedCommands` |
-| `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |
-| `tests/unit/bff-pins-threads-contract.test.mjs` | `rust/gui-spike/ui/features/pins-threads.js` | `createPinsThreadsController` |
-| `tests/unit/modules-voice-rtc-panel-contract.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveVoiceCallPhaseView` |
-| `tests/unit/modules-channel-tree-view-contract.test.mjs` | `rust/gui-spike/ui/modules/channel-tree-view.js` | `isConfirmedVoiceStateRecord` |
-| `tests/unit/core-ui-adapters-contract.test.mjs` | `src/core/ui/adapters.mjs` | `resolveAdapter`, `clickNavItemExpression` |
-| `tests/unit/core-ui-engine-contract.test.mjs` | `src/core/ui/engine.mjs` | `runWalk` |
-| `tests/unit/chat-virtualizer-tanstack.test.mjs` | `rust/gui-spike/ui/features/virtualizer.js` | `VirtualList` |
-| `tests/unit/chord-store-rusqlite-worker-lib-simplify-02.test.mjs` | `rust/crates/chord-store/src/worker.rs` | `STORE_MANIFEST` |
-| `tests/unit/dave-e2ee-spike-lib-simplify-05.test.mjs` | `rust/dave-spike/src/bridge.rs` | `DaveVoiceBridge` |
-| `tests/unit/emoji-reactions-contract.test.mjs` | `rust/gui-spike/ui/features/reactions.js` | `EMOJI_CATEGORIES` |
-| `tests/unit/esm-libraries-integration.test.mjs` | `rust/gui-spike/ui/state/signals.js` | `signal` |
+| `tests/unit/locale-switcher.test.mjs` | — | — |
 | `tests/unit/markdown-contract.test.mjs` | `rust/gui-spike/ui/features/markdown.js` | `parseMessageMarkdown` |
+| `tests/unit/markdown-helper.test.mjs` | — | — |
+| `tests/unit/markdown-mentions.test.mjs` | — | — |
+| `tests/unit/media-pool-stage-02-1-3.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RUNTIME_RS` |
+| `tests/unit/member-list-roles.test.mjs` | `rust/gui-spike/ui/features/member-list.js` | `describe` |
 | `tests/unit/member-list-virtual.test.mjs` | `rust/gui-spike/ui/features/virtualizer.js` | `createMemberListController` |
+| `tests/unit/member-list.test.mjs` | — | — |
+| `tests/unit/members-subscriptions.test.mjs` | — | — |
+| `tests/unit/mentions.test.mjs` | — | — |
+| `tests/unit/message-actions.test.mjs` | — | — |
+| `tests/unit/message-components.test.mjs` | — | — |
+| `tests/unit/message-context-actions.test.mjs` | — | — |
+| `tests/unit/message-delete-voice-exit-ui.test.mjs` | — | — |
+| `tests/unit/message-interaction-controller-contract.test.mjs` | `rust/gui-spike/ui/features/message-interaction-controller.js` | `message-interaction-controller` |
+| `tests/unit/message-media-polls.test.mjs` | — | — |
+| `tests/unit/message-rendering-and-emoji.test.mjs` | — | — |
+| `tests/unit/message-toolbar-contract.test.mjs` | `rust/gui-spike/ui/features/message-toolbar.js` | `message-toolbar` |
+| `tests/unit/modal-router.test.mjs` | — | — |
+| `tests/unit/modals-fsm-contract.test.mjs` | — | — |
+| `tests/unit/moderation-panel-contract.test.mjs` | `rust/gui-spike/ui/features/moderation-panel.js` | `moderation-panel` |
+| `tests/unit/modules-channel-tree-view-contract.test.mjs` | `rust/gui-spike/ui/modules/channel-tree-view.js` | `isConfirmedVoiceStateRecord` |
+| `tests/unit/modules-voice-rtc-panel-contract.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveVoiceCallPhaseView` |
+| `tests/unit/multi-account-switcher-987.test.mjs` | — | — |
+| `tests/unit/multi-client-stress-989.test.mjs` | — | — |
+| `tests/unit/nm.test.mjs` | `src/core/report/nm.mjs` | `parseNmPosix`, `staticFunctionsCsv` |
+| `tests/unit/notifications-ui.test.mjs` | — | `MUTE_TIMER_PRESETS`, `MESSAGE_NOTIFICATION_LEVELS`, `NOTIFY_HIGHLIGHTS` |
+| `tests/unit/notifications.test.mjs` | — | — |
+| `tests/unit/onboarding-wizard-contract.test.mjs` | `rust/gui-spike/ui/features/onboarding-wizard.js` | `onboarding-wizard` |
+| `tests/unit/path1-frameworks.test.mjs` | — | — |
+| `tests/unit/paths.test.mjs` | `src/core/paths.mjs` | `projectRoot`, `logsDir`, `functionsDir`, `screensDir`, `screenshotName`, `relativeToRoot` |
+| `tests/unit/pins-threads-wiring-contract.test.mjs` | `rust/gui-spike/ui/features/pins-threads-wiring.js` | `pins-threads-wiring` |
+| `tests/unit/pins-threads.test.mjs` | — | — |
+| `tests/unit/pipewire-portal-971.test.mjs` | — | — |
+| `tests/unit/plural-format.test.mjs` | — | — |
+| `tests/unit/poll-card.test.mjs` | — | — |
+| `tests/unit/poll-progress.test.mjs` | — | — |
+| `tests/unit/poll-view-1004b.test.mjs` | — | — |
+| `tests/unit/polls-core-1004a.test.mjs` | — | — |
+| `tests/unit/polls-voting-1004.test.mjs` | — | — |
+| `tests/unit/presence-activity.test.mjs` | — | — |
+| `tests/unit/processes.test.mjs` | `src/core/processes.mjs` | `isDiscordProcess`, `filterDiscordProcesses` |
+| `tests/unit/profile-modal.test.mjs` | — | — |
+| `tests/unit/profile.test.mjs` | `src/core/ui/profile.mjs` | `topFunctions` |
+| `tests/unit/qa-socrati-qdrant-automation.test.mjs` | `scripts/qa-auto-suite.mjs` | `getEmbedding` |
+| `tests/unit/qr-auth-modal.test.mjs` | `rust/gui-spike/ui/features/qr-auth-modal.js` | `createQrAuthModal`, `parseQrAuthUrl`, `evaluateQrSecurityIndicator`, `classifyQrAuthError` |
+| `tests/unit/quality-gate-907.test.mjs` | — | — |
+| `tests/unit/quick-switcher.test.mjs` | — | — |
+| `tests/unit/reaction-verification.test.mjs` | — | — |
+| `tests/unit/reactions-ui.test.mjs` | — | — |
+| `tests/unit/reactive-components-contract.test.mjs` | `rust/gui-spike/ui/features/reactive-components.js` | `reactive-components` |
+| `tests/unit/reactive-store.test.mjs` | — | — |
+| `tests/unit/read-state-ui.test.mjs` | — | `read_state`, `ack_message`, `chat-unread-divider` |
+| `tests/unit/release-source-names.test.mjs` | `scripts/release.sh` | — |
+| `tests/unit/resume-opcode6-stage-05-3-2.test.mjs` | `rust/crates/chord-core/src/resume.rs` | `RESUME_RS` |
+| `tests/unit/role-editor.test.mjs` | — | — |
+| `tests/unit/role-permissions.test.mjs` | — | — |
+| `tests/unit/rows-contract.test.mjs` | `rust/gui-spike/ui/features/rows.js` | `rows` |
+| `tests/unit/rpm-package-966.test.mjs` | — | — |
+| `tests/unit/rtc-diagnostics-internals-1011.test.mjs` | — | — |
+| `tests/unit/rtc-metrics-1011a.test.mjs` | — | — |
+| `tests/unit/rtc-quality-status-bar-contract.test.mjs` | `rust/gui-spike/ui/features/rtc-quality-status-bar.js` | `rtc-quality-status-bar` |
+| `tests/unit/rules-screening-banner-modal.test.mjs` | — | — |
+| `tests/unit/rules-screening-modal.test.mjs` | — | — |
 | `tests/unit/runtime-config-stage-02.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RuntimeConfig` |
 | `tests/unit/runtime-manager-stage-02-1-2.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RuntimeManager` |
-| `tests/unit/media-pool-stage-02-1-3.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RUNTIME_RS` |
+| `tests/unit/screen_color_and_window_target.test.mjs` | — | — |
+| `tests/unit/screen-share-dialog.test.mjs` | — | — |
+| `tests/unit/screens-contract.test.mjs` | `rust/gui-spike/ui/features/screens.js` | `screens` |
+| `tests/unit/search-overlay-contract.test.mjs` | `rust/gui-spike/ui/features/search-overlay.js` | `search-overlay` |
+| `tests/unit/search-panel.test.mjs` | — | — |
+| `tests/unit/search-popover-ui.test.mjs` | — | — |
+| `tests/unit/search-popover.test.mjs` | — | — |
+| `tests/unit/search-remote-real-index.test.mjs` | — | `search_remote`, `data-guild-id`, `ready`, `002-READY.json` |
 | `tests/unit/secret-redaction-stage-02-3-1.test.mjs` | `rust/crates/chord-core/src/logging.rs` | `LOGGING_RS` |
-| `tests/unit/shutdown-signals-secret-redaction-stage-02.test.mjs` | `rust/crates/chord-core/src/shutdown.rs` | `SHUTDOWN_RS` |
-| `tests/unit/heartbeat-loop-stage-05-2-1.test.mjs` | `rust/crates/chord-core/src/heartbeat.rs` | `HEARTBEAT_RS` |
-| `tests/unit/heartbeat-ack-stage-05-2-2.test.mjs` | `rust/crates/chord-core/src/heartbeat.rs` | `HEARTBEAT_RS` |
-| `tests/unit/tokio-tungstenite-tls-stage-05-1-1.test.mjs` | `rust/crates/chord-core/src/ws_transport.rs` | `WS_TRANSPORT_RS` |
-| `tests/unit/zlib-stream-stage-05-1-2.test.mjs` | `rust/crates/chord-codec/src/zlib.rs` | `ZLIB_RS` |
-| `tests/unit/identify-opcode2-stage-05-3-1.test.mjs` | `rust/crates/chord-core/src/identify.rs` | `IDENTIFY_OP` |
-| `tests/unit/keyring-crypto-1021a.test.mjs` | `rust/crates/chord-store/src/keyring_crypto.rs` | `SecretServiceProvider` |
-| `tests/unit/resume-opcode6-stage-05-3-2.test.mjs` | `rust/crates/chord-core/src/resume.rs` | `RESUME_RS` |
-| `tests/unit/stage10-bff6-dave-voice-ui.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveDaveE2eeIndicatorView` |
-| `tests/unit/qa-socrati-qdrant-automation.test.mjs` | `scripts/qa-auto-suite.mjs` | `getEmbedding` |
-| `tests/unit/totp-view-1009a.test.mjs` | `rust/crates/chord-core/src/totp_view.rs` | `TotpDialog` |
+| `tests/unit/security-audit-sbom-956.test.mjs` | — | — |
+| `tests/unit/server-menu.test.mjs` | `rust/gui-spike/ui/features/actions.js` | `MENU_LABELS`, `REASONS`, `loadApp` |
 | `tests/unit/sessions-manager-1009b.test.mjs` | `rust/crates/chord-core/src/sessions_manager.rs` | `SessionInfo` |
-| `tests/unit/encrypted-sqlite-1021b.test.mjs` | `rust/crates/chord-store/src/encrypted_sqlite.rs` | `encrypted_sqlite` |
-| `tests/unit/spotify-mpris-1013a.test.mjs` | `rust/crates/chord-platform/src/spotify_mpris.rs` | `spotify_mpris` |
-| `tests/unit/audit-log-view-1008b.test.mjs` | `rust/crates/chord-core/src/audit_log_view.rs` | `AuditLogViewer` |
-| `tests/unit/gamepad-driver-1014a.test.mjs` | `rust/crates/chord-platform/src/gamepad_driver.rs` | `gamepad_driver` |
-| `tests/unit/spotify-widget-1013b.test.mjs` | `rust/chord-gpui/src/profile/spotify_widget.rs` | `spotify_widget` |
-| `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
+| `tests/unit/settings-modal.test.mjs` | — | — |
+| `tests/unit/shell-bridge.test.mjs` | — | — |
+| `tests/unit/shell-controllers-registry-contract.test.mjs` | `rust/gui-spike/ui/features/shell-controllers-registry.js` | `shell-controllers-registry` |
+| `tests/unit/shortcuts.test.mjs` | — | — |
+| `tests/unit/shutdown-signals-secret-redaction-stage-02.test.mjs` | `rust/crates/chord-core/src/shutdown.rs` | `SHUTDOWN_RS` |
+| `tests/unit/signals.test.mjs` | — | — |
+| `tests/unit/slash-command-picker-contract.test.mjs` | `rust/gui-spike/ui/features/slash-command-picker.js` | `slash-command-picker` |
+| `tests/unit/slowmode-contract.test.mjs` | `rust/gui-spike/ui/features/slowmode.js` | `slowmode` |
+| `tests/unit/slowmode.test.mjs` | — | — |
 | `tests/unit/smart-typecheck-lib-simplify-06.test.mjs` | `scripts/smart-typecheck.mjs` | `LIB-SIMPLIFY-06` |
-| `tests/unit/distribution-packaging-r4-08.test.mjs` | `scripts/package-dist.mjs` | `package-dist` |
+| `tests/unit/snapcraft-manifest-967.test.mjs` | — | — |
+| `tests/unit/soak-test-955.test.mjs` | — | — |
+| `tests/unit/soundboard-mixer-1012b.test.mjs` | — | — |
+| `tests/unit/soundboard-picker-contract.test.mjs` | `rust/gui-spike/ui/features/soundboard-picker.js` | `soundboard-picker` |
+| `tests/unit/soundboard-protocol-1012a.test.mjs` | — | — |
+| `tests/unit/soundboard-sfx-1012.test.mjs` | — | — |
+| `tests/unit/soundboard-view-1012c.test.mjs` | — | — |
+| `tests/unit/source-path-migration.test.mjs` | `scripts/source-paths.mjs` | `canonicalRustSourcePath` |
+| `tests/unit/spatial-audio-filter-1017a.test.mjs` | — | — |
+| `tests/unit/spatial-audio-hrtf-986.test.mjs` | — | — |
+| `tests/unit/spatial-radar-1017b.test.mjs` | — | — |
+| `tests/unit/spellcheck-ffi-1006a.test.mjs` | — | — |
+| `tests/unit/spellchecker-native-1006.test.mjs` | — | — |
+| `tests/unit/spotify-mpris-1013a.test.mjs` | `rust/crates/chord-platform/src/spotify_mpris.rs` | `spotify_mpris` |
+| `tests/unit/spotify-mpris-presence-1013.test.mjs` | — | — |
+| `tests/unit/spotify-widget-1013b.test.mjs` | `rust/chord-gpui/src/profile/spotify_widget.rs` | `spotify_widget` |
+| `tests/unit/sqlite-encrypted-store-984.test.mjs` | — | — |
+| `tests/unit/sqlite-fts5-stress-973.test.mjs` | — | — |
+| `tests/unit/stage-channel.test.mjs` | — | — |
+| `tests/unit/stage-request-queue-contract.test.mjs` | `rust/gui-spike/ui/features/stage-request-queue.js` | `stage-request-queue` |
+| `tests/unit/stage10-bff6-dave-voice-ui.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveDaveE2eeIndicatorView` |
+| `tests/unit/static-fixture-server.test.mjs` | `tests/helpers/ui-fixture.mjs` | `startUiServer` |
+| `tests/unit/steam-deck-gamepad-1014.test.mjs` | — | — |
 | `tests/unit/store-metadata-r4-09.test.mjs` | `scripts/lint-store-metadata.mjs` | `store-metadata` |
-| `tests/unit/automation-zero-token-scripts.test.mjs` | `scripts/git-sync.mjs` | `git-sync` |
+| `tests/unit/stream_broadcaster_handshake_and_source.test.mjs` | — | — |
+| `tests/unit/stream_broadcaster_watch_isolation.test.mjs` | — | — |
+| `tests/unit/stream_restart_lifecycle.test.mjs` | — | — |
+| `tests/unit/stream_viewer_close_and_source_switch.test.mjs` | — | — |
+| `tests/unit/stream-pip-minimize-channel-switch-task806.test.mjs` | — | — |
+| `tests/unit/stream-regression-task779.test.mjs` | — | — |
+| `tests/unit/stream-signaling-parity.test.mjs` | — | — |
+| `tests/unit/stream-stage-viewer-overlay-task805.test.mjs` | — | — |
+| `tests/unit/stream-viewer-ui.test.mjs` | — | — |
+| `tests/unit/stream-viewer.test.mjs` | — | — |
+| `tests/unit/svg-icons.test.mjs` | — | — |
+| `tests/unit/system-requirements-953.test.mjs` | — | — |
+| `tests/unit/task-800-av1-negotiation.test.mjs` | — | — |
+| `tests/unit/task-801-nvenc-hw-encoder.test.mjs` | — | — |
+| `tests/unit/task-802-vp8-vp9-transport-options.test.mjs` | — | — |
+| `tests/unit/task-807-poll-audio-device-levels.test.mjs` | — | — |
+| `tests/unit/task-817-captcha-webview.test.mjs` | — | — |
+| `tests/unit/test-impact.test.mjs` | `scripts/test-impact.mjs` | `planFor`, `docs-sync`, `--full` |
+| `tests/unit/thread-badge-contract.test.mjs` | `rust/gui-spike/ui/features/thread-badge.js` | `thread-badge` |
+| `tests/unit/thread-sidebar-1002b.test.mjs` | — | — |
+| `tests/unit/threads-drawer.test.mjs` | — | — |
+| `tests/unit/threads-lifecycle-1002.test.mjs` | — | — |
+| `tests/unit/threads-lifecycle-1002a.test.mjs` | — | — |
+| `tests/unit/token-map.test.mjs` | — | — |
+| `tests/unit/tokio-tungstenite-tls-stage-05-1-1.test.mjs` | `rust/crates/chord-core/src/ws_transport.rs` | `WS_TRANSPORT_RS` |
+| `tests/unit/tooltip.test.mjs` | — | — |
+| `tests/unit/totp-sessions-1009.test.mjs` | — | — |
+| `tests/unit/totp-view-1009a.test.mjs` | `rust/crates/chord-core/src/totp_view.rs` | `TotpDialog` |
+| `tests/unit/typed-ipc-bridge.test.mjs` | `rust/gui-spike/ui/features/auto-ipc-bridge.js` | `invoke` |
+| `tests/unit/typed-pins-commands-contract.test.mjs` | `rust/gui-spike/ui/bindings.js` | `createTypedCommands` |
+| `tests/unit/typing-indicator.test.mjs` | — | — |
+| `tests/unit/typing-ui.test.mjs` | — | `typing-indicator`, `send_typing`, `TYPING_RESEND_MS` |
+| `tests/unit/ui-fixture-cleanup-regression.test.mjs` | `tests/helpers/ui-fixture.mjs` | `cleanupUiFixture` |
+| `tests/unit/unread-bar.test.mjs` | — | — |
+| `tests/unit/update-checker-965.test.mjs` | — | — |
+| `tests/unit/user-popout.test.mjs` | — | — |
+| `tests/unit/virtual-list-contract.test.mjs` | `rust/gui-spike/ui/features/virtual-list.js` | `virtual-list` |
+| `tests/unit/virtualizer-contract.test.mjs` | `rust/gui-spike/ui/features/virtualizer.js` | `virtualizer` |
+| `tests/unit/voice-afk-monitor-1010.test.mjs` | — | — |
+| `tests/unit/voice-call-orchestrator.test.mjs` | — | — |
+| `tests/unit/voice-call-phases-and-server-access.test.mjs` | — | — |
+| `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
+| `tests/unit/voice-connection-controller-contract.test.mjs` | `rust/gui-spike/ui/features/voice-connection-controller.js` | `voice-connection-controller` |
+| `tests/unit/voice-cpu-bench-974.test.mjs` | — | — |
+| `tests/unit/voice-devices-settings.test.mjs` | — | `createVoiceDevicesSettings`, `DeviceFallback`, `NoDeviceAvailable` |
+| `tests/unit/voice-diagnostics-contract.test.mjs` | `rust/gui-spike/ui/features/voice-diagnostics.js` | `voice-diagnostics` |
+| `tests/unit/voice-dm-call-stage-contract.test.mjs` | `rust/gui-spike/ui/features/voice-dm-call-stage.js` | `voice-dm-call-stage` |
+| `tests/unit/voice-grid.test.mjs` | — | — |
+| `tests/unit/voice-input-mode.test.mjs` | — | — |
+| `tests/unit/voice-invite-and-devices-contract.test.mjs` | `rust/gui-spike/ui/features/voice-invite-and-devices.js` | `voice-invite-and-devices` |
+| `tests/unit/voice-messages-waveform-1003.test.mjs` | — | — |
+| `tests/unit/voice-participant-menu-contract.test.mjs` | `rust/gui-spike/ui/features/voice-participant-menu.js` | `voice-participant-menu` |
+| `tests/unit/voice-player-1003b.test.mjs` | — | — |
+| `tests/unit/voice-popouts-controller-contract.test.mjs` | `rust/gui-spike/ui/features/voice-popouts-controller.js` | `voice-popouts-controller` |
+| `tests/unit/voice-quality.test.mjs` | — | — |
+| `tests/unit/voice-recorder-1003a.test.mjs` | — | — |
+| `tests/unit/voice-rnnoise-983.test.mjs` | — | — |
+| `tests/unit/voice-sound-effects-contract.test.mjs` | `rust/gui-spike/ui/features/voice-sound-effects.js` | `voice-sound-effects` |
+| `tests/unit/voice-stage-preview.test.mjs` | — | — |
+| `tests/unit/voice-stage-renderer-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stage-renderer.js` | `voice-stage-renderer` |
+| `tests/unit/voice-stage-ui.test.mjs` | — | — |
+| `tests/unit/voice-stage-viewer-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stage-viewer.js` | `voice-stage-viewer` |
+| `tests/unit/voice-stage-viewer-controls-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stage-viewer-controls.js` | `voice-stage-viewer-controls` |
+| `tests/unit/voice-state-merge-anti-flicker.test.mjs` | — | — |
+| `tests/unit/voice-state-sync-contract.test.mjs` | `rust/gui-spike/ui/features/voice-state-sync.js` | `voice-state-sync` |
+| `tests/unit/voice-stream-codes-2000-2018.test.mjs` | — | — |
+| `tests/unit/voice-stream-controller-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stream-controller.js` | `voice-stream-controller` |
+| `tests/unit/voice-stream-menus-contract.test.mjs` | `rust/gui-spike/ui/features/voice-stream-menus.js` | `voice-stream-menus` |
+| `tests/unit/voice-ui.test.mjs` | — | `voice-panel`, `voice-spec`, `data-state` |
+| `tests/unit/voice-volume.test.mjs` | — | — |
+| `tests/unit/w7-invite-pool-and-rtc-status-bar.test.mjs` | — | — |
+| `tests/unit/walk-log.test.mjs` | `src/core/ui/walk-log.mjs` | `parseVisited`, `buildWalkRecord`, `consoleIssues`, `shouldBail`, `pickNextItem` |
+| `tests/unit/walk.test.mjs` | `src/core/ui/engine.mjs`, `src/core/ui/adapters.mjs` | `runWalk`, `resolveAdapter`, `clickNavItemExpression` |
+| `tests/unit/wan-network-profiles-978.test.mjs` | — | — |
+| `tests/unit/wayland-fractional-scale-977.test.mjs` | — | — |
+| `tests/unit/webhooks-editor-contract.test.mjs` | `rust/gui-spike/ui/features/webhooks-editor.js` | `webhooks-editor` |
+| `tests/unit/webrtc-bwe-congestion-982.test.mjs` | — | — |
+| `tests/unit/zlib-stream-stage-05-1-2.test.mjs` | `rust/crates/chord-codec/src/zlib.rs` | `ZLIB_RS` |
 
 ## 9. Risks and Limitations
 

@@ -315,6 +315,91 @@ export function recordRecentEmoji(recentList, emojiItem) {
  * @param {any} containerEl
  * @returns {{ createElement: (tag: string) => any }}
  */
+/**
+ * @typedef {object} ReactionCountEntry
+ * @property {string} emoji
+ * @property {number} count
+ * @property {boolean} [me]
+ */
+
+/**
+ * Неизменяемо увеличивает счётчик реакции (или добавляет новую с count = 1, me = true).
+ *
+ * @param {ReadonlyArray<ReactionCountEntry>} reactions
+ * @param {string} emojiKey
+ * @returns {ReactionCountEntry[]}
+ */
+export function incrementReactionCount(reactions, emojiKey) {
+  const list = Array.isArray(reactions) ? reactions : [];
+  const key = typeof emojiKey === "string" ? emojiKey.trim() : "";
+  if (!key) return list.map((item) => ({ ...item }));
+
+  let found = false;
+  const next = list.map((item) => {
+    if (item && item.emoji === key) {
+      found = true;
+      const current = Number.isFinite(item.count) ? Math.max(0, item.count) : 0;
+      return { ...item, count: current + 1, me: true };
+    }
+    return { ...item };
+  });
+
+  if (!found) {
+    next.push({ emoji: key, count: 1, me: true });
+  }
+  return next;
+}
+
+/**
+ * Неизменяемо уменьшает счётчик реакции (удаляет запись при достижении 0).
+ *
+ * @param {ReadonlyArray<ReactionCountEntry>} reactions
+ * @param {string} emojiKey
+ * @returns {ReactionCountEntry[]}
+ */
+export function decrementReactionCount(reactions, emojiKey) {
+  const list = Array.isArray(reactions) ? reactions : [];
+  const key = typeof emojiKey === "string" ? emojiKey.trim() : "";
+  if (!key) return list.map((item) => ({ ...item }));
+
+  /** @type {ReactionCountEntry[]} */
+  const next = [];
+  for (const item of list) {
+    if (item && item.emoji === key) {
+      const current = Number.isFinite(item.count) ? Math.max(0, item.count) : 0;
+      const updatedCount = Math.max(0, current - 1);
+      if (updatedCount > 0) {
+        next.push({ ...item, count: updatedCount, me: false });
+      }
+    } else if (item) {
+      next.push({ ...item });
+    }
+  }
+  return next;
+}
+
+/**
+ * Переключает реакцию текущего пользователя: уменьшает, если me === true, иначе увеличивает.
+ *
+ * @param {ReadonlyArray<ReactionCountEntry>} reactions
+ * @param {string} emojiKey
+ * @returns {ReactionCountEntry[]}
+ */
+export function toggleReactionCount(reactions, emojiKey) {
+  const list = Array.isArray(reactions) ? reactions : [];
+  const key = typeof emojiKey === "string" ? emojiKey.trim() : "";
+  if (!key) return list.map((item) => ({ ...item }));
+
+  const existing = list.find((item) => item && item.emoji === key);
+  if (existing && existing.me === true) {
+    return decrementReactionCount(list, key);
+  }
+  return incrementReactionCount(list, key);
+}
+
+/**
+ * @param {any} [containerEl]
+ */
 function resolveDocument(containerEl) {
   if (
     containerEl &&
