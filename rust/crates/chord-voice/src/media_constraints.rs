@@ -24,34 +24,24 @@ use crate::devices::{AudioDevice, AudioDeviceKind};
 
 /// Canonical audio channel count for WebRTC Opus voice and screen-share streaming (`2` stereo).
 pub const DEFAULT_AUDIO_CHANNELS: u16 = 2;
-
 /// Canonical audio sample rate for WebRTC Opus voice and screen-share streaming (`48_000` Hz).
 pub const DEFAULT_AUDIO_SAMPLE_RATE_HZ: u32 = 48_000;
-
 /// Default virtual audio device identifier registered by the Linux PipeWire loopback service (`R5-01`).
 pub const DEFAULT_VIRTUAL_AUDIO_DEVICE_ID: &str = "chord-screen-share-audio";
-
 /// Default virtual audio device identifier registered by the Windows WASAPI loopback service (`R5-07`).
 pub const DEFAULT_WASAPI_VIRTUAL_AUDIO_DEVICE_ID: &str = "chord-wasapi-loopback-audio";
-
 /// Minimum permitted video encoding width in pixels (`160` px).
 pub const MIN_VIDEO_WIDTH: u32 = 160;
-
 /// Minimum permitted video encoding height in pixels (`90` px).
 pub const MIN_VIDEO_HEIGHT: u32 = 90;
-
 /// Maximum permitted video encoding width in pixels (`3840` px, 4K UHD).
 pub const MAX_VIDEO_WIDTH: u32 = 3840;
-
 /// Maximum permitted video encoding height in pixels (`2160` px, 4K UHD).
 pub const MAX_VIDEO_HEIGHT: u32 = 2160;
-
 /// Minimum permitted video streaming frame rate (`1` FPS).
 pub const MIN_STREAM_FPS: u32 = 1;
-
 /// Maximum permitted video streaming frame rate (`120` FPS).
 pub const MAX_STREAM_FPS: u32 = 120;
-
 /// Discord Voice Gateway OP 5 `SPEAKING` bitflag for desktop soundshare (`1 << 1 = 2`).
 pub const SOUNDSHARE_SPEAKING_BIT: u8 = 2;
 
@@ -67,7 +57,6 @@ pub enum VirtualAudioSourceKind {
 }
 
 impl VirtualAudioSourceKind {
-    /// Returns the canonical backend identifier string.
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
@@ -80,21 +69,14 @@ impl VirtualAudioSourceKind {
 
 /// Descriptor for a virtual audio track injected into a screen-share MediaStream (`R5-08`).
 ///
-/// The `Debug` implementation redacts the human-readable `label` field to prevent leaking
-/// host audio topology strings into diagnostic logs (`AGENTS.md` §6 / `G5-VOICE-PLAN.md` §7.4).
+/// `Debug` redacts the human-readable `label` field (`<redacted>`) per `G5-VOICE-PLAN.md` §7.4.
 #[derive(Clone, PartialEq, Eq)]
 pub struct VirtualAudioTrackDescriptor {
-    /// Unique logical track identifier within the media session.
     pub track_id: String,
-    /// Virtual device identifier matched via `deviceId: { exact: "<device_id>" }`.
     pub device_id: String,
-    /// Human-readable device label (redacted in `Debug`).
     pub label: String,
-    /// Platform loopback backend providing PCM frames.
     pub source_kind: VirtualAudioSourceKind,
-    /// Negotiated channel count (must be `2` stereo for WebRTC desktop audio).
     pub channels: u16,
-    /// Negotiated sample rate in Hz (must be `48_000` Hz for WebRTC Opus).
     pub sample_rate_hz: u32,
 }
 
@@ -112,7 +94,7 @@ impl fmt::Debug for VirtualAudioTrackDescriptor {
 }
 
 impl VirtualAudioTrackDescriptor {
-    /// Creates the canonical Linux PipeWire virtual audio track descriptor (`48 kHz`, `2` channels).
+    /// Canonical Linux PipeWire virtual audio track descriptor (`48 kHz`, `2` channels).
     #[must_use]
     pub fn new_pipewire_default() -> Self {
         Self {
@@ -125,7 +107,7 @@ impl VirtualAudioTrackDescriptor {
         }
     }
 
-    /// Creates the canonical Windows WASAPI virtual audio track descriptor (`48 kHz`, `2` channels).
+    /// Canonical Windows WASAPI virtual audio track descriptor (`48 kHz`, `2` channels).
     #[must_use]
     pub fn new_wasapi_default() -> Self {
         Self {
@@ -159,7 +141,6 @@ impl VirtualAudioTrackDescriptor {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeviceIdMatchConstraint {
     /// Strict exact device binding (`deviceId: { exact: "<id>" }`).
-    /// Prevents Chromium/WebRTC from silently switching to a newly plugged headset or default device.
     Exact(String),
     /// Preferred device with fallback to an active device when the preferred device is unplugged.
     ExactWithFallback {
@@ -169,7 +150,6 @@ pub enum DeviceIdMatchConstraint {
 }
 
 impl DeviceIdMatchConstraint {
-    /// Returns the currently active device ID bound to the audio track.
     #[must_use]
     pub fn effective_id(&self) -> &str {
         match self {
@@ -181,7 +161,6 @@ impl DeviceIdMatchConstraint {
         }
     }
 
-    /// Returns the user's originally requested exact device ID.
     #[must_use]
     pub fn preferred_exact_id(&self) -> &str {
         match self {
@@ -200,29 +179,20 @@ pub enum AgcMode {
     AdaptiveDigital,
     /// Fixed Digital Gain without dynamic level pumping (for studio USB interfaces with hardware gain).
     FixedDigital,
-    /// Complete DSP bypass (`autoGainControl: false`, `echoCancellation: false`, `noiseSuppression: false`)
-    /// mandatory for virtual desktop/game audio tracks in screen sharing.
+    /// Complete DSP bypass (`autoGainControl: false`, `echoCancellation: false`, `noiseSuppression: false`).
     BypassedForStream,
 }
 
 /// AGC and voice DSP constraint policy applied to an audio track (`R5-08`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AgcPolicyConfig {
-    /// Selected AGC operating mode.
     pub mode: AgcMode,
-    /// WebRTC `autoGainControl` / `googAutoGainControl` constraint flag.
     pub auto_gain_control: bool,
-    /// WebRTC `echoCancellation` constraint flag.
     pub echo_cancellation: bool,
-    /// WebRTC `noiseSuppression` constraint flag.
     pub noise_suppression: bool,
-    /// WebRTC `typingNoiseDetection` constraint flag.
     pub typing_noise_detection: bool,
-    /// Target peak output level below full-scale in dBFS (e.g. `-3` dBFS for voice, `0` dBFS for stream).
     pub target_level_dbfs: i8,
-    /// Maximum dynamic compression gain in dB (e.g. `9` dB for adaptive voice, `0` dB for stream).
     pub compression_gain_db: u8,
-    /// Whether the brickwall peak limiter is enabled.
     pub limiter_enabled: bool,
 }
 
@@ -242,7 +212,7 @@ impl AgcPolicyConfig {
         }
     }
 
-    /// Fixed Digital policy for users with external audio interfaces who disable automatic gain (`D-04`).
+    /// Fixed Digital policy for external audio interfaces with manual hardware gain (`D-04`).
     #[must_use]
     pub const fn voice_fixed_manual() -> Self {
         Self {
@@ -257,8 +227,7 @@ impl AgcPolicyConfig {
         }
     }
 
-    /// Studio passthrough policy for virtual screen-share audio (`screenShareFixes.ts` / `fixStreamConstraints.ts`):
-    /// disables AGC, AEC, NS, and typing detection so music and game audio preserve full stereo fidelity.
+    /// Studio passthrough policy for virtual screen-share audio (`screenShareFixes.ts` / `fixStreamConstraints.ts`).
     #[must_use]
     pub const fn screen_share_passthrough() -> Self {
         Self {
@@ -277,39 +246,28 @@ impl AgcPolicyConfig {
 /// Functional role of a negotiated audio track.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AudioTrackRole {
-    /// Primary voice chat microphone input.
     VoiceMicrophone,
-    /// Injected virtual system/application audio track for screen sharing (`Go Live`).
     ScreenShareSystemAudio,
 }
 
 /// Negotiated constraint specification for an active audio track (`R5-08`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AudioTrackConstraint {
-    /// Role of this audio track (voice mic vs screen-share system audio).
     pub role: AudioTrackRole,
-    /// Exact `deviceId` match binding (or fallback binding after physical unplug).
     pub device_id_constraint: DeviceIdMatchConstraint,
-    /// Whether this track was injected from a virtual loopback source (`PipeWire` / `WASAPI`).
     pub is_virtual_injected: bool,
-    /// Negotiated channel count (`1` or `2`).
     pub channels: u16,
-    /// Negotiated sample rate (`48_000` Hz).
     pub sample_rate_hz: u32,
-    /// Negotiated AGC and voice processing policy.
     pub agc_policy: AgcPolicyConfig,
-    /// Monotonic generation counter that increments only if the underlying track is rebound.
     pub track_generation: u64,
 }
 
 impl AudioTrackConstraint {
-    /// Returns the currently active device ID bound to the track.
     #[must_use]
     pub fn effective_device_id(&self) -> &str {
         self.device_id_constraint.effective_id()
     }
 
-    /// Returns the user's preferred exact device ID.
     #[must_use]
     pub fn preferred_exact_device_id(&self) -> &str {
         self.device_id_constraint.preferred_exact_id()
@@ -319,20 +277,14 @@ impl AudioTrackConstraint {
 /// Canonical screen-share and video resolution presets (`480p`..`2160p`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ResolutionPreset {
-    /// 480p SD (`854×480`, 16:9 even-aligned).
     P480,
-    /// 720p HD (`1280×720`, 16:9).
     P720,
-    /// 1080p Full HD (`1920×1080`, 16:9).
     P1080,
-    /// 1440p QHD (`2560×1440`, 16:9).
     P1440,
-    /// 2160p 4K UHD (`3840×2160`, 16:9).
     P2160,
 }
 
 impl ResolutionPreset {
-    /// All canonical resolution presets in ascending order.
     pub const ALL: [Self; 5] = [
         Self::P480,
         Self::P720,
@@ -341,7 +293,6 @@ impl ResolutionPreset {
         Self::P2160,
     ];
 
-    /// Returns the exact `(width, height)` pixel dimensions for this preset.
     #[must_use]
     pub const fn dimensions(self) -> (u32, u32) {
         match self {
@@ -357,30 +308,19 @@ impl ResolutionPreset {
 /// Strict resolution and frame-rate bounding box enforced on the video encoder (`R5-08`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ResolutionBounds {
-    /// Minimum allowed frame width (`>= MIN_VIDEO_WIDTH`).
     pub min_width: u32,
-    /// Minimum allowed frame height (`>= MIN_VIDEO_HEIGHT`).
     pub min_height: u32,
-    /// Target / ideal frame width.
     pub target_width: u32,
-    /// Target / ideal frame height.
     pub target_height: u32,
-    /// Maximum allowed frame width (`<= MAX_VIDEO_WIDTH`).
     pub max_width: u32,
-    /// Maximum allowed frame height (`<= MAX_VIDEO_HEIGHT`).
     pub max_height: u32,
-    /// Minimum frame rate (`>= MIN_STREAM_FPS`).
     pub min_fps: u32,
-    /// Target / ideal frame rate.
     pub target_fps: u32,
-    /// Maximum allowed frame rate (`<= MAX_STREAM_FPS`).
     pub max_fps: u32,
-    /// When `true`, locks `min == target == max` so any input frame is scaled to exact target bounds.
     pub strict_lock: bool,
 }
 
 impl ResolutionBounds {
-    /// Constructs resolution bounds for a canonical [`ResolutionPreset`] and `max_fps`.
     #[must_use]
     pub const fn from_preset(preset: ResolutionPreset, max_fps: u32) -> Self {
         let (w, h) = preset.dimensions();
@@ -399,7 +339,6 @@ impl ResolutionBounds {
         }
     }
 
-    /// Constructs strictly locked resolution bounds (`min == target == max`).
     #[must_use]
     pub const fn strict_fixed(width: u32, height: u32, fps: u32) -> Self {
         Self {
@@ -418,6 +357,12 @@ impl ResolutionBounds {
 
     /// Validates all width, height, parity (even YUV420 alignment), and FPS invariants.
     pub fn validate(&self) -> Result<(), MediaConstraintError> {
+        self.validate_dimensions()?;
+        self.validate_ordering()?;
+        self.validate_fps()
+    }
+
+    fn validate_dimensions(&self) -> Result<(), MediaConstraintError> {
         for &(w, h) in &[
             (self.min_width, self.min_height),
             (self.target_width, self.target_height),
@@ -442,7 +387,10 @@ impl ResolutionBounds {
                 });
             }
         }
+        Ok(())
+    }
 
+    fn validate_ordering(&self) -> Result<(), MediaConstraintError> {
         if self.min_width > self.max_width
             || self.min_height > self.max_height
             || self.target_width < self.min_width
@@ -457,7 +405,10 @@ impl ResolutionBounds {
                 max_height: self.max_height,
             });
         }
+        Ok(())
+    }
 
+    fn validate_fps(&self) -> Result<(), MediaConstraintError> {
         for &fps in &[self.min_fps, self.target_fps, self.max_fps] {
             if !(MIN_STREAM_FPS..=MAX_STREAM_FPS).contains(&fps) {
                 return Err(MediaConstraintError::FpsOutOfRange {
@@ -474,7 +425,6 @@ impl ResolutionBounds {
                 max_fps: self.max_fps,
             });
         }
-
         Ok(())
     }
 }
@@ -482,29 +432,22 @@ impl ResolutionBounds {
 /// Negotiated video resolution constraint applied to the video capture and encoder pipeline (`R5-08`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VideoResolutionConstraint {
-    /// Validated resolution and frame-rate bounds.
     pub bounds: ResolutionBounds,
 }
 
 /// Input frame metadata submitted to the video encoder bounds enforcer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VideoEncoderFrameInput {
-    /// Captured source width in pixels.
     pub width: u32,
-    /// Captured source height in pixels.
     pub height: u32,
-    /// Captured source frame rate.
     pub fps: u32,
-    /// Monotonic capture timestamp in microseconds.
     pub timestamp_us: u64,
 }
 
 /// Decision produced by [`MediaConstraintsEngine::enforce_video_encoder_bounds`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EncoderFrameDecision {
-    /// Source frame already lies within the selected resolution and FPS bounds.
     PassThrough { width: u32, height: u32, fps: u32 },
-    /// Source frame exceeded (or under-ran strict-lock) bounds and was clamped/scaled to adhere strictly.
     ScaledToBounds {
         original_width: u32,
         original_height: u32,
@@ -517,14 +460,11 @@ pub enum EncoderFrameDecision {
 /// Combined negotiated audio and video constraints for an active screen-share stream (`R5-08`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NegotiatedStreamConstraints {
-    /// Optional injected virtual audio track constraint (`None` for video-only stream).
     pub audio: Option<AudioTrackConstraint>,
-    /// Strict video encoder resolution and frame-rate constraint.
     pub video: VideoResolutionConstraint,
 }
 
 impl NegotiatedStreamConstraints {
-    /// Returns the Discord Voice Gateway OP 5 `SPEAKING` bitmask (`2` for `SOUNDSHARE` when audio is attached, `0` otherwise).
     #[must_use]
     pub const fn speaking_flags(&self) -> u8 {
         if self.audio.is_some() {
@@ -534,8 +474,6 @@ impl NegotiatedStreamConstraints {
         }
     }
 
-    /// Serializes the negotiated constraints into the canonical WebRTC MediaTrackConstraints JSON structure
-    /// (`fixStreamConstraints.ts` / `screenShareFixes.ts` wire contract).
     #[must_use]
     pub fn to_webrtc_constraints_json(&self) -> String {
         let b = &self.video.bounds;
@@ -570,68 +508,46 @@ impl NegotiatedStreamConstraints {
 /// Lifecycle state of the [`MediaConstraintsEngine`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MediaConstraintsLifecycleState {
-    /// Initial state before constraint negotiation.
     Idle,
-    /// Constraints actively negotiated and enforced on voice/video tracks.
     Active,
-    /// Stream and constraint enforcement stopped.
     Stopped,
 }
 
 /// Outcome report after handling an OS audio device topology change (`hot-plug` / `unplug`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DeviceTopologyStabilityReport {
-    /// `true` if the active voice microphone track remained bound to its exact device without interruption.
     pub voice_track_unchanged: bool,
-    /// `true` if the injected virtual screen-share audio track remained 100% stable and uninterrupted.
     pub virtual_stream_track_unchanged: bool,
-    /// If the pinned physical voice mic was unplugged, holds the fallback device ID selected.
     pub voice_fallback_device_id: Option<String>,
-    /// `true` if a previously unplugged preferred exact voice mic was plugged back in and automatically restored.
     pub voice_restored_preferred_exact: bool,
 }
 
 /// Observable telemetry counters for the [`MediaConstraintsEngine`] (`TEST-POLICY.md` §12 dim 9).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct MediaConstraintsTelemetry {
-    /// Total number of successful voice or stream constraint negotiations.
     pub negotiations_total: u64,
-    /// Number of virtual audio tracks injected into screen-share streams.
     pub virtual_tracks_injected: u64,
-    /// Number of exact `deviceId` constraint bindings established.
     pub exact_device_matches: u64,
-    /// Number of audio tracks configured with AGC/AEC/NS bypass (`BypassedForStream`).
     pub agc_bypassed_tracks: u64,
-    /// Number of video frames that passed encoder bounds checks without scaling.
     pub frames_passed_within_bounds: u64,
-    /// Number of video frames scaled/clamped to adhere strictly to selected resolution bounds.
     pub frames_clamped_to_bounds: u64,
-    /// Number of corrupt/zero-dimension video frames rejected before encoding.
     pub frames_dropped_out_of_bounds: u64,
-    /// Number of OS audio device hot-plug / topology change events processed.
     pub device_change_events_handled: u64,
-    /// Number of topology change events where active tracks remained completely uninterrupted.
     pub track_stability_preserved_count: u64,
 }
 
 /// Errors returned by the [`MediaConstraintsEngine`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MediaConstraintError {
-    /// Provided `deviceId` or track identifier was empty.
     EmptyDeviceId,
-    /// No audio input devices are registered in the engine.
     NoInputDevicesAvailable,
-    /// Requested exact `deviceId` does not exist in the current input device list.
     ExactDeviceNotFound { device_id: String },
-    /// Requested `deviceId` belongs to an output device instead of an input device.
     WrongDeviceKind {
         device_id: String,
         expected: AudioDeviceKind,
         actual: AudioDeviceKind,
     },
-    /// Virtual audio track sample rate or channel count violates the 48 kHz stereo WebRTC contract.
     UnsupportedAudioFormat { channels: u16, sample_rate_hz: u32 },
-    /// Video resolution width or height lies outside `[160x90..=3840x2160]`.
     ResolutionOutOfRange {
         width: u32,
         height: u32,
@@ -640,34 +556,27 @@ pub enum MediaConstraintError {
         max_width: u32,
         max_height: u32,
     },
-    /// Video resolution min bounds exceed max bounds or target lies outside `[min..=max]`.
     InvertedResolutionBounds {
         min_width: u32,
         min_height: u32,
         max_width: u32,
         max_height: u32,
     },
-    /// Video width or height is odd (violates YUV420 2x2 chroma subsampling alignment).
     OddResolutionDimension { width: u32, height: u32 },
-    /// Video frame rate lies outside `[1..=120]` FPS.
     FpsOutOfRange {
         fps: u32,
         min_fps: u32,
         max_fps: u32,
     },
-    /// Input video frame has zero width, zero height, or zero FPS.
     InvalidFrameDimensions { width: u32, height: u32 },
-    /// Attempted to enforce or renegotiate bounds when the engine is not in the `Active` state.
     EngineNotActive,
 }
 
-impl fmt::Display for MediaConstraintError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl MediaConstraintError {
+    fn write_msg(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::EmptyDeviceId => f.write_str("media constraint deviceId must not be empty"),
-            Self::NoInputDevicesAvailable => {
-                f.write_str("no audio input devices available for constraint negotiation")
-            }
+            Self::NoInputDevicesAvailable => f.write_str("no audio input devices available"),
             Self::ExactDeviceNotFound { device_id } => {
                 write!(f, "exact audio input device '{device_id}' not found")
             }
@@ -675,56 +584,37 @@ impl fmt::Display for MediaConstraintError {
                 device_id,
                 expected,
                 actual,
-            } => write!(
-                f,
-                "audio device '{device_id}' has kind {actual:?}, expected {expected:?}"
-            ),
+            } => write!(f, "device '{device_id}' kind {actual:?} != {expected:?}"),
             Self::UnsupportedAudioFormat {
                 channels,
                 sample_rate_hz,
-            } => write!(
-                f,
-                "unsupported virtual audio format: {channels}ch @ {sample_rate_hz} Hz (expected 2ch @ 48000 Hz)"
-            ),
-            Self::ResolutionOutOfRange {
-                width,
-                height,
-                min_width,
-                min_height,
-                max_width,
-                max_height,
-            } => write!(
-                f,
-                "resolution {width}x{height} out of allowed bounds [{min_width}x{min_height}..={max_width}x{max_height}]"
-            ),
+            } => write!(f, "unsupported format: {channels}ch @ {sample_rate_hz} Hz"),
+            Self::ResolutionOutOfRange { width, height, .. } => {
+                write!(f, "resolution {width}x{height} out of allowed bounds")
+            }
             Self::InvertedResolutionBounds {
                 min_width,
                 min_height,
                 max_width,
                 max_height,
-            } => write!(
-                f,
-                "inverted resolution bounds: min {min_width}x{min_height} exceeds max {max_width}x{max_height}"
-            ),
-            Self::OddResolutionDimension { width, height } => write!(
-                f,
-                "video resolution {width}x{height} must have even dimensions for YUV420 encoding"
-            ),
-            Self::FpsOutOfRange {
-                fps,
-                min_fps,
-                max_fps,
-            } => write!(
-                f,
-                "frame rate {fps} FPS out of allowed bounds [{min_fps}..={max_fps}]"
-            ),
+            } => write!(f, "inverted bounds: {min_width}x{min_height} > {max_width}x{max_height}"),
+            Self::OddResolutionDimension { width, height } => {
+                write!(f, "odd resolution {width}x{height} invalid for YUV420")
+            }
+            Self::FpsOutOfRange { fps, min_fps, max_fps } => {
+                write!(f, "fps {fps} outside [{min_fps}..={max_fps}]")
+            }
             Self::InvalidFrameDimensions { width, height } => {
-                write!(f, "invalid video encoder input frame dimensions {width}x{height}")
+                write!(f, "invalid frame dimensions {width}x{height}")
             }
-            Self::EngineNotActive => {
-                f.write_str("media constraints engine has no active negotiated stream")
-            }
+            Self::EngineNotActive => f.write_str("media constraints engine is not active"),
         }
+    }
+}
+
+impl fmt::Display for MediaConstraintError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.write_msg(f)
     }
 }
 
@@ -750,7 +640,6 @@ impl Default for MediaConstraintsEngine {
 }
 
 impl MediaConstraintsEngine {
-    /// Creates a new [`MediaConstraintsEngine`] in [`MediaConstraintsLifecycleState::Idle`].
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -764,7 +653,6 @@ impl MediaConstraintsEngine {
         }
     }
 
-    /// Creates a new [`MediaConstraintsEngine`] pre-populated with known audio devices.
     #[must_use]
     pub fn with_devices(devices: Vec<AudioDevice>) -> Self {
         let mut engine = Self::new();
@@ -772,31 +660,26 @@ impl MediaConstraintsEngine {
         engine
     }
 
-    /// Returns the current engine lifecycle state.
     #[must_use]
     pub const fn lifecycle_state(&self) -> MediaConstraintsLifecycleState {
         self.lifecycle_state
     }
 
-    /// Returns the currently registered audio devices.
     #[must_use]
     pub fn available_devices(&self) -> &[AudioDevice] {
         &self.devices
     }
 
-    /// Returns the active voice microphone constraint, if negotiated.
     #[must_use]
     pub const fn active_voice_input_constraint(&self) -> Option<&AudioTrackConstraint> {
         self.active_voice_input.as_ref()
     }
 
-    /// Returns the active screen-share stream constraints, if negotiated.
     #[must_use]
     pub const fn active_stream_constraints(&self) -> Option<&NegotiatedStreamConstraints> {
         self.active_stream.as_ref()
     }
 
-    /// Returns the observable telemetry counters.
     #[must_use]
     pub const fn telemetry(&self) -> &MediaConstraintsTelemetry {
         &self.telemetry
@@ -808,52 +691,48 @@ impl MediaConstraintsEngine {
         exact_device_id: &str,
         agc_policy: AgcPolicyConfig,
     ) -> Result<AudioTrackConstraint, MediaConstraintError> {
-        let trimmed = exact_device_id.trim();
-        if trimmed.is_empty() {
-            return Err(MediaConstraintError::EmptyDeviceId);
-        }
-        if !self
-            .devices
-            .iter()
-            .any(|d| d.kind == AudioDeviceKind::Input)
-        {
-            return Err(MediaConstraintError::NoInputDevicesAvailable);
-        }
-
-        if let Some(device) = self.devices.iter().find(|d| d.id == trimmed) {
-            if device.kind != AudioDeviceKind::Input {
-                return Err(MediaConstraintError::WrongDeviceKind {
-                    device_id: trimmed.to_owned(),
-                    expected: AudioDeviceKind::Input,
-                    actual: device.kind,
-                });
-            }
-        } else {
-            return Err(MediaConstraintError::ExactDeviceNotFound {
-                device_id: trimmed.to_owned(),
-            });
-        }
-
+        let trimmed = self.verify_exact_input_device(exact_device_id)?;
         let generation = self.allocate_generation();
         let constraint = AudioTrackConstraint {
             role: AudioTrackRole::VoiceMicrophone,
-            device_id_constraint: DeviceIdMatchConstraint::Exact(trimmed.to_owned()),
+            device_id_constraint: DeviceIdMatchConstraint::Exact(trimmed),
             is_virtual_injected: false,
             channels: DEFAULT_AUDIO_CHANNELS,
             sample_rate_hz: DEFAULT_AUDIO_SAMPLE_RATE_HZ,
             agc_policy,
             track_generation: generation,
         };
-
         self.telemetry.negotiations_total = self.telemetry.negotiations_total.saturating_add(1);
         self.telemetry.exact_device_matches = self.telemetry.exact_device_matches.saturating_add(1);
         if !agc_policy.auto_gain_control {
             self.telemetry.agc_bypassed_tracks =
                 self.telemetry.agc_bypassed_tracks.saturating_add(1);
         }
-
         self.active_voice_input = Some(constraint.clone());
         Ok(constraint)
+    }
+
+    fn verify_exact_input_device(&self, raw_id: &str) -> Result<String, MediaConstraintError> {
+        let trimmed = raw_id.trim();
+        if trimmed.is_empty() {
+            return Err(MediaConstraintError::EmptyDeviceId);
+        }
+        if !self.devices.iter().any(|d| d.kind == AudioDeviceKind::Input) {
+            return Err(MediaConstraintError::NoInputDevicesAvailable);
+        }
+        let Some(device) = self.devices.iter().find(|d| d.id == trimmed) else {
+            return Err(MediaConstraintError::ExactDeviceNotFound {
+                device_id: trimmed.to_owned(),
+            });
+        };
+        if device.kind != AudioDeviceKind::Input {
+            return Err(MediaConstraintError::WrongDeviceKind {
+                device_id: trimmed.to_owned(),
+                expected: AudioDeviceKind::Input,
+                actual: device.kind,
+            });
+        }
+        Ok(trimmed.to_owned())
     }
 
     /// Negotiates custom screen-share constraints: optional virtual audio track injection
@@ -864,38 +743,24 @@ impl MediaConstraintsEngine {
         bounds: ResolutionBounds,
     ) -> Result<NegotiatedStreamConstraints, MediaConstraintError> {
         bounds.validate()?;
-
-        let audio_constraint = if let Some(vtrack) = virtual_audio {
-            vtrack.validate()?;
-            let generation = self.allocate_generation();
-            let constraint = Self::build_virtual_audio_constraint(&vtrack, generation);
-            self.ensure_virtual_device_registered(&vtrack);
-            self.injected_virtual_track = Some(vtrack);
-            self.telemetry.virtual_tracks_injected =
-                self.telemetry.virtual_tracks_injected.saturating_add(1);
-            self.telemetry.exact_device_matches =
-                self.telemetry.exact_device_matches.saturating_add(1);
-            self.telemetry.agc_bypassed_tracks =
-                self.telemetry.agc_bypassed_tracks.saturating_add(1);
-            Some(constraint)
-        } else {
-            self.injected_virtual_track = None;
-            None
+        let audio_constraint = match virtual_audio {
+            Some(vtrack) => Some(self.apply_virtual_audio_track(vtrack)?),
+            None => {
+                self.injected_virtual_track = None;
+                None
+            }
         };
-
         let negotiated = NegotiatedStreamConstraints {
             audio: audio_constraint,
             video: VideoResolutionConstraint { bounds },
         };
-
         self.lifecycle_state = MediaConstraintsLifecycleState::Active;
         self.active_stream = Some(negotiated.clone());
         self.telemetry.negotiations_total = self.telemetry.negotiations_total.saturating_add(1);
         Ok(negotiated)
     }
 
-    /// Dynamically injects or replaces a virtual audio track on an active screen-share stream
-    /// without interrupting the video encoder bounds.
+    /// Dynamically injects or replaces a virtual audio track on an active screen-share stream.
     pub fn inject_virtual_audio_track(
         &mut self,
         virtual_audio: VirtualAudioTrackDescriptor,
@@ -903,15 +768,22 @@ impl MediaConstraintsEngine {
         if self.lifecycle_state != MediaConstraintsLifecycleState::Active {
             return Err(MediaConstraintError::EngineNotActive);
         }
-        virtual_audio.validate()?;
-        let generation = self.allocate_generation();
-        let constraint = Self::build_virtual_audio_constraint(&virtual_audio, generation);
-        self.ensure_virtual_device_registered(&virtual_audio);
-        self.injected_virtual_track = Some(virtual_audio);
-
+        let constraint = self.apply_virtual_audio_track(virtual_audio)?;
         if let Some(stream) = self.active_stream.as_mut() {
             stream.audio = Some(constraint.clone());
         }
+        Ok(constraint)
+    }
+
+    fn apply_virtual_audio_track(
+        &mut self,
+        vtrack: VirtualAudioTrackDescriptor,
+    ) -> Result<AudioTrackConstraint, MediaConstraintError> {
+        vtrack.validate()?;
+        let generation = self.allocate_generation();
+        let constraint = Self::build_virtual_audio_constraint(&vtrack, generation);
+        self.ensure_virtual_device_registered(&vtrack);
+        self.injected_virtual_track = Some(vtrack);
         self.telemetry.virtual_tracks_injected =
             self.telemetry.virtual_tracks_injected.saturating_add(1);
         self.telemetry.exact_device_matches = self.telemetry.exact_device_matches.saturating_add(1);
@@ -919,8 +791,7 @@ impl MediaConstraintsEngine {
         Ok(constraint)
     }
 
-    /// Renegotiates the video encoder resolution bounds on an active stream while keeping
-    /// the injected virtual audio track intact and stable.
+    /// Renegotiates the video encoder resolution bounds on an active stream.
     pub fn renegotiate_video_bounds(
         &mut self,
         new_bounds: ResolutionBounds,
@@ -939,13 +810,6 @@ impl MediaConstraintsEngine {
     }
 
     /// Enforces the negotiated resolution and frame-rate bounds on an incoming video encoder frame.
-    ///
-    /// Guarantees that the video encoder strictly adheres to the selected resolution bounds:
-    /// - Rejects zero-width or zero-height frames;
-    /// - If `strict_lock` is enabled, scales any differing frame directly to `(target_width, target_height)`;
-    /// - If the frame exceeds `(max_width, max_height)` or falls below `(min_width, min_height)`,
-    ///   scales the frame proportionally while preserving aspect ratio and aligning dimensions
-    ///   to even numbers (`% 2 == 0`) for YUV420 planar encoding.
     pub fn enforce_video_encoder_bounds(
         &mut self,
         frame: VideoEncoderFrameInput,
@@ -963,21 +827,15 @@ impl MediaConstraintsEngine {
                 height: frame.height,
             });
         }
-
         let bounds = self
             .active_stream
             .as_ref()
             .ok_or(MediaConstraintError::EngineNotActive)?
             .video
             .bounds;
-
         let encoded_fps = frame.fps.clamp(bounds.min_fps, bounds.max_fps);
-        let (encoded_w, encoded_h) = Self::clamp_dimensions_to_bounds(
-            frame.width,
-            frame.height,
-            &bounds,
-        );
-
+        let (encoded_w, encoded_h) =
+            Self::clamp_dimensions_to_bounds(frame.width, frame.height, &bounds);
         if encoded_w == frame.width && encoded_h == frame.height && encoded_fps == frame.fps {
             self.telemetry.frames_passed_within_bounds =
                 self.telemetry.frames_passed_within_bounds.saturating_add(1);
@@ -1006,7 +864,6 @@ impl MediaConstraintsEngine {
         &mut self,
         mut new_devices: Vec<AudioDevice>,
     ) -> DeviceTopologyStabilityReport {
-        // Ensure any injected virtual audio device remains registered in the logical topology
         if let Some(vtrack) = &self.injected_virtual_track
             && !new_devices.iter().any(|d| d.id == vtrack.device_id)
         {
@@ -1022,83 +879,90 @@ impl MediaConstraintsEngine {
             .telemetry
             .device_change_events_handled
             .saturating_add(1);
-
-        let virtual_stream_track_unchanged = true;
-        let mut voice_track_unchanged = true;
-        let mut voice_fallback_device_id = None;
-        let mut voice_restored_preferred_exact = false;
-
-        let next_gen = self.next_generation;
-        if let Some(voice) = self.active_voice_input.as_mut() {
-            let preferred_id = voice.preferred_exact_device_id().to_owned();
-            let preferred_present = self
-                .devices
-                .iter()
-                .any(|d| d.kind == AudioDeviceKind::Input && d.id == preferred_id);
-
-            match &voice.device_id_constraint {
-                DeviceIdMatchConstraint::Exact(_) => {
-                    if !preferred_present {
-                        voice_track_unchanged = false;
-                        if let Some(fallback) = Self::find_fallback_input(&self.devices) {
-                            let fb_id = fallback.id.clone();
-                            voice.device_id_constraint =
-                                DeviceIdMatchConstraint::ExactWithFallback {
-                                    preferred_exact_id: preferred_id,
-                                    effective_active_id: fb_id.clone(),
-                                };
-                            voice.track_generation = next_gen;
-                            self.next_generation = next_gen.saturating_add(1);
-                            voice_fallback_device_id = Some(fb_id);
-                        }
-                    }
-                }
-                DeviceIdMatchConstraint::ExactWithFallback {
-                    effective_active_id,
-                    ..
-                } => {
-                    if preferred_present {
-                        voice_track_unchanged = false;
-                        voice_restored_preferred_exact = true;
-                        voice.device_id_constraint = DeviceIdMatchConstraint::Exact(preferred_id);
-                        voice.track_generation = next_gen;
-                        self.next_generation = next_gen.saturating_add(1);
-                    } else {
-                        let active_still_present = self.devices.iter().any(|d| {
-                            d.kind == AudioDeviceKind::Input && &d.id == effective_active_id
-                        });
-                        if !active_still_present
-                            && let Some(fallback) = Self::find_fallback_input(&self.devices)
-                        {
-                            voice_track_unchanged = false;
-                            let fb_id = fallback.id.clone();
-                            voice.device_id_constraint =
-                                DeviceIdMatchConstraint::ExactWithFallback {
-                                    preferred_exact_id: preferred_id,
-                                    effective_active_id: fb_id.clone(),
-                                };
-                            voice.track_generation = next_gen;
-                            self.next_generation = next_gen.saturating_add(1);
-                            voice_fallback_device_id = Some(fb_id);
-                        }
-                    }
-                }
-            }
-        }
-
-        if voice_track_unchanged && virtual_stream_track_unchanged {
+        let (voice_track_unchanged, voice_fallback_device_id, voice_restored_preferred_exact) =
+            self.reconcile_voice_input_on_topology_change();
+        if voice_track_unchanged {
             self.telemetry.track_stability_preserved_count = self
                 .telemetry
                 .track_stability_preserved_count
                 .saturating_add(1);
         }
-
         DeviceTopologyStabilityReport {
             voice_track_unchanged,
-            virtual_stream_track_unchanged,
+            virtual_stream_track_unchanged: true,
             voice_fallback_device_id,
             voice_restored_preferred_exact,
         }
+    }
+
+    fn reconcile_voice_input_on_topology_change(&mut self) -> (bool, Option<String>, bool) {
+        let next_gen = self.next_generation;
+        let Some(voice) = self.active_voice_input.as_mut() else {
+            return (true, None, false);
+        };
+        let preferred_id = voice.preferred_exact_device_id().to_owned();
+        let preferred_present = self
+            .devices
+            .iter()
+            .any(|d| d.kind == AudioDeviceKind::Input && d.id == preferred_id);
+        let fallback_id = Self::find_fallback_input(&self.devices).map(|d| d.id.clone());
+        match &voice.device_id_constraint {
+            DeviceIdMatchConstraint::Exact(_) if !preferred_present => {
+                if let Some(fb_id) = fallback_id {
+                    Self::bind_fallback_constraint(
+                        voice,
+                        preferred_id,
+                        fb_id.clone(),
+                        next_gen,
+                        &mut self.next_generation,
+                    );
+                    return (false, Some(fb_id), false);
+                }
+                (false, None, false)
+            }
+            DeviceIdMatchConstraint::ExactWithFallback {
+                effective_active_id,
+                ..
+            } => {
+                if preferred_present {
+                    voice.device_id_constraint = DeviceIdMatchConstraint::Exact(preferred_id);
+                    voice.track_generation = next_gen;
+                    self.next_generation = next_gen.saturating_add(1);
+                    return (false, None, true);
+                }
+                let active_present = self
+                    .devices
+                    .iter()
+                    .any(|d| d.kind == AudioDeviceKind::Input && &d.id == effective_active_id);
+                if !active_present && let Some(fb_id) = fallback_id {
+                    Self::bind_fallback_constraint(
+                        voice,
+                        preferred_id,
+                        fb_id.clone(),
+                        next_gen,
+                        &mut self.next_generation,
+                    );
+                    return (false, Some(fb_id), false);
+                }
+                (true, None, false)
+            }
+            _ => (true, None, false),
+        }
+    }
+
+    fn bind_fallback_constraint(
+        voice: &mut AudioTrackConstraint,
+        preferred_exact_id: String,
+        effective_active_id: String,
+        next_gen: u64,
+        gen_counter: &mut u64,
+    ) {
+        voice.device_id_constraint = DeviceIdMatchConstraint::ExactWithFallback {
+            preferred_exact_id,
+            effective_active_id,
+        };
+        voice.track_generation = next_gen;
+        *gen_counter = next_gen.saturating_add(1);
     }
 
     /// Stops active stream constraint enforcement and transitions to [`MediaConstraintsLifecycleState::Stopped`].
@@ -1155,37 +1019,24 @@ impl MediaConstraintsEngine {
         if bounds.strict_lock {
             return (bounds.target_width, bounds.target_height);
         }
-
-        let mut w = width;
-        let mut h = height;
-
-        // Downscale proportionally if either dimension exceeds max_width or max_height
+        let (mut w, mut h) = (width, height);
         if w > bounds.max_width || h > bounds.max_height {
-            let w_u64 = u64::from(w);
-            let h_u64 = u64::from(h);
-            let max_w = u64::from(bounds.max_width);
-            let max_h = u64::from(bounds.max_height);
-
-            if w_u64 * max_h >= h_u64 * max_w {
+            let (w64, h64) = (u64::from(w), u64::from(h));
+            let (mw64, mh64) = (u64::from(bounds.max_width), u64::from(bounds.max_height));
+            if w64 * mh64 >= h64 * mw64 {
                 w = bounds.max_width;
-                h = ((h_u64 * max_w) / w_u64) as u32;
+                h = ((h64 * mw64) / w64) as u32;
             } else {
                 h = bounds.max_height;
-                w = ((w_u64 * max_h) / h_u64) as u32;
+                w = ((w64 * mh64) / h64) as u32;
             }
         }
-
-        // Upscale if below minimum bounds
-        if w < bounds.min_width {
-            w = bounds.min_width;
-        }
-        if h < bounds.min_height {
-            h = bounds.min_height;
-        }
-
-        // Align down to even integers for YUV420 planar compatibility while respecting min bounds
-        let even_w = (w & !1).max(bounds.min_width).min(bounds.max_width);
-        let even_h = (h & !1).max(bounds.min_height).min(bounds.max_height);
+        let even_w = (w.max(bounds.min_width) & !1)
+            .max(bounds.min_width)
+            .min(bounds.max_width);
+        let even_h = (h.max(bounds.min_height) & !1)
+            .max(bounds.min_height)
+            .min(bounds.max_height);
         (even_w, even_h)
     }
 }

@@ -8,20 +8,13 @@
 //!   `1440p` = `3_686_400`, `4K Source` = `8_294_400`) and aspect-ratio-preserving even-dimension
 //!   YUV 4:2:0 scaling.
 //! - Connection adaptation via RTCP Receiver Reports (`fraction_lost / 256` congestion drop at
-//!   `>= 13/256` (~5%), recovery after `2_000 ms` holdoff at `<= 5/256` (~2%)), RTCP REMB
-//!   bandwidth estimates (`4/5` media headroom, `5_000 ms` TTL), `Voice Opcode 15 MediaSinkWants`
-//!   (`any` / per-SSRC quality `0..=100` and `pixelCounts`), and `ConnectionEventFramerateReducer`
-//!   (`15_000 ms` static screen idle framerate drop).
-//! - Vesktop `patchStreamQuality` policy (`PatchedUnrestricted` vs `FreeTierClamped` `720p@30 FPS`
-//!   at `2.5 Mbps`) and `handleGoLive` `Voice Opcode 12 (Video)` announcement builder.
+//!   `>= 13/256`, recovery after `2_000 ms` holdoff at `<= 5/256`), RTCP REMB bandwidth estimates
+//!   (`4/5` media headroom, `5_000 ms` TTL), `Voice Opcode 15 MediaSinkWants`, and
+//!   `ConnectionEventFramerateReducer` (`15_000 ms` static screen idle framerate drop).
+//! - Vesktop `patchStreamQuality` policy and `handleGoLive` `Voice Opcode 12 (Video)` builder.
 //!
-//! Clean-room references:
-//! - `docs/feature-backlog.md` row `R5-09`
-//! - `docs/re/voice-deep.md` (§1, §3: `updateVideoQuality: 1280x720@30, bitrate 2.5 Mbps (+-150k),
-//!   rid 100, ssrc 9209 (rtx 9210), remoteSinkWantsMaxFramerate 20`,
-//!   `ConnectionEventFramerateReducer: Reduced framerate after 15000 ms`,
-//!   `Remote media sink wants: {"any":100}`)
-//! - `Serein/crates/discord-voice/src/video.rs` (`Rate` loss/REMB congestion controller)
+//! Clean-room references: `docs/feature-backlog.md` (`R5-09`), `docs/re/voice-deep.md` (§1, §3),
+//! `Serein/crates/discord-voice/src/video.rs` (`Rate` controller).
 
 use std::fmt;
 
@@ -30,93 +23,58 @@ use crate::rtp::video::{VIDEO_CLOCK_RATE, video_ticks_for_fps};
 use crate::session::{MediaSinkWants, VoiceVideo, compute_stream_ssrcs};
 use serde::{Deserialize, Serialize};
 
-/// Minimum allowed video dimension (width or height) in pixels (`64`).
 pub const MIN_STREAM_DIMENSION: u32 = 64;
-/// Maximum allowed video dimension (width or height) in pixels (`3840`, 4K UHD).
 pub const MAX_STREAM_DIMENSION: u32 = 3840;
-/// Minimum allowed stream framerate (`1` FPS).
 pub const MIN_STREAM_FPS: u32 = 1;
-/// Maximum allowed Go Live stream framerate (`60` FPS).
 pub const MAX_STREAM_FPS: u32 = 60;
-/// Minimum allowed video bitrate in bits per second (`150 kbps`, `docs/re/voice-deep.md` §3).
 pub const MIN_STREAM_BITRATE_BPS: u32 = 150_000;
-/// Maximum allowed video bitrate in bits per second (`25 Mbps`).
 pub const MAX_STREAM_BITRATE_BPS: u32 = 25_000_000;
 
-/// Canonical target bitrate for `720p@30 FPS` (`2.5 Mbps`, `docs/re/voice-deep.md` §3).
 pub const DEFAULT_720P30_TARGET_BITRATE_BPS: u32 = 2_500_000;
-/// Canonical target bitrate for `720p@60 FPS` (`4.0 Mbps`).
 pub const DEFAULT_720P60_TARGET_BITRATE_BPS: u32 = 4_000_000;
 
-/// Unpatched free-tier maximum width (`1280`, `720p`).
 pub const FREE_TIER_MAX_WIDTH: u32 = 1280;
-/// Unpatched free-tier maximum height (`720`, `720p`).
 pub const FREE_TIER_MAX_HEIGHT: u32 = 720;
-/// Unpatched free-tier maximum framerate (`30` FPS).
 pub const FREE_TIER_MAX_FPS: u32 = 30;
-/// Unpatched free-tier maximum target bitrate (`2.5 Mbps`).
 pub const FREE_TIER_MAX_TARGET_BITRATE_BPS: u32 = 2_500_000;
-/// Unpatched free-tier maximum ceiling bitrate (`3.5 Mbps`).
 pub const FREE_TIER_MAX_CEILING_BITRATE_BPS: u32 = 3_500_000;
 
-/// Maximum pixel budget for `480p` (`854 * 480 = 409_920` pixels).
 pub const PIXEL_LIMIT_480P: u32 = 854 * 480;
-/// Maximum pixel budget for `720p` (`1280 * 720 = 921_600` pixels).
 pub const PIXEL_LIMIT_720P: u32 = 1280 * 720;
-/// Maximum pixel budget for `1080p` (`1920 * 1080 = 2_073_600` pixels).
 pub const PIXEL_LIMIT_1080P: u32 = 1920 * 1080;
-/// Maximum pixel budget for `1440p` (`2560 * 1440 = 3_686_400` pixels).
 pub const PIXEL_LIMIT_1440P: u32 = 2560 * 1440;
-/// Maximum pixel budget for `2160p` / `4K Source` (`3840 * 2160 = 8_294_400` pixels).
 pub const PIXEL_LIMIT_2160P: u32 = 3840 * 2160;
 
-/// RTCP `fraction_lost` (`/256`) threshold triggering congestion backoff (`13/256` ≈ `5.07%`).
 pub const LOSS_CONGESTION_THRESHOLD_256: u8 = 13;
-/// RTCP `fraction_lost` (`/256`) threshold permitting gradual recovery (`5/256` ≈ `1.95%`).
 pub const LOSS_RECOVERY_THRESHOLD_256: u8 = 5;
-/// Numerator for scaling wire REMB estimates to leave RTP/SRTP/DAVE headroom (`4`).
 pub const REMB_HEADROOM_NUMERATOR: u32 = 4;
-/// Denominator for scaling wire REMB estimates (`5`, i.e., `80%` media share).
 pub const REMB_HEADROOM_DENOMINATOR: u32 = 5;
-/// Time-to-live in milliseconds for an RTCP REMB bandwidth cap (`5_000` ms).
 pub const REMB_LIMIT_TTL_MS: u64 = 5_000;
-/// Holdoff duration in milliseconds after congestion before probing bitrate upward (`2_000` ms).
 pub const CONGESTION_RECOVERY_HOLDOFF_MS: u64 = 2_000;
-/// Minimum interval in milliseconds between congestion controller ticks (`1_000` ms).
 pub const ADAPTATION_TICK_INTERVAL_MS: u64 = 1_000;
-/// Static screen duration before `ConnectionEventFramerateReducer` drops FPS (`15_000` ms, `docs/re/voice-deep.md` §3).
 pub const CONNECTION_IDLE_FRAMERATE_REDUCE_MS: u64 = 15_000;
-/// Reduced framerate cap applied by `ConnectionEventFramerateReducer` during static screen (`20` FPS, `docs/re/voice-deep.md` §3).
 pub const IDLE_REDUCED_MAX_FRAMERATE: u32 = 20;
 
 /// Content optimization hint for Go Live video encoding.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum StreamContentHint {
-    /// Smooth video motion (games, video playback, up to 60 FPS).
     #[default]
     Motion,
-    /// Crisp text readability (code, documents, terminals; favors resolution clarity over frame rate).
     Detail,
 }
 
 /// Resolution tier presets for Go Live streams.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum StreamResolutionPreset {
-    /// `854x480` SD (`409_920` px).
     P480,
-    /// `1280x720` HD (`921_600` px).
     #[default]
     P720,
-    /// `1920x1080` FHD (`2_073_600` px).
     P1080,
-    /// `2560x1440` QHD (`3_686_400` px).
     P1440,
-    /// `3840x2160` 4K UHD Source (`8_294_400` px).
     Source4K,
 }
 
 impl StreamResolutionPreset {
-    /// Returns canonical `(width, height)` dimensions for this resolution preset.
     #[must_use]
     pub const fn dimensions(self) -> (u32, u32) {
         match self {
@@ -128,7 +86,6 @@ impl StreamResolutionPreset {
         }
     }
 
-    /// Returns the maximum pixel count (`width * height`) for this resolution preset.
     #[must_use]
     pub const fn max_pixel_count(self) -> u32 {
         match self {
@@ -144,17 +101,13 @@ impl StreamResolutionPreset {
 /// Framerate tier presets for Go Live streams (`15`, `30`, `60` FPS).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum StreamFrameratePreset {
-    /// `15` frames per second.
     Fps15,
-    /// `30` frames per second.
     Fps30,
-    /// `60` frames per second.
     #[default]
     Fps60,
 }
 
 impl StreamFrameratePreset {
-    /// Returns the numeric framerate in frames per second.
     #[must_use]
     pub const fn as_u32(self) -> u32 {
         match self {
@@ -186,7 +139,6 @@ pub enum StreamProfilePreset {
 }
 
 impl StreamProfilePreset {
-    /// Returns the resolution preset component.
     #[must_use]
     pub const fn resolution(self) -> StreamResolutionPreset {
         match self {
@@ -198,7 +150,6 @@ impl StreamProfilePreset {
         }
     }
 
-    /// Returns the framerate preset component.
     #[must_use]
     pub const fn framerate(self) -> StreamFrameratePreset {
         match self {
@@ -218,7 +169,6 @@ impl StreamProfilePreset {
         }
     }
 
-    /// Returns canonical `(min_bitrate_bps, target_bitrate_bps, max_bitrate_bps)` for this preset.
     #[must_use]
     pub const fn bitrate_bounds_bps(self) -> (u32, u32, u32) {
         match self {
@@ -243,11 +193,7 @@ impl StreamProfilePreset {
 /// Vesktop `patchStreamQuality` client entitlement policy.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum GoLiveQualityPatchPolicy {
-    /// Standard unpatched free tier: clamps resolution to `<= 1280x720`, FPS to `<= 30`,
-    /// and target bitrate to `<= 2.5 Mbps` (`max <= 3.5 Mbps`).
     FreeTierClamped,
-    /// Vesktop `patchStreamQuality` active (or Nitro unlocked): allows full selected profile
-    /// (`1080p`, `1440p`, `4K Source`, `60 FPS`, up to `25 Mbps`).
     #[default]
     PatchedUnrestricted,
 }
@@ -255,59 +201,42 @@ pub enum GoLiveQualityPatchPolicy {
 /// Validation and adaptation errors for stream quality profiles.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StreamQualityError {
-    /// Width or height is outside `MIN_STREAM_DIMENSION..=MAX_STREAM_DIMENSION` (`64..=3840`).
     InvalidDimensions { width: u32, height: u32 },
-    /// Width or height is odd (YUV 4:2:0 encoders require even dimensions).
     OddDimensions { width: u32, height: u32 },
-    /// Framerate is outside `MIN_STREAM_FPS..=MAX_STREAM_FPS` (`1..=60`).
     InvalidFramerate(u32),
-    /// One or more bitrates fall outside `MIN_STREAM_BITRATE_BPS..=MAX_STREAM_BITRATE_BPS` (`150_000..=25_000_000`).
     BitrateOutOfRange {
         min_bps: u32,
         target_bps: u32,
         max_bps: u32,
     },
-    /// Bitrate hierarchy violates `min_bps <= target_bps <= max_bps`.
     InvalidBitrateHierarchy {
         min_bps: u32,
         target_bps: u32,
         max_bps: u32,
     },
-    /// Base audio SSRC is zero (`0`).
     InvalidSsrc,
 }
 
 impl fmt::Display for StreamQualityError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::InvalidDimensions { width, height } => write!(
-                f,
-                "invalid stream dimensions {width}x{height} (expected {MIN_STREAM_DIMENSION}..={MAX_STREAM_DIMENSION})"
-            ),
-            Self::OddDimensions { width, height } => write!(
-                f,
-                "stream dimensions {width}x{height} must be even for YUV 4:2:0 encoding"
-            ),
-            Self::InvalidFramerate(fps) => write!(
-                f,
-                "invalid stream framerate {fps} FPS (expected {MIN_STREAM_FPS}..={MAX_STREAM_FPS})"
-            ),
+            Self::InvalidDimensions { width, height } => {
+                write!(f, "invalid stream dimensions {width}x{height}")
+            }
+            Self::OddDimensions { width, height } => {
+                write!(f, "stream dimensions {width}x{height} must be even")
+            }
+            Self::InvalidFramerate(fps) => write!(f, "invalid stream framerate {fps} FPS"),
             Self::BitrateOutOfRange {
                 min_bps,
                 target_bps,
                 max_bps,
-            } => write!(
-                f,
-                "stream bitrates ({min_bps}/{target_bps}/{max_bps} bps) outside allowed range ({MIN_STREAM_BITRATE_BPS}..={MAX_STREAM_BITRATE_BPS})"
-            ),
+            } => write!(f, "stream bitrates ({min_bps}/{target_bps}/{max_bps}) out of range"),
             Self::InvalidBitrateHierarchy {
                 min_bps,
                 target_bps,
                 max_bps,
-            } => write!(
-                f,
-                "invalid bitrate hierarchy: min ({min_bps}) <= target ({target_bps}) <= max ({max_bps}) required"
-            ),
+            } => write!(f, "invalid bitrate hierarchy {min_bps}<={target_bps}<={max_bps}"),
             Self::InvalidSsrc => f.write_str("stream audio SSRC must be non-zero"),
         }
     }
@@ -318,21 +247,13 @@ impl std::error::Error for StreamQualityError {}
 /// Validated stream quality profile defining resolution bounds, pixel budget, framerate, and bitrate envelope.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StreamQualityProfile {
-    /// Target maximum width in pixels (`64..=3840`, even).
     pub width: u32,
-    /// Target maximum height in pixels (`64..=3840`, even).
     pub height: u32,
-    /// Maximum pixel budget (`width * height`).
     pub max_pixel_count: u32,
-    /// Target maximum framerate (`1..=60` FPS).
     pub fps: u32,
-    /// Minimum encoder bitrate in bits per second (`>= 150_000`).
     pub min_bitrate_bps: u32,
-    /// Nominal target encoder bitrate in bits per second.
     pub target_bitrate_bps: u32,
-    /// Maximum ceiling encoder bitrate in bits per second (`<= 25_000_000`).
     pub max_bitrate_bps: u32,
-    /// Content optimization hint (`Motion` vs `Detail`).
     pub content_hint: StreamContentHint,
 }
 
@@ -343,7 +264,6 @@ impl Default for StreamQualityProfile {
 }
 
 impl StreamQualityProfile {
-    /// Constructs a canonical [`StreamQualityProfile`] from a [`StreamProfilePreset`].
     #[must_use]
     pub const fn from_preset(preset: StreamProfilePreset) -> Self {
         let res = preset.resolution();
@@ -368,7 +288,6 @@ impl StreamQualityProfile {
         }
     }
 
-    /// Constructs and validates a custom [`StreamQualityProfile`].
     pub fn custom(
         width: u32,
         height: u32,
@@ -392,7 +311,6 @@ impl StreamQualityProfile {
         Ok(profile)
     }
 
-    /// Validates all profile constraints (dimensions, parity, FPS, bitrate bounds and hierarchy).
     pub fn validate(&self) -> Result<(), StreamQualityError> {
         if !(MIN_STREAM_DIMENSION..=MAX_STREAM_DIMENSION).contains(&self.width)
             || !(MIN_STREAM_DIMENSION..=MAX_STREAM_DIMENSION).contains(&self.height)
@@ -402,7 +320,7 @@ impl StreamQualityProfile {
                 height: self.height,
             });
         }
-        if self.width % 2 != 0 || self.height % 2 != 0 {
+        if !self.width.is_multiple_of(2) || !self.height.is_multiple_of(2) {
             return Err(StreamQualityError::OddDimensions {
                 width: self.width,
                 height: self.height,
@@ -433,8 +351,6 @@ impl StreamQualityProfile {
         Ok(())
     }
 
-    /// Applies [`GoLiveQualityPatchPolicy`] clamping: when `FreeTierClamped`, caps resolution to
-    /// `1280x720`, FPS to `30`, target bitrate to `2.5 Mbps`, and max bitrate to `3.5 Mbps`.
     #[must_use]
     pub fn apply_patch_policy(self, policy: GoLiveQualityPatchPolicy) -> Self {
         match policy {
@@ -468,13 +384,11 @@ impl StreamQualityProfile {
         }
     }
 
-    /// Returns the 90 kHz RTP media timestamp increment per frame for this profile's framerate.
     #[must_use]
     pub const fn rtp_timestamp_step_90khz(&self) -> u32 {
         video_ticks_for_fps(self.fps)
     }
 
-    /// Returns the target frame interval in microseconds (`1_000_000 / fps`).
     #[must_use]
     pub const fn frame_interval_us(&self) -> u64 {
         let fps = if self.fps == 0 { 1 } else { self.fps as u64 };
@@ -482,9 +396,8 @@ impl StreamQualityProfile {
     }
 }
 
-/// Scales `(source_width, source_height)` proportionally so that it fits within `(max_width, max_height)`
-/// AND total pixels `<= max_pixel_limit`, rounding to even dimensions (`>= 64x64`) for YUV 4:2:0 encoders.
-/// Never upscales a source smaller than the target bounds.
+/// Scales `(source_width, source_height)` proportionally to fit within `(max_width, max_height)`
+/// and `max_pixel_limit`, rounding to even dimensions (`>= 64x64`).
 #[must_use]
 pub fn scale_dimensions_to_pixel_limit(
     source_width: u32,
@@ -499,7 +412,12 @@ pub fn scale_dimensions_to_pixel_limit(
     let cap_h = max_height.clamp(MIN_STREAM_DIMENSION, MAX_STREAM_DIMENSION);
     let pixel_cap = u64::from(max_pixel_limit.max(MIN_STREAM_DIMENSION * MIN_STREAM_DIMENSION));
 
-    let (mut w, mut h) = fit_bounding_box(u64::from(src_w), u64::from(src_h), u64::from(cap_w), u64::from(cap_h));
+    let (mut w, mut h) = fit_bounding_box(
+        u64::from(src_w),
+        u64::from(src_h),
+        u64::from(cap_w),
+        u64::from(cap_h),
+    );
     let current_pixels = w * h;
     if current_pixels > pixel_cap {
         let scale_num = integer_sqrt_u64(pixel_cap * 1_000_000 / current_pixels.max(1));
@@ -544,42 +462,27 @@ const fn integer_sqrt_u64(n: u64) -> u64 {
     x0
 }
 
-/// Lifecycle state of the adaptive stream quality controller.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum StreamAdaptationState {
-    /// Stream has not started Go Live yet.
     #[default]
     Idle,
-    /// Stream is active and operating at its full selected quality profile.
     Active,
-    /// Stream resolution, framerate, or bitrate is currently scaled down due to network congestion or sink wants.
     Degraded,
-    /// Stream encoding is temporarily paused because all remote sinks requested `quality == 0`.
     PausedBySink,
 }
 
-/// Evaluated encoder parameters for the current frame/segment.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EncoderScaleOutput {
-    /// Whether video encoding should actively emit frames (`false` when paused by sink wants `0`).
     pub active: bool,
-    /// Adapted even width in pixels (`64..=3840`).
     pub encoded_width: u32,
-    /// Adapted even height in pixels (`64..=3840`).
     pub encoded_height: u32,
-    /// Effective pixel limit applied during scaling.
     pub effective_pixel_limit: u32,
-    /// Adapted target framerate (`0` when paused, else `1..=60`).
     pub encoded_fps: u32,
-    /// Adapted target bitrate in bits per second (`min_bitrate_bps..=max_bitrate_bps`).
     pub target_bitrate_bps: u32,
-    /// Per-frame byte budget (`target_bitrate_bps / (8 * encoded_fps)`).
     pub frame_byte_budget: usize,
-    /// 90 kHz RTP timestamp step (`90_000 / encoded_fps`).
     pub rtp_timestamp_step_90khz: u32,
 }
 
-/// Sensitive Go Live session context whose `stream_key` and `rtc_token` are redacted in `Debug`.
 #[derive(Clone, PartialEq, Eq)]
 pub struct GoLiveStreamContext {
     stream_key: String,
@@ -590,7 +493,6 @@ pub struct GoLiveStreamContext {
 }
 
 impl GoLiveStreamContext {
-    /// Creates a new [`GoLiveStreamContext`] deriving `video_ssrc = audio_ssrc + 1` and `rtx_ssrc = audio_ssrc + 2`.
     #[must_use]
     pub fn new(
         stream_key: impl Into<String>,
@@ -645,30 +547,19 @@ impl fmt::Debug for GoLiveStreamContext {
     }
 }
 
-/// Observable telemetry counters for [`StreamQualityController`].
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StreamQualityTelemetry {
-    /// Number of `handle_go_live` stream initializations.
     pub go_live_starts: u64,
-    /// Number of `Voice Opcode 12 (Video)` frames generated.
     pub op12_frames_emitted: u64,
-    /// Number of profile or patch policy updates applied.
     pub profile_updates: u64,
-    /// Number of bitrate adaptation ticks that changed `current_target_bitrate_bps`.
     pub bandwidth_adaptations: u64,
-    /// Number of congestion backoff events (`fraction_lost >= 13/256` or REMB drop).
     pub congestion_backoffs: u64,
-    /// Number of upward bitrate recovery steps after sustained low loss.
     pub recovery_steps: u64,
-    /// Number of `Voice Opcode 15 MediaSinkWants` updates processed.
     pub sink_wants_updates: u64,
-    /// Number of dynamic resolution scaling transitions.
     pub resolution_scalings: u64,
-    /// Number of static screen idle framerate reductions (`>= 15_000 ms`).
     pub idle_framerate_reductions: u64,
 }
 
-/// Stateful stream quality profile and bandwidth adaptation controller (`Task R5-09`).
 #[derive(Debug, Clone)]
 pub struct StreamQualityController {
     audio_ssrc: u32,
@@ -694,8 +585,6 @@ pub struct StreamQualityController {
 }
 
 impl StreamQualityController {
-    /// Creates a new [`StreamQualityController`] for `audio_ssrc`, validating `selected_profile`
-    /// and applying `patch_policy`.
     pub fn new(
         audio_ssrc: u32,
         selected_profile: StreamQualityProfile,
@@ -771,15 +660,12 @@ impl StreamQualityController {
         &self.telemetry
     }
 
-    /// Takes and clears the pending keyframe request flag.
     pub fn take_keyframe_requested(&mut self) -> bool {
         let req = self.keyframe_requested;
         self.keyframe_requested = false;
         req
     }
 
-    /// Vesktop `handleGoLive`: transitions stream to active state, scales source dimensions to the
-    /// effective profile's pixel limit, and emits a `Voice Opcode 12 (Video)` frame.
     pub fn handle_go_live(&mut self, source_width: u32, source_height: u32) -> VoiceVideo {
         self.telemetry.go_live_starts += 1;
         self.keyframe_requested = true;
@@ -788,8 +674,6 @@ impl StreamQualityController {
         self.build_op12_video(out.encoded_width, out.encoded_height, out.encoded_fps.max(1))
     }
 
-    /// Vesktop `patchStreamQuality`: dynamically updates [`GoLiveQualityPatchPolicy`] mid-stream,
-    /// recalculates the effective profile, requests an IDR keyframe, and returns an updated `OP 12 VIDEO`.
     pub fn patch_stream_quality(&mut self, policy: GoLiveQualityPatchPolicy) -> VoiceVideo {
         self.patch_policy = policy;
         self.effective_profile = self.selected_profile.apply_patch_policy(policy);
@@ -804,7 +688,6 @@ impl StreamQualityController {
         )
     }
 
-    /// Updates the user-selected [`StreamQualityProfile`] mid-stream.
     pub fn set_quality_profile(
         &mut self,
         new_profile: StreamQualityProfile,
@@ -823,7 +706,6 @@ impl StreamQualityController {
         ))
     }
 
-    /// Applies an incoming `Voice Opcode 15 (MediaSinkWants)` frame (`any`, per-SSRC quality, `pixelCounts`).
     pub fn apply_media_sink_wants(&mut self, wants: &MediaSinkWants) {
         self.telemetry.sink_wants_updates += 1;
         let ssrc_q = wants
@@ -837,7 +719,6 @@ impl StreamQualityController {
         self.refresh_adaptation_state();
     }
 
-    /// Updates the static screen idle timer for `ConnectionEventFramerateReducer` (`15_000 ms` threshold).
     pub fn update_static_screen_idle_ms(&mut self, idle_ms: u64) {
         let was_reduced = self.static_screen_idle_ms >= CONNECTION_IDLE_FRAMERATE_REDUCE_MS;
         self.static_screen_idle_ms = idle_ms;
@@ -847,7 +728,6 @@ impl StreamQualityController {
         }
     }
 
-    /// Inspects an incoming [`RtcpPacket`] (`ReceiverReport` or `Remb`) for this stream's `video_ssrc`.
     pub fn on_rtcp_packet(&mut self, packet: &RtcpPacket, now_ms: u64) {
         match packet {
             RtcpPacket::ReceiverReport { reports, .. }
@@ -858,17 +738,16 @@ impl StreamQualityController {
                     }
                 }
             }
-            RtcpPacket::Remb(remb) => {
-                if remb.ssrcs.is_empty() || remb.ssrcs.contains(&self.video_ssrc) {
-                    let wire_bps = u32::try_from(remb.bitrate_bps).unwrap_or(u32::MAX);
-                    self.observe_network_feedback(None, Some(wire_bps), now_ms);
-                }
+            RtcpPacket::Remb(remb)
+                if remb.ssrcs.is_empty() || remb.ssrcs.contains(&self.video_ssrc) =>
+            {
+                let wire_bps = u32::try_from(remb.bitrate_bps).unwrap_or(u32::MAX);
+                self.observe_network_feedback(None, Some(wire_bps), now_ms);
             }
             _ => {}
         }
     }
 
-    /// Records raw loss (`fraction_lost / 256`) and/or wire REMB bitrate estimate (`wire_remb_bps`).
     pub fn observe_network_feedback(
         &mut self,
         fraction_lost_256: Option<u8>,
@@ -888,8 +767,6 @@ impl StreamQualityController {
         }
     }
 
-    /// Advances the 1 Hz congestion/bandwidth adaptation loop at `now_ms`.
-    /// Returns `Some(new_target_bitrate_bps)` whenever the target bitrate changes.
     pub fn tick_adaptation(&mut self, now_ms: u64) -> Option<u32> {
         if let Some(last) = self.last_tick_at_ms
             && now_ms.saturating_sub(last) < ADAPTATION_TICK_INTERVAL_MS
@@ -897,22 +774,45 @@ impl StreamQualityController {
             return None;
         }
         self.last_tick_at_ms = Some(now_ms);
-
         let loss = self.pending_loss_256.take();
         let estimate = self.pending_remb_bps.take();
         if let Some(est) = estimate {
             self.active_remb_limit = Some((est, now_ms));
         }
 
+        let ceiling = self.compute_active_ceiling_bps(now_ms);
+        let (target, congested, recovered) =
+            self.evaluate_next_bitrate(now_ms, loss, estimate, ceiling);
+
+        if target == self.current_target_bitrate_bps {
+            self.refresh_adaptation_state();
+            return None;
+        }
+
+        self.current_target_bitrate_bps = target;
+        self.telemetry.bandwidth_adaptations += 1;
+        self.telemetry.congestion_backoffs += u64::from(congested);
+        self.telemetry.recovery_steps += u64::from(recovered);
+        self.refresh_adaptation_state();
+        Some(target)
+    }
+
+    fn compute_active_ceiling_bps(&self, now_ms: u64) -> u32 {
         let min_bps = self.effective_profile.min_bitrate_bps;
         let max_bps = self.effective_profile.max_bitrate_bps;
-
-        let ceiling = self
-            .active_remb_limit
+        self.active_remb_limit
             .filter(|(_, at_ms)| now_ms.saturating_sub(*at_ms) < REMB_LIMIT_TTL_MS)
             .map_or(max_bps, |(lim, _)| lim.min(max_bps))
-            .max(min_bps);
+            .max(min_bps)
+    }
 
+    fn evaluate_next_bitrate(
+        &mut self,
+        now_ms: u64,
+        loss: Option<u8>,
+        estimate: Option<u32>,
+        ceiling: u32,
+    ) -> (u32, bool, bool) {
         let mut target = self.current_target_bitrate_bps.min(ceiling);
         let mut congested = false;
         let mut recovered = false;
@@ -936,25 +836,13 @@ impl StreamQualityController {
             }
         }
 
-        target = target.clamp(min_bps, max_bps);
-        if target == self.current_target_bitrate_bps {
-            self.refresh_adaptation_state();
-            return None;
-        }
-
-        self.current_target_bitrate_bps = target;
-        self.telemetry.bandwidth_adaptations += 1;
-        if congested {
-            self.telemetry.congestion_backoffs += 1;
-        }
-        if recovered {
-            self.telemetry.recovery_steps += 1;
-        }
-        self.refresh_adaptation_state();
-        Some(target)
+        let clamped = target.clamp(
+            self.effective_profile.min_bitrate_bps,
+            self.effective_profile.max_bitrate_bps,
+        );
+        (clamped, congested, recovered)
     }
 
-    /// Computes the active encoder resolution, framerate, and byte budget for `(source_width, source_height)`.
     #[allow(non_snake_case)]
     pub fn evaluate_encoder_Params(
         &mut self,
