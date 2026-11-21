@@ -502,6 +502,7 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/keyring-crypto-1021a.test.mjs` | `rust/crates/chord-store/src/keyring_crypto.rs` | `SecretServiceProvider` |
 | `tests/unit/resume-opcode6-stage-05-3-2.test.mjs` | `rust/crates/chord-core/src/resume.rs` | `RESUME_RS` |
 | `tests/unit/stage10-bff6-dave-voice-ui.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveDaveE2eeIndicatorView` |
+| `tests/unit/qa-socrati-qdrant-automation.test.mjs` | `scripts/qa-auto-suite.mjs` | `getEmbedding` |
 | `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
 
 ## 9. Risks and Limitations
