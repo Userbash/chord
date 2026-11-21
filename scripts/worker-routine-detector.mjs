@@ -3,18 +3,18 @@
 /**
  * scripts/worker-routine-detector.mjs — Zero-Token Worker Routine Detector & Automator
  *
- * Автоматически анализирует работу воркеров, историю коммитов и очередь задач,
- * выявляя повторяющиеся рутинные линейные задачи, на которые агенты тратят ИИ-токены.
+ * Automatically analyzes worker tasks, commit history, and task queues,
+ * identifying repetitive, deterministic routine tasks on which agents spend AI tokens.
  *
- * Классифицирует каждую операцию:
- * 1. AUTOMATE_BY_SCRIPT (100% скрипт, 0 токенов, мгновенно)
- * 2. AUTOMATE_BY_MICRO_AI (Tier S: gemini-4-hydrogen-low, effort: low — только для нечетких текстов)
- * 3. ESCALATE_TO_CORE_AI (Tier L/XL — только для сложной бизнес-логики/криптографии)
+ * Classifies operations into:
+ * 1. AUTOMATE_BY_SCRIPT (100% deterministic script, 0 tokens, sub-second)
+ * 2. AUTOMATE_BY_MICRO_AI (Tier S: gemini-4-hydrogen-low, effort: low — only for unstructured text)
+ * 3. ESCALATE_TO_CORE_AI (Tier L/XL — strictly for complex business logic, cryptography, or state machines)
  *
- * Использование:
- *   node scripts/worker-routine-detector.mjs --scan       # Анализ повторяемости и оценка экономии токенов
- *   node scripts/worker-routine-detector.mjs --auto-fix   # Автоматический запуск скриптов для найденных рутин
- *   node scripts/worker-routine-detector.mjs --json       # Вывод в формате JSON для интеграции в харнес
+ * Usage:
+ *   node scripts/worker-routine-detector.mjs --scan       # Analyze repetitions and estimate token savings
+ *   node scripts/worker-routine-detector.mjs --auto-fix   # Automatically execute scripts for detected routines
+ *   node scripts/worker-routine-detector.mjs --json       # Output JSON format for harness integration
  */
 
 import { execSync } from 'node:child_process';
@@ -24,12 +24,12 @@ import { join } from 'node:path';
 const ROOT = process.cwd();
 const KANBAN_JSON = join(ROOT, 'waves/kanban-board.json');
 
-// Каталог типовых повторяющихся задач воркеров с оценкой расхода токенов
+// Catalog of routine repetitive worker tasks with token expenditure estimates
 const ROUTINE_PATTERNS = [
   {
     id: 'IPC_BRIDGE_GENERATION',
-    name: 'Генерация Tauri IPC мостов и TS типов (bindings.d.ts)',
-    description: 'Парсинг #[tauri::command] и создание TypeScript определений',
+    name: 'Tauri IPC bridge and TS types generation (bindings.d.ts)',
+    description: 'Parses #[tauri::command] and emits TypeScript interface definitions',
     avgTokensSpentByAI: 3500,
     avgTimeByAISeconds: 45,
     handler: 'node scripts/generate-ipc-bridges.mjs',
@@ -39,8 +39,8 @@ const ROUTINE_PATTERNS = [
   },
   {
     id: 'TEST_SCAFFOLDING',
-    name: 'Каркас контрактных тестов (AAA Pattern & FSM)',
-    description: 'Создание файла теста с импортами, моками и проверками',
+    name: 'Contract test scaffolding (AAA Pattern & FSM)',
+    description: 'Creates test files with imports, fixtures, mocks, and contract assertions',
     avgTokensSpentByAI: 4000,
     avgTimeByAISeconds: 60,
     handler: 'node scripts/auto-test-generator.mjs',
@@ -50,8 +50,8 @@ const ROUTINE_PATTERNS = [
   },
   {
     id: 'DTO_SERDE_CREATION',
-    name: 'Шаблонизация DTO структур (Serde camelCase)',
-    description: 'Написание Rust struct с #[derive(Serialize, Deserialize)] и TS интерфейсов',
+    name: 'DTO struct templating (Serde camelCase)',
+    description: 'Emits Rust structs with #[derive(Serialize, Deserialize)] and TS interfaces',
     avgTokensSpentByAI: 2500,
     avgTimeByAISeconds: 35,
     handler: 'node scripts/scaffold-dto.mjs',
@@ -61,19 +61,19 @@ const ROUTINE_PATTERNS = [
   },
   {
     id: 'DEAD_CODE_SANITATION',
-    name: 'Очистка мертвого кода, dbg! и console.log',
-    description: 'Санитарный аудит рудиментов отладки в продакшен коде',
+    name: 'Dead code, dbg!, and console.log cleanup',
+    description: 'Sanitizes debug leftovers and unused declarations in production code',
     avgTokensSpentByAI: 2000,
     avgTimeByAISeconds: 30,
     handler: 'node scripts/clean-dead-code.mjs',
     tier: 'TIER_0_SCRIPT',
     canAutomateWithScript: true,
-    keywords: ['clean-dead-code', 'console.log', 'dbg!', 'закомментированн', 'cleanup']
+    keywords: ['clean-dead-code', 'console.log', 'dbg!', 'cleanup', 'unused code']
   },
   {
     id: 'SECURITY_DEPENDENCY_AUDIT',
-    name: 'Аудит безопасности, запрета unsafe и C FFI',
-    description: 'Сканирование директив forbid(unsafe_code), утечек секретов и уязвимостей',
+    name: 'Security audit, unsafe code, and C FFI check',
+    description: 'Scans for forbid(unsafe_code) directives, secret leaks, and known CVEs',
     avgTokensSpentByAI: 3000,
     avgTimeByAISeconds: 40,
     handler: 'npm run audit:security',
@@ -83,8 +83,8 @@ const ROUTINE_PATTERNS = [
   },
   {
     id: 'MULTI_REMOTE_GIT_SYNC',
-    name: 'Двусторонняя синхронизация Git (origin + public)',
-    description: 'Проверка расхождений, безопасный fast-forward pull, precheck и dual push',
+    name: 'Bidirectional Git sync across remotes (origin + public)',
+    description: 'Verifies tracking, performs safe fast-forward pull, precheck, and dual push',
     avgTokensSpentByAI: 2500,
     avgTimeByAISeconds: 35,
     handler: 'node scripts/git-sync.mjs sync',
@@ -94,8 +94,8 @@ const ROUTINE_PATTERNS = [
   },
   {
     id: 'TDD_PLAN_TABLE_SYNC',
-    name: 'Синхронизация таблицы контрактных тестов TDD-PLAN.md §8',
-    description: 'Автоматический поиск новых тестовых файлов и их регистрация в матрице качества',
+    name: 'TDD-PLAN.md §8 contract test table sync',
+    description: 'Automatically detects test files on disk and registers them in the matrix',
     avgTokensSpentByAI: 2000,
     avgTimeByAISeconds: 20,
     handler: 'node scripts/sync-tdd-plan.mjs --fix',
@@ -105,8 +105,8 @@ const ROUTINE_PATTERNS = [
   },
   {
     id: 'ORCHESTRATION_AUTODRIVER_CYCLE',
-    name: 'Драйвер оркестрации и ротации воркеров (Zero-Token Auto-Driver)',
-    description: 'Проверка сообщений оркестрации, освобождение терминалов, ротация слотов и push',
+    name: 'Orchestration driver & worker slot rotator (Zero-Token Auto-Driver)',
+    description: 'Checks orchestration messages, reclaims terminals, rotates slots, and pushes',
     avgTokensSpentByAI: 3500,
     avgTimeByAISeconds: 30,
     handler: 'node scripts/orchestration-auto-driver.mjs --once',
@@ -116,30 +116,30 @@ const ROUTINE_PATTERNS = [
   },
   {
     id: 'THIN_BRIDGE_AUDIT',
-    name: 'Аудит архитектурных бюджетов («Тонкий мост» <= 600 LOC)',
-    description: 'Контроль отсутствия дублирования бизнес-логики и прямого делегирования библиотекам',
+    name: 'Architectural budget audit (Thin Bridge <= 600 LOC)',
+    description: 'Enforces thin adapters without duplicate business logic delegating to libraries',
     avgTokensSpentByAI: 2500,
     avgTimeByAISeconds: 25,
     handler: 'node scripts/audit-thin-bridges.mjs',
     tier: 'TIER_0_SCRIPT',
     canAutomateWithScript: true,
-    keywords: ['audit:bridges', 'thin bridge', 'тонкий мост', 'adapter loc']
+    keywords: ['audit:bridges', 'thin bridge', 'adapter loc']
   },
   {
     id: 'STRESS_BENCHMARKING',
-    name: 'Прогон стресс-тестов FTS5, джиттера и нагрузки',
-    description: 'Запуск готовых стресс-сценариев SQLite и медиа буферов',
+    name: 'FTS5, jitter buffer, and load stress testing',
+    description: 'Executes pre-built stress scenarios for SQLite and media packet rings',
     avgTokensSpentByAI: 3500,
     avgTimeByAISeconds: 50,
     handler: 'npm run test:stress',
     tier: 'TIER_0_SCRIPT',
     canAutomateWithScript: true,
-    keywords: ['stress-fts5', 'bench-voice', '50-peers', 'стресс-тест']
+    keywords: ['stress-fts5', 'bench-voice', '50-peers', 'stress test']
   },
   {
     id: 'PLAN_ROADMAP_SYNC',
-    name: 'Синхронизация плана, метрик и канбан-доски',
-    description: 'Обновление TDD-PLAN.md §8, экспорт HTML и подсчет LOC мостов',
+    name: 'Roadmap, metrics, and Kanban board synchronization',
+    description: 'Updates TDD-PLAN.md §8, exports HTML report, and tallies bridge LOC',
     avgTokensSpentByAI: 2000,
     avgTimeByAISeconds: 25,
     handler: 'npm run roadmap:sync',
@@ -162,7 +162,7 @@ function runCmd(cmd) {
 }
 
 /**
- * Анализирует последние 30 коммитов и активные задачи на наличие повторяющихся рутин
+ * Analyzes last 30 commits and active tasks for recurring routine patterns
  */
 export function analyzeRoutines() {
   const gitLog = runCmd('git log -n 30 --oneline');
@@ -184,14 +184,14 @@ export function analyzeRoutines() {
     let occurrencesInGit = 0;
     let matchingPendingCards = [];
 
-    // 1. Поиск в истории коммитов
+    // 1. Search commit history
     for (const kw of pattern.keywords) {
       const regex = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       const matches = gitLog.split('\n').filter((/** @type {string} */ line) => regex.test(line));
       occurrencesInGit += matches.length;
     }
 
-    // 2. Поиск в текущих задачах очереди (ready_for_dev / backlog)
+    // 2. Search pending queue tasks (ready_for_dev / backlog)
     for (const card of kanbanCards) {
       if (card.status !== 'done' && card.column !== 'done') {
         const titleLower = (card.title + ' ' + (card.description || '')).toLowerCase();
@@ -232,18 +232,18 @@ export function analyzeRoutines() {
 }
 
 /**
- * Запускает автоматическое исправление для всех доступных рутинных скриптов
+ * Executes automatic resolution for all available routine scripts
  */
 export function autoFixAllRoutines() {
-  console.log('⚡ [ROUTINE-AUTOMATOR] Автоматический запуск детерминированных скриптов (0 токенов)...');
+  console.log('⚡ [ROUTINE-AUTOMATOR] Automatically executing deterministic scripts (0 tokens)...');
   const results = [];
 
   const scriptsToRun = [
-    { title: '1. Генерация IPC мостов и TS типов', cmd: 'node scripts/generate-ipc-bridges.mjs' },
-    { title: '2. Аудит и очистка мертвого кода', cmd: 'node scripts/clean-dead-code.mjs' },
-    { title: '3. Аудит безопасности и запрета unsafe', cmd: 'npm run audit:security' },
-    { title: '4. Проверка статуса синхронизации Git (Multi-Remote)', cmd: 'bash scripts/git-sync.sh status' },
-    { title: '5. Синхронизация дорожной карты и канбана', cmd: 'npm run roadmap:sync' }
+    { title: '1. Tauri IPC bridges and TS types generation', cmd: 'node scripts/generate-ipc-bridges.mjs' },
+    { title: '2. Dead code audit and cleanup', cmd: 'node scripts/clean-dead-code.mjs' },
+    { title: '3. Security audit and unsafe code prohibition check', cmd: 'npm run audit:security' },
+    { title: '4. Git multi-remote sync status check', cmd: 'node scripts/git-sync.mjs status' },
+    { title: '5. Simplification roadmap and Kanban synchronization', cmd: 'npm run roadmap:sync' }
   ];
 
   for (const s of scriptsToRun) {
@@ -251,16 +251,16 @@ export function autoFixAllRoutines() {
     const t0 = Date.now();
     const out = runCmd(s.cmd);
     const dur = ((Date.now() - t0) / 1000).toFixed(2);
-    console.log(`   ✅ Выполнено за ${dur}с:`);
+    console.log(`   ✅ Finished in ${dur}s:`);
     console.log('   ' + out.trim().split('\n').slice(-2).join('\n   '));
     results.push({ cmd: s.cmd, duration: dur, status: 'OK' });
   }
 
-  console.log('\n🎉 [ROUTINE-AUTOMATOR] Все рутинные задачи успешно автоматизированы со 100% экономией токенов ИИ!');
+  console.log('\n🎉 [ROUTINE-AUTOMATOR] All routine tasks automated successfully with 100% token savings!');
   return results;
 }
 
-// CLI интерфейс
+// CLI Interface
 const mode = process.argv[2] || '--scan';
 
 if (mode === '--auto-fix' || mode === '--fix') {
@@ -275,25 +275,25 @@ if (mode === '--auto-fix' || mode === '--fix') {
 
   const report = analyzeRoutines();
 
-  console.log(`📊 Обнаружено повторяющихся паттернов задач: ${report.detections.length}`);
-  console.log(`💰 Потенциальная экономия токенов ИИ: ~${report.totalSavedTokens.toLocaleString()} токенов`);
-  console.log(`⏱️  Сэкономленное машинное время ожидания генерации: ~${report.totalSavedMinutes} минут\n`);
+  console.log(`📊 Detected recurring task patterns: ${report.detections.length}`);
+  console.log(`💰 Potential AI token savings: ~${report.totalSavedTokens.toLocaleString()} tokens`);
+  console.log(`⏱️  Saved machine wait time: ~${report.totalSavedMinutes} minutes\n`);
 
-  console.log('📋 СПИСОК ОБНАРУЖЕННЫХ РУТИННЫХ ПАТТЕРНОВ В РАБОТЕ ВОРКЕРОВ:\n');
+  console.log('📋 DETECTED ROUTINE PATTERNS IN WORKER WORKFLOW:\n');
 
   report.detections.forEach((d, idx) => {
     console.log(`${idx + 1}. [${d.id}] ${d.name}`);
-    console.log(`   • Зафиксировано повторений: ${d.occurrences} (в коммитах: ${d.historyMatches}, в очереди: ${d.pendingCards.length})`);
-    console.log(`   • Решение: ${d.recommendedTier === 'TIER_0_SCRIPT' ? '✅ 100% СКРИПТ (0 токенов)' : '⚠️ MICRO_AI'}`);
-    console.log(`   • Исполнитель: ${d.scriptHandler}`);
-    console.log(`   • Экономия токенов: ~${d.tokenSavingsEstimate.toLocaleString()} токенов`);
+    console.log(`   • Recorded occurrences: ${d.occurrences} (in git commits: ${d.historyMatches}, in queue: ${d.pendingCards.length})`);
+    console.log(`   • Strategy: ${d.recommendedTier === 'TIER_0_SCRIPT' ? '✅ 100% SCRIPT (0 tokens)' : '⚠️ MICRO_AI'}`);
+    console.log(`   • Handler: ${d.scriptHandler}`);
+    console.log(`   • Token savings: ~${d.tokenSavingsEstimate.toLocaleString()} tokens`);
     if (d.pendingCards.length > 0) {
-      console.log(`   • Затронутые задачи из очереди: ${d.pendingCards.map(c => c.id).join(', ')}`);
+      console.log(`   • Affected queue tasks: ${d.pendingCards.map(c => c.id).join(', ')}`);
     }
     console.log('');
   });
 
   console.log('==============================================================================');
-  console.log('💡 Запустите `node scripts/worker-routine-detector.mjs --auto-fix` для мгновенного выполнения.');
+  console.log('💡 Run `node scripts/worker-routine-detector.mjs --auto-fix` for instant execution.');
   console.log('==============================================================================');
 }

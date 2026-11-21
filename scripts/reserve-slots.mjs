@@ -3,17 +3,17 @@
 /**
  * scripts/reserve-slots.mjs
  * 
- * Резервирование пула слотов с доски задач (Batch Reservation & Worker Slot Allocation).
+ * Task slot pool reservation and allocation (Batch Reservation & Worker Slot Allocation).
  * 
- * Возможности:
- * 1. Загрузка первых N (по умолчанию 15) незавершенных задач с Kanban доски.
- * 2. Резервирование слотов с привязкой к модели, эфорту и отделу (G1..G7).
- * 3. Выявление Tier 0 задач (детерминированные скрипты без ИИ) и их мгновенное закрытие.
- * 4. Диспетчеризация воркеров в безопасном пуле (максимум 4 активных параллельно для соблюдения WORKER_RAM_LIMIT <= 25 GB)
- *    с непрерывной 1-в-1 ротацией слотов.
- * 5. Сохранение манифеста в waves/reserved-15-slots.json.
+ * Capabilities:
+ * 1. Loads first N (default: 15) incomplete tasks from Kanban board.
+ * 2. Reserves slots with pinned model, effort, and department (G1..G7).
+ * 3. Identifies Tier 0 tasks (deterministic scripts with 0 AI tokens) and resolves them immediately.
+ * 4. Dispatches workers in a safe pool (maximum 4 parallel active workers to adhere to WORKER_RAM_LIMIT <= 25 GB)
+ *    with continuous 1-to-1 slot rotation.
+ * 5. Saves manifest to waves/reserved-15-slots.json.
  * 
- * Использование:
+ * Usage:
  *   node scripts/reserve-slots.mjs --reserve 15
  *   node scripts/reserve-slots.mjs --dispatch 15
  *   node scripts/reserve-slots.mjs --status
@@ -76,7 +76,7 @@ function loadAndReserveSlots(count = 15, autoDispatch = false) {
     (c.status || '').toLowerCase() !== 'done'
   );
 
-  // Приоритетная сортировка: in_progress -> ready_for_dev -> in_dev -> backlog, затем по приоритету P0 -> P1 -> P2 -> P3
+  // Priority sorting: in_progress -> ready_for_dev -> in_dev -> backlog, then by priority P0 -> P1 -> P2 -> P3
   const prioWeight = { P0: 4, P1: 3, P2: 2, P3: 1 };
   const colWeight = { in_progress: 4, ready_for_dev: 3, in_dev: 2, backlog: 1 };
 
@@ -89,13 +89,13 @@ function loadAndReserveSlots(count = 15, autoDispatch = false) {
   const selectedCards = nonDone.slice(0, count);
 
   console.log(`\n=============================================================`);
-  console.log(`📋 [Slot Manager] Загрузка задач с доски. Резервирование ${selectedCards.length} слотов`);
+  console.log(`📋 [Slot Manager] Loading board tasks. Reserving ${selectedCards.length} slots`);
   console.log(`=============================================================`);
 
   const slots = [];
   const runId = getActiveRunId();
 
-  // Привязываем Run к координатору
+  // Attach Run to coordinator
   runCmd(`orca orchestration run-use --id ${runId}`);
 
   let tier0Count = 0;
@@ -135,7 +135,7 @@ function loadAndReserveSlots(count = 15, autoDispatch = false) {
     slots.push(slotInfo);
   }
 
-  // Запись в файл waves/reserved-15-slots.json
+  // Write to waves/reserved-15-slots.json
   const manifest = {
     reservedAt: new Date().toISOString(),
     runId,
@@ -158,9 +158,9 @@ function loadAndReserveSlots(count = 15, autoDispatch = false) {
 
   fs.writeFileSync(RESERVED_PATH, JSON.stringify(manifest, null, 2), 'utf8');
 
-  // Вывод красивой таблицы слотов
-  console.log(`\nРезерв слотов сформирован в: ${RESERVED_PATH}\n`);
-  console.log(`| Слот | ID | Prio | Отдел | Тир / Модель | Эфорт | Статус слота | Название |`);
+  // Display slot allocation table
+  console.log(`\nSlot reserve created at: ${RESERVED_PATH}\n`);
+  console.log(`| Slot | ID | Prio | Dept | Tier / Model | Effort | Status | Title |`);
   console.log(`|---|---|---|---|---|---|---|---|`);
 
   for (const s of slots) {
@@ -168,49 +168,49 @@ function loadAndReserveSlots(count = 15, autoDispatch = false) {
     console.log(`| #${s.slot.toString().padStart(2, '0')} | ${s.id.padEnd(12, ' ')} | ${s.priority} | ${s.department} | ${s.tier} (${modelStr}) | ${s.effort} | ${s.status} | ${s.title.slice(0, 40)}... |`);
   }
 
-  console.log(`\n📊 Распределение 15 слотов по тирам:`);
-  console.log(`   - ⚡ Tier 0 (Детерминированные скрипты, 0 токенов): ${manifest.tierBreakdown.tier0_scripts}`);
-  console.log(`   - 🟢 Tier S (Микро-ИИ, hydrogen-low / flash-low):  ${manifest.tierBreakdown.tier_s_micro_ai}`);
-  console.log(`   - 🟡 Tier M (Рутинный ИИ, hydrogen-medium):        ${manifest.tierBreakdown.tier_m_routine_ai}`);
-  console.log(`   - 🔵 Tier L (Ядро / Протоколы, argon-medium):      ${manifest.tierBreakdown.tier_l_core_ai}`);
-  console.log(`   - 🟣 Tier XL (Хардкор / Concurrency, carbon-high): ${manifest.tierBreakdown.tier_xl_hardcore_ai}`);
+  console.log(`\n📊 Distribution of slots by tier:`);
+  console.log(`   - ⚡ Tier 0 (Deterministic scripts, 0 tokens): ${manifest.tierBreakdown.tier0_scripts}`);
+  console.log(`   - 🟢 Tier S (Micro-AI, hydrogen-low / flash-low):  ${manifest.tierBreakdown.tier_s_micro_ai}`);
+  console.log(`   - 🟡 Tier M (Routine AI, hydrogen-medium):        ${manifest.tierBreakdown.tier_m_routine_ai}`);
+  console.log(`   - 🔵 Tier L (Core / Protocols, argon-medium):      ${manifest.tierBreakdown.tier_l_core_ai}`);
+  console.log(`   - 🟣 Tier XL (Hardcore / Concurrency, carbon-high): ${manifest.tierBreakdown.tier_xl_hardcore_ai}`);
 
-  // Если запрошена диспетчеризация
+  // Dispatch if requested
   if (autoDispatch) {
     dispatchSlots(slots, runId);
   } else {
-    console.log(`\n💡 Для запуска воркеров выполните: npm run slots:dispatch`);
+    console.log(`\n💡 To dispatch workers, run: npm run slots:dispatch`);
   }
 }
 
 function dispatchSlots(slots, runId) {
   console.log(`\n=============================================================`);
-  console.log(`🚀 [Slot Dispatcher] Спам / Диспетчеризация воркеров по слотам`);
-  console.log(`   Политика памяти: не более ${MAX_PARALLEL_ACTIVE_WORKERS} активных воркеров в RAM одновременно`);
+  console.log(`🚀 [Slot Dispatcher] Dispatching workers across slots`);
+  console.log(`   Memory policy: at most ${MAX_PARALLEL_ACTIVE_WORKERS} active workers in RAM concurrently`);
   console.log(`=============================================================`);
 
-  // 1. Выполнение Tier 0 задач мгновенно без затрат токенов
+  // 1. Execute Tier 0 tasks immediately with 0 tokens
   const scriptSlots = slots.filter(s => s.isScript && s.scriptCommand);
   for (const s of scriptSlots) {
-    console.log(`\n⚡ [Tier 0 Exec] Слот #${s.slot} [${s.id}]: ${s.scriptCommand}`);
+    console.log(`\n⚡ [Tier 0 Exec] Slot #${s.slot} [${s.id}]: ${s.scriptCommand}`);
     const res = runCmd(s.scriptCommand);
-    console.log(`   Результат: ${res.trim().split('\n').slice(-2).join(' ')}`);
+    console.log(`   Result: ${res.trim().split('\n').slice(-2).join(' ')}`);
     s.status = 'COMPLETED';
     s.dispatchedAt = new Date().toISOString();
   }
 
-  // 2. Диспетчеризация AI воркеров (первая волна в пределах лимита RAM)
+  // 2. Dispatch AI workers within RAM limit
   const aiSlots = slots.filter(s => !s.isScript);
   let activeCount = 0;
 
   for (const s of aiSlots) {
     if (activeCount >= MAX_PARALLEL_ACTIVE_WORKERS) {
-      console.log(`\n⏳ [Queue Reserved] Слот #${s.slot} [${s.id}] поставлен в очередь 1-to-1 ротации (лимит RAM 25GB)`);
+      console.log(`\n⏳ [Queue Reserved] Slot #${s.slot} [${s.id}] queued for 1-to-1 rotation (RAM limit 25GB)`);
       s.status = 'QUEUED_IN_SLOT';
       continue;
     }
 
-    console.log(`\n🤖 [Worker Spawn] Слот #${s.slot} [${s.id}]: Запуск воркера (${s.model}, effort: ${s.effort})`);
+    console.log(`\n🤖 [Worker Spawn] Slot #${s.slot} [${s.id}]: Starting worker (${s.model}, effort: ${s.effort})`);
     const spec = `[${s.id}] ${s.title}: ${s.description || 'Implement task per specification and TDD rules'}`;
     const cmd = `orca orchestration worker-start --run ${runId} --spec "${spec.replace(/"/g, '\\"')}" --task-title "${s.id}" --agent antigravity --model "${s.model}" --effort "${s.effort}" --json`;
     
@@ -224,29 +224,29 @@ function dispatchSlots(slots, runId) {
       ok = !out.includes('error:');
     }
 
-    console.log(`   Статус диспетчеризации: ${ok ? '✅ Запущен' : '⚠️ Отклонен/Занят'} (${out.trim().slice(0, 100)})`);
+    console.log(`   Dispatch status: ${ok ? '✅ Started' : '⚠️ Rejected/Busy'} (${out.trim().slice(0, 100)})`);
     s.status = ok ? 'ACTIVE_RUNNING' : 'DISPATCH_PENDING';
     s.dispatchedAt = new Date().toISOString();
     activeCount++;
   }
 
-  // Обновляем манифест
+  // Update manifest
   const currentManifest = JSON.parse(fs.readFileSync(RESERVED_PATH, 'utf8'));
   currentManifest.slots = slots;
   currentManifest.lastDispatchedAt = new Date().toISOString();
   fs.writeFileSync(RESERVED_PATH, JSON.stringify(currentManifest, null, 2), 'utf8');
 
-  console.log(`\n✅ Пул из 15 слотов успешно заряжен! ${activeCount} воркеров в активном исполнении, ${15 - activeCount - scriptSlots.length} слотов в очереди ротации.`);
+  console.log(`\n✅ Slot pool primed! ${activeCount} workers active, ${slots.length - activeCount - scriptSlots.length} slots queued for continuous rotation.`);
 }
 
 function showStatus() {
   if (!fs.existsSync(RESERVED_PATH)) {
-    console.log(`Резерв слотов еще не создан. Выполните: npm run slots:reserve`);
+    console.log(`Slot reserve manifest not found. Run: npm run slots:reserve`);
     return;
   }
   const data = JSON.parse(fs.readFileSync(RESERVED_PATH, 'utf8'));
   console.log(`\n=============================================================`);
-  console.log(`📊 Статус пула 15 слотов (Создан: ${data.reservedAt})`);
+  console.log(`📊 Slot Pool Status (Created: ${data.reservedAt})`);
   console.log(`   Run ID: ${data.runId} | RAM Limit: ${data.ramSafetyPolicy.workerRamLimit}`);
   console.log(`=============================================================`);
   console.table(data.slots.map(s => ({
