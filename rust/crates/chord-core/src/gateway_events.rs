@@ -53,7 +53,8 @@ mod tests {
             }
         });
 
-        let event = parse_dispatch_event("MESSAGE_CREATE", &payload).expect("should parse message create");
+        let event =
+            parse_dispatch_event("MESSAGE_CREATE", &payload).expect("should parse message create");
         match event {
             Event::MessageCreate(msg) => {
                 assert_eq!(msg.content, "Hello via twilight!");
@@ -79,7 +80,8 @@ mod tests {
             "suppress": false
         });
 
-        let event = parse_dispatch_event("VOICE_STATE_UPDATE", &payload).expect("should parse voice state update");
+        let event = parse_dispatch_event("VOICE_STATE_UPDATE", &payload)
+            .expect("should parse voice state update");
         match event {
             Event::VoiceStateUpdate(vs) => {
                 assert_eq!(vs.0.user_id.get(), 123456789012345678);
@@ -132,8 +134,8 @@ mod tests {
             "id": "1234567890",
             "unavailable": false
         });
-        let event = parse_dispatch_event("GUILD_DELETE", &payload)
-            .expect("should parse guild delete");
+        let event =
+            parse_dispatch_event("GUILD_DELETE", &payload).expect("should parse guild delete");
         match event {
             Event::GuildDelete(gd) => {
                 assert_eq!(gd.id.get(), 1234567890);

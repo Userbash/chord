@@ -603,15 +603,13 @@ fn twilight_permission_calculator_denial_overwrites_cascade_everyone_role_member
         | TwilightPermissions::ADD_REACTIONS;
     let member_roles = [(role_id, TwilightPermissions::MANAGE_MESSAGES)];
 
-    let overwrites = [
-        PermissionOverwrite {
-            id: 300,
-            overwrite_type: OVERWRITE_TYPE_ROLE,
-            allow: Permissions::ATTACH_FILES,
-            deny: Permissions::SEND_MESSAGES,
-        }
-        .to_twilight_overwrite(1),
-    ];
+    let overwrites = [PermissionOverwrite {
+        id: 300,
+        overwrite_type: OVERWRITE_TYPE_ROLE,
+        allow: Permissions::ATTACH_FILES,
+        deny: Permissions::SEND_MESSAGES,
+    }
+    .to_twilight_overwrite(1)];
 
     let calc = PermissionCalculator::new(guild_id, user_id, everyone, &member_roles);
     let result = calc.in_channel(TwilightChannelType::GuildText, &overwrites);

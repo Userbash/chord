@@ -122,6 +122,7 @@ export interface NavItem {
 export interface VisitedState {
   labels: Set<string>;
   maxStep: number;
+  corruptedLines: number;
 }
 
 /** Сводка ошибок консоли за шаг. */

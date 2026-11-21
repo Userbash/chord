@@ -132,6 +132,21 @@ export interface TypedCommands {
   syncLiveState(): Promise<LiveSyncSnapshotDto>;
   voiceConnect(opts: VoiceConnectOptionsDto): Promise<VoiceConnectResultDto>;
   voiceRtcStatus(): Promise<VoiceRtcStatusDto>;
+  readState(): Promise<Array<Record<string, unknown>>>;
+  channels(guildId?: string | null): Promise<Array<Record<string, unknown>>>;
+  messagesPage(
+    channelId: string,
+    cursor?: string | null,
+    before?: string | null,
+    position?: string | null,
+    limit?: number | null,
+  ): Promise<Record<string, unknown>>;
+  membersPage(
+    guildId?: string | null,
+    cursor?: string | null,
+    limit?: number | null,
+  ): Promise<Record<string, unknown>>;
+  settings(section?: string | null): Promise<Record<string, unknown>>;
   pinMessage(channelId: string, messageId: string): Promise<Record<string, unknown>>;
   unpinMessage(channelId: string, messageId: string): Promise<Record<string, unknown>>;
   listPins(channelId: string): Promise<Array<Record<string, unknown>>>;

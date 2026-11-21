@@ -626,15 +626,17 @@ export function createQuickSwitcher({ router }) {
     activeIndex = Math.min(activeIndex, Math.max(0, visible.length - 1));
     results.replaceChildren();
     visible.forEach((item, index) => {
-      const option = /** @type {HTMLButtonElement} */ (make("button", "quick-switcher-option"));
+      const option = /** @type {HTMLButtonElement} */ (make("button", "quick-switcher-option result__71961"));
       option.id = `quick-switcher-option-${index}`;
       option.type = "button";
       option.setAttribute("role", "option");
       option.setAttribute("aria-selected", index === activeIndex ? "true" : "false");
       option.setAttribute("data-kind", item.kind);
-      option.appendChild(make("span", "quick-switcher-label", item.label));
-      const detail = make("span", "quick-switcher-detail", item.detail);
-      option.appendChild(detail);
+      const contentWrap = make("div", "content__71961");
+      contentWrap.appendChild(make("span", "quick-switcher-label name__71961", item.label));
+      const detail = make("span", "quick-switcher-detail misc__71961", item.detail);
+      contentWrap.appendChild(detail);
+      option.appendChild(contentWrap);
       option.addEventListener("click", () => choose(index));
       results.appendChild(option);
     });

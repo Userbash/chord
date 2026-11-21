@@ -61,21 +61,29 @@
 
 ## 1. Why Chord? (Benchmarks & Unique Advantages)
 
-Official Discord desktop runs inside Electron/Chromium, demanding 800 MB to 1.5 GB of RAM, suffering from CPU rendering frame drops, broken screensharing on Wayland, and sluggish startup. Web wrappers (WebCord, ArmCord) still carry full Chromium overhead, while older native clients (Ripcord) have broken voice because Discord migrated to DAVE MLS E2EE encryption.
+Official Discord desktop runs inside Electron/Chromium, demanding 800 MB to 1.5 GB of RAM, suffering from CPU rendering frame drops, broken screensharing on Wayland, and sluggish startup. Web wrappers (WebCord, ArmCord) still carry full Chromium overhead, while older native clients (Ripcord) have broken voice because Discord migrated to DAVE MLS E2EE encryption. Emerging native Rust alternatives like [Serein (ViceVerse-cz/Serein)](https://github.com/ViceVerse-cz/Serein) demonstrate the power of pure Rust with immediate-mode `egui`/`wgpu`.
 
-Chord solves this with a **high-performance Rust core** and a **lightweight Tauri 2 desktop client**:
+Chord builds upon these native principles with a **high-performance Rust core**, a **lightweight Tauri 2 desktop client**, and an experimental **GPUI WGPU engine**:
 
-| Metric / Capability | Official Discord (Electron) | Web Wrappers (WebCord/ArmCord) | Ripcord (C++/Qt) | **Chord (Tauri 2 + Rust)** |
-| :--- | :---: | :---: | :---: | :---: |
-| **Idle Memory (RAM)** | 800 MB – 1.6 GB | 450 MB – 900 MB | 30 MB – 60 MB | **~150–180 MB** (or 11 MB GPUI headless) |
-| **Engine Architecture** | Heavy Chromium + Node.js | Chromium Webview wrapper | Native Qt4/5 (closed) | **Compiled Rust Core + Tauri 2** |
-| **Cold Startup Time** | 4.5 – 9.0 seconds | 3.5 – 6.0 seconds | < 1.0 second | **< 480 ms** |
-| **DAVE MLS v1 E2EE Voice** | Supported (proprietary blob) | Supported (browser WebRTC) | ❌ **Broken (No DAVE)** | 🟢 **100% Pure Rust DAVE (`RFC 9420`)** |
-| **Linux Wayland Screenshare** | Black screen / No audio | Variable browser portal | ❌ None | 🟢 **PipeWire DMA-BUF Zero-Copy + Audio** |
-| **Background Noise Filter** | Krisp (closed blob) | Basic browser WebRTC NS | ❌ None | 🟢 **Krisp Neural NC + WebRTC APM** |
-| **Discord UI & Feature Parity** | 100% | 100% (embeds website) | ~30% (outdated UI) | 🟢 **92%+ (144/144 UI Feature Suites)** |
-| **Anti-Bot / Ban Safety** | 100% | Medium (DOM detection) | ⚠️ High Risk | 🟢 **High (Clean-room TLS & Header Spoofing)** |
-| **Open Source & Extensible** | ❌ Proprietary | 🟢 Open Source | ❌ Closed Source | 🟢 **100% Open Source (GPL-3.0)** |
+| Metric / Capability | Official Discord (Electron) | Web Wrappers (WebCord/ArmCord) | Ripcord (C++/Qt) | [Serein](https://github.com/ViceVerse-cz/Serein) (Rust + egui) | **Chord (Tauri 2 + Rust)** |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Idle Memory (RAM)** | 800 MB – 1.6 GB | 450 MB – 900 MB | 30 MB – 60 MB | **~130 MB** (single process) | **~150–180 MB** (or 11 MB GPUI headless) |
+| **Engine Architecture** | Heavy Chromium + Node.js | Chromium Webview wrapper | Native Qt4/5 (closed) | Pure Rust + `egui` / `wgpu` | **Compiled Rust Core + Tauri 2 & GPUI** |
+| **Cold Startup Time** | 4.5 – 9.0 seconds | 3.5 – 6.0 seconds | < 1.0 second | < 400 ms | **< 480 ms** |
+| **DAVE MLS v1 E2EE Voice** | Supported (proprietary blob) | Supported (browser WebRTC) | ❌ **Broken (No DAVE)** | 🟢 Supported (native DAVE) | 🟢 **100% Pure Rust DAVE (`RFC 9420`)** |
+| **Linux Wayland Screenshare** | Black screen / No audio | Variable browser portal | ❌ None | ⚠️ Experimental Portal (unverified) | 🟢 **PipeWire DMA-BUF Zero-Copy + Audio** |
+| **Background Noise Filter** | Krisp (closed blob) | Basic browser WebRTC NS | ❌ None | RNNoise + Sonora AEC3 | 🟢 **Krisp Neural NC + WebRTC APM + VAD** |
+| **Audio & Spatial DSP** | Standard stereo | WebAudio API | Basic | Opus + AGC | 🟢 **360° KEMAR HRTF 3D Audio + Soundboard** |
+| **Discord UI & Feature Parity** | 100% | 100% (embeds website) | ~30% (outdated UI) | ~75% (Custom egui canvas UI) | 🟢 **92%+ (144/144 UI Feature Suites)** |
+| **Plugin & Extension Model** | ❌ Disallowed | Vencord / Web plugins | ❌ None | 🟢 Git-backed `.serein-extension` | 🟢 **Tauri IPC Plugins + CSS Design Tokens** |
+| **Quality & Mutation Rigor** | Proprietary internal QA | Community smoke tests | Unknown | `cargo xtask check` | 🟢 **12 Tiers (T0–T4), 5/5 Mutation Gate** |
+| **Open Source License** | ❌ Proprietary | 🟢 Open Source (MIT) | ❌ Closed Source | 🟢 Open Source (MIT/Apache-2.0) | 🟢 **100% Open Source (GPL-3.0)** |
+
+### Architectural Comparison: Chord vs. Serein (ViceVerse-cz/Serein)
+Both **Chord** and [**Serein**](https://github.com/ViceVerse-cz/Serein) share the vision of freeing Discord users from Electron's heavy footprint using pure Rust:
+- **UI Engine & Layout:** Serein implements an immediate-mode GUI using `egui` and `wgpu`. While extremely lightweight, immediate-mode UI redraws every frame on the GPU and presents a custom canvas look. In contrast, Chord's primary desktop client pairs a Rust BFF with Tauri 2 and WebKitGTK/Blink, offering pixel-perfect fidelity with Discord's actual CSS design tokens (5,132 variables), smooth virtualized chat scrolling, and complete accessibility (ARIA/WCAG), alongside an experimental Zed-inspired GPUI engine.
+- **Voice & Media Pipeline:** Serein provides a native voice engine with RNNoise and Sonora AEC3. Chord features full pure-Rust DAVE MLS v1 (`RFC 9420`) with cryptographic KeyRatchets, truncated 8-byte tags, verified PipeWire DMA-BUF zero-copy screensharing with system audio loopback, Krisp neural noise cancellation, and a binaural KEMAR 360° HRTF spatial audio filter.
+- **Extensibility:** Serein features an innovative Git-backed extension and theme package ecosystem (`.serein-extension`). Chord uses modular Tauri 2 IPC plugins, reactive `@preact/signals-core` state bridges, and verified clean-room reverse-engineered contracts.
 
 ### Key Architectural Strengths:
 1. **Zero-Electron Lightweight Footprint**: Enjoy fluid responsiveness without sacrificing gigabytes of RAM.
@@ -251,13 +259,48 @@ node scripts/test-impact.mjs --run
 node scripts/gate.mjs --scope worker
 ```
 
-### Visual Kanban Board:
+### Visual Kanban Board & Project Map:
 ```bash
 # Export the latest interactive HTML Kanban dashboard
 node scripts/mcp-kanban-board.mjs --export
 
 # Open the Kanban board in your default browser
 xdg-open waves/kanban-board.html
+
+# Automatically synchronize the Project Map (docs/map.md)
+npm run map:sync
+```
+
+### Remote Debugging & Programmatic Control:
+Chord provides full remote inspection and headless control capabilities out-of-the-box:
+
+```bash
+# 1. Launch with WebKit / Chromium Remote DevTools enabled
+WEBKIT_INSPECTOR_SERVER=127.0.0.1:9222 TAURI_DEV_TOOLS=1 npm run tauri dev
+# Then open chrome://inspect in Chromium / Chrome and inspect 127.0.0.1:9222
+
+# 2. Programmatic Chrome DevTools Protocol (CDP) control
+node scripts/cdp.mjs eval "document.title"
+node scripts/cdp.mjs click "button[type='submit']"
+node scripts/cdp.mjs screenshot /tmp/chord-screen.png
+
+# 3. Dynamic Native Memory & WebRTC Hooking (Frida RPC)
+npm run trace:calls
+
+# 4. Remote Native Rust Debugger (GDB Server)
+gdbserver 0.0.0.0:1234 ./rust/target/debug/chord-desktop
+```
+
+### Zero-Token Automation Harness:
+To eliminate manual developer routine and avoid spending AI model tokens on repetitive tasks:
+
+```bash
+npm run git:sync        # Atomic pull -> precheck -> security-shield -> conventional commit -> dual push
+npm run map:sync        # Regenerate docs/map.md and sync roadmap metrics in 100% English
+npm run tdd:sync        # Discover and register all test suites in TDD-PLAN.md §8
+npm run audit:bridges   # Verify Thin Bridge LOC budgets (<= 600 LOC) and reject code bloat
+npm run auto:driver     # Automated Orca worker lifecycle, slot rotation, and terminal release
+```
 ```
 
 ---

@@ -1170,3 +1170,127 @@ async fn optional_headers_builder_methods_and_post_once() {
         "X-Routing-Key дошёл: {text}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// LIB-SIMPLIFY-01: DiscordRestBridge & DiscordHttpClient (reqwest + url + serde)
+// ---------------------------------------------------------------------------
+
+#[test]
+fn discord_rest_bridge_url_resolution_and_query_encoding() {
+    use chord_core::rest::bridge::{
+        DiscordHttpClient, DiscordRestBridgeError, validate_snowflake_id,
+    };
+
+    assert!(validate_snowflake_id("user_id", "1168176063113875531").is_ok());
+    assert!(validate_snowflake_id("user_id", "1").is_ok());
+    assert!(validate_snowflake_id("user_id", &u64::MAX.to_string()).is_ok());
+    for invalid in ["", "0", "000", "abc", "-1", "18446744073709551616"] {
+        assert!(
+            matches!(
+                validate_snowflake_id("user_id", invalid),
+                Err(DiscordRestBridgeError::InvalidSnowflake { .. })
+            ),
+            "snowflake {invalid:?} must be rejected"
+        );
+    }
+
+    let client = DiscordHttpClient::new(ApiConfig {
+        base: "https://discord.com/api/v9".to_string(),
+        auth: auth(),
+        ..ApiConfig::default()
+    })
+    .expect("valid DiscordHttpClient");
+
+    let resolved = client
+        .resolve_url(
+            "/guilds/1014537851418980372/messages/search",
+            &[
+                ("content", "hello & world #1 ?"),
+                ("offset", "10"),
+                ("limit", "25"),
+            ],
+        )
+        .expect("resolve url with query");
+    assert_eq!(
+        resolved.as_str(),
+        "https://discord.com/api/v9/guilds/1014537851418980372/messages/search?content=hello%20%26%20world%20%231%20%3F&offset=10&limit=25"
+    );
+    assert_eq!(
+        DiscordHttpClient::relative_path_and_query(&resolved),
+        "/guilds/1014537851418980372/messages/search?content=hello%20%26%20world%20%231%20%3F&offset=10&limit=25"
+    );
+}
+
+#[tokio::test]
+async fn discord_http_client_executes_typed_serde_request_and_tracks_rate_limit_buckets() {
+    use chord_core::rest::bridge::DiscordHttpClient;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+    struct EchoDto {
+        channel_id: String,
+        answer_ids: Vec<u32>,
+    }
+
+    let rate_limited_resp = b"HTTP/1.1 429 Too Many Requests\r\nRetry-After: 0.01\r\nX-RateLimit-Bucket: poll-bucket-1\r\nX-RateLimit-Remaining: 0\r\nX-RateLimit-Reset-After: 0.01\r\nContent-Type: application/json\r\nContent-Length: 27\r\n\r\n{\"retry_after\":0.01,\"code\":0}".to_vec();
+    let ok_body = r#"{"channel_id":"1014537851418980375","answer_ids":[1,3]}"#;
+    let ok_resp = format!(
+        "HTTP/1.1 200 OK\r\nX-RateLimit-Bucket: poll-bucket-1\r\nX-RateLimit-Remaining: 4\r\nX-RateLimit-Limit: 5\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{ok_body}",
+        ok_body.len()
+    )
+    .into_bytes();
+
+    let (port, server) = spawn_sequence(vec![rate_limited_resp, ok_resp]).await;
+    let client = DiscordHttpClient::new(ApiConfig {
+        base: format!("http://127.0.0.1:{port}/api/v9"),
+        auth: auth(),
+        http: HttpClientConfig::default(),
+        retry: policy(),
+    })
+    .expect("reqwest bridge client");
+
+    let payload = EchoDto {
+        channel_id: "1014537851418980375".to_string(),
+        answer_ids: vec![1, 3],
+    };
+
+    let dto: EchoDto = timeout(
+        CASE_TIMEOUT,
+        client.execute_json(
+            HttpMethod::Put,
+            "/channels/1014537851418980375/polls/1293192721237938187/answers/@me",
+            &[],
+            Some(&payload),
+        ),
+    )
+    .await
+    .expect("timeout")
+    .expect("reqwest bridge json response");
+
+    assert_eq!(dto, payload);
+
+    let bucket = client
+        .bucket_state("poll-bucket-1")
+        .expect("bucket state recorded");
+    assert_eq!(bucket.remaining, Some(4));
+    assert_eq!(bucket.limit, Some(5));
+
+    let raw_requests = timeout(CASE_TIMEOUT, server)
+        .await
+        .expect("server timeout")
+        .expect("server");
+    assert_eq!(raw_requests.len(), 2, "retried once after 429");
+    let req_text = String::from_utf8_lossy(&raw_requests[0]);
+    assert!(
+        req_text.contains(
+            "PUT /api/v9/channels/1014537851418980375/polls/1293192721237938187/answers/@me HTTP/1.1"
+        ),
+        "request line: {req_text}"
+    );
+    assert!(
+        req_text
+            .to_ascii_lowercase()
+            .contains("authorization: bot test-token"),
+        "auth header present: {req_text}"
+    );
+}

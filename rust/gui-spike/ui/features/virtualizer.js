@@ -1,9 +1,19 @@
 // @ts-check
 /**
- * @fileoverview Промышленный виртуализатор списков (`@tanstack/virtual-core`-совместимый API)
+ * @fileoverview Промышленный виртуализатор списков на базе проверенной ESM-библиотеки `@tanstack/virtual-core`
  * для ленты сообщений (`<MessageList />`) и панели участников (`#member-list`).
  * Поддерживает динамические замеры высот строк (`measureElement`), `overscan` и `scrollToIndex`.
  */
+
+import {
+  Virtualizer,
+  elementScroll,
+  defaultRangeExtractor,
+  defaultKeyExtractor,
+} from "@tanstack/virtual-core";
+
+export const isTanstackVirtualPowered = true;
+export { Virtualizer, elementScroll, defaultRangeExtractor, defaultKeyExtractor };
 
 /**
  * @typedef {Object} VirtualItem
@@ -36,72 +46,48 @@ export function createVirtualizer(options) {
       ? options.getItemKey
       : (/** @type {number} */ idx) => String(idx);
 
-  /** @type {Map<number, number>} */
-  const measuredSizes = new Map();
+  const virtualizer = new Virtualizer({
+    count,
+    estimateSize,
+    overscan,
+    getItemKey,
+    getScrollElement: () => null,
+    scrollToFn: (offset) => {
+      scrollOffset = offset;
+    },
+    observeElementRect: (instance, cb) => {
+      cb({ width: 800, height: viewportSize });
+      return () => {};
+    },
+    observeElementOffset: (instance, cb) => {
+      cb(scrollOffset, false);
+      return () => {};
+    },
+  });
 
-  /**
-   * @param {number} index
-   * @returns {number}
-   */
-  function getSizeForIndex(index) {
-    const measured = measuredSizes.get(index);
-    if (measured !== undefined && Number.isFinite(measured) && measured > 0) {
-      return measured;
-    }
-    const est = Number(estimateSize(index));
-    return Number.isFinite(est) && est > 0 ? est : 44;
-  }
-
-  /**
-   * @returns {VirtualItem[]}
-   */
-  function buildAllMeasurements() {
-    /** @type {VirtualItem[]} */
-    const all = new Array(count);
-    let offset = 0;
-    for (let i = 0; i < count; i += 1) {
-      const size = getSizeForIndex(i);
-      const start = offset;
-      const end = start + size;
-      all[i] = {
-        index: i,
-        start,
-        end,
-        size,
-        key: getItemKey(i),
-      };
-      offset = end;
-    }
-    return all;
-  }
+  virtualizer.scrollRect = { width: 800, height: viewportSize };
+  virtualizer.scrollOffset = scrollOffset;
 
   return {
+    virtualizer,
+
     /** @returns {number} */
     getTotalSize() {
-      const all = buildAllMeasurements();
-      const last = all[all.length - 1];
-      return last ? last.end : 0;
+      return virtualizer.getTotalSize();
     },
 
     /** @returns {VirtualItem[]} */
     getVirtualItems() {
       if (count <= 0) return [];
-      const all = buildAllMeasurements();
-      const viewStart = scrollOffset;
-      const viewEnd = scrollOffset + viewportSize;
-
-      let startIdx = 0;
-      while (startIdx < all.length - 1 && (all[startIdx]?.end ?? 0) <= viewStart) {
-        startIdx += 1;
-      }
-      let endIdx = startIdx;
-      while (endIdx < all.length - 1 && (all[endIdx]?.end ?? 0) < viewEnd) {
-        endIdx += 1;
-      }
-
-      const from = Math.max(0, startIdx - overscan);
-      const to = Math.min(all.length - 1, endIdx + overscan);
-      return all.slice(from, to + 1);
+      /** @type {any[]} */
+      const items = virtualizer.getVirtualItems();
+      return items.map((it) => ({
+        index: it.index,
+        start: it.start,
+        end: it.end,
+        size: it.size,
+        key: String(it.key),
+      }));
     },
 
     /**
@@ -111,8 +97,8 @@ export function createVirtualizer(options) {
     measureElement(index, size) {
       if (index < 0 || index >= count) return;
       const num = Number(size);
-      if (Number.isFinite(num) && num > 0) {
-        measuredSizes.set(index, num);
+      if (Number.isFinite(num) && num >= 0) {
+        virtualizer.resizeItem(index, num);
       }
     },
 
@@ -124,7 +110,9 @@ export function createVirtualizer(options) {
       scrollOffset = Math.max(0, Number(nextOffset) || 0);
       if (nextViewportSize !== undefined && Number(nextViewportSize) > 0) {
         viewportSize = Number(nextViewportSize);
+        virtualizer.scrollRect = { width: 800, height: viewportSize };
       }
+      virtualizer.scrollOffset = scrollOffset;
     },
 
     /**
@@ -132,28 +120,36 @@ export function createVirtualizer(options) {
      */
     setCount(nextCount) {
       count = Math.max(0, Number(nextCount) || 0);
+      virtualizer.setOptions({
+        ...virtualizer.options,
+        count,
+      });
     },
 
     /**
      * @param {number} index
-     * @param {{ align?: "start" | "center" | "end" }} [opts]
+     * @param {{ align?: "start" | "center" | "end" | "auto" }} [opts]
      * @returns {number}
      */
     scrollToIndex(index, opts = {}) {
       if (count <= 0) return 0;
       const clamped = Math.max(0, Math.min(count - 1, index));
-      const all = buildAllMeasurements();
-      const target = all[clamped];
-      if (!target) return 0;
+      const m = /** @type {any} */ (virtualizer).getMeasurements()[clamped];
+      if (!m) return 0;
       const align = opts.align || "start";
-      let nextOffset = target.start;
-      if (align === "center") {
-        nextOffset = target.start - viewportSize / 2 + target.size / 2;
+      let nextOffset = m.start;
+      if (align === "auto") {
+        if (m.start < scrollOffset) nextOffset = m.start;
+        else if (m.end > scrollOffset + viewportSize) nextOffset = m.end - viewportSize;
+        else nextOffset = scrollOffset;
+      } else if (align === "center") {
+        nextOffset = m.start - viewportSize / 2 + m.size / 2;
       } else if (align === "end") {
-        nextOffset = target.end - viewportSize;
+        nextOffset = m.end - viewportSize;
       }
-      const maxOffset = Math.max(0, (all[all.length - 1]?.end ?? 0) - viewportSize);
+      const maxOffset = Math.max(0, virtualizer.getTotalSize() - viewportSize);
       scrollOffset = Math.max(0, Math.min(maxOffset, nextOffset));
+      virtualizer.scrollOffset = scrollOffset;
       return scrollOffset;
     },
   };

@@ -1002,7 +1002,7 @@ fn play_pcm_buffer_on_cpal(
         _ => {
             return Err(AudioEngineError::DeviceUnavailable(
                 "unsupported sample format".to_string(),
-            ))
+            ));
         }
     };
 
@@ -1105,7 +1105,7 @@ fn run_cpal_mic_probe(
         _ => {
             return Err(AudioEngineError::DeviceUnavailable(
                 "unsupported input sample format".to_string(),
-            ))
+            ));
         }
     };
 

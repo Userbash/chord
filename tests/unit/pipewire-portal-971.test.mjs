@@ -101,6 +101,9 @@ members = ["platform"]
 
 [workspace.package]
 ${workspacePackage.trim()}
+
+[workspace.dependencies]
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "net", "time", "sync"] }
 `);
   const realCargo = join(homedir(), ".cargo", "bin", "cargo");
   const res = spawnSync(

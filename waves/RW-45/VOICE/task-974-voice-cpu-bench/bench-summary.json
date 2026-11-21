@@ -13,11 +13,11 @@
   "pcmFrameSamples": 960,
   "rtpPayloadType": 120,
   "rtpExtensionProfile": "0xbede",
-  "wallElapsedMs": 12.2035,
-  "cpuTimeMs": 21.467,
+  "wallElapsedMs": 16.5185,
+  "cpuTimeMs": 30.681,
   "availableCores": 16,
-  "cpuLoadPct": 1.2204,
-  "systemNormalizedCpuPct": 0.1342,
+  "cpuLoadPct": 0.1918,
+  "systemNormalizedCpuPct": 0.1918,
   "maxCpuBudgetPct": 5,
   "jitterBufferDelayMs": 14.9968,
   "avgJitterBufferDelayMs": 14.0641,
@@ -32,9 +32,9 @@
   "oracleParity": {
     "passed": true,
     "reasons": [],
-    "oraclePath": "/home/user/orca/project/fixtures/voice/rtp-pt120-oracle.json",
+    "oraclePath": "/home/sanya/orca/project/fixtures/voice/rtp-pt120-oracle.json",
     "oracleMd5": "798dd8aea8dd14d4429ac00b1c1d0a12",
-    "sourcePcap": "/home/user/clean-room-oracle/voice/voice-udp4.pcap",
+    "sourcePcap": "/home/sanya/re-deep/voice/voice-udp4.pcap",
     "totalCapturePackets": 10,
     "warmupAnomalyPackets": 2,
     "validBedePackets": 8,
@@ -43,5 +43,5 @@
     "jitterUnits": 222.138914,
     "jitterMs": 4.627894
   },
-  "generatedAt": "2026-11-11T12:26:56.625Z"
+  "generatedAt": "2026-11-21T06:17:51.592Z"
 }

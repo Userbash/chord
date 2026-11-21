@@ -198,6 +198,127 @@ fn live_session() -> &'static Mutex<LiveSession> {
     SESSION.get_or_init(|| Mutex::new(LiveSession::default()))
 }
 
+/// Serializable DTO for a message row returned from [`chord_store::StoreBridge`] (`STAGE-10.BFF.4`).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct DbMessageDto {
+    pub id: String,
+    pub channel_id: String,
+    pub author_id: String,
+    pub content: String,
+    pub timestamp: i64,
+    pub edited_timestamp: Option<i64>,
+    pub deleted: bool,
+}
+
+impl From<chord_store::MessageRow> for DbMessageDto {
+    fn from(row: chord_store::MessageRow) -> Self {
+        Self {
+            id: row.id,
+            channel_id: row.channel_id,
+            author_id: row.author_id,
+            content: row.content,
+            timestamp: row.timestamp,
+            edited_timestamp: row.edited_timestamp,
+            deleted: row.deleted,
+        }
+    }
+}
+
+/// Serializable DTO for an FTS5 search hit returned from [`chord_store::StoreBridge`] (`STAGE-10.BFF.4`).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct DbQueryHitDto {
+    pub message_id: String,
+    pub channel_id: String,
+    pub author_id: String,
+    pub content: String,
+    pub snippet: String,
+    pub rank: f64,
+}
+
+impl From<chord_store::Fts5SearchHit> for DbQueryHitDto {
+    fn from(hit: chord_store::Fts5SearchHit) -> Self {
+        Self {
+            message_id: hit.message_id,
+            channel_id: hit.channel_id,
+            author_id: hit.author_id,
+            content: hit.content,
+            snippet: hit.snippet,
+            rank: hit.rank,
+        }
+    }
+}
+
+/// Returns a cloneable [`chord_store::StoreBridge`] handle backed by a long-lived
+/// [`chord_store::DbWorker`] (`mpsc(1024)` + `oneshot`) for `STAGE-10.BFF.4`.
+pub fn live_store_bridge() -> Result<chord_store::StoreBridge, DataError> {
+    static WORKER: OnceLock<Mutex<Option<(PathBuf, chord_store::DbWorker)>>> = OnceLock::new();
+    let slot = WORKER.get_or_init(|| Mutex::new(None));
+    let mut guard = slot.lock().unwrap_or_else(|poison| poison.into_inner());
+
+    let db_path = {
+        let session = live_session()
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
+        session
+            .components_store_path
+            .clone()
+            .unwrap_or_else(|| PathBuf::from(":memory:"))
+    };
+
+    if let Some((ref current_path, ref worker)) = *guard {
+        if current_path == &db_path {
+            return Ok(worker.bridge());
+        }
+    }
+
+    let worker = chord_store::DbWorker::spawn(&db_path)
+        .map_err(|err| DataError::invalid_arg(format!("не удалось запустить DbWorker: {err}")))?;
+    let bridge = worker.bridge();
+    *guard = Some((db_path, worker));
+    Ok(bridge)
+}
+
+/// Queries channel message history via [`chord_store::StoreBridge`] over `mpsc(1024)` (`STAGE-10.BFF.4`).
+pub fn db_messages_via_bridge(
+    bridge: &chord_store::StoreBridge,
+    channel_id: &str,
+    before: Option<String>,
+    limit: Option<usize>,
+) -> Result<Vec<DbMessageDto>, DataError> {
+    let channel_id = channel_id.trim();
+    if channel_id.is_empty() {
+        return Err(DataError::invalid_arg("channel_id не должен быть пустым"));
+    }
+    let limit = limit.unwrap_or(50).clamp(1, 200);
+    let rows = bridge
+        .messages(channel_id, before, limit)
+        .map_err(|err| DataError::invalid_arg(format!("StoreBridge messages error: {err}")))?;
+    Ok(rows.into_iter().map(DbMessageDto::from).collect())
+}
+
+/// Executes an FTS5 search query via [`chord_store::StoreBridge`] over `mpsc(1024)` (`STAGE-10.BFF.4`).
+pub fn db_query_via_bridge(
+    bridge: &chord_store::StoreBridge,
+    query: &str,
+    channel_id: Option<&str>,
+    author_id: Option<&str>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+) -> Result<Vec<DbQueryHitDto>, DataError> {
+    let query = query.trim();
+    if query.is_empty() {
+        return Err(DataError::invalid_arg("query не должен быть пустым"));
+    }
+    let limit = limit.unwrap_or(25).clamp(1, 100);
+    let offset = offset.unwrap_or(0);
+    let hits = bridge
+        .search_messages_fts(query, channel_id, author_id, limit, offset)
+        .map_err(|err| DataError::invalid_arg(format!("StoreBridge search error: {err}")))?;
+    Ok(hits.into_iter().map(DbQueryHitDto::from).collect())
+}
+
 fn live_rest_mock_slot(
 ) -> &'static Mutex<Option<std::sync::Arc<dyn crate::guilds::GuildJoinTransport>>> {
     static MOCK: OnceLock<Mutex<Option<std::sync::Arc<dyn crate::guilds::GuildJoinTransport>>>> =

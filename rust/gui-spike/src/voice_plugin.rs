@@ -6,6 +6,7 @@
 //! and `chord-platform::audio_engine`.
 
 use chord_client::data;
+use chord_client::dave_bridge::{self, DaveE2eeStatusDto, VoiceStateSnapshotDto};
 use chord_client::dto::VoiceRtcStatusDto;
 use chord_client::voice_diagnostics::ConnectionQuality;
 use chord_platform::audio_engine::{
@@ -32,7 +33,13 @@ pub fn verify_voice_protocol_gate(version: u16, speaking_requested: bool, self_d
 }
 
 use std::sync::atomic::{AtomicI32, AtomicU32, AtomicU64, Ordering};
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
+
+/// Global `AudioPipelineBridge` instance for cpal device enumeration, volume, and mute control.
+fn global_audio_pipeline_bridge() -> &'static Mutex<audio_spike::pipeline::AudioPipelineBridge> {
+    static BRIDGE: OnceLock<Mutex<audio_spike::pipeline::AudioPipelineBridge>> = OnceLock::new();
+    BRIDGE.get_or_init(|| Mutex::new(audio_spike::pipeline::AudioPipelineBridge::default()))
+}
 
 /// Canonical Tauri plugin identifier for the voice & screen-sharing domain.
 pub const PLUGIN_NAME: &str = "voice";
@@ -50,6 +57,10 @@ pub const VOICE_PLUGIN_COMMANDS: [&str; 10] = [
     "voice_stream_start",
     "voice_stream_stop",
 ];
+
+/// Canonical list of `DaveVoiceBridge`-bound IPC commands (`STAGE-10.BFF.6`).
+pub const DAVE_VOICE_BRIDGE_COMMANDS: [&str; 3] =
+    ["voice_connect", "voice_state", "voice_e2ee_status"];
 
 /// Debounce: minimum milliseconds between consecutive `voice_stream_start` calls.
 static LAST_STREAM_START_MS: AtomicU64 = AtomicU64::new(0);
@@ -419,14 +430,26 @@ pub async fn voice_connect(
                 guild_id, channel_id, eff_mute, eff_deaf, eff_video, eff_stream
             );
         }
-        data::connect_or_update_live_voice_ext(
+        let e2ee_status = if let Some(ref cid_str) = norm_cid {
+            let self_uid = data::current_live_self_uid();
+            dave_bridge::connect_or_refresh_session(norm_gid.clone(), cid_str, &self_uid)?
+        } else {
+            dave_bridge::disconnect_session()
+        };
+        let mut resp = data::connect_or_update_live_voice_ext(
             guild_id,
             channel_id,
             eff_mute,
             eff_deaf,
             eff_video,
             eff_stream,
-        )
+        )?;
+        if let Some(obj) = resp.as_object_mut() {
+            if let Ok(e2ee_val) = serde_json::to_value(&e2ee_status) {
+                obj.insert("e2ee".to_string(), e2ee_val);
+            }
+        }
+        Ok(resp)
     })
     .await?
 }
@@ -435,6 +458,7 @@ pub async fn voice_connect(
 pub async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Value, String> {
     println!("[IPC-TRACE] voice_disconnect guild_id={guild_id:?}");
     blocking(move || {
+        let _ = dave_bridge::disconnect_session();
         let (gid, cid) = data::current_live_voice_target();
         let self_id = data::current_live_self_uid();
         let stop_key = build_active_stream_key(gid, cid, &self_id);
@@ -454,6 +478,7 @@ pub async fn voice_disconnect(guild_id: Option<String>) -> Result<serde_json::Va
 
 /// Synchronously disconnects active live voice state during window close (`CloseRequested`).
 pub fn disconnect_on_window_close() {
+    let _ = dave_bridge::disconnect_session();
     let (active_gid, _) = data::active_voice_guild_and_channel();
     let _ = data::connect_or_update_live_voice(active_gid.clone(), None, false, false);
     let _ = chord_core::ws::queue_live_voice_state(active_gid, None, false, false);
@@ -468,21 +493,31 @@ pub async fn voice_mute(self_mute: bool) -> Result<serde_json::Value, String> {
         let (cur_video, cur_stream) = data::current_live_voice_video_stream();
         let resolved = resolve_effective_mute_deaf(self_mute, cur_deaf);
         global_audio_engine().set_mute_or_deaf(AudioDirection::Input, resolved.effective_mute);
+        if let Ok(bridge) = global_audio_pipeline_bridge().lock() {
+            bridge.set_muted(resolved.effective_mute);
+        }
         let cue = if self_mute {
             SoundCue::Mute
         } else {
             SoundCue::Unmute
         };
         let _ = global_audio_engine().play_sound_cue(cue.as_str(), None, Some(false));
-        if cid.is_some() {
-            data::connect_or_update_live_voice_ext(
+        if let Some(ref cid_str) = cid {
+            let e2ee = dave_bridge::e2ee_status_for_channel(Some(cid_str));
+            let mut resp = data::connect_or_update_live_voice_ext(
                 gid,
                 cid,
                 resolved.self_mute,
                 resolved.self_deaf,
                 cur_video,
                 cur_stream,
-            )
+            )?;
+            if let Some(obj) = resp.as_object_mut() {
+                if let Ok(e2ee_val) = serde_json::to_value(&e2ee) {
+                    obj.insert("e2ee".to_string(), e2ee_val);
+                }
+            }
+            Ok(resp)
         } else {
             Ok(serde_json::json!({
                 "ok": true,
@@ -506,21 +541,32 @@ pub async fn voice_deaf(self_deaf: bool) -> Result<serde_json::Value, String> {
         let resolved = resolve_effective_mute_deaf(cur_mute, self_deaf);
         global_audio_engine().set_mute_or_deaf(AudioDirection::Input, resolved.effective_mute);
         global_audio_engine().set_mute_or_deaf(AudioDirection::Output, resolved.self_deaf);
+        if let Ok(bridge) = global_audio_pipeline_bridge().lock() {
+            bridge.set_muted(resolved.effective_mute);
+            bridge.set_deafened(resolved.self_deaf);
+        }
         let cue = if self_deaf {
             SoundCue::Deafen
         } else {
             SoundCue::Undeafen
         };
         let _ = global_audio_engine().play_sound_cue(cue.as_str(), None, Some(false));
-        if cid.is_some() {
-            data::connect_or_update_live_voice_ext(
+        if let Some(ref cid_str) = cid {
+            let e2ee = dave_bridge::e2ee_status_for_channel(Some(cid_str));
+            let mut resp = data::connect_or_update_live_voice_ext(
                 gid,
                 cid,
                 resolved.self_mute,
                 resolved.self_deaf,
                 cur_video,
                 cur_stream,
-            )
+            )?;
+            if let Some(obj) = resp.as_object_mut() {
+                if let Ok(e2ee_val) = serde_json::to_value(&e2ee) {
+                    obj.insert("e2ee".to_string(), e2ee_val);
+                }
+            }
+            Ok(resp)
         } else {
             Ok(serde_json::json!({
                 "ok": true,
@@ -546,6 +592,7 @@ pub async fn voice_rtc_status() -> Result<serde_json::Value, String> {
             .and_then(serde_json::Value::as_f64)
             .unwrap_or(0.0);
         let quality = evaluate_rtc_connection_quality(rtt_f64, loss_f64);
+        let e2ee = dave_bridge::e2ee_status_for_channel(dto.channel_id.as_deref());
         if let Some(obj) = raw.as_object_mut() {
             obj.entry("txPackets".to_string())
                 .or_insert_with(|| serde_json::json!(dto.tx_packets));
@@ -561,10 +608,114 @@ pub async fn voice_rtc_status() -> Result<serde_json::Value, String> {
                 .or_insert_with(|| serde_json::json!(DAVE_PROTOCOL_VERSION));
             obj.entry("mediaEncryptionMode".to_string())
                 .or_insert_with(|| serde_json::json!(MEDIA_ENCRYPTION_MODE));
+            if let Ok(e2ee_val) = serde_json::to_value(&e2ee) {
+                obj.insert("e2ee".to_string(), e2ee_val);
+            }
         }
         raw
     })
     .await
+}
+
+/// Queries or updates the current live voice session state and synchronizes `DaveVoiceBridge` participants.
+pub async fn voice_state(
+    guild_id: Option<String>,
+    channel_id: Option<String>,
+    self_mute: Option<bool>,
+    self_deaf: Option<bool>,
+    self_video: Option<bool>,
+    self_stream: Option<bool>,
+    peer_user_ids: Option<Vec<String>>,
+) -> Result<VoiceStateSnapshotDto, String> {
+    blocking(move || {
+        let (cur_gid, cur_cid) = data::current_live_voice_target();
+        let has_live_call = cur_cid.is_some();
+        let (cur_mute, cur_deaf) = data::current_live_voice_mute_deaf();
+        let (cur_video, cur_stream) = data::current_live_voice_video_stream();
+        let eff_gid = normalize_guild_id(guild_id.as_deref()).or(cur_gid);
+        let eff_cid = normalize_channel_id(channel_id.as_deref()).or(cur_cid);
+        let eff_mute = self_mute.unwrap_or(cur_mute);
+        let eff_deaf = self_deaf.unwrap_or(cur_deaf);
+        let eff_video = self_video.unwrap_or(cur_video);
+        let eff_stream = self_stream.unwrap_or(cur_stream);
+        let resolved = resolve_effective_mute_deaf(eff_mute, eff_deaf);
+        if self_mute.is_some()
+            || self_deaf.is_some()
+            || self_video.is_some()
+            || self_stream.is_some()
+        {
+            global_audio_engine().set_mute_or_deaf(AudioDirection::Input, resolved.effective_mute);
+            global_audio_engine().set_mute_or_deaf(AudioDirection::Output, resolved.self_deaf);
+            if has_live_call && eff_cid.is_some() {
+                let _ = data::connect_or_update_live_voice_ext(
+                    eff_gid.clone(),
+                    eff_cid.clone(),
+                    resolved.self_mute,
+                    resolved.self_deaf,
+                    eff_video,
+                    eff_stream,
+                );
+            }
+        }
+
+        let rtc = data::live_voice_rtc_status_json();
+        let connected = has_live_call
+            && eff_cid.is_some()
+            && rtc
+                .get("state")
+                .and_then(serde_json::Value::as_str)
+                .is_none_or(|st| st != "disconnected");
+        let phase_state = if connected {
+            rtc.get("state")
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or("signaling")
+                .to_string()
+        } else {
+            "disconnected".to_string()
+        };
+
+        let e2ee = if connected {
+            if let Some(ref cid_str) = eff_cid {
+                let self_uid = data::current_live_self_uid();
+                let _ =
+                    dave_bridge::connect_or_refresh_session(eff_gid.clone(), cid_str, &self_uid)?;
+                if let Some(ref peers) = peer_user_ids {
+                    dave_bridge::sync_peer_roster(peers)?
+                } else {
+                    dave_bridge::e2ee_status_for_channel(Some(cid_str))
+                }
+            } else {
+                dave_bridge::e2ee_status_for_channel(None)
+            }
+        } else {
+            dave_bridge::disconnected_status(eff_cid.clone())
+        };
+
+        Ok(VoiceStateSnapshotDto {
+            connected,
+            state: phase_state,
+            guild_id: if connected { eff_gid } else { None },
+            channel_id: if connected { eff_cid } else { None },
+            self_mute: resolved.self_mute,
+            self_deaf: resolved.self_deaf,
+            effective_mute: resolved.effective_mute,
+            self_video: eff_video,
+            self_stream: eff_stream,
+            speaking_flags: resolved.speaking_flags,
+            participant_ids: dave_bridge::active_participant_ids_strings(),
+            e2ee,
+        })
+    })
+    .await?
+}
+
+/// Returns the current DAVE MLS v1 E2EE encryption status snapshot (`DaveE2eeStatusDto`).
+pub async fn voice_e2ee_status(channel_id: Option<String>) -> Result<DaveE2eeStatusDto, String> {
+    blocking(move || {
+        let norm_cid = normalize_channel_id(channel_id.as_deref());
+        Ok(dave_bridge::e2ee_status_for_channel(norm_cid.as_deref()))
+    })
+    .await?
 }
 
 /// Returns the current live voice RTC status as a strongly-typed `VoiceRtcStatusDto`.
@@ -578,9 +729,89 @@ pub async fn voice_audio_devices() -> Result<serde_json::Value, String> {
     blocking(data::list_system_audio_devices_json).await
 }
 
-/// Domain alias for `voice_audio_devices`.
+/// Domain alias for `voice_audio_devices` backed by `AudioPipelineBridge::enumerate_devices`.
 pub async fn audio_devices() -> Result<serde_json::Value, String> {
-    voice_audio_devices().await
+    let mut base = voice_audio_devices().await?;
+    let (cpal_inputs, cpal_outputs) = blocking(|| {
+        let inputs: Vec<serde_json::Value> =
+            audio_spike::pipeline::AudioPipelineBridge::enumerate_devices(
+                audio_spike::pipeline::DeviceDirection::Input,
+            )
+            .into_iter()
+            .map(|d| {
+                serde_json::json!({
+                    "id": d.name,
+                    "name": d.name,
+                    "isDefault": d.is_default,
+                    "maxChannels": d.max_channels,
+                    "defaultSampleRate": d.default_sample_rate,
+                })
+            })
+            .collect();
+        let outputs: Vec<serde_json::Value> =
+            audio_spike::pipeline::AudioPipelineBridge::enumerate_devices(
+                audio_spike::pipeline::DeviceDirection::Output,
+            )
+            .into_iter()
+            .map(|d| {
+                serde_json::json!({
+                    "id": d.name,
+                    "name": d.name,
+                    "isDefault": d.is_default,
+                    "maxChannels": d.max_channels,
+                    "defaultSampleRate": d.default_sample_rate,
+                })
+            })
+            .collect();
+        (inputs, outputs)
+    })
+    .await?;
+
+    if let Some(obj) = base.as_object_mut() {
+        obj.insert("cpalInputs".to_string(), serde_json::json!(cpal_inputs));
+        obj.insert("cpalOutputs".to_string(), serde_json::json!(cpal_outputs));
+    }
+    Ok(base)
+}
+
+/// Sets audio pipeline volume (`0..=200`%) via `AudioPipelineBridge::set_volume`.
+pub async fn audio_set_volume(
+    volume_pct: u32,
+    kind: Option<String>,
+) -> Result<serde_json::Value, String> {
+    let clamped = volume_pct.clamp(0, 200);
+    {
+        let bridge = global_audio_pipeline_bridge()
+            .lock()
+            .unwrap_or_else(|p| p.into_inner());
+        bridge.set_volume(clamped);
+    }
+    if let Some(k) = kind.as_deref() {
+        let k_owned = k.to_string();
+        let _ =
+            blocking(move || data::set_system_audio_device(&k_owned, None, Some(clamped), None))
+                .await;
+    }
+    Ok(serde_json::json!({
+        "ok": true,
+        "volume_pct": clamped,
+        "volumePct": clamped,
+        "kind": kind,
+    }))
+}
+
+/// Sets audio pipeline mute state via `AudioPipelineBridge::set_muted`.
+pub async fn audio_mute(muted: bool) -> Result<serde_json::Value, String> {
+    {
+        let bridge = global_audio_pipeline_bridge()
+            .lock()
+            .unwrap_or_else(|p| p.into_inner());
+        bridge.set_muted(muted);
+    }
+    Ok(serde_json::json!({
+        "ok": true,
+        "muted": muted,
+    }))
 }
 
 /// Updates system audio device selection/volume/mute or handles tray/telemetry control actions.

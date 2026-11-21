@@ -43,7 +43,7 @@
     <Property Id="WINDOWS_EXIT_HOTKEYS" Value="Alt+F4;Ctrl+Q" />
     <Property Id="WASAPI_LOOPBACK_MIN_BUILD" Value="19045" />
     <Property Id="BINARY_SHA256" Value="d5e50180d2b0a6edd8faa9c2ad908d931cecb8c5765190bff25be90c7e0e002e" />
-    <Property Id="SBOM_SHA256" Value="acb867f70bd6b4891a274388677363fbb9a521213234bbf384c14f9806de2921" />
+    <Property Id="SBOM_SHA256" Value="4663c83dd8fc2b39477b4108b27a3097617fcc6c918b33b5cdd9bc3c9c08548f" />
     <Property Id="TOKEN_BG" Value="#1e1f22" />
     <Property Id="TOKEN_SURFACE" Value="#2b2d31" />
     <Property Id="TOKEN_TEXT_PRIMARY" Value="#ffffff" />
@@ -126,6 +126,19 @@
         <RegistryKey Root="HKCU" Key="Software\Classes\disclip">
           <RegistryValue Type="string" Value="URL:Discord Clip Protocol" />
           <RegistryValue Type="string" Name="URL Protocol" Value="" />
+          <RegistryKey Key="shell\open\command">
+            <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]discord-gpui.exe&quot; --url &quot;%1&quot;" />
+          </RegistryKey>
+        </RegistryKey>
+        <RegistryKey Root="HKCU" Key="Software\Classes\.discord-invite">
+          <RegistryValue Type="string" Value="DiscordGpui.Invite" />
+          <RegistryValue Type="string" Name="Content Type" Value="application/x-discord-gpui-invite" />
+        </RegistryKey>
+        <RegistryKey Root="HKCU" Key="Software\Classes\DiscordGpui.Invite">
+          <RegistryValue Type="string" Value="Discord GPUI Server Invite" />
+          <RegistryKey Key="DefaultIcon">
+            <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]discord-gpui.exe&quot;,0" />
+          </RegistryKey>
           <RegistryKey Key="shell\open\command">
             <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]discord-gpui.exe&quot; --url &quot;%1&quot;" />
           </RegistryKey>

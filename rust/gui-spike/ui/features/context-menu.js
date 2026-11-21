@@ -1021,7 +1021,7 @@ export function createContextMenuController(options) {
   let outsideListenerAttached = false;
 
   const menuEl = doc.createElement("div");
-  menuEl.className = "context-menu";
+  menuEl.className = "context-menu menu_c1e9c4 flexible_c1e9c4";
   menuEl.setAttribute("data-context-menu", "");
   menuEl.setAttribute("role", "menu");
   menuEl.setAttribute("aria-label", "Контекстное меню");
@@ -1299,7 +1299,7 @@ export function createContextMenuController(options) {
     itemElements = currentItems.map((item, idx) => {
       if (item.type === "separator") {
         const sep = doc.createElement("div");
-        sep.className = "context-menu-separator";
+        sep.className = "context-menu-separator separator_c1e9c4";
         sep.setAttribute("role", "separator");
         sep.setAttribute("data-context-separator", "");
         return sep;
@@ -1369,8 +1369,8 @@ export function createContextMenuController(options) {
 
       const btn = doc.createElement("button");
       btn.className = item.danger
-        ? "context-menu-item context-menu-item-danger"
-        : "context-menu-item";
+        ? "context-menu-item context-menu-item-danger item_c1e9c4 colorDanger_c1e9c4 colorDefault_c1e9c4"
+        : "context-menu-item item_c1e9c4 colorDefault_c1e9c4";
       btn.setAttribute("type", "button");
       btn.setAttribute("role", "menuitem");
       btn.setAttribute("data-context-item", item.id);

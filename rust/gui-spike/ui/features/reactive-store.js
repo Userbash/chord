@@ -1,12 +1,21 @@
 // @ts-check
 /**
- * Реактивный стор состояния UI (`@preact/signals-core`-совместимое ядро без внешних зависимостей).
+ * Реактивный стор состояния UI на базе проверенной ESM-библиотеки `@preact/signals-core`.
  *
- * Обеспечивает атомарные сигналы (`createSignal`), производные вычисления (`createComputed`),
- * автоматические подписки (`createEffect`), пакетные транзакции (`batch`) и единый типизированный
+ * Обеспечивает атомарные сигналы (`createSignal` / `signal`), производные вычисления (`createComputed` / `computed`),
+ * автоматические подписки (`createEffect` / `effect`), пакетные транзакции (`batch`) и единый типизированный
  * стор живой сессии Discord (`createAppReactiveStore`) для синхронизации `voiceStates`,
  * `activeVoiceConnection`, `dmCallStage` и дерева серверов по пуш-событиям из Rust (`discord://live-state-push`).
  */
+
+import {
+  signal as coreSignal,
+  computed as coreComputed,
+  effect as coreEffect,
+  batch as coreBatch,
+} from "@preact/signals-core";
+
+export const isSignalsCorePowered = true;
 
 /**
  * @template T
@@ -24,33 +33,13 @@
  * @property {(listener: (val: T) => void) => () => void} subscribe
  */
 
-/** @type {(() => void) | null} */
-let currentObserver = null;
-let batchDepth = 0;
-/** @type {Set<() => void>} */
-const pendingEffects = new Set();
-
 /**
  * Выполняет серию изменений сигналов атомарно, вызывая зависимые эффекты ровно один раз в конце.
  * @template R
  * @param {() => R} fn
  * @returns {R}
  */
-export function batch(fn) {
-  batchDepth += 1;
-  try {
-    return fn();
-  } finally {
-    batchDepth -= 1;
-    if (batchDepth === 0 && pendingEffects.size > 0) {
-      const toRun = Array.from(pendingEffects);
-      pendingEffects.clear();
-      for (const effect of toRun) {
-        effect();
-      }
-    }
-  }
-}
+export const batch = coreBatch;
 
 /**
  * Создаёт реактивный сигнал со значением `initialValue`.
@@ -59,40 +48,22 @@ export function batch(fn) {
  * @returns {Signal<T>}
  */
 export function createSignal(initialValue) {
-  let currentValue = initialValue;
-  /** @type {Set<() => void>} */
-  const subscribers = new Set();
-
+  const s = coreSignal(initialValue);
   return {
     get value() {
-      if (currentObserver) {
-        subscribers.add(currentObserver);
-      }
-      return currentValue;
+      return s.value;
     },
     set value(nextValue) {
-      if (Object.is(currentValue, nextValue)) {
+      if (Object.is(s.peek(), nextValue)) {
         return;
       }
-      currentValue = nextValue;
-      const snapshot = Array.from(subscribers);
-      if (batchDepth > 0) {
-        for (const sub of snapshot) {
-          pendingEffects.add(sub);
-        }
-      } else {
-        for (const sub of snapshot) {
-          sub();
-        }
-      }
+      s.value = nextValue;
     },
     peek() {
-      return currentValue;
+      return s.peek();
     },
     subscribe(listener) {
-      return createEffect(() => {
-        listener(this.value);
-      });
+      return s.subscribe(listener);
     },
   };
 }
@@ -103,24 +74,7 @@ export function createSignal(initialValue) {
  * @returns {() => void} функция отписки (`dispose`)
  */
 export function createEffect(fn) {
-  let disposed = false;
-  const execute = () => {
-    if (disposed) {
-      return;
-    }
-    const prevObserver = currentObserver;
-    currentObserver = execute;
-    try {
-      fn();
-    } finally {
-      currentObserver = prevObserver;
-    }
-  };
-  execute();
-  return () => {
-    disposed = true;
-    pendingEffects.delete(execute);
-  };
+  return coreEffect(fn);
 }
 
 /**
@@ -130,21 +84,7 @@ export function createEffect(fn) {
  * @returns {ReadonlySignal<T>}
  */
 export function createComputed(computeFn) {
-  const internal = createSignal(/** @type {T} */ (undefined));
-  createEffect(() => {
-    internal.value = computeFn();
-  });
-  return {
-    get value() {
-      return internal.value;
-    },
-    peek() {
-      return internal.peek();
-    },
-    subscribe(listener) {
-      return internal.subscribe(listener);
-    },
-  };
+  return /** @type {ReadonlySignal<T>} */ (coreComputed(computeFn));
 }
 
 /**

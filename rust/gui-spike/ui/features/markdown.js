@@ -1,32 +1,27 @@
 // @ts-check
 /// <reference lib="dom" />
 /**
- * M-08 (RW-40): безопасный markdown и упоминания сообщений Discord.
+ * M-08 / RW-53 W03 (G2): модульный AST-токеннизатор и безопасный DOM-рендер
+ * сообщений Discord.
  *
- * Контракт (заморожен тестами `tests/unit/gui-spike-model.test.mjs`, describe «M-08»):
- *   parseMessageMarkdown(text, context) -> Token[]      — чистый разбор, без DOM;
+ * Контракт:
+ *   parseMessageMarkdown(text, context) -> Token[]      — чистый AST-разбор, без DOM;
  *   renderMessageMarkdown(container, text, context)     — сборка DOM.
  *
  * Безопасность (P0):
  * - сырой HTML никогда не разбирается: текст сообщения попадает в DOM только через
- *   `textContent`/`createTextNode`, разметка не собирается строками и не пишется
- *   в разбор HTML-парсером;
- * - ссылкой становится только абсолютный http(s)-URL (проверка через `new URL()`),
+ *   `textContent`/`createTextNode`, разметка не собирается строками;
+ * - ссылкой становится только абсолютный http(s)-URL (`safeHref`),
  *   поэтому `javascript:`, `data:`, `vbscript:`, `file:` и `//host` остаются текстом;
  * - у ссылки всегда `rel="noopener noreferrer"` и `target="_blank"`;
- * - имена из `context` (пользователи/каналы/роли) — тоже недоверенные данные:
- *   подставляются только как текст;
- * - внутри инлайн-кода и блоков кода markdown и упоминания не разбираются.
- *
- * Упоминания: `<@123>`/`<@!123>` → `@имя` + `data-user-id`, `<#456>` → `#имя` +
- * `data-channel-id`, `<@&789>` → `@имя` + `data-role-id`, `@everyone`/`@here` —
- * целым словом. Неизвестный id → `@пользователь` / `#канал` / `@роль`.
+ * - имена из `context` (пользователи/каналы/роли) подставляются только как текст;
+ * - внутри инлайн-кода и блоков кода markdown, упоминания, эмодзи и timestamp не разбираются.
  */
 
 /** @typedef {{ type: "text", value: string }} TextToken */
 /** @typedef {{ type: "code", value: string }} CodeToken */
 /** @typedef {{ type: "code_block", value: string, language: string }} CodeBlockToken */
-/** @typedef {{ type: "bold" | "italic" | "strikethrough" | "spoiler", children: InlineToken[] }} MarkToken */
+/** @typedef {{ type: "bold" | "italic" | "underline" | "strikethrough" | "spoiler", children: InlineToken[] }} MarkToken */
 /** @typedef {{ type: "quote", children: InlineToken[] }} QuoteToken */
 /** @typedef {{ type: "link", href: string, children: InlineToken[] }} LinkToken */
 /** @typedef {{ type: "user_mention", id: string, label: string }} UserMentionToken */
@@ -36,8 +31,9 @@
 /** @typedef {import("./emojis.js").CustomEmojiToken} CustomEmojiToken */
 /** @typedef {import("./emojis.js").UnicodeEmojiToken} UnicodeEmojiToken */
 /** @typedef {import("./emojis.js").EmojiToken} EmojiToken */
+/** @typedef {import("./markdown-helper.js").TimestampToken} TimestampToken */
 /**
- * @typedef {TextToken | CodeToken | MarkToken | LinkToken | UserMentionToken | ChannelMentionToken | RoleMentionToken | BroadcastToken | CustomEmojiToken | UnicodeEmojiToken} InlineToken
+ * @typedef {TextToken | CodeToken | MarkToken | LinkToken | TimestampToken | UserMentionToken | ChannelMentionToken | RoleMentionToken | BroadcastToken | CustomEmojiToken | UnicodeEmojiToken} InlineToken
  */
 /** @typedef {InlineToken | CodeBlockToken | QuoteToken} Token */
 
@@ -73,6 +69,19 @@ import {
   replaceEmojiShortcodes,
 } from "./emojis.js";
 
+import {
+  TIMESTAMP_STYLES,
+  extractSpoilerSpans,
+  formatRelativeTimestampRu,
+  formatTimestampText,
+  isWordChar,
+  parseDiscordTimestampTag,
+  readCodeSpan,
+  readTimestampTag,
+  safeHref,
+  tokenizeCodeLines,
+} from "./markdown-helper.js";
+
 export {
   BROADCAST_RE,
   CUSTOM_EMOJI_RE,
@@ -85,21 +94,29 @@ export {
   MENTION_RE,
   MIN_EMOJI_NAME,
   SHORTCODE_EMOJI_RE,
+  TIMESTAMP_STYLES,
   buildCustomEmojiUrl,
   createEmojiElement,
   createMentionElement,
   extractEmojis,
   extractMentions,
+  extractSpoilerSpans,
   formatMentionLabel,
+  formatRelativeTimestampRu,
+  formatTimestampText,
   normalizeMentionContext,
+  parseDiscordTimestampTag,
   readAnyMention,
   readBroadcast,
   readCustomEmoji,
   readEmoji,
   readMention,
   readShortcodeEmoji,
+  readTimestampTag,
   replaceEmojiShortcodes,
+  safeHref,
   toMentionRecord,
+  tokenizeCodeLines,
 };
 
 /**
@@ -110,9 +127,6 @@ export {
 
 /** @typedef {import("./mentions.js").NormalizedMentionContext} NormalizedContext */
 
-/** Только эти схемы допустимы в `href` (M-08, P0). */
-const SAFE_PROTOCOLS = Object.freeze(["http:", "https:"]);
-
 /** Предел вложенности инлайн-форматирования: защита от патологического ввода. */
 const MAX_INLINE_DEPTH = 8;
 
@@ -122,60 +136,21 @@ const FENCE_RE = /^\s*```([A-Za-z0-9_+-]*)\s*$/;
 /** Закрывающая строка блока кода. */
 const CLOSING_FENCE_RE = /^\s*```\s*$/;
 
-/** Строка цитаты: `> текст`. */
+/** Однострочная/последовательная цитата: `> текст`. */
 const QUOTE_RE = /^\s*>\s?(.*)$/;
 
-/** @type {ReadonlyArray<readonly [string, "bold" | "italic" | "strikethrough" | "spoiler"]>} */
+/** Многострочная цитата до конца сообщения: `>>> текст`. */
+const MULTILINE_QUOTE_RE = /^\s*>>>\s?(.*)$/;
+
+/** @type {ReadonlyArray<readonly [string, "bold" | "underline" | "strikethrough" | "spoiler" | "italic"]>} */
 const MARKERS = [
   ["**", "bold"],
+  ["__", "underline"],
   ["~~", "strikethrough"],
   ["||", "spoiler"],
   ["*", "italic"],
+  ["_", "italic"],
 ];
-
-/**
- * Безопасный `href`: только абсолютный http(s). Всё прочее — `null`.
- * @param {string} value
- * @returns {string | null}
- */
-function safeHref(value) {
-  const raw = value.trim();
-  if (raw === "") return null;
-  /** @type {URL} */
-  let url;
-  try {
-    url = new URL(raw);
-  } catch {
-    // Относительный/битый адрес (`//host`, `example.com`) не навигируется:
-    // в спайке без сети ссылка должна быть только явной и абсолютной.
-    return null;
-  }
-  return SAFE_PROTOCOLS.includes(url.protocol) ? url.href : null;
-}
-
-/**
- * Инлайн-код: обратные кавычки одинаковой длины открывают и закрывают фрагмент.
- * @param {string} text
- * @param {number} start
- * @returns {{ value: string, end: number } | null}
- */
-function readCodeSpan(text, start) {
-  let length = 0;
-  while (text.charAt(start + length) === "`") length += 1;
-  const contentStart = start + length;
-  let cursor = contentStart;
-  while (cursor < text.length) {
-    if (text.charAt(cursor) !== "`") {
-      cursor += 1;
-      continue;
-    }
-    let run = 0;
-    while (text.charAt(cursor + run) === "`") run += 1;
-    if (run === length) return { value: text.slice(contentStart, cursor), end: cursor + run };
-    cursor += run;
-  }
-  return null;
-}
 
 /**
  * `[подпись](адрес)`: ссылкой становится только проверенный http(s)-адрес.
@@ -205,7 +180,7 @@ function readLink(text, start, context, depth) {
 }
 
 /**
- * Парные маркеры `**`, `~~`, `||`, `*`. Незакрытый маркер остаётся текстом.
+ * Парные маркеры `**`, `__`, `~~`, `||`, `*`, `_`. Незакрытый маркер остаётся текстом.
  * @param {string} text
  * @param {number} start
  * @param {NormalizedContext} context
@@ -215,8 +190,12 @@ function readLink(text, start, context, depth) {
 function readMark(text, start, context, depth) {
   for (const [marker, type] of MARKERS) {
     if (!text.startsWith(marker, start)) continue;
-    // Одиночная «*» не должна съедать начало «**».
+    // Одиночные `*` и `_` не должны съедать начало `**` и `__`.
     if (marker === "*" && text.startsWith("**", start)) continue;
+    if (marker === "_" && text.startsWith("__", start)) continue;
+    // `_italic_` не срабатывает внутри идентификаторов (`foo_bar_baz`).
+    if (marker === "_" && start > 0 && isWordChar(text.charAt(start - 1))) continue;
+
     const contentStart = start + marker.length;
     let searchFrom = contentStart;
     for (;;) {
@@ -226,7 +205,15 @@ function readMark(text, start, context, depth) {
         searchFrom = close + 1;
         continue;
       }
-      // Пустое содержимое (`****`, `~~~~`) — литерал, а не формат.
+      if (marker === "_" && (text.charAt(close - 1) === "_" || text.charAt(close + 1) === "_")) {
+        searchFrom = close + 1;
+        continue;
+      }
+      if (marker === "_" && isWordChar(text.charAt(close + 1))) {
+        searchFrom = close + 1;
+        continue;
+      }
+      // Пустое содержимое (`****`, `~~~~`, `____`) — литерал, а не формат.
       if (close === contentStart) {
         searchFrom = close + 1;
         continue;
@@ -241,8 +228,7 @@ function readMark(text, start, context, depth) {
 }
 
 /**
- * Инлайн-разбор: код и упоминания имеют приоритет над форматированием, поэтому
- * внутри кода markdown не действует.
+ * Инлайн-разбор: код, timestamp, упоминания и эмодзи имеют приоритет над форматированием.
  * @param {string} text
  * @param {NormalizedContext} context
  * @param {number} depth
@@ -266,6 +252,15 @@ function parseInline(text, context, depth) {
         flush();
         tokens.push({ type: "code", value: span.value });
         index = span.end;
+        continue;
+      }
+    }
+    if (char === "<") {
+      const timestamp = readTimestampTag(text, index);
+      if (timestamp) {
+        flush();
+        tokens.push(timestamp.token);
+        index = timestamp.end;
         continue;
       }
     }
@@ -296,7 +291,7 @@ function parseInline(text, context, depth) {
         continue;
       }
     }
-    if (depth < MAX_INLINE_DEPTH && "*~|".includes(char)) {
+    if (depth < MAX_INLINE_DEPTH && "*_~|".includes(char)) {
       const mark = readMark(text, index, context, depth);
       if (mark) {
         flush();
@@ -352,6 +347,19 @@ function parseBlocks(text, context) {
       tokens.push({ type: "code_block", value: code.join("\n"), language });
       continue;
     }
+    const multiQuote = MULTILINE_QUOTE_RE.exec(line);
+    if (multiQuote) {
+      flushParagraph();
+      /** @type {string[]} */
+      const quoted = [multiQuote[1] ?? ""];
+      index += 1;
+      while (index < lines.length) {
+        quoted.push(lines[index] ?? "");
+        index += 1;
+      }
+      tokens.push({ type: "quote", children: parseInline(quoted.join("\n"), context, 0) });
+      continue;
+    }
     if (QUOTE_RE.test(line)) {
       flushParagraph();
       /** @type {string[]} */
@@ -378,7 +386,7 @@ function parseBlocks(text, context) {
 }
 
 /**
- * Разбирает текст сообщения в токены. DOM не нужен.
+ * Разбирает текст сообщения в AST-токены. DOM не нужен.
  * @param {string} text
  * @param {MentionContext} [context]
  * @returns {Token[]}
@@ -431,6 +439,94 @@ function revealSpoiler(node) {
 }
 
 /**
+ * Копирует текст в буфер обмена без падения в headless/test-окружении.
+ * @param {string} text
+ * @param {HTMLElement} button
+ */
+function copyCodeToClipboard(text, button) {
+  const nav = /** @type {{ clipboard?: { writeText?: (value: string) => Promise<void> } } | undefined} */ (
+    globalThis.navigator
+  );
+  try {
+    const maybePromise = nav?.clipboard?.writeText?.(text);
+    if (maybePromise && typeof maybePromise.catch === "function") {
+      maybePromise.catch(() => {});
+    }
+  } catch {
+    // Буфер обмена может быть недоступен в sandbox/headless.
+  }
+  button.setAttribute("data-copied", "true");
+  button.textContent = "Скопировано";
+  if (typeof globalThis.setTimeout === "function") {
+    globalThis.setTimeout(() => {
+      button.setAttribute("data-copied", "false");
+      button.textContent = "Копировать";
+    }, 1500);
+  }
+}
+
+/**
+ * Рендерит многострочный блок кода с заголовком, кнопкой копирования и безопасной
+ * подсветкой синтаксиса (только `textContent`/`createTextNode`).
+ * @param {Document} doc
+ * @param {CodeBlockToken} token
+ * @returns {HTMLElement}
+ */
+function renderCodeBlock(doc, token) {
+  const pre = element(doc, "pre", "md-code-block");
+  pre.setAttribute("data-language", token.language);
+
+  const header = element(doc, "div", "md-code-header");
+  const langLabel = element(doc, "span", "md-code-lang");
+  langLabel.textContent = token.language || "text";
+  const copyBtn = element(doc, "button", "md-code-copy");
+  copyBtn.setAttribute("type", "button");
+  copyBtn.setAttribute("aria-label", "Копировать код");
+  copyBtn.setAttribute("data-copied", "false");
+  copyBtn.textContent = "Копировать";
+  copyBtn.addEventListener("click", () => copyCodeToClipboard(token.value, copyBtn));
+  header.append(langLabel, copyBtn);
+
+  const code = element(doc, "code", "md-code");
+  const parts = tokenizeCodeLines(token.value, token.language);
+  if (parts.length === 0) {
+    code.textContent = token.value;
+  } else {
+    for (const part of parts) {
+      if (part.type === "plain") {
+        code.append(doc.createTextNode(part.value));
+      } else {
+        const span = element(doc, "span", `md-hl md-hl--${part.type}`);
+        span.textContent = part.value;
+        code.append(span);
+      }
+    }
+  }
+
+  pre.append(header, code);
+  return pre;
+}
+
+/**
+ * Рендерит Discord timestamp `<t:UNIX[:STYLE]>` в `<time class="md-timestamp">`.
+ * @param {Document} doc
+ * @param {TimestampToken} token
+ * @returns {HTMLElement}
+ */
+function renderTimestamp(doc, token) {
+  const node = element(doc, "time", "md-timestamp");
+  const date = new Date(token.unixSeconds * 1000);
+  if (!Number.isNaN(date.getTime())) {
+    node.setAttribute("datetime", date.toISOString());
+  }
+  node.setAttribute("data-unix", String(token.unixSeconds));
+  node.setAttribute("data-style", token.style);
+  node.setAttribute("title", formatTimestampText(token.unixSeconds, "F"));
+  node.textContent = formatTimestampText(token.unixSeconds, token.style);
+  return node;
+}
+
+/**
  * @param {Document} doc
  * @param {InlineToken[]} children
  * @param {HTMLElement} parent
@@ -455,15 +551,12 @@ function renderToken(doc, token, parent) {
       parent.append(code);
       return;
     }
-    case "code_block": {
-      const pre = element(doc, "pre", "md-code-block");
-      pre.setAttribute("data-language", token.language);
-      const code = element(doc, "code", "md-code");
-      code.textContent = token.value;
-      pre.append(code);
-      parent.append(pre);
+    case "code_block":
+      parent.append(renderCodeBlock(doc, token));
       return;
-    }
+    case "timestamp":
+      parent.append(renderTimestamp(doc, token));
+      return;
     case "bold": {
       const node = element(doc, "strong", "md-bold");
       renderChildren(doc, token.children, node);
@@ -472,6 +565,12 @@ function renderToken(doc, token, parent) {
     }
     case "italic": {
       const node = element(doc, "em", "md-italic");
+      renderChildren(doc, token.children, node);
+      parent.append(node);
+      return;
+    }
+    case "underline": {
+      const node = element(doc, "u", "md-underline");
       renderChildren(doc, token.children, node);
       parent.append(node);
       return;

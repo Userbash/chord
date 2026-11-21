@@ -1,8 +1,8 @@
 //! Contract tests for `RW51-EPIC3-T2`: `InMemoryCache` and `InMemoryCacheBuilder`.
 
+use chord_core::cache::{InMemoryCacheBuilder, ResourceType};
 use std::sync::Arc;
 use std::time::Instant;
-use chord_core::cache::{InMemoryCacheBuilder, ResourceType};
 use twilight_model::id::Id;
 
 #[test]
@@ -119,7 +119,9 @@ fn test_cache_update_event_and_thread_safety() {
         "resume_gateway_url": "wss://gateway.discord.gg"
     });
 
-    cache.update_from_ready_value(&json_ready).expect("should load ready value");
+    cache
+        .update_from_ready_value(&json_ready)
+        .expect("should load ready value");
 
     // Verify current user
     let me = cache.current_user().expect("current user cached");
@@ -135,11 +137,15 @@ fn test_cache_update_event_and_thread_safety() {
     assert_eq!(role.name, "Admin");
 
     // Verify member
-    let member = cache.member(Id::new(20001), Id::new(10001)).expect("member cached");
+    let member = cache
+        .member(Id::new(20001), Id::new(10001))
+        .expect("member cached");
     assert_eq!(member.nick.as_deref(), Some("AdminUser"));
 
     // Verify voice state
-    let vs = cache.voice_state(Id::new(20001), Id::new(10001)).expect("voice state cached");
+    let vs = cache
+        .voice_state(Id::new(20001), Id::new(10001))
+        .expect("voice state cached");
     assert_eq!(vs.channel_id.map(|id| id.get()), Some(30001));
 
     // Multi-threaded concurrent reads & updates to ensure zero deadlocks
@@ -165,6 +171,7 @@ fn test_cache_update_event_and_thread_safety() {
     }
 
     for h in handles {
-        h.join().expect("thread should join cleanly without deadlocks");
+        h.join()
+            .expect("thread should join cleanly without deadlocks");
     }
 }

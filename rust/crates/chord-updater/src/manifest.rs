@@ -417,6 +417,27 @@ pub fn sign_manifest(body: &[u8], seed: &[u8; 32]) -> Result<Vec<u8>, ManifestEr
     Ok(signed)
 }
 
+/// Подписывает бинарный артефакт релиза Ed25519-ключом и возвращает отсоединённую 64-байтовую подпись.
+pub fn sign_binary(binary_bytes: &[u8], seed: &[u8; 32]) -> Result<Vec<u8>, ManifestError> {
+    let pair =
+        Ed25519KeyPair::from_seed_unchecked(seed).map_err(|_| ManifestError::InvalidSignature)?;
+    Ok(pair.sign(binary_bytes).as_ref().to_vec())
+}
+
+/// Проверяет отсоединённую 64-байтовую Ed25519-подпись бинарного артефакта релиза.
+pub fn verify_binary_signature(
+    binary_bytes: &[u8],
+    signature: &[u8],
+    public_key: &[u8; 32],
+) -> Result<(), ManifestError> {
+    if signature.len() != SIGNATURE_LEN {
+        return Err(ManifestError::SignatureMissing);
+    }
+    let key = UnparsedPublicKey::new(&ED25519, public_key);
+    key.verify(binary_bytes, signature)
+        .map_err(|_| ManifestError::InvalidSignature)
+}
+
 /// SHA-256 артефакта в hex (нижний регистр, ровно 64 символа).
 pub fn sha256_hex(bytes: &[u8]) -> String {
     let digest = Sha256::digest(bytes);

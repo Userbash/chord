@@ -15,6 +15,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Duration;
 
 use crate::dbus::{BusAddress, Connection, DbusError, Value};
+pub use crate::notification_defaults::*;
 
 /// Well-known имя сервиса уведомлений.
 pub const DESTINATION: &str = "org.freedesktop.Notifications";

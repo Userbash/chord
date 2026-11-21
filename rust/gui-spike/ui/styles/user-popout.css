@@ -1,0 +1,179 @@
+/* =============================================================================
+ * Cleanroom Discord User Popout (06-profile-popout.html) Styles & Overrides
+ * Classes: .user-popout, .user-profile-popout, .popoutContainer_ce8328,
+ * .accountPopout__37e49, .outer_c0bea0, .inner_c0bea0, .header__5be3e,
+ * .banner_f7e69e, .banner__68edb, .avatar__75742, .avatarStack__44b0c,
+ * .avatar__44b0c, .body_ce8328, .userInfo_ce8328, .displayNameRow__26b1f,
+ * .displayName__26b1f, .userTag__26b1f, .userTagUsername__26b1f,
+ * .addStatusPrompt_ab8609, .menuItem_ce8328, .menuItemInner_ce8328,
+ * .menuItemContent_ce8328, .menuItemLabelText_ce8328, .user-popout-banner,
+ * .user-popout-avatar, .user-popout-names, .user-popout-roles,
+ * .user-popout-role, .user-popout-note-input, .user-popout-dm-input
+ * ========================================================================== */
+
+.user-popout,
+.user-profile-popout,
+.popoutContainer_ce8328 {
+  position: fixed;
+  z-index: var(--z-popover);
+  width: var(--custom-user-profile-popout-width, 300px);
+  max-width: 320px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-popover);
+  color: var(--text);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.user-popout[hidden],
+.popoutContainer_ce8328[hidden] {
+  display: none;
+}
+
+.user-popout-banner,
+.banner_f7e69e,
+.banner__68edb {
+  height: 60px;
+  background-color: var(--accent);
+  position: relative;
+}
+
+.user-popout-header,
+.header__5be3e {
+  position: relative;
+  padding: 0 var(--custom-user-profile-popout-body-padding-inline, 16px);
+  margin-top: -30px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.user-popout-avatar,
+.avatar__75742 {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  border: 4px solid var(--surface-2);
+  background: var(--surface-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+  color: var(--avatar-fg);
+}
+
+.user-popout-names,
+.userInfo_ce8328 {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.user-popout-display-name,
+.displayName__26b1f {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-strong);
+  line-height: var(--line-height-title);
+}
+
+.user-popout-tag,
+.user-popout-username,
+.userTag__26b1f,
+.userTagUsername__26b1f {
+  font-size: var(--font-size-small);
+  color: var(--text-muted);
+}
+
+.user-popout-custom-status,
+.addStatusPrompt_ab8609 {
+  padding: var(--space-2) var(--custom-user-profile-popout-body-padding-inline, 16px);
+  font-size: var(--font-size-small);
+  color: var(--text);
+}
+
+.user-popout-divider {
+  border: 0;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: var(--space-2) var(--custom-user-profile-popout-body-padding-inline, 16px);
+}
+
+.user-popout-roles-section,
+.user-popout-note-section,
+.user-popout-dm-section {
+  padding: var(--space-2) var(--custom-user-profile-popout-body-padding-inline, 16px);
+}
+
+.user-popout-section-title {
+  margin: 0 0 var(--space-2) 0;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.user-popout-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.user-popout-role {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  font-size: var(--font-size-small);
+  color: var(--text);
+}
+
+.user-popout-role-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.user-popout-note-input,
+.user-popout-dm-input {
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  box-sizing: border-box;
+}
+
+.user-popout-note-input:focus,
+.user-popout-dm-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.user-popout-full-profile-btn {
+  width: calc(100% - 32px);
+  margin: var(--space-2) var(--custom-user-profile-popout-body-padding-inline, 16px) var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  color: var(--text);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.user-popout-full-profile-btn:hover {
+  background: var(--state-hover);
+  color: var(--text-strong);
+}

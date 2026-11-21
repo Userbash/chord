@@ -5,7 +5,10 @@
  * @module ui/features/voice-stage-renderer
  */
 
-import { renderVoiceRtcPhaseDom } from "../modules/voice-rtc-panel.js";
+import {
+  renderVoiceRtcPhaseDom,
+  resolveDaveE2eeIndicatorView,
+} from "../modules/voice-rtc-panel.js";
 import { HOME_GUILD_ID } from "./dm-friends.js";
 import {
   renderVoiceStagePreviewBanner,
@@ -37,6 +40,8 @@ export function createVoiceStageRenderer(ctx) {
     const activeVoiceConnection = ctx.getActiveVoiceConnection();
     const badge = document.getElementById("live-voice-status-badge");
     const rttPill = document.getElementById("live-voice-rtt-pill");
+    const e2eePill = document.getElementById("live-voice-e2ee-pill");
+    const e2eeView = resolveDaveE2eeIndicatorView(liveRtcStatus);
     const metrics = ctx.computeRtcSignalMetrics(liveRtcStatus);
     const {
       phaseView,
@@ -75,6 +80,9 @@ export function createVoiceStageRenderer(ctx) {
       if (rttPill) {
         rttPill.style.display = "none";
       }
+      if (e2eePill) {
+        e2eePill.style.display = "none";
+      }
       const connStatus = document.getElementById("live-rtc-conn-status");
       if (connStatus) {
         connStatus.textContent = "Микрофон и звук отключены сервером";
@@ -103,23 +111,51 @@ export function createVoiceStageRenderer(ctx) {
         rttPill.setAttribute("data-packet-loss", lossTxt);
         if (rttPill.style.color !== pingColor) rttPill.style.color = pingColor;
       }
+      if (e2eePill) {
+        if (e2eeView.state === "disconnected") {
+          e2eePill.style.display = "none";
+        } else {
+          e2eePill.style.display = "";
+          if (e2eePill.textContent !== e2eeView.badgeLabel) {
+            e2eePill.textContent = e2eeView.badgeLabel;
+          }
+          e2eePill.style.color = e2eeView.statusColor;
+          e2eePill.title = e2eeView.tooltip;
+          e2eePill.setAttribute("data-dave-e2ee-state", e2eeView.state);
+          e2eePill.setAttribute("data-dave-verified", e2eeView.daveVerified ? "true" : "false");
+          e2eePill.setAttribute(
+            "data-dave-epoch",
+            e2eeView.epoch !== null ? String(e2eeView.epoch) : "0",
+          );
+        }
+      }
     }
+    const isDomEl = (/** @type {any} */ node) =>
+      typeof HTMLElement !== "undefined"
+        ? node instanceof HTMLElement
+        : Boolean(node && typeof node === "object");
     const statusBtn = document.querySelector("#voice-panel .voice-status-trigger");
-    if (statusBtn instanceof HTMLElement) {
-      statusBtn.title = isAfkCall
+    if (isDomEl(statusBtn)) {
+      const e2eeLine = e2eeView.isEncrypted
+        ? `DAVE MLS v${e2eeView.protocolVersion} (E2EE${e2eeView.epoch ? `, эпоха ${e2eeView.epoch}` : ""})`
+        : liveRtcStatus?.e2ee
+          ? e2eeView.tooltip
+          : "DAVE MLS v1 (E2EE)";
+      /** @type {any} */ (statusBtn).title = isAfkCall
         ? `Канал: ${activeVoiceConnection?.channelName || "AFK-комната"}\nСервер: ${activeVoiceConnection?.guildName || "Сервер"}\nСтатус: 🔕 AFK-канал (микрофон и звук отключены сервером)`
-        : `Канал: ${activeVoiceConnection?.channelName || "Голосовой"}\nСервер: ${activeVoiceConnection?.guildName || "Сервер"}\nПинг: ${effectiveLast} мс (средний ${effectiveAvg} мс)\nПотери пакетов: ${lossTxt}\nРегион: ${liveRtcStatus?.region || "Frankfurt (Europe)"}\nШифрование: DAVE MLS v1 (E2EE)`;
+        : `Канал: ${activeVoiceConnection?.channelName || "Голосовой"}\nСервер: ${activeVoiceConnection?.guildName || "Сервер"}\nПинг: ${effectiveLast} мс (средний ${effectiveAvg} мс)\nПотери пакетов: ${lossTxt}\nРегион: ${liveRtcStatus?.region || "Frankfurt (Europe)"}\nШифрование: ${e2eeLine}`;
     }
     const sigIcon = document.querySelector("#voice-panel [data-voice-signal-icon]");
-    if (sigIcon instanceof HTMLElement) {
-      if (sigIcon.getAttribute("data-rtc-quality") !== quality) {
-        sigIcon.setAttribute("data-rtc-quality", quality);
-        sigIcon.innerHTML = signalSvg;
+    if (isDomEl(sigIcon)) {
+      const sigEl = /** @type {any} */ (sigIcon);
+      if (sigEl.getAttribute("data-rtc-quality") !== quality) {
+        sigEl.setAttribute("data-rtc-quality", quality);
+        sigEl.innerHTML = signalSvg;
       }
-      if (sigIcon.style.color !== pingColor) {
-        sigIcon.style.color = pingColor;
+      if (sigEl.style.color !== pingColor) {
+        sigEl.style.color = pingColor;
       }
-      sigIcon.title = hasMeasuredPing
+      sigEl.title = hasMeasuredPing
         ? `Пинг: ${effectiveLast} мс • Потери пакетов: ${lossTxt}`
         : `Статус RTC: ${quality} • Потери пакетов: ${lossTxt}`;
     }
@@ -206,9 +242,9 @@ export function createVoiceStageRenderer(ctx) {
     const selfId = String(ctx.getLiveSelfUser()?.id || "");
     const currentGid =
       activeVoiceConnection?.guildId ||
-      ctx.currentGuildInfo().id ||
+      ctx.currentGuildInfo?.()?.id ||
       ctx.getRailSelectedId?.() ||
-      ctx.selectedGuildId() ||
+      ctx.selectedGuildId?.() ||
       "";
     const speakingSet = new Set(
       Array.isArray(liveRtcStatus?.speakingUsers) ? liveRtcStatus.speakingUsers.map(String) : [],
@@ -669,7 +705,30 @@ export function createVoiceStageRenderer(ctx) {
     rttPill.setAttribute("data-packet-loss", initMetrics.lossTxt);
     rttPill.style.color = initMetrics.pingColor;
     rttPill.textContent = initMetrics.pillText;
-    badgeRow.append(badge, rttPill);
+    const initE2ee = resolveDaveE2eeIndicatorView(liveRtcStatus);
+    const e2eePill = document.createElement("span");
+    e2eePill.setAttribute("id", "live-voice-e2ee-pill");
+    e2eePill.className = "voice-e2ee-pill";
+    e2eePill.setAttribute("data-voice-e2ee-pill", "true");
+    e2eePill.setAttribute("data-dave-e2ee-state", initE2ee.state);
+    e2eePill.setAttribute("data-dave-verified", initE2ee.daveVerified ? "true" : "false");
+    e2eePill.setAttribute(
+      "data-dave-epoch",
+      initE2ee.epoch !== null ? String(initE2ee.epoch) : "0",
+    );
+    e2eePill.style.cssText =
+      "font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;line-height:1.2;cursor:pointer;";
+    e2eePill.style.display = initE2ee.state === "disconnected" ? "none" : "";
+    e2eePill.style.color = initE2ee.statusColor;
+    e2eePill.textContent = initE2ee.badgeLabel;
+    e2eePill.title = initE2ee.tooltip;
+    e2eePill.addEventListener("click", (ev) => {
+      ev.stopPropagation?.();
+      ctx.openRtcConnectionPopout("privacy");
+    });
+    voiceHost.setAttribute("data-dave-e2ee-state", initE2ee.state);
+    voiceHost.setAttribute("data-dave-verified", initE2ee.daveVerified ? "true" : "false");
+    badgeRow.append(badge, rttPill, e2eePill);
 
     const connStatus = document.createElement("div");
     connStatus.id = "live-rtc-conn-status";

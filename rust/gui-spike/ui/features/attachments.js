@@ -260,6 +260,8 @@ export function extractFilesFromTransferEvent(event) {
  *   url: string,
  *   bytes: Uint8Array | null,
  *   data: Uint8Array | null,
+ *   previewUrl: string,
+ *   _ownsPreviewUrl?: boolean,
  *   error: string | null,
  * }} AttachmentQueueItem
  */
@@ -570,6 +572,28 @@ export function createAttachmentsController(options = {}) {
     card.setAttribute("data-state", item.status);
     card.setAttribute("data-description", item.description);
 
+    const isImage = item.contentType.startsWith("image/") || /\.(png|jpe?g|gif|webp|avif|bmp)$/i.test(item.filename);
+    const isVideo = item.contentType.startsWith("video/") || /\.(mp4|webm|mov|mkv)$/i.test(item.filename);
+    const isAudio = item.contentType.startsWith("audio/") || /\.(mp3|ogg|wav|flac|m4a)$/i.test(item.filename);
+    const previewKind = isImage ? "image" : isVideo ? "video" : isAudio ? "audio" : "file";
+
+    const thumbEl = doc.createElement("div");
+    thumbEl.className = "attachment-card-thumb";
+    thumbEl.setAttribute("data-preview-kind", previewKind);
+    if (isImage && item.previewUrl) {
+      const imgEl = doc.createElement("img");
+      imgEl.className = "attachment-card-preview";
+      imgEl.setAttribute("src", item.previewUrl);
+      imgEl.setAttribute("alt", item.filename);
+      thumbEl.append(imgEl);
+    } else {
+      const iconEl = doc.createElement("span");
+      iconEl.className = "attachment-card-file-icon";
+      iconEl.setAttribute("aria-hidden", "true");
+      iconEl.textContent = isImage ? "🖼️" : isVideo ? "🎬" : isAudio ? "🎵" : "📄";
+      thumbEl.append(iconEl);
+    }
+
     const header = doc.createElement("div");
     header.className = "attachment-card-header";
 
@@ -640,7 +664,7 @@ export function createAttachmentsController(options = {}) {
     });
 
     controls.append(spoilerBtn, altInput, removeBtn);
-    card.append(header, controls);
+    card.append(thumbEl, header, controls);
     return card;
   }
 
@@ -736,6 +760,24 @@ export function createAttachmentsController(options = {}) {
       idSeq += 1;
       const id = String(rawFile.id ?? `att-${idSeq}`);
 
+      let previewUrl = typeof rawFile.previewUrl === "string" ? rawFile.previewUrl : "";
+      let ownsPreviewUrl = false;
+      if (
+        !previewUrl &&
+        contentType.startsWith("image/") &&
+        typeof URL !== "undefined" &&
+        typeof URL.createObjectURL === "function" &&
+        typeof Blob !== "undefined" &&
+        rawFile instanceof Blob
+      ) {
+        try {
+          previewUrl = URL.createObjectURL(rawFile);
+          ownsPreviewUrl = true;
+        } catch {
+          previewUrl = "";
+        }
+      }
+
       /** @type {AttachmentQueueItem} */
       const item = {
         id,
@@ -759,6 +801,8 @@ export function createAttachmentsController(options = {}) {
         url: "",
         bytes: syncBytes,
         data: syncBytes,
+        previewUrl,
+        _ownsPreviewUrl: ownsPreviewUrl,
         error: null,
       };
 
@@ -822,6 +866,23 @@ export function createAttachmentsController(options = {}) {
     return cloneItem(item);
   }
 
+  /** @param {any} item */
+  function revokeItemPreview(item) {
+    if (
+      item &&
+      item._ownsPreviewUrl &&
+      item.previewUrl &&
+      typeof URL !== "undefined" &&
+      typeof URL.revokeObjectURL === "function"
+    ) {
+      try {
+        URL.revokeObjectURL(item.previewUrl);
+      } catch {
+        // ignore
+      }
+    }
+  }
+
   /**
    * Удаляет файл из очереди по его `id`.
    * @param {string} id
@@ -831,7 +892,8 @@ export function createAttachmentsController(options = {}) {
     if (destroyed) return false;
     const idx = items.findIndex((entry) => entry.id === id);
     if (idx === -1) return false;
-    items.splice(idx, 1);
+    const [removed] = items.splice(idx, 1);
+    revokeItemPreview(removed);
     const card = cardElements.get(id);
     if (card) {
       card.remove?.();
@@ -846,6 +908,9 @@ export function createAttachmentsController(options = {}) {
    * Полностью очищает очередь вложений и скрывает `#attachment-shelf`.
    */
   function clear() {
+    for (const item of items) {
+      revokeItemPreview(item);
+    }
     items.length = 0;
     lastError = null;
     for (const card of cardElements.values()) {

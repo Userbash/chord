@@ -90,6 +90,29 @@ impl DispatchEmitter for TauriDispatchEmitter {
     }
 }
 
+#[tauri::command]
+async fn db_messages(
+    bridge: tauri::State<'_, chord_store::StoreBridge>,
+    channel_id: String,
+    before: Option<String>,
+    limit: Option<usize>,
+) -> Result<Vec<chord_client::db_bridge::DbMessageDto>, String> {
+    chord_client::db_bridge::db_messages_async(bridge.inner(), channel_id, before, limit).await
+}
+
+#[tauri::command]
+async fn db_query(
+    bridge: tauri::State<'_, chord_store::StoreBridge>,
+    query: String,
+    channel_id: Option<String>,
+    author_id: Option<String>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+) -> Result<Vec<chord_client::db_bridge::DbSearchHitDto>, String> {
+    chord_client::db_bridge::db_query_async(bridge.inner(), query, channel_id, author_id, limit, offset)
+        .await
+}
+
 /// Gathers process memory and thread metrics from `/proc/self/status`.
 #[tauri::command]
 async fn process_metrics() -> Result<ProcessMetrics, String> {
@@ -1444,6 +1467,53 @@ async fn voice_rtc_status() -> Result<serde_json::Value, String> {
 }
 
 #[tauri::command]
+async fn voice_state(
+    guild_id: Option<String>,
+    channel_id: Option<String>,
+    self_mute: Option<bool>,
+    self_deaf: Option<bool>,
+    self_video: Option<bool>,
+    self_stream: Option<bool>,
+    peer_user_ids: Option<Vec<String>>,
+) -> Result<chord_client::dave_bridge::VoiceStateSnapshotDto, String> {
+    voice_plugin::voice_state(
+        guild_id,
+        channel_id,
+        self_mute,
+        self_deaf,
+        self_video,
+        self_stream,
+        peer_user_ids,
+    )
+    .await
+}
+
+#[tauri::command]
+async fn voice_e2ee_status(
+    channel_id: Option<String>,
+) -> Result<chord_client::dave_bridge::DaveE2eeStatusDto, String> {
+    voice_plugin::voice_e2ee_status(channel_id).await
+}
+
+#[tauri::command]
+async fn audio_devices() -> Result<serde_json::Value, String> {
+    voice_plugin::audio_devices().await
+}
+
+#[tauri::command]
+async fn audio_set_volume(
+    volume_pct: u32,
+    kind: Option<String>,
+) -> Result<serde_json::Value, String> {
+    voice_plugin::audio_set_volume(volume_pct, kind).await
+}
+
+#[tauri::command]
+async fn audio_mute(muted: bool) -> Result<serde_json::Value, String> {
+    voice_plugin::audio_mute(muted).await
+}
+
+#[tauri::command]
 async fn voice_audio_devices() -> Result<serde_json::Value, String> {
     voice_plugin::voice_audio_devices().await
 }
@@ -1774,6 +1844,48 @@ async fn remote_auth_cancel(
     remote_auth::remote_auth_cancel(&api, &handshake_token).await
 }
 
+/// Пробрасывает REST-запрос из WebView в тонкий мост [`DiscordRestBridge`] (`reqwest` + `url::Url`).
+#[tauri::command]
+async fn rest_request(
+    backend: tauri::State<'_, Arc<AuthBackend>>,
+    method: String,
+    endpoint: String,
+    body: Option<serde_json::Value>,
+) -> Result<chord_client::ipc_ext::RestResponseDto, String> {
+    let backend = Arc::clone(backend.inner());
+    let token_opt = tokio::task::spawn_blocking(move || backend.token())
+        .await
+        .map_err(|e| format!("auth task failed: {e}"))?
+        .map_err(|e| format!("auth storage error: {e}"))?;
+
+    let client = match token_opt {
+        Some(token) if !token.trim().is_empty() => {
+            let auth = chord_core::rest::client::ApiAuth::from_token(
+                &token,
+                &chord_core::rest::super_properties::SuperProperties::default(),
+                "en-US",
+                "UTC",
+            )
+            .map_err(|e| e.to_string())?;
+            chord_core::rest::bridge::DiscordHttpClient::new(chord_core::rest::client::ApiConfig {
+                auth,
+                ..Default::default()
+            })
+            .map_err(|e| e.to_string())?
+        }
+        _ => chord_core::rest::bridge::DiscordHttpClient::with_anonymous_base(
+            "https://discord.com/api/v9",
+        )
+        .map_err(|e| e.to_string())?,
+    };
+
+    let bridge = chord_client::ipc_ext::DiscordRestBridge::new(client);
+    bridge
+        .execute_rest_request(&method, &endpoint, body.as_ref())
+        .await
+        .map_err(|e| e.to_string())
+}
+
 /// Cancels and restarts Remote Auth v2 session with a fresh RSA-2048 keypair.
 #[tauri::command]
 fn remote_auth_cancel_session() -> Result<RemoteAuthSessionSnapshot, RemoteAuthError> {
@@ -1907,6 +2019,12 @@ fn main() {
             // L-02: Envelopes are forwarded to gateway://dispatch from dedicated thread.
             let dispatch = Arc::new(TauriDispatchEmitter(app.handle().clone()));
             app.manage(Arc::new(NetService::with_emitter(auth, dispatch)));
+            let db_worker = chord_store::DbWorker::spawn(&data::live_components_sqlite_path())
+                .or_else(|_| chord_store::DbWorker::spawn_in_memory())
+                .map_err(|err| err.to_string())?;
+            let db_bridge = db_worker.bridge();
+            app.manage(Arc::new(db_worker));
+            app.manage(db_bridge);
             if std::env::var_os("SPIKE_EXIT_AFTER_MS").is_none()
                 && std::env::var_os("SPIKE_AUTH_DISABLED").is_none()
             {
@@ -1924,6 +2042,8 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            db_messages,
+            db_query,
             process_metrics,
             spike_config,
             report_bench,
@@ -1982,6 +2102,11 @@ fn main() {
             voice_mute,
             voice_deaf,
             voice_rtc_status,
+            voice_state,
+            voice_e2ee_status,
+            audio_devices,
+            audio_set_volume,
+            audio_mute,
             voice_audio_devices,
             voice_set_audio_device,
             voice_desktop_sources,
@@ -2004,7 +2129,8 @@ fn main() {
             remote_auth_cancel_session,
             remote_auth_initialize,
             remote_auth_finish,
-            remote_auth_cancel
+            remote_auth_cancel,
+            rest_request
         ])
         .run(tauri::generate_context!())
         .expect("не удалось запустить Tauri-спайк");
@@ -2062,6 +2188,22 @@ mod wiring_tests {
                 "{command} не зарегистрирован в invoke_handler!"
             );
         }
+    }
+
+    #[test]
+    fn specta_bindings_wire_to_invoke_handler_and_zero_any() {
+        let block = handler_block(include_str!("main.rs"));
+        let builder = bindings::generate_specta_builder();
+        for cmd in builder.commands() {
+            assert!(
+                lists_command(block, cmd.name),
+                "Specta command `{}` must be registered in main.rs invoke_handler!",
+                cmd.name
+            );
+        }
+        builder
+            .validate_no_any()
+            .expect("Specta bindings must have zero `any` types");
     }
 
     /// Исходник до тестового модуля: литералы теста не дают ложного «нашлось».

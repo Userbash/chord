@@ -108,9 +108,10 @@ pub fn parse_source_outputs(text: &str, child_pid: u32) -> Vec<SourceOutputInfo>
             if let Some(pct_idx) = trim.find('%') {
                 let prefix = &trim[..pct_idx];
                 if let Some(space_idx) = prefix.rfind([' ', '/'])
-                    && let Ok(v) = prefix[space_idx + 1..].trim().parse::<u32>() {
-                        cur_vol_pct = v;
-                    }
+                    && let Ok(v) = prefix[space_idx + 1..].trim().parse::<u32>()
+                {
+                    cur_vol_pct = v;
+                }
             }
         } else if trim.contains("lab.discord.stream.audio")
             || trim.contains(&pid_marker)
@@ -153,16 +154,18 @@ pub fn resolve_sink_name_by_id(sink_id: &str) -> Option<String> {
         .stdin(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .output()
-        && out.status.success() {
-            let text = String::from_utf8_lossy(&out.stdout);
-            for line in text.lines() {
-                let cols: Vec<&str> = line.split_whitespace().collect();
-                if cols.first().copied() == Some(sink_id)
-                    && let Some(&name) = cols.get(1) {
-                        return Some(name.to_string());
-                    }
+        && out.status.success()
+    {
+        let text = String::from_utf8_lossy(&out.stdout);
+        for line in text.lines() {
+            let cols: Vec<&str> = line.split_whitespace().collect();
+            if cols.first().copied() == Some(sink_id)
+                && let Some(&name) = cols.get(1)
+            {
+                return Some(name.to_string());
             }
         }
+    }
     None
 }
 
@@ -180,16 +183,18 @@ pub fn resolve_optimal_stream_soundshare_source() -> String {
         .stdin(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .output()
-        && out.status.success() {
-            let text = String::from_utf8_lossy(&out.stdout);
-            for line in text.lines() {
-                let cols: Vec<&str> = line.split_whitespace().collect();
-                if let Some(&name) = cols.get(1)
-                    && name == "easyeffects_sink" {
-                        return "easyeffects_sink.monitor".to_string();
-                    }
+        && out.status.success()
+    {
+        let text = String::from_utf8_lossy(&out.stdout);
+        for line in text.lines() {
+            let cols: Vec<&str> = line.split_whitespace().collect();
+            if let Some(&name) = cols.get(1)
+                && name == "easyeffects_sink"
+            {
+                return "easyeffects_sink.monitor".to_string();
             }
         }
+    }
 
     // 2. Приоритет: проверяем pactl list sink-inputs, куда играют звук активные приложения (игры, плееры, браузер)
     if let Ok(out) = std::process::Command::new("pactl")
@@ -197,34 +202,37 @@ pub fn resolve_optimal_stream_soundshare_source() -> String {
         .stdin(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .output()
-        && out.status.success() {
-            let text = String::from_utf8_lossy(&out.stdout);
-            let mut active_sink_num: Option<String> = None;
-            let mut is_excluded_app = false;
-            for line in text.lines() {
-                let trim = line.trim();
-                if let Some(rest) = trim.strip_prefix("Sink Input #") {
-                    let _ = rest;
-                    active_sink_num = None;
-                    is_excluded_app = false;
-                } else if let Some(rest) = trim.strip_prefix("Sink: ") {
-                    let sink_id = rest.trim();
-                    if !sink_id.is_empty() {
-                        active_sink_num = Some(sink_id.to_string());
-                    }
-                } else if trim.contains("application.name = \"Discord")
-                    || trim.contains("application.name = \"Chord")
-                    || trim.contains("media.name = \"Discord-SFX\"")
-                {
-                    is_excluded_app = true;
-                } else if trim.starts_with("Corked: no") && !is_excluded_app
-                    && let Some(ref snum) = active_sink_num
-                        && let Some(sname) = resolve_sink_name_by_id(snum)
-                            && !sname.contains("auto_null") {
-                                return format!("{sname}.monitor");
-                            }
+        && out.status.success()
+    {
+        let text = String::from_utf8_lossy(&out.stdout);
+        let mut active_sink_num: Option<String> = None;
+        let mut is_excluded_app = false;
+        for line in text.lines() {
+            let trim = line.trim();
+            if let Some(rest) = trim.strip_prefix("Sink Input #") {
+                let _ = rest;
+                active_sink_num = None;
+                is_excluded_app = false;
+            } else if let Some(rest) = trim.strip_prefix("Sink: ") {
+                let sink_id = rest.trim();
+                if !sink_id.is_empty() {
+                    active_sink_num = Some(sink_id.to_string());
+                }
+            } else if trim.contains("application.name = \"Discord")
+                || trim.contains("application.name = \"Chord")
+                || trim.contains("media.name = \"Discord-SFX\"")
+            {
+                is_excluded_app = true;
+            } else if trim.starts_with("Corked: no")
+                && !is_excluded_app
+                && let Some(ref snum) = active_sink_num
+                && let Some(sname) = resolve_sink_name_by_id(snum)
+                && !sname.contains("auto_null")
+            {
+                return format!("{sname}.monitor");
             }
         }
+    }
 
     // 3. Приоритет: монитор выбранного пользователем устройства вывода
     let (_, out_d) = crate::ws::get_selected_voice_devices();
@@ -238,12 +246,13 @@ pub fn resolve_optimal_stream_soundshare_source() -> String {
         .stdin(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .output()
-        && out.status.success() {
-            let sink = String::from_utf8_lossy(&out.stdout).trim().to_string();
-            if !sink.is_empty() && !sink.contains("auto_null") {
-                return format!("{sink}.monitor");
-            }
+        && out.status.success()
+    {
+        let sink = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        if !sink.is_empty() && !sink.contains("auto_null") {
+            return format!("{sink}.monitor");
         }
+    }
 
     "default".to_string()
 }
@@ -330,30 +339,31 @@ pub fn spawn_stream_soundshare_enforcer(
                     .stdin(std::process::Stdio::null())
                     .stderr(std::process::Stdio::null())
                     .output()
-                    && out.status.success() {
-                        let text = String::from_utf8_lossy(&out.stdout);
-                        let outputs = parse_source_outputs(&text, child_pid);
+                    && out.status.success()
+                {
+                    let text = String::from_utf8_lossy(&out.stdout);
+                    let outputs = parse_source_outputs(&text, child_pid);
 
-                        if !outputs.is_empty() {
-                            attached = true;
-                            for out_info in outputs {
-                                let rem =
-                                    evaluate_source_output_remediation(&out_info, &target_monitor);
-                                if rem.unmute_needed
-                                    || rem.volume_reset_needed
-                                    || rem.move_source_needed
-                                    || last_full_check.elapsed() > Duration::from_secs(10)
-                                {
-                                    enforce_pactl_source_output(&out_info.id, &target_monitor);
-                                }
+                    if !outputs.is_empty() {
+                        attached = true;
+                        for out_info in outputs {
+                            let rem =
+                                evaluate_source_output_remediation(&out_info, &target_monitor);
+                            if rem.unmute_needed
+                                || rem.volume_reset_needed
+                                || rem.move_source_needed
+                                || last_full_check.elapsed() > Duration::from_secs(10)
+                            {
+                                enforce_pactl_source_output(&out_info.id, &target_monitor);
                             }
-                            if last_full_check.elapsed() > Duration::from_secs(10) {
-                                last_full_check = Instant::now();
-                            }
-                        } else {
-                            attached = false;
                         }
+                        if last_full_check.elapsed() > Duration::from_secs(10) {
+                            last_full_check = Instant::now();
+                        }
+                    } else {
+                        attached = false;
                     }
+                }
             }
         })
         .ok();

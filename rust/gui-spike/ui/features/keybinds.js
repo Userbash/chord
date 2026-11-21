@@ -1,7 +1,7 @@
 // @ts-check
 /**
- * T-224 (FE-P2-23) & TAURI-BOOT-01: парсер горячих клавиш, модульный контроллер
- * регистрации шорткатов (initKeybinds, handleKeybind) и русская подпись для ARIA.
+ * T-224 (FE-P2-23) & TAURI-BOOT-01: парсер горячих клавиш на базе проверенной ESM-библиотеки `tinykeys`,
+ * модульный контроллер регистрации шорткатов (initKeybinds, handleKeybind) и русская подпись для ARIA.
  *
  * Основной контракт:
  * - набор комбинаций по умолчанию (`DEFAULT_SHORTCUTS`),
@@ -10,6 +10,16 @@
  * - текст подписи `aria-keyshortcuts` на русском,
  * - модульный контроллер клавиатурных комбинаций `initKeybinds(app)` и диспетчер `handleKeybind(combo, app)`.
  */
+
+import {
+  tinykeys,
+  createKeybindingsHandler,
+  parseKeybinding,
+  matchKeybindingPress,
+} from "tinykeys";
+
+export const isTinykeysPowered = true;
+export { tinykeys, createKeybindingsHandler, parseKeybinding, matchKeybindingPress };
 
 /**
  * @typedef {object} KeyEventLike

@@ -37,8 +37,11 @@
 pub mod attachments;
 pub mod auth;
 pub mod automod;
+pub mod bindings;
 pub mod core_bridge;
 pub mod data;
+pub mod dave_bridge;
+pub mod db_bridge;
 pub mod dm_channels;
 /// RW-40/PR-14 (task-112): BFF связей, ЛС и Group DM — `GET /users/@me/relationships`,
 /// `POST /users/@me/channels` (код `80013`), Pomelo и заметки.

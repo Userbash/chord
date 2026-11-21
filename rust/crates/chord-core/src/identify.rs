@@ -1,4 +1,6 @@
-//! # IDENTIFY (op2): сборка терма идентификации (RW-05, P1-04 / T-GW-02)
+#![forbid(unsafe_code)]
+
+//! # IDENTIFY (op2): сборка терма идентификации и генератор handshake (RW-05, P1-04 / STAGE-05.3.1)
 //!
 //! Структура — из кода реального веб-клиента Discord (бандл
 //! `/home/sanya/re-deep/out/bundles/discord.com_assets_web.4d4b2f75fdea5470.js`):
@@ -12,8 +14,12 @@
 
 use chord_codec::etf::{EtfError, EtfValue};
 
+use crate::rest::headers::{BrowserImpersonationProfile, DEFAULT_LOCALE, format_accept_language};
 use crate::rest::identity::ClientIdentity;
 use crate::rest::super_properties::SuperProperties;
+
+/// Opcode 2: `IDENTIFY` (`docs/re/gateway-protocol.md` §4).
+pub const IDENTIFY_OP: u8 = 2;
 
 /// capabilities активного клиента (без обфускации приватных каналов) — из бандла.
 pub const CAPABILITIES_ACTIVE: u64 = 1_734_653;
@@ -23,6 +29,12 @@ pub const CAPABILITIES_CHANNEL_OBFUSCATION: u64 = 1_767_421;
 
 /// Причина подключения при холодном старте (модуль 469177 бандла: `r=true`).
 const GATEWAY_CONNECT_COLD_START: &str = "COLD_START";
+
+/// Дефолтная таймзона для системных заголовков handshake.
+const DEFAULT_TIMEZONE: &str = "UTC";
+
+/// Дефолтное значение `X-Debug-Options` в официальных сборках Discord Desktop.
+const DEFAULT_DEBUG_OPTIONS: &str = "bugReporterEnabled";
 
 /// Супер-свойства клиента плюс поля идентификации (см. `handleIdentify` в бандле и ТЗ).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -37,9 +49,9 @@ pub struct IdentifyProperties {
     pub client_version: String,
     /// Версия ОС.
     pub os_version: String,
-    /// Архитектура ОС.
+    /// Архитектура ОС (`"x64"`, `"arm64"`).
     pub os_arch: String,
-    /// Архитектура приложения.
+    /// Архитектура приложения (`"x64"`, `"arm64"`).
     pub app_arch: String,
     /// Системная локаль.
     pub system_locale: String,
@@ -53,7 +65,7 @@ pub struct IdentifyProperties {
     pub browser_user_agent: String,
     /// Версия браузерного движка.
     pub browser_version: String,
-    /// Номер сборки клиента (в бандле — `parseInt("641004")`).
+    /// 64-битный номер сборки клиента (в бандле — `parseInt("641004")`).
     pub client_build_number: u64,
     /// Состояние окна: `"focused"` либо `"unfocused"`.
     pub client_app_state: String,
@@ -67,9 +79,6 @@ pub struct IdentifyProperties {
 
 impl IdentifyProperties {
     /// Дефолты нашего клиента (Linux, `"Discord Client"`, stable, …) — по ТЗ RW-05.
-    ///
-    /// Строятся из [`ClientIdentity::rw_client`]: те же значения уходят и в
-    /// `X-Super-Properties`, поэтому дефолтный IDENTIFY не расходится с REST.
     #[must_use]
     pub fn for_rw_client() -> Self {
         Self::from_client_identity(&ClientIdentity::rw_client())
@@ -82,12 +91,6 @@ impl IdentifyProperties {
     }
 
     /// Единый источник свойств: IDENTIFY берёт те же значения, что и `X-Super-Properties`.
-    ///
-    /// Супер-свойства содержат 22 поля REST-заголовка, из них 15 пересекаются с IDENTIFY
-    /// (включая `launch_signature`); `client_build_number` приводится `u32 → u64`.
-    /// Поля IDENTIFY, которых в супер-свойствах нет, — константы нашего клиента:
-    /// `is_fast_connect = false`, `gateway_connect_reasons = "COLD_START"`,
-    /// `installation_id = None`.
     #[must_use]
     pub fn from_super_properties(properties: &SuperProperties) -> Self {
         Self {
@@ -111,6 +114,13 @@ impl IdentifyProperties {
             installation_id: None,
         }
     }
+
+    /// Проверяет, что архитектура ОС и приложения соответствует 64-битной платформе (`x64`/`x86_64`/`arm64`/`aarch64`).
+    #[must_use]
+    pub fn is_64bit_client(&self) -> bool {
+        let is_64 = |arch: &str| matches!(arch, "x64" | "x86_64" | "arm64" | "aarch64");
+        is_64(&self.os_arch) && is_64(&self.app_arch) && self.client_build_number > 0
+    }
 }
 
 impl ClientIdentity {
@@ -121,8 +131,287 @@ impl ClientIdentity {
     }
 }
 
+/// 64-битное состояние клиента (`client_state`) в OP2 IDENTIFY с сохранением Snowflake ID.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct IdentifyClientState {
+    /// Список пар `(guild_snowflake_id, guild_version)` с полными 64-битными Snowflake ID.
+    guild_versions: Vec<(u64, u64)>,
+    /// Опциональный 64-битный Snowflake ID последнего прочитанного сообщения (`highest_last_message_id`).
+    highest_last_message_id: Option<u64>,
+}
+
+impl IdentifyClientState {
+    /// Создаёт пустое состояние `client_state` (`{guild_versions: {}}`).
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Добавляет 64-битный Snowflake ID гильдии и её версию в `guild_versions`.
+    #[must_use]
+    pub fn with_guild_version(mut self, guild_id: u64, version: u64) -> Self {
+        self.guild_versions.push((guild_id, version));
+        self
+    }
+
+    /// Задаёт 64-битный Snowflake ID `highest_last_message_id`.
+    #[must_use]
+    pub fn with_highest_last_message_id(mut self, message_id: u64) -> Self {
+        self.highest_last_message_id = Some(message_id);
+        self
+    }
+
+    /// Возвращает срез сохранённых 64-битных пар `(guild_id, version)`.
+    #[must_use]
+    pub fn guild_versions(&self) -> &[(u64, u64)] {
+        &self.guild_versions
+    }
+
+    /// Возвращает сохранённый 64-битный Snowflake `highest_last_message_id`.
+    #[must_use]
+    pub const fn highest_last_message_id(&self) -> Option<u64> {
+        self.highest_last_message_id
+    }
+
+    /// Проверяет валидность Snowflake ID (нулевые Snowflake ID запрещены контрактом).
+    pub fn validate(&self) -> Result<(), IdentifyError> {
+        if self.guild_versions.iter().any(|(gid, _)| *gid == 0) {
+            return Err(IdentifyError::ZeroSnowflakeId);
+        }
+        if self.highest_last_message_id == Some(0) {
+            return Err(IdentifyError::ZeroSnowflakeId);
+        }
+        Ok(())
+    }
+
+    /// Конвертирует 64-битные Snowflake ID гильдий в строковые пары без потери точности.
+    #[must_use]
+    pub fn to_string_pairs(&self) -> Vec<(String, String)> {
+        self.guild_versions
+            .iter()
+            .map(|(gid, ver)| (gid.to_string(), ver.to_string()))
+            .collect()
+    }
+}
+
+/// Системные заголовки клиента, синхронизированные с [`IdentifyProperties`] и [`SuperProperties`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct IdentifySystemHeaders {
+    /// Заголовок `User-Agent` (совпадает с `properties.browser_user_agent`).
+    pub user_agent: String,
+    /// Заголовок `X-Super-Properties` (Base64 от 22 полей [`SuperProperties`]).
+    pub super_properties_base64: String,
+    /// Заголовок `X-Discord-Locale` (совпадает с `properties.system_locale`).
+    pub discord_locale: String,
+    /// Заголовок `X-Discord-Timezone`.
+    pub discord_timezone: String,
+    /// Заголовок `X-Debug-Options`.
+    pub debug_options: String,
+    /// Заголовок `Accept-Language`.
+    pub accept_language: String,
+    /// Заголовок `Origin`.
+    pub origin: String,
+}
+
+impl IdentifySystemHeaders {
+    /// Собирает системные заголовки из [`ClientIdentity`], гарантируя 1:1 совпадение с OP2 IDENTIFY.
+    #[must_use]
+    pub fn from_client_identity(identity: &ClientIdentity) -> Self {
+        Self::from_super_properties(identity.super_properties())
+    }
+
+    /// Собирает системные заголовки из [`SuperProperties`].
+    #[must_use]
+    pub fn from_super_properties(sp: &SuperProperties) -> Self {
+        let profile = BrowserImpersonationProfile::desktop_default();
+        let locale = if sp.system_locale.trim().is_empty() {
+            DEFAULT_LOCALE
+        } else {
+            sp.system_locale.as_str()
+        };
+        let user_agent = if sp.browser_user_agent.trim().is_empty() {
+            profile.user_agent
+        } else {
+            sp.browser_user_agent.clone()
+        };
+        Self {
+            user_agent,
+            super_properties_base64: sp.to_base64(),
+            discord_locale: locale.to_string(),
+            discord_timezone: DEFAULT_TIMEZONE.to_string(),
+            debug_options: DEFAULT_DEBUG_OPTIONS.to_string(),
+            accept_language: format_accept_language(&[locale]),
+            origin: profile.origin,
+        }
+    }
+
+    /// Возвращает массив пар `(имя_заголовка, значение)` для HTTP/WS handshake.
+    #[must_use]
+    pub fn to_header_pairs(&self) -> [(&'static str, &str); 7] {
+        [
+            ("User-Agent", &self.user_agent),
+            ("X-Super-Properties", &self.super_properties_base64),
+            ("X-Discord-Locale", &self.discord_locale),
+            ("X-Discord-Timezone", &self.discord_timezone),
+            ("X-Debug-Options", &self.debug_options),
+            ("Accept-Language", &self.accept_language),
+            ("Origin", &self.origin),
+        ]
+    }
+}
+
+/// Результат генерации OP2 IDENTIFY handshake с сохранением 64-битных Snowflake ID и системных заголовков.
+#[derive(Clone, PartialEq, Eq)]
+pub struct IdentifyHandshakeFrame {
+    /// Код операции шлюза (`IDENTIFY_OP == 2`).
+    pub op: u8,
+    /// 64-битная битовая маска возможностей клиента.
+    pub capabilities: u64,
+    /// 64-битные свойства клиента, отправленные в кадре `d.properties`.
+    pub properties: IdentifyProperties,
+    /// Синхронизированные системные заголовки (`X-Super-Properties`, `User-Agent`, `X-Discord-Locale` и др.).
+    pub system_headers: IdentifySystemHeaders,
+    /// Сохранённые 64-битные Snowflake ID гильдий и их версии.
+    guild_snowflakes: Vec<(u64, u64)>,
+    /// Сохранённый 64-битный Snowflake ID `highest_last_message_id`.
+    pub highest_last_message_id: Option<u64>,
+    /// Готовый бинарный ETF-кадр `{op: 2, d: ...}` с ведущим байтом `0x83`.
+    pub etf_frame: Vec<u8>,
+    /// Только внутренний ETF-терм `d` с ведущим байтом `0x83`.
+    pub etf_payload: Vec<u8>,
+}
+
+impl IdentifyHandshakeFrame {
+    /// Возвращает сохранённые 64-битные Snowflake ID гильдий `(guild_id, version)`.
+    #[must_use]
+    pub fn preserved_guild_snowflakes(&self) -> &[(u64, u64)] {
+        &self.guild_snowflakes
+    }
+}
+
+impl std::fmt::Debug for IdentifyHandshakeFrame {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("IdentifyHandshakeFrame")
+            .field("op", &self.op)
+            .field("token", &"REDACTED")
+            .field("capabilities", &self.capabilities)
+            .field("properties", &self.properties)
+            .field("system_headers", &self.system_headers)
+            .field("guild_snowflakes", &self.guild_snowflakes)
+            .field("highest_last_message_id", &self.highest_last_message_id)
+            .field("etf_frame_len", &self.etf_frame.len())
+            .finish()
+    }
+}
+
+/// Генератор payload Identify (Opcode 2) с 64-битными свойствами клиента, сохранением Snowflake ID
+/// и синхронизацией системных заголовков (`STAGE-05.3.1`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct IdentifyHandshakeGenerator {
+    super_properties: SuperProperties,
+    properties: IdentifyProperties,
+    system_headers: IdentifySystemHeaders,
+    capabilities: u64,
+    presence: Option<PresenceInfo>,
+    compress: bool,
+    client_state: IdentifyClientState,
+    qos_active: bool,
+}
+
+impl IdentifyHandshakeGenerator {
+    /// Создаёт генератор из единой идентичности [`ClientIdentity`].
+    #[must_use]
+    pub fn from_client_identity(identity: &ClientIdentity) -> Self {
+        Self::from_super_properties(identity.super_properties().clone())
+    }
+
+    /// Создаёт генератор из [`SuperProperties`].
+    #[must_use]
+    pub fn from_super_properties(sp: SuperProperties) -> Self {
+        let properties = IdentifyProperties::from_super_properties(&sp);
+        let system_headers = IdentifySystemHeaders::from_super_properties(&sp);
+        Self {
+            super_properties: sp,
+            properties,
+            system_headers,
+            capabilities: CAPABILITIES_ACTIVE,
+            presence: None,
+            compress: false,
+            client_state: IdentifyClientState::new(),
+            qos_active: false,
+        }
+    }
+
+    /// Задаёт 64-битную маску `capabilities`.
+    #[must_use]
+    pub fn with_capabilities(mut self, capabilities: u64) -> Self {
+        self.capabilities = capabilities;
+        self
+    }
+
+    /// Задаёт состояние `client_state` с 64-битными Snowflake ID.
+    #[must_use]
+    pub fn with_client_state(mut self, client_state: IdentifyClientState) -> Self {
+        self.client_state = client_state;
+        self
+    }
+
+    /// Задаёт начальное присутствие (`presence`).
+    #[must_use]
+    pub fn with_presence(mut self, presence: PresenceInfo) -> Self {
+        self.presence = Some(presence);
+        self
+    }
+
+    /// Задаёт таймзону в системных заголовках (`X-Discord-Timezone`).
+    #[must_use]
+    pub fn with_timezone(mut self, timezone: impl Into<String>) -> Self {
+        self.system_headers.discord_timezone = timezone.into();
+        self
+    }
+
+    /// Задаёт значение `X-Debug-Options` в системных заголовках.
+    #[must_use]
+    pub fn with_debug_options(mut self, debug_options: impl Into<String>) -> Self {
+        self.system_headers.debug_options = debug_options.into();
+        self
+    }
+
+    /// Генерирует полный пакет OP2 IDENTIFY handshake с самопроверкой ETF-декодирования.
+    pub fn generate_handshake(&self, token: &str) -> Result<IdentifyHandshakeFrame, IdentifyError> {
+        self.client_state.validate()?;
+        let params = IdentifyParams {
+            token: token.to_string(),
+            capabilities: self.capabilities,
+            properties: self.properties.clone(),
+            presence: self.presence.clone(),
+            compress: self.compress,
+            client_state_guild_versions: self.client_state.to_string_pairs(),
+            qos_token: qos_token_client_provided(self.qos_active),
+        };
+        let payload_val =
+            identify_value_with_msg_id(&params, self.client_state.highest_last_message_id())?;
+        let etf_payload = self_check(chord_codec::etf::encode(&payload_val))?;
+        let frame_val = EtfValue::Map(vec![
+            (key("op"), EtfValue::Int(i64::from(IDENTIFY_OP))),
+            (key("d"), payload_val),
+        ]);
+        let etf_frame = self_check(chord_codec::etf::encode(&frame_val))?;
+        Ok(IdentifyHandshakeFrame {
+            op: IDENTIFY_OP,
+            capabilities: self.capabilities,
+            properties: self.properties.clone(),
+            system_headers: self.system_headers.clone(),
+            guild_snowflakes: self.client_state.guild_versions().to_vec(),
+            highest_last_message_id: self.client_state.highest_last_message_id(),
+            etf_frame,
+            etf_payload,
+        })
+    }
+}
+
 /// Присутствие из IDENTIFY: `{status, since, activities, afk}` (как `getLocalPresence()`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PresenceInfo {
     /// Статус (`"online"`, `"idle"`, …).
     pub status: String,
@@ -178,6 +467,8 @@ pub enum IdentifyError {
     EmptyToken,
     /// `qos_token` не строгий UTF-8 (бинарный protobuf не представим строкой ETF).
     QosTokenNotUtf8,
+    /// Нулевой 64-битный Snowflake ID в `client_state`.
+    ZeroSnowflakeId,
     /// Собранный терм не разбирается кодеком (самопроверка сборки).
     Encode(EtfError),
 }
@@ -187,6 +478,7 @@ impl std::fmt::Display for IdentifyError {
         match self {
             Self::EmptyToken => write!(f, "пустой токен"),
             Self::QosTokenNotUtf8 => write!(f, "qos_token не является строгим UTF-8"),
+            Self::ZeroSnowflakeId => write!(f, "нулевой Snowflake ID недопустим в client_state"),
             Self::Encode(error) => {
                 write!(f, "собранный IDENTIFY не разбирается ETF-кодеком: {error}")
             }
@@ -198,16 +490,13 @@ impl std::error::Error for IdentifyError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Encode(error) => Some(error),
-            Self::EmptyToken | Self::QosTokenNotUtf8 => None,
+            Self::EmptyToken | Self::QosTokenNotUtf8 | Self::ZeroSnowflakeId => None,
         }
     }
 }
 
 /// Минимальное protobuf-кодирование `QosToken{client_provided{is_active}}`.
-///
-/// Байты: поле 1 (`client_provided`, длина 2) → поле 1 (`is_active`, varint).
-/// `false` — `0A 02 08 00` (писатель protobuf-ts опустил бы нулевое поле, но серверу
-/// эквивалентны обе формы; форма зафиксирована контрактом ТЗ).
+#[must_use]
 pub fn qos_token_client_provided(is_active: bool) -> Vec<u8> {
     vec![0x0A, 0x02, 0x08, u8::from(is_active)]
 }
@@ -227,56 +516,33 @@ fn int(value: u64) -> EtfValue {
     EtfValue::Int(i64::try_from(value).unwrap_or(i64::MAX))
 }
 
+fn str_pair(name: &str, val: &str) -> (EtfValue, EtfValue) {
+    (key(name), EtfValue::Str(val.to_string()))
+}
+
 /// Свойства идентификации как map (порядок — супер-свойства, затем поля `handleIdentify`).
 fn properties_value(p: &IdentifyProperties) -> EtfValue {
     let mut pairs = vec![
-        (key("os"), EtfValue::Str(p.os.clone())),
-        (key("browser"), EtfValue::Str(p.browser.clone())),
-        (
-            key("release_channel"),
-            EtfValue::Str(p.release_channel.clone()),
-        ),
-        (
-            key("client_version"),
-            EtfValue::Str(p.client_version.clone()),
-        ),
-        (key("os_version"), EtfValue::Str(p.os_version.clone())),
-        (key("os_arch"), EtfValue::Str(p.os_arch.clone())),
-        (key("app_arch"), EtfValue::Str(p.app_arch.clone())),
-        (key("system_locale"), EtfValue::Str(p.system_locale.clone())),
+        str_pair("os", &p.os),
+        str_pair("browser", &p.browser),
+        str_pair("release_channel", &p.release_channel),
+        str_pair("client_version", &p.client_version),
+        str_pair("os_version", &p.os_version),
+        str_pair("os_arch", &p.os_arch),
+        str_pair("app_arch", &p.app_arch),
+        str_pair("system_locale", &p.system_locale),
         (key("has_client_mods"), bool_atom(p.has_client_mods)),
-        (
-            key("client_launch_id"),
-            EtfValue::Str(p.client_launch_id.clone()),
-        ),
-        (
-            key("launch_signature"),
-            EtfValue::Str(p.launch_signature.clone()),
-        ),
-        (
-            key("browser_user_agent"),
-            EtfValue::Str(p.browser_user_agent.clone()),
-        ),
-        (
-            key("browser_version"),
-            EtfValue::Str(p.browser_version.clone()),
-        ),
+        str_pair("client_launch_id", &p.client_launch_id),
+        str_pair("launch_signature", &p.launch_signature),
+        str_pair("browser_user_agent", &p.browser_user_agent),
+        str_pair("browser_version", &p.browser_version),
         (key("client_build_number"), int(p.client_build_number)),
-        (
-            key("client_app_state"),
-            EtfValue::Str(p.client_app_state.clone()),
-        ),
+        str_pair("client_app_state", &p.client_app_state),
         (key("is_fast_connect"), bool_atom(p.is_fast_connect)),
-        (
-            key("gateway_connect_reasons"),
-            EtfValue::Str(p.gateway_connect_reasons.clone()),
-        ),
+        str_pair("gateway_connect_reasons", &p.gateway_connect_reasons),
     ];
-    if let Some(installation_id) = &p.installation_id {
-        pairs.push((
-            key("installation_id"),
-            EtfValue::Str(installation_id.clone()),
-        ));
+    if let Some(id) = &p.installation_id {
+        pairs.push(str_pair("installation_id", id));
     }
     EtfValue::Map(pairs)
 }
@@ -293,20 +559,14 @@ fn presence_value(p: &PresenceInfo) -> EtfValue {
 
 /// Собирает **payload** IDENTIFY (ровно поля `_doIdentify`) с ведущим `0x83`; проводная форма —
 /// [`build_identify_frame`] (`{op: 2, d: payload}`).
-///
-/// Самопроверка: собранные байты обязаны полностью разбираться тем же кодеком; иначе —
-/// [`IdentifyError::Encode`] (без паники). Не-UTF8 `qos_token` — [`IdentifyError::QosTokenNotUtf8`].
 pub fn build_identify(p: &IdentifyParams) -> Result<Vec<u8>, IdentifyError> {
     self_check(chord_codec::etf::encode(&identify_value(p)?))
 }
 
 /// Кадр IDENTIFY (op2) в форме провода: `{op: 2, d: <терм build_identify>}` с ведущим `0x83`.
-///
-/// Оракул формы — код клиента: `send = (e,t,n) => pack({op: e, d: t})` (бандл, ~5024100),
-/// то есть payload IDENTIFY всегда лежит под ключом `d`.
 pub fn build_identify_frame(p: &IdentifyParams) -> Result<Vec<u8>, IdentifyError> {
     let frame = EtfValue::Map(vec![
-        (key("op"), EtfValue::Int(2)),
+        (key("op"), EtfValue::Int(i64::from(IDENTIFY_OP))),
         (key("d"), identify_value(p)?),
     ]);
     self_check(chord_codec::etf::encode(&frame))
@@ -314,6 +574,14 @@ pub fn build_identify_frame(p: &IdentifyParams) -> Result<Vec<u8>, IdentifyError
 
 /// Значение payload IDENTIFY (без внешнего кадра `{op, d}`).
 fn identify_value(p: &IdentifyParams) -> Result<EtfValue, IdentifyError> {
+    identify_value_with_msg_id(p, None)
+}
+
+/// Значение payload IDENTIFY с опциональным 64-битным `highest_last_message_id` в `client_state`.
+fn identify_value_with_msg_id(
+    p: &IdentifyParams,
+    highest_last_message_id: Option<u64>,
+) -> Result<EtfValue, IdentifyError> {
     if p.token.trim().is_empty() {
         return Err(IdentifyError::EmptyToken);
     }
@@ -322,15 +590,17 @@ fn identify_value(p: &IdentifyParams) -> Result<EtfValue, IdentifyError> {
     let guild_versions = EtfValue::Map(
         p.client_state_guild_versions
             .iter()
-            .map(|(guild_id, version)| {
-                (
-                    EtfValue::Str(guild_id.clone()),
-                    EtfValue::Str(version.clone()),
-                )
-            })
+            .map(|(gid, ver)| (EtfValue::Str(gid.clone()), EtfValue::Str(ver.clone())))
             .collect(),
     );
-    let client_state = EtfValue::Map(vec![(key("guild_versions"), guild_versions)]);
+    let mut cs_pairs = vec![(key("guild_versions"), guild_versions)];
+    if let Some(msg_id) = highest_last_message_id {
+        cs_pairs.push((
+            key("highest_last_message_id"),
+            EtfValue::Str(msg_id.to_string()),
+        ));
+    }
+    let client_state = EtfValue::Map(cs_pairs);
     let presence = match &p.presence {
         Some(presence) => presence_value(presence),
         None => EtfValue::Nil,
@@ -362,17 +632,9 @@ fn self_check(bytes: Vec<u8>) -> Result<Vec<u8>, IdentifyError> {
 
 #[cfg(test)]
 mod tests {
-    //! Единая идентичность: IDENTIFY и `X-Super-Properties` одной сессии не расходятся.
-    //!
-    //! Оракул — код веб-клиента (`handleIdentify`): `properties` собираются как
-    //! `{...getSuperProperties(), client_app_state, is_fast_connect, gateway_connect_reasons,
-    //! installation_id?}`. Поэтому все общие поля, включая `launch_signature`, обязаны
-    //! приходить из одного [`ClientIdentity`], а не собираться вторым независимым путём.
-
     use super::*;
     use chord_codec::etf::decode;
 
-    /// Супер-свойства с различимыми значениями во всех 22 полях: любая подмена поля видна.
     fn distinct_super_properties() -> SuperProperties {
         SuperProperties {
             os: "Linux".to_string(),
@@ -412,7 +674,6 @@ mod tests {
         }
     }
 
-    /// Общие поля IDENTIFY и супер-свойств сравниваются по значению — без исключений.
     fn assert_shared_fields(properties: &IdentifyProperties, sp: &SuperProperties) {
         assert_eq!(properties.os, sp.os);
         assert_eq!(properties.browser, sp.browser);
@@ -423,10 +684,7 @@ mod tests {
         assert_eq!(properties.app_arch, sp.app_arch);
         assert_eq!(properties.system_locale, sp.system_locale);
         assert_eq!(properties.has_client_mods, sp.has_client_mods);
-        assert_eq!(
-            properties.client_launch_id, sp.client_launch_id,
-            "client_launch_id: один запуск — одна идентичность"
-        );
+        assert_eq!(properties.client_launch_id, sp.client_launch_id);
         assert_eq!(properties.browser_user_agent, sp.browser_user_agent);
         assert_eq!(properties.browser_version, sp.browser_version);
         assert_eq!(
@@ -434,10 +692,7 @@ mod tests {
             u64::from(sp.client_build_number)
         );
         assert_eq!(properties.client_app_state, sp.client_app_state);
-        assert_eq!(
-            properties.launch_signature, sp.launch_signature,
-            "launch_signature уходит и в OP2, и в X-Super-Properties"
-        );
+        assert_eq!(properties.launch_signature, sp.launch_signature);
     }
 
     #[test]
@@ -450,7 +705,6 @@ mod tests {
         assert_eq!(
             IdentifyProperties::from_client_identity(&identity),
             properties,
-            "оба входа дают один и тот же набор свойств"
         );
     }
 
@@ -461,9 +715,7 @@ mod tests {
         let bytes = build_identify(&params(&identity)).expect("IDENTIFY собирается");
         let (value, consumed) = decode(&bytes).expect("ETERM разбирается");
         assert_eq!(consumed, bytes.len());
-        let properties = value
-            .get("properties")
-            .expect("properties в payload IDENTIFY");
+        let properties = value.get("properties").expect("properties в payload");
 
         let string_fields = [
             ("os", &sp.os),
@@ -484,7 +736,6 @@ mod tests {
             assert_eq!(
                 properties.get(key).and_then(EtfValue::as_str),
                 Some(expected.as_str()),
-                "поле {key} в OP2 IDENTIFY обязано совпадать с X-Super-Properties"
             );
         }
         assert_eq!(
@@ -506,10 +757,6 @@ mod tests {
         let properties = IdentifyProperties::for_rw_client();
 
         assert_shared_fields(&properties, sp);
-        assert_eq!(
-            properties,
-            identity.to_identify_properties(),
-            "дефолтный клиент тоже обязан иметь один отпечаток"
-        );
+        assert_eq!(properties, identity.to_identify_properties());
     }
 }

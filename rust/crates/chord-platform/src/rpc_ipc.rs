@@ -1451,7 +1451,9 @@ impl DiscordRpcListener {
                 if meta.uid() == self.uid {
                     let _ = fs::remove_file(&tmp_socket_path);
                 }
-            } else if meta.file_type().is_socket() && !remove_stale_socket(&tmp_socket_path, self.uid) {
+            } else if meta.file_type().is_socket()
+                && !remove_stale_socket(&tmp_socket_path, self.uid)
+            {
                 // Socket is currently occupied by an active process
                 return Ok(None);
             }
@@ -2522,7 +2524,8 @@ mod tests {
 
     #[test]
     fn test_arrpc_tmp_socket_emulation() {
-        let temp_dir = std::env::temp_dir().join(format!("chord-ipc-arrpc-test-{}", std::process::id()));
+        let temp_dir =
+            std::env::temp_dir().join(format!("chord-ipc-arrpc-test-{}", std::process::id()));
         let _ = fs::create_dir_all(&temp_dir);
         let socket_path = temp_dir.join("discord-ipc-0");
         let mut listener = DiscordRpcListener::bind_path_with_slot(&socket_path, Some(0)).unwrap();

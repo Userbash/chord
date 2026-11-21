@@ -8,6 +8,7 @@
 
 import { computeFloatingPosition } from "./floating-popover.js";
 import { createTauriEventListener } from "./shell-bridge.js";
+import { resolveDaveE2eeIndicatorView } from "../modules/voice-rtc-panel.js";
 
 /**
  * Create the voice popouts controller bound to the shared voice call context.
@@ -73,7 +74,12 @@ export function createVoicePopoutsController(ctx) {
       <div><span style="color:#949ba4;">Локальный SSRC:</span> ${ssrc}</div>
       <div><span style="color:#949ba4;">Средний RTT:</span> <b style="color:#f2f3f5;">${avgPing}</b></div>
       <div><span style="color:#949ba4;">Последний RTT:</span> <b style="color:#f2f3f5;">${lastPing}</b></div>
-      <div><span style="color:#949ba4;">DAVE E2EE:</span> v1 (активен)</div>
+      <div><span style="color:#949ba4;">DAVE E2EE:</span> ${(() => {
+        const dv = resolveDaveE2eeIndicatorView(liveRtcStatus);
+        return dv.isEncrypted
+          ? `v${dv.protocolVersion} (активен${dv.epoch ? `, эпоха ${dv.epoch}` : ""})`
+          : `v1 (${dv.state})`;
+      })()}</div>
     `;
 
     const partBox = document.createElement("div");
@@ -114,8 +120,9 @@ export function createVoicePopoutsController(ctx) {
 
   /**
    * Popover showing voice connection details ("About voice call") with live SVG RTT chart.
+   * @param {"integration" | "privacy"} [initialTab]
    */
-  function openRtcConnectionPopout() {
+  function openRtcConnectionPopout(initialTab = "integration") {
     const existing = document.getElementById("live-rtc-popout");
     if (existing) {
       existing.remove();
@@ -140,7 +147,25 @@ export function createVoicePopoutsController(ctx) {
     pop.style.cssText =
       `position:fixed;left:${popLeft}px;bottom:${popBottom}px;width:340px;background:#111214;color:#dbdee1;border:1px solid #2b2d31;border-radius:10px;padding:16px;box-shadow:0 16px 38px rgba(0,0,0,0.75);z-index:9500;display:flex;flex-direction:column;gap:10px;font-size:13px;`;
 
-    let activeTab = "integration";
+    let activeTab = initialTab === "privacy" ? "privacy" : "integration";
+    const refreshLiveE2eeStatus = () => {
+      if (!ctx.isLiveSession?.() || typeof ctx.invoke !== "function") return;
+      const e2eeCmd =
+        ctx.VOICE_E2EE_STATUS_IPC_CMD ?? ctx.ipcCmds?.e2eeStatus ?? "voice_e2ee_status";
+      const cid = ctx.getActiveVoiceConnection?.()?.channelId ?? null;
+      void ctx
+        .invoke(e2eeCmd, { channelId: cid, channel_id: cid })
+        .then((/** @type {any} */ freshE2ee) => {
+          if (freshE2ee && typeof freshE2ee === "object") {
+            const cur = ctx.getLiveRtcStatus?.() ?? {};
+            ctx.setLiveRtcStatus?.({ ...cur, e2ee: freshE2ee });
+            if (pop.parentElement) {
+              renderPopContent();
+            }
+          }
+        })
+        .catch(() => {});
+    };
     const renderPopContent = () => {
       pop.replaceChildren();
       const tabsRow = document.createElement("div");
@@ -168,28 +193,36 @@ export function createVoicePopoutsController(ctx) {
       tabPriv.addEventListener("click", () => {
         activeTab = "privacy";
         renderPopContent();
+        refreshLiveE2eeStatus();
       });
       tabsRow.append(tabInt, tabPriv);
       pop.append(tabsRow);
 
       const liveRtcStatus = ctx.getLiveRtcStatus();
       const activeVoiceConnection = ctx.getActiveVoiceConnection();
+      const e2eeView = resolveDaveE2eeIndicatorView(liveRtcStatus);
 
       if (activeTab === "privacy") {
-        // Generate stable 30-digit E2EE call verification code (6 blocks of 5 digits).
-        const seedStr = `${activeVoiceConnection?.channelId || "1176785373989445703"}-${liveRtcStatus?.ssrc || 87421}`;
-        let hash = 2166136261;
-        for (let i = 0; i < seedStr.length; i += 1) {
-          hash ^= seedStr.charCodeAt(i);
-          hash = Math.imul(hash, 16777619) >>> 0;
-        }
         /** @type {string[]} */
-        const blocks = [];
-        for (let b = 0; b < 6; b += 1) {
-          hash = (Math.imul(hash ^ (b + 17), 1664525) + 1013904223) >>> 0;
-          blocks.push(String(10000 + (hash % 90000)));
+        let blocks = [];
+        if (e2eeView.privacyCodeChunks.length === 6) {
+          blocks = [...e2eeView.privacyCodeChunks];
+        } else if (!liveRtcStatus?.e2ee) {
+          const seedStr = `${activeVoiceConnection?.channelId || "1176785373989445703"}-${liveRtcStatus?.ssrc || 87421}`;
+          let hash = 2166136261;
+          for (let i = 0; i < seedStr.length; i += 1) {
+            hash ^= seedStr.charCodeAt(i);
+            hash = Math.imul(hash, 16777619) >>> 0;
+          }
+          for (let b = 0; b < 6; b += 1) {
+            hash = (Math.imul(hash ^ (b + 17), 1664525) + 1013904223) >>> 0;
+            blocks.push(String(10000 + (hash % 90000)));
+          }
         }
-        const fullCode = `${blocks.slice(0, 3).join(" ")} ${blocks.slice(3, 6).join(" ")}`;
+        const fullCode =
+          blocks.length === 6
+            ? `${blocks.slice(0, 3).join(" ")} ${blocks.slice(3, 6).join(" ")}`
+            : "";
 
         const privBox = document.createElement("div");
         privBox.style.cssText = "display:flex;flex-direction:column;gap:10px;padding:4px 0;";
@@ -199,7 +232,9 @@ export function createVoicePopoutsController(ctx) {
         const pDesc = document.createElement("div");
         pDesc.style.cssText = "font-size:12px;color:#b5bac1;line-height:1.45;";
         pDesc.textContent =
-          "Голосовые и видеозвонки защищены сквозным шифрованием. Сравните этот код с кодами других участников звонка. Одинаковые коды подтверждают защиту звонка.";
+          blocks.length === 6
+            ? "Голосовые и видеозвонки защищены сквозным шифрованием. Сравните этот код с кодами других участников звонка. Одинаковые коды подтверждают защиту звонка."
+            : e2eeView.tooltip;
 
         const codeCard = document.createElement("div");
         codeCard.style.cssText =
@@ -207,17 +242,26 @@ export function createVoicePopoutsController(ctx) {
         const digitsGrid = document.createElement("div");
         digitsGrid.style.cssText =
           "display:grid;grid-template-columns:repeat(3,auto);gap:6px 14px;font-family:monospace;font-size:14px;font-weight:700;color:#f2f3f5;letter-spacing:0.5px;";
-        for (const blk of blocks) {
-          const cell = document.createElement("span");
-          cell.textContent = blk;
-          digitsGrid.append(cell);
+        if (blocks.length === 6) {
+          for (const blk of blocks) {
+            const cell = document.createElement("span");
+            cell.textContent = blk;
+            digitsGrid.append(cell);
+          }
+        } else {
+          const pendingSpan = document.createElement("span");
+          pendingSpan.textContent = e2eeView.badgeLabel || "Ожидание MLS…";
+          pendingSpan.style.color = e2eeView.statusColor;
+          digitsGrid.append(pendingSpan);
         }
         const copyCodeBtn = document.createElement("button");
         copyCodeBtn.type = "button";
+        copyCodeBtn.disabled = !fullCode;
         copyCodeBtn.style.cssText =
           "padding:7px 12px;border:none;border-radius:6px;background:#2b2d31;color:#f2f3f5;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;";
         copyCodeBtn.textContent = "📋 Копировать";
         copyCodeBtn.addEventListener("click", () => {
+          if (!fullCode) return;
           void navigator.clipboard?.writeText(fullCode).catch(() => {});
           copyCodeBtn.textContent = "✓ Скопировано";
         });
@@ -226,8 +270,11 @@ export function createVoicePopoutsController(ctx) {
         const footerLock = document.createElement("div");
         footerLock.className = "rtc-popout-footer";
         footerLock.style.cssText =
-          "padding-top:8px;border-top:1px solid #2b2d31;color:#23a55a;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;";
-        footerLock.textContent = "🔒 Защищено сквозным шифрованием";
+          `padding-top:8px;border-top:1px solid #2b2d31;color:${blocks.length === 6 ? "#23a55a" : e2eeView.statusColor};font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;`;
+        footerLock.textContent =
+          blocks.length === 6
+            ? `🔒 Защищено сквозным шифрованием${e2eeView.epoch ? ` • Эпоха ${e2eeView.epoch}` : ""}`
+            : e2eeView.tooltip;
 
         privBox.append(pTitle, pDesc, codeCard, footerLock);
         pop.append(privBox);
@@ -298,17 +345,34 @@ export function createVoicePopoutsController(ctx) {
       });
       btnRow.append(debugBtn, logBtn);
 
+      const hasExplicitE2ee = Boolean(liveRtcStatus?.e2ee && typeof liveRtcStatus.e2ee === "object");
+      const footerColor = hasExplicitE2ee
+        ? e2eeView.isEncrypted
+          ? "#23a55a"
+          : e2eeView.statusColor
+        : "#23a55a";
       const footerLock = document.createElement("div");
       footerLock.className = "rtc-popout-footer";
+      footerLock.setAttribute(
+        "data-dave-e2ee-state",
+        hasExplicitE2ee ? e2eeView.state : "encrypted",
+      );
       footerLock.style.cssText =
-        "padding-top:8px;border-top:1px solid #2b2d31;color:#23a55a;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;";
-      footerLock.textContent = "🔒 Защищено сквозным шифрованием";
+        `padding-top:8px;border-top:1px solid #2b2d31;color:${footerColor};font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;`;
+      footerLock.textContent = hasExplicitE2ee
+        ? e2eeView.isEncrypted
+          ? `🔒 Защищено сквозным шифрованием${e2eeView.epoch ? ` • Эпоха ${e2eeView.epoch}` : ""}`
+          : e2eeView.tooltip
+        : "🔒 Защищено сквозным шифрованием";
 
       pop.append(headerRow, chartWrap, statsBlock, helpNote, btnRow, footerLock);
       ctx.updateLiveRtcDomInPlace();
     };
     document.body.append(pop);
     renderPopContent();
+    if (activeTab === "privacy") {
+      refreshLiveE2eeStatus();
+    }
   }
 
   /**
@@ -773,19 +837,23 @@ export function createVoicePopoutsController(ctx) {
     pop.addEventListener("mouseleave", () => {
       pop.remove();
     });
+    const isDomEl = (/** @type {any} */ node) =>
+      typeof HTMLElement !== "undefined"
+        ? node instanceof HTMLElement
+        : Boolean(node && typeof node === "object");
     const streamBtn = pop.querySelector('[data-act="ask-stream"]');
     streamBtn?.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      if (streamBtn instanceof HTMLElement) {
-        streamBtn.textContent = "Запрос отправлен ✓";
-        streamBtn.style.background = "#23a55a";
+      if (isDomEl(streamBtn)) {
+        /** @type {any} */ (streamBtn).textContent = "Запрос отправлен ✓";
+        /** @type {any} */ (streamBtn).style.background = "#23a55a";
       }
     });
     const joinBtn = pop.querySelector('[data-act="ask-join"]');
     joinBtn?.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      if (joinBtn instanceof HTMLElement) {
-        joinBtn.textContent = "Запрос отправлен ✓";
+      if (isDomEl(joinBtn)) {
+        /** @type {any} */ (joinBtn).textContent = "Запрос отправлен ✓";
       }
     });
     document.body.append(pop);

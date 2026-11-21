@@ -1,0 +1,24 @@
+PackageIdentifier: DiscordLab.DiscordGpui.Canary
+PackageVersion: 1.0.0-canary.1
+Platform:
+  - Windows.Desktop
+MinimumOSVersion: 10.0.19041.0
+InstallerType: wix
+Scope: user
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+UpgradeBehavior: install
+Protocols:
+  - discord
+  - disclip
+FileExtensions:
+  - .discord-invite
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/discord-lab/discord-gpui/releases/download/v1.0.0-canary.1/discord-gpui-v1.0.0-canary.1-windows-x64.msi
+    InstallerSha256: 18A6AA8066CE0B6722C8B83A61BF0C43939D5CEE7696C7CD6D282AC1167A349E
+    ProductCode: "{B2C3D4E5-F6A7-4890-BCDE-1234567890BC}"
+ManifestType: installer
+ManifestVersion: 1.6.0

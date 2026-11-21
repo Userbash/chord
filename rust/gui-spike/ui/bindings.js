@@ -392,6 +392,74 @@ export function createTypedCommands(invokeFn) {
     },
 
     /**
+     * Reads channel read states (`read_state`).
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async readState() {
+      const raw = await invokeFn("read_state");
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(raw) ? raw : []);
+    },
+
+    /**
+     * Reads channels list (`channels`).
+     * @param {string | null} [guildId]
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async channels(guildId) {
+      const args = guildId !== undefined && guildId !== null ? { guildId } : {};
+      const raw = await invokeFn("channels", args);
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(raw) ? raw : []);
+    },
+
+    /**
+     * Reads messages page (`messages_page`).
+     * @param {string} channelId
+     * @param {string | null} [cursor]
+     * @param {string | null} [before]
+     * @param {string | null} [position]
+     * @param {number | null} [limit]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async messagesPage(channelId, cursor, before, position, limit) {
+      /** @type {Record<string, unknown>} */
+      const args = { channelId };
+      if (cursor) args.cursor = cursor;
+      if (before) args.before = before;
+      if (position) args.position = position;
+      if (limit != null) args.limit = limit;
+      const raw = await invokeFn("messages_page", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
+     * Reads members page (`members_page`).
+     * @param {string | null} [guildId]
+     * @param {string | null} [cursor]
+     * @param {number | null} [limit]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async membersPage(guildId, cursor, limit) {
+      /** @type {Record<string, unknown>} */
+      const args = {};
+      if (guildId) args.guildId = guildId;
+      if (cursor) args.cursor = cursor;
+      if (limit != null) args.limit = limit;
+      const raw = await invokeFn("members_page", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
+     * Reads settings payload (`settings`).
+     * @param {string | null} [section]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async settings(section) {
+      const args = section ? { section } : {};
+      const raw = await invokeFn("settings", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
      * Pins a message in a guild/DM channel.
      * @param {string} channelId
      * @param {string} messageId
@@ -408,7 +476,7 @@ export function createTypedCommands(invokeFn) {
         channel_id: channelId.trim(),
         message_id: messageId.trim(),
       });
-      return /** @type {Record<string, unknown>} */ (res);
+      return /** @type {Record<string, unknown>} */ (res && typeof res === "object" ? res : {});
     },
 
     /**
@@ -428,7 +496,7 @@ export function createTypedCommands(invokeFn) {
         channel_id: channelId.trim(),
         message_id: messageId.trim(),
       });
-      return /** @type {Record<string, unknown>} */ (res);
+      return /** @type {Record<string, unknown>} */ (res && typeof res === "object" ? res : {});
     },
 
     /**
@@ -443,7 +511,7 @@ export function createTypedCommands(invokeFn) {
       const res = await invokeFn("list_channel_pins", {
         channel_id: channelId.trim(),
       });
-      return /** @type {Array<Record<string, unknown>>} */ (res);
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(res) ? res : []);
     },
   });
 }

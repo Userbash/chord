@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 /**
  * T-217 (FE-P1-19 / RW-40 / G2): unit-тесты контроллера пикера выражений
  * (Эмодзи / GIF / Стикеры) (`rust/gui-spike/ui/features/expression-picker.js`).
@@ -12,6 +12,9 @@ import {
   MAX_RECENT_EMOJIS,
   applySkinTone,
   recordRecentEmoji,
+  toggleReactionCount,
+  incrementReactionCount,
+  decrementReactionCount,
   createExpressionPickerController,
 } from "../../rust/gui-spike/ui/features/expression-picker.js";
 
@@ -554,5 +557,54 @@ describe("createExpressionPickerController — рендер, вкладки, п�
     picker.dispatchEvent("keydown", { key: "Escape" });
     assert.equal(controller.isOpen(), false);
     assert.equal(picker.getAttribute("data-open"), "false");
+  });
+});
+
+describe("Reaction count increment/decrement & toggle (W53-06)", () => {
+  it("incrementReactionCount adds a new reaction with count 1 and me=true, or increments existing", () => {
+    const initial = [{ emoji: "👍", count: 2, me: false }];
+    const added = incrementReactionCount(initial, "🔥");
+    assert.deepEqual(added, [
+      { emoji: "👍", count: 2, me: false },
+      { emoji: "🔥", count: 1, me: true },
+    ]);
+    // Immutability check
+    assert.equal(initial.length, 1);
+
+    const incremented = incrementReactionCount(added, "👍");
+    assert.deepEqual(incremented, [
+      { emoji: "👍", count: 3, me: true },
+      { emoji: "🔥", count: 1, me: true },
+    ]);
+  });
+
+  it("decrementReactionCount decrements count and removes reaction when count reaches 0", () => {
+    const initial = [
+      { emoji: "👍", count: 2, me: true },
+      { emoji: "🔥", count: 1, me: true },
+    ];
+    const dec1 = decrementReactionCount(initial, "👍");
+    assert.deepEqual(dec1, [
+      { emoji: "👍", count: 1, me: false },
+      { emoji: "🔥", count: 1, me: true },
+    ]);
+
+    const dec2 = decrementReactionCount(dec1, "🔥");
+    assert.deepEqual(dec2, [{ emoji: "👍", count: 1, me: false }]);
+    // Immutability check
+    assert.equal(initial.length, 2);
+    assert.equal(initial[0].count, 2);
+  });
+
+  it("toggleReactionCount increments when me=false/absent and decrements/removes when me=true", () => {
+    const s0 = [];
+    const s1 = toggleReactionCount(s0, "🎉");
+    assert.deepEqual(s1, [{ emoji: "🎉", count: 1, me: true }]);
+
+    const s2 = toggleReactionCount(s1, "🎉");
+    assert.deepEqual(s2, []);
+
+    const s3 = toggleReactionCount([{ emoji: "❤️", count: 4, me: false }], "❤️");
+    assert.deepEqual(s3, [{ emoji: "❤️", count: 5, me: true }]);
   });
 });

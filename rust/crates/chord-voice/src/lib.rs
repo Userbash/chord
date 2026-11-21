@@ -15,6 +15,7 @@ pub mod dave;
 pub mod dave_v1;
 pub mod devices;
 pub mod media;
+pub mod media_constraints;
 pub mod noise;
 pub mod ptt;
 pub mod reception;
@@ -25,6 +26,7 @@ pub mod rtp;
 pub mod session;
 pub mod srtp;
 pub mod stats;
+pub mod stream_quality;
 pub mod udp;
 
 pub use noise::{

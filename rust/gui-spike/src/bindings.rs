@@ -455,6 +455,24 @@ pub fn generate_specta_builder() -> SpectaBuilder {
             ts_args: "",
             ts_return: "LiveSyncSnapshotDto",
         })
+        .register_command(SpectaCommandSpec {
+            name: "pin_channel_message",
+            client_method: "pinMessage",
+            ts_args: "channelId: string, messageId: string",
+            ts_return: "Record<string, unknown>",
+        })
+        .register_command(SpectaCommandSpec {
+            name: "unpin_channel_message",
+            client_method: "unpinMessage",
+            ts_args: "channelId: string, messageId: string",
+            ts_return: "Record<string, unknown>",
+        })
+        .register_command(SpectaCommandSpec {
+            name: "list_channel_pins",
+            client_method: "listPins",
+            ts_args: "channelId: string",
+            ts_return: "Array<Record<string, unknown>>",
+        })
 }
 
 /// Checks whether a standalone identifier token `any` appears in the given source text.
@@ -644,6 +662,24 @@ export interface TypedCommands {
   syncLiveState(): Promise<LiveSyncSnapshotDto>;
   voiceConnect(opts: VoiceConnectOptionsDto): Promise<VoiceConnectResultDto>;
   voiceRtcStatus(): Promise<VoiceRtcStatusDto>;
+  readState(): Promise<Array<Record<string, unknown>>>;
+  channels(guildId?: string | null): Promise<Array<Record<string, unknown>>>;
+  messagesPage(
+    channelId: string,
+    cursor?: string | null,
+    before?: string | null,
+    position?: string | null,
+    limit?: number | null,
+  ): Promise<Record<string, unknown>>;
+  membersPage(
+    guildId?: string | null,
+    cursor?: string | null,
+    limit?: number | null,
+  ): Promise<Record<string, unknown>>;
+  settings(section?: string | null): Promise<Record<string, unknown>>;
+  pinMessage(channelId: string, messageId: string): Promise<Record<string, unknown>>;
+  unpinMessage(channelId: string, messageId: string): Promise<Record<string, unknown>>;
+  listPins(channelId: string): Promise<Array<Record<string, unknown>>>;
 }
 
 export declare const PERM_CREATE_INSTANT_INVITE: bigint;
@@ -1070,6 +1106,129 @@ export function createTypedCommands(invokeFn) {
         deviceId: "",
       });
       return /** @type {import("./bindings.d.ts").VoiceRtcStatusDto} */ (res);
+    },
+
+    /**
+     * Reads channel read states (`read_state`).
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async readState() {
+      const raw = await invokeFn("read_state");
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(raw) ? raw : []);
+    },
+
+    /**
+     * Reads channels list (`channels`).
+     * @param {string | null} [guildId]
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async channels(guildId) {
+      const args = guildId !== undefined && guildId !== null ? { guildId } : {};
+      const raw = await invokeFn("channels", args);
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(raw) ? raw : []);
+    },
+
+    /**
+     * Reads messages page (`messages_page`).
+     * @param {string} channelId
+     * @param {string | null} [cursor]
+     * @param {string | null} [before]
+     * @param {string | null} [position]
+     * @param {number | null} [limit]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async messagesPage(channelId, cursor, before, position, limit) {
+      /** @type {Record<string, unknown>} */
+      const args = { channelId };
+      if (cursor) args.cursor = cursor;
+      if (before) args.before = before;
+      if (position) args.position = position;
+      if (limit != null) args.limit = limit;
+      const raw = await invokeFn("messages_page", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
+     * Reads members page (`members_page`).
+     * @param {string | null} [guildId]
+     * @param {string | null} [cursor]
+     * @param {number | null} [limit]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async membersPage(guildId, cursor, limit) {
+      /** @type {Record<string, unknown>} */
+      const args = {};
+      if (guildId) args.guildId = guildId;
+      if (cursor) args.cursor = cursor;
+      if (limit != null) args.limit = limit;
+      const raw = await invokeFn("members_page", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
+     * Reads settings payload (`settings`).
+     * @param {string | null} [section]
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async settings(section) {
+      const args = section ? { section } : {};
+      const raw = await invokeFn("settings", args);
+      return /** @type {Record<string, unknown>} */ (raw && typeof raw === "object" ? raw : {});
+    },
+
+    /**
+     * Pins a message in a guild/DM channel.
+     * @param {string} channelId
+     * @param {string} messageId
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async pinMessage(channelId, messageId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      if (typeof messageId !== "string" || !messageId.trim()) {
+        throw new TypeError("messageId must be a non-empty string");
+      }
+      const res = await invokeFn("pin_channel_message", {
+        channel_id: channelId.trim(),
+        message_id: messageId.trim(),
+      });
+      return /** @type {Record<string, unknown>} */ (res && typeof res === "object" ? res : {});
+    },
+
+    /**
+     * Unpins a message from a channel.
+     * @param {string} channelId
+     * @param {string} messageId
+     * @returns {Promise<Record<string, unknown>>}
+     */
+    async unpinMessage(channelId, messageId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      if (typeof messageId !== "string" || !messageId.trim()) {
+        throw new TypeError("messageId must be a non-empty string");
+      }
+      const res = await invokeFn("unpin_channel_message", {
+        channel_id: channelId.trim(),
+        message_id: messageId.trim(),
+      });
+      return /** @type {Record<string, unknown>} */ (res && typeof res === "object" ? res : {});
+    },
+
+    /**
+     * Fetches all pinned messages in a channel.
+     * @param {string} channelId
+     * @returns {Promise<Array<Record<string, unknown>>>}
+     */
+    async listPins(channelId) {
+      if (typeof channelId !== "string" || !channelId.trim()) {
+        throw new TypeError("channelId must be a non-empty string");
+      }
+      const res = await invokeFn("list_channel_pins", {
+        channel_id: channelId.trim(),
+      });
+      return /** @type {Array<Record<string, unknown>>} */ (Array.isArray(res) ? res : []);
     },
   });
 }

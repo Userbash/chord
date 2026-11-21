@@ -400,7 +400,12 @@ impl From<&crate::ready::PermissionOverwrite> for PermissionOverwrite {
     }
 }
 
-fn find_zero_sentinel(guild_id: u64, user_id: u64, roles: &[u64], ows: &[PermissionOverwrite]) -> u64 {
+fn find_zero_sentinel(
+    guild_id: u64,
+    user_id: u64,
+    roles: &[u64],
+    ows: &[PermissionOverwrite],
+) -> u64 {
     let mut candidate = 1u64;
     while candidate == guild_id
         || candidate == user_id
@@ -527,7 +532,12 @@ pub fn compute_channel_permissions(
     let tw_user_id = map_nonzero_id::<UserMarker>(user_id, sentinel);
     let tw_roles: Vec<(Id<RoleMarker>, TwilightPermissions)> = member_role_ids
         .iter()
-        .map(|&rid| (map_nonzero_id::<RoleMarker>(rid, sentinel), TwilightPermissions::empty()))
+        .map(|&rid| {
+            (
+                map_nonzero_id::<RoleMarker>(rid, sentinel),
+                TwilightPermissions::empty(),
+            )
+        })
         .collect();
 
     let low = compute_half_via_twilight(

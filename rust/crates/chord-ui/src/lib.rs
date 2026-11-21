@@ -23,6 +23,7 @@ mod tests {
 // Публичные: GUI-каркас (P3-01 и далее) заблокирован до решения владельца по
 // тулкиту, но контракты уже зафиксированы и должны быть доступны крейтам-потребителям.
 pub mod chat_view;
+pub mod d03_contracts;
 pub mod dialog_window;
 pub mod member_list;
 pub mod navigation;

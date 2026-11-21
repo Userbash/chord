@@ -79,6 +79,7 @@ elif cmd == "move":
         if c.get("id", "").upper() == card_id:
             old_st = c.get("status")
             c["status"] = target_status
+            c["column"] = target_status
             found = True
             print(f"✅ Moved {card_id}: {old_st} -> {target_status}")
             break
@@ -101,6 +102,7 @@ elif cmd == "lock":
     for c in cards:
         if c.get("id", "").upper() == card_id:
             c["status"] = "in_dev"
+            c["column"] = "in_dev"
             c["assignee"] = assignee
             found = True
             print(f"⚡ [KANBAN] Locked {card_id} -> status: in_dev, assignee: @{assignee}")
@@ -120,6 +122,7 @@ elif cmd == "done":
     for c in cards:
         if c.get("id", "").upper() == card_id:
             c["status"] = "done"
+            c["column"] = "done"
             print(f"✅ [KANBAN] Marked {card_id} as DONE!")
             break
     with open(kanban_path, "w", encoding="utf-8") as f:
@@ -137,6 +140,7 @@ elif cmd == "auto":
             for c in cards:
                 if c.get("id", "").upper() == cid and c.get("status") != "done":
                     c["status"] = "done"
+                    c["column"] = "done"
                     updated += 1
                     print(f"🔄 Auto-synced from git: {cid} -> done")
     if updated > 0:

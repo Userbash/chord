@@ -12,8 +12,16 @@
 import { createMemberHeights, memberHeight, PageStore } from "../model.js";
 import { byId, formatNumber } from "./dom.js";
 import { UIError } from "./errors.js";
+import {
+  computeFloatingPosition,
+  isFloatingUiDomPowered,
+  positionFloatingElement,
+} from "./floating-popover.js";
 import { bindListSearch } from "./search.js";
 import { VirtualList } from "./virtual-list.js";
+import { createVirtualizer, isTanstackVirtualPowered } from "./virtualizer.js";
+
+export { isTanstackVirtualPowered, isFloatingUiDomPowered };
 
 export const MEMBER_ROWS = 24_229;
 export const MEMBER_PAGE_SIZE = 100;
@@ -38,6 +46,8 @@ export const STATUS_LABELS = Object.freeze({
   idle: "неактивен",
   dnd: "не беспокоить",
   offline: "не в сети",
+  mobile: "в сети (с телефона)",
+  streaming: "стримит",
 });
 const ACTIVITIES = ["играет в Dota 2", "читает канал", "слушает музыку", "пишет код"];
 
@@ -148,6 +158,8 @@ export function renderMemberRow(row, item, index, options = {}) {
   const dot = document.createElement("span");
   dot.className = "status-dot";
   dot.setAttribute("data-status", item.status);
+  dot.setAttribute("data-presence-badge", item.status);
+  dot.setAttribute("title", item.statusLabel ?? STATUS_LABELS[item.status] ?? item.status);
   avatar.append(dot);
 
   const name = document.createElement("span");
@@ -192,7 +204,11 @@ export function renderMemberRow(row, item, index, options = {}) {
 
   row.append(avatar, name, role);
 
+  row.setAttribute("data-context-menu-trigger", "member");
+  row.setAttribute("data-hover-card-trigger", "member");
+
   /** @type {any} */ (row)._member = item;
+  /** @type {any} */ (row)._memberRowOptions = options;
   if (!/** @type {any} */ (row)._hasProfileTrigger) {
     /** @type {any} */ (row)._hasProfileTrigger = true;
     row.addEventListener("click", (event) => {
@@ -209,8 +225,120 @@ export function renderMemberRow(row, item, index, options = {}) {
         const p = ensureMemberProfilePopover();
         const currentMember = /** @type {any} */ (row)._member ?? item;
         openMemberProfilePopover(p, currentMember, row);
+      } else if (key === "ContextMenu" || (key === "F10" && /** @type {any} */ (event).shiftKey)) {
+        event.preventDefault?.();
+        triggerFloatingMemberContextMenu(row, /** @type {any} */ (row)._member ?? item, event, /** @type {any} */ (row)._memberRowOptions);
       }
     });
+  }
+  if (!/** @type {any} */ (row)._hasContextMenuTrigger) {
+    /** @type {any} */ (row)._hasContextMenuTrigger = true;
+    row.addEventListener("contextmenu", (event) => {
+      event.preventDefault?.();
+      triggerFloatingMemberContextMenu(row, /** @type {any} */ (row)._member ?? item, event, /** @type {any} */ (row)._memberRowOptions);
+    });
+  }
+  if (!/** @type {any} */ (row)._hasHoverCardTrigger) {
+    /** @type {any} */ (row)._hasHoverCardTrigger = true;
+    row.addEventListener("mouseenter", (event) => {
+      triggerFloatingMemberHoverCard(row, /** @type {any} */ (row)._member ?? item, event, /** @type {any} */ (row)._memberRowOptions);
+    });
+    row.addEventListener("mouseleave", (event) => {
+      const opts = /** @type {any} */ (row)._memberRowOptions;
+      if (typeof opts?.onHoverCardEnd === "function") {
+        opts.onHoverCardEnd({ member: /** @type {any} */ (row)._member ?? item, anchorElement: row, event });
+      }
+    });
+  }
+}
+
+/**
+ * Вычисляет координаты контекстного меню участника через `@floating-ui/dom`.
+ *
+ * @param {HTMLElement} row
+ * @param {any} member
+ * @param {any} event
+ * @param {any} [opts]
+ */
+function triggerFloatingMemberContextMenu(row, member, event, opts) {
+  const hasPointer =
+    event &&
+    typeof event.clientX === "number" &&
+    typeof event.clientY === "number" &&
+    (event.clientX !== 0 || event.clientY !== 0);
+  const rawRect = hasPointer
+    ? { x: event.clientX, y: event.clientY, width: 0, height: 0 }
+    : typeof row.getBoundingClientRect === "function"
+      ? row.getBoundingClientRect()
+      : { left: 0, top: 0, width: 220, height: 42 };
+  const refRect = {
+    x: Number(rawRect.left ?? 0),
+    y: Number(rawRect.top ?? 0),
+    width: Number(rawRect.width ?? 0),
+    height: Number(rawRect.height ?? 0),
+  };
+  const position = computeFloatingPosition(
+    refRect,
+    { width: 220, height: 240 },
+    { placement: "bottom-start", offset: 4, padding: 8 },
+  );
+  if (opts?.contextMenuEl) {
+    const virtualRef = {
+      getBoundingClientRect: () => ({
+        x: refRect.x,
+        y: refRect.y,
+        left: refRect.x,
+        top: refRect.y,
+        right: refRect.x + refRect.width,
+        bottom: refRect.y + refRect.height,
+        width: refRect.width,
+        height: refRect.height,
+      }),
+    };
+    void positionFloatingElement(virtualRef, opts.contextMenuEl, {
+      placement: "bottom-start",
+      offset: 4,
+      padding: 8,
+    });
+  }
+  if (typeof opts?.onContextMenu === "function") {
+    opts.onContextMenu({ member, anchorElement: row, position, event });
+  }
+}
+
+/**
+ * Вычисляет координаты hover-карточки участника через `@floating-ui/dom`.
+ *
+ * @param {HTMLElement} row
+ * @param {any} member
+ * @param {any} event
+ * @param {any} [opts]
+ */
+function triggerFloatingMemberHoverCard(row, member, event, opts) {
+  const rawRect =
+    typeof row.getBoundingClientRect === "function"
+      ? row.getBoundingClientRect()
+      : { left: 0, top: 0, width: 220, height: 42 };
+  const refRect = {
+    x: Number(rawRect.left ?? 0),
+    y: Number(rawRect.top ?? 0),
+    width: Number(rawRect.width ?? 0),
+    height: Number(rawRect.height ?? 0),
+  };
+  const position = computeFloatingPosition(
+    refRect,
+    { width: 300, height: 220 },
+    { placement: "left", offset: 8, padding: 12 },
+  );
+  if (opts?.hoverCardEl) {
+    void positionFloatingElement(row, opts.hoverCardEl, {
+      placement: "left",
+      offset: 8,
+      padding: 12,
+    });
+  }
+  if (typeof opts?.onHoverCard === "function") {
+    opts.onHoverCard({ member, anchorElement: row, position, event });
   }
 }
 
@@ -581,19 +709,22 @@ function positionProfilePopover(popover, trigger) {
   if (typeof trigger.getBoundingClientRect === "function") {
     const rect = trigger.getBoundingClientRect();
     if (rect && (rect.top !== 0 || rect.left !== 0 || rect.right !== 0)) {
-      const popoverWidth = 300;
-      let left = rect.left - popoverWidth - 8;
-      if (left < 8) {
-        left = rect.right + 8;
-      }
-      let top = rect.top;
-      const windowHeight = typeof window !== "undefined" ? window.innerHeight : 600;
-      if (top + 400 > windowHeight) {
-        top = Math.max(8, windowHeight - 408);
-      }
+      const pos = computeFloatingPosition(
+        { x: rect.left, y: rect.top, width: rect.width ?? 220, height: rect.height ?? 42 },
+        { width: 300, height: 400 },
+        {
+          placement: "left",
+          offset: 8,
+          padding: 8,
+          viewport: {
+            width: typeof window !== "undefined" ? window.innerWidth : 1280,
+            height: typeof window !== "undefined" ? window.innerHeight : 600,
+          },
+        },
+      );
       popover.style.position = "fixed";
-      popover.style.left = `${Math.round(left)}px`;
-      popover.style.top = `${Math.round(top)}px`;
+      popover.style.left = `${Math.round(pos.x)}px`;
+      popover.style.top = `${Math.round(pos.y)}px`;
     }
   }
 }
@@ -1503,23 +1634,249 @@ export function groupMembersByRoleOrStatus(members, options = {}) {
 }
 
 /**
+ * Строит DOM-узел строки участника для `renderMembersList`.
+ *
+ * @param {Document} doc
+ * @param {MemberLike} member
+ * @param {{ id: string, key: string, name: string, count: number, roleColor: string | null }} group
+ * @param {{
+ *   onMemberClick?: (member: MemberLike, element: HTMLElement) => void,
+ *   onContextMenu?: (payload: { member: MemberLike, anchorElement: HTMLElement, position: { x: number, y: number, placement: string }, event: any }) => void,
+ *   onHoverCard?: (payload: { member: MemberLike, anchorElement: HTMLElement, position: { x: number, y: number, placement: string }, event: any }) => void,
+ *   onHoverCardEnd?: (payload: { member: MemberLike, anchorElement: HTMLElement, event: any }) => void,
+ *   contextMenuEl?: any,
+ *   hoverCardEl?: any,
+ * }} options
+ * @returns {HTMLElement}
+ */
+function buildMembersListRowNode(doc, member, group, options) {
+  const row = doc.createElement("div");
+  row.className = "member";
+  row.setAttribute("role", "listitem");
+  const status = member.status ?? "offline";
+  const statusLabel = member.statusLabel ?? (STATUS_LABELS[status] ?? status);
+  row.setAttribute("data-status", status);
+  row.setAttribute("data-context-menu-trigger", "member");
+  row.setAttribute("data-hover-card-trigger", "member");
+  if (member.userId || member.id) {
+    row.setAttribute("data-user-id", String(member.userId ?? member.id));
+  }
+  const memberName = String(member.name ?? member.username ?? member.user?.global_name ?? member.user?.username ?? "Участник");
+  row.setAttribute("aria-label", `${memberName}, ${statusLabel}`);
+
+  const memberColor = formatRoleColor(member.roleColor ?? member.color ?? group.roleColor);
+  if (memberColor) {
+    row.setAttribute("data-role-color", memberColor);
+    row.style.color = memberColor;
+    row.style.setProperty("--role-color", memberColor);
+  }
+
+  const avatar = doc.createElement("span");
+  avatar.className = "avatar avatar--md";
+  avatar.setAttribute("aria-hidden", "true");
+  avatar.textContent = memberName.slice(0, 1).toUpperCase();
+  const dot = doc.createElement("span");
+  dot.className = "status-dot";
+  dot.setAttribute("data-status", status);
+  dot.setAttribute("data-presence-badge", status);
+  dot.setAttribute("title", statusLabel);
+  avatar.append(dot);
+
+  const nameWrap = doc.createElement("span");
+  nameWrap.className = "member-name";
+  const nameLabel = doc.createElement("span");
+  nameLabel.className = "member-label";
+  nameLabel.textContent = memberName;
+  if (memberColor) {
+    nameLabel.style.color = memberColor;
+  }
+  nameWrap.append(nameLabel);
+
+  if (member.badge || member.role) {
+    const badge = doc.createElement("span");
+    badge.className = "badge badge--role";
+    badge.textContent = String(member.badge || member.role);
+    nameWrap.append(badge);
+  }
+
+  const activityEl = doc.createElement("span");
+  activityEl.className = "member-role";
+  activityEl.textContent = member.activity ?? "";
+
+  row.append(avatar, nameWrap, activityEl);
+
+  if (options.onMemberClick) {
+    row.addEventListener("click", () => {
+      options.onMemberClick?.(member, row);
+    });
+  }
+  if (options.onContextMenu || options.contextMenuEl) {
+    row.addEventListener("contextmenu", (event) => {
+      event.preventDefault?.();
+      triggerFloatingMemberContextMenu(row, member, event, options);
+    });
+  }
+  if (options.onHoverCard || options.hoverCardEl) {
+    row.addEventListener("mouseenter", (event) => {
+      triggerFloatingMemberHoverCard(row, member, event, options);
+    });
+    row.addEventListener("mouseleave", (event) => {
+      options.onHoverCardEnd?.({ member, anchorElement: row, event });
+    });
+  }
+
+  return row;
+}
+
+/**
  * Отрисовывает сгруппированный список участников в DOM-контейнер.
+ * При `virtualize: true` или количестве участников > 200 использует `@tanstack/virtual-core`.
  *
  * @param {HTMLElement} container DOM-контейнер для списка
  * @param {MemberLike[]} members список участников
  * @param {{
  *   groups?: Array<{ id: string, name?: string, count?: number, roleColor?: string | number, color?: string | number }>,
  *   roles?: Record<string, { id?: string, name?: string, color?: string | number, position?: number }> | Array<{ id: string, name: string, color?: string | number }>,
+ *   virtualize?: boolean,
+ *   viewportHeight?: number,
+ *   rowHeight?: number,
+ *   headerHeight?: number,
+ *   overscan?: number,
  *   onMemberClick?: (member: MemberLike, element: HTMLElement) => void,
+ *   onContextMenu?: (payload: { member: MemberLike, anchorElement: HTMLElement, position: { x: number, y: number, placement: string }, event: any }) => void,
+ *   onHoverCard?: (payload: { member: MemberLike, anchorElement: HTMLElement, position: { x: number, y: number, placement: string }, event: any }) => void,
+ *   onHoverCardEnd?: (payload: { member: MemberLike, anchorElement: HTMLElement, event: any }) => void,
+ *   contextMenuEl?: any,
+ *   hoverCardEl?: any,
  * }} [options]
  */
 export function renderMembersList(container, members, options = {}) {
-  if (!container) return;
+  if (!container) return undefined;
 
   const doc = container.ownerDocument || (typeof document !== "undefined" ? document : null);
-  if (!doc) return;
+  if (!doc) return undefined;
 
   const grouped = groupMembersByRoleOrStatus(members, options);
+  const shouldVirtualize =
+    options.virtualize === true || (options.virtualize !== false && members.length > 200);
+
+  if (shouldVirtualize) {
+    const headerHeight =
+      typeof options.headerHeight === "number" && options.headerHeight > 0 ? options.headerHeight : 42;
+    const rowHeight =
+      typeof options.rowHeight === "number" && options.rowHeight > 0 ? options.rowHeight : 42;
+    const overscan =
+      typeof options.overscan === "number" && options.overscan >= 0 ? options.overscan : 8;
+    let viewportHeight =
+      typeof options.viewportHeight === "number" && options.viewportHeight > 0
+        ? options.viewportHeight
+        : Number(container.clientHeight || /** @type {any} */ (container).boxHeight || 600);
+
+    /** @type {Array<{ type: "header", key: string, group: any } | { type: "member", key: string, group: any, member: MemberLike }>} */
+    const flatItems = [];
+    for (const group of grouped) {
+      if (group.members.length === 0 && group.count === 0 && grouped.length > 1) {
+        continue;
+      }
+      flatItems.push({ type: "header", key: `h:${group.key}`, group });
+      for (let i = 0; i < group.members.length; i++) {
+        const m = group.members[i];
+        if (!m) continue;
+        flatItems.push({
+          type: "member",
+          key: `m:${group.key}:${String(m.userId ?? m.id ?? i)}`,
+          group,
+          member: m,
+        });
+      }
+    }
+
+    const sizer = doc.createElement("div");
+    sizer.setAttribute("data-member-list-sizer", "");
+    sizer.style.position = "relative";
+    sizer.style.width = "100%";
+
+    const virtualizer = createVirtualizer({
+      count: flatItems.length,
+      estimateSize: (idx) => (flatItems[idx]?.type === "header" ? headerHeight : rowHeight),
+      overscan,
+      scrollOffset: Number(container.scrollTop || 0),
+      viewportSize: viewportHeight,
+      getItemKey: (idx) => flatItems[idx]?.key ?? String(idx),
+    });
+
+    const paint = () => {
+      sizer.style.height = `${virtualizer.getTotalSize()}px`;
+      const vItems = virtualizer.getVirtualItems();
+      /** @type {HTMLElement[]} */
+      const nodes = [];
+      for (const vItem of vItems) {
+        const entry = flatItems[vItem.index];
+        if (!entry) continue;
+        if (entry.type === "header") {
+          const title = doc.createElement("h3");
+          title.className = "member-group-title";
+          title.setAttribute("data-height", String(headerHeight));
+          title.setAttribute("data-group-id", entry.group.id);
+          title.setAttribute("data-group-key", entry.group.key);
+          title.setAttribute("data-index", String(vItem.index));
+          title.setAttribute("aria-label", `${entry.group.name}: ${entry.group.count} участников`);
+          title.textContent = `${entry.group.name} — ${entry.group.count}`;
+          if (entry.group.roleColor) {
+            title.style.color = entry.group.roleColor;
+            title.style.setProperty("--role-color", entry.group.roleColor);
+          }
+          title.style.position = "absolute";
+          title.style.top = "0px";
+          title.style.left = "0px";
+          title.style.width = "100%";
+          title.style.height = `${vItem.size}px`;
+          title.style.setProperty("transform", `translateY(${vItem.start}px)`);
+          nodes.push(title);
+        } else {
+          const row = buildMembersListRowNode(doc, entry.member, entry.group, options);
+          row.setAttribute("data-index", String(vItem.index));
+          row.style.position = "absolute";
+          row.style.top = "0px";
+          row.style.left = "0px";
+          row.style.width = "100%";
+          row.style.height = `${vItem.size}px`;
+          row.style.setProperty("transform", `translateY(${vItem.start}px)`);
+          nodes.push(row);
+        }
+      }
+      sizer.replaceChildren(...nodes);
+    };
+
+    const onScroll = () => {
+      const nextVp = Number(container.clientHeight || /** @type {any} */ (container).boxHeight || viewportHeight);
+      if (nextVp > 0) viewportHeight = nextVp;
+      virtualizer.setScrollWindow(Number(container.scrollTop || 0), viewportHeight);
+      paint();
+    };
+    container.addEventListener("scroll", onScroll);
+    container.replaceChildren(sizer);
+    paint();
+
+    return {
+      sizer,
+      virtualizer,
+      getTotalSize: () => virtualizer.getTotalSize(),
+      getFlatItems: () => flatItems,
+      scrollTo: (/** @type {any} */ scrollTop, /** @type {any} */ nextViewportHeight) => {
+        if (typeof nextViewportHeight === "number" && nextViewportHeight > 0) {
+          viewportHeight = nextViewportHeight;
+        }
+        container.scrollTop = Math.max(0, Number(scrollTop) || 0);
+        virtualizer.setScrollWindow(container.scrollTop, viewportHeight);
+        paint();
+      },
+      destroy: () => {
+        container.removeEventListener?.("scroll", onScroll);
+      },
+    };
+  }
+
   /** @type {HTMLElement[]} */
   const groupNodes = [];
 
@@ -1548,70 +1905,12 @@ export function renderMembersList(container, members, options = {}) {
     for (let i = 0; i < group.members.length; i++) {
       const member = group.members[i];
       if (!member) continue;
-
-      const row = doc.createElement("div");
-      row.className = "member";
-      row.setAttribute("role", "listitem");
-      row.setAttribute("data-status", member.status ?? "offline");
-      if (member.userId || member.id) {
-        row.setAttribute("data-user-id", String(member.userId ?? member.id));
-      }
-      const memberName = String(member.name ?? member.username ?? member.user?.global_name ?? member.user?.username ?? "Участник");
-      row.setAttribute("aria-label", `${memberName}, ${member.statusLabel ?? (STATUS_LABELS[member.status ?? "offline"] ?? member.status ?? "offline")}`);
-
-      const memberColor = formatRoleColor(member.roleColor ?? member.color ?? group.roleColor);
-      if (memberColor) {
-        row.setAttribute("data-role-color", memberColor);
-        row.style.color = memberColor;
-        row.style.setProperty("--role-color", memberColor);
-      }
-
-      // Аватар
-      const avatar = doc.createElement("span");
-      avatar.className = "avatar avatar--md";
-      avatar.setAttribute("aria-hidden", "true");
-      avatar.textContent = memberName.slice(0, 1).toUpperCase();
-      const dot = doc.createElement("span");
-      dot.className = "status-dot";
-      dot.setAttribute("data-status", member.status ?? "offline");
-      avatar.append(dot);
-
-      // Имя
-      const nameWrap = doc.createElement("span");
-      nameWrap.className = "member-name";
-      const nameLabel = doc.createElement("span");
-      nameLabel.className = "member-label";
-      nameLabel.textContent = memberName;
-      if (memberColor) {
-        nameLabel.style.color = memberColor;
-      }
-      nameWrap.append(nameLabel);
-
-      if (member.badge || member.role) {
-        const badge = doc.createElement("span");
-        badge.className = "badge badge--role";
-        badge.textContent = String(member.badge || member.role);
-        nameWrap.append(badge);
-      }
-
-      // Роль / активность
-      const activityEl = doc.createElement("span");
-      activityEl.className = "member-role";
-      activityEl.textContent = member.activity ?? "";
-
-      row.append(avatar, nameWrap, activityEl);
-
-      if (options.onMemberClick) {
-        row.addEventListener("click", () => {
-          options.onMemberClick?.(member, row);
-        });
-      }
-
-      groupWrap.append(row);
+      groupWrap.append(buildMembersListRowNode(doc, member, /** @type {any} */ (group), options));
     }
 
     groupNodes.push(groupWrap);
   }
 
   container.replaceChildren(...groupNodes);
+  return undefined;
 }

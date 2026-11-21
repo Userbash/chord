@@ -7,9 +7,7 @@
 
 use std::time::Instant;
 
-use chord_store::fts5_search::{
-    search_messages, Fts5MessageRecord, Fts5SearchEngine,
-};
+use chord_store::fts5_search::{Fts5MessageRecord, Fts5SearchEngine, search_messages};
 
 #[test]
 fn fts5_creates_messages_fts_with_unicode61_and_returns_ranked_snippets() {
@@ -69,7 +67,8 @@ fn fts5_search_100k_messages_completes_under_2ms() {
     let mut records = Vec::with_capacity(100_000);
     for i in 0..100_000 {
         let content = if i == 42_137 {
-            "Unique needle_quantum_telemetry_payload in message stream for FTS5 benchmark".to_owned()
+            "Unique needle_quantum_telemetry_payload in message stream for FTS5 benchmark"
+                .to_owned()
         } else if i % 2_000 == 0 {
             format!("Periodic needle_quantum_telemetry_payload checkpoint at row {i}")
         } else {
@@ -82,7 +81,9 @@ fn fts5_search_100k_messages_completes_under_2ms() {
             content,
         });
     }
-    engine.index_messages(&records).expect("bulk index 100k messages");
+    engine
+        .index_messages(&records)
+        .expect("bulk index 100k messages");
 
     // Warm-up query
     let warmup = engine
