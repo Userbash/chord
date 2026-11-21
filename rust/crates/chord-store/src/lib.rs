@@ -10,10 +10,15 @@ use std::time::Duration;
 
 use rusqlite::{Connection, OptionalExtension, params};
 
+pub mod cache_reset;
 pub mod fts5_search;
 pub mod keyring_crypto;
 pub mod schema;
 pub mod worker;
+
+pub use cache_reset::{
+    PreferencesResetReport, PurgeCacheReport, ThumbnailPurgeReport, purge_media_thumbnails,
+};
 
 pub use fts5_search::{Fts5MessageRecord, Fts5SearchEngine, Fts5SearchHit};
 pub use schema::{
