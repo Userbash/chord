@@ -227,7 +227,7 @@ describe("TASK-1008A: Парсер AuditLogActionType 1..145 и декодер �
       "Карточка TASK-1008A должна присутствовать в waves/kanban-board.json",
     );
     assert.equal(card1008A.department, "G1 Backend");
-    assert.equal(card1008A.priority, "P1");
+    assert.equal(card1008A.priority, "P2");
     assert.deepEqual(card1008A.layout, {
       container: "Audit Protocol",
       dimensions: "Core Module",

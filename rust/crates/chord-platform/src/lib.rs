@@ -10,12 +10,14 @@ pub mod audio_engine;
 pub mod autostart;
 pub mod dbus;
 pub mod deep_link;
+pub mod gamepad_driver;
 pub mod keyring;
 pub mod notifications;
 pub mod power;
 pub mod rpc_ipc;
 pub mod screencast;
 pub mod spellcheck;
+pub mod spotify_mpris;
 pub mod tray;
 
 #[allow(unsafe_code)]

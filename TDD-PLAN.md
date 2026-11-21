@@ -378,7 +378,7 @@ Historical Context: The initial module scaffolding in `src/` was generated direc
 | `tests/unit/spatial-audio-filter-1017a.test.mjs` | — | — |
 | `tests/unit/rtc-metrics-1011a.test.mjs` | — | — |
 | `tests/unit/spatial-radar-1017b.test.mjs` | — | — |
-| `tests/unit/audit-log-parser-1008a.test.mjs` | — | — |
+| `tests/unit/audit-log-parser-1008a.test.mjs` | `rust/crates/chord-core/src/audit_log.rs` | `AuditLogActionType` |
 | `tests/meta/modular-wiring-contract.test.mjs` | — | — |
 | `tests/meta/specta-types.test.mjs` | — | — |
 | `tests/unit/channel-tree-controller.test.mjs` | — | — |
@@ -503,6 +503,13 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/resume-opcode6-stage-05-3-2.test.mjs` | `rust/crates/chord-core/src/resume.rs` | `RESUME_RS` |
 | `tests/unit/stage10-bff6-dave-voice-ui.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveDaveE2eeIndicatorView` |
 | `tests/unit/qa-socrati-qdrant-automation.test.mjs` | `scripts/qa-auto-suite.mjs` | `getEmbedding` |
+| `tests/unit/totp-view-1009a.test.mjs` | `rust/crates/chord-core/src/totp_view.rs` | `TotpDialog` |
+| `tests/unit/sessions-manager-1009b.test.mjs` | `rust/crates/chord-core/src/sessions_manager.rs` | `SessionInfo` |
+| `tests/unit/encrypted-sqlite-1021b.test.mjs` | `rust/crates/chord-store/src/encrypted_sqlite.rs` | `encrypted_sqlite` |
+| `tests/unit/spotify-mpris-1013a.test.mjs` | `rust/crates/chord-platform/src/spotify_mpris.rs` | `spotify_mpris` |
+| `tests/unit/audit-log-view-1008b.test.mjs` | `rust/crates/chord-core/src/audit_log_view.rs` | `AuditLogViewer` |
+| `tests/unit/gamepad-driver-1014a.test.mjs` | `rust/crates/chord-platform/src/gamepad_driver.rs` | `gamepad_driver` |
+| `tests/unit/spotify-widget-1013b.test.mjs` | `rust/chord-gpui/src/profile/spotify_widget.rs` | `spotify_widget` |
 | `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
 
 ## 9. Risks and Limitations

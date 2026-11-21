@@ -28,12 +28,14 @@ pub mod ready;
 pub mod rest;
 pub mod resume;
 pub mod runtime;
+pub mod sessions_manager;
 pub mod settings;
 pub mod shutdown;
 pub mod soundshare;
 pub mod state;
 pub mod stream;
 pub mod threads;
+pub mod totp_view;
 pub mod ws;
 pub mod ws_transport;
 

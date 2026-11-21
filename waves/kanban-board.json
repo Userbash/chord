@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T07:19:10.300Z",
+  "updated_at": "2026-11-21T07:46:45.518Z",
   "columns": [
     {
       "id": "backlog",
@@ -7988,7 +7988,7 @@
     {
       "id": "TASK-1008A",
       "title": "Парсер AuditLogActionType 1..145 и декодер диффов old/new",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Запрос GET /guilds/{id}/audit-logs и сопоставление пользователей, ролей и каналов.",
@@ -8020,14 +8020,14 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-core/src/audit_log.rs, tests/unit/audit-log-parser-1008a.test.mjs.\nОракул: clean-room-oracle/rest-d02.json.\nПлан: 1. Red-тест 2. Enum ActionType 3. Diff декодер 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1008B",
       "title": "Фильтруемый список аудита AuditLogViewer с иконками событий",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Отображение журнала аудита с фильтрами по действиям/авторам и раскрытием деталей по клику.",
@@ -8059,14 +8059,14 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/guild/audit_log_view.rs, tests/unit/audit-log-view-1008b.test.mjs.\nОракул: аудит Discord.\nПлан: 1. Red-тест 2. GPUI список 3. Фильтры 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1009A",
       "title": "Модальное окно TOTP 2FA с 6 раздельными полями ввода цифр",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Квадратные поля ввода #1e1f22 с авто-переносом фокуса, возвратом по Backspace и вставкой Ctrl+V.",
@@ -8098,14 +8098,14 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/auth/totp_view.rs, tests/unit/totp-view-1009a.test.mjs.\nОракул: 2FA экран Discord.\nПлан: 1. Red-тест 2. GPUI поля ввода 3. Буфер обмена 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1009B",
       "title": "Менеджер активных сессий и принудительный разлогин",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Запрос GET /users/@me/auth/sessions, бейдж текущего устройства и DELETE завершения сессии.",
@@ -8137,9 +8137,9 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-core/src/sessions_manager.rs, tests/unit/sessions-manager-1009b.test.mjs.\nОракул: clean-room-oracle/rest-d02.json.\nПлан: 1. Red-тест 2. Модель сессии 3. DELETE метод 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1021A",
@@ -8183,7 +8183,7 @@
     {
       "id": "TASK-1021B",
       "title": "Прозрачное страничное шифрование SQLite (AES-256-GCM 4096 Б)",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Шифрование страниц SQLite на лету с уникальным IV на страницу и защитой журнала WAL.",
@@ -8215,14 +8215,14 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-store/src/encrypted_sqlite.rs, tests/unit/encrypted-sqlite-1021b.test.mjs.\nОракул: SQLCipher VFS.\nПлан: 1. Red-тест 2. Страничный AES-256-GCM 3. WAL тесты 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1013A",
       "title": "D-Bus MPRIS клиент Spotify и шлюзовый статус LISTENING (Opcode 3)",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Подписка на PropertiesChanged интерфейса Spotify и отправка статуса с таймстемпами в шлюз.",
@@ -8254,14 +8254,14 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/spotify_mpris.rs, tests/unit/spotify-mpris-1013a.test.mjs.\nОракул: D-Bus MPRIS spec.\nПлан: 1. Red-тест 2. D-Bus подписка 3. Opcode 3 статус 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1013B",
       "title": "Виджет Spotify в профиле с обложкой и кнопкой «Слушать вместе»",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Зеленая плашка #1db954 в профиле, динамический прогресс трека и кнопка Listen Along.",
@@ -8293,14 +8293,14 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/profile/spotify_widget.rs, tests/unit/spotify-widget-1013b.test.mjs.\nОракул: профиль Discord.\nПлан: 1. Red-тест 2. GPUI карточка 3. Таймлайн 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1014A",
       "title": "Драйвер геймпада на базе gilrs с фильтрацией осей и кнопок",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Маппинг крестовины D-pad, стиков и бамперов L1/R1 в команды навигации по интерфейсу.",
@@ -8332,14 +8332,14 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/gamepad_driver.rs, tests/unit/gamepad-driver-1014a.test.mjs.\nОракул: gilrs crate.\nПлан: 1. Red-тест 2. Инициализация gilrs 3. Навигационные события 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1014B",
       "title": "Фокусная сетка интерфейса GPUI и вызов клавиатуры SteamOS",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Яркая рамка фокуса #5865f2, авто-скролл и подъем виртуальной клавиатуры по D-Bus.",
@@ -8371,14 +8371,14 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/input/gamepad_focus.rs, tests/unit/gamepad-focus-1014b.test.mjs.\nОракул: SteamOS Big Picture.\nПлан: 1. Red-тест 2. Фокусные рамки 3. D-Bus клавиатура 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1015A",
       "title": "Генератор XDG Autostart desktop-файла в ~/.config/autostart/",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "Создание/удаление discord-gpui.desktop с ключом Exec --start-minimized и валидация прав 0644.",
@@ -8410,14 +8410,14 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/autostart_xdg.rs, tests/unit/autostart-xdg-1015a.test.mjs.\nОракул: FreeDesktop Autostart.\nПлан: 1. Red-тест 2. Запись desktop-файла 3. Удаление 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1015B",
       "title": "Режим тихого старта свёрнутым в трей с экономией ОЗУ < 8 МБ",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Пропуск вызова window.open() при ключе --start-minimized до первого клика по трею.",
@@ -8449,14 +8449,14 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/platform/minimized_launch.rs, tests/unit/minimized-launch-1015b.test.mjs.\nОракул: docs/feature-backlog.md.\nПлан: 1. Red-тест 2. Отложенный WGPU init 3. Трей клик 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1016A",
       "title": "Спецификация WiX Toolset для Windows MSI и переносимый Portable",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "Генерация packaging/windows/wix.xml, оверлей-иконки таскбара и хранение данных в data/.",
@@ -8488,14 +8488,14 @@
       ],
       "coding_instructions": "Файлы: packaging/windows/wix.xml, tests/unit/windows-packaging-1016a.test.mjs.\nОракул: docs/feature-backlog.md (R6-03).\nПлан: 1. Red-тест 2. WiX XML 3. Portable флаги 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-1016B",
       "title": "Скрипт сборки macOS .dmg и эффект размытия NSVisualEffectView",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "DevOps / Integration",
       "summary": "Упаковка DiscordGPUI.app в DMG с фоном и поддержка нативного Vibrancy фона окна.",
@@ -8527,9 +8527,9 @@
       ],
       "coding_instructions": "Файлы: packaging/macos/build-dmg.sh, tests/unit/macos-packaging-1016b.test.mjs.\nОракул: docs/feature-backlog.md (R6-04).\nПлан: 1. Red-тест 2. DMG скрипт 3. Vibrancy FFI 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
-      "progress": 0,
-      "column": "backlog"
+      "updated_at": "2026-11-21T07:46:25.959Z",
+      "progress": 100,
+      "column": "done"
     },
     {
       "id": "TASK-AUTO-101",
@@ -9049,7 +9049,8 @@
         "603.1: Написание скрипта kanban-automate.mjs для беззатратного управления доской",
         "603.2: Написание скрипта smart-typecheck.mjs и ram-guard для воркеров"
       ],
-      "updated_at": "2026-11-21T07:15:36.625Z"
+      "updated_at": "2026-11-21T07:46:45.518Z",
+      "progress": 100
     },
     {
       "id": "LIB-SIMPLIFY-07",
@@ -9491,43 +9492,49 @@
       "id": "STAGE-13.1.1",
       "title": "Удаление закомментированного старого кода и устаревших временных моков",
       "description": "Полная санитарная зачистка репозитория от следов неиспользуемых прототипов",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P3",
       "tags": [
         "cleanup",
         "refactor",
         "stage-13",
         "p3"
-      ]
+      ],
+      "progress": 100,
+      "updated_at": "2026-11-21T07:46:25.959Z"
     },
     {
       "id": "STAGE-13.1.2",
       "title": "Проверка cargo audit и фиксация дерева зависимостей без уязвимостей",
       "description": "Аудит безопасности всех подключенных библиотек и проверка лицензий MIT/Apache-2.0",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P3",
       "tags": [
         "security",
         "audit",
         "stage-13",
         "p3"
-      ]
+      ],
+      "progress": 100,
+      "updated_at": "2026-11-21T07:46:25.959Z"
     },
     {
       "id": "STAGE-13.1.3",
       "title": "Обновление codemaps и диаграмм архитектуры потоков в docs/specs/",
       "description": "Финальная синхронизация архитектурной документации с реальным кодом приложения",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P3",
       "tags": [
         "docs",
         "codemap",
         "stage-13",
         "p3"
-      ]
+      ],
+      "progress": 100,
+      "updated_at": "2026-11-21T07:46:25.959Z"
     }
   ],
   "last_updated": "2026-11-21T07:19:10.276Z"

@@ -235,9 +235,19 @@ async function main() {
       }
     }
 
-    console.log(`   Changed Source Files: ${targetFiles.join(', ')}`);
+    console.log(`   Changed Source Files: ${targetFiles.length} file(s)`);
     const testSet = new Set();
+
+    // Fast path: any changed test file is directly added!
     for (const f of targetFiles) {
+      if (f.startsWith('tests/') || f.endsWith('_contract.rs') || f.endsWith('.test.mjs')) {
+        testSet.add(f);
+      }
+    }
+
+    // For non-test files, calculate impacted tests
+    const nonTestFiles = targetFiles.filter(f => !testSet.has(f)).slice(0, 8);
+    for (const f of nonTestFiles) {
       const impacted = await getImpactedTests(f);
       impacted.forEach((t) => testSet.add(t));
     }

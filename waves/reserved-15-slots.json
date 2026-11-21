@@ -31,10 +31,11 @@
       "effort": "medium",
       "maxIterations": 6,
       "rationale": "Сетевой протокол Gateway / стейт-машина Heartbeat / валидатор прав: рабочая лошадка Argon Medium.",
-      "status": "ACTIVE_RUNNING",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": "2026-11-21T07:19:53.717Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:26:22.802Z"
     },
     {
       "slot": 2,
@@ -51,10 +52,11 @@
       "effort": "medium",
       "maxIterations": 6,
       "rationale": "Сетевой протокол Gateway / стейт-машина Heartbeat / валидатор прав: рабочая лошадка Argon Medium.",
-      "status": "ACTIVE_RUNNING",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": "2026-11-21T07:19:58.052Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 3,
@@ -71,10 +73,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "ACTIVE_RUNNING",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": "2026-11-21T07:20:01.870Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:22:04.078Z"
     },
     {
       "slot": 4,
@@ -91,10 +94,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "ACTIVE_RUNNING",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": "2026-11-21T07:20:05.687Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:22:04.078Z"
     },
     {
       "slot": 5,
@@ -111,10 +115,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "QUEUED_IN_SLOT",
-      "dispatchedAt": null,
+      "status": "COMPLETED_VERIFIED",
+      "dispatchedAt": "2026-11-21T07:22:15.918Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "ctx_0f7c41ce77ae",
+      "completedAt": "2026-11-21T07:26:22.802Z"
     },
     {
       "slot": 6,
@@ -131,10 +136,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "QUEUED_IN_SLOT",
-      "dispatchedAt": null,
+      "status": "COMPLETED_VERIFIED",
+      "dispatchedAt": "2026-11-21T07:22:19.741Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "ctx_235bb929d0c4",
+      "completedAt": "2026-11-21T07:26:22.802Z"
     },
     {
       "slot": 7,
@@ -151,10 +157,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "QUEUED_IN_SLOT",
-      "dispatchedAt": null,
+      "status": "COMPLETED_VERIFIED",
+      "dispatchedAt": "2026-11-21T07:26:01.920Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "ctx_9c433e9000d0",
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 8,
@@ -171,10 +178,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "QUEUED_IN_SLOT",
-      "dispatchedAt": null,
+      "status": "COMPLETED_VERIFIED",
+      "dispatchedAt": "2026-11-21T07:26:05.738Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "ctx_591635d2a35d",
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 9,
@@ -191,10 +199,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "QUEUED_IN_SLOT",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": null,
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 10,
@@ -211,10 +220,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "QUEUED_IN_SLOT",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": null,
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 11,
@@ -231,10 +241,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "QUEUED_IN_SLOT",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": null,
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 12,
@@ -251,10 +262,11 @@
       "effort": "low",
       "maxIterations": 3,
       "rationale": "Механическая текстовая задача: используется быстрая экономичная модель с минимальным effort.",
-      "status": "QUEUED_IN_SLOT",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": null,
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 13,
@@ -271,10 +283,11 @@
       "effort": "low",
       "maxIterations": 4,
       "rationale": "Стандартная продуктовая задача (UI/BFF обвязка, команды): Hydrogen Medium с низким effort.",
-      "status": "QUEUED_IN_SLOT",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": null,
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 14,
@@ -291,10 +304,11 @@
       "effort": "none",
       "maxIterations": 1,
       "rationale": "Автоматический AST-сканер забытых отладочных инструкций и рудиментов. 0 токенов ИИ.",
-      "status": "COMPLETED",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": "2026-11-21T07:19:49.826Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 15,
@@ -311,10 +325,11 @@
       "effort": "none",
       "maxIterations": 1,
       "rationale": "Автоматический аудит безопасности (forbid(unsafe), C FFI, сканирование секретов). 0 токенов.",
-      "status": "COMPLETED",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": "2026-11-21T07:19:49.913Z",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     },
     {
       "slot": 16,
@@ -331,10 +346,11 @@
       "effort": "low",
       "maxIterations": 3,
       "rationale": "Механическая текстовая задача: используется быстрая экономичная модель с минимальным effort.",
-      "status": "QUEUED_IN_SLOT",
+      "status": "COMPLETED_VERIFIED",
       "dispatchedAt": null,
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T07:46:25.959Z"
     }
   ],
   "lastDispatchedAt": "2026-11-21T07:20:05.687Z"
