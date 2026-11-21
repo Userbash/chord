@@ -51,6 +51,9 @@ pub enum ReleaseChannel {
 }
 
 impl ReleaseChannel {
+    /// Build-time selected release channel string (`CHORD_RELEASE_CHANNEL`, default `"stable"`).
+    pub const BUILD_RELEASE_CHANNEL: &'static str = env!("CHORD_RELEASE_CHANNEL");
+
     /// Значение `releaseChannel` как в артефактах Discord (`stable`, `ptb`, …).
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -58,6 +61,36 @@ impl ReleaseChannel {
             Self::Ptb => "ptb",
             Self::Canary => "canary",
             Self::Development => "development",
+        }
+    }
+
+    /// Parses a release channel name case-insensitively.
+    pub fn parse(raw: &str) -> Option<Self> {
+        let trimmed = raw.trim();
+        if trimmed.eq_ignore_ascii_case("stable") {
+            Some(Self::Stable)
+        } else if trimmed.eq_ignore_ascii_case("canary") {
+            Some(Self::Canary)
+        } else if trimmed.eq_ignore_ascii_case("ptb") {
+            Some(Self::Ptb)
+        } else if trimmed.eq_ignore_ascii_case("development") {
+            Some(Self::Development)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the release channel selected at build time via `CHORD_RELEASE_CHANNEL`.
+    pub const fn build_time() -> Self {
+        let bytes = Self::BUILD_RELEASE_CHANNEL.as_bytes();
+        if bytes.len() == 6 && bytes[0] == b'c' {
+            Self::Canary
+        } else if bytes.len() == 3 && bytes[0] == b'p' {
+            Self::Ptb
+        } else if bytes.len() == 11 && bytes[0] == b'd' {
+            Self::Development
+        } else {
+            Self::Stable
         }
     }
 }

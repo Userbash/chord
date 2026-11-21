@@ -8,7 +8,9 @@
 //! Skip-aware: если системной библиотеки нет, тесты печатают `SKIP: <причина>` и завершаются
 //! успешно (окружение недоступно, а не падение).
 
-use chord_platform::spellcheck::{SpellChecker, SpellError, tokenize};
+use chord_platform::spellcheck::{
+    MultiLanguageSpellChecker, SpellChecker, SpellError, list_available_dictionaries, tokenize,
+};
 use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
@@ -423,4 +425,75 @@ fn h13_not_send_sync_and_tokenize_never_panics() {
     }
     assert_eq!(texts("🦀hello🦀"), vec!["hello"]);
     assert_eq!(texts("日本語"), vec!["日本語"]);
+}
+
+#[test]
+fn h14_multilang_dictionary_support_and_discovery() {
+    if !hunspell_available() {
+        return;
+    }
+    let fixture = Fixture::new();
+    let en_aff = "SET UTF-8\nWORDCHARS '-'\n";
+    let en_dic = "2\nhello\nworld\n";
+    let ru_aff = "SET UTF-8\nWORDCHARS '-'\n";
+    let ru_dic = "2\nпривет\nмир\n";
+    fixture.write("en_US.aff", en_aff);
+    fixture.write("en_US.dic", en_dic);
+    fixture.write("ru_RU.aff", ru_aff);
+    fixture.write("ru_RU.dic", ru_dic);
+
+    let available = list_available_dictionaries(&[fixture.dir()]);
+    assert!(available.contains(&"en_US".to_string()));
+    assert!(available.contains(&"ru_RU".to_string()));
+
+    let mut multi = MultiLanguageSpellChecker::new();
+    let loaded = multi
+        .set_languages(&["en_US", "ru_RU"], &[fixture.dir()])
+        .expect("load multi-language dictionaries");
+    assert_eq!(loaded, vec!["en_US".to_string(), "ru_RU".to_string()]);
+    assert_eq!(multi.active_languages(), &["en_US", "ru_RU"]);
+
+    assert!(multi.check_word("hello"));
+    assert!(multi.check_word("привет"));
+    assert!(!multi.check_word("helo"));
+    assert!(!multi.check_word("превет"));
+
+    let misspelled = multi.misspelled_tokens("hello helo привет превет https://example.com");
+    let words: Vec<&str> = misspelled.iter().map(|(t, _)| t.text.as_str()).collect();
+    assert_eq!(words, vec!["helo", "превет"]);
+
+    let en_suggestions = multi.suggest("helo");
+    assert!(en_suggestions.iter().any(|s| s == "hello"));
+    assert!(en_suggestions.len() <= 5);
+}
+
+#[test]
+fn h15_multilang_custom_dictionary_and_toggle() {
+    if !hunspell_available() {
+        return;
+    }
+    let fixture = Fixture::new();
+    fixture.write("en_US.aff", "SET UTF-8\n");
+    fixture.write("en_US.dic", "1\nhello\n");
+
+    let mut multi = MultiLanguageSpellChecker::new();
+    multi
+        .set_languages(&["en_US"], &[fixture.dir()])
+        .expect("load en_US");
+
+    assert!(!multi.check_word("discordlab"));
+    assert!(multi.add_word("discordlab"));
+    assert!(multi.check_word("discordlab"));
+    assert!(multi.learned_words().contains("discordlab"));
+
+    assert!(multi.remove_word("discordlab"));
+    assert!(!multi.check_word("discordlab"));
+
+    multi.set_enabled(false);
+    assert!(!multi.is_enabled());
+    assert!(multi.check_word("xyzzy_unknown"));
+    assert!(multi.misspelled_tokens("xyzzy_unknown").is_empty());
+
+    multi.set_enabled(true);
+    assert!(!multi.check_word("xyzzy_unknown"));
 }

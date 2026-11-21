@@ -47,7 +47,18 @@ modules:
       - install -Dm644 BETA-TESTING-GUIDE.md /app/share/doc/discord-gpui/BETA-TESTING-GUIDE.md
       - install -Dm644 RELEASE-NOTES-v1.0.0-beta.1.md /app/share/doc/discord-gpui/RELEASE-NOTES-v1.0.0-beta.1.md
       - |
-        install -d /app/share/applications /app/share/icons/hicolor/scalable/apps /app/share/mime/packages
+        install -d /app/share/applications /app/share/icons/hicolor/scalable/apps /app/share/mime/packages /app/share/metainfo
+        cat <<'EOF' > /app/share/metainfo/com.discord_lab.DiscordGpui.metainfo.xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <component type="desktop-application">
+          <id>com.discord_lab.DiscordGpui</id>
+          <metadata_license>CC0-1.0</metadata_license>
+          <project_license>MIT OR Apache-2.0</project_license>
+          <name>Discord GPUI</name>
+          <summary>Native Rust GPUI Discord client</summary>
+          <launchable type="desktop-id">com.discord_lab.DiscordGpui.desktop</launchable>
+        </component>
+        EOF
         cat <<'EOF' > /app/share/applications/com.discord_lab.DiscordGpui.desktop
         [Desktop Entry]
         Version=1.0

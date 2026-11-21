@@ -54,9 +54,11 @@ export function getChangedFiles() {
   if (!statusOut) return [];
   return statusOut
     .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean)
-    .map(line => line.slice(3).trim());
+    .map(line => {
+      const match = line.match(/^..\s+(.*)$/);
+      return match ? match[1].trim() : null;
+    })
+    .filter(Boolean);
 }
 
 export function filterSafeFiles(files) {

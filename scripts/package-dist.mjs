@@ -12,9 +12,11 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { lintStoreMetadata } from "./lint-store-metadata.mjs";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const VALID_PLATFORMS = new Set(["all", "linux", "windows", "macos"]);
+const VALID_CHANNELS = new Set(["stable", "canary"]);
 
 /**
  * Parse CLI arguments.
@@ -22,6 +24,7 @@ const VALID_PLATFORMS = new Set(["all", "linux", "windows", "macos"]);
  */
 function parseArgs(argv) {
   let platform = "all";
+  let channel = process.env.CHORD_RELEASE_CHANNEL || "stable";
   let verifyOnly = false;
   let dryRun = false;
   let outDir = join(ROOT, "rust", "dist");
@@ -31,6 +34,9 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === "--platform") {
       platform = argv[i + 1] ?? "";
+      i += 1;
+    } else if (arg === "--channel") {
+      channel = argv[i + 1] ?? "";
       i += 1;
     } else if (arg === "--verify-only") {
       verifyOnly = true;
@@ -44,7 +50,7 @@ function parseArgs(argv) {
       i += 1;
     } else if (arg === "-h" || arg === "--help") {
       console.log(
-        "Usage: node scripts/package-dist.mjs [--platform all|linux|windows|macos] [--verify-only] [--dry-run] [--out-dir DIR] [--report-json PATH]",
+        "Usage: node scripts/package-dist.mjs [--platform all|linux|windows|macos] [--channel stable|canary] [--verify-only] [--dry-run] [--out-dir DIR] [--report-json PATH]",
       );
       process.exit(0);
     } else {
@@ -57,8 +63,12 @@ function parseArgs(argv) {
     console.error(`package-dist: invalid platform '${platform}'. Expected: all, linux, windows, macos`);
     process.exit(1);
   }
+  if (!VALID_CHANNELS.has(channel)) {
+    console.error(`package-dist: invalid channel '${channel}'. Expected: stable, canary`);
+    process.exit(1);
+  }
 
-  return { platform, verifyOnly, dryRun, outDir, reportJson };
+  return { platform, channel, verifyOnly, dryRun, outDir, reportJson };
 }
 
 /**
@@ -80,10 +90,11 @@ function verifySpec(relPath, patterns) {
 }
 
 /**
- * Verify all 6 distribution targets.
+ * Verify all 6 distribution targets + store metadata for the selected release channel.
  * @param {string} platform
+ * @param {"stable" | "canary"} channel
  */
-export function verifyAllTargets(platform = "all") {
+export function verifyAllTargets(platform = "all", channel = "stable") {
   /** @type {Record<string, any>} */
   const targets = {};
 
@@ -170,13 +181,18 @@ export function verifyAllTargets(platform = "all") {
     targets["macos-dmg"] = { ok: dmg.ok, script: dmg };
   }
 
-  const ok = Object.values(targets).every((t) => Boolean(t.ok));
-  return { ok, platform, targets };
+  const storeMetadata = lintStoreMetadata(channel);
+  const targetsOk = Object.values(targets).every((t) => Boolean(t.ok));
+  const ok = targetsOk && storeMetadata.ok;
+  return { ok, platform, channel, targets, storeMetadata };
 }
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const verification = verifyAllTargets(args.platform);
+  const verification = verifyAllTargets(
+    args.platform,
+    /** @type {"stable" | "canary"} */ (args.channel),
+  );
 
   if (!args.verifyOnly && !args.dryRun && (args.platform === "all" || args.platform === "linux")) {
     const debVerify = spawnSync("node", ["packaging/deb/deb-package.mjs", "--verify"], {

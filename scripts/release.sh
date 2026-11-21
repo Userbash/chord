@@ -9,13 +9,15 @@ RUST_DIR="$ROOT/rust"
 DIST="$RUST_DIR/dist"
 OFFLINE=(--offline)
 DRY_RUN=0
+CHANNEL="${CHORD_RELEASE_CHANNEL:-stable}"
 
 usage() {
     cat <<'EOF'
-Использование: scripts/release.sh [--dry-run] [--online] [--output DIR]
+Использование: scripts/release.sh [--dry-run] [--online] [--output DIR] [--channel stable|canary]
   --dry-run    напечатать план, не собирать и не создавать файлы
   --online     не добавлять --offline к cargo build (CI-раннер)
   --output DIR каталог артефакта (по умолчанию rust/dist)
+  --channel    канал релиза (stable | canary, по умолчанию stable)
 EOF
 }
 
@@ -26,18 +28,30 @@ while [[ "$#" -gt 0 ]]; do
         --output)
             [[ "$#" -ge 2 ]] || { echo "release: --output требует путь" >&2; exit 1; }
             DIST="$2"; shift 2 ;;
+        --channel)
+            [[ "$#" -ge 2 ]] || { echo "release: --channel требует значение" >&2; exit 1; }
+            CHANNEL="$2"; shift 2 ;;
         -h|--help) usage; exit 0 ;;
         *) echo "release: неизвестный аргумент: $1" >&2; usage >&2; exit 1 ;;
     esac
 done
+
+case "$CHANNEL" in
+    stable|canary) ;;
+    *)
+        echo "release: недопустимый канал '$CHANNEL' (ожидается stable или canary)" >&2
+        exit 1
+        ;;
+esac
+export CHORD_RELEASE_CHANNEL="$CHANNEL"
 
 TARGET_DIR="${CARGO_TARGET_DIR:-$RUST_DIR/target}"
 BIN="$TARGET_DIR/release/chord-rs"
 
 if [[ "$DRY_RUN" == 1 ]]; then
     echo "release: dry-run (сеть, cargo и запись файлов не выполняются)"
-    printf '+ cargo build %s--release -p chord-app --manifest-path %s\n' \
-        "${OFFLINE[*]:+${OFFLINE[*]} }" "$RUST_DIR/Cargo.toml"
+    printf '+ CHORD_RELEASE_CHANNEL=%s cargo build %s--release -p chord-app --manifest-path %s\n' \
+        "$CHORD_RELEASE_CHANNEL" "${OFFLINE[*]:+${OFFLINE[*]} }" "$RUST_DIR/Cargo.toml"
     echo "+ install -m 0755 $BIN $DIST/discord-rs"
     if [[ -f "$RUST_DIR/dist/sbom.spdx.json" ]]; then
         echo "+ install -m 0644 $RUST_DIR/dist/sbom.spdx.json $DIST/sbom.spdx.json"
