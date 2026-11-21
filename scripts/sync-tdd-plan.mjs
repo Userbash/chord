@@ -3,19 +3,19 @@
 /**
  * scripts/sync-tdd-plan.mjs
  *
- * Автоматический синхронизатор тестов с TDD-PLAN.md §8.
- * Полностью исключает ручной труд и трату токенов ИИ на регистрацию тестов.
+ * Automated test synchronizer with TDD-PLAN.md §8.
+ * Eliminates manual labor and AI token waste when registering contract and unit tests.
  *
- * Возможности:
- * 1. Сканирует все тестовые файлы в tests/**\/*.test.mjs.
- * 2. Сверяет с таблицей «TDD-PLAN.md §8 ↔ тестовые файлы ↔ модули ↔ экспорты».
- * 3. Автоматически извлекает целевые модули (src, scripts, ui) и валидные токены из кода теста.
- * 4. Удаляет устаревшие строки (удаленные тесты) и добавляет новые в §8.
- * 5. Обеспечивает 100% прохождение мета-теста plan-sync.test.mjs.
+ * Capabilities:
+ * 1. Scans all test files in tests/**\/*.test.mjs.
+ * 2. Compares against the table: "TDD-PLAN.md §8 <-> test files <-> modules <-> exports".
+ * 3. Automatically extracts target modules (src, scripts, ui) and valid tokens from test code.
+ * 4. Removes stale rows (deleted tests) and registers new tests into §8.
+ * 5. Guarantees 100% pass rate for meta-test plan-sync.test.mjs.
  *
- * Использование:
- *   node scripts/sync-tdd-plan.mjs --fix    # Автоматически синхронизировать и записать TDD-PLAN.md
- *   node scripts/sync-tdd-plan.mjs --check  # Проверить актуальность (exit 0 если всё ок, 1 если есть пропуски)
+ * Usage:
+ *   node scripts/sync-tdd-plan.mjs --fix    # Automatically synchronize and persist TDD-PLAN.md
+ *   node scripts/sync-tdd-plan.mjs --check  # Check alignment (exit 0 if synced, 1 if missing)
  */
 
 import fs from 'node:fs';
@@ -46,7 +46,7 @@ function parseSection8(content) {
   const startIdx = content.indexOf('## 8.');
   const endIdx = content.indexOf('## 9.');
   if (startIdx === -1 || endIdx === -1) {
-    throw new Error('TDD-PLAN.md: не найден §8 или §9');
+    throw new Error('TDD-PLAN.md: §8 or §9 section not found');
   }
 
   const before = content.slice(0, startIdx);
@@ -78,7 +78,7 @@ function extractModuleAndToken(testPath) {
   const fullPath = path.join(PROJECT_ROOT, testPath);
   const text = fs.readFileSync(fullPath, 'utf8');
 
-  // 1. Поиск импортов из src/, scripts/, или ui/
+  // 1. Search for imports from src/, scripts/, or ui/
   let moduleRef = '';
   const importMatches = [...text.matchAll(/from\s+['"]([^'"]+)['"]/g)];
   for (const m of importMatches) {
@@ -93,14 +93,14 @@ function extractModuleAndToken(testPath) {
   }
 
   if (!moduleRef) {
-    // Дефолтный модуль из пути или заглушка
+    // Default module from path
     const baseName = path.basename(testPath, '.test.mjs');
     moduleRef = `\`scripts/${baseName}.mjs\``;
   }
 
-  // 2. Поиск токена, который реально встречается в файле теста
+  // 2. Search for tokens actually found in the test file
   let token = '';
-  // Попробуем найти импортированное имя: import { X, Y } from ...
+  // Try finding named import: import { X, Y } from ...
   const namedImports = [...text.matchAll(/import\s+\{([^}]+)\}\s+from/g)];
   for (const ni of namedImports) {
     const names = ni[1].split(',').map(s => s.trim().replace(/^.*as\s+/, '')).filter(Boolean);
@@ -113,7 +113,7 @@ function extractModuleAndToken(testPath) {
     if (token) break;
   }
 
-  // Если не нашли именованный импорт, ищем по describe("...") или ключевому слову
+  // If no named import found, look for describe("...") keyword
   if (!token) {
     const descMatch = text.match(/describe\s*\(\s*["']([^"']+)["']/);
     if (descMatch) {
@@ -125,7 +125,7 @@ function extractModuleAndToken(testPath) {
   }
 
   if (!token) {
-    // В крайнем случае используем имя теста без .test.mjs
+    // Fallback: test base name without .test.mjs
     const base = path.basename(testPath, '.test.mjs');
     token = `\`${base}\``;
   }
@@ -135,7 +135,7 @@ function extractModuleAndToken(testPath) {
 
 export function syncTddPlan({ fix = false } = {}) {
   if (!fs.existsSync(PLAN_PATH)) {
-    console.error('❌ TDD-PLAN.md не найден.');
+    console.error('❌ TDD-PLAN.md not found.');
     return false;
   }
 
@@ -150,34 +150,34 @@ export function syncTddPlan({ fix = false } = {}) {
   const missingOnDisk = rows.filter(r => !actualTests.includes(r.test));
 
   console.log('=== [TDD-PLAN SYNC CHECK] ===');
-  console.log(`Фактических тестов на диске: ${actualTests.length}`);
-  console.log(`Зарегистрировано в §8: ${rows.length}`);
-  console.log(`Незарегистрированных тестов: ${unlisted.length}`);
-  console.log(`Устаревших строк (файлы удалены): ${missingOnDisk.length}`);
+  console.log(`Actual test files on disk: ${actualTests.length}`);
+  console.log(`Registered in §8: ${rows.length}`);
+  console.log(`Unregistered test files: ${unlisted.length}`);
+  console.log(`Stale rows (files deleted): ${missingOnDisk.length}`);
 
   if (unlisted.length === 0 && missingOnDisk.length === 0) {
-    console.log('✅ TDD-PLAN.md §8 полностью синхронизирован со всеми тестами!');
+    console.log('✅ TDD-PLAN.md §8 is fully synchronized with all test files!');
     return true;
   }
 
   if (!fix) {
     if (unlisted.length > 0) {
-      console.warn('⚠️ Незарегистрированные тесты:', unlisted);
+      console.warn('⚠️ Unregistered test files:', unlisted);
     }
     if (missingOnDisk.length > 0) {
-      console.warn('⚠️ Устаревшие строки:', missingOnDisk.map(m => m.test));
+      console.warn('⚠️ Stale rows:', missingOnDisk.map(m => m.test));
     }
     return false;
   }
 
-  console.log('🔧 [TDD-PLAN SYNC] Автоматическое обновление §8...');
+  console.log('🔧 [TDD-PLAN SYNC] Automatically updating §8...');
 
-  // Формируем обновленный список строк
+  // Form updated row list
   const updatedRows = rows.filter(r => actualTests.includes(r.test));
 
   for (const testPath of unlisted) {
     const { moduleRef, token } = extractModuleAndToken(testPath);
-    console.log(`   + Добавление: | \`${testPath}\` | ${moduleRef} | ${token} |`);
+    console.log(`   + Registering: | \`${testPath}\` | ${moduleRef} | ${token} |`);
     updatedRows.push({
       test: testPath,
       modules: moduleRef,
@@ -186,10 +186,10 @@ export function syncTddPlan({ fix = false } = {}) {
     });
   }
 
-  // Сортировка по пути теста
+  // Sort by test path
   updatedRows.sort((a, b) => a.test.localeCompare(b.test));
 
-  // Собираем обратно
+  // Reassemble
   const cleanHeader = headerLines.filter(l => !l.startsWith('| `tests/')).join('\n').trim();
   const tableContent = updatedRows.map(r => r.rawLine).join('\n');
   const newSection = `${cleanHeader}\n\n${tableContent}\n\n`;
@@ -197,7 +197,7 @@ export function syncTddPlan({ fix = false } = {}) {
   const newFullPlan = `${before}${newSection}${after}`;
   fs.writeFileSync(PLAN_PATH, newFullPlan, 'utf8');
 
-  console.log('✅ [TDD-PLAN SYNC] TDD-PLAN.md §8 успешно обновлен и сохранен.');
+  console.log('✅ [TDD-PLAN SYNC] TDD-PLAN.md §8 successfully updated and persisted.');
   return true;
 }
 

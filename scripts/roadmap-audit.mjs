@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 // @ts-nocheck
 /**
- * scripts/roadmap-audit.mjs — Автоматический аудит дорожной карты упрощения Chord
+ * scripts/roadmap-audit.mjs — Automated Simplification Roadmap Audit for Chord
  *
- * Автоматизирует рутинную сверку реального кода с дорожной картой из:
+ * Automates routine verification of real implementation code against the roadmap:
  * '/home/sanya/chat-Дорожная карта упрощения Chord.txt'
  *
- * Выполняет:
- * 1. Анализ 14 этапов (Этап 0 — Этап 13).
- * 2. Проверку наличия тонких мостов и библиотек.
- * 3. Подсчёт LOC адаптеров и проверку лимита архитектурного бюджета (<600-800 LOC).
- * 4. Запуск/проверку тестов для каждого этапа.
- * 5. Расчёт процента готовности и метрик «тонкого моста».
- * 6. Опциональную синхронизацию с Kanban (`--sync`).
+ * Capabilities:
+ * 1. Analyzes 14 simplification stages (Stage 0 — Stage 13).
+ * 2. Checks presence of thin bridges and compiled libraries.
+ * 3. Measures adapter LOC against architectural budget limits (<600-800 LOC).
+ * 4. Runs and verifies test suites for each stage.
+ * 5. Calculates completion percentages and thin bridge metrics.
+ * 6. Optionally syncs status with Kanban and Roadmap docs (`--sync`).
  *
- * Использование:
+ * Usage:
  *   node scripts/roadmap-audit.mjs [--json | --sync | --markdown]
  */
 
@@ -428,15 +428,15 @@ if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     console.log(JSON.stringify(summary, null, 2));
   } else {
     console.log(`\n================================================================`);
-    console.log(`🗺️  АУДИТ ДОРОЖНОЙ КАРТЫ УПРОЩЕНИЯ CHORD (14 ЭТАПОВ)`);
+    console.log(`🗺️  CHORD SIMPLIFICATION ROADMAP AUDIT (14 STAGES)`);
     console.log(`================================================================`);
-    console.log(`Общий прогресс: ${summary.overallProgressPercent}%`);
-    console.log(`Готово: ${summary.completedStages} | В работе: ${summary.inProgressStages} | В планах: ${summary.plannedStages}`);
-    console.log(`Тонкие мосты: всего ${summary.totalBridgeLoc} LOC (средний: ${summary.averageBridgeLoc} LOC)`);
+    console.log(`Overall Progress: ${summary.overallProgressPercent}%`);
+    console.log(`Completed: ${summary.completedStages} | In Progress: ${summary.inProgressStages} | Planned: ${summary.plannedStages}`);
+    console.log(`Thin Bridges: total ${summary.totalBridgeLoc} LOC (average: ${summary.averageBridgeLoc} LOC)`);
     console.log(`----------------------------------------------------------------`);
     for (const st of summary.stages) {
       const icon = st.status === 'completed' ? '✅' : st.status === 'in_progress' ? '🔄' : '⏳';
-      console.log(`${icon} [Этап ${st.id.toString().padStart(2, ' ')}] ${st.title.padEnd(42, ' ')} [${st.progress}%]`);
+      console.log(`${icon} [Stage ${st.id.toString().padStart(2, ' ')}] ${st.title.padEnd(42, ' ')} [${st.progress}%]`);
       console.log(`   ↳ ${st.evidence}`);
     }
     console.log(`================================================================\n`);

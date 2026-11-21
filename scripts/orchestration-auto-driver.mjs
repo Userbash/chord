@@ -3,25 +3,25 @@
 /**
  * scripts/orchestration-auto-driver.mjs
  *
- * Автоматический драйвер оркестрации Orca и непрерывной ротации слотов воркеров.
- * Полностью исключает затраты токенов ИИ на рутинную проверку сообщений воркеров,
- * закрытие завершённых задач, освобождение терминалов, запуск следующих слотов
- * и синхронизацию Git репозиториев.
+ * Automated Orca orchestration driver and continuous worker slot rotator.
+ * Completely eliminates AI token expenditure on routine checks of worker messages,
+ * task completion closing, terminal reclamation, launching next reserved slots,
+ * and Git remote synchronization.
  *
- * Возможности:
- * 1. Проверяет входящие сообщения оркестрации (orca orchestration check).
- * 2. При получении worker_done немедленно освобождает терминал (worker-release).
- * 3. Автоматически переводит задачу в 'done' на канбан-доске (waves/kanban-board.json).
- * 4. Фиксирует статус COMPLETED_VERIFIED в реестре слотов (waves/reserved-all-slots.json).
- * 5. Контролирует лимит оперативной памяти (WORKER_RAM_LIMIT < 25 GB).
- * 6. Берёт следующий зарезервированный слот из пула и запускает воркера в Orca.
- * 7. При завершении задач автоматически выполняет git-sync в origin и public.
- * 8. Поддерживает фоновый режим непрерывного цикла (--watch / --daemon).
+ * Capabilities:
+ * 1. Checks incoming orchestration messages (orca orchestration check).
+ * 2. On receiving worker_done, immediately reclaims terminal (worker-release).
+ * 3. Automatically marks task as 'done' on the Kanban board (waves/kanban-board.json).
+ * 4. Records COMPLETED_VERIFIED status in the slot registry (waves/reserved-all-slots.json).
+ * 5. Enforces worker memory ceiling (WORKER_RAM_LIMIT < 25 GB).
+ * 6. Dispatches next reserved slot from pool to Orca worker.
+ * 7. Automatically triggers git-sync to origin and public upon task completion.
+ * 8. Supports continuous watch daemon mode (--watch / --daemon).
  *
- * Использование:
- *   node scripts/orchestration-auto-driver.mjs --once              # Однократная проверка и обработка
- *   node scripts/orchestration-auto-driver.mjs --status            # Показать статус слотов и памяти
- *   node scripts/orchestration-auto-driver.mjs --watch [seconds]   # Фоновый цикл (по умолчанию каждые 15с)
+ * Usage:
+ *   node scripts/orchestration-auto-driver.mjs --once              # One-shot check and processing
+ *   node scripts/orchestration-auto-driver.mjs --status            # Show slots and memory status
+ *   node scripts/orchestration-auto-driver.mjs --watch [seconds]   # Background watch cycle (default: 15s)
  */
 
 import { execSync, spawnSync } from 'node:child_process';
@@ -92,21 +92,21 @@ export function checkOrchestrationMessages() {
 
 export function releaseWorkerTerminal(dispatchId) {
   if (!dispatchId) return false;
-  console.log(`🧹 [AUTO-DRIVER] Освобождение терминала воркера ${dispatchId}...`);
+  console.log(`🧹 [AUTO-DRIVER] Reclaiming worker terminal for ${dispatchId}...`);
   try {
     execSync(`orca orchestration worker-release --dispatch ${dispatchId}`, { cwd: PROJECT_ROOT, stdio: 'inherit' });
     return true;
   } catch (err) {
-    console.warn(`⚠️ [AUTO-DRIVER] Ошибка при освобождении ${dispatchId}: ${err.message}`);
+    console.warn(`⚠️ [AUTO-DRIVER] Error reclaiming terminal ${dispatchId}: ${err.message}`);
     return false;
   }
 }
 
 export function markTaskCompleted(cardId) {
   if (!cardId) return;
-  console.log(`✅ [AUTO-DRIVER] Фиксация завершения задачи [${cardId}]...`);
+  console.log(`✅ [AUTO-DRIVER] Recording completion of task [${cardId}]...`);
 
-  // 1. Канбан-доска
+  // 1. Kanban board
   if (fs.existsSync(KANBAN_PATH)) {
     const board = JSON.parse(fs.readFileSync(KANBAN_PATH, 'utf8'));
     const card = board.cards.find(c => c.id === cardId);
@@ -118,7 +118,7 @@ export function markTaskCompleted(cardId) {
     }
   }
 
-  // 2. Реестр слотов
+  // 2. Slot registry
   if (fs.existsSync(RESERVED_PATH)) {
     const res = JSON.parse(fs.readFileSync(RESERVED_PATH, 'utf8'));
     const slot = res.slots.find(s => s.id === cardId);
@@ -141,37 +141,37 @@ export function dispatchNextSlot() {
 
   const currentMem = getWorkerMemoryGiB();
   if (currentMem >= MAX_RAM_GIB) {
-    console.warn(`⚠️ [AUTO-DRIVER] Память воркеров (${currentMem} GiB) достигла лимита (${MAX_RAM_GIB} GiB). Запуск отложен.`);
+    console.warn(`⚠️ [AUTO-DRIVER] Worker memory (${currentMem} GiB) reached ceiling (${MAX_RAM_GIB} GiB). Dispatch postponed.`);
     return false;
   }
 
   const activeCount = getActiveWorkerCount();
   if (activeCount >= MAX_CONCURRENT_WORKERS) {
-    console.log(`ℹ️ [AUTO-DRIVER] Пул заполнен (${activeCount}/${MAX_CONCURRENT_WORKERS} активных воркеров).`);
+    console.log(`ℹ️ [AUTO-DRIVER] Pool at capacity (${activeCount}/${MAX_CONCURRENT_WORKERS} active workers).`);
     return false;
   }
 
   const res = JSON.parse(fs.readFileSync(RESERVED_PATH, 'utf8'));
   const nextSlot = res.slots.find(s => s.status === 'RESERVED');
   if (!nextSlot) {
-    console.log('🎉 [AUTO-DRIVER] Все зарезервированные слоты уже запущены или выполнены!');
+    console.log('🎉 [AUTO-DRIVER] All reserved slots have been dispatched or completed!');
     return false;
   }
 
   if (nextSlot.isScript || nextSlot.tier === 'TIER_0_SCRIPT') {
-    console.log(`⚡ [AUTO-DRIVER] Слот #${nextSlot.slot} [${nextSlot.id}] выполняется локальным скриптом (0 токенов): ${nextSlot.scriptCommand}`);
+    console.log(`⚡ [AUTO-DRIVER] Slot #${nextSlot.slot} [${nextSlot.id}] executing via local script (0 tokens): ${nextSlot.scriptCommand}`);
     if (nextSlot.scriptCommand) {
       try {
         execSync(nextSlot.scriptCommand, { cwd: PROJECT_ROOT, stdio: 'inherit' });
       } catch (err) {
-        console.warn(`⚠️ [AUTO-DRIVER] Предупреждение при выполнении ${nextSlot.scriptCommand}: ${err.message}`);
+        console.warn(`⚠️ [AUTO-DRIVER] Warning while executing ${nextSlot.scriptCommand}: ${err.message}`);
       }
     }
     markTaskCompleted(nextSlot.id);
     return true;
   }
 
-  console.log(`🚀 [AUTO-DRIVER] Запуск воркера для Слота #${nextSlot.slot} [${nextSlot.id}]: ${nextSlot.title}`);
+  console.log(`🚀 [AUTO-DRIVER] Spawning worker for Slot #${nextSlot.slot} [${nextSlot.id}]: ${nextSlot.title}`);
   const specText = `Task ${nextSlot.id}: ${nextSlot.title}\nDescription: ${nextSlot.description}\nDepartment: ${nextSlot.department}\nPriority: ${nextSlot.priority}\nContract: Follow AGENTS.md, TEST-POLICY.md strictly. Write tests first.`;
   const taskTitle = `[${nextSlot.id}] ${nextSlot.title}`;
 
@@ -197,10 +197,10 @@ export function dispatchNextSlot() {
     nextSlot.status = 'DISPATCHED_WORKING';
     nextSlot.dispatchedAt = new Date().toISOString();
     fs.writeFileSync(RESERVED_PATH, JSON.stringify(res, null, 2));
-    console.log(`✅ [AUTO-DRIVER] Воркер успешно запущен! DispatchId: ${nextSlot.dispatchId}`);
+    console.log(`✅ [AUTO-DRIVER] Worker spawned successfully! DispatchId: ${nextSlot.dispatchId}`);
     return true;
   } catch (err) {
-    console.error(`❌ [AUTO-DRIVER] Ошибка при запуске воркера: ${err.message}`);
+    console.error(`❌ [AUTO-DRIVER] Error spawning worker: ${err.message}`);
     nextSlot.status = 'DISPATCH_FAILED';
     fs.writeFileSync(RESERVED_PATH, JSON.stringify(res, null, 2));
     return false;
@@ -210,19 +210,19 @@ export function dispatchNextSlot() {
 export function runCycle() {
   console.log('=== [ORCHESTRATION AUTO-DRIVER CYCLE] ===');
   const mem = getWorkerMemoryGiB();
-  console.log(`Память воркеров: ${mem} GiB / ${MAX_RAM_GIB} GiB`);
+  console.log(`Worker memory: ${mem} GiB / ${MAX_RAM_GIB} GiB`);
 
   const messages = checkOrchestrationMessages();
-  console.log(`Входящих сообщений: ${messages.length}`);
+  console.log(`Incoming messages: ${messages.length}`);
 
   let completedTasks = [];
 
   for (const msg of messages) {
     if (msg.type === 'worker_done') {
-      console.log(`📩 Получен worker_done для dispatchId: ${msg.dispatchId}`);
+      console.log(`📩 Received worker_done for dispatchId: ${msg.dispatchId}`);
       releaseWorkerTerminal(msg.dispatchId);
 
-      // Ищем карточку по dispatchId в реестре
+      // Find card by dispatchId in slot registry
       if (fs.existsSync(RESERVED_PATH)) {
         const res = JSON.parse(fs.readFileSync(RESERVED_PATH, 'utf8'));
         const slot = res.slots.find(s => s.dispatchId === msg.dispatchId);
@@ -234,7 +234,7 @@ export function runCycle() {
     }
   }
 
-  // Непрерывная ротация: пока есть свободные слоты до лимита
+  // Continuous rotation: dispatch while slots available under limits
   let spawned = false;
   while (getActiveWorkerCount() < MAX_CONCURRENT_WORKERS) {
     const ok = dispatchNextSlot();
@@ -242,12 +242,12 @@ export function runCycle() {
     else break;
   }
 
-  // Если задачи завершились, выполняем авто-коммит и пуш
+  // If tasks completed, sync git and map
   if (completedTasks.length > 0) {
     try {
       execSync('node scripts/sync-project-map.mjs', { cwd: PROJECT_ROOT, stdio: 'inherit' });
     } catch {}
-    console.log(`🚀 [AUTO-DRIVER] Синхронизация Git после завершения ${completedTasks.join(', ')}...`);
+    console.log(`🚀 [AUTO-DRIVER] Synchronizing Git following completion of ${completedTasks.join(', ')}...`);
     cmdCommit(`docs(kanban): auto-complete tasks ${completedTasks.join(', ')}`);
   }
 
@@ -256,8 +256,8 @@ export function runCycle() {
 }
 
 export function runWatchMode(intervalSeconds = 15) {
-  console.log(`👀 [AUTO-DRIVER WATCH] Запущен фоновый драйвер (интервал ${intervalSeconds}с)...`);
-  console.log('Нажмите Ctrl+C для завершения.');
+  console.log(`👀 [AUTO-DRIVER WATCH] Background driver started (interval ${intervalSeconds}s)...`);
+  console.log('Press Ctrl+C to exit.');
 
   runCycle();
   setInterval(() => {

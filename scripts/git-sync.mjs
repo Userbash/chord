@@ -3,24 +3,24 @@
 /**
  * scripts/git-sync.mjs
  *
- * Полная zero-token автоматизация работы с Git и мульти-репозиториями (origin + public):
- * 1. Безопасное стягивание (PULL / FETCH): авто-stash, ff-only слияние.
- * 2. Предполётные проверки (CHECK): валидация типов, синтаксиса, TDD-плана и безопасности.
- * 3. Безопасная индексация (STAGE): фильтрация запрещенных путей (rust/chord-gpui/ на tauri).
- * 4. Умный коммит (COMMIT / AUTO-COMMIT): авто-генерация Conventional Commits при отсутствии явного текста.
- * 5. Надежная параллельная отправка (PUSH): повторные попытки, таймауты, пуш в origin и public.
- * 6. Полный сквозной цикл (SYNC): pull -> check -> stage & commit -> push.
- * 7. Фоновый режим слежения (WATCH): автоматическая синхронизация при сохранении файлов.
+ * Full zero-token Git and multi-remote automation harness (origin + public):
+ * 1. Safe fetch and pull (PULL / FETCH): auto-stash, ff-only merge.
+ * 2. Pre-flight checks (CHECK): typecheck, syntax, TDD plan sync, and security shield.
+ * 3. Safe staging (STAGE): branch protection against forbidden paths (rust/chord-gpui/ on tauri).
+ * 4. Smart commit (COMMIT / AUTO-COMMIT): auto-deduces Conventional Commits when no message provided.
+ * 5. Reliable parallel push (PUSH): retries, timeouts, multi-remote push to origin and public.
+ * 6. Full end-to-end cycle (SYNC): pull -> check -> stage & commit -> push.
+ * 7. Background watch daemon (WATCH): continuous auto-sync on file change.
  *
- * Использование:
- *   node scripts/git-sync.mjs status               # Статус синхронизации и измененные файлы
- *   node scripts/git-sync.mjs pull                 # Стянуть свежие коммиты со всех remotes
- *   node scripts/git-sync.mjs check                # Предкоммитные zero-token проверки
- *   node scripts/git-sync.mjs push                 # Запушить готовые коммиты в origin и public
- *   node scripts/git-sync.mjs commit -m "msg"      # Проверить, закоммитить и запушить
- *   node scripts/git-sync.mjs auto-commit          # Автоматически определить тип и закоммитить
+ * Usage:
+ *   node scripts/git-sync.mjs status               # Sync status and modified files
+ *   node scripts/git-sync.mjs pull                 # Pull updates from all remotes
+ *   node scripts/git-sync.mjs check                # Pre-commit zero-token validation checks
+ *   node scripts/git-sync.mjs push                 # Push commits to origin and public
+ *   node scripts/git-sync.mjs commit -m "msg"      # Check, stage, commit, and push
+ *   node scripts/git-sync.mjs auto-commit          # Auto-deduce Conventional Commit and commit
  *   node scripts/git-sync.mjs sync                 # Pull + Check + Auto-Commit + Push
- *   node scripts/git-sync.mjs watch [seconds]      # Фоновый демон авто-синхронизации
+ *   node scripts/git-sync.mjs watch [seconds]      # Background continuous sync daemon
  */
 
 import { execSync, spawnSync } from 'node:child_process';
@@ -78,7 +78,7 @@ export function getChangedFiles() {
 
 export function filterSafeFiles(files) {
   const branch = getCurrentBranch();
-  // На ветке tauri pre-commit хук строго запрещает коммитить rust/chord-gpui/
+  // On the tauri branch, pre-commit hook strictly forbids committing rust/chord-gpui/
   if (branch === 'tauri') {
     return files.filter(f => !f.startsWith('rust/chord-gpui/'));
   }
@@ -93,29 +93,29 @@ export function cmdStatus() {
   const skippedFiles = allFiles.filter(f => !safeFiles.includes(f));
 
   console.log('================================================================================');
-  console.log(`🔄 [GIT-SYNC STATUS] Ветка: ${branch} | Remotes: ${remotes.join(', ')}`);
+  console.log(`🔄 [GIT-SYNC STATUS] Branch: ${branch} | Remotes: ${remotes.join(', ')}`);
   console.log('================================================================================');
 
   for (const r of remotes) {
     const upstream = `${r}/${branch}`;
     const remoteRef = execQuiet(`git rev-parse --verify refs/remotes/${upstream} 2>/dev/null`);
     if (!remoteRef) {
-      console.log(`ℹ️ [${r}] Ветка ${upstream} еще не отслеживается.`);
+      console.log(`ℹ️ [${r}] Branch ${upstream} is not tracked yet.`);
       continue;
     }
     const ahead = execQuiet(`git rev-list --count ${upstream}..HEAD`) || '0';
     const behind = execQuiet(`git rev-list --count HEAD..${upstream}`) || '0';
-    console.log(`📡 [${r}] Опережает remote на: ${ahead} коммит(ов) | Отстает от remote на: ${behind} коммит(ов)`);
+    console.log(`📡 [${r}] Ahead of remote: ${ahead} commit(s) | Behind remote: ${behind} commit(s)`);
   }
 
-  console.log(`\n📂 Изменения: ${allFiles.length} всего | ${safeFiles.length} готовы к коммиту`);
+  console.log(`\n📂 Changes: ${allFiles.length} total | ${safeFiles.length} staged/safe for commit`);
   if (skippedFiles.length > 0) {
-    console.log(`🛡️  Защита ветки (игнорируются): ${skippedFiles.length} файлов в rust/chord-gpui/`);
+    console.log(`🛡️  Branch protection (ignored): ${skippedFiles.length} files in rust/chord-gpui/`);
   }
   if (safeFiles.length > 0) {
-    console.log('Готовы к синхронизации:');
+    console.log('Ready for synchronization:');
     safeFiles.slice(0, 10).forEach(f => console.log(`   + ${f}`));
-    if (safeFiles.length > 10) console.log(`   ... и еще ${safeFiles.length - 10} файлов`);
+    if (safeFiles.length > 10) console.log(`   ... and ${safeFiles.length - 10} more files`);
   }
 }
 
@@ -123,7 +123,7 @@ export function cmdPull() {
   const branch = getCurrentBranch();
   const remotes = getConfiguredRemotes();
   console.log('================================================================================');
-  console.log(`📥 [GIT-SYNC PULL] Извлечение обновлений со всех remotes (${remotes.join(', ')})...`);
+  console.log(`📥 [GIT-SYNC PULL] Fetching updates from all remotes (${remotes.join(', ')})...`);
   console.log('================================================================================');
 
   execQuiet('git fetch --all --prune');
@@ -131,7 +131,7 @@ export function cmdPull() {
   let hasStash = false;
   const statusBefore = execQuiet('git status --porcelain');
   if (statusBefore) {
-    console.log('📦 Обнаружены локальные изменения. Создание временного stash...');
+    console.log('📦 Local changes detected. Stashing changes temporarily...');
     execQuiet('git stash push -m "git-sync-auto-stash"');
     hasStash = true;
   }
@@ -140,21 +140,21 @@ export function cmdPull() {
   const upstream = `${primary}/${branch}`;
 
   if (execQuiet(`git rev-parse --verify refs/remotes/${upstream} 2>/dev/null`)) {
-    console.log(`🔄 Слияние изменений из ${upstream} (--ff-only)...`);
+    console.log(`🔄 Merging changes from ${upstream} (--ff-only)...`);
     const mergeRes = execQuiet(`git merge --ff-only ${upstream}`);
     if (mergeRes) {
-      console.log(`✅ [GIT-SYNC] Успешно обновлено из ${primary}!`);
+      console.log(`✅ [GIT-SYNC] Successfully fast-forwarded from ${primary}!`);
     } else {
-      console.warn(`⚠️ [GIT-SYNC] Fast-forward слияние невозможно. Ветки разошлись.`);
+      console.warn(`⚠️ [GIT-SYNC] Fast-forward merge not possible. Branches may have diverged.`);
     }
   }
 
   if (hasStash) {
-    console.log('📦 Восстановление локальных изменений из stash...');
+    console.log('📦 Restoring local changes from stash...');
     execQuiet('git stash pop');
   }
 
-  console.log(`🏁 Текущий коммит: ${execQuiet('git log -n 1 --oneline HEAD')}`);
+  console.log(`🏁 Current commit: ${execQuiet('git log -n 1 --oneline HEAD')}`);
   return true;
 }
 
@@ -163,32 +163,32 @@ export function cmdCheck() {
   console.log('🔍 [GIT-SYNC CHECK] Zero-Token Pre-Commit Sanity & Security Check');
   console.log('================================================================================');
 
-  // 1. Авто-синхронизация TDD-PLAN.md §8
-  console.log('🔍 1. Проверка и синхронизация TDD-PLAN.md §8...');
+  // 1. Auto-sync TDD-PLAN.md §8
+  console.log('🔍 1. Validating and synchronizing TDD-PLAN.md §8...');
   syncTddPlan({ fix: true });
 
   // 2. Precheck (TSC + Syntax + Meta)
-  console.log('🔍 2. Запуск npm run precheck (TSC + Syntax + Meta)...');
+  console.log('🔍 2. Running npm run precheck (TSC + Syntax + Meta)...');
   const precheckOk = runCommand('npm', ['run', 'precheck']);
   if (!precheckOk) {
-    console.error('❌ [GIT-SYNC] Precheck завершился с ошибкой!');
+    console.error('❌ [GIT-SYNC] Precheck failed!');
     return false;
   }
 
   // 3. Security Shield
-  console.log('🔍 3. Проверка безопасности (Security Shield)...');
+  console.log('🔍 3. Security verification (Security Shield)...');
   const shieldOk = runCommand('node', ['scripts/security-shield.mjs']);
   if (!shieldOk) {
-    console.error('❌ [GIT-SYNC] Security Shield обнаружил уязвимости или секреты!');
+    console.error('❌ [GIT-SYNC] Security Shield detected vulnerabilities or secrets!');
     return false;
   }
 
-  console.log('✅ [GIT-SYNC] Все проверки пройдены за доли секунды без затрат токенов!');
+  console.log('✅ [GIT-SYNC] All pre-commit checks passed in sub-seconds with zero tokens!');
   return true;
 }
 
 export function pushToRemote(remote, branch) {
-  console.log(`🚀 [GIT-SYNC] Отправка изменений в ${remote}/${branch}...`);
+  console.log(`🚀 [GIT-SYNC] Pushing changes to ${remote}/${branch}...`);
   for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
     try {
       execSync(`git push ${remote} ${branch}`, {
@@ -196,24 +196,24 @@ export function pushToRemote(remote, branch) {
         timeout: PUSH_TIMEOUT_MS,
         stdio: 'inherit'
       });
-      console.log(`✅ [GIT-SYNC] Успешно отправлено в ${remote}/${branch}!`);
+      console.log(`✅ [GIT-SYNC] Successfully pushed to ${remote}/${branch}!`);
       return true;
     } catch (err) {
-      console.warn(`⚠️ [GIT-SYNC] Попытка ${attempt}/${MAX_PUSH_RETRIES} отправки в ${remote} не удалась: ${err.message}`);
+      console.warn(`⚠️ [GIT-SYNC] Push attempt ${attempt}/${MAX_PUSH_RETRIES} to ${remote} failed: ${err.message}`);
       if (attempt < MAX_PUSH_RETRIES) {
-        console.log('⏳ Ожидание 3 секунды перед повторной попыткой...');
+        console.log('⏳ Waiting 3 seconds before retry...');
         execSync('sleep 3');
       }
     }
   }
-  console.error(`❌ [GIT-SYNC] Не удалось отправить изменения в ${remote}.`);
+  console.error(`❌ [GIT-SYNC] Failed to push changes to ${remote}.`);
   return false;
 }
 
 export function cmdPush() {
   const branch = getCurrentBranch();
   const remotes = getConfiguredRemotes();
-  console.log(`🔄 [GIT-SYNC] Синхронизация ветки '${branch}' с remotes: ${remotes.join(', ')}...`);
+  console.log(`🔄 [GIT-SYNC] Synchronizing branch '${branch}' across remotes: ${remotes.join(', ')}...`);
 
   let allSuccess = true;
   for (const remote of remotes) {
@@ -224,6 +224,9 @@ export function cmdPush() {
 }
 
 export function deduceCommitMessage(files) {
+  if (files.some(f => f.startsWith('README.md') || f.startsWith('docs/map.md'))) {
+    return 'docs(readme): update project documentation, map, and architectural comparison';
+  }
   if (files.some(f => f.startsWith('rust/crates/chord-media/'))) {
     return 'feat(media): update media pipeline and stream sources';
   }
@@ -233,7 +236,7 @@ export function deduceCommitMessage(files) {
   if (files.some(f => f.startsWith('rust/crates/chord-voice/') || f.startsWith('rust/crates/chord-codec/'))) {
     return 'feat(voice): enhance voice signaling and codecs';
   }
-  if (files.some(f => f.startsWith('waves/kanban-board.') || f.startsWith('waves/reserved-'))) {
+  if (files.some(f => f.startsWith('waves/kanban-board.') || f.startsWith('waves/reserved-') || f.startsWith('waves/ROADMAP-STATUS.'))) {
     return 'docs(kanban): synchronize kanban tasks and worker slots';
   }
   if (files.some(f => f.startsWith('tests/'))) {
@@ -250,26 +253,26 @@ export function cmdCommit(customMessage = null) {
   const safeFiles = filterSafeFiles(allFiles);
 
   if (safeFiles.length === 0) {
-    console.log('ℹ️ [GIT-SYNC] Нет изменений для коммита.');
+    console.log('ℹ️ [GIT-SYNC] No changes to commit.');
     return true;
   }
 
   const commitMsg = customMessage || deduceCommitMessage(safeFiles);
 
-  console.log(`📦 [GIT-SYNC] Индексация ${safeFiles.length} безопасных файлов...`);
+  console.log(`📦 [GIT-SYNC] Staging ${safeFiles.length} safe files...`);
   for (const file of safeFiles) {
     execQuiet(`git add "${file}"`);
   }
 
   if (!cmdCheck()) {
-    console.error('❌ [GIT-SYNC] Коммит отменен из-за ошибок валидации.');
+    console.error('❌ [GIT-SYNC] Commit aborted due to check failure.');
     return false;
   }
 
-  console.log(`📝 [GIT-SYNC] Создание коммита: "${commitMsg}"...`);
+  console.log(`📝 [GIT-SYNC] Creating commit: "${commitMsg}"...`);
   const ok = runCommand('git', ['commit', '-m', commitMsg]);
   if (!ok) {
-    console.error('❌ [GIT-SYNC] Ошибка git commit.');
+    console.error('❌ [GIT-SYNC] git commit failed.');
     return false;
   }
 
@@ -277,21 +280,21 @@ export function cmdCommit(customMessage = null) {
 }
 
 export function cmdSync(customMessage = null) {
-  console.log('🔄 [GIT-SYNC] Полный сквозной цикл синхронизации (SYNC)...');
+  console.log('🔄 [GIT-SYNC] Full end-to-end sync cycle (SYNC)...');
   cmdPull();
   const ok = cmdCommit(customMessage);
   return ok;
 }
 
 export function cmdWatch(intervalSeconds = 15) {
-  console.log(`👀 [GIT-SYNC WATCH] Запущен фоновый демон синхронизации (интервал ${intervalSeconds}с)...`);
-  console.log('Нажмите Ctrl+C для остановки.');
+  console.log(`👀 [GIT-SYNC WATCH] Background sync daemon started (interval ${intervalSeconds}s)...`);
+  console.log('Press Ctrl+C to exit.');
 
   setInterval(() => {
     const allFiles = getChangedFiles();
     const safeFiles = filterSafeFiles(allFiles);
     if (safeFiles.length > 0) {
-      console.log(`\n🔔 [GIT-SYNC WATCH] Обнаружены изменения (${safeFiles.length} файлов). Запуск авто-синхронизации...`);
+      console.log(`\n🔔 [GIT-SYNC WATCH] Changes detected (${safeFiles.length} files). Triggering auto-sync...`);
       cmdCommit();
     }
   }, intervalSeconds * 1000);
@@ -328,15 +331,15 @@ function main() {
     cmdWatch(sec);
   } else {
     console.log(`
-Использование: node scripts/git-sync.mjs <команда>
-  status              - Показать статус расхождений с remotes и измененные файлы
-  pull                - Стянуть обновления с origin и public
-  check               - Проверить типы, синтаксис, TDD-план и безопасность
-  push                - Отправить коммиты в origin и public
-  commit -m "msg"     - Проиндексировать безопасные файлы, проверить и запушить
-  auto-commit         - Автоматически определить тип и создать коммит
-  sync                - Полный цикл: pull -> check -> commit -> push
-  watch [сек]         - Фоновый демон непрерывной синхронизации (по умолчанию 15с)
+Usage: node scripts/git-sync.mjs <command>
+  status              - Show sync status with remotes and changed files
+  pull                - Pull updates from origin and public
+  check               - Validate types, syntax, TDD plan, and security
+  push                - Push commits to origin and public
+  commit -m "msg"     - Stage safe files, validate, commit, and push
+  auto-commit         - Auto-deduce commit type and create commit
+  sync                - Full cycle: pull -> check -> commit -> push
+  watch [seconds]     - Background continuous sync daemon (default: 15s)
 `);
   }
 }

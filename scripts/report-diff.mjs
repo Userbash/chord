@@ -3,10 +3,10 @@
 /**
  * scripts/report-diff.mjs — Zero-Token Command diff comparing two inventories/reports
  *
- * Сравнивает два отчета, JSONL-телеметрии, инвентаря пакетов или дампов тестов
- * без затрат токенов ИИ. Выводит разницу добавленных, удаленных и измененных ключей/строк.
+ * Compares two reports, JSONL telemetry, package inventories, or test dumps
+ * without consuming AI tokens. Outputs diff of added, removed, and modified keys/lines.
  *
- * Использование:
+ * Usage:
  *   node scripts/report-diff.mjs <fileA> <fileB> [--json]
  */
 
@@ -67,7 +67,7 @@ export function diffReports(fileA, fileB) {
 function main() {
   const args = process.argv.slice(2).filter(a => !a.startsWith('--'));
   if (args.length < 2) {
-    console.log('✅ [REPORT-DIFF] Готов к работе. Использование: node scripts/report-diff.mjs <fileA> <fileB>');
+    console.log('✅ [REPORT-DIFF] Ready. Usage: node scripts/report-diff.mjs <fileA> <fileB> [--json]');
     process.exit(0);
   }
 
@@ -85,9 +85,9 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`➕ Добавлено: ${result.added.length} элементов (${result.added.slice(0, 5).join(', ')}...)`);
-  console.log(`➖ Удалено:   ${result.removed.length} элементов (${result.removed.slice(0, 5).join(', ')}...)`);
-  console.log(`🔄 Изменено:  ${result.modified.length} элементов`);
+  console.log(`➕ Added:    ${result.added.length} elements (${result.added.slice(0, 5).join(', ')}...)`);
+  console.log(`➖ Removed:  ${result.removed.length} elements (${result.removed.slice(0, 5).join(', ')}...)`);
+  console.log(`🔄 Modified: ${result.modified.length} elements`);
 }
 
 if (process.argv[1] && process.argv[1].endsWith('report-diff.mjs')) {
