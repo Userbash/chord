@@ -4,10 +4,10 @@
 //! replacing large manual mutex guards (`LiveSessionGuard`) with granular `RwLock`-protected
 //! zero-deadlock projections. Read queries (such as [`InMemoryCache::channel`]) execute in < 0.1 µs.
 
+use serde_json::Value;
 use std::collections::HashMap;
 use std::ops::{BitOr, BitOrAssign};
 use std::sync::{Arc, RwLock};
-use serde_json::Value;
 use twilight_model::gateway::event::Event;
 use twilight_model::id::Id;
 use twilight_model::id::marker::{ChannelMarker, GuildMarker, RoleMarker, UserMarker};
@@ -306,7 +306,11 @@ impl InMemoryCache {
     // --- Member Operations ---
 
     #[inline]
-    pub fn member(&self, guild_id: Id<GuildMarker>, user_id: Id<UserMarker>) -> Option<Arc<CachedMember>> {
+    pub fn member(
+        &self,
+        guild_id: Id<GuildMarker>,
+        user_id: Id<UserMarker>,
+    ) -> Option<Arc<CachedMember>> {
         if !self.resource_types.contains(ResourceType::MEMBER) {
             return None;
         }
@@ -348,7 +352,11 @@ impl InMemoryCache {
         if !self.resource_types.contains(ResourceType::VOICE_STATE) {
             return None;
         }
-        self.voice_states.read().ok()?.get(&(guild_id, user_id)).cloned()
+        self.voice_states
+            .read()
+            .ok()?
+            .get(&(guild_id, user_id))
+            .cloned()
     }
 
     pub fn voice_states(&self, guild_id: Id<GuildMarker>) -> Vec<Arc<CachedVoiceState>> {
@@ -403,7 +411,8 @@ impl InMemoryCache {
                     channels.insert(ch.id, cached);
                 }
                 if let Some(gid) = ch.guild_id
-                    && let Ok(mut gc) = self.guild_channels.write() {
+                    && let Ok(mut gc) = self.guild_channels.write()
+                {
                     let list = gc.entry(gid).or_default();
                     if !list.contains(&ch.id) {
                         list.push(ch.id);
@@ -417,7 +426,8 @@ impl InMemoryCache {
                 }
                 if let Some(gid) = ch.guild_id
                     && let Ok(mut gc) = self.guild_channels.write()
-                    && let Some(list) = gc.get_mut(&gid) {
+                    && let Some(list) = gc.get_mut(&gid)
+                {
                     list.retain(|id| *id != ch.id);
                 }
             }
@@ -447,7 +457,8 @@ impl InMemoryCache {
                             states.remove(&(gid, vs.user_id));
                         }
                         if let Ok(mut gvs) = self.guild_voice_states.write()
-                            && let Some(list) = gvs.get_mut(&gid) {
+                            && let Some(list) = gvs.get_mut(&gid)
+                        {
                             list.retain(|s| s.user_id != vs.user_id);
                         }
                     } else {
@@ -491,39 +502,46 @@ impl InMemoryCache {
         if let Some(user_val) = d.get("user")
             && let Some(id_str) = user_val.get("id").and_then(Value::as_str)
             && let Ok(id_u64) = id_str.parse::<u64>()
-            && let Some(user_id) = Id::new_checked(id_u64) {
+            && let Some(user_id) = Id::new_checked(id_u64)
+        {
             let name = user_val
-                        .get("username")
-                        .and_then(Value::as_str)
-                        .unwrap_or_default()
-                        .to_string();
-                    let disc = user_val
-                        .get("discriminator")
-                        .and_then(Value::as_str)
-                        .and_then(|s| s.parse::<u16>().ok())
-                        .unwrap_or(0);
-                    let avatar = user_val
-                        .get("avatar")
-                        .and_then(Value::as_str)
-                        .map(str::to_string);
-                    let bot = user_val.get("bot").and_then(Value::as_bool).unwrap_or(false);
+                .get("username")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_string();
+            let disc = user_val
+                .get("discriminator")
+                .and_then(Value::as_str)
+                .and_then(|s| s.parse::<u16>().ok())
+                .unwrap_or(0);
+            let avatar = user_val
+                .get("avatar")
+                .and_then(Value::as_str)
+                .map(str::to_string);
+            let bot = user_val
+                .get("bot")
+                .and_then(Value::as_bool)
+                .unwrap_or(false);
 
-                    let cu = Arc::new(CachedCurrentUser {
-                        id: user_id,
-                        name,
-                        discriminator: disc,
-                        avatar,
-                        bot,
-                        mfa_enabled: user_val
-                            .get("mfa_enabled")
-                            .and_then(Value::as_bool)
-                            .unwrap_or(false),
-                        verified: user_val.get("verified").and_then(Value::as_bool),
-                        email: user_val.get("email").and_then(Value::as_str).map(str::to_string),
-                    });
-                    if let Ok(mut slot) = self.current_user.write() {
-                        *slot = Some(cu);
-                    }
+            let cu = Arc::new(CachedCurrentUser {
+                id: user_id,
+                name,
+                discriminator: disc,
+                avatar,
+                bot,
+                mfa_enabled: user_val
+                    .get("mfa_enabled")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false),
+                verified: user_val.get("verified").and_then(Value::as_bool),
+                email: user_val
+                    .get("email")
+                    .and_then(Value::as_str)
+                    .map(str::to_string),
+            });
+            if let Ok(mut slot) = self.current_user.write() {
+                *slot = Some(cu);
+            }
         }
 
         // Cache Guilds & Nested Entities
@@ -544,7 +562,10 @@ impl InMemoryCache {
                     .and_then(Value::as_str)
                     .unwrap_or_default()
                     .to_string();
-                let icon = g_val.get("icon").and_then(Value::as_str).map(str::to_string);
+                let icon = g_val
+                    .get("icon")
+                    .and_then(Value::as_str)
+                    .map(str::to_string);
                 let afk_channel_id = g_val
                     .get("afk_channel_id")
                     .and_then(Value::as_str)
@@ -577,9 +598,15 @@ impl InMemoryCache {
                         let Some(cid) = Id::<ChannelMarker>::new_checked(cid_u64) else {
                             continue;
                         };
-                        let name = ch_val.get("name").and_then(Value::as_str).map(str::to_string);
+                        let name = ch_val
+                            .get("name")
+                            .and_then(Value::as_str)
+                            .map(str::to_string);
                         let kind = ch_val.get("type").and_then(Value::as_u64).unwrap_or(0) as u8;
-                        let pos = ch_val.get("position").and_then(Value::as_i64).map(|p| p as i32);
+                        let pos = ch_val
+                            .get("position")
+                            .and_then(Value::as_i64)
+                            .map(|p| p as i32);
 
                         let ch = Arc::new(CachedChannel {
                             id: cid,
@@ -587,7 +614,10 @@ impl InMemoryCache {
                             name,
                             kind,
                             position: pos,
-                            topic: ch_val.get("topic").and_then(Value::as_str).map(str::to_string),
+                            topic: ch_val
+                                .get("topic")
+                                .and_then(Value::as_str)
+                                .map(str::to_string),
                             nsfw: ch_val.get("nsfw").and_then(Value::as_bool).unwrap_or(false),
                             parent_id: ch_val
                                 .get("parent_id")
@@ -623,10 +653,18 @@ impl InMemoryCache {
                         let Some(rid) = Id::<RoleMarker>::new_checked(rid_u64) else {
                             continue;
                         };
-                        let r_name = r_val.get("name").and_then(Value::as_str).unwrap_or_default().to_string();
+                        let r_name = r_val
+                            .get("name")
+                            .and_then(Value::as_str)
+                            .unwrap_or_default()
+                            .to_string();
                         let color = r_val.get("color").and_then(Value::as_u64).unwrap_or(0) as u32;
                         let pos = r_val.get("position").and_then(Value::as_i64).unwrap_or(0);
-                        let perms = r_val.get("permissions").and_then(Value::as_str).unwrap_or("0").to_string();
+                        let perms = r_val
+                            .get("permissions")
+                            .and_then(Value::as_str)
+                            .unwrap_or("0")
+                            .to_string();
 
                         let role = Arc::new(CachedRole {
                             id: rid,
@@ -636,8 +674,14 @@ impl InMemoryCache {
                             hoist: r_val.get("hoist").and_then(Value::as_bool).unwrap_or(false),
                             position: pos,
                             permissions: perms,
-                            managed: r_val.get("managed").and_then(Value::as_bool).unwrap_or(false),
-                            mentionable: r_val.get("mentionable").and_then(Value::as_bool).unwrap_or(false),
+                            managed: r_val
+                                .get("managed")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false),
+                            mentionable: r_val
+                                .get("mentionable")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false),
                         });
                         if let Ok(mut roles) = self.roles.write() {
                             roles.insert(rid, role);
@@ -669,14 +713,24 @@ impl InMemoryCache {
 
                         let user = Arc::new(CachedUser {
                             id: uid,
-                            name: user_obj.get("username").and_then(Value::as_str).unwrap_or_default().to_string(),
+                            name: user_obj
+                                .get("username")
+                                .and_then(Value::as_str)
+                                .unwrap_or_default()
+                                .to_string(),
                             discriminator: user_obj
                                 .get("discriminator")
                                 .and_then(Value::as_str)
                                 .and_then(|s| s.parse::<u16>().ok())
                                 .unwrap_or(0),
-                            avatar: user_obj.get("avatar").and_then(Value::as_str).map(str::to_string),
-                            bot: user_obj.get("bot").and_then(Value::as_bool).unwrap_or(false),
+                            avatar: user_obj
+                                .get("avatar")
+                                .and_then(Value::as_str)
+                                .map(str::to_string),
+                            bot: user_obj
+                                .get("bot")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false),
                         });
                         if let Ok(mut users) = self.users.write() {
                             users.insert(uid, Arc::clone(&user));
@@ -698,9 +752,15 @@ impl InMemoryCache {
                             guild_id: gid,
                             user_id: uid,
                             user: Some(user),
-                            nick: m_val.get("nick").and_then(Value::as_str).map(str::to_string),
+                            nick: m_val
+                                .get("nick")
+                                .and_then(Value::as_str)
+                                .map(str::to_string),
                             roles,
-                            joined_at: m_val.get("joined_at").and_then(Value::as_str).map(str::to_string),
+                            joined_at: m_val
+                                .get("joined_at")
+                                .and_then(Value::as_str)
+                                .map(str::to_string),
                             deaf: m_val.get("deaf").and_then(Value::as_bool).unwrap_or(false),
                             mute: m_val.get("mute").and_then(Value::as_bool).unwrap_or(false),
                         });
@@ -734,7 +794,11 @@ impl InMemoryCache {
                             .and_then(Value::as_str)
                             .and_then(|s| s.parse::<u64>().ok())
                             .and_then(Id::<ChannelMarker>::new_checked);
-                        let sess = vs_val.get("session_id").and_then(Value::as_str).unwrap_or_default().to_string();
+                        let sess = vs_val
+                            .get("session_id")
+                            .and_then(Value::as_str)
+                            .unwrap_or_default()
+                            .to_string();
 
                         let state = Arc::new(CachedVoiceState {
                             guild_id: Some(gid),
@@ -743,10 +807,22 @@ impl InMemoryCache {
                             session_id: sess,
                             deaf: vs_val.get("deaf").and_then(Value::as_bool).unwrap_or(false),
                             mute: vs_val.get("mute").and_then(Value::as_bool).unwrap_or(false),
-                            self_deaf: vs_val.get("self_deaf").and_then(Value::as_bool).unwrap_or(false),
-                            self_mute: vs_val.get("self_mute").and_then(Value::as_bool).unwrap_or(false),
-                            self_video: vs_val.get("self_video").and_then(Value::as_bool).unwrap_or(false),
-                            suppress: vs_val.get("suppress").and_then(Value::as_bool).unwrap_or(false),
+                            self_deaf: vs_val
+                                .get("self_deaf")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false),
+                            self_mute: vs_val
+                                .get("self_mute")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false),
+                            self_video: vs_val
+                                .get("self_video")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false),
+                            suppress: vs_val
+                                .get("suppress")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false),
                         });
                         if let Ok(mut states) = self.voice_states.write() {
                             states.insert((gid, uid), Arc::clone(&state));
@@ -772,7 +848,10 @@ impl InMemoryCache {
                 let Some(cid) = Id::<ChannelMarker>::new_checked(cid_u64) else {
                     continue;
                 };
-                let name = ch_val.get("name").and_then(Value::as_str).map(str::to_string);
+                let name = ch_val
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .map(str::to_string);
                 let kind = ch_val.get("type").and_then(Value::as_u64).unwrap_or(1) as u8;
 
                 let ch = Arc::new(CachedChannel {
@@ -797,16 +876,38 @@ impl InMemoryCache {
 
     /// Clears all entries from the cache.
     pub fn clear(&self) {
-        if let Ok(mut c) = self.channels.write() { c.clear(); }
-        if let Ok(mut gc) = self.guild_channels.write() { gc.clear(); }
-        if let Ok(mut g) = self.guilds.write() { g.clear(); }
-        if let Ok(mut m) = self.members.write() { m.clear(); }
-        if let Ok(mut gm) = self.guild_members.write() { gm.clear(); }
-        if let Ok(mut r) = self.roles.write() { r.clear(); }
-        if let Ok(mut gr) = self.guild_roles.write() { gr.clear(); }
-        if let Ok(mut u) = self.users.write() { u.clear(); }
-        if let Ok(mut cu) = self.current_user.write() { *cu = None; }
-        if let Ok(mut vs) = self.voice_states.write() { vs.clear(); }
-        if let Ok(mut gvs) = self.guild_voice_states.write() { gvs.clear(); }
+        if let Ok(mut c) = self.channels.write() {
+            c.clear();
+        }
+        if let Ok(mut gc) = self.guild_channels.write() {
+            gc.clear();
+        }
+        if let Ok(mut g) = self.guilds.write() {
+            g.clear();
+        }
+        if let Ok(mut m) = self.members.write() {
+            m.clear();
+        }
+        if let Ok(mut gm) = self.guild_members.write() {
+            gm.clear();
+        }
+        if let Ok(mut r) = self.roles.write() {
+            r.clear();
+        }
+        if let Ok(mut gr) = self.guild_roles.write() {
+            gr.clear();
+        }
+        if let Ok(mut u) = self.users.write() {
+            u.clear();
+        }
+        if let Ok(mut cu) = self.current_user.write() {
+            *cu = None;
+        }
+        if let Ok(mut vs) = self.voice_states.write() {
+            vs.clear();
+        }
+        if let Ok(mut gvs) = self.guild_voice_states.write() {
+            gvs.clear();
+        }
     }
 }

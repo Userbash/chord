@@ -45,7 +45,10 @@ fn d02_domain_catalog_covers_auth_messaging_search_channels_and_guilds() {
     let summary: RestDomainCatalogSummary = d02_domain_catalog_summary();
     assert_eq!(summary.api_base, API_V9_BASE);
     assert_eq!(summary.captured_d02_routes, CAPTURED_D02_ROUTE_COUNT);
-    assert_eq!(summary.static_extension_routes, STATIC_EXTENSION_ROUTE_COUNT);
+    assert_eq!(
+        summary.static_extension_routes,
+        STATIC_EXTENSION_ROUTE_COUNT
+    );
     assert_eq!(summary.auth_header_count, 6);
     assert_eq!(summary.super_properties_field_count, 22);
     assert_eq!(summary.d02_payload_route_count, 6);
@@ -382,7 +385,10 @@ fn d02_auth_headers_super_properties_and_rate_limits_match_oracle() {
         ("x-ratelimit-global".to_string(), "false".to_string()),
         ("x-ratelimit-remaining".to_string(), "0".to_string()),
         ("x-ratelimit-reset-after".to_string(), "2.5".to_string()),
-        ("x-ratelimit-bucket".to_string(), "survey-bucket".to_string()),
+        (
+            "x-ratelimit-bucket".to_string(),
+            "survey-bucket".to_string(),
+        ),
     ];
     let body_bytes = br#"{"retry_after":2.5,"global":false}"#;
     let info = rate_limit_info(429, &rl_headers, body_bytes).expect("429 rate limit parsed");

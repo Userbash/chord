@@ -560,4 +560,3 @@ impl RuntimeManager {
         self.runtime.shutdown_background();
     }
 }
-

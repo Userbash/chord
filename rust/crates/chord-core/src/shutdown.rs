@@ -192,9 +192,9 @@ impl ShutdownCoordinator {
     /// Asynchronously waits for an OS termination signal (`SIGINT` or `SIGTERM`).
     #[cfg(unix)]
     pub async fn wait_for_signal() -> Result<ShutdownSignal, ShutdownError> {
-        use tokio::signal::unix::{signal, SignalKind};
-        let mut sigterm = signal(SignalKind::terminate())
-            .map_err(|e| ShutdownError::Signal(e.to_string()))?;
+        use tokio::signal::unix::{SignalKind, signal};
+        let mut sigterm =
+            signal(SignalKind::terminate()).map_err(|e| ShutdownError::Signal(e.to_string()))?;
         tokio::select! {
             res = tokio::signal::ctrl_c() => {
                 res.map_err(|e| ShutdownError::Signal(e.to_string()))?;
@@ -246,21 +246,29 @@ fn compile_regex(pattern: &str) -> Option<Regex> {
 }
 
 fn get_bot_regex() -> Option<&'static Regex> {
-    REGEX_BOT.get_or_init(|| compile_regex(r"Bot\s+[A-Za-z0-9._-]{20,}")).as_ref()
+    REGEX_BOT
+        .get_or_init(|| compile_regex(r"Bot\s+[A-Za-z0-9._-]{20,}"))
+        .as_ref()
 }
 
 fn get_bearer_regex() -> Option<&'static Regex> {
-    REGEX_BEARER.get_or_init(|| compile_regex(r"Bearer\s+[A-Za-z0-9._-]{20,}")).as_ref()
+    REGEX_BEARER
+        .get_or_init(|| compile_regex(r"Bearer\s+[A-Za-z0-9._-]{20,}"))
+        .as_ref()
 }
 
 fn get_discord_token_regex() -> Option<&'static Regex> {
-    REGEX_DISCORD_TOKEN.get_or_init(|| {
-        compile_regex(r"\b[MNO][A-Za-z0-9]{23,28}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27,40}\b")
-    }).as_ref()
+    REGEX_DISCORD_TOKEN
+        .get_or_init(|| {
+            compile_regex(r"\b[MNO][A-Za-z0-9]{23,28}\.[A-Za-z0-9_-]{6}\.[A-Za-z0-9_-]{27,40}\b")
+        })
+        .as_ref()
 }
 
 fn get_mfa_regex() -> Option<&'static Regex> {
-    REGEX_MFA.get_or_init(|| compile_regex(r"\bmfa\.[A-Za-z0-9_-]{20,}\b")).as_ref()
+    REGEX_MFA
+        .get_or_init(|| compile_regex(r"\bmfa\.[A-Za-z0-9_-]{20,}\b"))
+        .as_ref()
 }
 
 fn get_pem_regex() -> Option<&'static Regex> {

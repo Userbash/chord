@@ -70,7 +70,10 @@ fn cable_disconnect_triggers_resume_and_continues_event_queue_without_loss() {
     .expect("build_resume_frame");
     let (op, d) = decode_op_and_d(&resume_bytes);
     assert_eq!(op, 6);
-    assert!(d.iter().any(|(k, v)| k == "session_id" && *v == EtfValue::Str("sess-cable-1".to_string())));
+    assert!(
+        d.iter()
+            .any(|(k, v)| k == "session_id" && *v == EtfValue::Str("sess-cable-1".to_string()))
+    );
     assert!(d.iter().any(|(k, v)| k == "seq" && *v == EtfValue::Int(2)));
 
     // 4. Supervisor preserves outbound queue and plans Resume within TTL
@@ -109,10 +112,7 @@ fn gateway_timeout_and_downtime_thresholds_switch_resume_to_identify() {
         ReconnectAction::Identify
     );
     // No session -> Identify
-    assert_eq!(
-        plan_reconnect(None, 100, None),
-        ReconnectAction::Identify
-    );
+    assert_eq!(plan_reconnect(None, 100, None), ReconnectAction::Identify);
 
     // Close code classification
     assert_eq!(classify_close(None), CloseAction::Reconnect);
@@ -134,7 +134,10 @@ fn resume_frame_roundtrip_and_outbound_queue_preserved_across_reconnect() {
     .expect("build_resume_frame");
     let (op, d) = decode_op_and_d(&bytes);
     assert_eq!(op, 6);
-    assert!(d.iter().any(|(k, v)| k == "session_id" && *v == EtfValue::Str("sess-q-1".to_string())));
+    assert!(
+        d.iter()
+            .any(|(k, v)| k == "session_id" && *v == EtfValue::Str("sess-q-1".to_string()))
+    );
     assert!(d.iter().any(|(k, v)| k == "seq" && *v == EtfValue::Int(77)));
 
     let url = GatewayUrl::from_base("ws://127.0.0.1:9000").expect("url");

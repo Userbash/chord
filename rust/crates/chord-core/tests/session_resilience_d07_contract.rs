@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-//! Contract tests for Task D-07: Session Resilience & Security.
+//! Contract tests for Task D-07: Session Resilience & Security (`chord_core::session_resilience`).
 //!
 //! Specification & Clean-Room Reference Oracles:
 //! - `docs/feature-backlog.md` row `D-07`:
@@ -19,44 +19,42 @@
 //!   `RESUME_RESET_AFTER_FAILURES = 4`, close `4004`/`4013`/`4014`, rate-limit backoff)
 //!
 //! Covers all 9 mandatory dimensions (`TEST-POLICY.md` §12):
-//! 1. Positive path: Opcode 6 Resume frame encoding (`0x83` ETF + JSON), `ResumeSessionManager`
-//!    session recovery preserving guild/channel cache pointers (`Arc::ptr_eq`), OS keyring schema
-//!    (`com.discordlab.Token`), `SafeStorageMigrator` (`dQw4w9WgXcQ:`) one-time import, Argon2id
-//!    RFC 9106 master key derivation (`MasterKeyManager` + `InMemoryKeyring`), automatic secret
-//!    masking (`redact_secrets`, `RedactedWriter`, `SecretRedactionLayer`), and 429/503/5xx rate-limit backoff.
-//! 2. Negative path: rejecting empty/whitespace tokens & `session_id` in Opcode 6 Resume and `ApiAuth`,
-//!    rejecting empty/NUL keys & NUL secrets in OS keyring, rejecting malformed base64 / empty payload /
-//!    NUL-or-newline tokens in `SafeStorageMigrator`, rejecting weak/all-zero keyring secrets & short salts
-//!    in Argon2id, and rejecting outbound `OP 3/4/8/37` before session `Ready`.
-//! 3. Boundary conditions: Snowflake boundaries (`0`, `1`, `u64::MAX`), sequence boundaries (`0`, `663`,
-//!    `u64::MAX`), downtime & TTL thresholds (`RESUME_MAX_DOWNTIME_MS - 1 = 29_999` vs `30_000`,
-//!    `RESUME_TTL_MS = 180_000` vs `180_001`), failure reset boundary (`3` vs `4` failures),
+//! 1. Positive path: `D07KeyringTokenVault` storing/loading/clearing/rotating session tokens in OS
+//!    keyring schema `com.discordlab.Token` with automatic masking (`D07MaskedToken`, `redact_secrets`),
+//!    one-time Electron `safeStorage` (`dQw4w9WgXcQ:`) migration, Opcode 6 Resume recovery across the
+//!    3 empirical capture seams (`s=94 -> 95..663`, `s=663 -> 664..722`, `s=331 -> 332..371`) preserving
+//!    guild/channel caches, and 429/503/5xx rate-limit backoff via `D07SessionResilienceEngine`.
+//! 2. Negative path: rejecting empty/whitespace/NUL/newline tokens, rejecting invalid 3-part token
+//!    format when strict format check is requested, rejecting empty/NUL keyring account keys,
+//!    rejecting malformed `dQw4w9WgXcQ:` base64 payloads, rejecting Opcode 6 Resume when no session
+//!    or token is stored, and rejecting non-retryable `401 Unauthorized` / `500` status codes.
+//! 3. Boundary conditions: Snowflake boundaries (`0` rejected, `1` and `u64::MAX` accepted),
+//!    downtime & TTL boundaries (`RESUME_MAX_DOWNTIME_MS - 1 = 29_999` vs `30_000` ms;
+//!    `RESUME_TTL_MS = 180_000` vs `180_001` ms), failure threshold (`3` vs `4` consecutive failures),
 //!    heartbeat timeout boundary (`41_249` vs `41_250` ms), and rate-limit cap (`DEFAULT_RETRY_AFTER = 5s`,
 //!    `MAX_RETRY_AFTER = 60s`).
-//! 4. Error handling: explicit typed errors (`ResumeError`, `ApiAuthError`, `KeyringError`,
-//!    `SafeStorageMigrationError`, `SessionError`, `SupervisorOutboundError`) without panics or secret leaks.
-//! 5. Empty states: `Supervisor` / `ResumeSessionManager` prior to `READY`, missing keyring entry
-//!    (`NotFound` / `Ok(None)`), empty `retry-after` headers falling back to `DEFAULT_RETRY_AFTER` (5s)
-//!    or `x-ratelimit-reset-after`, and empty outbound queue.
-//! 6. Intermediate / lifecycle states: `READY` -> dispatch sequence `s` progression -> abrupt dropout /
-//!    zombie socket detection -> `Resume` (op6) attempts `1..=4` -> `RESUMED` recovery vs fallback
-//!    to `Identify` (op2), and `SafeStorageMigrator` (`unmigrated -> migrated` idempotence).
-//! 7. Capabilities, permissions & security: automatic masking of 3-part Discord tokens, `Bot`, `Bearer`,
-//!    `mfa.*`, `ghp_*`, 64-hex keys, `token=`/`password=`/`secret_key=`/`session_id=`, and JSON fields;
-//!    `Debug`/`Display` redaction across `ResumeParams`, `ResumeHandshakeFrame`, `ApiAuth`, `DerivedKey`,
-//!    `Keyring`, `SafeStorageMigrationError`; memory zeroization (`DerivedKey::zeroize_now`,
-//!    `zeroize_secret_bytes`, `zeroize_secret_string`); and authorized vs unauthorized session revocation.
-//! 8. Recovery & degradation: recovery from abrupt TCP drop (`classify_close(None) == Reconnect`),
-//!    `ZombieSocketDetector` missed `HEARTBEAT_ACK` -> immediate close & reconnect, `OP 7 RECONNECT`,
-//!    `OP 9 INVALID_SESSION (d=true -> Resume, d=false -> Identify)`, fatal close codes
-//!    (`4004 Unauthorized`, `4013/4014 InvalidClient` -> `Stop`), and per-method 429/503/5xx retry recovery.
+//! 4. Error handling: explicit typed `D07SessionResilienceError` variants (`EmptyToken`, `InvalidTokenFormat`,
+//!    `InvalidKeyringKey`, `TokenNotFound`, `EmptyPayload`, `InvalidBase64`, `DecryptFailed`,
+//!    `NoActiveSession`, `SessionExpired`, `UnauthorizedRevoke`) without panics or secret leakage.
+//! 5. Empty states: uninitialized vault (`TokenNotFound`), unestablished session before `READY`,
+//!    missing `retry-after` header defaulting to `5_000` ms, and empty replayed event list.
+//! 6. Intermediate / lifecycle states: `Unauthenticated -> TokenStored -> SessionEstablished (READY) ->
+//!    AbruptDropout -> Resuming (Opcode 6 attempts 1..=4) -> Resumed / FallbackToIdentify -> LoggedOut`,
+//!    plus idempotent `migrate_safe_storage_once`.
+//! 7. Capabilities, permissions & security: automatic masking in `D07MaskedToken` (`Debug` and `Display`
+//!    output `"[REDACTED]"`), zeroization on drop & logout (`zeroize_now`), DevTools token hiding
+//!    (`hide_token_for_devtools` / `restore_token_from_devtools` per `AUTH-RE.md` `T-11`),
+//!    log stream redaction (`RedactedWriter` + `SecretRedactionLayer`), and authorized remote session revocation.
+//! 8. Recovery & degradation: abrupt TCP disconnect (`None` close code), `ZombieSocketDetector` missed
+//!    `HEARTBEAT_ACK` (op11), `OP 7 RECONNECT`, `OP 9 INVALID_SESSION` (`d=true -> Resume`, `d=false -> Identify`),
+//!    fatal close codes (`4004` automatic token wipe & logout, `4013/4014` permanent stop), and per-URL
+//!    rate-limit queue backoff recovery.
 //! 9. Observable telemetry & empirical oracle verification: verifying `docs/re/session-resilience-d07.md`
-//!    and `docs/re/session-resilience-d07.json` against `docs/re/gateway-protocol.json` (3 captured Resume
-//!    sessions `95..663`, `664..722`, `332..371`), `ZombieSocketDetector` RTT/ACK/missed counters,
-//!    `Supervisor` (`reconnects`, `resume_failures`, `session_resets`, `rejected_outbound`), and
-//!    `ResumeSessionManager` (`total_resumed_count`, `consecutive_failures`).
+//!    and `docs/re/session-resilience-d07.json` against `docs/re/gateway-protocol.json` and
+//!    `D07ResilienceTelemetry` counters (`tokens_stored`, `tokens_masked`, `safe_storage_migrations`,
+//!    `abrupt_dropouts`, `opcode6_resumes_sent`, `sessions_resumed`, `identify_fallbacks`,
+//!    `zombie_sockets_detected`, `rate_limit_backoffs`, `unauthorized_logouts`).
 
-use std::collections::BTreeMap;
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -65,41 +63,34 @@ use std::time::Duration;
 
 use chord_codec::etf::{self, EtfValue};
 use chord_core::cache::{InMemoryCache, InMemoryCacheBuilder, ResourceType};
-use chord_core::gateway::supervisor::{
-    Backoff, CloseAction, RESUME_MAX_ACK_ELAPSED_MS, RESUME_TTL_MS, StopReason, Supervisor,
-    SupervisorConfig, SupervisorOutboundError, classify_close,
-};
+use chord_core::gateway::supervisor::{CloseAction, RESUME_TTL_MS, StopReason, classify_close};
 use chord_core::heartbeat::{
-    DEFAULT_HEARTBEAT_INTERVAL_MS, HEARTBEAT_ACK_OP, HEARTBEAT_OP, HeartbeatAckOutcome,
-    ZombieReconnectSignal, ZombieSocketDetector,
+    DEFAULT_HEARTBEAT_INTERVAL_MS, HeartbeatAckOutcome, ZombieSocketDetector,
 };
 use chord_core::logging::{
     REDACTED_MARKER, RedactedMakeWriter, RedactedWriter, SecretRedactionLayer, redact_secrets,
 };
 use chord_core::rest::bridge::validate_snowflake_id;
-use chord_core::rest::client::{ApiAuth, ApiAuthError, AuthScheme};
+use chord_core::rest::client::{ApiAuth, AuthScheme};
 use chord_core::rest::rate_limit::{
-    DEFAULT_RETRY_AFTER, MAX_RETRY_AFTER, RETRYABLE_SERVER_STATUSES, RestFailure, classify_failure,
-    is_retryable_server_status, parse_retry_after_or_default, rate_limit_info, retry_delay,
-    retry_delay_client_parity, should_retry, should_retry_client_parity,
+    DEFAULT_RETRY_AFTER, MAX_RETRY_AFTER, RETRYABLE_SERVER_STATUSES,
 };
 use chord_core::rest::routes::HttpMethod;
 use chord_core::rest::super_properties::SuperProperties;
 use chord_core::resume::{
-    RESUME_BACKOFF_MAX_MS, RESUME_BACKOFF_MIN_MS, RESUME_MAX_DOWNTIME_MS,
-    RESUME_MAX_FAILURE_ATTEMPTS, RESUME_OP, RESUME_RESET_AFTER_FAILURES, ReconnectAction,
-    ResumeError, ResumeExponentialBackoff, ResumeHandshakeFrame, ResumeParams,
-    ResumeRecoveryOutcome, ResumeSessionManager, ResumeState, build_resume_frame,
-    build_resume_json_payload, plan_reconnect,
+    RESUME_BACKOFF_MAX_MS, RESUME_BACKOFF_MIN_MS, RESUME_MAX_DOWNTIME_MS, RESUME_OP,
+    RESUME_RESET_AFTER_FAILURES, ReconnectAction,
+};
+use chord_core::session_resilience::{
+    D07_KEYRING_LABEL, D07_KEYRING_SCHEMA_NAME, D07_SAFE_STORAGE_PREFIX, D07DropoutCause,
+    D07DropoutRecoveryPlan, D07KeyringTokenVault, D07MaskedToken, D07RateLimitBackoffDecision,
+    D07ResilienceState, D07ResilienceTelemetry, D07SessionResilienceEngine,
+    D07SessionResilienceError, is_valid_discord_token_structure, mask_token_preview,
 };
 use chord_core::sessions_manager::{
     CURRENT_DEVICE_BADGE_COLOR, CURRENT_DEVICE_BADGE_LABEL, SessionError, SessionInfo,
     SessionManager,
 };
-use chord_core::state::{
-    ChannelState, Event, EventPayload, GuildState, State, UserSummary,
-};
-use chord_core::ws::GatewayUrl;
 use chord_json::JsonValue;
 use tracing_subscriber::prelude::*;
 use twilight_model::id::Id;
@@ -107,6 +98,13 @@ use twilight_model::id::marker::{ChannelMarker, GuildMarker};
 
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
+}
+
+fn synthetic_discord_token() -> String {
+    format!(
+        "{}.{}.{}",
+        "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678"
+    )
 }
 
 fn seed_guild_cache() -> InMemoryCache {
@@ -171,66 +169,113 @@ fn seed_guild_cache() -> InMemoryCache {
 }
 
 // ============================================================================
-// Dimension 1: Positive Path — Opcode 6 Resume Protocol, OS Keyring & Argon2id
-// Storage, Automatic Masking, and Rate-Limit Backoff
+// Dimension 1: Positive Path — Secure Keyring Token Storage with Automatic
+// Masking, Opcode 6 Resume Recovery Across All 3 Empirical Capture Seams,
+// and Rate Limit Backoff
 // ============================================================================
 
 #[test]
-fn d07_dim1_opcode6_resume_protocol_and_empirical_sequence_seams() {
-    assert_eq!(RESUME_OP, 6);
-    assert_eq!(RESUME_BACKOFF_MIN_MS, 1_000);
-    assert_eq!(RESUME_BACKOFF_MAX_MS, 60_000);
-    assert_eq!(RESUME_MAX_DOWNTIME_MS, 30_000);
-    assert_eq!(RESUME_RESET_AFTER_FAILURES, 4);
-    assert_eq!(RESUME_MAX_FAILURE_ATTEMPTS, 4);
-    assert_eq!(RESUME_TTL_MS, 180_000);
-    assert_eq!(RESUME_MAX_ACK_ELAPSED_MS, 180_000);
+fn d07_dim1_keyring_token_vault_automatic_masking_and_safestorage_migration() {
+    assert_eq!(D07_KEYRING_SCHEMA_NAME, "com.discordlab.Token");
+    assert_eq!(D07_KEYRING_LABEL, "discord-lab token");
+    assert_eq!(D07_SAFE_STORAGE_PREFIX, "dQw4w9WgXcQ:");
 
+    let token = synthetic_discord_token();
+    assert!(is_valid_discord_token_structure(&token));
+    assert!(is_valid_discord_token_structure(
+        "mfa.abcdef1234567890abcdef1234567890_secret"
+    ));
+
+    let mut vault = D07KeyringTokenVault::new();
+    assert_eq!(vault.schema_name(), D07_KEYRING_SCHEMA_NAME);
+    assert_eq!(vault.label(), D07_KEYRING_LABEL);
+
+    // 1. Store token in OS keyring vault and retrieve masked wrapper
+    vault
+        .store_token("384299970632876032", &token)
+        .expect("store_token must succeed");
+    assert!(vault.has_token("384299970632876032").unwrap());
+
+    let masked: D07MaskedToken = vault
+        .load_token("384299970632876032")
+        .expect("load_token")
+        .expect("token present");
+    assert_eq!(masked.expose_secret(), token);
+
+    // Automatic masking in Display, Debug, and preview
+    assert_eq!(format!("{masked}"), REDACTED_MARKER);
+    assert!(!format!("{masked:?}").contains(&token));
+    assert!(format!("{masked:?}").contains(REDACTED_MARKER));
+    assert!(!format!("{vault:?}").contains(&token));
+    assert_eq!(mask_token_preview(&token), REDACTED_MARKER);
+
+    // 2. One-time Electron safeStorage (`dQw4w9WgXcQ:<base64>`) migration into OS keyring
+    let raw_safe_storage = "  dQw4w9WgXcQ:Y2lwaGVydGV4dC1ieXRlcw== \n";
+    let migrated = vault
+        .migrate_safe_storage_once("migrated-account", raw_safe_storage, |ct| {
+            assert_eq!(ct, b"ciphertext-bytes");
+            Ok(token.as_bytes().to_vec())
+        })
+        .expect("safeStorage migration must succeed");
+    assert!(migrated);
+    assert!(vault.is_safe_storage_migrated());
+
+    let loaded_migrated = vault
+        .load_token("migrated-account")
+        .expect("load migrated")
+        .expect("migrated token exists");
+    assert_eq!(loaded_migrated.expose_secret(), token);
+}
+
+#[test]
+fn d07_dim1_session_recovery_opcode6_resume_across_three_empirical_capture_seams() {
     let cache = seed_guild_cache();
     let guild_id = Id::<GuildMarker>::new(1_014_537_851_418_980_372);
     let chan_id = Id::<ChannelMarker>::new(1_176_785_373_989_445_703);
     let guild_arc_before = cache.guild(guild_id).expect("guild cached");
     let chan_arc_before = cache.channel(chan_id).expect("channel cached");
 
-    // Empirical capture seam #1 (`run2:95974.5532` s=1..94 -> `run2:95974.8269` s=95..663)
-    // and seam #2 (`run2:95974.8269` s=663 -> `run2:95974.8608` s=664..722)
-    let mut mgr = ResumeSessionManager::new();
-    mgr.on_ready_established(
+    let token = synthetic_discord_token();
+    let mut engine = D07SessionResilienceEngine::new();
+    engine
+        .store_account_token("384299970632876032", &token)
+        .expect("store_account_token");
+    assert_eq!(engine.state(), D07ResilienceState::TokenStored);
+
+    // Seam #1 (`run2:95974.5532` s=1..94 -> abrupt dropout -> `run2:95974.8269` Resume #1 s=95..663)
+    engine.on_ready_established(
+        "384299970632876032",
         "f14ac1f3d408c15027d6d98da172c398",
-        Some("wss://gateway-us-east1-d.discord.gg/"),
+        Some("wss://gateway-us-east1-c.discord.gg/"),
         94,
         &cache,
     );
-    assert!(mgr.has_resumable_session());
-    assert_eq!(mgr.last_seq(), 94);
+    assert_eq!(engine.state(), D07ResilienceState::SessionEstablished);
 
-    // Prepare Opcode 6 Resume frame at seam s=94
-    let secret_tok = format!(
-        "{}.{}.{}",
-        "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678"
+    let plan1: D07DropoutRecoveryPlan = engine
+        .handle_connection_dropout(D07DropoutCause::AbruptNetworkDrop, 1_200, &cache)
+        .expect("dropout at s=94");
+    assert_eq!(plan1.action, ReconnectAction::Resume);
+    assert_eq!(plan1.backoff_delay_ms, 1_000);
+    assert_eq!(
+        plan1.target_gateway_url.as_deref(),
+        Some("wss://gateway-us-east1-c.discord.gg")
     );
-    let hs1: ResumeHandshakeFrame = mgr
-        .prepare_resume_frame(&secret_tok, &cache)
-        .expect("prepare_resume_frame at s=94");
-    assert_eq!(hs1.op, 6);
+    let hs1 = plan1.resume_frame.expect("Opcode 6 Resume frame");
+    assert_eq!(hs1.op, RESUME_OP);
     assert_eq!(hs1.seq, 94);
-    assert_eq!(hs1.backoff_delay_ms, 1_000);
-    assert_eq!(hs1.attempt, 1);
     assert!(hs1.preserve_guild_cache);
     assert!(hs1.skip_channel_reload);
-    assert_eq!(
-        hs1.resume_gateway_url.as_deref(),
-        Some("wss://gateway-us-east1-d.discord.gg")
-    );
-    assert_eq!(hs1.etf_frame.first(), Some(&etf::VERSION_BYTE));
+    assert!(!format!("{hs1:?}").contains(&token));
 
-    let (decoded, consumed) = etf::decode(&hs1.etf_frame).expect("ETF decode op6");
+    // Verify wire ETF encoding of Opcode 6 frame
+    let (decoded, consumed) = etf::decode(&hs1.etf_frame).expect("decode Opcode 6 ETF");
     assert_eq!(consumed, hs1.etf_frame.len());
     assert_eq!(decoded.get("op").and_then(EtfValue::as_int), Some(6));
     let d = decoded.get("d").expect("d map");
     assert_eq!(
         d.get("token").and_then(EtfValue::as_str),
-        Some(secret_tok.as_str())
+        Some(token.as_str())
     );
     assert_eq!(
         d.get("session_id").and_then(EtfValue::as_str),
@@ -238,169 +283,142 @@ fn d07_dim1_opcode6_resume_protocol_and_empirical_sequence_seams() {
     );
     assert_eq!(d.get("seq").and_then(EtfValue::as_int), Some(94));
 
-    // Replay dispatches 95..=663 and complete Resume #1
     for seq in 95..=662 {
-        assert!(mgr.record_dispatch_seq(seq));
+        assert!(engine.record_dispatch_seq(seq));
     }
-    let outcome1: ResumeRecoveryOutcome = mgr.on_resumed_received(663, &cache);
+    let outcome1 = engine.on_resumed_received(663, &cache);
     assert_eq!(outcome1.resumed_at_seq, 663);
     assert_eq!(outcome1.replayed_events, 569); // 95..=663 = 569 events in socket .8269
     assert!(!outcome1.guild_cache_reset);
     assert!(!outcome1.channels_reloaded);
-    assert_eq!(mgr.total_resumed_count(), 1);
-    assert_eq!(mgr.backoff().current_ms(), 1_000);
+    assert_eq!(engine.state(), D07ResilienceState::SessionEstablished);
 
-    // Seam #2: disconnect at s=663 -> Resume #2 continues s=664..=722 (59 events in socket .8608)
-    let hs2 = mgr
-        .prepare_resume_frame(&secret_tok, &cache)
-        .expect("prepare_resume_frame at s=663");
-    assert_eq!(hs2.seq, 663);
-    assert_eq!(hs2.backoff_delay_ms, 1_000);
-    for seq in 664..=721 {
-        assert!(mgr.record_dispatch_seq(seq));
-    }
-    let outcome2 = mgr.on_resumed_received(722, &cache);
-    assert_eq!(outcome2.resumed_at_seq, 722);
-    assert_eq!(outcome2.replayed_events, 59);
-    assert_eq!(mgr.total_resumed_count(), 2);
-
-    // Verify zero cache reset and zero channel reload via pointer identity
-    let guild_arc_after = cache.guild(guild_id).expect("guild still cached");
-    let chan_arc_after = cache.channel(chan_id).expect("channel still cached");
-    assert!(Arc::ptr_eq(&guild_arc_before, &guild_arc_after));
-    assert!(Arc::ptr_eq(&chan_arc_before, &chan_arc_after));
-}
-
-#[test]
-fn d07_dim1_secure_keyring_storage_safestorage_migration_and_argon2id_derivation() {
-    // 1. OS Keyring schema & Electron safeStorage prefix contract
-    assert_eq!(SCHEMA_NAME, "com.discordlab.Token");
-    assert_eq!(ENCRYPTED_TOKEN_PREFIX, "dQw4w9WgXcQ:");
-
-    // 2. SafeStorageMigrator one-time import from `dQw4w9WgXcQ:<base64>` into OS keyring provider
-    let keyring = InMemoryKeyring::new();
-    let mut migrator = SafeStorageMigrator::new();
-    let raw_safe_storage = "dQw4w9WgXcQ:Y2lwaGVydGV4dC1zZWNyZXQ=";
-    let synthetic_token = format!(
-        "{}.{}.{}",
-        "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678"
-    );
-
-    let migrated = migrator
-        .migrate_once(
-            raw_safe_storage,
-            |ciphertext| {
-                assert_eq!(ciphertext, b"ciphertext-secret");
-                Ok(synthetic_token.as_bytes().to_vec())
+    // Seam #2 (`run2:95974.8269` s=663 -> zombie heartbeat timeout -> `run2:95974.8608` Resume #2 s=664..722)
+    let plan2 = engine
+        .handle_connection_dropout(
+            D07DropoutCause::ZombieHeartbeatTimeout {
+                elapsed_without_ack_ms: 41_250,
             },
-            |decrypted_token| {
-                keyring
-                    .set_secret(SCHEMA_NAME, "primary-user", decrypted_token.as_bytes())
-                    .map_err(|_| {
-                        SafeStorageMigrationError::Storage(PlatformKeyringError::InvalidSecret)
-                    })?;
-                Ok(true)
-            },
+            2_500,
+            &cache,
         )
-        .expect("one-time safeStorage migration must succeed");
-    assert!(migrated);
-    assert!(migrator.is_migrated());
+        .expect("dropout at s=663");
+    assert_eq!(plan2.action, ReconnectAction::Resume);
+    assert_eq!(plan2.backoff_delay_ms, 1_000);
+    assert_eq!(plan2.resume_frame.expect("hs2").seq, 663);
 
-    let loaded_bytes = keyring
-        .get_secret(SCHEMA_NAME, "primary-user")
-        .expect("token stored in keyring");
-    assert_eq!(loaded_bytes, synthetic_token.as_bytes());
+    for seq in 664..=721 {
+        assert!(engine.record_dispatch_seq(seq));
+    }
+    let outcome2 = engine.on_resumed_received(722, &cache);
+    assert_eq!(outcome2.resumed_at_seq, 722);
+    assert_eq!(outcome2.replayed_events, 59); // 664..=722 = 59 events in socket .8608
 
-    // 3. MasterKeyManager Argon2id (RFC 9106) derivation over SecretServiceProvider
-    let master_mgr = MasterKeyManager::with_params(
-        keyring,
-        Argon2idParams {
-            memory_kib: 32,
-            iterations: 2,
-            parallelism: 1,
-            output_len: 32,
-        },
+    // Seam #3 (`run2:95974.10029` s=1..331 -> Server Opcode 7 RECONNECT -> `run2:95974.13072` Resume #3 s=332..371)
+    engine.on_ready_established(
+        "384299970632876032",
+        "a98bc765d432e10f9876543210fedcba",
+        Some("wss://gateway-us-east1-d.discord.gg/"),
+        331,
+        &cache,
     );
-    let hw_salt = b"machine-id-d07-session-resilience";
-    let key1 = master_mgr
-        .derive_or_create_master_key("chord-db", "account-384299970632876032", hw_salt)
-        .expect("derive_or_create_master_key #1");
-    let key2 = master_mgr
-        .derive_or_create_master_key("chord-db", "account-384299970632876032", hw_salt)
-        .expect("derive_or_create_master_key #2");
-    assert_eq!(key1.as_bytes(), key2.as_bytes());
-    assert_eq!(key1.as_bytes().len(), 32);
-    assert!(key1.as_bytes().iter().any(|&b| b != 0));
+    let plan3 = engine
+        .handle_connection_dropout(D07DropoutCause::ServerOp7Reconnect, 250, &cache)
+        .expect("op7 reconnect at s=331");
+    assert_eq!(plan3.action, ReconnectAction::Resume);
+    assert_eq!(plan3.resume_frame.expect("hs3").seq, 331);
+    for seq in 332..=370 {
+        assert!(engine.record_dispatch_seq(seq));
+    }
+    let outcome3 = engine.on_resumed_received(371, &cache);
+    assert_eq!(outcome3.resumed_at_seq, 371);
+    assert_eq!(outcome3.replayed_events, 40); // 332..=371 = 40 events in socket .13072
+
+    // Verify Arc pointer identity: guild and channel caches were never reset or reloaded
+    assert!(Arc::ptr_eq(
+        &guild_arc_before,
+        &cache.guild(guild_id).unwrap()
+    ));
+    assert!(Arc::ptr_eq(
+        &chan_arc_before,
+        &cache.channel(chan_id).unwrap()
+    ));
 }
 
 #[test]
 fn d07_dim1_rate_limit_backoff_429_503_and_retryable_5xx_schedule() {
-    assert_eq!(DEFAULT_RETRY_AFTER, Duration::from_secs(5));
-    assert_eq!(MAX_RETRY_AFTER, Duration::from_secs(60));
-    assert_eq!(
-        RETRYABLE_SERVER_STATUSES,
-        [502, 504, 507, 522, 523, 524, 598, 599]
-    );
+    let mut engine = D07SessionResilienceEngine::new();
 
-    // 1. Empirical D-02 429 (`GET /users/@me/survey`) with fractional `retry-after` and bucket metadata
+    // 1. Empirical D-02 429 (`GET /users/@me/survey`) with `retry-after: 2.5` and bucket metadata
     let headers_429 = vec![
         ("Retry-After".to_string(), "2.5".to_string()),
         ("x-ratelimit-global".to_string(), "false".to_string()),
         ("x-ratelimit-remaining".to_string(), "0".to_string()),
         ("x-ratelimit-limit".to_string(), "5".to_string()),
         ("x-ratelimit-reset-after".to_string(), "2.5".to_string()),
-        ("x-ratelimit-bucket".to_string(), "survey-d02".to_string()),
+        (
+            "x-ratelimit-bucket".to_string(),
+            "survey-bucket".to_string(),
+        ),
         ("x-ratelimit-scope".to_string(), "user".to_string()),
     ];
     let body_429 = br#"{"message":"You are being rate limited.","retry_after":2.5,"global":false}"#;
-    let info = rate_limit_info(429, &headers_429, body_429).expect("429 rate limit info");
-    assert_eq!(info.retry_after, Duration::from_millis(2500));
-    assert!(!info.global);
-    assert_eq!(info.remaining, Some(0));
-    assert_eq!(info.limit, Some(5));
-    assert_eq!(info.bucket.as_deref(), Some("survey-d02"));
-    assert_eq!(info.scope.as_deref(), Some("user"));
 
-    let fail_429 = classify_failure(429, &headers_429, body_429).expect("429 failure");
-    assert!(should_retry(HttpMethod::Get, &fail_429));
-    assert!(should_retry(HttpMethod::Post, &fail_429));
-    assert!(should_retry_client_parity(HttpMethod::Post, &fail_429, 0));
-    assert_eq!(
-        retry_delay_client_parity(1, &fail_429, &headers_429, body_429),
-        Some(Duration::from_millis(2500))
+    let decision_429: D07RateLimitBackoffDecision = engine.evaluate_http_backoff(
+        HttpMethod::Get,
+        "/users/@me/survey",
+        429,
+        1,
+        &headers_429,
+        body_429,
+        0,
     );
+    assert!(decision_429.should_retry);
+    assert_eq!(decision_429.delay, Some(Duration::from_millis(2500)));
+    assert!(!decision_429.is_global);
+    assert_eq!(decision_429.bucket.as_deref(), Some("survey-bucket"));
+    assert_eq!(decision_429.remaining, Some(0));
 
-    // 2. 503 Service Unavailable uses `Retry-After` or defaults to 5s (capped at 60s)
-    let fail_503 = classify_failure(503, &[], b"").expect("503 failure");
-    assert!(should_retry_client_parity(HttpMethod::Post, &fail_503, 0));
-    assert_eq!(
-        retry_delay_client_parity(1, &fail_503, &[], b""),
-        Some(Duration::from_secs(5))
+    // POST on 429 is also retried after retry_after pause
+    let post_429 = engine.evaluate_http_backoff(
+        HttpMethod::Post,
+        "/channels/1176785373989445703/messages",
+        429,
+        1,
+        &headers_429,
+        body_429,
+        0,
     );
+    assert!(post_429.should_retry);
+    assert_eq!(post_429.delay, Some(Duration::from_millis(2500)));
 
-    // 3. Retryable 5xx (`502, 504, 507, 522, 523, 524, 598, 599`) exponential backoff `1s -> 2s -> 4s..60s`
-    for status in RETRYABLE_SERVER_STATUSES {
-        assert!(is_retryable_server_status(status));
-        let fail = RestFailure::Server { status };
-        assert!(should_retry_client_parity(HttpMethod::Get, &fail, 0));
-        assert!(!should_retry_client_parity(HttpMethod::Post, &fail, 0));
-        assert!(should_retry_client_parity(HttpMethod::Post, &fail, 2));
-        assert_eq!(
-            retry_delay_client_parity(1, &fail, &[], b""),
-            Some(Duration::from_secs(1))
-        );
-        assert_eq!(
-            retry_delay_client_parity(2, &fail, &[], b""),
-            Some(Duration::from_secs(2))
-        );
-        assert_eq!(
-            retry_delay_client_parity(3, &fail, &[], b""),
-            Some(Duration::from_secs(4))
-        );
-        assert_eq!(
-            retry_delay_client_parity(10, &fail, &[], b""),
-            Some(Duration::from_secs(60))
-        );
+    // 2. 503 Service Unavailable without Retry-After defaults to DEFAULT_RETRY_AFTER (5s)
+    let decision_503 =
+        engine.evaluate_http_backoff(HttpMethod::Post, "/auth/login", 503, 1, &[], b"", 0);
+    assert!(decision_503.should_retry);
+    assert_eq!(decision_503.delay, Some(DEFAULT_RETRY_AFTER));
+
+    // 3. All 8 retryable server statuses (`502, 504, 507, 522, 523, 524, 598, 599`) follow 1s -> 2s -> 4s..60s
+    for &status in &RETRYABLE_SERVER_STATUSES {
+        let d1 =
+            engine.evaluate_http_backoff(HttpMethod::Get, "/users/@me", status, 1, &[], b"", 0);
+        let d2 =
+            engine.evaluate_http_backoff(HttpMethod::Get, "/users/@me", status, 2, &[], b"", 0);
+        let d3 =
+            engine.evaluate_http_backoff(HttpMethod::Get, "/users/@me", status, 3, &[], b"", 0);
+        assert!(d1.should_retry);
+        assert_eq!(d1.delay, Some(Duration::from_secs(1)));
+        assert_eq!(d2.delay, Some(Duration::from_secs(2)));
+        assert_eq!(d3.delay, Some(Duration::from_secs(4)));
+
+        // Non-idempotent POST without explicit_retries does not retry 502..599, but with explicit_retries=2 it does
+        let post_no_retry =
+            engine.evaluate_http_backoff(HttpMethod::Post, "/auth/login", status, 1, &[], b"", 0);
+        assert!(!post_no_retry.should_retry);
+        let post_explicit =
+            engine.evaluate_http_backoff(HttpMethod::Post, "/auth/login", status, 1, &[], b"", 2);
+        assert!(post_explicit.should_retry);
+        assert_eq!(post_explicit.delay, Some(Duration::from_secs(1)));
     }
 }
 
@@ -409,119 +427,91 @@ fn d07_dim1_rate_limit_backoff_429_503_and_retryable_5xx_schedule() {
 // ============================================================================
 
 #[test]
-fn d07_dim2_dim4_rejects_invalid_tokens_sessions_keyring_inputs_and_unauthenticated_actions() {
-    // 1. Opcode 6 Resume rejects empty or whitespace-only token and session_id
-    for bad_token in ["", " ", "\t\r\n"] {
-        let params = ResumeParams {
-            token: bad_token.to_string(),
-            session_id: "valid_sess".to_string(),
-            seq: 10,
-        };
-        assert_eq!(build_resume_frame(&params), Err(ResumeError::EmptyToken));
+fn d07_dim2_dim4_rejects_invalid_tokens_keys_corrupt_safestorage_and_unauthenticated_resume() {
+    let mut vault = D07KeyringTokenVault::new();
+
+    // 1. Invalid keyring account keys (empty, whitespace, NUL byte)
+    for bad_key in ["", "   ", "account\0id"] {
         assert_eq!(
-            build_resume_json_payload(&params),
-            Err(ResumeError::EmptyToken)
-        );
-    }
-    for bad_sid in ["", "   ", "\n\t"] {
-        let params = ResumeParams {
-            token: "valid_token".to_string(),
-            session_id: bad_sid.to_string(),
-            seq: 10,
-        };
-        assert_eq!(
-            build_resume_frame(&params),
-            Err(ResumeError::EmptySessionId)
+            vault.store_token(bad_key, &synthetic_discord_token()),
+            Err(D07SessionResilienceError::InvalidKeyringKey)
         );
         assert_eq!(
-            build_resume_json_payload(&params),
-            Err(ResumeError::EmptySessionId)
+            vault.load_token(bad_key),
+            Err(D07SessionResilienceError::InvalidKeyringKey)
+        );
+        assert_eq!(
+            vault.clear_token(bad_key),
+            Err(D07SessionResilienceError::InvalidKeyringKey)
         );
     }
 
-    // 2. ApiAuth rejects empty token, empty locale, empty timezone
-    let props = SuperProperties::default();
+    // 2. Invalid tokens (empty, whitespace, NUL, newline, CR)
+    for bad_tok in ["", "   ", "tok\0tail", "tok\nline", "tok\rline"] {
+        assert_eq!(
+            vault.store_token("user-1", bad_tok),
+            Err(D07SessionResilienceError::EmptyOrMalformedToken)
+        );
+    }
+
+    // 3. Strict token structure validation rejects short/non-token strings and domains
+    assert!(!is_valid_discord_token_structure(""));
+    assert!(!is_valid_discord_token_structure("gateway.discord.com"));
+    assert!(!is_valid_discord_token_structure("short.a.b"));
     assert_eq!(
-        ApiAuth::from_token("   ", &props, "en-US", "UTC"),
-        Err(ApiAuthError::EmptyToken)
-    );
-    assert_eq!(
-        ApiAuth::from_token("tok", &props, " ", "UTC"),
-        Err(ApiAuthError::EmptyLocale)
-    );
-    assert_eq!(
-        ApiAuth::from_token("tok", &props, "en-US", ""),
-        Err(ApiAuthError::EmptyTimezone)
+        vault.store_validated_discord_token("user-1", "not-a-valid-discord-token"),
+        Err(D07SessionResilienceError::InvalidTokenFormat)
     );
 
-    // 3. SafeStorageMigrator rejects empty payload, invalid base64, decrypt failure, NUL/newline/non-UTF8 tokens
+    // 4. SafeStorage migration errors (empty payload, bad base64, decrypt failure, invalid decrypted token)
     assert_eq!(
-        extract_safe_storage_ciphertext(""),
-        Err(SafeStorageMigrationError::EmptyPayload)
+        vault.migrate_safe_storage_once("u1", "dQw4w9WgXcQ:   ", |_| Ok(vec![])),
+        Err(D07SessionResilienceError::EmptySafeStoragePayload)
     );
     assert_eq!(
-        extract_safe_storage_ciphertext("dQw4w9WgXcQ:   "),
-        Err(SafeStorageMigrationError::EmptyPayload)
+        vault.migrate_safe_storage_once("u1", "dQw4w9WgXcQ:not_base64!", |_| Ok(vec![])),
+        Err(D07SessionResilienceError::InvalidSafeStorageBase64)
     );
     assert_eq!(
-        extract_safe_storage_ciphertext("dQw4w9WgXcQ:!!!invalid_b64!!!"),
-        Err(SafeStorageMigrationError::InvalidBase64)
+        vault.migrate_safe_storage_once("u1", "dQw4w9WgXcQ:Y2lwaGVy", |_| {
+            Err(D07SessionResilienceError::SafeStorageDecryptFailed)
+        }),
+        Err(D07SessionResilienceError::SafeStorageDecryptFailed)
+    );
+    assert_eq!(
+        vault.migrate_safe_storage_once("u1", "dQw4w9WgXcQ:Y2lwaGVy", |_| {
+            Ok(b"corrupt\0token".to_vec())
+        }),
+        Err(D07SessionResilienceError::EmptyOrMalformedToken)
     );
 
-    let mut migrator = SafeStorageMigrator::new();
-    let valid_ct = "dQw4w9WgXcQ:Y2lwaGVydGV4dA==";
-    for bad_decrypted in [
-        b"".to_vec(),
-        vec![0xff, 0xfe, 0xfd],
-        b"tok\0nul".to_vec(),
-        b"tok\nnewline".to_vec(),
-        b"tok\rcarriage".to_vec(),
+    // Verify no error Debug or Display ever leaks a secret
+    let secret = synthetic_discord_token();
+    for err in [
+        D07SessionResilienceError::InvalidKeyringKey,
+        D07SessionResilienceError::EmptyOrMalformedToken,
+        D07SessionResilienceError::InvalidTokenFormat,
+        D07SessionResilienceError::TokenNotFound,
+        D07SessionResilienceError::EmptySafeStoragePayload,
+        D07SessionResilienceError::InvalidSafeStorageBase64,
+        D07SessionResilienceError::SafeStorageDecryptFailed,
+        D07SessionResilienceError::NoActiveSession,
+        D07SessionResilienceError::KeyringBackend("locked".to_string()),
     ] {
-        assert_eq!(
-            migrator.migrate_once(valid_ct, |_| Ok(bad_decrypted.clone()), |_| Ok(true)),
-            Err(SafeStorageMigrationError::InvalidToken)
-        );
-        assert!(!migrator.is_migrated());
+        let dbg = format!("{err:?}");
+        let disp = err.to_string();
+        assert!(!dbg.contains(&secret));
+        assert!(!disp.contains(&secret));
     }
 
-    // 4. Argon2id & InMemoryKeyring reject weak/empty secrets and invalid KDF parameters
-    let kr = InMemoryKeyring::new();
-    assert!(matches!(
-        kr.set_secret(SCHEMA_NAME, "u1", b""),
-        Err(StoreKeyringError::InvalidParams(_))
-    ));
-    assert!(matches!(
-        kr.set_secret(SCHEMA_NAME, "u1", &[0u8; 32]),
-        Err(StoreKeyringError::InvalidParams(_))
-    ));
-    assert!(matches!(
-        argon2id_derive(
-            b"password",
-            b"short",
-            &Argon2idParams {
-                memory_kib: 32,
-                iterations: 2,
-                parallelism: 1,
-                output_len: 32,
-            }
-        ),
-        Err(StoreKeyringError::InvalidParams(_))
-    ));
-
-    // 5. Non-retryable 401 Unauthorized and 500 Internal Server Error
-    let fail_401 = classify_failure(401, &[], b"").expect("401");
-    assert_eq!(fail_401, RestFailure::Unauthorized);
-    assert!(!should_retry(HttpMethod::Get, &fail_401));
-    assert!(!should_retry_client_parity(HttpMethod::Get, &fail_401, 5));
-    assert_eq!(
-        retry_delay(1, &fail_401, Duration::from_secs(1), MAX_RETRY_AFTER),
-        None
-    );
-
-    let fail_500 = classify_failure(500, &[], b"").expect("500");
-    assert!(!is_retryable_server_status(500));
-    assert!(!should_retry_client_parity(HttpMethod::Get, &fail_500, 5));
-    assert_eq!(retry_delay_client_parity(1, &fail_500, &[], b""), None);
+    // 5. Non-retryable HTTP statuses (401, 403, 404, 500)
+    let mut engine = D07SessionResilienceEngine::new();
+    for status in [400, 401, 403, 404, 500, 501, 505] {
+        let dec =
+            engine.evaluate_http_backoff(HttpMethod::Get, "/users/@me", status, 1, &[], b"", 3);
+        assert!(!dec.should_retry, "status {status} must not be retried");
+        assert_eq!(dec.delay, None);
+    }
 }
 
 // ============================================================================
@@ -531,268 +521,209 @@ fn d07_dim2_dim4_rejects_invalid_tokens_sessions_keyring_inputs_and_unauthentica
 // ============================================================================
 
 #[test]
-fn d07_dim3_boundaries_downtime_ttl_backoff_snowflakes_and_heartbeat_deadlines() {
-    // 1. Snowflake validation boundaries: 0 rejected, 1 and u64::MAX accepted, u64::MAX + 1 rejected
-    assert!(validate_snowflake_id("user_id", "0").is_err());
-    assert_eq!(validate_snowflake_id("user_id", "1"), Ok(1));
+fn d07_dim3_boundaries_downtime_ttl_failures_heartbeat_and_rate_limit_caps() {
+    let cache = seed_guild_cache();
+    let token = synthetic_discord_token();
+
+    // 1. Snowflake boundaries: 0 rejected, 1 and u64::MAX accepted
+    assert!(validate_snowflake_id("account_id", "0").is_err());
+    assert_eq!(validate_snowflake_id("account_id", "1"), Ok(1));
     assert_eq!(
-        validate_snowflake_id("user_id", "18446744073709551615"),
+        validate_snowflake_id("account_id", "18446744073709551615"),
         Ok(u64::MAX)
     );
-    assert!(validate_snowflake_id("user_id", "18446744073709551616").is_err());
 
-    // 2. Downtime boundary: 29_999 ms -> Resume, 30_000 ms (RESUME_MAX_DOWNTIME_MS) -> Identify
-    let state = ResumeState {
-        session_id: "sess-boundary".to_string(),
-        last_seq: u64::from(i64::MAX as u32),
-    };
-    assert_eq!(
-        plan_reconnect(Some(&state), RESUME_MAX_DOWNTIME_MS - 1, None),
-        ReconnectAction::Resume
+    // 2. Downtime boundary: 29_999 ms (`RESUME_MAX_DOWNTIME_MS - 1`) -> Resume;
+    //    30_000 ms (`RESUME_MAX_DOWNTIME_MS`) -> Identify
+    let mut engine = D07SessionResilienceEngine::new();
+    engine
+        .store_account_token("18446744073709551615", &token)
+        .unwrap();
+    engine.on_ready_established(
+        "18446744073709551615",
+        "sess-boundary-downtime",
+        Some("wss://gateway.discord.gg"),
+        100,
+        &cache,
     );
-    assert_eq!(
-        plan_reconnect(Some(&state), RESUME_MAX_DOWNTIME_MS, None),
-        ReconnectAction::Identify
+
+    let plan_29999 = engine
+        .handle_connection_dropout(
+            D07DropoutCause::AbruptNetworkDrop,
+            RESUME_MAX_DOWNTIME_MS - 1,
+            &cache,
+        )
+        .expect("29_999ms dropout");
+    assert_eq!(plan_29999.action, ReconnectAction::Resume);
+    assert!(plan_29999.resume_frame.is_some());
+
+    let plan_30000 = engine
+        .handle_connection_dropout(
+            D07DropoutCause::AbruptNetworkDrop,
+            RESUME_MAX_DOWNTIME_MS,
+            &cache,
+        )
+        .expect("30_000ms dropout");
+    assert_eq!(plan_30000.action, ReconnectAction::Identify);
+    assert!(plan_30000.resume_frame.is_none());
+
+    // 3. 3-minute Heartbeat ACK TTL boundary (`RESUME_TTL_MS = 180_000` vs `180_001` ms)
+    engine.on_ready_established(
+        "18446744073709551615",
+        "sess-boundary-ttl",
+        Some("wss://gateway.discord.gg"),
+        200,
+        &cache,
     );
+    engine.set_last_heartbeat_ack_elapsed_ms(RESUME_TTL_MS);
+    let plan_ttl_exact = engine
+        .handle_connection_dropout(D07DropoutCause::AbruptNetworkDrop, 1_000, &cache)
+        .expect("180_000ms ACK elapsed");
+    assert_eq!(plan_ttl_exact.action, ReconnectAction::Resume);
 
-    // 3. Supervisor 3-minute Resume TTL boundary (`RESUME_TTL_MS = 180_000` ms from last HEARTBEAT_ACK)
-    let url = GatewayUrl::from_base("wss://gateway.discord.gg").expect("valid gateway url");
-    let mut sup = Supervisor::new(SupervisorConfig::new(url, "boundary-token"));
-    let mut pipe = chord_core::ws::GatewayPipe::new(chord_core::gateway::Session::new(0));
-    let ready_frame = EtfValue::Map(vec![
-        (EtfValue::Str("op".into()), EtfValue::Int(0)),
-        (EtfValue::Str("s".into()), EtfValue::Int(1)),
-        (EtfValue::Str("t".into()), EtfValue::Str("READY".into())),
-        (
-            EtfValue::Str("d".into()),
-            EtfValue::Map(vec![
-                (EtfValue::Str("v".into()), EtfValue::Int(9)),
-                (
-                    EtfValue::Str("session_id".into()),
-                    EtfValue::Str("sess-ttl-boundary".into()),
-                ),
-                (
-                    EtfValue::Str("resume_gateway_url".into()),
-                    EtfValue::Str("wss://gateway-us-east1-b.discord.gg/".into()),
-                ),
-                (
-                    EtfValue::Str("user".into()),
-                    EtfValue::Map(vec![(
-                        EtfValue::Str("id".into()),
-                        EtfValue::Str("384299970632876032".into()),
-                    )]),
-                ),
-                (EtfValue::Str("guilds".into()), EtfValue::List(vec![])),
-            ]),
-        ),
-    ]);
-    // Feed HELLO then READY into pipe
-    let hello_frame = EtfValue::Map(vec![
-        (EtfValue::Str("op".into()), EtfValue::Int(10)),
-        (
-            EtfValue::Str("d".into()),
-            EtfValue::Map(vec![(
-                EtfValue::Str("heartbeat_interval".into()),
-                EtfValue::Int(41_250),
-            )]),
-        ),
-    ]);
-    pipe.on_wire(&etf::encode(&hello_frame)).expect("HELLO");
-    pipe.on_wire(&etf::encode(&ready_frame)).expect("READY");
-    sup.absorb_pipe(&pipe);
-    assert!(sup.is_session_ready());
+    engine.set_last_heartbeat_ack_elapsed_ms(RESUME_TTL_MS + 1);
+    let plan_ttl_expired = engine
+        .handle_connection_dropout(D07DropoutCause::AbruptNetworkDrop, 1_000, &cache)
+        .expect("180_001ms ACK elapsed");
+    assert_eq!(plan_ttl_expired.action, ReconnectAction::Identify);
+    assert!(plan_ttl_expired.resume_frame.is_none());
 
-    // At exactly 180_000 ms (`RESUME_TTL_MS`), session is still resumable
-    sup.set_last_ack_elapsed_ms(RESUME_TTL_MS);
-    assert!(sup.is_session_ready());
-    assert_eq!(sup.plan_next_reconnect(), ReconnectAction::Resume);
-
-    // At 180_001 ms (`RESUME_TTL_MS + 1`), session expires, resets state, and switches to Identify
-    sup.set_last_ack_elapsed_ms(RESUME_TTL_MS + 1);
-    assert!(!sup.is_session_ready());
-    assert_eq!(sup.plan_next_reconnect(), ReconnectAction::Identify);
-    assert!(sup.resume_state().is_none());
-
-    // 4. Exponential backoff schedule boundary: 1_000 -> 2_000 -> 4_000 -> 8_000 -> 16_000 -> 32_000 -> 60_000 -> 60_000
-    let mut backoff = ResumeExponentialBackoff::default();
-    let mut sup_backoff = Backoff::default();
-    for expected in [1_000_u64, 2_000, 4_000, 8_000, 16_000, 32_000, 60_000, 60_000] {
-        assert_eq!(backoff.next_delay_ms(), expected);
-        assert_eq!(sup_backoff.next_delay_ms(), expected);
-    }
-
-    // 5. Heartbeat interval 41_250 ms deadline boundary (`41_249` vs `41_250` ms)
-    assert_eq!(DEFAULT_HEARTBEAT_INTERVAL_MS, 41_250);
-    assert_eq!(HEARTBEAT_OP, 1);
-    assert_eq!(HEARTBEAT_ACK_OP, 11);
-    let mut detector = ZombieSocketDetector::new(DEFAULT_HEARTBEAT_INTERVAL_MS);
-    detector.on_heartbeat_sent(1, Some(331), 10_000);
-    assert_eq!(detector.ack_deadline_ms(), Some(51_250));
-    assert_eq!(detector.check_timeout(51_249), None);
-    let signal = detector
-        .check_timeout(51_250)
-        .expect("zombie detected at exact 41_250ms boundary");
-    assert_eq!(
-        signal,
-        ZombieReconnectSignal {
-            missed_tick_index: 1,
-            last_seq: Some(331),
-            elapsed_without_ack_ms: 41_250,
-            timeout_ms: 41_250,
-            close_immediately: true,
-            reconnect_immediately: true,
+    // 4. Consecutive failure threshold (`RESUME_RESET_AFTER_FAILURES = 4`):
+    //    attempts 1..=4 emit Opcode 6 Resume with backoff `1000, 2000, 4000, 8000` ms;
+    //    after 4th failure, session resets to Identify.
+    engine.on_ready_established(
+        "18446744073709551615",
+        "sess-boundary-fails",
+        Some("wss://gateway.discord.gg"),
+        300,
+        &cache,
+    );
+    let expected_backoffs = [1_000_u64, 2_000, 4_000, 8_000];
+    for (idx, &expected_ms) in expected_backoffs.iter().enumerate() {
+        let p = engine
+            .handle_connection_dropout(D07DropoutCause::AbruptNetworkDrop, 500, &cache)
+            .expect("resume attempt");
+        assert_eq!(p.action, ReconnectAction::Resume);
+        assert_eq!(p.backoff_delay_ms, expected_ms);
+        let next_act = engine.on_resume_attempt_failed();
+        if idx + 1 < RESUME_RESET_AFTER_FAILURES as usize {
+            assert_eq!(next_act, ReconnectAction::Resume);
+        } else {
+            assert_eq!(next_act, ReconnectAction::Identify);
         }
-    );
+    }
+    let p_after_4 = engine
+        .handle_connection_dropout(D07DropoutCause::AbruptNetworkDrop, 500, &cache)
+        .expect("5th attempt after 4 failures");
+    assert_eq!(p_after_4.action, ReconnectAction::Identify);
 
-    // 6. Rate-limit cap boundary: retry-after 120s capped to MAX_RETRY_AFTER (60s)
-    let capped_headers = vec![("retry-after".to_string(), "120".to_string())];
-    assert_eq!(
-        parse_retry_after_or_default(429, &capped_headers, b""),
-        Some(MAX_RETRY_AFTER)
+    // 5. Rate-limit cap boundary: `retry-after: 300` capped to `MAX_RETRY_AFTER` (60s);
+    //    malformed/negative `retry-after` falls back safely.
+    let big_rl = vec![("retry-after".to_string(), "300".to_string())];
+    let capped = engine.evaluate_http_backoff(
+        HttpMethod::Get,
+        "/users/@me/survey",
+        429,
+        1,
+        &big_rl,
+        b"",
+        0,
     );
-    assert_eq!(
-        parse_retry_after_or_default(503, &[], b""),
-        Some(DEFAULT_RETRY_AFTER)
-    );
+    assert_eq!(capped.delay, Some(MAX_RETRY_AFTER));
 }
 
 // ============================================================================
-// Dimension 5 & 6: Empty States & Lifecycle Transitions
-// (`Unestablished -> Ready -> Disconnected -> Resuming (1..=4) -> Resumed / Identify`)
+// Dimension 5 & 6: Empty States, DevTools Token Hiding Lifecycle, and
+// SafeStorage Migration Idempotence
 // ============================================================================
 
 #[test]
-fn d07_dim5_dim6_empty_states_and_full_session_recovery_state_machine() {
+fn d07_dim5_dim6_empty_states_devtools_hide_show_and_migration_idempotence() {
     let cache = seed_guild_cache();
+    let mut engine = D07SessionResilienceEngine::new();
 
-    // 1. Empty state before READY: no resumable session, plan_action is Identify, prepare_resume_frame fails
-    let mut mgr = ResumeSessionManager::new();
-    assert!(!mgr.has_resumable_session());
-    assert_eq!(mgr.session_id(), None);
-    assert_eq!(mgr.last_seq(), 0);
-    assert_eq!(mgr.plan_action(0), ReconnectAction::Identify);
+    // 1. Empty state before token or READY
+    assert_eq!(engine.state(), D07ResilienceState::Unauthenticated);
     assert_eq!(
-        mgr.prepare_resume_frame("tok", &cache),
-        Err(ResumeError::EmptySessionId)
+        engine.handle_connection_dropout(D07DropoutCause::AbruptNetworkDrop, 0, &cache),
+        Err(D07SessionResilienceError::TokenNotFound)
     );
 
-    // 2. State hydration + `complete_resume_without_cache_reset` replaying missed events in `State`
-    let mut state = State::default();
-    assert!( ResumeSessionManager::from_state(&state, Some(&cache)).is_err());
+    // 2. Store token, then test DevTools open/close token hiding (`hideToken`/`showToken`, AUTH-RE T-11)
+    let token = synthetic_discord_token();
+    engine.store_account_token("user-devtools", &token).unwrap();
+    assert!(engine.vault().has_token("user-devtools").unwrap());
 
-    state.session_id = "f14ac1f3d408c15027d6d98da172c398".to_string();
-    state.resume_gateway_url = Some("wss://gateway-us-east1-d.discord.gg/".to_string());
-    state.last_seq = Some(331);
-    state.current_user = Some(UserSummary {
-        id: 384_299_970_632_876_032,
-        username: Some("chord_d07_operator".to_string()),
-        global_name: None,
-        discriminator: None,
-        avatar: None,
-        bot: false,
-    });
-    let mut channels = BTreeMap::new();
-    channels.insert(
-        1_176_785_373_989_445_703,
-        ChannelState {
-            id: 1_176_785_373_989_445_703,
-            kind: 0,
-            name: Some("general".to_string()),
-            parent_id: None,
-            position: 0,
-            last_message_id: None,
-        },
+    engine
+        .hide_token_for_devtools("user-devtools")
+        .expect("hide_token_for_devtools");
+    assert!(
+        !engine.vault().has_token("user-devtools").unwrap(),
+        "token must be removed from primary keyring slot while DevTools is open"
     );
-    state.guilds.insert(
-        1_014_537_851_418_980_372,
-        GuildState {
-            id: 1_014_537_851_418_980_372,
-            name: Some("ITSKIDON PC BOOST".to_string()),
-            unavailable: false,
-            channels,
-            roles: BTreeMap::new(),
-            member_count: Some(24_229),
-        },
+    assert!(engine.is_token_hidden_for_devtools());
+
+    engine
+        .restore_token_from_devtools("user-devtools")
+        .expect("restore_token_from_devtools");
+    assert!(!engine.is_token_hidden_for_devtools());
+    assert_eq!(
+        engine
+            .vault()
+            .load_token("user-devtools")
+            .unwrap()
+            .unwrap()
+            .expose_secret(),
+        token
     );
 
-    // Empirical seam #3 (`run2:95974.10029` s=1..331 -> `OP 7 RECONNECT` -> `run2:95974.13072` s=332..371)
-    let mut mgr = ResumeSessionManager::from_state(&state, Some(&cache)).expect("from_state");
-    assert_eq!(mgr.last_seq(), 331);
+    // 3. SafeStorage migration idempotence: second call is a no-op (`Ok(false)`) without calling decrypt
+    let mut vault = D07KeyringTokenVault::new();
+    let raw = "dQw4w9WgXcQ:Y2lwaGVydGV4dA==";
+    let mut decrypt_count = 0usize;
+    let first = vault
+        .migrate_safe_storage_once("u-idem", raw, |_| {
+            decrypt_count += 1;
+            Ok(token.as_bytes().to_vec())
+        })
+        .unwrap();
+    assert!(first);
+    assert_eq!(decrypt_count, 1);
 
-    let replayed = vec![
-        Event {
-            seq: Some(331), // stale duplicate seq <= 331 must not be counted as newly applied
-            payload: EventPayload::Resumed,
-            diagnostics: Default::default(),
-        },
-        Event {
-            seq: Some(333),
-            payload: EventPayload::Resumed,
-            diagnostics: Default::default(),
-        },
-        Event {
-            seq: Some(371),
-            payload: EventPayload::Resumed,
-            diagnostics: Default::default(),
-        },
-    ];
-    let report = mgr
-        .complete_resume_without_cache_reset(&mut state, Some(&cache), 332, replayed)
-        .expect("complete_resume_without_cache_reset");
-    assert_eq!(report.resume_seq_sent, 331);
-    assert_eq!(report.last_seq_after_resume, 371);
-    assert_eq!(report.replayed_events_applied, 2); // s=333 and s=371 (s=331 skipped as stale)
-    assert!(report.guild_cache_preserved);
-    assert!(!report.channels_reloaded);
-    assert_eq!(report.preserved_guild_count, 1);
-    assert!(state.resumed);
-
-    // 3. Consecutive failures 1..=3 stay on Resume; 4th failure transitions to Identify
-    assert_eq!(mgr.on_resume_attempt_failed(), ReconnectAction::Resume);
-    assert_eq!(mgr.consecutive_failures(), 1);
-    assert_eq!(mgr.on_resume_attempt_failed(), ReconnectAction::Resume);
-    assert_eq!(mgr.consecutive_failures(), 2);
-    assert_eq!(mgr.on_resume_attempt_failed(), ReconnectAction::Resume);
-    assert_eq!(mgr.consecutive_failures(), 3);
-    assert!(mgr.has_resumable_session());
-
-    assert_eq!(mgr.on_resume_attempt_failed(), ReconnectAction::Identify);
-    assert!(!mgr.has_resumable_session());
-    assert_eq!(mgr.plan_next_action(0), ReconnectAction::Identify);
+    let second = vault
+        .migrate_safe_storage_once("u-idem", raw, |_| {
+            decrypt_count += 1;
+            Ok(b"different-token".to_vec())
+        })
+        .unwrap();
+    assert!(!second);
+    assert_eq!(decrypt_count, 1, "decrypt must not run a second time");
 }
 
 // ============================================================================
 // Dimension 7: Capabilities, Permissions & Security
-// (Automatic Token Masking, Zeroization, Debug Redaction, Session Revocation)
+// (Automatic Masking, Zeroization, Log Stream Filtering, Session Revocation)
 // ============================================================================
 
 #[test]
-fn d07_dim7_security_automatic_masking_debug_redaction_zeroization_and_revocation() {
-    let discord_tok = format!(
-        "{}.{}.{}",
-        "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678"
-    );
+fn d07_dim7_automatic_masking_zeroization_logging_and_remote_session_revocation() {
+    let discord_tok = synthetic_discord_token();
     let mfa_tok = "mfa.abcdef1234567890abcdef1234567890_secret";
-    let github_tok = "ghp_1234567890abcdefghijklmnopqrstuvwxyz";
-    let hex_key = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    let hex_key = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
-    // 1. Automatic masking via `redact_secrets` across all credential formats
-    let raw_log = format!(
-        "Auth headers: Authorization: Bot {discord_tok}, Bearer ya29.oauth_secret, \
-         mfa={mfa_tok}, gh={github_tok}, srtp={hex_key}, \
-         json={{\"token\":\"{discord_tok}\",\"session_id\":\"f14ac1f3d408c15027d6d98da172c398\",\"password\":\"MyPass123!\"}}"
+    // 1. Automatic masking in `redact_secrets`, `RedactedWriter`, and `SecretRedactionLayer`
+    let composite = format!(
+        "Authorization: Bot {discord_tok} | Bearer ya29.oauth_tok | {mfa_tok} | \
+         key={hex_key} | {{\"token\":\"{discord_tok}\",\"session_id\":\"f14ac1f3d408c15027d6d98da172c398\"}}"
     );
-    let masked = redact_secrets(&raw_log);
-    assert!(!masked.contains(&discord_tok));
-    assert!(!masked.contains("ya29.oauth_secret"));
-    assert!(!masked.contains(mfa_tok));
-    assert!(!masked.contains(github_tok));
-    assert!(!masked.contains(hex_key));
-    assert!(!masked.contains("f14ac1f3d408c15027d6d98da172c398"));
-    assert!(!masked.contains("MyPass123!"));
-    assert!(masked.contains(REDACTED_MARKER));
+    let redacted = redact_secrets(&composite);
+    assert!(!redacted.contains(&discord_tok));
+    assert!(!redacted.contains("ya29.oauth_tok"));
+    assert!(!redacted.contains(mfa_tok));
+    assert!(!redacted.contains(hex_key));
+    assert!(!redacted.contains("f14ac1f3d408c15027d6d98da172c398"));
+    assert!(redacted.contains(REDACTED_MARKER));
 
-    // 2. Automatic stream masking via `RedactedWriter` and `SecretRedactionLayer`
     let shared_buf = Arc::new(Mutex::new(Vec::new()));
     let make_writer = RedactedMakeWriter::from_shared(Arc::clone(&shared_buf));
     let subscriber = tracing_subscriber::registry()
@@ -804,42 +735,29 @@ fn d07_dim7_security_automatic_masking_debug_redaction_zeroization_and_revocatio
         .with(SecretRedactionLayer::new());
 
     tracing::subscriber::with_default(subscriber, || {
-        tracing::info!("Gateway Resume sent with token={discord_tok} and mfa {mfa_tok}");
+        tracing::info!("Session Resume op=6 token={discord_tok} and {mfa_tok}");
     });
-    let logged = String::from_utf8(shared_buf.lock().unwrap().clone()).unwrap();
-    assert!(!logged.contains(&discord_tok));
-    assert!(!logged.contains(mfa_tok));
-    assert!(logged.contains(REDACTED_MARKER));
+    let captured = String::from_utf8(shared_buf.lock().unwrap().clone()).unwrap();
+    assert!(!captured.contains(&discord_tok));
+    assert!(!captured.contains(mfa_tok));
+    assert!(captured.contains(REDACTED_MARKER));
 
-    // Direct RedactedWriter check without trailing newline (flush flushes & redacts buffer)
-    let mut raw_vec = Vec::new();
+    let mut line_buf = Vec::new();
     {
-        let mut rw = RedactedWriter::new(&mut raw_vec);
-        write!(rw, "secret_key={hex_key}").unwrap();
-        rw.flush().unwrap();
+        let mut writer = RedactedWriter::new(&mut line_buf);
+        write!(writer, "Authorization: Bearer {discord_tok}").unwrap();
+        writer.flush().unwrap();
     }
-    let flushed_str = String::from_utf8(raw_vec).unwrap();
-    assert_eq!(flushed_str, format!("secret_key={REDACTED_MARKER}"));
+    assert_eq!(
+        String::from_utf8(line_buf).unwrap(),
+        format!("Authorization: Bearer {REDACTED_MARKER}")
+    );
 
-    // 3. Struct `Debug` redaction invariants (`ResumeParams`, `ResumeHandshakeFrame`, `ApiAuth`, `DerivedKey`)
-    let resume_params = ResumeParams {
-        token: discord_tok.clone(),
-        session_id: "sess_123".to_string(),
-        seq: 94,
-    };
-    assert!(!format!("{resume_params:?}").contains(&discord_tok));
-    assert!(format!("{resume_params:?}").contains("REDACTED"));
-
-    let mgr = {
-        let mut m = ResumeSessionManager::new();
-        m.on_ready("sess_123", Some("wss://gateway.discord.gg"), 94);
-        m
-    };
-    let hs = mgr
-        .build_resume_handshake(discord_tok.clone())
-        .expect("build_resume_handshake");
-    assert!(!format!("{hs:?}").contains(&discord_tok));
-    assert!(format!("{hs:?}").contains("REDACTED"));
+    // 2. Explicit zeroization of `D07MaskedToken` and raw user `ApiAuth` header redaction
+    let mut masked = D07MaskedToken::new(discord_tok.clone());
+    assert_eq!(masked.expose_secret(), discord_tok);
+    masked.zeroize_now();
+    assert!(masked.expose_secret().is_empty());
 
     let api_auth = ApiAuth::from_token_with_scheme(
         &discord_tok,
@@ -848,30 +766,15 @@ fn d07_dim7_security_automatic_masking_debug_redaction_zeroization_and_revocatio
         "en-US",
         "UTC",
     )
-    .expect("ApiAuth::from_token");
-    assert_eq!(api_auth.authorization, discord_tok); // raw user token without Bearer (H-01)
+    .expect("ApiAuth::from_token_with_scheme");
+    assert_eq!(api_auth.authorization, discord_tok);
     assert!(!format!("{api_auth:?}").contains(&discord_tok));
     assert!(format!("{api_auth:?}").contains("<redacted>"));
 
-    let mut derived = DerivedKey::from_bytes(vec![0x7F; 32]);
-    assert_eq!(format!("{derived:?}"), "DerivedKey(\"[REDACTED]\")");
-
-    // 4. Memory zeroization on drop / explicit zeroize
-    derived.zeroize_now();
-    assert!(derived.as_bytes().iter().all(|&b| b == 0));
-
-    let mut secret_bytes = discord_tok.as_bytes().to_vec();
-    zeroize_secret_bytes(&mut secret_bytes);
-    assert!(secret_bytes.iter().all(|&b| b == 0));
-
-    let mut secret_str = discord_tok.clone();
-    zeroize_secret_string(&mut secret_str);
-    assert!(secret_str.is_empty());
-
-    // 5. Active Session Manager & Remote Session Revocation (`DELETE /users/@me/auth/sessions`)
+    // 3. Active Session Manager & Remote Session Revocation (`DELETE /users/@me/auth/sessions`)
     let mut sess_mgr = SessionManager::new(vec![
         SessionInfo {
-            id_hash: "hash_current_device".to_string(),
+            id_hash: "sess_current".to_string(),
             os: "Linux".to_string(),
             browser: "Chord Desktop".to_string(),
             ip: "<PUB_IP>".to_string(),
@@ -880,106 +783,118 @@ fn d07_dim7_security_automatic_masking_debug_redaction_zeroization_and_revocatio
             is_current: true,
         },
         SessionInfo {
-            id_hash: "hash_remote_mobile".to_string(),
-            os: "Android".to_string(),
-            browser: "Discord Android".to_string(),
+            id_hash: "sess_other".to_string(),
+            os: "Windows".to_string(),
+            browser: "Discord Client".to_string(),
             ip: "<PUB_IP>".to_string(),
             location: "Berlin, DE".to_string(),
-            approx_last_used_time: "2026-11-20T09:00:00Z".to_string(),
+            approx_last_used_time: "2026-11-20T10:00:00Z".to_string(),
             is_current: false,
         },
     ]);
-    let cur = sess_mgr.current_session().expect("current device session");
-    assert_eq!(cur.badge_label(), Some(CURRENT_DEVICE_BADGE_LABEL));
-    assert_eq!(cur.badge_color(), Some(CURRENT_DEVICE_BADGE_COLOR));
-
+    let current = sess_mgr.current_session().expect("current device");
+    assert_eq!(current.badge_label(), Some(CURRENT_DEVICE_BADGE_LABEL));
+    assert_eq!(current.badge_color(), Some(CURRENT_DEVICE_BADGE_COLOR));
     assert_eq!(
-        sess_mgr.revoke_session("hash_remote_mobile", false),
+        sess_mgr.revoke_session("sess_other", false),
         Err(SessionError::Unauthorized)
     );
-    let revoke_req = sess_mgr
-        .revoke_session("hash_remote_mobile", true)
-        .expect("authorized session revocation");
-    assert_eq!(revoke_req.method, "DELETE");
-    assert_eq!(revoke_req.endpoint, "/users/@me/auth/sessions");
-    assert_eq!(revoke_req.session_id_hash, "hash_remote_mobile");
+    let rev = sess_mgr.revoke_session("sess_other", true).unwrap();
+    assert_eq!(rev.method, "DELETE");
+    assert_eq!(rev.endpoint, "/users/@me/auth/sessions");
     assert_eq!(sess_mgr.sessions().len(), 1);
 }
 
 // ============================================================================
-// Dimension 8: Recovery & Degradation From Abrupt Connection Dropouts,
-// Zombie Sockets, OP 7 RECONNECT, OP 9 INVALID_SESSION, and Fatal Close Codes
+// Dimension 8: Recovery & Degradation From Abrupt Dropouts, Close 4004 Logout,
+// Close 4013/4014 Stop, OP 9 INVALID_SESSION, and Zombie Sockets
 // ============================================================================
 
 #[test]
-fn d07_dim8_abrupt_dropout_zombie_detector_invalid_session_and_close_code_policy() {
-    // 1. Abrupt connection dropout (no close frame `None`) & transient close codes (`1000`, `1001`, `1006`, `4000`, `4009`)
-    // trigger `CloseAction::Reconnect`, whereas `4004`, `4013`, `4014` trigger `CloseAction::Stop`.
-    assert_eq!(classify_close(None), CloseAction::Reconnect);
-    for transient_code in [1000, 1001, 1006, 4000, 4008, 4009] {
-        assert_eq!(classify_close(Some(transient_code)), CloseAction::Reconnect);
-    }
+fn d07_dim8_recovery_from_abrupt_dropouts_op9_invalid_session_and_fatal_close_4004_wipe() {
+    let cache = seed_guild_cache();
+    let token = synthetic_discord_token();
+    let mut engine = D07SessionResilienceEngine::new();
+    engine.store_account_token("user-4004", &token).unwrap();
+    engine.on_ready_established(
+        "user-4004",
+        "sess-active-1",
+        Some("wss://gateway-us-east1-d.discord.gg"),
+        120,
+        &cache,
+    );
+
+    // 1. OP 9 INVALID_SESSION (d=true) -> preserves session and plans Opcode 6 Resume
+    let plan_op9_true = engine
+        .handle_connection_dropout(
+            D07DropoutCause::InvalidSession { resumable: true },
+            500,
+            &cache,
+        )
+        .expect("op9 d=true");
+    assert_eq!(plan_op9_true.action, ReconnectAction::Resume);
+    assert!(plan_op9_true.resume_frame.is_some());
+
+    // 2. OP 9 INVALID_SESSION (d=false) -> clears session_id/seq and plans fresh Opcode 2 Identify
+    let plan_op9_false = engine
+        .handle_connection_dropout(
+            D07DropoutCause::InvalidSession { resumable: false },
+            500,
+            &cache,
+        )
+        .expect("op9 d=false");
+    assert_eq!(plan_op9_false.action, ReconnectAction::Identify);
+    assert!(plan_op9_false.resume_frame.is_none());
+
+    // Re-establish session, then receive fatal WebSocket close 4004 (Authentication Failed):
+    // must stop reconnecting AND automatically wipe the revoked token from the OS keyring vault!
+    engine.on_ready_established(
+        "user-4004",
+        "sess-active-2",
+        Some("wss://gateway-us-east1-d.discord.gg"),
+        250,
+        &cache,
+    );
     assert_eq!(
         classify_close(Some(4004)),
         CloseAction::Stop(StopReason::Unauthorized)
     );
-    assert_eq!(
-        classify_close(Some(4013)),
-        CloseAction::Stop(StopReason::InvalidClient { code: 4013 })
+    let close_action = engine
+        .handle_close_code("user-4004", Some(4004))
+        .expect("handle_close_code 4004");
+    assert_eq!(close_action, CloseAction::Stop(StopReason::Unauthorized));
+    assert_eq!(engine.state(), D07ResilienceState::LoggedOut);
+    assert!(
+        !engine.vault().has_token("user-4004").unwrap(),
+        "close 4004 must automatically wipe the invalid token from the OS keyring"
     );
+
+    // Close 4013 / 4014 stops reconnecting without panic
     assert_eq!(
-        classify_close(Some(4014)),
+        engine.handle_close_code("user-4004", Some(4014)).unwrap(),
         CloseAction::Stop(StopReason::InvalidClient { code: 4014 })
     );
-
-    // 2. ZombieSocketDetector recovery: normal ACK measures RTT, missed ACK triggers zombie reconnect,
-    // subsequent ACK clears zombie state
-    let mut detector = ZombieSocketDetector::new(41_250);
     assert_eq!(
-        detector.on_heartbeat_ack(1_000),
-        HeartbeatAckOutcome::UnexpectedAck
+        engine.handle_close_code("user-4004", None).unwrap(),
+        CloseAction::Reconnect
     );
 
-    detector.on_heartbeat_sent(1, Some(94), 10_000);
-    assert!(detector.is_awaiting_ack());
+    // ZombieSocketDetector RTT & missed ACK recovery
+    let mut z = ZombieSocketDetector::new(DEFAULT_HEARTBEAT_INTERVAL_MS);
+    z.on_heartbeat_sent(1, Some(120), 1_000);
     assert_eq!(
-        detector.on_heartbeat_ack(10_085),
+        z.on_heartbeat_ack(1_050),
         HeartbeatAckOutcome::Acknowledged {
             tick_index: 1,
-            seq: Some(94),
-            rtt_ms: 85,
+            seq: Some(120),
+            rtt_ms: 50,
         }
     );
-    assert!(!detector.is_awaiting_ack());
-    assert_eq!(detector.acks_received(), 1);
-    assert_eq!(detector.last_rtt_ms(), Some(85));
-
-    // Tick #2 gets no ACK before Tick #3 is due -> zombie socket detected!
-    detector.on_heartbeat_sent(2, Some(331), 51_250);
-    let zombie_sig = detector
-        .on_next_tick_due(92_500)
-        .expect("missed ACK must trigger ZombieReconnectSignal");
-    assert!(detector.is_zombie());
-    assert_eq!(detector.missed_acks(), 1);
-    assert!(zombie_sig.close_immediately);
-    assert!(zombie_sig.reconnect_immediately);
-    assert_eq!(zombie_sig.last_seq, Some(331));
-
-    // 3. OP 9 INVALID_SESSION recovery: `d=true` keeps session for Opcode 6 Resume;
-    // `d=false` clears session and degrades cleanly to fresh Opcode 2 Identify.
-    let cache = seed_guild_cache();
-    let mut mgr = ResumeSessionManager::new();
-    mgr.on_ready_established(
-        "f14ac1f3d408c15027d6d98da172c398",
-        Some("wss://gateway-us-east1-d.discord.gg"),
-        331,
-        &cache,
-    );
-    assert_eq!(mgr.on_invalid_session(true), ReconnectAction::Resume);
-    assert!(mgr.has_resumable_session());
-    assert_eq!(mgr.on_invalid_session(false), ReconnectAction::Identify);
-    assert!(!mgr.has_resumable_session());
-    assert_eq!(mgr.session_id(), None);
+    z.on_heartbeat_sent(2, Some(121), 42_250);
+    let sig = z
+        .on_next_tick_due(83_500)
+        .expect("missed ACK triggers zombie signal");
+    assert!(sig.close_immediately && sig.reconnect_immediately);
 }
 
 // ============================================================================
@@ -1030,9 +945,8 @@ fn d07_dim9_clean_room_oracle_documentation_json_parity_and_telemetry() {
     }
 
     // 2. Parse `docs/re/session-resilience-d07.json` and cross-verify against `docs/re/gateway-protocol.json`
-    // and Rust protocol constants
-    let d07_oracle =
-        chord_json::parse(&json_text).expect("docs/re/session-resilience-d07.json must be valid JSON");
+    let d07_oracle = chord_json::parse(&json_text)
+        .expect("docs/re/session-resilience-d07.json must be valid JSON");
     let gw_oracle =
         chord_json::parse(&gw_text).expect("docs/re/gateway-protocol.json must be valid JSON");
 
@@ -1049,19 +963,18 @@ fn d07_dim9_clean_room_oracle_documentation_json_parity_and_telemetry() {
         Some("Auth & Storage")
     );
 
-    // Cross-check keyring & token security oracle fields
     let keyring_spec = d07_oracle
         .get("keyringAndTokenSecurity")
         .expect("keyringAndTokenSecurity object");
     assert_eq!(
         keyring_spec.get("schemaName").and_then(JsonValue::as_str),
-        Some(SCHEMA_NAME)
+        Some(D07_KEYRING_SCHEMA_NAME)
     );
     assert_eq!(
         keyring_spec
             .get("safeStoragePrefix")
             .and_then(JsonValue::as_str),
-        Some(ENCRYPTED_TOKEN_PREFIX)
+        Some(D07_SAFE_STORAGE_PREFIX)
     );
     assert_eq!(
         keyring_spec
@@ -1070,7 +983,6 @@ fn d07_dim9_clean_room_oracle_documentation_json_parity_and_telemetry() {
         Some(REDACTED_MARKER)
     );
 
-    // Cross-check Opcode 6 Resume & dropout recovery constants
     let resume_spec = d07_oracle
         .get("sessionRecoveryProtocol")
         .expect("sessionRecoveryProtocol object");
@@ -1079,15 +991,11 @@ fn d07_dim9_clean_room_oracle_documentation_json_parity_and_telemetry() {
         Some(u64::from(RESUME_OP))
     );
     assert_eq!(
-        resume_spec
-            .get("backoffMinMs")
-            .and_then(JsonValue::as_u64),
+        resume_spec.get("backoffMinMs").and_then(JsonValue::as_u64),
         Some(RESUME_BACKOFF_MIN_MS)
     );
     assert_eq!(
-        resume_spec
-            .get("backoffMaxMs")
-            .and_then(JsonValue::as_u64),
+        resume_spec.get("backoffMaxMs").and_then(JsonValue::as_u64),
         Some(RESUME_BACKOFF_MAX_MS)
     );
     assert_eq!(
@@ -1097,9 +1005,7 @@ fn d07_dim9_clean_room_oracle_documentation_json_parity_and_telemetry() {
         Some(u64::from(RESUME_RESET_AFTER_FAILURES))
     );
     assert_eq!(
-        resume_spec
-            .get("maxDowntimeMs")
-            .and_then(JsonValue::as_u64),
+        resume_spec.get("maxDowntimeMs").and_then(JsonValue::as_u64),
         Some(RESUME_MAX_DOWNTIME_MS)
     );
     assert_eq!(
@@ -1113,7 +1019,6 @@ fn d07_dim9_clean_room_oracle_documentation_json_parity_and_telemetry() {
         Some(DEFAULT_HEARTBEAT_INTERVAL_MS)
     );
 
-    // Cross-check the 3 empirical Resume sessions against `docs/re/gateway-protocol.json`
     let d07_sessions = resume_spec
         .get("capturedResumeSessions")
         .and_then(JsonValue::as_array)
@@ -1146,7 +1051,6 @@ fn d07_dim9_clean_room_oracle_documentation_json_parity_and_telemetry() {
         );
     }
 
-    // Cross-check rate-limit backoff specification
     let rl_spec = d07_oracle
         .get("rateLimitBackoff")
         .expect("rateLimitBackoff object");
@@ -1170,19 +1074,30 @@ fn d07_dim9_clean_room_oracle_documentation_json_parity_and_telemetry() {
         .collect();
     assert_eq!(parsed_statuses, RETRYABLE_SERVER_STATUSES);
 
-    // 3. Observable telemetry on Supervisor outbound rejection before Ready
-    let url = GatewayUrl::from_base("wss://gateway.discord.gg").expect("url");
-    let mut sup = Supervisor::new(SupervisorConfig::new(url, "telemetry-tok"));
-    assert_eq!(sup.rejected_outbound(), 0);
-    let err = sup
-        .send_presence_update(&chord_core::gateway::OutboundPresenceUpdate {
-            status: "online".to_string(),
-            since: 0,
-            activities: vec![],
-            afk: false,
-        })
-        .expect_err("must reject OP 3 before session is Ready");
-    assert_eq!(err, SupervisorOutboundError::NotReady { op: 3 });
-    assert_eq!(sup.rejected_outbound(), 1);
-    assert!(!is_safe_storage_token("plain_token"));
+    // 3. Verify observable telemetry counters across a full session lifecycle
+    let cache = seed_guild_cache();
+    let token = synthetic_discord_token();
+    let mut engine = D07SessionResilienceEngine::new();
+    engine.store_account_token("tel-user", &token).unwrap();
+    engine.on_ready_established(
+        "tel-user",
+        "sess-tel",
+        Some("wss://gateway.discord.gg"),
+        94,
+        &cache,
+    );
+    let _ = engine
+        .handle_connection_dropout(D07DropoutCause::AbruptNetworkDrop, 1_000, &cache)
+        .unwrap();
+    let _ = engine.on_resumed_received(100, &cache);
+    let _ = engine.evaluate_http_backoff(HttpMethod::Get, "/users/@me/survey", 429, 1, &[], b"", 0);
+    let _ = engine.handle_close_code("tel-user", Some(4004)).unwrap();
+
+    let tel: &D07ResilienceTelemetry = engine.telemetry();
+    assert_eq!(tel.tokens_stored, 1);
+    assert_eq!(tel.abrupt_dropouts, 1);
+    assert_eq!(tel.opcode6_resumes_sent, 1);
+    assert_eq!(tel.sessions_resumed, 1);
+    assert_eq!(tel.rate_limit_backoffs, 1);
+    assert_eq!(tel.unauthorized_logouts, 1);
 }

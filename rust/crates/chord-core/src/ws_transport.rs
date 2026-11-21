@@ -24,8 +24,8 @@ use tokio_tungstenite::tungstenite::error::Error as TungsteniteError;
 use tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
 use tokio_tungstenite::tungstenite::protocol::{CloseFrame, Message, WebSocketConfig};
 use tokio_tungstenite::{
-    client_async_with_config, connect_async_tls_with_config, Connector, MaybeTlsStream,
-    WebSocketStream,
+    Connector, MaybeTlsStream, WebSocketStream, client_async_with_config,
+    connect_async_tls_with_config,
 };
 
 use crate::ws::{GatewayUrl, GatewayUrlError};
@@ -96,13 +96,19 @@ impl fmt::Display for GatewayTransportError {
             Self::InvalidEndpoint(err) => write!(f, "invalid gateway endpoint: {err}"),
             Self::TlsConfig(msg) => write!(f, "TLS configuration error: {msg}"),
             Self::ConnectTimeout { timeout } => {
-                write!(f, "gateway WebSocket connection timed out after {timeout:?}")
+                write!(
+                    f,
+                    "gateway WebSocket connection timed out after {timeout:?}"
+                )
             }
             Self::SendTimeout { timeout } => {
                 write!(f, "gateway WebSocket send timed out after {timeout:?}")
             }
             Self::CapacityExceeded { max_bytes, detail } => {
-                write!(f, "gateway frame capacity ({max_bytes} B) exceeded: {detail}")
+                write!(
+                    f,
+                    "gateway frame capacity ({max_bytes} B) exceeded: {detail}"
+                )
             }
             Self::Connect { msg } => write!(f, "gateway WebSocket connect failed: {msg}"),
             Self::Io { msg } => write!(f, "gateway WebSocket I/O error: {msg}"),
@@ -387,7 +393,8 @@ where
             });
         }
         let len = payload.len() as u64;
-        self.send_raw_message(Message::Binary(payload.into())).await?;
+        self.send_raw_message(Message::Binary(payload.into()))
+            .await?;
         self.metrics.frames_sent = self.metrics.frames_sent.saturating_add(1);
         self.metrics.bytes_sent = self.metrics.bytes_sent.saturating_add(len);
         Ok(())
@@ -451,7 +458,9 @@ where
     ///
     /// Automatically replies to incoming `Message::Ping` frames with `Message::Pong`
     /// and skips unsolicited `Pong` / raw `Frame` messages.
-    pub async fn next_frame(&mut self) -> Result<Option<GatewayInboundFrame>, GatewayTransportError> {
+    pub async fn next_frame(
+        &mut self,
+    ) -> Result<Option<GatewayInboundFrame>, GatewayTransportError> {
         let max_bytes = self.config.max_message_size;
         while let Some(item) = self.stream.next().await {
             let msg = item.map_err(|err| map_ws_io_error(err, max_bytes))?;
@@ -459,8 +468,10 @@ where
                 Message::Binary(data) => {
                     let bytes = data.to_vec();
                     self.metrics.frames_received = self.metrics.frames_received.saturating_add(1);
-                    self.metrics.bytes_received =
-                        self.metrics.bytes_received.saturating_add(bytes.len() as u64);
+                    self.metrics.bytes_received = self
+                        .metrics
+                        .bytes_received
+                        .saturating_add(bytes.len() as u64);
                     return Ok(Some(GatewayInboundFrame::Binary(bytes)));
                 }
                 Message::Text(text) => {
@@ -516,12 +527,8 @@ pub async fn connect_gateway_transport(
         None
     };
     let ws_config = Some(config.to_websocket_config());
-    let connect_fut = connect_async_tls_with_config(
-        &endpoint,
-        ws_config,
-        config.disable_nagle,
-        connector,
-    );
+    let connect_fut =
+        connect_async_tls_with_config(&endpoint, ws_config, config.disable_nagle, connector);
     let (stream, _response) = timeout(config.connect_timeout, connect_fut)
         .await
         .map_err(|_| GatewayTransportError::ConnectTimeout {

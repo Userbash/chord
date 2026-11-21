@@ -45,10 +45,7 @@ fn d01_all_seven_guilds_match_gateway_protocol_oracle() {
     assert_eq!(summary.top_keys, 40);
     assert_eq!(ready.v, Some(9));
     assert_eq!(ready.session_type.as_deref(), Some("normal"));
-    assert_eq!(
-        ready.resume_gateway_url.as_deref(),
-        Some("REDACTED")
-    );
+    assert_eq!(ready.resume_gateway_url.as_deref(), Some("REDACTED"));
     assert_eq!(ready.country_code.as_deref(), Some("DE"));
     assert_eq!(ready.subdivision_code.as_deref(), Some("HE"));
     assert_eq!(ready.api_code_version, Some(1));
@@ -88,15 +85,7 @@ fn d01_all_seven_guilds_match_gateway_protocol_oracle() {
             0,
             59,
         ),
-        (
-            700_482_297_027_231_765,
-            "SISI 18+ PROJECT",
-            24,
-            6,
-            0,
-            0,
-            73,
-        ),
+        (700_482_297_027_231_765, "SISI 18+ PROJECT", 24, 6, 0, 0, 73),
         (942_355_007_271_997_450, "XOS", 35, 28, 71, 16, 44_749),
         (
             1_014_537_851_418_980_372,
@@ -161,11 +150,7 @@ fn d01_channel_structures_and_member_roles_schema_completeness() {
     assert_eq!(count_type(0), 137, "GUILD_TEXT count across 7 guilds");
     assert_eq!(count_type(2), 82, "GUILD_VOICE count across 7 guilds");
     assert_eq!(count_type(4), 43, "GUILD_CATEGORY count across 7 guilds");
-    assert_eq!(
-        count_type(5),
-        1,
-        "GUILD_ANNOUNCEMENT count across 7 guilds"
-    );
+    assert_eq!(count_type(5), 1, "GUILD_ANNOUNCEMENT count across 7 guilds");
     assert_eq!(count_type(15), 9, "GUILD_FORUM count across 7 guilds");
 
     // Verify permission overwrites exist and distinguish role (0) vs member (1) targets
@@ -219,18 +204,25 @@ fn d01_channel_structures_and_member_roles_schema_completeness() {
 
     // Verify every guild has an @everyone role whose ID equals the guild ID (position 0)
     for g in &ready.guilds {
-        let everyone = g
-            .roles
-            .iter()
-            .find(|r| r.id == g.id)
-            .unwrap_or_else(|| panic!("guild {} must have @everyone role with id == guild.id", g.id));
+        let everyone = g.roles.iter().find(|r| r.id == g.id).unwrap_or_else(|| {
+            panic!(
+                "guild {} must have @everyone role with id == guild.id",
+                g.id
+            )
+        });
         assert_eq!(everyone.position, 0);
-        assert!(everyone.permissions > 0, "@everyone role must have base permissions");
+        assert!(
+            everyone.permissions > 0,
+            "@everyone role must have base permissions"
+        );
     }
 
     // Verify member roles reference valid guild role IDs in ITSKIDON
     let member: &GuildMember = &itskidon.members[0];
-    assert!(!member.roles.is_empty(), "ITSKIDON member must have assigned roles");
+    assert!(
+        !member.roles.is_empty(),
+        "ITSKIDON member must have assigned roles"
+    );
     for &role_id in &member.roles {
         assert!(
             itskidon.roles.iter().any(|r| r.id == role_id),
@@ -350,7 +342,11 @@ fn d01_nine_dimensions_boundaries_recovery_and_telemetry() {
     assert_eq!(ready.guilds.len(), 1);
     let g = &ready.guilds[0];
     assert_eq!(g.id, u64::MAX);
-    assert_eq!(g.channels.len(), 1, "negative channel id must be skipped via recovery");
+    assert_eq!(
+        g.channels.len(),
+        1,
+        "negative channel id must be skipped via recovery"
+    );
     assert_eq!(g.channels[0].id, u64::MAX);
     assert_eq!(g.channels[0].topic.as_deref().map(str::len), Some(2000));
     assert_eq!(g.channels[0].permission_overwrites[0].id, 0);
@@ -365,10 +361,7 @@ fn d01_nine_dimensions_boundaries_recovery_and_telemetry() {
         diag.unknown_top_level,
         vec!["experimental_future_key".to_string()]
     );
-    assert_eq!(
-        diag.malformed,
-        vec!["guilds[0].channels[1]".to_string()]
-    );
+    assert_eq!(diag.malformed, vec!["guilds[0].channels[1]".to_string()]);
 
     // Security dimension: Debug output redacts `session_id` and `user_settings_proto`
     let debug_repr = format!("{ready:?}");

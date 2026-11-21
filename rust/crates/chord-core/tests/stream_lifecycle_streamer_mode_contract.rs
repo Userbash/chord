@@ -55,14 +55,13 @@ use chord_codec::etf::EtfValue;
 use chord_core::DispatchEvent;
 use chord_core::stream::{StreamDeleteReason, StreamKind, StreamPhase};
 use chord_core::stream_lifecycle::{
-    INVITE_REDACTED_PLACEHOLDER, PERSONAL_DATA_REDACTED_PLACEHOLDER,
-     RedactedStreamServerToken, StreamLifecycleController, StreamLifecycleError,
-    StreamLifecycleEvent, StreamLifecycleTelemetry, StreamUiEntry, StreamUiStateSnapshot,
-    StreamerModeConfig, StreamerModeNotificationDecision, StreamerModeSuppressionReason,
-    StreamerModeTriggerSource, StreamerToolDescriptor, StreamerToolProcess,
-    TOKEN_REDACTED_PLACEHOLDER, detect_running_streamer_tools, extract_stream_server_token,
-    map_gateway_stream_dispatch, sanitize_invite_links, sanitize_personal_data,
-    sanitize_stream_content, sanitize_tokens,
+    INVITE_REDACTED_PLACEHOLDER, PERSONAL_DATA_REDACTED_PLACEHOLDER, RedactedStreamServerToken,
+    StreamLifecycleController, StreamLifecycleError, StreamLifecycleEvent,
+    StreamLifecycleTelemetry, StreamUiEntry, StreamUiStateSnapshot, StreamerModeConfig,
+    StreamerModeNotificationDecision, StreamerModeSuppressionReason, StreamerModeTriggerSource,
+    StreamerToolDescriptor, StreamerToolProcess, TOKEN_REDACTED_PLACEHOLDER,
+    detect_running_streamer_tools, extract_stream_server_token, map_gateway_stream_dispatch,
+    sanitize_invite_links, sanitize_personal_data, sanitize_stream_content, sanitize_tokens,
 };
 
 fn atom(name: &str) -> EtfValue {
@@ -158,7 +157,10 @@ fn dim1_positive_stream_lifecycle_events_update_ui_state_and_auto_toggle_streame
     assert!(entry.is_self_stream);
     assert_eq!(entry.phase, StreamPhase::Active);
     assert_eq!(entry.region.as_deref(), Some("rotterdam"));
-    assert_eq!(entry.viewer_ids, Some(vec![111_111_111_111_111_111, 222_222_222_222_222_222]));
+    assert_eq!(
+        entry.viewer_ids,
+        Some(vec![111_111_111_111_111_111, 222_222_222_222_222_222])
+    );
     assert_eq!(entry.viewer_count, Some(2));
     assert!(!entry.paused);
     assert!(!entry.transport_ready);
@@ -315,7 +317,8 @@ fn dim7_streamer_mode_suppresses_tokens_invite_links_personal_data_and_notificat
     assert!(sanitized_pii.contains(PERSONAL_DATA_REDACTED_PLACEHOLDER));
 
     // 4. Desktop notification and notification sound suppression
-    let notif_decision = controller.evaluate_notification("ch-general", "Hey @everyone check this out!");
+    let notif_decision =
+        controller.evaluate_notification("ch-general", "Hey @everyone check this out!");
     assert_eq!(
         notif_decision,
         StreamerModeNotificationDecision::Suppressed(
@@ -458,7 +461,11 @@ fn dim2_negative_malformed_dispatches_peer_isolation_and_stale_sequences() {
     // 2. Malformed payloads for `STREAM_CREATE`, `STREAM_SERVER_UPDATE`, `STREAM_DELETE`
     let malformed_cases = vec![
         // Missing stream_key
-        make_dispatch("STREAM_CREATE", Some(2), etf_map(vec![("region", str_val("us-east"))])),
+        make_dispatch(
+            "STREAM_CREATE",
+            Some(2),
+            etf_map(vec![("region", str_val("us-east"))]),
+        ),
         // Invalid stream_key grammar
         make_dispatch(
             "STREAM_CREATE",
@@ -706,7 +713,11 @@ fn dim4_and_dim6_stream_delete_reasons_and_full_lifecycle_transitions() {
         .unwrap();
     assert_eq!(full_entry.phase, StreamPhase::Ended);
     assert_eq!(full_entry.ui_data_reason, Some("viewer-full"));
-    assert!(snap_full.viewer_full_alert_stream_keys.contains(&key_full.to_string()));
+    assert!(
+        snap_full
+            .viewer_full_alert_stream_keys
+            .contains(&key_full.to_string())
+    );
 
     let key_rate = "guild:10:20:100";
     controller
@@ -794,11 +805,15 @@ fn dim5_and_dim9_empty_state_selective_config_ready_reset_and_telemetry() {
     controller.set_config(custom_cfg);
     let selective = sanitize_stream_content(sample, controller.config(), true);
     assert!(
-        selective.sanitized_text.contains("https://discord.gg/abc123"),
+        selective
+            .sanitized_text
+            .contains("https://discord.gg/abc123"),
         "invite links must be preserved when hide_instant_invites=false"
     );
     assert!(
-        selective.sanitized_text.contains(TOKEN_REDACTED_PLACEHOLDER),
+        selective
+            .sanitized_text
+            .contains(TOKEN_REDACTED_PLACEHOLDER),
         "tokens must ALWAYS be suppressed when streamer mode is active"
     );
 

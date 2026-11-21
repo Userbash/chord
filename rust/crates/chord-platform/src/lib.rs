@@ -17,6 +17,7 @@ pub mod macos;
 pub mod notification_defaults;
 pub mod notifications;
 pub mod power;
+pub mod privacy_guardrails;
 pub mod rpc_ipc;
 pub mod screencast;
 pub mod spellcheck;

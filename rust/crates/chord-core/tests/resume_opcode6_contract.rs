@@ -303,7 +303,7 @@ fn test_resume_session_manager_preserves_guild_cache_and_skips_channel_reload() 
     let c2_arc_after = cache.channel(chan_2).expect("channel 2 still cached");
 
     assert!(
-         std::sync::Arc::ptr_eq(&g1_arc_before, &g1_arc_after),
+        std::sync::Arc::ptr_eq(&g1_arc_before, &g1_arc_after),
         "Guild 1 Arc pointer must remain identical across Resume (zero cache reset)"
     );
     assert!(

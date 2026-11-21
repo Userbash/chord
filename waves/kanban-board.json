@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T09:12:31.642Z",
+  "updated_at": "2026-11-21T09:18:55.776Z",
   "columns": [
     {
       "id": "backlog",
@@ -10364,8 +10364,8 @@
       "id": "D-07",
       "title": "Session Resilience & Security",
       "description": "Session token protection, secure keyring storage, recovery from abrupt connection dropouts, rate limit backoff. Target: Auth & Storage. Criteria: Session recovery protocol handles Opcode 6 Resume; secure token storage in OS keyring with automatic masking",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G7 RE / REA",
       "tags": [
@@ -10378,14 +10378,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:18:51.385Z"
     },
     {
       "id": "D-08",
       "title": "Platform Privacy Guardrails",
       "description": "WebRTC IP leakage prevention policy, MediaSession key bindings isolation, auto-play media audio suppression. Target: Platform Shell. Criteria: Comprehensive privacy checklist for native client implementation ensuring user IP and telemetry protection",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G7 RE / REA",
       "tags": [
@@ -10398,7 +10399,8 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:18:51.385Z"
     },
     {
       "id": "W3R-HARD-06",
@@ -10443,5 +10445,5 @@
       "completedAt": "2026-11-21T09:12:27.797Z"
     }
   ],
-  "last_updated": "2026-11-21T09:12:31.616Z"
+  "last_updated": "2026-11-21T09:18:55.756Z"
 }

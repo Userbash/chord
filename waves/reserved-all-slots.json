@@ -773,10 +773,11 @@
       "scriptCommand": null,
       "model": "gemini-4-argon-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T09:03:48.902Z"
+      "dispatchedAt": "2026-11-21T09:03:48.902Z",
+      "completedAt": "2026-11-21T09:18:51.385Z"
     },
     {
       "slot": 42,
@@ -791,10 +792,11 @@
       "scriptCommand": null,
       "model": "gemini-4-argon-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T09:07:15.064Z"
+      "dispatchedAt": "2026-11-21T09:07:15.064Z",
+      "completedAt": "2026-11-21T09:18:51.385Z"
     },
     {
       "slot": 43,

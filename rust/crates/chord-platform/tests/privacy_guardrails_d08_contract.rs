@@ -123,7 +123,7 @@ fn d08_dim1_webrtc_ip_leakage_prevention_and_candidate_filtering() {
 
 #[test]
 fn d08_dim1_media_session_key_bindings_isolation_and_mpris_consumer_contract() {
-    let engine = D08PrivacyGuardrailsEngine::with_hardened_defaults();
+    let mut engine = D08PrivacyGuardrailsEngine::with_hardened_defaults();
     let isolation = &engine.config().media_session_isolation;
 
     assert!(isolation.disable_hardware_media_key_handling);
@@ -169,7 +169,7 @@ fn d08_dim1_media_session_key_bindings_isolation_and_mpris_consumer_contract() {
 }
 
 #[test]
-fn d08_dim1_autoplay_media_audio_suppression_and_ checklist_verification() {
+fn d08_dim1_autoplay_media_audio_suppression_and_checklist_verification() {
     let mut engine = D08PrivacyGuardrailsEngine::with_hardened_defaults();
     assert_eq!(
         engine.config().autoplay_policy,
@@ -683,7 +683,7 @@ fn d08_dim8_proxy_fallback_and_unhardened_checklist_failure_detection() {
     );
 
     // 2. Deliberately unhardened legacy configuration fails specific checklist controls
-    let unhardened_engine = D08PrivacyGuardrailsEngine::new(D08PlatformPrivacyConfig {
+    let mut unhardened_engine = D08PrivacyGuardrailsEngine::new(D08PlatformPrivacyConfig {
         webrtc_ip_policy: WebRtcIpHandlingPolicy::Default,
         enable_mdns_obfuscation: false,
         block_unproxied_udp_when_policy_requires: false,

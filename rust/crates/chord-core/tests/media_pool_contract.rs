@@ -7,12 +7,12 @@
 //! - Synchronous execution with `install()` and async non-blocking execution via `spawn_task()`.
 //! - Seamless integration with `RuntimeManager`.
 
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use chord_core::runtime::{
-    MediaThreadPool, RuntimeConfig, RuntimeManager, DEFAULT_CPU_THREAD_PREFIX,
+    DEFAULT_CPU_THREAD_PREFIX, MediaThreadPool, RuntimeConfig, RuntimeManager,
 };
 
 #[test]
@@ -109,7 +109,9 @@ fn test_media_thread_pool_parallel_opus_simulated_workload() {
         let frames: Vec<Vec<u8>> = (0..32).map(|i| vec![i as u8; 960]).collect();
         frames.par_iter().for_each(|frame| {
             // Simulate Opus 20ms frame encode
-            let checksum = frame.iter().fold(0u32, |acc, &b| acc.wrapping_add(b as u32));
+            let checksum = frame
+                .iter()
+                .fold(0u32, |acc, &b| acc.wrapping_add(b as u32));
             assert!(checksum < 1000000);
             processed.fetch_add(1, Ordering::SeqCst);
         });
@@ -136,13 +138,19 @@ fn test_media_thread_pool_isolation_from_tokio() {
         let media_task = media_pool.spawn_task(move || {
             let _ = tx_start.send(());
             std::thread::sleep(Duration::from_millis(50));
-            std::thread::current().name().unwrap_or("unknown").to_string()
+            std::thread::current()
+                .name()
+                .unwrap_or("unknown")
+                .to_string()
         });
 
         // Tokio worker task should execute concurrently without being blocked by CPU task
         rx_start.await.unwrap();
         let tokio_handle = manager.spawn(async {
-            std::thread::current().name().unwrap_or("unknown").to_string()
+            std::thread::current()
+                .name()
+                .unwrap_or("unknown")
+                .to_string()
         });
         let tokio_name = tokio_handle.await.unwrap();
 
@@ -166,7 +174,10 @@ fn test_runtime_manager_spawn_media_convenience() {
     let manager = RuntimeManager::new().expect("RuntimeManager should initialize");
 
     let rx = manager.spawn_media(|| {
-        std::thread::current().name().unwrap_or("unknown").to_string()
+        std::thread::current()
+            .name()
+            .unwrap_or("unknown")
+            .to_string()
     });
 
     let name = manager.block_on(async { rx.await.unwrap() });

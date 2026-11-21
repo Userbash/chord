@@ -1288,7 +1288,9 @@ async fn discord_http_client_executes_typed_serde_request_and_tracks_rate_limit_
         "request line: {req_text}"
     );
     assert!(
-        req_text.to_ascii_lowercase().contains("authorization: bot test-token"),
+        req_text
+            .to_ascii_lowercase()
+            .contains("authorization: bot test-token"),
         "auth header present: {req_text}"
     );
 }

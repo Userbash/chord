@@ -1,13 +1,14 @@
 #![forbid(unsafe_code)]
 
+use chord_core::{REDACTED_MARKER, RedactedWriter, redact_secrets};
 use std::sync::{Arc, Mutex};
-use chord_core::{
-    redact_secrets, RedactedWriter, REDACTED_MARKER,
-};
 
 #[test]
 fn test_redact_secrets_bot_token() {
-    let dummy_bot = format!("Authorization: Bot {}.{}.{}", "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678");
+    let dummy_bot = format!(
+        "Authorization: Bot {}.{}.{}",
+        "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678"
+    );
     let output = redact_secrets(&dummy_bot);
     assert_eq!(output, format!("Authorization: Bot {REDACTED_MARKER}"));
     assert!(!output.contains("MTIzNDU2Nzg5MDEyMzQ1Njc4OQ"));
@@ -23,10 +24,16 @@ fn test_redact_secrets_bearer_token() {
 
 #[test]
 fn test_redact_secrets_discord_token_2dots() {
-    let dummy_token = format!("{}.{}.{}", "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678");
+    let dummy_token = format!(
+        "{}.{}.{}",
+        "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678"
+    );
     let input = format!("User token is {dummy_token} in session");
     let output = redact_secrets(&input);
-    assert_eq!(output, format!("User token is {REDACTED_MARKER} in session"));
+    assert_eq!(
+        output,
+        format!("User token is {REDACTED_MARKER} in session")
+    );
     assert!(!output.contains("MTIzNDU2Nzg5MDEyMzQ1Njc4OQ"));
 }
 
@@ -34,7 +41,10 @@ fn test_redact_secrets_discord_token_2dots() {
 fn test_redact_secrets_mfa_token() {
     let input = "Authentication success: mfa.abcdef1234567890abcdef1234567890 confirmed";
     let output = redact_secrets(input);
-    assert_eq!(output, format!("Authentication success: {REDACTED_MARKER} confirmed"));
+    assert_eq!(
+        output,
+        format!("Authentication success: {REDACTED_MARKER} confirmed")
+    );
     assert!(!output.contains("abcdef1234567890"));
 }
 
@@ -42,7 +52,10 @@ fn test_redact_secrets_mfa_token() {
 fn test_redact_secrets_hex_encryption_key_64() {
     let input = "SRTP master key initialized: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     let output = redact_secrets(input);
-    assert_eq!(output, format!("SRTP master key initialized: {REDACTED_MARKER}"));
+    assert_eq!(
+        output,
+        format!("SRTP master key initialized: {REDACTED_MARKER}")
+    );
     assert!(!output.contains("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
 }
 
@@ -70,7 +83,8 @@ fn test_redact_secrets_json_fields() {
 
 #[test]
 fn test_redact_secrets_preserves_safe_text() {
-    let input = "Connecting to gateway wss://gateway.discord.gg?v=9&encoding=etf with heartbeat 41250ms";
+    let input =
+        "Connecting to gateway wss://gateway.discord.gg?v=9&encoding=etf with heartbeat 41250ms";
     let output = redact_secrets(input);
     assert_eq!(output, input);
 }
@@ -96,9 +110,16 @@ fn test_redacted_writer_intercepts_and_masks_output() {
     let shared = SharedBuffer(Arc::clone(&buffer));
     let mut writer = RedactedWriter::new(shared);
 
-    let dummy_bot = format!("Received Bot {}.{}.{}", "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678");
+    let dummy_bot = format!(
+        "Received Bot {}.{}.{}",
+        "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678"
+    );
     writeln!(writer, "{dummy_bot}").unwrap();
-    writeln!(writer, "Using key=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef").unwrap();
+    writeln!(
+        writer,
+        "Using key=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    )
+    .unwrap();
     writer.flush().unwrap();
 
     let captured = String::from_utf8(buffer.lock().unwrap().clone()).unwrap();
@@ -125,9 +146,14 @@ fn test_tracing_subscriber_integration_masks_logged_events() {
         .with(SecretRedactionLayer::new());
 
     tracing::subscriber::with_default(subscriber, || {
-        let msg = format!("Starting voice session with Authorization: Bot {}.{}.{}", "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678");
+        let msg = format!(
+            "Starting voice session with Authorization: Bot {}.{}.{}",
+            "MTIzNDU2Nzg5MDEyMzQ1Njc4OQ", "GaBcDe", "AbCdEfGhIjKlMnOpQrStUvWxYz012345678"
+        );
         tracing::info!("{msg}");
-        tracing::info!("DAVE MLS key: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+        tracing::info!(
+            "DAVE MLS key: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+        );
     });
 
     let captured = String::from_utf8(buffer.lock().unwrap().clone()).unwrap();

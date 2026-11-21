@@ -1,13 +1,13 @@
 #![forbid(unsafe_code)]
 
 use std::io::Write;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Duration;
 
 use chord_core::shutdown::{
-    redact_secrets, RedactingWriter, ShutdownCoordinator, ShutdownError, ShutdownSignal,
-    DEFAULT_SHUTDOWN_TIMEOUT,
+    DEFAULT_SHUTDOWN_TIMEOUT, RedactingWriter, ShutdownCoordinator, ShutdownError, ShutdownSignal,
+    redact_secrets,
 };
 
 #[test]
@@ -73,7 +73,11 @@ async fn test_shutdown_coordinator_joinset_timeout_aborts_hanging_tasks() {
         "Shutdown must not hang beyond timeout, took {:?}",
         elapsed
     );
-    assert_eq!(coordinator.task_count(), 0, "Tasks must be aborted on timeout");
+    assert_eq!(
+        coordinator.task_count(),
+        0,
+        "Tasks must be aborted on timeout"
+    );
 }
 
 #[test]
@@ -89,7 +93,10 @@ fn test_shutdown_signals_sigint_and_sigterm_types() {
 
 #[test]
 fn test_secret_redaction_bot_and_bearer_tokens() {
-    let dummy_bot = format!("Connecting with header: Bot {}.{}.{}", "MTIzNDU2Nzg5MDEyMzQ1Njc4", "GaBcDe", "abcdefghijklmnopqrstuvwxyz0123456789");
+    let dummy_bot = format!(
+        "Connecting with header: Bot {}.{}.{}",
+        "MTIzNDU2Nzg5MDEyMzQ1Njc4", "GaBcDe", "abcdefghijklmnopqrstuvwxyz0123456789"
+    );
     let redacted_bot = redact_secrets(&dummy_bot);
     assert!(
         !redacted_bot.contains("MTIzNDU2Nzg5MDEyMzQ1Njc4"),
@@ -114,7 +121,8 @@ fn test_secret_redaction_bot_and_bearer_tokens() {
 
 #[test]
 fn test_secret_redaction_mfa_and_private_keys() {
-    let sample_mfa = "mfa.abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghij";
+    let sample_mfa =
+        "mfa.abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghij";
     let redacted_mfa = redact_secrets(sample_mfa);
     assert!(
         !redacted_mfa.contains("abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
@@ -152,7 +160,10 @@ fn test_secret_redaction_mfa_and_private_keys() {
 fn test_redacting_writer_stdout_stream() {
     let mut buffer = Vec::new();
     {
-        let dummy_bot = format!("INFO: authorized with Bot {}.{}.{}", "MTIzNDU2Nzg5MDEyMzQ1Njc4", "GaBcDe", "abcdefghijklmnopqrstuvwxyz0123456789");
+        let dummy_bot = format!(
+            "INFO: authorized with Bot {}.{}.{}",
+            "MTIzNDU2Nzg5MDEyMzQ1Njc4", "GaBcDe", "abcdefghijklmnopqrstuvwxyz0123456789"
+        );
         let mut writer = RedactingWriter::new(&mut buffer);
         writeln!(writer, "{dummy_bot}").expect("write must succeed");
         writer.flush().expect("flush must succeed");

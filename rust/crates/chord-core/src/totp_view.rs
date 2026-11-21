@@ -199,7 +199,10 @@ mod tests {
         dialog.on_digit_input('1').unwrap();
         assert_eq!(
             dialog.submit(),
-            Err(TotpViewError::IncompleteCode { len: 1, expected: 6 })
+            Err(TotpViewError::IncompleteCode {
+                len: 1,
+                expected: 6
+            })
         );
         assert_eq!(
             dialog.on_paste("12ab56"),

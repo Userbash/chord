@@ -500,12 +500,7 @@ impl DiscordHttpClient {
             .map_err(|e| DiscordRestBridgeError::Serialization(e.to_string()))
     }
 
-    fn update_bucket_from_headers(
-        &self,
-        headers: &[(String, String)],
-        body: &[u8],
-        status: u16,
-    ) {
+    fn update_bucket_from_headers(&self, headers: &[(String, String)], body: &[u8], status: u16) {
         let info = rate_limit_info(429, headers, body).unwrap_or_else(|| RateLimitInfo {
             retry_after: Duration::ZERO,
             global: false,

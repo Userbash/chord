@@ -157,25 +157,22 @@ fn redact_auth_headers(mut text: String) -> String {
 
 fn redact_single_token(token: &str) -> String {
     let trimmed_start = token.find(|c: char| c.is_alphanumeric()).unwrap_or(0);
-    let trimmed_end = token.rfind(|c: char| c.is_alphanumeric())
-        .map_or(token.len(), |i| {
-            match token.get(i..) {
+    let trimmed_end =
+        token
+            .rfind(|c: char| c.is_alphanumeric())
+            .map_or(token.len(), |i| match token.get(i..) {
                 Some(slice) => match slice.chars().next() {
                     Some(first) => i + first.len_utf8(),
                     None => token.len(),
                 },
                 None => token.len(),
-            }
-        });
+            });
 
     let prefix_punct = token.get(..trimmed_start).unwrap_or("");
     let core = token.get(trimmed_start..trimmed_end).unwrap_or("");
     let suffix_punct = token.get(trimmed_end..).unwrap_or("");
 
-    if is_discord_token(core)
-        || is_64_hex_key(core)
-        || is_mfa_token(core)
-        || is_github_token(core)
+    if is_discord_token(core) || is_64_hex_key(core) || is_mfa_token(core) || is_github_token(core)
     {
         format!("{prefix_punct}{REDACTED_MARKER}{suffix_punct}")
     } else {

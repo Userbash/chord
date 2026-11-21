@@ -1,0 +1,113 @@
+{
+  "task": "D-07",
+  "title": "Session Resilience & Security",
+  "target": "Auth & Storage",
+  "version": "1.0.162",
+  "provenance": {
+    "gatewayProtocol": "docs/re/gateway-protocol.md",
+    "gatewayProtocolJson": "docs/re/gateway-protocol.json",
+    "restD02": "docs/re/rest-d02.md",
+    "backendIpc": "docs/re/backend-ipc.md",
+    "authRe": "waves/RW-39/NET/AUTH-RE.md"
+  },
+  "keyringAndTokenSecurity": {
+    "schemaName": "com.discordlab.Token",
+    "attributeKey": "key",
+    "label": "discord-lab token",
+    "safeStoragePrefix": "dQw4w9WgXcQ:",
+    "safeStorageIpcChannels": [
+      "DISCORD_SAFE_STORAGE_IS_ENCRYPTION_AVAILABLE",
+      "DISCORD_SAFE_STORAGE_ENCRYPT_STRING",
+      "DISCORD_SAFE_STORAGE_DECRYPT_STRING"
+    ],
+    "redactedMarker": "[REDACTED]",
+    "tokenRegex": "[\\w-]{24,}\\.[\\w-]{6,}\\.[\\w-]{27,}",
+    "mfaTokenPrefix": "mfa.",
+    "userAuthHeaderScheme": "raw_token_without_bearer",
+    "devtoolsIsolation": {
+      "onOpen": "hideToken",
+      "onClose": "showToken"
+    },
+    "argon2idMasterKey": {
+      "rfc": 9106,
+      "defaultMemoryKib": 65536,
+      "defaultIterations": 3,
+      "defaultParallelism": 1,
+      "outputLenBytes": 32,
+      "minSaltBytes": 8
+    }
+  },
+  "sessionRecoveryProtocol": {
+    "resumeOpcode": 6,
+    "identifyOpcode": 2,
+    "reconnectOpcode": 7,
+    "invalidSessionOpcode": 9,
+    "helloOpcode": 10,
+    "heartbeatAckOpcode": 11,
+    "qosHeartbeatOpcode": 40,
+    "heartbeatIntervalMs": 41250,
+    "backoffMinMs": 1000,
+    "backoffMaxMs": 60000,
+    "backoffScheduleMs": [1000, 2000, 4000, 8000, 16000, 32000, 60000],
+    "resetAfterFailures": 4,
+    "maxDowntimeMs": 30000,
+    "resumeTtlMs": 180000,
+    "preserveGuildCache": true,
+    "skipChannelReload": true,
+    "outboundResumeFrameBytes": [173, 176],
+    "fatalCloseCodes": {
+      "4004": "Unauthorized_Logout_And_Keyring_Wipe",
+      "4013": "InvalidClient_Stop",
+      "4014": "InvalidClient_Stop"
+    },
+    "capturedResumeSessions": [
+      {
+        "socket": "run2:95974.8269",
+        "previousSocket": "run2:95974.5532",
+        "resumeSeqSent": 94,
+        "firstS": 95,
+        "lastS": 663,
+        "count": 569,
+        "gaps": 0,
+        "outboundFrameBytes": 173,
+        "firstDispatch": "GUILD_MEMBER_LIST_UPDATE"
+      },
+      {
+        "socket": "run2:95974.8608",
+        "previousSocket": "run2:95974.8269",
+        "resumeSeqSent": 663,
+        "firstS": 664,
+        "lastS": 722,
+        "count": 59,
+        "gaps": 0,
+        "outboundFrameBytes": 176,
+        "firstDispatch": "GUILD_MEMBER_LIST_UPDATE"
+      },
+      {
+        "socket": "run2:95974.13072",
+        "previousSocket": "run2:95974.10029",
+        "resumeSeqSent": 331,
+        "firstS": 332,
+        "lastS": 371,
+        "count": 40,
+        "gaps": 0,
+        "outboundFrameBytes": 176,
+        "firstDispatch": "RESUMED"
+      }
+    ]
+  },
+  "rateLimitBackoff": {
+    "defaultRetryAfterMs": 5000,
+    "maxRetryAfterMs": 60000,
+    "retryableServerStatuses": [502, 504, 507, 522, 523, 524, 598, 599],
+    "rateLimitStatuses": [429, 503],
+    "nonRetryableStatuses": [400, 401, 403, 404, 500, 501, 505],
+    "retryAfterResolutionOrder": [
+      "header:retry-after",
+      "body:retry_after",
+      "header:x-ratelimit-reset-after",
+      "default:5000ms"
+    ],
+    "captured429Endpoint": "GET /api/v9/users/@me/survey"
+  }
+}

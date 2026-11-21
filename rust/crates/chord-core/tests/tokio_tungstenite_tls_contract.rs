@@ -20,19 +20,18 @@
 //!    telemetry (`frames_sent`, `bytes_sent`, `frames_received`, `bytes_received`, `pings_answered`).
 //! 8. Connect timeout enforcement when remote endpoint stalls handshake.
 
+use futures_util::{SinkExt, StreamExt};
 use std::time::Duration;
 use tokio::net::TcpListener;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
 use tokio_tungstenite::tungstenite::protocol::{CloseFrame, Message};
-use futures_util::{SinkExt, StreamExt};
 
 use chord_core::ws_transport::{
-    build_gateway_tls_connector, connect_gateway_stream, connect_gateway_transport,
-    ensure_gateway_crypto_provider, validate_gateway_endpoint, GatewayInboundFrame,
-    GatewayTransport, GatewayTransportConfig, GatewayTransportError,
     DEFAULT_CONNECT_TIMEOUT, DEFAULT_MAX_GATEWAY_WIRE_BYTES, DEFAULT_MAX_WRITE_BUFFER_BYTES,
-    DEFAULT_SEND_TIMEOUT,
+    DEFAULT_SEND_TIMEOUT, GatewayInboundFrame, GatewayTransport, GatewayTransportConfig,
+    GatewayTransportError, build_gateway_tls_connector, connect_gateway_stream,
+    connect_gateway_transport, ensure_gateway_crypto_provider, validate_gateway_endpoint,
 };
 
 #[test]
@@ -104,7 +103,8 @@ fn test_gateway_transport_config_validation_rejects_zero_limits() {
 #[test]
 fn test_gateway_tls_connector_builds_clean_rustls_ring_connector() {
     ensure_gateway_crypto_provider();
-    let connector = build_gateway_tls_connector().expect("TLS connector with ring + webpki-roots must build");
+    let connector =
+        build_gateway_tls_connector().expect("TLS connector with ring + webpki-roots must build");
     match connector {
         tokio_tungstenite::Connector::Rustls(_) => {}
         _ => panic!("Expected Connector::Rustls"),
@@ -132,7 +132,13 @@ fn test_validate_gateway_endpoint_normalizes_and_rejects_invalid_urls() {
         "ws://127.0.0.1:9999/?encoding=etf&v=9&compress=zstd-stream"
     );
 
-    for invalid in ["", "   ", "ftp://gateway.discord.gg", "wss://", "wss://gateway.discord.gg#frag"] {
+    for invalid in [
+        "",
+        "   ",
+        "ftp://gateway.discord.gg",
+        "wss://",
+        "wss://gateway.discord.gg#frag",
+    ] {
         assert!(
             validate_gateway_endpoint(invalid).is_err(),
             "Expected endpoint {invalid:?} to be rejected"
@@ -161,9 +167,11 @@ async fn test_gateway_transport_local_ws_handshake_frames_ping_pong_and_close() 
             .expect("send ping");
 
         // 3. Server sends Text payload after Ping
-        ws.send(Message::Text(r#"{"op":10,"d":{"heartbeat_interval":41250}}"#.into()))
-            .await
-            .expect("send text");
+        ws.send(Message::Text(
+            r#"{"op":10,"d":{"heartbeat_interval":41250}}"#.into(),
+        ))
+        .await
+        .expect("send text");
 
         // Verify client sent Pong([1, 2, 3, 4])
         let pong_msg = ws.next().await.expect("stream open").expect("msg ok");
@@ -296,8 +304,14 @@ async fn test_gateway_transport_duplex_stream_and_telemetry_counters() {
                 .await
                 .expect("connect_gateway_stream");
 
-        transport.send_binary(vec![10, 20, 30, 40]).await.expect("send bin");
-        transport.send_text("hello-gateway".to_string()).await.expect("send text");
+        transport
+            .send_binary(vec![10, 20, 30, 40])
+            .await
+            .expect("send bin");
+        transport
+            .send_text("hello-gateway".to_string())
+            .await
+            .expect("send text");
 
         let inbound = transport.next_frame().await.expect("ok").expect("frame");
         assert_eq!(inbound, GatewayInboundFrame::Binary(vec![99, 100]));
@@ -308,7 +322,10 @@ async fn test_gateway_transport_duplex_stream_and_telemetry_counters() {
         assert_eq!(m.frames_received, 1);
         assert_eq!(m.bytes_received, 2);
 
-        transport.close_gracefully(1000, "normal").await.expect("close");
+        transport
+            .close_gracefully(1000, "normal")
+            .await
+            .expect("close");
     };
 
     tokio::join!(server_fut, client_fut);
@@ -326,8 +343,7 @@ async fn test_gateway_transport_connect_timeout_on_stalled_handshake() {
         tokio::time::sleep(Duration::from_secs(2)).await;
     });
 
-    let cfg = GatewayTransportConfig::default()
-        .with_connect_timeout(Duration::from_millis(80));
+    let cfg = GatewayTransportConfig::default().with_connect_timeout(Duration::from_millis(80));
     let res = connect_gateway_transport(&url, &cfg).await;
     assert!(
         matches!(res, Err(GatewayTransportError::ConnectTimeout { .. })),

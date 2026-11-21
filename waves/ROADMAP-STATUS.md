@@ -1,29 +1,29 @@
-# Аудит Дорожной Карты Упрощения Chord
+# Chord Simplification Roadmap Audit
 
-**Дата аудита:** 2026-11-21T09:12:31.616Z
-**Общий прогресс:** 81% (9/14 этапов завершено)
-**Общий объем тонких мостов:** 21317 LOC (средний размер адаптера: 2369 LOC)
+**Audit Timestamp:** 2026-11-21T09:18:55.756Z
+**Overall Progress:** 81% (9/14 stages completed)
+**Total Thin Bridge Code:** 22446 LOC (average adapter size: 2494 LOC)
 
-| № | Этап | Карточка | Статус | Прогресс | LOC | Доказательство |
+| Stage # | Stage Title | Kanban Card | Status | Progress | LOC | Verification Evidence |
 |---|---|---|:---:|:---:|:---:|---|
-| 0 | **Зафиксировать исходное состояние** | `STAGE-00` | ✅ Готово | 100% | — | Ветка tauri активна, базовая конфигурация зафиксирована |
-| 1 | **Инвентаризация кода и библиотек** | `STAGE-01` | ✅ Готово | 100% | — | Инвентаризация проведена, спецификации созданы в docs/specs/ |
-| 2 | **Единый runtime и управление задачами** | `LIB-SIMPLIFY-06` | ✅ Готово | 100% | — | RuntimeManager реализован |
-| 3 | **Трассировка и метрики** | `STAGE-03` | 🔄 В работе | 70% | — | Частично: есть logger.mjs и базовая телеметрия |
-| 4 | **REST и формирование URL** | `LIB-SIMPLIFY-01` | ✅ Готово | 100% | 574 | DiscordRestBridge (574 LOC): использует reqwest и url::Url. 33 контрактных теста пройдены |
-| 5 | **Gateway WebSocket и Heartbeat** | `STAGE-05` | ⏳ В планах | 20% | — | В очереди |
-| 6 | **SQLite и локальные данные** | `LIB-SIMPLIFY-02` | ✅ Готово | 100% | 559 | StoreBridge (559 LOC): rusqlite + mpsc(1024), FTS5, миграции v2. 22 теста пройдены |
-| 7 | **Системная интеграция и секреты** | `LIB-SIMPLIFY-03` | ✅ Готово | 100% | 18758 | chord-platform (18758 LOC): keyring + ashpd + zeroize. 31 тест пройден |
-| 8 | **Аудио и кодеки** | `LIB-SIMPLIFY-04` | ✅ Готово | 100% | 527 | audio-spike (527 LOC): cpal + crossbeam ArrayQueue + VAD. 7/7 контрактов пройдены |
-| 9 | **DAVE MLS v1 и голосовая сессия** | `LIB-SIMPLIFY-05` | ✅ Готово | 100% | 468 | dave-spike (468 LOC): 0 строк самописной криптографии, только ring + aes-gcm |
-| 10 | **Фронтенд-библиотеки: Signals, Virtualizer, Floating UI** | `LIB-SIMPLIFY-07` | ✅ Готово | 100% | 431 | UI-мосты (431 LOC): signals, virtualizer, floating-popover. 57/57 тестов пройдены |
-| 11 | **Видео и демонстрация экрана** | `STAGE-11` | ⏳ В планах | 15% | — | Запланировано после стабилизации аудио ядра |
-| 12 | **Нагрузочное тестирование и бенчмарки x86_64** | `STAGE-12` | 🔄 В работе | 60% | — | Скрипты стресс-тестирования FTS5 и памяти готовы |
-| 13 | **Очистка и фиксация результата** | `STAGE-13` | 🔄 В работе | 75% | — | chord-store/src/ffi.rs удален, модули переведены на чистый Rust |
+| 0 | **Baseline State Lock & Workspace Config** | `STAGE-00` | ✅ Completed | 100% | — | Active tauri branch, baseline configuration locked |
+| 1 | **Codebase & Dependency Inventory** | `STAGE-01` | ✅ Completed | 100% | — | Inventory complete, specifications documented in docs/specs/ |
+| 2 | **Unified Runtime & Task Management** | `LIB-SIMPLIFY-06` | ✅ Completed | 100% | — | RuntimeManager implemented |
+| 3 | **Tracing & Telemetry Redaction** | `STAGE-03` | 🔄 In Progress | 70% | — | Partial: logger.mjs and baseline telemetry |
+| 4 | **REST API & URL Builders** | `LIB-SIMPLIFY-01` | ✅ Completed | 100% | 569 | DiscordRestBridge (569 LOC): uses reqwest and url::Url. 33 contract tests passed |
+| 5 | **Gateway WebSocket & Heartbeat** | `STAGE-05` | ⏳ Queued | 20% | — | Queued |
+| 6 | **SQLite & Local Storage** | `LIB-SIMPLIFY-02` | ✅ Completed | 100% | 559 | StoreBridge (559 LOC): rusqlite + mpsc(1024), FTS5, v2 migrations. 22 tests passed |
+| 7 | **System Integration & Keyring Secrets** | `LIB-SIMPLIFY-03` | ✅ Completed | 100% | 19892 | chord-platform (19892 LOC): keyring + ashpd + zeroize. 31 tests passed |
+| 8 | **Audio Engine & Codecs** | `LIB-SIMPLIFY-04` | ✅ Completed | 100% | 527 | audio-spike (527 LOC): cpal + crossbeam ArrayQueue + VAD. 7/7 contracts passed |
+| 9 | **DAVE MLS v1 & Voice Sessions** | `LIB-SIMPLIFY-05` | ✅ Completed | 100% | 468 | dave-spike (468 LOC): 0 lines of custom cryptography, pure ring + aes-gcm |
+| 10 | **Frontend Bridges: Signals, Virtualizer, Floating UI** | `LIB-SIMPLIFY-07` | ✅ Completed | 100% | 431 | UI Bridges (431 LOC): signals, virtualizer, floating-popover. 57/57 tests passed |
+| 11 | **Video & Desktop Screen Sharing** | `STAGE-11` | ⏳ Queued | 15% | — | Scheduled following audio core stabilization |
+| 12 | **x86_64 Stress Testing & Benchmarks** | `STAGE-12` | 🔄 In Progress | 60% | — | FTS5 and memory stress testing scripts verified |
+| 13 | **Dead Code Sanitation & Architecture Freeze** | `STAGE-13` | 🔄 In Progress | 75% | — | chord-store/src/ffi.rs removed, modules running pure Rust |
 
-## Архитектурное соответствие правилу «Тонкий мост»:
-- **0 строк самописной криптографии**: делегировано в `ring` и `aes-gcm` (DAVE MLS v1).
-- **0 строк ручной конкатенации HTTP URL**: делегировано в `url::Url` и `reqwest`.
-- **0 строк C FFI для БД**: делегировано в `rusqlite` + FTS5 unicode61.
-- **0 строк самописных очередей звука**: делегировано в `crossbeam-queue::ArrayQueue` + `cpal`.
-- **0 строк самописных виртуальных списков**: делегировано в `@tanstack/virtual-core` и `@preact/signals-core`.
+## Architectural Compliance with "Thin Bridge" Rule:
+- **0 lines of custom cryptography**: delegated to `ring` and `aes-gcm` (DAVE MLS v1).
+- **0 lines of manual HTTP URL concatenation**: delegated to `url::Url` and `reqwest`.
+- **0 lines of custom DB C FFI**: delegated to pure `rusqlite` + FTS5 unicode61.
+- **0 lines of custom audio queues**: delegated to `crossbeam-queue::ArrayQueue` + `cpal`.
+- **0 lines of custom virtual lists**: delegated to `@tanstack/virtual-core` and `@preact/signals-core`.

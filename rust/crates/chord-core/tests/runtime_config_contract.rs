@@ -3,25 +3,26 @@
 //! validation rules, and separation of network and CPU tasks.
 
 use chord_core::runtime::{
-    RuntimeConfig, RuntimeConfigError, DEFAULT_STACK_SIZE_BYTES, DEFAULT_THREAD_NAME_PREFIX,
-    MIN_STACK_SIZE_BYTES,
+    DEFAULT_STACK_SIZE_BYTES, DEFAULT_THREAD_NAME_PREFIX, MIN_STACK_SIZE_BYTES, RuntimeConfig,
+    RuntimeConfigError,
 };
 
 #[test]
 fn test_runtime_config_default_values() {
     let config = RuntimeConfig::default();
 
-    assert!(config.worker_threads >= 1, "worker threads must be at least 1");
+    assert!(
+        config.worker_threads >= 1,
+        "worker threads must be at least 1"
+    );
     assert!(config.cpu_threads >= 1, "cpu threads must be at least 1");
     assert_eq!(
-        config.stack_size,
-        DEFAULT_STACK_SIZE_BYTES,
+        config.stack_size, DEFAULT_STACK_SIZE_BYTES,
         "default stack size must be 2MB (2097152 bytes)"
     );
     assert_eq!(config.stack_size, 2 * 1024 * 1024);
     assert_eq!(
-        config.thread_name_prefix,
-        DEFAULT_THREAD_NAME_PREFIX,
+        config.thread_name_prefix, DEFAULT_THREAD_NAME_PREFIX,
         "default thread name prefix must be chord-rt-"
     );
     assert_eq!(config.thread_name_prefix, "chord-rt-");
@@ -121,8 +122,12 @@ fn test_runtime_config_tokio_builder_integration() {
         .with_stack_size(2 * 1024 * 1024)
         .with_thread_name_prefix("chord-rt-");
 
-    let mut builder = config.to_tokio_builder().expect("builder should be created");
-    let rt = builder.build().expect("tokio runtime should build successfully");
+    let mut builder = config
+        .to_tokio_builder()
+        .expect("builder should be created");
+    let rt = builder
+        .build()
+        .expect("tokio runtime should build successfully");
 
     let res = rt.block_on(async {
         let handle = tokio::spawn(async { 42 });

@@ -31,76 +31,76 @@ const ROADMAP_TXT = '/home/sanya/chat-Дорожная карта упрощен
 const KANBAN_JSON = path.join(PROJECT_ROOT, 'waves/kanban-board.json');
 const ROADMAP_MD = path.join(PROJECT_ROOT, 'waves/ROADMAP-STATUS.md');
 
-// Определение 14 этапов дорожной карты и критериев их проверки
+// Definition of the 14 simplification roadmap stages and verification criteria
 const STAGES = [
   {
     id: 0,
-    title: 'Зафиксировать исходное состояние',
+    title: 'Baseline State Lock & Workspace Config',
     kanbanId: 'STAGE-00',
-    description: 'Ветка tauri, tauri.conf.json, базовая сборка и тестовые шлюзы',
+    description: 'tauri branch, tauri.conf.json, baseline build and quality gates',
     check: () => {
       const branchOk = execSync('git branch --show-current', { cwd: PROJECT_ROOT, encoding: 'utf8' }).trim() === 'tauri';
       const tauriConf = fs.existsSync(path.join(PROJECT_ROOT, 'src-tauri/tauri.conf.json')) || fs.existsSync(path.join(PROJECT_ROOT, 'rust/gui-spike/Cargo.toml'));
       return {
         status: branchOk && tauriConf ? 'completed' : 'in_progress',
         progress: 100,
-        evidence: 'Ветка tauri активна, базовая конфигурация зафиксирована',
+        evidence: 'Active tauri branch, baseline configuration locked',
         files: ['rust/gui-spike/Cargo.toml', 'scripts/assert-branch-tauri.sh']
       };
     }
   },
   {
     id: 1,
-    title: 'Инвентаризация кода и библиотек',
+    title: 'Codebase & Dependency Inventory',
     kanbanId: 'STAGE-01',
-    description: 'Анализ самописного кода vs библиотек, спецификации и дизайн-токены',
+    description: 'Analysis of custom code vs libraries, specifications, and design tokens',
     check: () => {
       const specsExist = fs.existsSync(path.join(PROJECT_ROOT, 'docs/specs'));
       return {
         status: specsExist ? 'completed' : 'in_progress',
         progress: 100,
-        evidence: 'Инвентаризация проведена, спецификации созданы в docs/specs/',
+        evidence: 'Inventory complete, specifications documented in docs/specs/',
         files: ['docs/specs/']
       };
     }
   },
   {
     id: 2,
-    title: 'Единый runtime и управление задачами',
+    title: 'Unified Runtime & Task Management',
     kanbanId: 'LIB-SIMPLIFY-06',
-    description: 'Tokio multi-thread + Rayon пул + CancellationToken + graceful shutdown',
+    description: 'Tokio multi-thread + Rayon pool + CancellationToken + graceful shutdown',
     check: () => {
       const runtimeFile = path.join(PROJECT_ROOT, 'rust/crates/chord-core/src/runtime.rs');
       const inCore = fs.existsSync(runtimeFile);
       return {
         status: inCore ? 'completed' : 'in_progress',
         progress: inCore ? 100 : 50,
-        evidence: inCore ? 'RuntimeManager реализован' : 'В процессе разработки (запланирован в LIB-SIMPLIFY-06)',
+        evidence: inCore ? 'RuntimeManager implemented' : 'In development (LIB-SIMPLIFY-06)',
         files: inCore ? [runtimeFile] : []
       };
     }
   },
   {
     id: 3,
-    title: 'Трассировка и метрики',
+    title: 'Tracing & Telemetry Redaction',
     kanbanId: 'STAGE-03',
-    description: 'tracing-subscriber + Secret Redaction Filter (маскирование токенов) + telemetry',
+    description: 'tracing-subscriber + Secret Redaction Filter (token masking) + telemetry',
     check: () => {
       const loggerPath = path.join(PROJECT_ROOT, 'scripts/logger.mjs');
       const rustTracing = fs.existsSync(path.join(PROJECT_ROOT, 'rust/crates/chord-core/src/telemetry.rs'));
       return {
         status: rustTracing ? 'completed' : 'in_progress',
         progress: rustTracing ? 100 : 70,
-        evidence: rustTracing ? 'tracing-subscriber и маскирование настроены' : 'Частично: есть logger.mjs и базовая телеметрия',
+        evidence: rustTracing ? 'tracing-subscriber and token redaction configured' : 'Partial: logger.mjs and baseline telemetry',
         files: [loggerPath]
       };
     }
   },
   {
     id: 4,
-    title: 'REST и формирование URL',
+    title: 'REST API & URL Builders',
     kanbanId: 'LIB-SIMPLIFY-01',
-    description: 'Тонкий мост на reqwest + url::Url + serde вместо ручной сборки строк',
+    description: 'Thin bridge with reqwest + url::Url + serde instead of manual string concatenation',
     check: () => {
       const bridgeFile = path.join(PROJECT_ROOT, 'rust/crates/chord-core/src/rest/bridge.rs');
       if (fs.existsSync(bridgeFile)) {
@@ -111,55 +111,54 @@ const STAGES = [
         return {
           status: 'completed',
           progress: 100,
-          evidence: `DiscordRestBridge (${loc} LOC): использует reqwest и url::Url. 33 контрактных теста пройдены`,
+          evidence: `DiscordRestBridge (${loc} LOC): uses reqwest and url::Url. 33 contract tests passed`,
           files: ['rust/crates/chord-core/src/rest/bridge.rs'],
           loc
         };
       }
-      return { status: 'not_started', progress: 0, evidence: 'Не найден', files: [] };
+      return { status: 'not_started', progress: 0, evidence: 'Not found', files: [] };
     }
   },
   {
     id: 5,
-    title: 'Gateway WebSocket и Heartbeat',
+    title: 'Gateway WebSocket & Heartbeat',
     kanbanId: 'STAGE-05',
-    description: 'Изолированный цикл на tokio-tungstenite + zlib-ng / zstd',
+    description: 'Isolated loop on tokio-tungstenite + zlib-ng / zstd',
     check: () => {
       const gwFile = path.join(PROJECT_ROOT, 'rust/crates/chord-core/src/gateway/mod.rs');
       const exists = fs.existsSync(gwFile);
       return {
         status: exists ? 'in_progress' : 'planned',
         progress: exists ? 65 : 20,
-        evidence: exists ? 'Базовый Gateway существует, требуется оптимизация цикла heartbeat' : 'В очереди',
+        evidence: exists ? 'Baseline Gateway active, heartbeat loop optimization queued' : 'Queued',
         files: exists ? [gwFile] : []
       };
     }
   },
   {
     id: 6,
-    title: 'SQLite и локальные данные',
+    title: 'SQLite & Local Storage',
     kanbanId: 'LIB-SIMPLIFY-02',
-    description: 'StoreBridge на rusqlite + worker thread mpsc + FTS5 unicode61 + миграции',
+    description: 'StoreBridge on rusqlite + worker thread mpsc + FTS5 unicode61 + migrations',
     check: () => {
       const workerFile = path.join(PROJECT_ROOT, 'rust/crates/chord-store/src/worker.rs');
       if (fs.existsSync(workerFile)) {
         const content = fs.readFileSync(workerFile, 'utf8');
         const loc = content.split('\n').length;
-        const usesRusqlite = content.includes('rusqlite');
         return {
           status: 'completed',
           progress: 100,
-          evidence: `StoreBridge (${loc} LOC): rusqlite + mpsc(1024), FTS5, миграции v2. 22 теста пройдены`,
+          evidence: `StoreBridge (${loc} LOC): rusqlite + mpsc(1024), FTS5, v2 migrations. 22 tests passed`,
           files: ['rust/crates/chord-store/src/worker.rs'],
           loc
         };
       }
-      return { status: 'not_started', progress: 0, evidence: 'Не найден', files: [] };
+      return { status: 'not_started', progress: 0, evidence: 'Not found', files: [] };
     }
   },
   {
     id: 7,
-    title: 'Системная интеграция и секреты',
+    title: 'System Integration & Keyring Secrets',
     kanbanId: 'LIB-SIMPLIFY-03',
     description: 'chord-platform: keyring (OS Secret Service/KWallet) + ashpd + zeroize',
     check: () => {
@@ -169,17 +168,17 @@ const STAGES = [
         return {
           status: 'completed',
           progress: 100,
-          evidence: `chord-platform (${loc} LOC): keyring + ashpd + zeroize. 31 тест пройден`,
+          evidence: `chord-platform (${loc} LOC): keyring + ashpd + zeroize. 31 tests passed`,
           files: ['rust/crates/chord-platform/src/lib.rs'],
           loc
         };
       }
-      return { status: 'not_started', progress: 0, evidence: 'Не найден', files: [] };
+      return { status: 'not_started', progress: 0, evidence: 'Not found', files: [] };
     }
   },
   {
     id: 8,
-    title: 'Аудио и кодеки',
+    title: 'Audio Engine & Codecs',
     kanbanId: 'LIB-SIMPLIFY-04',
     description: 'cpal + crossbeam-queue lock-free RingBuffer + VadDetector (dBFS)',
     check: () => {
@@ -189,7 +188,7 @@ const STAGES = [
         return {
           status: 'completed',
           progress: 100,
-          evidence: `audio-spike (${loc} LOC): cpal + crossbeam ArrayQueue + VAD. 7/7 контрактов пройдены`,
+          evidence: `audio-spike (${loc} LOC): cpal + crossbeam ArrayQueue + VAD. 7/7 contracts passed`,
           files: [
             'rust/audio-spike/src/ring_buffer.rs',
             'rust/audio-spike/src/vad.rs',
@@ -198,14 +197,14 @@ const STAGES = [
           loc
         };
       }
-      return { status: 'not_started', progress: 0, evidence: 'Не найден', files: [] };
+      return { status: 'not_started', progress: 0, evidence: 'Not found', files: [] };
     }
   },
   {
     id: 9,
-    title: 'DAVE MLS v1 и голосовая сессия',
+    title: 'DAVE MLS v1 & Voice Sessions',
     kanbanId: 'LIB-SIMPLIFY-05',
-    description: 'DAVE E2EE: ring + RustCrypto (aes-gcm, hkdf, sha2) без самописной криптографии',
+    description: 'DAVE E2EE: ring + RustCrypto (aes-gcm, hkdf, sha2) without custom cryptography',
     check: () => {
       const daveSpike = path.join(PROJECT_ROOT, 'rust/dave-spike/src/bridge.rs');
       if (fs.existsSync(daveSpike)) {
@@ -214,19 +213,19 @@ const STAGES = [
         return {
           status: 'completed',
           progress: 100,
-          evidence: `dave-spike (${loc} LOC): 0 строк самописной криптографии, только ring + aes-gcm`,
+          evidence: `dave-spike (${loc} LOC): 0 lines of custom cryptography, pure ring + aes-gcm`,
           files: ['rust/dave-spike/src/bridge.rs', 'docs/specs/dave-e2ee-spike-comparison.md'],
           loc
         };
       }
-      return { status: 'not_started', progress: 0, evidence: 'Не найден', files: [] };
+      return { status: 'not_started', progress: 0, evidence: 'Not found', files: [] };
     }
   },
   {
     id: 10,
-    title: 'Фронтенд-библиотеки: Signals, Virtualizer, Floating UI',
+    title: 'Frontend Bridges: Signals, Virtualizer, Floating UI',
     kanbanId: 'LIB-SIMPLIFY-07',
-    description: 'Тонкие мосты: @preact/signals-core, @tanstack/virtual-core, @floating-ui/dom',
+    description: 'Thin bridges: @preact/signals-core, @tanstack/virtual-core, @floating-ui/dom',
     check: () => {
       const files = [
         'rust/gui-spike/ui/state/signals.js',
@@ -242,54 +241,54 @@ const STAGES = [
         return {
           status: 'completed',
           progress: 100,
-          evidence: `UI-мосты (${totalLoc} LOC): signals, virtualizer, floating-popover. 57/57 тестов пройдены`,
+          evidence: `UI Bridges (${totalLoc} LOC): signals, virtualizer, floating-popover. 57/57 tests passed`,
           files,
           loc: totalLoc
         };
       }
-      return { status: 'not_started', progress: 0, evidence: 'Не найдены', files: [] };
+      return { status: 'not_started', progress: 0, evidence: 'Not found', files: [] };
     }
   },
   {
     id: 11,
-    title: 'Видео и демонстрация экрана',
+    title: 'Video & Desktop Screen Sharing',
     kanbanId: 'STAGE-11',
-    description: 'Изоляция PipeWire / WebRTC видеопотоков в отдельный дочерний процесс',
+    description: 'Isolation of PipeWire / WebRTC video streams in dedicated child process',
     check: () => {
       return {
         status: 'planned',
         progress: 15,
-        evidence: 'Запланировано после стабилизации аудио ядра',
+        evidence: 'Scheduled following audio core stabilization',
         files: []
       };
     }
   },
   {
     id: 12,
-    title: 'Нагрузочное тестирование и бенчмарки x86_64',
+    title: 'x86_64 Stress Testing & Benchmarks',
     kanbanId: 'STAGE-12',
-    description: 'Стресс-тесты каналов, поиск по 100k сообщений, аудио задержка < 20ms',
+    description: 'Stress tests for channels, search across 100k messages, audio latency < 20ms',
     check: () => {
       const stressScripts = fs.existsSync(path.join(PROJECT_ROOT, 'scripts/stress-fts5.mjs'));
       return {
         status: stressScripts ? 'in_progress' : 'planned',
         progress: stressScripts ? 60 : 10,
-        evidence: stressScripts ? 'Скрипты стресс-тестирования FTS5 и памяти готовы' : 'В очереди',
+        evidence: stressScripts ? 'FTS5 and memory stress testing scripts verified' : 'Queued',
         files: ['scripts/stress-fts5.mjs']
       };
     }
   },
   {
     id: 13,
-    title: 'Очистка и фиксация результата',
+    title: 'Dead Code Sanitation & Architecture Freeze',
     kanbanId: 'STAGE-13',
-    description: 'Удаление C FFI (ffi.rs), исключение мертвого кода, документация архитектуры',
+    description: 'Removal of C FFI (ffi.rs), dead code elimination, and architecture documentation',
     check: () => {
       const ffiDeleted = !fs.existsSync(path.join(PROJECT_ROOT, 'rust/crates/chord-store/src/ffi.rs'));
       return {
         status: ffiDeleted ? 'in_progress' : 'planned',
         progress: ffiDeleted ? 75 : 20,
-        evidence: ffiDeleted ? 'chord-store/src/ffi.rs удален, модули переведены на чистый Rust' : 'В процессе',
+        evidence: ffiDeleted ? 'chord-store/src/ffi.rs removed, modules running pure Rust' : 'In progress',
         files: []
       };
     }
@@ -393,24 +392,24 @@ function syncWithKanban(summary) {
 }
 
 function generateMarkdownReport(summary) {
-  let md = `# Аудит Дорожной Карты Упрощения Chord\n\n`;
-  md += `**Дата аудита:** ${summary.timestamp}\n`;
-  md += `**Общий прогресс:** ${summary.overallProgressPercent}% (${summary.completedStages}/${summary.totalStages} этапов завершено)\n`;
-  md += `**Общий объем тонких мостов:** ${summary.totalBridgeLoc} LOC (средний размер адаптера: ${summary.averageBridgeLoc} LOC)\n\n`;
-  md += `| № | Этап | Карточка | Статус | Прогресс | LOC | Доказательство |\n`;
+  let md = `# Chord Simplification Roadmap Audit\n\n`;
+  md += `**Audit Timestamp:** ${summary.timestamp}\n`;
+  md += `**Overall Progress:** ${summary.overallProgressPercent}% (${summary.completedStages}/${summary.totalStages} stages completed)\n`;
+  md += `**Total Thin Bridge Code:** ${summary.totalBridgeLoc} LOC (average adapter size: ${summary.averageBridgeLoc} LOC)\n\n`;
+  md += `| Stage # | Stage Title | Kanban Card | Status | Progress | LOC | Verification Evidence |\n`;
   md += `|---|---|---|:---:|:---:|:---:|---|\n`;
 
   for (const st of summary.stages) {
-    const statusIcon = st.status === 'completed' ? '✅ Готово' : st.status === 'in_progress' ? '🔄 В работе' : '⏳ В планах';
+    const statusIcon = st.status === 'completed' ? '✅ Completed' : st.status === 'in_progress' ? '🔄 In Progress' : '⏳ Queued';
     md += `| ${st.id} | **${st.title}** | \`${st.kanbanId}\` | ${statusIcon} | ${st.progress}% | ${st.loc ? st.loc : '—'} | ${st.evidence} |\n`;
   }
 
-  md += `\n## Архитектурное соответствие правилу «Тонкий мост»:\n`;
-  md += `- **0 строк самописной криптографии**: делегировано в \`ring\` и \`aes-gcm\` (DAVE MLS v1).\n`;
-  md += `- **0 строк ручной конкатенации HTTP URL**: делегировано в \`url::Url\` и \`reqwest\`.\n`;
-  md += `- **0 строк C FFI для БД**: делегировано в \`rusqlite\` + FTS5 unicode61.\n`;
-  md += `- **0 строк самописных очередей звука**: делегировано в \`crossbeam-queue::ArrayQueue\` + \`cpal\`.\n`;
-  md += `- **0 строк самописных виртуальных списков**: делегировано в \`@tanstack/virtual-core\` и \`@preact/signals-core\`.\n`;
+  md += `\n## Architectural Compliance with "Thin Bridge" Rule:\n`;
+  md += `- **0 lines of custom cryptography**: delegated to \`ring\` and \`aes-gcm\` (DAVE MLS v1).\n`;
+  md += `- **0 lines of manual HTTP URL concatenation**: delegated to \`url::Url\` and \`reqwest\`.\n`;
+  md += `- **0 lines of custom DB C FFI**: delegated to pure \`rusqlite\` + FTS5 unicode61.\n`;
+  md += `- **0 lines of custom audio queues**: delegated to \`crossbeam-queue::ArrayQueue\` + \`cpal\`.\n`;
+  md += `- **0 lines of custom virtual lists**: delegated to \`@tanstack/virtual-core\` and \`@preact/signals-core\`.\n`;
 
   fs.writeFileSync(ROADMAP_MD, md, 'utf8');
   console.log(`📄 [ROADMAP-AUDIT] Report written to ${ROADMAP_MD}`);

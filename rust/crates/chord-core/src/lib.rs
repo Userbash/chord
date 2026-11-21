@@ -29,6 +29,7 @@ pub mod ready;
 pub mod rest;
 pub mod resume;
 pub mod runtime;
+pub mod session_resilience;
 pub mod sessions_manager;
 pub mod settings;
 pub mod shutdown;
@@ -41,17 +42,10 @@ pub mod totp_view;
 pub mod ws;
 pub mod ws_transport;
 
+pub use cache::*;
 /// Ре-экспорт кодека: потребителям и интеграционным тестам `discord-core` не нужна
 /// отдельная зависимость на `discord-codec`.
 pub use chord_codec as codec;
-pub use cache::*;
-pub use runtime::{
-    MediaThreadPool, MediaThreadPoolError, RegisteredThread, RuntimeConfig, RuntimeConfigError,
-    RuntimeError, RuntimeManager, ThreadRegistry,
-};
-pub use shutdown::ShutdownCoordinator;
-pub use gateway_events::*;
-pub use twilight_model;
 pub use dispatch::{DispatchEvent, DispatchKind, route_dispatch};
 pub use gateway::supervisor::{
     Backoff, CloseAction, StopReason, Supervisor, SupervisorConfig, SupervisorEvent,
@@ -61,6 +55,7 @@ pub use gateway::{
     Effect, GatewayError, HeartbeatMode, Hello, Op, QOS_HEARTBEAT_OP, QosPayload, ReconnectReason,
     Session,
 };
+pub use gateway_events::*;
 pub use heartbeat::{
     DEFAULT_HEARTBEAT_INTERVAL_MS, HEARTBEAT_ACK_OP, HEARTBEAT_OP, HeartbeatAckOutcome,
     HeartbeatConfig, HeartbeatLoopControl, HeartbeatLoopError, HeartbeatLoopHandle,
@@ -79,14 +74,13 @@ pub use identify::{
     qos_token_client_provided,
 };
 pub use logging::{
-    redact_secrets, RedactedMakeWriter, RedactedWriter, SecretRedactionLayer, REDACTED_MARKER,
+    REDACTED_MARKER, RedactedMakeWriter, RedactedWriter, SecretRedactionLayer, redact_secrets,
 };
 pub use permissions::{
     ALL_PERMISSIONS, OVERWRITE_TYPE_MEMBER, OVERWRITE_TYPE_ROLE, PermissionCalculator,
     PermissionOverwrite, Permissions, compute_base_permissions, compute_channel_permissions,
     has_permission,
 };
-pub use twilight_util;
 pub use ready::ReadySummary;
 pub use rest::bridge::{
     DiscordHttpClient, DiscordRestBridge, DiscordRestBridgeError, RateLimitBucketState,
@@ -101,11 +95,16 @@ pub use resume::{
     ResumeRecoveryOutcome, ResumeRecoveryReport, ResumeSessionCoordinator, ResumeSessionManager,
     ResumeState, build_resume_frame, build_resume_json_payload, plan_reconnect,
 };
+pub use runtime::{
+    MediaThreadPool, MediaThreadPoolError, RegisteredThread, RuntimeConfig, RuntimeConfigError,
+    RuntimeError, RuntimeManager, ThreadRegistry,
+};
 pub use settings::{
     FrecencyUserSettings, PreloadedUserSettings, ProtoField, ProtoMessage, ProtoValue,
     SettingsProto, SettingsProtoError, decode_frecency_user_settings,
     decode_preloaded_user_settings, decode_settings,
 };
+pub use shutdown::ShutdownCoordinator;
 pub use state::{
     Activity, ActivityAssets, ActivityEmoji, ActivityParty, ActivityTimestamps, ActivityType,
     Event, MemberChunk, MemberChunkAssembly, MemberChunkMember, MemberList, MemberListEntry,
@@ -115,6 +114,8 @@ pub use state::{
     VoiceChannelStartTime, VoiceChannelStatus, VoiceKey, VoiceState, VoiceStateUpdate, apply,
     apply_dispatch, apply_frame, apply_frame_at,
 };
+pub use twilight_model;
+pub use twilight_util;
 pub use ws::{
     GATEWAY_ENDPOINT, GATEWAY_QUERY, GatewayPipe, GatewayUrl, GatewayUrlError, RunOptions,
     RunOutcome, TransportError, connect_and_run, connect_and_run_resume, connect_and_run_with,

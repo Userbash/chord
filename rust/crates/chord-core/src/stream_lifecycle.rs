@@ -505,8 +505,9 @@ impl StreamLifecycleController {
         &mut self,
         raw_stream_key: &str,
     ) -> Result<StreamUiStateSnapshot, StreamLifecycleError> {
-        let key = StreamKey::parse(raw_stream_key)
-            .map_err(|reason| StreamLifecycleError::InvalidStreamPayload(StreamError::InvalidKey { reason }))?;
+        let key = StreamKey::parse(raw_stream_key).map_err(|reason| {
+            StreamLifecycleError::InvalidStreamPayload(StreamError::InvalidKey { reason })
+        })?;
         let _ = apply_stream_action(
             &mut self.stream_state,
             StreamAction::Local(LocalStreamAction::WatchRequested { key }),
@@ -840,9 +841,7 @@ fn classify_streamer_tool_process(
 
     let tool = match basename {
         "obs" | "obs.exe" | "obs32.exe" | "obs64.exe" | "obs.app" | "obs-studio" => Some("OBS"),
-        "xsplit.gamecaster.exe" | "xsplit.core.exe" | "gamecaster.exe" | "xsplit" => {
-            Some("XSplit")
-        }
+        "xsplit.gamecaster.exe" | "xsplit.core.exe" | "gamecaster.exe" | "xsplit" => Some("XSplit"),
         "bebo.exe" | "bebo" => Some("Bebo"),
         "streamlabs obs.exe"
         | "streamlabs desktop.exe"
@@ -1042,9 +1041,7 @@ pub fn sanitize_personal_data(input: &str) -> (String, u64) {
 fn sanitize_personal_token(token: &str) -> (String, u64) {
     // Strip surrounding punctuation such as parentheses, commas, quotes
     let trim_chars: &[char] = &['(', ')', '[', ']', '<', '>', ',', ';', '"', '\''];
-    let start_idx = token
-        .find(|c: char| !trim_chars.contains(&c))
-        .unwrap_or(0);
+    let start_idx = token.find(|c: char| !trim_chars.contains(&c)).unwrap_or(0);
     let end_idx = token
         .rfind(|c: char| !trim_chars.contains(&c) && c != '.' && c != '!' && c != '?')
         .map_or(token.len(), |idx| {
@@ -1095,7 +1092,11 @@ fn looks_like_email(s: &str) -> bool {
     }
     let local = &s[..at_pos];
     let domain = &s[at_pos + 1..];
-    if domain.contains('@') || !domain.contains('.') || domain.starts_with('.') || domain.ends_with('.') {
+    if domain.contains('@')
+        || !domain.contains('.')
+        || domain.starts_with('.')
+        || domain.ends_with('.')
+    {
         return false;
     }
     let local_ok = local
@@ -1126,7 +1127,11 @@ fn extract_endpoint_host(endpoint: &str) -> Option<String> {
         .or_else(|| trimmed.strip_prefix("http://"))
         .unwrap_or(trimmed);
     let without_path = without_scheme.split('/').next().unwrap_or(without_scheme);
-    let host = without_path.split(':').next().unwrap_or(without_path).trim();
+    let host = without_path
+        .split(':')
+        .next()
+        .unwrap_or(without_path)
+        .trim();
     if host.is_empty() {
         None
     } else {

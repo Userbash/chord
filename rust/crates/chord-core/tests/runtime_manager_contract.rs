@@ -7,12 +7,12 @@
 //! - ThreadRegistry inspection (active thread counts, thread names, thread IDs).
 //! - Task spawning (`spawn`, `spawn_blocking`, `block_on`) and `Handle` retrieval.
 
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use chord_core::runtime::{
-    RuntimeConfig, RuntimeManager, ThreadRegistry, DEFAULT_THREAD_NAME_PREFIX,
+    DEFAULT_THREAD_NAME_PREFIX, RuntimeConfig, RuntimeManager, ThreadRegistry,
 };
 
 #[test]
@@ -39,7 +39,10 @@ fn test_thread_registry_direct_operations() {
 fn test_runtime_manager_initialization_default() {
     let manager = RuntimeManager::new().expect("default runtime manager should initialize");
     assert!(manager.config().worker_threads >= 1);
-    assert_eq!(manager.config().thread_name_prefix, DEFAULT_THREAD_NAME_PREFIX);
+    assert_eq!(
+        manager.config().thread_name_prefix,
+        DEFAULT_THREAD_NAME_PREFIX
+    );
 
     let res = manager.block_on(async { 100 + 23 });
     assert_eq!(res, 123);
@@ -87,8 +90,7 @@ fn test_runtime_manager_thread_registration_hooks() {
         .with_worker_threads(2)
         .with_thread_name_prefix("reg-test-");
 
-    let manager = RuntimeManager::from_config(config)
-        .expect("runtime manager should initialize");
+    let manager = RuntimeManager::from_config(config).expect("runtime manager should initialize");
 
     let registry = manager.registry();
 
@@ -97,7 +99,10 @@ fn test_runtime_manager_thread_registration_hooks() {
         let mut names = Vec::new();
         for _ in 0..6 {
             let name = tokio::spawn(async {
-                std::thread::current().name().unwrap_or("unknown").to_string()
+                std::thread::current()
+                    .name()
+                    .unwrap_or("unknown")
+                    .to_string()
             })
             .await
             .unwrap();
@@ -160,8 +165,7 @@ fn test_runtime_manager_shutdown_unregisters_threads() {
         .with_worker_threads(2)
         .with_thread_name_prefix("shut-test-");
 
-    let manager = RuntimeManager::from_config(config)
-        .expect("runtime manager should initialize");
+    let manager = RuntimeManager::from_config(config).expect("runtime manager should initialize");
 
     let registry = manager.registry();
 
