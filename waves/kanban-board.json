@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T07:04:37.047Z",
+  "updated_at": "2026-11-21T07:15:36.727Z",
   "columns": [
     {
       "id": "backlog",
@@ -9049,7 +9049,7 @@
         "603.1: Написание скрипта kanban-automate.mjs для беззатратного управления доской",
         "603.2: Написание скрипта smart-typecheck.mjs и ram-guard для воркеров"
       ],
-      "updated_at": "2026-11-21T07:04:23.743Z"
+      "updated_at": "2026-11-21T07:15:36.625Z"
     },
     {
       "id": "LIB-SIMPLIFY-07",
@@ -9530,5 +9530,5 @@
       ]
     }
   ],
-  "last_updated": "2026-11-21T06:21:07.545Z"
+  "last_updated": "2026-11-21T07:15:36.704Z"
 }
