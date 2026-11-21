@@ -900,49 +900,28 @@ impl MediaConstraintsEngine {
         let Some(voice) = self.active_voice_input.as_mut() else {
             return (true, None, false);
         };
-        let preferred_id = voice.preferred_exact_device_id().to_owned();
-        let preferred_present = self
-            .devices
-            .iter()
-            .any(|d| d.kind == AudioDeviceKind::Input && d.id == preferred_id);
-        let fallback_id = Self::find_fallback_input(&self.devices).map(|d| d.id.clone());
+        let pref = voice.preferred_exact_device_id().to_owned();
+        let pref_ok = self.devices.iter().any(|d| d.kind == AudioDeviceKind::Input && d.id == pref);
+        let fb_id = Self::find_fallback_input(&self.devices).map(|d| d.id.clone());
         match &voice.device_id_constraint {
-            DeviceIdMatchConstraint::Exact(_) if !preferred_present => {
-                if let Some(fb_id) = fallback_id {
-                    Self::bind_fallback_constraint(
-                        voice,
-                        preferred_id,
-                        fb_id.clone(),
-                        next_gen,
-                        &mut self.next_generation,
-                    );
-                    return (false, Some(fb_id), false);
+            DeviceIdMatchConstraint::Exact(_) if !pref_ok => {
+                if let Some(fb) = fb_id {
+                    Self::bind_fallback_constraint(voice, pref, fb.clone(), next_gen, &mut self.next_generation);
+                    return (false, Some(fb), false);
                 }
                 (false, None, false)
             }
-            DeviceIdMatchConstraint::ExactWithFallback {
-                effective_active_id,
-                ..
-            } => {
-                if preferred_present {
-                    voice.device_id_constraint = DeviceIdMatchConstraint::Exact(preferred_id);
+            DeviceIdMatchConstraint::ExactWithFallback { effective_active_id, .. } => {
+                if pref_ok {
+                    voice.device_id_constraint = DeviceIdMatchConstraint::Exact(pref);
                     voice.track_generation = next_gen;
                     self.next_generation = next_gen.saturating_add(1);
                     return (false, None, true);
                 }
-                let active_present = self
-                    .devices
-                    .iter()
-                    .any(|d| d.kind == AudioDeviceKind::Input && &d.id == effective_active_id);
-                if !active_present && let Some(fb_id) = fallback_id {
-                    Self::bind_fallback_constraint(
-                        voice,
-                        preferred_id,
-                        fb_id.clone(),
-                        next_gen,
-                        &mut self.next_generation,
-                    );
-                    return (false, Some(fb_id), false);
+                let act_ok = self.devices.iter().any(|d| d.kind == AudioDeviceKind::Input && &d.id == effective_active_id);
+                if !act_ok && let Some(fb) = fb_id {
+                    Self::bind_fallback_constraint(voice, pref, fb.clone(), next_gen, &mut self.next_generation);
+                    return (false, Some(fb), false);
                 }
                 (true, None, false)
             }

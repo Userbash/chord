@@ -99,7 +99,7 @@ fn full_navigation_via_gamepad_dpad_thumbstick_and_buttons() {
         .on_focus_changed(nav.current_zone(), true, &mut invoker)
         .unwrap();
     assert!(summoned);
-    assert_eq!(kbd.state(), VirtualKeyboardState::Visible);
+    assert_eq!(*kbd.state(), VirtualKeyboardState::Visible);
     assert_eq!(invoker.calls.len(), 1);
     assert_eq!(
         invoker.calls[0],
@@ -124,7 +124,7 @@ fn full_navigation_via_gamepad_dpad_thumbstick_and_buttons() {
         .on_focus_changed(nav.current_zone(), false, &mut invoker)
         .unwrap();
     assert!(!hidden);
-    assert_eq!(kbd.state(), VirtualKeyboardState::Hidden);
+    assert_eq!(*kbd.state(), VirtualKeyboardState::Hidden);
     assert_eq!(invoker.calls.last().unwrap().3, "hide");
 
     // Bumpers switch servers, triggers switch channels

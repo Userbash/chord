@@ -29,22 +29,18 @@ pub const MIN_STREAM_FPS: u32 = 1;
 pub const MAX_STREAM_FPS: u32 = 60;
 pub const MIN_STREAM_BITRATE_BPS: u32 = 150_000;
 pub const MAX_STREAM_BITRATE_BPS: u32 = 25_000_000;
-
 pub const DEFAULT_720P30_TARGET_BITRATE_BPS: u32 = 2_500_000;
 pub const DEFAULT_720P60_TARGET_BITRATE_BPS: u32 = 4_000_000;
-
 pub const FREE_TIER_MAX_WIDTH: u32 = 1280;
 pub const FREE_TIER_MAX_HEIGHT: u32 = 720;
 pub const FREE_TIER_MAX_FPS: u32 = 30;
 pub const FREE_TIER_MAX_TARGET_BITRATE_BPS: u32 = 2_500_000;
 pub const FREE_TIER_MAX_CEILING_BITRATE_BPS: u32 = 3_500_000;
-
 pub const PIXEL_LIMIT_480P: u32 = 854 * 480;
 pub const PIXEL_LIMIT_720P: u32 = 1280 * 720;
 pub const PIXEL_LIMIT_1080P: u32 = 1920 * 1080;
 pub const PIXEL_LIMIT_1440P: u32 = 2560 * 1440;
 pub const PIXEL_LIMIT_2160P: u32 = 3840 * 2160;
-
 pub const LOSS_CONGESTION_THRESHOLD_256: u8 = 13;
 pub const LOSS_RECOVERY_THRESHOLD_256: u8 = 5;
 pub const REMB_HEADROOM_NUMERATOR: u32 = 4;
@@ -55,7 +51,6 @@ pub const ADAPTATION_TICK_INTERVAL_MS: u64 = 1_000;
 pub const CONNECTION_IDLE_FRAMERATE_REDUCE_MS: u64 = 15_000;
 pub const IDLE_REDUCED_MAX_FRAMERATE: u32 = 20;
 
-/// Content optimization hint for Go Live video encoding.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum StreamContentHint {
     #[default]
@@ -63,7 +58,6 @@ pub enum StreamContentHint {
     Detail,
 }
 
-/// Resolution tier presets for Go Live streams.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum StreamResolutionPreset {
     P480,
@@ -98,7 +92,6 @@ impl StreamResolutionPreset {
     }
 }
 
-/// Framerate tier presets for Go Live streams (`15`, `30`, `60` FPS).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum StreamFrameratePreset {
     Fps15,
@@ -118,7 +111,6 @@ impl StreamFrameratePreset {
     }
 }
 
-/// Combined resolution and framerate quality profile presets.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum StreamProfilePreset {
     P480Fps15,
@@ -190,7 +182,6 @@ impl StreamProfilePreset {
     }
 }
 
-/// Vesktop `patchStreamQuality` client entitlement policy.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum GoLiveQualityPatchPolicy {
     FreeTierClamped,
@@ -198,7 +189,6 @@ pub enum GoLiveQualityPatchPolicy {
     PatchedUnrestricted,
 }
 
-/// Validation and adaptation errors for stream quality profiles.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StreamQualityError {
     InvalidDimensions { width: u32, height: u32 },
@@ -244,7 +234,6 @@ impl fmt::Display for StreamQualityError {
 
 impl std::error::Error for StreamQualityError {}
 
-/// Validated stream quality profile defining resolution bounds, pixel budget, framerate, and bitrate envelope.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct StreamQualityProfile {
     pub width: u32,
@@ -513,22 +502,18 @@ impl GoLiveStreamContext {
     pub fn stream_key(&self) -> &str {
         &self.stream_key
     }
-
     #[must_use]
     pub fn rtc_token(&self) -> &str {
         &self.rtc_token
     }
-
     #[must_use]
     pub const fn audio_ssrc(&self) -> u32 {
         self.audio_ssrc
     }
-
     #[must_use]
     pub const fn video_ssrc(&self) -> u32 {
         self.video_ssrc
     }
-
     #[must_use]
     pub const fn rtx_ssrc(&self) -> u32 {
         self.rtx_ssrc
@@ -624,46 +609,37 @@ impl StreamQualityController {
     pub const fn audio_ssrc(&self) -> u32 {
         self.audio_ssrc
     }
-
     #[must_use]
     pub const fn video_ssrc(&self) -> u32 {
         self.video_ssrc
     }
-
     #[must_use]
     pub const fn rtx_ssrc(&self) -> u32 {
         self.rtx_ssrc
     }
-
     #[must_use]
     pub const fn state(&self) -> StreamAdaptationState {
         self.state
     }
-
     #[must_use]
     pub const fn selected_profile(&self) -> &StreamQualityProfile {
         &self.selected_profile
     }
-
     #[must_use]
     pub const fn effective_profile(&self) -> &StreamQualityProfile {
         &self.effective_profile
     }
-
     #[must_use]
     pub const fn current_target_bitrate_bps(&self) -> u32 {
         self.current_target_bitrate_bps
     }
-
     #[must_use]
     pub const fn telemetry(&self) -> &StreamQualityTelemetry {
         &self.telemetry
     }
 
     pub fn take_keyframe_requested(&mut self) -> bool {
-        let req = self.keyframe_requested;
-        self.keyframe_requested = false;
-        req
+        std::mem::replace(&mut self.keyframe_requested, false)
     }
 
     pub fn handle_go_live(&mut self, source_width: u32, source_height: u32) -> VoiceVideo {
@@ -722,8 +698,7 @@ impl StreamQualityController {
     pub fn update_static_screen_idle_ms(&mut self, idle_ms: u64) {
         let was_reduced = self.static_screen_idle_ms >= CONNECTION_IDLE_FRAMERATE_REDUCE_MS;
         self.static_screen_idle_ms = idle_ms;
-        let is_reduced = self.static_screen_idle_ms >= CONNECTION_IDLE_FRAMERATE_REDUCE_MS;
-        if !was_reduced && is_reduced {
+        if !was_reduced && self.static_screen_idle_ms >= CONNECTION_IDLE_FRAMERATE_REDUCE_MS {
             self.telemetry.idle_framerate_reductions += 1;
         }
     }
