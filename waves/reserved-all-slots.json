@@ -598,9 +598,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "low",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:47:50.468Z"
     },
     {
       "slot": 33,
@@ -615,9 +616,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "low",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:47:54.640Z"
     },
     {
       "slot": 34,
@@ -632,9 +634,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "low",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:47:58.784Z"
     },
     {
       "slot": 35,
