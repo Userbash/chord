@@ -128,7 +128,7 @@ export function cmdPull() {
   console.log(`📥 [GIT-SYNC PULL] Fetching updates from all remotes (${remotes.join(', ')})...`);
   console.log('================================================================================');
 
-  execQuiet('git fetch --all --prune');
+  execQuiet('git fetch --all --prune', { timeout: 15000 });
 
   let hasStash = false;
   const statusBefore = execQuiet('git status --porcelain');

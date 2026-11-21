@@ -12,8 +12,8 @@
     {
       "slot": 1,
       "id": "LIB-SIMPLIFY-06",
-      "title": "Concurrency & Automation: x86_64 Tokio/Rayon Runtime + Скрипты экономии токенов",
-      "description": "Разделение потоков исполнения: Tokio для асинхронной сети, Rayon для тяжелых CPU-задач (картинки/видео), rtrb для звука. Разработка автоматических скриптов для рутинных задач ИИ.",
+      "title": "Concurrency & Automation: x86_64 Tokio/Rayon Runtime + \u0421\u043a\u0440\u0438\u043f\u0442\u044b \u044d\u043a\u043e\u043d\u043e\u043c\u0438\u0438 \u0442\u043e\u043a\u0435\u043d\u043e\u0432",
+      "description": "\u0420\u0430\u0437\u0434\u0435\u043b\u0435\u043d\u0438\u0435 \u043f\u043e\u0442\u043e\u043a\u043e\u0432 \u0438\u0441\u043f\u043e\u043b\u043d\u0435\u043d\u0438\u044f: Tokio \u0434\u043b\u044f \u0430\u0441\u0438\u043d\u0445\u0440\u043e\u043d\u043d\u043e\u0439 \u0441\u0435\u0442\u0438, Rayon \u0434\u043b\u044f \u0442\u044f\u0436\u0435\u043b\u044b\u0445 CPU-\u0437\u0430\u0434\u0430\u0447 (\u043a\u0430\u0440\u0442\u0438\u043d\u043a\u0438/\u0432\u0438\u0434\u0435\u043e), rtrb \u0434\u043b\u044f \u0437\u0432\u0443\u043a\u0430. \u0420\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u043a\u0430 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0445 \u0441\u043a\u0440\u0438\u043f\u0442\u043e\u0432 \u0434\u043b\u044f \u0440\u0443\u0442\u0438\u043d\u043d\u044b\u0445 \u0437\u0430\u0434\u0430\u0447 \u0418\u0418.",
       "priority": "P0",
       "currentColumn": "in_dev",
       "department": "G1",
@@ -32,7 +32,7 @@
       "slot": 2,
       "id": "R4-01",
       "title": "Window Shell",
-      "description": "Frameless window with native titlebar, window geometry save/restore, multi-monitor boundary protection, minimum dimensions 940×500 (default 1280×720), transparency and blur support. Target: Native Client: Shell Layer. Criteria: Window persists geometry across restarts; respects minimum bounds; remains visible when monitor topologies change",
+      "description": "Frameless window with native titlebar, window geometry save/restore, multi-monitor boundary protection, minimum dimensions 940\u00d7500 (default 1280\u00d7720), transparency and blur support. Target: Native Client: Shell Layer. Criteria: Window persists geometry across restarts; respects minimum bounds; remains visible when monitor topologies change",
       "priority": "P0",
       "currentColumn": "backlog",
       "department": "G5 Voice / Platform",
@@ -70,7 +70,7 @@
       "slot": 4,
       "id": "R4-03",
       "title": "Unread Badges",
-      "description": "Unread message counter badge: Linux Unity/Freedesktop D-Bus launcher, Windows taskbar overlay icon, macOS dock badge; numeric 1–10, overflow dot indicator, 0 clears. Target: Shell: OS Integration. Criteria: Badge visible on desktop launcher/dock/taskbar; 0 clears badge; overflow renders dot; configurable in settings",
+      "description": "Unread message counter badge: Linux Unity/Freedesktop D-Bus launcher, Windows taskbar overlay icon, macOS dock badge; numeric 1\u201310, overflow dot indicator, 0 clears. Target: Shell: OS Integration. Criteria: Badge visible on desktop launcher/dock/taskbar; 0 clears badge; overflow renders dot; configurable in settings",
       "priority": "P0",
       "currentColumn": "backlog",
       "department": "G5 Voice / Platform",
@@ -212,10 +212,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:08:49.439Z"
+      "dispatchedAt": "2026-11-21T08:08:49.439Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 12,
@@ -230,10 +231,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:08:53.264Z"
+      "dispatchedAt": "2026-11-21T08:08:53.264Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 13,
@@ -315,7 +317,7 @@
       "slot": 17,
       "id": "R5-04",
       "title": "Stream Source Selector",
-      "description": "Source selection grid with live thumbnails, monitor vs window tabs, resolution presets (480p–1440p) and frame rates (15–60 FPS), audio toggle. Target: UI: Streaming Modal. Criteria: Selecting source initiates stream; target resolution, framerate, and audio flags apply to encoder pipeline",
+      "description": "Source selection grid with live thumbnails, monitor vs window tabs, resolution presets (480p\u20131440p) and frame rates (15\u201360 FPS), audio toggle. Target: UI: Streaming Modal. Criteria: Selecting source initiates stream; target resolution, framerate, and audio flags apply to encoder pipeline",
       "priority": "P1",
       "currentColumn": "backlog",
       "department": "G5 Voice / Platform",
@@ -334,7 +336,7 @@
       "slot": 18,
       "id": "R5-05",
       "title": "High-Res Source Thumbnails",
-      "description": "On-demand high-resolution thumbnail generation (1920×1080) on source hover or selection while keeping the initial picker list responsive. Target: UI: Streaming Modal. Criteria: Selected thumbnail renders crisp high-res preview; source list remains smooth and responsive",
+      "description": "On-demand high-resolution thumbnail generation (1920\u00d71080) on source hover or selection while keeping the initial picker list responsive. Target: UI: Streaming Modal. Criteria: Selected thumbnail renders crisp high-res preview; source list remains smooth and responsive",
       "priority": "P1",
       "currentColumn": "backlog",
       "department": "G5 Voice / Platform",
@@ -457,10 +459,11 @@
       "scriptCommand": null,
       "model": "gemini-4-argon-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:30:47.130Z"
+      "dispatchedAt": "2026-11-21T08:30:47.130Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 25,
@@ -494,10 +497,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "low",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:40:47.173Z"
+      "dispatchedAt": "2026-11-21T08:40:47.173Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 27,
@@ -550,10 +554,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "low",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:42:51.286Z"
+      "dispatchedAt": "2026-11-21T08:42:51.286Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 30,
@@ -587,10 +592,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "low",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:45:16.175Z"
+      "dispatchedAt": "2026-11-21T08:45:16.175Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 32,
@@ -624,10 +630,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "low",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:47:54.640Z"
+      "dispatchedAt": "2026-11-21T08:47:54.640Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 34,
@@ -642,10 +649,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "low",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:47:58.784Z"
+      "dispatchedAt": "2026-11-21T08:47:58.784Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 35,
@@ -736,10 +744,11 @@
       "scriptCommand": null,
       "model": "gemini-4-argon-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:56:24.040Z"
+      "dispatchedAt": "2026-11-21T08:56:24.040Z",
+      "completedAt": "2026-11-21T14:42:39.295914"
     },
     {
       "slot": 40,
