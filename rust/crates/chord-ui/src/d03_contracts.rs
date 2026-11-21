@@ -28,14 +28,8 @@ use crate::member_list::PresenceStatus;
 pub const CHAT_VIRTUALIZER_MAX_DOM_POOL: usize = 60;
 
 /// Canonical ARIA roles used across the guild rail, channel sidebar, and DM list (D-03 §1 / `00-start.fingerprint.json`).
-pub const CHANNEL_SIDEBAR_ARIA_ROLES: [&str; 6] = [
-    "tree",
-    "treeitem",
-    "group",
-    "list",
-    "listitem",
-    "button",
-];
+pub const CHANNEL_SIDEBAR_ARIA_ROLES: [&str; 6] =
+    ["tree", "treeitem", "group", "list", "listitem", "button"];
 
 /// Canonical 10 category rail items in the full Emoji Picker (`21d-emoji-categories.json`).
 pub const EMOJI_CATEGORY_RAIL_ITEMS: [&str; 10] = [
@@ -80,7 +74,12 @@ pub const VOICE_SETTINGS_SLIDERS: [(&str, f64, f64, f64); 4] = [
     ("Громкость микрофона", 0.0, 100.0, 100.0),
     ("Громкость динамика", 0.0, 200.0, 100.0),
     ("Сила приглушения стрима", 1.0, 100.0, 50.0),
-    ("Порог чувствительности ввода", 0.0, 100.0, 26.109_350_171_958_468),
+    (
+        "Порог чувствительности ввода",
+        0.0,
+        100.0,
+        26.109_350_171_958_468,
+    ),
 ];
 
 /// Canonical 12 Mana component names in D-03 §5.
@@ -107,13 +106,19 @@ pub const D03_DARK_THEME_TOKENS: [(&str, &str); 16] = [
     ("--modal-background", "hsl(240 6.494% 15.098%)"),
     ("--modal-footer-background", "hsl(240 6.494% 15.098%)"),
     ("--modal-vertical-padding", "16px"),
-    ("--switch-background-selected-default", "hsl(234.935 85.556% 64.706%)"),
+    (
+        "--switch-background-selected-default",
+        "hsl(234.935 85.556% 64.706%)",
+    ),
     ("--switch-border-default", "hsl(240 4% 60.784% / 0.2)"),
     ("--switch-thumb-background-default", "hsl(0 0% 100%)"),
     ("--input-background-default", "hsl(0 0% 0% / 0.1216)"),
     ("--input-border-error-default", "hsl(1.905 90% 72.549%)"),
     ("--button-border-radius", "2147483647px"),
-    ("--button-danger-background-disabled", "hsl(355.636 64.706% 50%)"),
+    (
+        "--button-danger-background-disabled",
+        "hsl(355.636 64.706% 50%)",
+    ),
     ("--menu-scroller-block-padding", "8px"),
     ("--menu-border-width", "1px"),
     ("--scrollbar-thin-thumb", "hsl(234.545 5.473% 39.412%)"),
@@ -122,16 +127,52 @@ pub const D03_DARK_THEME_TOKENS: [(&str, &str); 16] = [
 /// Canonical keyboard bindings captured across D-03 UI interaction traces.
 /// Tuple: `(shortcut, module_or_surface, action)`.
 pub const D03_KEYBOARD_BINDINGS: [(&str, &str, &str); 10] = [
-    ("Ctrl+K / Cmd+K", "module 675704 (QuickSwitcher)", "OPEN_QUICK_SWITCHER"),
+    (
+        "Ctrl+K / Cmd+K",
+        "module 675704 (QuickSwitcher)",
+        "OPEN_QUICK_SWITCHER",
+    ),
     ("Ctrl+F / Cmd+F", "module 696760 (Search)", "FOCUS_SEARCH"),
-    ("Ctrl+A", "editor__25bec (Guild Search)", "SELECT_ALL_CLEAR_SCOPE_CHIP"),
-    ("Ctrl+E", "expressionPickerPositionLayer__74017", "TOGGLE_EMOJI_PICKER"),
-    ("Escape", "Modal / Popover / Settings / Search", "CLOSE_ACTIVE_LAYER"),
-    ("ArrowUp / ArrowDown", "Channel Sidebar / Menu / VirtualList", "MOVE_FOCUS_VERTICAL"),
-    ("ArrowLeft / ArrowRight", "Channel Sidebar Category / Slider", "COLLAPSE_EXPAND_OR_ADJUST"),
-    ("Home / End", "Channel Sidebar / Chat Scroller", "JUMP_FIRST_OR_LAST"),
-    ("PageUp / PageDown", "ChatVirtualViewport / Scroller", "SCROLL_VIEWPORT_PAGE"),
-    ("Enter / Space", "Button / Switch / MenuItem", "ACTIVATE_FOCUSED_CONTROL"),
+    (
+        "Ctrl+A",
+        "editor__25bec (Guild Search)",
+        "SELECT_ALL_CLEAR_SCOPE_CHIP",
+    ),
+    (
+        "Ctrl+E",
+        "expressionPickerPositionLayer__74017",
+        "TOGGLE_EMOJI_PICKER",
+    ),
+    (
+        "Escape",
+        "Modal / Popover / Settings / Search",
+        "CLOSE_ACTIVE_LAYER",
+    ),
+    (
+        "ArrowUp / ArrowDown",
+        "Channel Sidebar / Menu / VirtualList",
+        "MOVE_FOCUS_VERTICAL",
+    ),
+    (
+        "ArrowLeft / ArrowRight",
+        "Channel Sidebar Category / Slider",
+        "COLLAPSE_EXPAND_OR_ADJUST",
+    ),
+    (
+        "Home / End",
+        "Channel Sidebar / Chat Scroller",
+        "JUMP_FIRST_OR_LAST",
+    ),
+    (
+        "PageUp / PageDown",
+        "ChatVirtualViewport / Scroller",
+        "SCROLL_VIEWPORT_PAGE",
+    ),
+    (
+        "Enter / Space",
+        "Button / Switch / MenuItem",
+        "ACTIVATE_FOCUSED_CONTROL",
+    ),
 ];
 
 /// Identifies each of the empirical UI interaction trace surfaces in D-03.
@@ -446,7 +487,12 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "--button-outline-brand-border-active",
             "--button-outline-primary-text",
         ],
-        aria_roles: &["role=\"button\"", "aria-busy", "aria-disabled", "aria-label"],
+        aria_roles: &[
+            "role=\"button\"",
+            "aria-busy",
+            "aria-disabled",
+            "aria-label",
+        ],
         keyboard_bindings: &["Enter", "Space", "Tab / Shift+Tab"],
     },
     ComponentContractSpec {
@@ -465,7 +511,13 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "hasTrailing",
             "combo (comboBoxInput__0edde)",
         ],
-        states: &["disabled", "invalid/error", "placeholder", "focus", "hasTags"],
+        states: &[
+            "disabled",
+            "invalid/error",
+            "placeholder",
+            "focus",
+            "hasTags",
+        ],
         css_tokens: &[
             "--input-background-default",
             "--input-icon-default",
@@ -473,7 +525,12 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "--input-border-error-default",
             "--input-text-error-default",
         ],
-        aria_roles: &["role=\"textbox\"", "role=\"combobox\"", "aria-invalid", "aria-disabled"],
+        aria_roles: &[
+            "role=\"textbox\"",
+            "role=\"combobox\"",
+            "aria-invalid",
+            "aria-disabled",
+        ],
         keyboard_bindings: &["Ctrl+A", "Backspace (delete tag chip)", "Enter", "Escape"],
     },
     ComponentContractSpec {
@@ -493,7 +550,12 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "submenu",
             "separator",
         ],
-        states: &["enabled/disabled", "selected (aria-checked)", "focused", "scrolling"],
+        states: &[
+            "enabled/disabled",
+            "selected (aria-checked)",
+            "focused",
+            "scrolling",
+        ],
         css_tokens: &["--menu-scroller-block-padding", "--menu-border-width"],
         aria_roles: &[
             "role=\"menu\"",
@@ -502,17 +564,36 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "role=\"menuitemradio\"",
             "aria-checked",
         ],
-        keyboard_bindings: &["ArrowUp / ArrowDown", "ArrowRight / ArrowLeft (submenu)", "Enter / Space", "Escape"],
+        keyboard_bindings: &[
+            "ArrowUp / ArrowDown",
+            "ArrowRight / ArrowLeft (submenu)",
+            "Enter / Space",
+            "Escape",
+        ],
     },
     ComponentContractSpec {
         name: "ContextMenu",
         module_id: "opener module 837528 / primitives module 442433 / keybind registry module 696760",
         dom_classes: &["menu_c1e9c4", "layer__59d0d", "message-add-reaction"],
         variants: &["message-* items", "submenu", "checkbox/radio items"],
-        states: &["open/close (CONTEXT_MENU_OPEN/CLOSE)", "focused item", "disabled item"],
+        states: &[
+            "open/close (CONTEXT_MENU_OPEN/CLOSE)",
+            "focused item",
+            "disabled item",
+        ],
         css_tokens: &["--menu-scroller-block-padding", "--menu-border-width"],
-        aria_roles: &["role=\"menu\"", "role=\"menuitem\"", "aria-haspopup=\"menu\"", "aria-expanded"],
-        keyboard_bindings: &["Shift+F10 / ContextMenu", "ArrowUp / ArrowDown", "Enter", "Escape"],
+        aria_roles: &[
+            "role=\"menu\"",
+            "role=\"menuitem\"",
+            "aria-haspopup=\"menu\"",
+            "aria-expanded",
+        ],
+        keyboard_bindings: &[
+            "Shift+F10 / ContextMenu",
+            "ArrowUp / ArrowDown",
+            "Enter",
+            "Escape",
+        ],
     },
     ComponentContractSpec {
         name: "Modal",
@@ -522,8 +603,19 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "data-mana-component=\"modal\"",
             "container_abd9a8",
         ],
-        variants: &["animationVariant default", "layer-modal", "small (442px)", "medium (602px)", "large (800px)"],
-        states: &["transitionState (enter/exit)", "focus-trap", "onClose", "aria-label/aria-labelledby"],
+        variants: &[
+            "animationVariant default",
+            "layer-modal",
+            "small (442px)",
+            "medium (602px)",
+            "large (800px)",
+        ],
+        states: &[
+            "transitionState (enter/exit)",
+            "focus-trap",
+            "onClose",
+            "aria-label/aria-labelledby",
+        ],
         css_tokens: &[
             "--modal-background",
             "--modal-footer-background",
@@ -532,7 +624,12 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "--modal-width-medium",
             "--modal-width-large",
         ],
-        aria_roles: &["role=\"dialog\"", "aria-modal=\"true\"", "aria-labelledby", "tabindex=\"-1\""],
+        aria_roles: &[
+            "role=\"dialog\"",
+            "aria-modal=\"true\"",
+            "aria-labelledby",
+            "tabindex=\"-1\"",
+        ],
         keyboard_bindings: &["Escape (onClose)", "Tab / Shift+Tab (focus trap cycle)"],
     },
     ComponentContractSpec {
@@ -544,7 +641,11 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "positionLayer__08434",
             "expressionPickerPositionLayer__74017",
         ],
-        variants: &["standard/animated", "with offset-border", "menu/status/shortcut popover"],
+        variants: &[
+            "standard/animated",
+            "with offset-border",
+            "menu/status/shortcut popover",
+        ],
         states: &["open/close", "positioned"],
         css_tokens: &["--background-surface-high", "--text-strong"],
         aria_roles: &["role=\"dialog\"", "aria-expanded", "aria-haspopup"],
@@ -569,9 +670,16 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
     ComponentContractSpec {
         name: "Switch",
         module_id: "module 35556 @ discord.com_assets_501428.98d57a9bd8cbb604.js:1181154 / module 479909",
-        dom_classes: &["data-react-aria-pressable=\"true\"", "input[type=\"checkbox\"][role=\"switch\"]"],
+        dom_classes: &[
+            "data-react-aria-pressable=\"true\"",
+            "input[type=\"checkbox\"][role=\"switch\"]",
+        ],
         variants: &["standalone switch", "radio-like toggle"],
-        states: &["checked/unchecked", "disabled", "focus (data-react-aria-pressable)"],
+        states: &[
+            "checked/unchecked",
+            "disabled",
+            "focus (data-react-aria-pressable)",
+        ],
         css_tokens: &[
             "--switch-background-selected-default",
             "--switch-border-default",
@@ -579,7 +687,12 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "--switch-thumb-background-default",
             "--switch-thumb-icon-active",
         ],
-        aria_roles: &["role=\"switch\"", "aria-checked", "aria-labelledby", "aria-describedby"],
+        aria_roles: &[
+            "role=\"switch\"",
+            "aria-checked",
+            "aria-labelledby",
+            "aria-describedby",
+        ],
         keyboard_bindings: &["Space (toggle switch)", "Enter", "Tab / Shift+Tab"],
     },
     ComponentContractSpec {
@@ -597,7 +710,11 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "aria-orientation=\"horizontal\"",
             "aria-labelledby",
         ],
-        keyboard_bindings: &["ArrowLeft / ArrowDown (decrement)", "ArrowRight / ArrowUp (increment)", "Home / End (min / max)"],
+        keyboard_bindings: &[
+            "ArrowLeft / ArrowDown (decrement)",
+            "ArrowRight / ArrowUp (increment)",
+            "Home / End (min / max)",
+        ],
     },
     ComponentContractSpec {
         name: "Avatar",
@@ -617,9 +734,17 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "avatarWrapper_d8a370 + ring_d8a370",
             "avatarStack__44b0c (stack)",
         ],
-        states: &["status (online/idle/dnd/offline mask)", "muted (grayscale)", "speaking ring"],
+        states: &[
+            "status (online/idle/dnd/offline mask)",
+            "muted (grayscale)",
+            "speaking ring",
+        ],
         css_tokens: &["--background-surface-high", "--text-strong"],
-        aria_roles: &["role=\"img\"", "aria-label=\"username, status\"", "aria-hidden"],
+        aria_roles: &[
+            "role=\"img\"",
+            "aria-label=\"username, status\"",
+            "aria-hidden",
+        ],
         keyboard_bindings: &["Enter / Space (when wrapped in focusTarget__54e4b role=button)"],
     },
     ComponentContractSpec {
@@ -673,14 +798,24 @@ pub const D03_COMPONENTS: [ComponentContractSpec; 12] = [
             "customTheme",
             "virtualized list (scroller_affa7e + listItems_affa7e)",
         ],
-        states: &["scrolling", "fade", "scrollbarGutterStable", "disableScrollAnchor"],
+        states: &[
+            "scrolling",
+            "fade",
+            "scrollbarGutterStable",
+            "disableScrollAnchor",
+        ],
         css_tokens: &[
             "--scrollbar-thin-thumb",
             "--scrollbar-thin-track",
             "--scrollbar-auto-thumb",
             "--scrollbar-auto-track",
         ],
-        aria_roles: &["aria-orientation=\"vertical\"", "tabindex=\"0\"", "data-list-id", "data-jump-section"],
+        aria_roles: &[
+            "aria-orientation=\"vertical\"",
+            "tabindex=\"0\"",
+            "data-list-id",
+            "data-jump-section",
+        ],
         keyboard_bindings: &["PageUp / PageDown", "Home / End", "ArrowUp / ArrowDown"],
     },
 ];
@@ -924,7 +1059,10 @@ impl ChatVirtualViewport {
     /// Dynamically measures and updates the height of row `index`.
     pub fn measure_row(&mut self, index: usize, height: u32) -> Result<(), String> {
         if index >= self.total_rows {
-            return Err(format!("row index {index} out of bounds (total {})", self.total_rows));
+            return Err(format!(
+                "row index {index} out of bounds (total {})",
+                self.total_rows
+            ));
         }
         if height == 0 {
             return Err("measured row height must be > 0".to_string());
@@ -963,7 +1101,8 @@ impl ChatVirtualViewport {
     /// Maximum valid `scroll_top`.
     #[must_use]
     pub fn max_scroll_top(&self) -> u64 {
-        self.total_height().saturating_sub(self.viewport_height as u64)
+        self.total_height()
+            .saturating_sub(self.viewport_height as u64)
     }
 
     /// Returns true when the viewport is anchored at the bottom of the chat stream.
@@ -1012,7 +1151,9 @@ impl ChatVirtualViewport {
         }
         let approx_first = (self.scroll_top / (self.default_row_height as u64)) as usize;
         let visible_rows = ((self.viewport_height / self.default_row_height) as usize) + 1;
-        let start = approx_first.saturating_sub(self.overscan).min(self.total_rows);
+        let start = approx_first
+            .saturating_sub(self.overscan)
+            .min(self.total_rows);
         let max_count = (visible_rows + self.overscan * 2).min(CHAT_VIRTUALIZER_MAX_DOM_POOL);
         let end = (start + max_count).min(self.total_rows);
         start..end
@@ -1113,7 +1254,9 @@ impl EmojiPickerModel {
         if self.search_query.is_empty() {
             return self.visible_grid_count();
         }
-        if self.search_query.eq_ignore_ascii_case(":fire") || self.search_query.eq_ignore_ascii_case("fire") {
+        if self.search_query.eq_ignore_ascii_case(":fire")
+            || self.search_query.eq_ignore_ascii_case("fire")
+        {
             return match self.mode {
                 EmojiPickerMode::FullGuildChannel => 10,
                 EmojiPickerMode::FullDirectMessage => 11,

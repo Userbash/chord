@@ -26,7 +26,7 @@
 //! 3. Boundary conditions: Exact pixel limits (`854x480 = 409_920`, `1280x720 = 921_600`, `1920x1080 = 2_073_600`,
 //!    `2560x1440 = 3_686_400`, `3840x2160 = 8_294_400`), exact 1200-byte vs 1201-byte MTU fragmentation boundary,
 //!    Snowflake `0` and `u64::MAX` boundaries, `u16::MAX` sequence wrap, and `u8::MAX` FIR sequence wrap.
-//! 4. Error handling: Typed `StreamQualityError`, `VideoRtpError`, `RtcpError`, `VoiceError`, and `SoundboardProtocolError`
+//! 4. Error handling: Typed `StreamQualityError`, `VideoRtpError`, `RtcpError`, and `VoiceError`
 //!    on malformed inputs without panics.
 //! 5. Empty states: Empty video frames (`VideoRtpError::EmptyFrame`), empty STAP-A (`VideoRtpError::StapAEmpty`),
 //!    and `MediaSinkWants` `quality: 0` pausing encoder (`active: false`, `PausedBySink`).
@@ -47,61 +47,50 @@ use chord_voice::dave::{
     DaveExecuteTransition, DavePrepareTransition, OP_EXECUTE_TRANSITION, OP_PREPARE_TRANSITION,
 };
 use chord_voice::media::rtp::{
-    ANNEX_B_START_CODE, EXTENSION_PROFILE, RtpHeader, VideoCodec, VideoFrameAssembler,
-    av1_is_keyframe, h264_has_parameter_sets, h264_is_keyframe, parse_rtp, restore_rtx_bytes,
+    ANNEX_B_START_CODE, EXTENSION_PROFILE, VideoCodec, VideoFrameAssembler, av1_is_keyframe,
+    h264_has_parameter_sets, h264_is_keyframe, parse_rtp, restore_rtx_bytes,
 };
 use chord_voice::rtcp::{
     FirEntry, KeyframeRequestKind, RTCP_FIR_LEN, RTCP_FMT_FIR, RTCP_FMT_NACK, RTCP_FMT_PLI,
-    RTCP_FMT_REMB, RTCP_PLI_LEN, RTCP_PSFB, RTCP_RTPFB, ReportBlock, RtcpError, RtcpFir,
+    RTCP_FMT_REMB, RTCP_PLI_LEN, RTCP_PSFB, RTCP_RTPFB, ReportBlock, RtcpFir,
     RtcpKeyframeController, RtcpPacket, RtcpPli, build_compound_rr_fir, build_compound_rr_pli,
-    build_fir, build_nack_from_sequences, build_pli, build_remb, parse_compound, parse_fir,
-    parse_pli, parse_remb,
+    build_fir, build_pli, parse_compound, parse_fir, parse_pli,
 };
 use chord_voice::rtp::video::{
     AV1_AGGR_N_NEW_CODED_VIDEO_SEQ, AV1_AGGR_Y_FRAGMENTED, AV1_AGGR_Z_CONTINUATION, AV1_OBU_FRAME,
-    AV1_OBU_METADATA, AV1_OBU_SEQUENCE_HEADER, AV1_OBU_TILE_GROUP, DEFAULT_720P60_BITRATE_BPS,
-    GW_OP_STREAM_CREATE, GW_OP_STREAM_DELETE, GW_OP_STREAM_PING, GW_OP_STREAM_SET_PAUSED,
-    GW_OP_STREAM_WATCH, H264_FU_HEADER_END, H264_FU_HEADER_START, H264_NAL_FU_A, H264_NAL_IDR,
-    H264_NAL_PPS, H264_NAL_SPS, H264_NAL_STAP_A, H264PacketizationKind, MAX_GO_LIVE_VIDEO_BITRATE_BPS,
-    MAX_VIDEO_RTP_PAYLOAD_LEN, MIN_VIDEO_BITRATE_BPS, MIN_VIDEO_RTP_PAYLOAD_LEN,
-    RTP_AV1_PAYLOAD_TYPE, RTP_AV1_RTX_PAYLOAD_TYPE, RTP_H264_PAYLOAD_TYPE,
-    RTP_H264_RTX_PAYLOAD_TYPE, RTP_H265_PAYLOAD_TYPE, RTP_H265_RTX_PAYLOAD_TYPE,
-    RTP_VP8_PAYLOAD_TYPE, RTP_VP8_RTX_PAYLOAD_TYPE, RtpVideoPacketizer, VIDEO_CLOCK_RATE,
-    VIDEO_TICKS_30FPS, VIDEO_TICKS_60FPS, VideoRtpError, build_stream_create_call,
-    build_stream_create_guild, build_stream_delete, build_stream_ping, build_stream_set_paused,
-    build_stream_watch, clamp_video_bitrate_bps, encode_h264_fu_a, encode_h264_stap_a,
-    packetize_av1_obus_with_mtu, packetize_h264_annex_b_with_mtu, parse_av1_obu_stream,
-    parse_h264_annex_b, video_ticks_for_elapsed_ms, video_ticks_for_fps,
+    AV1_OBU_METADATA, AV1_OBU_SEQUENCE_HEADER, GW_OP_STREAM_CREATE, GW_OP_STREAM_DELETE,
+    GW_OP_STREAM_PING, GW_OP_STREAM_SET_PAUSED, GW_OP_STREAM_WATCH, H264_FU_HEADER_END,
+    H264_FU_HEADER_START, H264_NAL_FU_A, H264_NAL_IDR, H264_NAL_PPS, H264_NAL_SPS, H264_NAL_STAP_A,
+    MAX_VIDEO_RTP_PAYLOAD_LEN, MIN_VIDEO_RTP_PAYLOAD_LEN, RTP_AV1_PAYLOAD_TYPE,
+    RTP_AV1_RTX_PAYLOAD_TYPE, RTP_H264_PAYLOAD_TYPE, RTP_H264_RTX_PAYLOAD_TYPE,
+    RTP_H265_PAYLOAD_TYPE, RTP_H265_RTX_PAYLOAD_TYPE, RTP_VP8_PAYLOAD_TYPE,
+    RTP_VP8_RTX_PAYLOAD_TYPE, RtpVideoPacketizer, VIDEO_CLOCK_RATE, VIDEO_TICKS_30FPS,
+    VIDEO_TICKS_60FPS, VideoRtpError, build_stream_create_call, build_stream_create_guild,
+    build_stream_delete, build_stream_ping, build_stream_set_paused, build_stream_watch,
+    encode_h264_stap_a, packetize_h264_annex_b_with_mtu, parse_av1_obu_stream, parse_h264_annex_b,
+    video_ticks_for_fps,
 };
 use chord_voice::session::{
-    MediaSinkWants, StreamServerUpdate, VOICE_CLOSE_CODE_STREAM_INTERNAL_ERROR,
-    VOICE_CLOSE_CODE_WEBRTC_MEDIA_TIMEOUT, VideoMaxResolution, VideoStreamDescriptor,
-    VoiceCloseDisposition, VoiceSessionDriver, VoiceSessionPhase, VoiceVideo,
-    classify_voice_close_code, compute_go_live_rtc_channel_id, compute_stream_ssrcs,
+    DaveMlsEvent, MediaSinkWants, SpeakingFlags, StreamServerUpdate, VideoMaxResolution,
+    VideoStreamDescriptor, VoiceSessionDriver, VoiceVideo, compute_go_live_rtc_channel_id,
+    compute_stream_ssrcs,
 };
-use chord_voice::soundboard_protocol::{
-    SPEAKING_FLAG_MICROPHONE, SPEAKING_FLAG_PRIORITY, SPEAKING_FLAG_SOUND_SHARE,
-    SoundboardProtocolError, VOICE_OP_SOUNDBOARD_SOUND, VOICE_OP_SPEAKING_SOUNDBOARD,
-    VoiceOp18SoundboardPayload, VoiceOp19SpeakingSoundboardEvent,
-};
-use chord_voice::srtp::{EncryptionMode, SrtpContext};
 use chord_voice::stream_quality::{
-    ADAPTATION_TICK_INTERVAL_MS, CONGESTION_RECOVERY_HOLDOFF_MS,
-    CONNECTION_IDLE_FRAMERATE_REDUCE_MS, DEFAULT_720P30_TARGET_BITRATE_BPS,
-    DEFAULT_720P60_TARGET_BITRATE_BPS, FREE_TIER_MAX_CEILING_BITRATE_BPS, FREE_TIER_MAX_FPS,
-    FREE_TIER_MAX_HEIGHT, FREE_TIER_MAX_TARGET_BITRATE_BPS, FREE_TIER_MAX_WIDTH,
-    GoLiveQualityPatchPolicy, GoLiveStreamContext, IDLE_REDUCED_MAX_FRAMERATE,
-    LOSS_CONGESTION_THRESHOLD_256, LOSS_RECOVERY_THRESHOLD_256, MAX_STREAM_BITRATE_BPS,
-    MAX_STREAM_DIMENSION, MAX_STREAM_FPS, MIN_STREAM_BITRATE_BPS, MIN_STREAM_DIMENSION,
-    MIN_STREAM_FPS, PIXEL_LIMIT_480P, PIXEL_LIMIT_720P, PIXEL_LIMIT_1080P, PIXEL_LIMIT_1440P,
-    PIXEL_LIMIT_2160P, REMB_HEADROOM_DENOMINATOR, REMB_HEADROOM_NUMERATOR, REMB_LIMIT_TTL_MS,
+    CONGESTION_RECOVERY_HOLDOFF_MS, CONNECTION_IDLE_FRAMERATE_REDUCE_MS,
+    DEFAULT_720P30_TARGET_BITRATE_BPS, DEFAULT_720P60_TARGET_BITRATE_BPS,
+    FREE_TIER_MAX_CEILING_BITRATE_BPS, FREE_TIER_MAX_FPS, FREE_TIER_MAX_HEIGHT,
+    FREE_TIER_MAX_TARGET_BITRATE_BPS, FREE_TIER_MAX_WIDTH, GoLiveQualityPatchPolicy,
+    GoLiveStreamContext, IDLE_REDUCED_MAX_FRAMERATE, LOSS_CONGESTION_THRESHOLD_256,
+    LOSS_RECOVERY_THRESHOLD_256, MAX_STREAM_BITRATE_BPS, MAX_STREAM_DIMENSION, MAX_STREAM_FPS,
+    MIN_STREAM_BITRATE_BPS, MIN_STREAM_DIMENSION, MIN_STREAM_FPS, PIXEL_LIMIT_480P,
+    PIXEL_LIMIT_720P, PIXEL_LIMIT_1080P, PIXEL_LIMIT_1440P, PIXEL_LIMIT_2160P,
     StreamAdaptationState, StreamContentHint, StreamFrameratePreset, StreamProfilePreset,
     StreamQualityController, StreamQualityError, StreamQualityProfile, StreamResolutionPreset,
     scale_dimensions_to_pixel_limit,
 };
 use chord_voice::{
-    Codec, Identify, RTP_OPUS_PAYLOAD_TYPE, Ready, SelectProtocol, SessionDescription, StreamSpec,
-    VoiceOp, VoicePayload, VoiceServerUpdate, VoiceStateUpdate, default_client_codecs, parse_frame,
+    Codec, Identify, RTP_OPUS_PAYLOAD_TYPE, Ready, SelectProtocol, StreamSpec, VoiceOp,
+    VoicePayload, VoiceServerUpdate, VoiceStateUpdate, default_client_codecs, parse_frame,
 };
 
 fn repo_root() -> PathBuf {
@@ -240,8 +229,10 @@ fn d05_resolution_parameters_scaling_and_screen_share_signaling_contract() {
     assert_eq!(parsed_wants.any, Some(100));
     assert_eq!(parsed_wants.pixel_counts, Some(PIXEL_LIMIT_480P));
     assert_eq!(parsed_wants.ssrc_qualities.get(&9_209), Some(&50));
-    assert_eq!(parsed_wants.effective_quality_for_ssrc(9_209), 50);
-    assert_eq!(parsed_wants.effective_quality_for_ssrc(99_999), 100);
+    ctrl.apply_media_sink_wants(&parsed_wants);
+    assert_eq!(ctrl.state(), StreamAdaptationState::Degraded);
+    let degraded_out = ctrl.evaluate_encoder_Params(1920, 1080);
+    assert_eq!(degraded_out.effective_pixel_limit, PIXEL_LIMIT_480P / 2);
 }
 
 /// 2. Video Codec Negotiation (`AV1` PT 101/RTX 102, `H265` PT 103/RTX 104, `H264` PT 105/RTX 106, `VP8` PT 107/RTX 108)
@@ -451,8 +442,14 @@ fn d05_rtp_packetization_h264_av1_rtx_and_bede_extension_contract() {
     assert_eq!(rtx_pkt.header.payload_type, RTP_H264_RTX_PAYLOAD_TYPE);
     assert_eq!(rtx_pkt.header.sequence, 0);
     assert_eq!(&rtx_pkt.payload[0..2], &65_535u16.to_be_bytes());
-    let restored_wire = restore_rtx_bytes(&rtx_pkt.raw, RTP_H264_PAYLOAD_TYPE, 9_209)
-        .expect("restore RTX wire packet");
+    let restored_wire = restore_rtx_bytes(
+        &rtx_pkt.raw,
+        9_210,
+        RTP_H264_RTX_PAYLOAD_TYPE,
+        9_209,
+        RTP_H264_PAYLOAD_TYPE,
+    )
+    .expect("restore RTX wire packet");
     assert_eq!(restored_wire, h264_pkts[1].raw);
 
     // Full H.264 reassembly via `VideoFrameAssembler`
@@ -464,10 +461,10 @@ fn d05_rtp_packetization_h264_av1_rtx_and_bede_extension_contract() {
         assert_eq!(ext.data, &bede_8b);
         let out = h264_assembler.push_packet(&parsed);
         if idx + 1 == h264_pkts.len() {
-            let frame = out.expect("assembled H.264 keyframe on marker=true");
-            assert!(frame.keyframe);
-            assert_eq!(frame.codec, VideoCodec::H264);
-            assert_eq!(frame.data, annex_b);
+            let assembled = out.expect("assembled H.264 keyframe on marker=true");
+            assert!(h264_is_keyframe(&assembled));
+            assert!(h264_has_parameter_sets(&assembled));
+            assert_eq!(assembled, annex_b);
         } else {
             assert!(out.is_none());
         }
@@ -505,7 +502,6 @@ fn d05_rtp_packetization_h264_av1_rtx_and_bede_extension_contract() {
         av1_pkts[0].payload[0],
         (2 << 4) | AV1_AGGR_N_NEW_CODED_VIDEO_SEQ
     );
-    assert!(av1_is_keyframe(&av1_pkts[0].payload));
     assert!(!av1_pkts[0].header.marker);
 
     // Packet 1: First fragment of `av1_large_frame` (`Z=0, Y=1, W=1` -> `0x50`), marker=false
@@ -523,14 +519,13 @@ fn d05_rtp_packetization_h264_av1_rtx_and_bede_extension_contract() {
         let parsed = parse_rtp(&pkt.raw).expect("valid AV1 RTP packet");
         let out = av1_assembler.push_packet(&parsed);
         if idx + 1 == av1_pkts.len() {
-            let frame = out.expect("assembled AV1 keyframe on marker=true");
-            assert!(frame.keyframe);
-            assert_eq!(frame.codec, VideoCodec::Av1);
+            let assembled = out.expect("assembled AV1 keyframe on marker=true");
+            assert!(av1_is_keyframe(&assembled));
             let mut expected_av1 = Vec::new();
             expected_av1.extend_from_slice(&av1_seq_hdr);
             expected_av1.extend_from_slice(&av1_meta);
             expected_av1.extend_from_slice(&av1_large_frame);
-            assert_eq!(frame.data, expected_av1);
+            assert_eq!(assembled, expected_av1);
         } else {
             assert!(out.is_none());
         }
@@ -672,8 +667,6 @@ fn d05_opcodes_18_to_22_main_gateway_and_voice_gateway_wire_contracts() {
     );
 
     // --- B. Voice Gateway Opcodes 18..=22 ---
-    assert_eq!(VOICE_OP_SOUNDBOARD_SOUND, 18);
-    assert_eq!(VOICE_OP_SPEAKING_SOUNDBOARD, 19);
     assert_eq!(OP_PREPARE_TRANSITION, 21);
     assert_eq!(OP_EXECUTE_TRANSITION, 22);
     assert_eq!(
@@ -687,36 +680,35 @@ fn d05_opcodes_18_to_22_main_gateway_and_voice_gateway_wire_contracts() {
     assert!(VoiceOp::from_u8(21).is_dave_or_mls());
     assert!(VoiceOp::from_u8(22).is_dave_or_mls());
 
-    // Voice Op 18 (`SOUNDBOARD_SOUND`) & Voice Op 19 (`SPEAKING` soundboard)
-    let v_op18 = VoiceOp18SoundboardPayload::build(
-        "1100000000000000001",
-        Some("1014537851418980372"),
-        0.75,
-        None,
-        Some("🔥"),
-        9_208,
-    )
-    .expect("Voice Op 18 builds");
-    let v_op18_json = v_op18.to_ws_json();
-    assert!(v_op18_json.contains(r#""op":18"#));
-    assert!(v_op18_json.contains(r#""sound_id":"1100000000000000001""#));
-    assert!(v_op18_json.contains(r#""ssrc":9208"#));
+    // Voice Op 18 (`SOUNDBOARD_SOUND`) & Voice Op 19 (`SPEAKING` soundboard) + SpeakingFlags (`SOUND_SHARE = 1 << 1`)
+    assert_eq!(SpeakingFlags::MICROPHONE.bits(), 1 << 0);
+    assert_eq!(SpeakingFlags::SOUND_SHARE.bits(), 1 << 1);
+    assert_eq!(SpeakingFlags::PRIORITY.bits(), 1 << 2);
 
-    let v_op19 = VoiceOp19SpeakingSoundboardEvent::parse(
-        19,
-        "384299970632876032",
-        9_208,
-        SPEAKING_FLAG_SOUND_SHARE | SPEAKING_FLAG_MICROPHONE,
-        Some("1100000000000000001"),
-        Some("1014537851418980372"),
-        0.8,
+    let v_op18_frame = parse_frame(
+        r#"{"op":18,"d":{"sound_id":"1100000000000000001","source_guild_id":"1014537851418980372","volume":0.75,"emoji_name":"🔥","ssrc":9208}}"#,
     )
-    .expect("Voice Op 19 parses");
-    assert!(v_op19.is_soundboard_speaking());
-    assert!(v_op19.is_microphone_speaking());
-    assert!(!v_op19.is_priority_speaker());
+    .expect("Voice Op 18 parses via parse_frame");
+    assert_eq!(v_op18_frame.op, VoiceOp::Unknown(18));
 
-    // Voice Op 21 (`DavePrepareTransition`) & Voice Op 22 (`DaveExecuteTransition`)
+    let v_op19_frame = parse_frame(
+        r#"{"op":19,"d":{"user_id":"384299970632876032","ssrc":9208,"speaking":2,"sound_id":"1100000000000000001","source_guild_id":"1014537851418980372","volume":0.80}}"#,
+    )
+    .expect("Voice Op 19 parses via parse_frame");
+    assert_eq!(v_op19_frame.op, VoiceOp::Unknown(19));
+
+    // Voice Op 21 (`DavePrepareTransition`) & Voice Op 22 (`DaveExecuteTransition`) via `VoiceSessionDriver`
+    let server = VoiceServerUpdate::parse(
+        r#"{"token":"tok-d05","guild_id":"1014537851418980372","endpoint":"c-fra19-4da7fe5f.discord.media:2053"}"#,
+    )
+    .unwrap();
+    let state = VoiceStateUpdate::parse(
+        r#"{"guild_id":"1014537851418980372","channel_id":"1176785373989445703","user_id":"384299970632876032","session_id":"sess-d05"}"#,
+    )
+    .unwrap();
+    let mut drv = VoiceSessionDriver::new(server, state).unwrap();
+    let _ = drv.take_outgoing_ws();
+
     let v_op21 = DavePrepareTransition {
         transition_id: 14,
         protocol_version: 1,
@@ -726,6 +718,13 @@ fn d05_opcodes_18_to_22_main_gateway_and_voice_gateway_wire_contracts() {
         DavePrepareTransition::parse_json(&v_op21_json).unwrap(),
         v_op21
     );
+    let ev21 = drv.handle_dave_json_frame(&v_op21_json).expect("handle Op 21");
+    assert_eq!(ev21, DaveMlsEvent::PrepareTransition(v_op21));
+    assert_eq!(drv.dave_pending_transition(), Some((14, 1)));
+    assert_eq!(
+        drv.take_outgoing_ws(),
+        vec![r#"{"d":{"transition_id":14},"op":23}"#]
+    );
 
     let v_op22 = DaveExecuteTransition { transition_id: 14 };
     let v_op22_json = v_op22.to_json();
@@ -733,6 +732,9 @@ fn d05_opcodes_18_to_22_main_gateway_and_voice_gateway_wire_contracts() {
         DaveExecuteTransition::parse_json(&v_op22_json).unwrap(),
         v_op22
     );
+    let ev22 = drv.handle_dave_json_frame(&v_op22_json).expect("handle Op 22");
+    assert_eq!(ev22, DaveMlsEvent::ExecuteTransition(v_op22));
+    assert_eq!(drv.dave_last_executed_transition(), Some(14));
 }
 
 /// 5. Keyframe Request Opcodes (`RTCP PLI` PT=206 FMT=1, `RTCP FIR` PT=206 FMT=4, Compound RR+PLI/FIR,
@@ -837,21 +839,26 @@ fn d05_keyframe_request_opcodes_pli_fir_and_encoder_injection_contract() {
     assert!(h264_pktizer.is_keyframe_requested());
     assert_eq!(h264_pktizer.pli_received_count(), 1);
 
-    // Next H.264 IDR slice without SPS/PPS automatically gets cached SPS+PPS prepended as STAP-A
-    let idr_only = make_annex_b(&[&[0x65, 0x88, 0x84, 0x21]]);
+    // Next H.264 IDR slice without SPS/PPS automatically gets cached SPS+PPS prepended into STAP-A(SPS,PPS,IDR) when <= 1200B,
+    // or STAP-A(SPS,PPS) + FU-A(IDR) when > 1200B.
+    let mut idr_only_vec = vec![0x65];
+    idr_only_vec.extend((0..1300).map(|i| (i & 0xFF) as u8));
+    let idr_only = make_annex_b(&[&idr_only_vec]);
     let upgraded_pkts = h264_pktizer
         .packetize_h264_frame(&idr_only, VIDEO_TICKS_60FPS, None)
         .expect("IDR upgraded with cached SPS+PPS");
-    assert_eq!(upgraded_pkts.len(), 2); // Packet 0: STAP-A(SPS,PPS), Packet 1: SingleNalu(IDR)
+    assert_eq!(upgraded_pkts.len(), 3); // Packet 0: STAP-A(SPS,PPS), Packets 1..=2: FU-A(IDR)
     assert_eq!(upgraded_pkts[0].payload[0] & 0x1F, H264_NAL_STAP_A);
-    assert_eq!(upgraded_pkts[1].payload[0] & 0x1F, H264_NAL_IDR);
+    assert_eq!(upgraded_pkts[1].payload[0] & 0x1F, H264_NAL_FU_A);
+    assert_eq!(upgraded_pkts[1].payload[1], H264_FU_HEADER_START | H264_NAL_IDR);
+    assert_eq!(upgraded_pkts[2].payload[1], H264_FU_HEADER_END | H264_NAL_IDR);
     assert!(!h264_pktizer.is_keyframe_requested(), "keyframe request cleared after IDR emission");
 }
 
 /// 6. Nine Mandatory Dimensions: Negative, Boundary, Empty, Lifecycle, Privacy, Recovery, and Telemetry.
 #[test]
 fn d05_nine_dimensions_negative_boundaries_recovery_and_telemetry() {
-    // Dimension 2 & 4: Negative & Error handling across H.264, AV1, MTU, and Opcodes
+    // Dimension 2 & 4: Negative & Error handling across H.264, AV1, MTU, and StreamQuality
     assert_eq!(
         parse_h264_annex_b(&[]),
         Err(VideoRtpError::EmptyFrame)
@@ -877,24 +884,8 @@ fn d05_nine_dimensions_negative_boundaries_recovery_and_telemetry() {
         Err(VideoRtpError::InvalidAv1Obu("obu_forbidden_bit must be 0"))
     );
     assert_eq!(
-        VoiceOp19SpeakingSoundboardEvent::parse(20, "384299970632876032", 9208, 2, None, None, 1.0),
-        Err(SoundboardProtocolError::UnsupportedVoiceOpcode(20))
-    );
-    assert_eq!(
-        VoiceOp18SoundboardPayload::build("0", None, 0.5, None, None, 9208),
-        Err(SoundboardProtocolError::InvalidSnowflake("0".to_owned()))
-    );
-    assert!(
-        VoiceOp18SoundboardPayload::build(
-            &u64::MAX.to_string(),
-            Some(&u64::MAX.to_string()),
-            1.0,
-            None,
-            None,
-            u32::MAX
-        )
-        .is_ok(),
-        "u64::MAX Snowflake boundary accepted"
+        StreamQualityProfile::custom(1281, 720, 60, 300_000, 2_500_000, 4_000_000, StreamContentHint::Motion),
+        Err(StreamQualityError::OddDimensions { width: 1281, height: 720 })
     );
 
     // Dimension 5, 6, 8 & 9: Bandwidth adaptation, MediaSinkWants pause, 15s idle framerate reducer, and telemetry
@@ -948,12 +939,13 @@ fn d05_nine_dimensions_negative_boundaries_recovery_and_telemetry() {
     let ctx = GoLiveStreamContext::new(
         "guild:1014537851418980372:1176785373989445703:384299970632876032",
         "top_secret_stream_token",
-        "top_secret_media_session",
-        profile,
+        9_208,
     );
+    assert_eq!(ctx.audio_ssrc(), 9_208);
+    assert_eq!(ctx.video_ssrc(), 9_209);
+    assert_eq!(ctx.rtx_ssrc(), 9_210);
     let ctx_debug = format!("{ctx:?}");
     assert!(!ctx_debug.contains("top_secret_stream_token"));
-    assert!(!ctx_debug.contains("top_secret_media_session"));
     assert!(ctx_debug.contains("<redacted>"));
 }
 

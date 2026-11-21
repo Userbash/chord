@@ -26,22 +26,26 @@ use std::path::{Path, PathBuf};
 
 use chord_ui::COMPONENT_CONTRACTS;
 use chord_ui::d03_contracts::{
-    CHANNEL_SIDEBAR_ARIA_ROLES, CHAT_VIRTUALIZER_MAX_DOM_POOL, D03_COMPONENT_NAMES,
-    D03_DARK_THEME_TOKENS, D03_KEYBOARD_BINDINGS, D03_SURFACE_TRACES, EMOJI_CATEGORY_RAIL_ITEMS,
-    SETTINGS_TOP_CATEGORIES, VOICE_SETTINGS_SLIDERS, ChannelCategoryNode, ChannelNodeKind,
-    ChannelSidebarItem, ChatVirtualViewport, ComponentContractSpec, EmojiPickerMode,
-    EmojiPickerModel, SettingsNavModel, SurfaceTraceKind, UserPopoutModel, build_channel_sidebar,
-    component_contract_by_name, d03_component_contracts, d03_surface_trace,
+    CHANNEL_SIDEBAR_ARIA_ROLES, CHAT_VIRTUALIZER_MAX_DOM_POOL, ChannelCategoryNode,
+    ChannelNodeKind, ChannelSidebarItem, ChatVirtualViewport, ComponentContractSpec,
+    D03_COMPONENT_NAMES, D03_DARK_THEME_TOKENS, D03_KEYBOARD_BINDINGS, D03_SURFACE_TRACES,
+    EMOJI_CATEGORY_RAIL_ITEMS, EmojiPickerMode, EmojiPickerModel, SETTINGS_TOP_CATEGORIES,
+    SettingsNavModel, SurfaceTraceKind, UserPopoutModel, VOICE_SETTINGS_SLIDERS,
+    build_channel_sidebar, component_contract_by_name, d03_component_contracts, d03_surface_trace,
     validate_settings_slider_value,
 };
-use chord_ui::member_list::{MemberGroup, MemberGroupKind, MemberListModel, MemberRow, PresenceStatus, VirtualWindow};
-use chord_ui::search_overlay::{SearchAuthorType, SearchContentKind, SearchOverlay, SearchQuery, SearchSort};
+use chord_ui::member_list::{
+    MemberGroup, MemberGroupKind, MemberListModel, MemberRow, PresenceStatus, VirtualWindow,
+};
+use chord_ui::search_overlay::{
+    SearchAuthorType, SearchContentKind, SearchOverlay, SearchQuery, SearchSort,
+};
 
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
 
-/// 1. Positive & Oracle Alignment: All 5 UI interaction trace surfaces and 12 Mana component
+/// Section 1 — Positive & Oracle Alignment: All 5 UI interaction trace surfaces and 12 Mana component
 /// contracts match `docs/re/frontend-d03.md` and `docs/re/frontend-d03.json`.
 #[test]
 fn d03_five_ui_surfaces_and_twelve_component_contracts_match_oracle() {
@@ -53,15 +57,33 @@ fn d03_five_ui_surfaces_and_twelve_component_contracts_match_oracle() {
     assert_eq!(contracts.len(), 12);
 
     for (idx, expected_name) in D03_COMPONENT_NAMES.iter().enumerate() {
-        assert_eq!(contracts[idx].name, *expected_name, "component[{idx}] name mismatch");
+        assert_eq!(
+            contracts[idx].name, *expected_name,
+            "component[{idx}] name mismatch"
+        );
         let looked_up = component_contract_by_name(expected_name)
             .unwrap_or_else(|| panic!("component {expected_name} must resolve by name"));
         assert_eq!(looked_up.name, *expected_name);
-        assert!(!looked_up.module_id.is_empty(), "{expected_name} module_id must be non-empty");
-        assert!(!looked_up.dom_classes.is_empty(), "{expected_name} dom_classes must be non-empty");
-        assert!(!looked_up.aria_roles.is_empty(), "{expected_name} aria_roles must be non-empty");
-        assert!(!looked_up.keyboard_bindings.is_empty(), "{expected_name} keyboard_bindings must be non-empty");
-        assert!(!looked_up.variants.is_empty(), "{expected_name} variants must be non-empty");
+        assert!(
+            !looked_up.module_id.is_empty(),
+            "{expected_name} module_id must be non-empty"
+        );
+        assert!(
+            !looked_up.dom_classes.is_empty(),
+            "{expected_name} dom_classes must be non-empty"
+        );
+        assert!(
+            !looked_up.aria_roles.is_empty(),
+            "{expected_name} aria_roles must be non-empty"
+        );
+        assert!(
+            !looked_up.keyboard_bindings.is_empty(),
+            "{expected_name} keyboard_bindings must be non-empty"
+        );
+        assert!(
+            !looked_up.variants.is_empty(),
+            "{expected_name} variants must be non-empty"
+        );
     }
 
     // Verify all required D-03 surface traces exist and define DOM hierarchy, CSS tokens,
@@ -87,7 +109,7 @@ fn d03_five_ui_surfaces_and_twelve_component_contracts_match_oracle() {
     assert!(D03_KEYBOARD_BINDINGS.len() >= 10);
 }
 
-/// 2. Channel Sidebar Contract: Guild channel tree (`link__2ea32`) & DM list (`privateChannels_e6b769`,
+/// Section 2 — Channel Sidebar Contract: Guild channel tree (`link__2ea32`) & DM list (`privateChannels_e6b769`,
 /// `scroller__99e7c`, `channel__972a0`), category collapse filtering unread vs read channels,
 /// deterministic ordering (non-voice before voice, then position, then snowflake id), and ARIA roles.
 #[test]
@@ -151,9 +173,18 @@ fn d03_channel_sidebar_tree_collapse_ordering_and_aria_contract() {
     assert_eq!(expanded.categories[0].all_children.len(), 3);
     assert_eq!(expanded.categories[0].visible_children.len(), 3);
     // Position 0 text ("welcome") before position 1 text ("болталка") before position 0 voice ("General Voice")
-    assert_eq!(expanded.categories[0].visible_children[0].id, 645_271_072_786_350_111);
-    assert_eq!(expanded.categories[0].visible_children[1].id, 294_064_825_540_280_335);
-    assert_eq!(expanded.categories[0].visible_children[2].id, 700_000_000_000_000_001);
+    assert_eq!(
+        expanded.categories[0].visible_children[0].id,
+        645_271_072_786_350_111
+    );
+    assert_eq!(
+        expanded.categories[0].visible_children[1].id,
+        294_064_825_540_280_335
+    );
+    assert_eq!(
+        expanded.categories[0].visible_children[2].id,
+        700_000_000_000_000_001
+    );
 
     // Collapsed category hides read channels but preserves unread/mentioned channels in visible_children.
     let collapsed_cats = vec![ChannelCategoryNode {
@@ -165,11 +196,18 @@ fn d03_channel_sidebar_tree_collapse_ordering_and_aria_contract() {
     let collapsed = build_channel_sidebar(&collapsed_cats, &items);
     assert_eq!(collapsed.categories[0].all_children.len(), 3);
     assert_eq!(collapsed.categories[0].visible_children.len(), 1);
-    assert_eq!(collapsed.categories[0].visible_children[0].id, 294_064_825_540_280_335);
-    assert!(collapsed.categories[0].visible_children[0].aria_label().contains("не прочитано"));
+    assert_eq!(
+        collapsed.categories[0].visible_children[0].id,
+        294_064_825_540_280_335
+    );
+    assert!(
+        collapsed.categories[0].visible_children[0]
+            .aria_label()
+            .contains("не прочитано")
+    );
 }
 
-/// 3. Chat Scroll Virtualization Contract: Scroller (`scrollerBase_d125d2`, `scrollbarGutterStable_d125d2`),
+/// Section 3 — Chat Scroll Virtualization Contract: Scroller (`scrollerBase_d125d2`, `scrollbarGutterStable_d125d2`),
 /// message rows (`wrapper_c19a55 cozy_c19a55 zalgo_c19a55`), dynamic height measurement,
 /// bounded DOM pool (`<= 60` nodes for 100k messages), sticky date divider, and jump-to-bottom unread pill.
 #[test]
@@ -213,7 +251,7 @@ fn d03_chat_scroll_virtualization_dynamic_heights_and_bounded_pool() {
     assert!(viewport.measure_row(0, 0).is_err());
 }
 
-/// 4. Emoji Picker Contract: Full expression picker (`Ctrl+E`, `expressionPickerPositionLayer__74017`,
+/// Section 4 — Emoji Picker Contract: Full expression picker (`Ctrl+E`, `expressionPickerPositionLayer__74017`,
 /// 3 tabs: GIFs/Stickers/Emoji, 10 category rail items in `listItems_affa7e`, 50 visible / 17 locked
 /// in guild channel, 42 visible in DM, `:fire` search returning 10/11 items) vs compact reaction picker
 /// (`emojiPicker_c0e32c`, 60 items / 43 locked, no search/tabs).
@@ -250,7 +288,7 @@ fn d03_emoji_picker_full_and_reaction_modes_match_empirical_counts() {
     assert_eq!(reaction.locked_nitro_count(), 43);
 }
 
-/// 5. User Popouts & Member Roster Contract: Account/User popout (`popoutContainer_ce8328`,
+/// Section 5 — User Popouts & Member Roster Contract: Account/User popout (`popoutContainer_ce8328`,
 /// `role="dialog"`, `aria-modal="true"`, 80x80 avatar with status mask, banner 105px height,
 /// custom status button, copy username/user ID actions) and right sidebar member roster
 /// (`membersWrap_c8ffbb`, 256x1025 rect, "Server Booster — 2", "В сети — 735", 35 visible rows).
@@ -261,21 +299,45 @@ fn d03_user_popouts_and_member_roster_contract() {
         "ShadowByte",
         "pharos12510",
         PresenceStatus::Invisible,
-        vec!["Старое имя: Tobio#8521".to_string(), "Достигнут уровень 0".to_string()],
+        vec![
+            "Старое имя: Tobio#8521".to_string(),
+            "Достигнут уровень 0".to_string(),
+        ],
     )
     .expect("valid user popout");
 
     assert_eq!(popout.aria_role(), "dialog");
     assert!(popout.aria_modal());
-    assert_eq!(popout.root_class(), "popoutContainer_ce8328 accountPopout__37e49");
+    assert_eq!(
+        popout.root_class(),
+        "popoutContainer_ce8328 accountPopout__37e49"
+    );
     assert_eq!(popout.banner_height_px(), 105);
     assert_eq!(popout.avatar_size_px(), 80);
     assert_eq!(popout.badges().len(), 2);
 
     // Boundary check: user_id 0 or empty username rejected.
-    assert!(UserPopoutModel::new(0, "ShadowByte", "pharos12510", PresenceStatus::Online, vec![]).is_err());
+    assert!(
+        UserPopoutModel::new(
+            0,
+            "ShadowByte",
+            "pharos12510",
+            PresenceStatus::Online,
+            vec![]
+        )
+        .is_err()
+    );
     assert!(UserPopoutModel::new(1, "ShadowByte", "", PresenceStatus::Online, vec![]).is_err());
-    assert!(UserPopoutModel::new(u64::MAX, "MaxUser", "max_user", PresenceStatus::Online, vec![]).is_ok());
+    assert!(
+        UserPopoutModel::new(
+            u64::MAX,
+            "MaxUser",
+            "max_user",
+            PresenceStatus::Online,
+            vec![]
+        )
+        .is_ok()
+    );
 
     // Member roster contract from D-03 §3
     let booster_group = MemberGroup {
@@ -330,7 +392,7 @@ fn d03_user_popouts_and_member_roster_contract() {
     assert_eq!(roster.visible_range().len(), 35);
 }
 
-/// 6. Settings Navigation & Voice Tab Contract: Root `container_abd9a8` (1398x961),
+/// Section 6 — Settings Navigation & Voice Tab Contract: Root `container_abd9a8` (1398x961),
 /// 63 navigation rows across 19 top categories, search input, Escape key dismissal,
 /// and "Voice & Video" tab controls (38 switches, 4 selects including Krisp, 1 radio group,
 /// 4 sliders with exact ranges `0..100`, `0..200`, `1..100`, `0..100`).
@@ -347,11 +409,16 @@ fn d03_settings_navigation_and_voice_video_controls_contract() {
     assert_eq!(settings.active_category(), "Учётная запись");
 
     // Select "Голос и видео" tab
-    settings.select_category("Голос и видео").expect("Voice & Video category exists");
+    settings
+        .select_category("Голос и видео")
+        .expect("Voice & Video category exists");
     assert_eq!(settings.active_category(), "Голос и видео");
     assert_eq!(settings.voice_tab_switch_count(), 38);
     assert_eq!(settings.voice_tab_select_count(), 4);
-    assert_eq!(settings.voice_tab_radio_options(), &["Изоляция голоса", "Студия", "Пользовательский"]);
+    assert_eq!(
+        settings.voice_tab_radio_options(),
+        &["Изоляция голоса", "Студия", "Пользовательский"]
+    );
 
     // Filter categories by search query
     settings.set_search_filter("Голос");
@@ -375,7 +442,7 @@ fn d03_settings_navigation_and_voice_video_controls_contract() {
     assert!(validate_settings_slider_value(99, 50.0).is_err());
 }
 
-/// 7. Guild Search UI & Filter Contract: 7 filter sections, 9 `has:` options, 3 sort options,
+/// Section 7 — Guild Search UI & Filter Contract: 7 filter sections, 9 `has:` options, 3 sort options,
 /// `Ctrl+A` scope-chip clearing workflow (`total_results=3302` unscoped vs `0` channel-scoped).
 #[test]
 fn d03_guild_search_filters_sorting_and_scope_chip_contract() {
@@ -400,7 +467,7 @@ fn d03_guild_search_filters_sorting_and_scope_chip_contract() {
     assert!(!SearchQuery::new("   ").is_executable());
 }
 
-/// 8. Documentation Completeness: `docs/re/frontend-d03.md` and `docs/re/frontend-d03.json`
+/// Section 8 — Documentation Completeness: `docs/re/frontend-d03.md` and `docs/re/frontend-d03.json`
 /// exist, are synchronized, and document all 5 D-03 target surfaces (channel sidebar,
 /// chat scroll virtualization, emoji picker, user popouts, settings navigation) plus all
 /// 12 Mana component contracts with DOM hierarchy, CSS tokens, keyboard bindings, and ARIA roles.

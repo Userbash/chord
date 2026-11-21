@@ -14,6 +14,7 @@ pub mod gamepad_driver;
 pub mod handheld;
 pub mod keyring;
 pub mod macos;
+pub mod notification_defaults;
 pub mod notifications;
 pub mod power;
 pub mod rpc_ipc;
