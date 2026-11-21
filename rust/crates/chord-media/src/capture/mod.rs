@@ -9,6 +9,7 @@ use std::fmt;
 
 use crate::{PixelLayout, VideoFrame};
 
+pub mod audio_node_filter;
 pub mod portal;
 pub mod sources;
 pub mod x11;

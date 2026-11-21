@@ -399,8 +399,14 @@ impl VideoFrame {
 
 pub mod buffer;
 pub mod capture;
+pub mod pipewire_audio;
 pub use buffer::{BorrowedFrameView, LatestFrameMetrics, LatestFrameSlot};
 pub use capture::{DesktopBackend, DesktopSource, DesktopSourceType, PixelFormat, ScreenCapturer};
+pub use pipewire_audio::{
+    PipeWireAudioBackend, PipeWireAudioCaptureService, PipeWireAudioError, PipeWireAudioFormat,
+    PipeWireAudioNode, PipeWireAudioStreamState, PipeWireAudioTelemetry, PipeWireChannelPort,
+    PipeWireLoopbackConfig, PipeWirePortLink, VirtualMicDescriptor, WebRtcAudioFrameS16le,
+};
 
 /// Очередь захвата -> кодирования на базе ограниченного `sync_channel(2)` с неблокирующим `try_send`
 /// (по образцу `Serein/crates/discord-voice/src/screen.rs`).
