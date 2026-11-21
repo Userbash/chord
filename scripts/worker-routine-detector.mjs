@@ -84,13 +84,46 @@ const ROUTINE_PATTERNS = [
   {
     id: 'MULTI_REMOTE_GIT_SYNC',
     name: 'Двусторонняя синхронизация Git (origin + public)',
-    description: 'Проверка расхождений, безопасный fast-forward pull и dual push',
+    description: 'Проверка расхождений, безопасный fast-forward pull, precheck и dual push',
     avgTokensSpentByAI: 2500,
     avgTimeByAISeconds: 35,
-    handler: 'bash scripts/git-sync.sh status',
+    handler: 'node scripts/git-sync.mjs sync',
     tier: 'TIER_0_SCRIPT',
     canAutomateWithScript: true,
     keywords: ['git pull', 'git push', 'origin public', 'git sync', 'remote sync']
+  },
+  {
+    id: 'TDD_PLAN_TABLE_SYNC',
+    name: 'Синхронизация таблицы контрактных тестов TDD-PLAN.md §8',
+    description: 'Автоматический поиск новых тестовых файлов и их регистрация в матрице качества',
+    avgTokensSpentByAI: 2000,
+    avgTimeByAISeconds: 20,
+    handler: 'node scripts/sync-tdd-plan.mjs --fix',
+    tier: 'TIER_0_SCRIPT',
+    canAutomateWithScript: true,
+    keywords: ['tdd-plan', 'sync-tdd', 'tdd:sync', 'plan-sync']
+  },
+  {
+    id: 'ORCHESTRATION_AUTODRIVER_CYCLE',
+    name: 'Драйвер оркестрации и ротации воркеров (Zero-Token Auto-Driver)',
+    description: 'Проверка сообщений оркестрации, освобождение терминалов, ротация слотов и push',
+    avgTokensSpentByAI: 3500,
+    avgTimeByAISeconds: 30,
+    handler: 'node scripts/orchestration-auto-driver.mjs --once',
+    tier: 'TIER_0_SCRIPT',
+    canAutomateWithScript: true,
+    keywords: ['orchestration check', 'worker-release', 'worker_done', 'auto-driver', 'slot rotation']
+  },
+  {
+    id: 'THIN_BRIDGE_AUDIT',
+    name: 'Аудит архитектурных бюджетов («Тонкий мост» <= 600 LOC)',
+    description: 'Контроль отсутствия дублирования бизнес-логики и прямого делегирования библиотекам',
+    avgTokensSpentByAI: 2500,
+    avgTimeByAISeconds: 25,
+    handler: 'node scripts/audit-thin-bridges.mjs',
+    tier: 'TIER_0_SCRIPT',
+    canAutomateWithScript: true,
+    keywords: ['audit:bridges', 'thin bridge', 'тонкий мост', 'adapter loc']
   },
   {
     id: 'STRESS_BENCHMARKING',
