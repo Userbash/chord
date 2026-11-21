@@ -135,10 +135,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:03:04.205Z"
+      "dispatchedAt": "2026-11-21T08:03:04.205Z",
+      "completedAt": "2026-11-21T08:08:45.611Z"
     },
     {
       "slot": 8,
@@ -153,10 +154,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:03:08.089Z"
+      "dispatchedAt": "2026-11-21T08:03:08.089Z",
+      "completedAt": "2026-11-21T08:07:48.717Z"
     },
     {
       "slot": 9,
@@ -171,10 +173,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T08:03:11.912Z"
+      "dispatchedAt": "2026-11-21T08:03:11.912Z",
+      "completedAt": "2026-11-21T08:08:45.611Z"
     },
     {
       "slot": 10,
@@ -189,9 +192,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:07:52.565Z"
     },
     {
       "slot": 11,
@@ -206,9 +210,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:08:49.439Z"
     },
     {
       "slot": 12,
@@ -223,9 +228,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:08:53.264Z"
     },
     {
       "slot": 13,

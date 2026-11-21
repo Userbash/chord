@@ -512,6 +512,7 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/spotify-widget-1013b.test.mjs` | `rust/chord-gpui/src/profile/spotify_widget.rs` | `spotify_widget` |
 | `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
 | `tests/unit/smart-typecheck-lib-simplify-06.test.mjs` | `scripts/smart-typecheck.mjs` | `LIB-SIMPLIFY-06` |
+| `tests/unit/distribution-packaging-r4-08.test.mjs` | `scripts/package-dist.mjs` | `package-dist` |
 
 ## 9. Risks and Limitations
 

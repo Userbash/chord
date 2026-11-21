@@ -17,6 +17,7 @@
 
 pub mod manifest;
 pub mod plan;
+pub mod service;
 
 /// Эндпоинт нового апдейтера: `NEW_UPDATE_ENDPOINT`
 /// (`app #19192 @3231`, переопределяется настройкой).

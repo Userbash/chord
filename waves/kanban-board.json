@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T07:57:48.670Z",
+  "updated_at": "2026-11-21T08:03:27.510Z",
   "columns": [
     {
       "id": "backlog",
@@ -9660,8 +9660,8 @@
       "id": "R4-06",
       "title": "Desktop Notifications",
       "description": "Native OS notifications; clicking notification raises and focuses target channel window; configurable notification sound and taskbar flashing. Target: Shell: Notification Service. Criteria: Clicking notification focuses chat view; taskbar flashing adheres to settings; persistent configuration across restarts",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9674,14 +9674,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:08:45.609Z"
     },
     {
       "id": "R4-07",
       "title": "Application Updater",
       "description": "Startup update verification, download progress display, snooze/skip version options, atomic binary swap, and cryptographic signature validation. Target: Updater Service. Criteria: Updates download with visible progress; snooze/skip flags persist; release binary signatures verified before swap",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9694,14 +9695,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:07:48.714Z"
     },
     {
       "id": "R4-08",
       "title": "Distribution Packaging",
       "description": "Cross-platform packages: Debian/Ubuntu `.deb`, RPM, AppImage, Flatpak (Linux), WiX MSI (Windows), DMG (macOS); desktop entries, icons, MIME types. Target: Release Pipeline. Criteria: Clean installation on Linux, Windows, and macOS; desktop launcher and icons register correctly",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9714,7 +9716,8 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:08:45.609Z"
     },
     {
       "id": "R4-09",
