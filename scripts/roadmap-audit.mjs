@@ -369,13 +369,13 @@ function syncWithKanban(summary) {
     for (const st of summary.stages) {
       const card = kanban.cards.find(c => c.id === st.kanbanId);
       if (card) {
-        if (st.status === 'completed' && card.column !== 'Done') {
-          card.column = 'Done';
+        if (st.status === 'completed' && card.column !== 'done') {
+          card.column = 'done';
           card.status = 'done';
           changed = true;
-        } else if (st.status === 'in_progress' && card.column !== 'In Development') {
-          card.column = 'In Development';
-          card.status = 'in_development';
+        } else if (st.status === 'in_progress' && card.column !== 'in_dev') {
+          card.column = 'in_dev';
+          card.status = 'in_dev';
           changed = true;
         }
       }

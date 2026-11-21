@@ -71,7 +71,10 @@ function loadAndReserveSlots(count = 15, autoDispatch = false) {
   }
 
   const board = JSON.parse(fs.readFileSync(KANBAN_PATH, 'utf8'));
-  const nonDone = board.cards.filter(c => c.column !== 'done');
+  const nonDone = board.cards.filter(c => 
+    (c.column || '').toLowerCase() !== 'done' && 
+    (c.status || '').toLowerCase() !== 'done'
+  );
 
   // Приоритетная сортировка: in_progress -> ready_for_dev -> in_dev -> backlog, затем по приоритету P0 -> P1 -> P2 -> P3
   const prioWeight = { P0: 4, P1: 3, P2: 2, P3: 1 };
