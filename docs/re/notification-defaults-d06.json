@@ -1,0 +1,132 @@
+{
+  "task": "D-06",
+  "title": "Notification Defaults Protocol",
+  "target": "Notification Engine",
+  "version": "1.0.162",
+  "provenance": {
+    "readyCapture": "fixtures/gateway/by-type/002-READY.json",
+    "gatewaySchema": "docs/re/gateway-schema.md",
+    "backendIpc": "docs/re/backend-ipc.md",
+    "bundleTraces": "waves/RW-40/NOTIFICATIONS-RE.md"
+  },
+  "readyOracleCounts": {
+    "totalGuildEntries": 58,
+    "collectionVersion": 734,
+    "partial": false,
+    "entryFieldCount": 13,
+    "channelOverrideFieldCount": 6,
+    "totalChannelOverrides": 1328,
+    "nonEmptyOverrideGuilds": 52,
+    "maxOverridesInSingleGuild": 185,
+    "guildMessageNotificationsDistribution": {
+      "0": 19,
+      "1": 36,
+      "2": 3
+    },
+    "channelMessageNotificationsDistribution": {
+      "1": 1,
+      "3": 1327
+    },
+    "notifyHighlightsDistribution": {
+      "0": 56,
+      "1": 2,
+      "2": 0
+    },
+    "guildFlagsDistribution": {
+      "0": 52,
+      "16384": 6
+    },
+    "channelFlagsDistribution": {
+      "4096": 1252,
+      "6144": 1,
+      "missing": 75
+    },
+    "mutedGuilds": {
+      "total": 22,
+      "withMuteConfig": 21,
+      "withoutMuteConfig": 1
+    },
+    "mutedChannels": {
+      "total": 42,
+      "withMuteConfig": 38,
+      "withoutMuteConfig": 4,
+      "expiredInCapture": 3
+    },
+    "accountNotificationSettingsFlags": 0
+  },
+  "platformDefaults": {
+    "embedded": {
+      "isPlatformEmbedded": true,
+      "desktopType": "ALL",
+      "permissionState": "ENABLED",
+      "disableAllSounds": false,
+      "disabledSounds": [],
+      "ttsType": "NEVER",
+      "disableUnreadBadge": false,
+      "taskbarFlash": true,
+      "notifyMessagesInSelectedChannel": false,
+      "screenDowntimeReminder": false
+    },
+    "webBrowser": {
+      "isPlatformEmbedded": false,
+      "desktopType": "NEVER",
+      "permissionState": "BLOCKED",
+      "disableAllSounds": false,
+      "disabledSounds": [],
+      "ttsType": "NEVER",
+      "disableUnreadBadge": false,
+      "taskbarFlash": false,
+      "notifyMessagesInSelectedChannel": false,
+      "screenDowntimeReminder": false
+    },
+    "largeGuildMemberThreshold": 2500
+  },
+  "enums": {
+    "messageNotifications": {
+      "ALL_MESSAGES": 0,
+      "ONLY_MENTIONS": 1,
+      "NO_MESSAGES": 2,
+      "NULL": 3
+    },
+    "notifyHighlights": {
+      "NULL": 0,
+      "DISABLED": 1,
+      "ENABLED": 2
+    },
+    "unreadSetting": {
+      "UNSET": 0,
+      "ALL_MESSAGES": 1,
+      "ONLY_MENTIONS": 2
+    },
+    "guildFlags": {
+      "UNREADS_ALL_MESSAGES": 2048,
+      "UNREADS_ONLY_MENTIONS": 4096,
+      "OPT_IN_CHANNELS_OFF": 8192,
+      "OPT_IN_CHANNELS_ON": 16384
+    },
+    "channelFlags": {
+      "UNREADS_ONLY_MENTIONS": 512,
+      "UNREADS_ALL_MESSAGES": 1024,
+      "FAVORITED": 2048,
+      "OPT_IN_ENABLED": 4096,
+      "NEW_FORUM_THREADS_OFF": 8192,
+      "NEW_FORUM_THREADS_ON": 16384
+    },
+    "accountFlags": {
+      "USE_NEW_NOTIFICATIONS": 16,
+      "MENTION_ON_ALL_MESSAGES": 32
+    },
+    "muteTimeWindowsSeconds": [900, 3600, 10800, 28800, 86400, -1]
+  },
+  "cascadeOrder": [
+    "channel_override.message_notifications (!= 3)",
+    "parent_category_override.message_notifications (!= 3)",
+    "user_guild_settings.message_notifications (0..=2)",
+    "guild.default_message_notifications (0..=1, fallback 1)"
+  ],
+  "muteInheritance": {
+    "formula": "isMuted = muted && (!mute_config || !mute_config.end_time || mute_config.end_time == 'nil' || end_time >= now_unix)",
+    "effectiveMute": "guild_muted || category_muted || channel_muted",
+    "allowNoMessages": "effective_muted || resolved_level == 2 || opt_in_suppressed"
+  }
+}

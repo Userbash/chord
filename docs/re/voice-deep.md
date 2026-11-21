@@ -97,3 +97,90 @@ Replicated across sessions and verified via strace:
 
 ## 4. Voice UI Components
 Voice status rendered in `[class*=panels]` with Mute/Deafen/Settings/Disconnect controls, ping indicator, and audio device selectors (`voice/ui/01-voice-panel.html`). Channel joining executed via QuickSwitcher (`Ctrl+K`); disconnection via clean close code 1000.
+
+## 5. Media Capture Constraints Protocol (D-04)
+
+Empirical specification of Discord's audio capture parameters, sample rate requirements, media device selection, echo cancellation (AEC) options, Automatic Gain Control (AGC) algorithms, noise suppression flags, and stream renegotiation (`discord_voice.node` `src/transport_settings.cpp`, `src/media/audio_device/device_selection.cpp`, `src/media/captured_audio_processor.cpp`, `src/media/echo_canceller_factory.cpp`, `src/krisp/noise_canceller.cpp`, and `chord_voice::{media_constraints,devices,noise,stream_quality}`).
+
+### 5.1 Audio Capture Parameters & Sample Rate Requirements
+
+| Parameter / Symbol | Wire / Native Value | Voice Engine Mapping (`chord_voice`) | Contract Notes |
+|---|---|---|---|
+| `DEFAULT_AUDIO_SAMPLE_RATE_HZ` | `48000` Hz | `media_constraints::DEFAULT_AUDIO_SAMPLE_RATE_HZ` | Canonical WebRTC Opus capture & screen-share loopback clock |
+| `DEFAULT_AUDIO_CHANNELS` | `2` (stereo) | `media_constraints::DEFAULT_AUDIO_CHANNELS` | Canonical WebRTC Opus voice & virtual desktop audio channel count |
+| `SUPPORTED_SAMPLE_RATES_HZ` | `[8000, 16000, 32000, 48000]` Hz | `noise::SUPPORTED_SAMPLE_RATES_HZ` | Supported APM & Krisp capture sample rates (`NB`, `WB`, `SWB`, `FB`) |
+| `SUPPORTED_FRAME_DURATIONS_MS` | `[10, 20, 30]` ms | `noise::SUPPORTED_FRAME_DURATIONS_MS` | Supported PCM S16LE frame intervals (`960` samples/ch @ `48 kHz` / `20 ms`) |
+| `setVoiceSampleRateCap` | NAPI property (`strings-a-n6.txt:73302`) | `NoiseSuppressionPipeline::setup` | Caps hardware capture sample rate to `[8000..=48000]` Hz |
+| `setVoiceChannelCountCap` | NAPI property (`strings-a-n6.txt:73303`) | `NoiseSuppressionPipeline::setup` (`1..=2`) | Caps capture channel count (`1` mono / `2` stereo) |
+| `sampleRateMismatchPercent` | `<= 15%` (`strings-a-n6.txt:73961`) | `noise::MAX_SAMPLE_RATE_MISMATCH_PERCENT = 15` | Clock drift `> 15%` automatically degrades `Krisp` -> `RnNoise` |
+| `inputVolume` / `outputVolume` | `0..=100%` / `0..=200%` (`strings-a-n6.txt:73231-73233`) | `devices::{MAX_INPUT_VOLUME, MAX_OUTPUT_VOLUME}` | Default `100%` (`DEFAULT_INPUT_VOLUME`, `DEFAULT_OUTPUT_VOLUME`) |
+
+### 5.2 Media Device Selection & Virtual Audio Loopback Injection
+
+- **Native NAPI Device Selectors (`src/media/audio_device/device_selection.cpp`):**
+  - `getInputDevices`, `getOutputDevices`, `getVideoInputDevices` enumerate active OS endpoints.
+  - `setInputDevice`, `setOutputDevice`, `setVideoInputDevice` accept either a device index or exact device ID string (`"setInputDevice expects either a device index or device id string"`, `strings-a-n6.txt:73237-73239`).
+  - `setDeviceChangeCallback` notifies the Voice Engine on OS hot-plug/unplug topology changes.
+- **Exact `deviceId` Matching & Hot-Plug Stability (`chord_voice::media_constraints::DeviceIdMatchConstraint`):**
+  - Voice input and virtual stream tracks bind via `DeviceIdMatchConstraint::Exact("<id>")` (`"deviceId":{"exact":"<id>"}`), preventing OS default-device hijack when Bluetooth or USB headsets are hot-plugged.
+  - When a pinned physical microphone disconnects, `MediaConstraintsEngine::handle_device_Topology_change` transitions to `DeviceIdMatchConstraint::ExactWithFallback { preferred_exact_id, effective_active_id }` (falling back to the `is_default == true` input device) and automatically restores `Exact(preferred_exact_id)` when the device reconnects.
+- **Virtual Audio Track Injection & Anti-Echo Isolation:**
+  - Linux PipeWire virtual loopback (`VirtualAudioSourceKind::PipeWireLoopback`): `DEFAULT_VIRTUAL_AUDIO_DEVICE_ID = "chord-screen-share-audio"` (`48000` Hz, `2` ch).
+  - Windows WASAPI loopback (`VirtualAudioSourceKind::WasapiLoopback`): `DEFAULT_WASAPI_VIRTUAL_AUDIO_DEVICE_ID = "chord-wasapi-loopback-audio"` (`48000` Hz, `2` ch).
+  - macOS CoreAudio process tap (`VirtualAudioSourceKind::CoreAudioProcessTap`).
+  - `OwnApplicationFilter` (`devices::OwnApplicationFilter`) excludes `target_pid == 0`, `target_pid == own_pid`, and client binary names from desktop audio capture so remote call participants and local microphone loopback never echo into screen-share streams.
+  - Human-readable OS device `label` fields in `AudioDevice` and `VirtualAudioTrackDescriptor` are redacted as `"<redacted>"` in `Debug` output.
+
+### 5.3 Echo Cancellation (AEC) Options & Acoustic Pipeline
+
+Extracted from `src/transport_settings.cpp`, `src/media/echo_canceller_factory.cpp`, `src/media/echo_canceller_probe_bank.cpp`, and `modules/audio_processing/aec3/echo_canceller3.cc` (`strings-a-n6.txt:73211-73232`, `83539-83542`):
+
+| Option / Field | Default (Voice Mic) | Screen-Share Loopback | Purpose & Engine Behavior |
+|---|---|---|---|
+| `echoCancellation` | `true` | `false` | Enables WebRTC `EchoCanceller3` (`AEC3`) acoustic echo cancellation |
+| `echoCancellationPreEcho` | `true` | `false` | Pre-echo suppression filter ahead of nonlinear AEC3 stage |
+| `echoReferenceMode` | `"system"` / `"loopback"` | `"disabled"` | Selects playout reference sink for acoustic delay estimation |
+| `builtInEchoCancellation` | `false` (software AEC3 preferred) | `false` | Hardware/OS ADM built-in AEC toggle |
+| `bypassSystemProcessing` | `false` | `true` | Bypasses OS/driver DSP when native WebRTC APM/Krisp is active |
+| `enforce_high_pass_filtering` | `true` | `false` | High-pass DC/rumble removal in `AudioProcessing::Config::echo_canceller` |
+| `echo_delay_ms` | Telemetry counter (`u32`) | `0` | Estimated acoustic path delay in `NoiseCancellationStats` (`erl`, `erle`) |
+| `NoopEchoControl` | Fallback when `echoCancellation: false` | Active | Bypasses linear AEC output (`echo_canceller_factory.cpp`) |
+
+### 5.4 Automatic Gain Control (AGC) Algorithms & Profiles
+
+Discord's native `setTransportOptions` (`automaticGainControl`, `automaticGainControlConfig`, `strings-a-n6.txt:73214-73215`) and `AudioProcessing::Config` (`strings-a-n6.txt:83544-83576`) combine `gain_controller1` (`target_level_dbfs`, `compression_gain_db`, `enable_limiter`, `analog_gain_controller`, `clipping_predictor`) and `gain_controller2` (`fixed_digital`, `adaptive_digital`). The Voice Engine enforces three deterministic `AgcMode` profiles (`chord_voice::media_constraints::AgcPolicyConfig`):
+
+| Profile (`AgcMode`) | `auto_gain_control` | `echo_cancellation` | `noise_suppression` | `typing_noise_detection` | `target_level_dbfs` | `compression_gain_db` | `limiter_enabled` | Target Use Case |
+|---|---|---|---|---|---:|---:|---|---|
+| `AdaptiveDigital` (`voice_adaptive_default`) | `true` | `true` | `true` | `true` | `-3` dBFS | `9` dB | `true` | Standard voice microphones (elevates `vadKrispActivationThreshold` to `0.8`) |
+| `FixedDigital` (`voice_fixed_manual`) | `false` | `true` | `true` | `true` | `-3` dBFS | `0` dB | `true` | Studio USB audio interfaces with hardware gain knobs |
+| `BypassedForStream` (`screen_share_passthrough`) | `false` | `false` | `false` | `false` | `0` dBFS | `0` dB | `false` | Virtual desktop/application audio tracks (`SOUNDSHARE`) |
+
+### 5.5 Noise Suppression Flags, Krisp Models & VAD Gating
+
+Extracted from `src/transport_settings.cpp`, `src/krisp/noise_canceller.cpp`, `src/krisp/voice_activity_detector.cpp`, and `src/media/captured_audio_processor.cpp`:
+
+- **Transport & Filter Flags (`NoiseSuppressionConfig`):**
+  - `noiseSuppression: true` (standard spectral/RNN fallback), `noiseCancellation: true` (Krisp deep-learning NC), `noiseCancellationDuringProcessing: false`, `skipNoiseCancellationIfMuted: true` (zeroes muted frames and skips neural inference to save CPU).
+  - `suppressionLevel: 0..=100` (default `100%`), `max_attenuation_db: 0..=60` dB (`45` dB for `Krisp`, `30` dB for `RnNoise`).
+  - `vadThreshold: -100..=0` dBFS (default `-40` dBFS), `vadAutoThreshold: true` (adaptive EMA noise floor `[-100.0, -20.0]` dBFS with `+6.0` dB SNR margin and `4.0` dB whisper hysteresis), `vadLeading: 5` frames (`100` ms), `vadTrailing: 25` frames (`500` ms, max `100` frames).
+  - `vadUseKrisp: true`, `vadKrispActivationThreshold`: `0.5` (`DEFAULT_KRISP_VAD_THRESHOLD`) when AGC is off, `0.8` (`AGC_KRISP_VAD_THRESHOLD`) when AGC is on.
+- **Krisp Model Tiers (`KrispModelTier`) & Bundled `.kef` Weights (`discord_krisp.node`):**
+  - `SmallNc8k` (`"small_NC_8k"` -> `krisp-nc-o-nb-v2.kef`, selected at `8000` Hz);
+  - `SmallNc` (`"small_NC"` -> `krisp-nc-o-lite-v1.kef`, selected at `>= 16000` Hz when `fullband_performance == false`);
+  - `FullNc` (`"full_NC"` -> `krisp-nc-o-med-v7.kef`, selected at `48000` Hz with `fullband_performance == true`);
+  - Auxiliary models: `krisp-bvc-o-pro-v3.kef` (Background Voice Cancellation Pro) and `krisp-vad-o-v2.kef` (Krisp VAD).
+- **CPU Overuse Guard (`MaybeToggleNoiseCanceller`):**
+  - If frame processing time exceeds `MAX_CPU_PROCESS_TIME_US_PER_20MS = 12_000` µs for `CPU_OVERUSE_CONSECUTIVE_FRAMES_LIMIT = 5` consecutive 20 ms frames, `NoiseCancellerState` transitions to `DisabledByCpuOveruse` and automatically falls back from `Krisp` to `RnNoise` (or `StandardWebRtc`).
+
+### 5.6 Stream Renegotiation & Video Encoder Resolution Bounds
+
+- **Lifecycle & Mid-Stream Renegotiation (`MediaConstraintsEngine`):**
+  - State machine: `Idle -> Active -> Stopped`.
+  - Mid-stream virtual audio injection via `inject_virtual_audio_track` attaches a 48 kHz stereo loopback track with `AgcMode::BypassedForStream` without interrupting video encoding, setting Voice Gateway Opcode 5 `SPEAKING` bitflag `SOUNDSHARE_SPEAKING_BIT = 2` (`1 << 1`).
+  - Mid-stream resolution/FPS update via `renegotiate_video_bounds` updates `ResolutionBounds` (`160x90`..`3840x2160`, even YUV420 dimensions, `1..=120` FPS; canonical presets `480p = 854x480`, `720p = 1280x720`, `1080p = 1920x1080`, `1440p = 2560x1440`, `2160p = 3840x2160`) while preserving the active virtual audio track.
+- **Signaling & Bandwidth Adaptation (`StreamQualityController`):**
+  - `handle_go_live`, `patch_stream_quality`, and `set_quality_profile` emit Voice Gateway **Opcode 12 (`Video`)** with `audio_ssrc`, `video_ssrc = audio_ssrc + 1`, `rtx_ssrc = audio_ssrc + 2`, `rid: "100"`, `max_resolution`, `max_framerate`, and `max_bitrate` (`150 kbps ..= 25 Mbps`; `720p@30 = 2.5 Mbps`, `720p@60 = 4.0 Mbps`).
+  - Inbound Voice Gateway **Opcode 15 (`MediaSinkWants`)** dynamically scales or pauses encoding (`{"any": 0}` or per-SSRC `0` transitions to `StreamAdaptationState::PausedBySink`; `{"any": 100}` resumes `Active`).
+  - `ConnectionEventFramerateReducer` reduces maximum encoding framerate to `IDLE_REDUCED_MAX_FRAMERATE = 20` FPS after `CONNECTION_IDLE_FRAMERATE_REDUCE_MS = 15_000` ms of static screen content.
+  - RTCP Receiver Report loss (`fraction_lost >= 13/256` congestion drop `-20%`; recovery after `2000` ms holdoff at `<= 5/256`) and RTCP REMB (`4/5` headroom, `5000` ms TTL) adapt target bitrate within `[min_bitrate_bps, max_bitrate_bps]`.

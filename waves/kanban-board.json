@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T08:57:04.719Z",
+  "updated_at": "2026-11-21T09:02:36.937Z",
   "columns": [
     {
       "id": "backlog",
@@ -9951,8 +9951,8 @@
       "id": "R5-08",
       "title": "Media Constraints Engine",
       "description": "Custom media constraint negotiation: virtual audio track injection, exact `deviceId` matching, AGC policy, resolution bounds. Target: Voice Engine. Criteria: Audio track remains stable through device changes; video encoder adheres strictly to selected resolution bounds",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9965,14 +9965,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "R5-09",
       "title": "Stream Quality Profiles",
       "description": "Dynamic bitrate and encoder scaling: min/target/max bitrate, framerate, resolution pixel limits, connection adaptation. Target: Voice Engine. Criteria: Stream adheres to selected profile (e.g. 720p@60 FPS); bitrate conforms to bandwidth constraints",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9985,14 +9986,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "R5-10",
       "title": "Stream Lifecycle & Streamer Mode",
       "description": "Handle `STREAM_CREATE`, `STREAM_SERVER_UPDATE`, and `STREAM_DELETE` events; automatic streamer mode toggle to hide sensitive personal data. Target: Core: Event Dispatcher. Criteria: Stream lifecycle events update UI state; streamer mode automatically suppresses tokens, invite links, and notifications",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P1",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -10005,7 +10007,8 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "R5-11",
@@ -10031,8 +10034,8 @@
       "id": "R6-01",
       "title": "Steam Deck & Controller Mode",
       "description": "Handheld UI mode: dynamic scaling for Steam Deck Game Mode, gamepad navigation support via D-Pad/thumbstick, virtual keyboard triggering via D-Bus. Target: UI: Platform Navigation. Criteria: Full navigation possible via gamepad buttons; input fields automatically summon SteamOS on-screen keyboard",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "tags": [
@@ -10045,7 +10048,8 @@
       "effort": "low",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "R6-02",
@@ -10071,8 +10075,8 @@
       "id": "R6-03",
       "title": "Windows Platform (Windows-specific)",
       "description": "Taskbar badge overlays, portable mode (isolated data alongside executable), Alt+F4/Ctrl+Q hotkeys. Target: Windows Platform. Criteria: Portable build does not touch AppData or registry; unread badge visible on taskbar icon",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "tags": [
@@ -10085,14 +10089,15 @@
       "effort": "low",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "R6-04",
       "title": "macOS Platform (macOS-specific)",
       "description": "Vibrancy material window, native traffic lights controls, `open-url` deep links, notarization and entitlements. Target: macOS Platform. Criteria: Signed and notarized dmg; window with Vibrancy material; links open via custom protocol",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "tags": [
@@ -10105,7 +10110,8 @@
       "effort": "low",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "R6-05",
@@ -10131,8 +10137,8 @@
       "id": "R6-06",
       "title": "Client Cache & State Reset",
       "description": "Settings action to purge local SQLite message cache, temporary media thumbnails, or reset local preferences without losing credentials. Target: Core: Store Engine. Criteria: Cache purge frees disk space; local settings reset restores default values while keeping login tokens intact",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "tags": [
@@ -10145,7 +10151,8 @@
       "effort": "low",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "R6-07",
@@ -10171,8 +10178,8 @@
       "id": "R6-08",
       "title": "Localization & Asset Downloader",
       "description": "Dynamic background downloader for regional font subsets, emoji packs, and audio cues with local caching and SHA-256 validation. Target: Core: Asset Manager. Criteria: Localization strings and font assets download asynchronously on first use; cached locally with verified hashes",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "tags": [
@@ -10185,7 +10192,8 @@
       "effort": "low",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "R6-09",
@@ -10231,8 +10239,8 @@
       "id": "D-01",
       "title": "Gateway Initial State (`READY`)",
       "description": "Complete schema and capture of initial gateway connection state: user accounts, guild lists, channel structures, member roles. Target: Protocol Core. Criteria: Full `READY` payload schema parsed into strongly-typed structs; documented in `docs/re/gateway-protocol.md`",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G7 RE / REA",
       "tags": [
@@ -10245,14 +10253,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "D-02",
       "title": "REST API Routes & Payloads",
       "description": "Inventory of REST API v9 endpoints: HTTP method, URL path, request body schema, authentication headers, rate limits. Target: Network BFF. Criteria: Route catalog covers authentication, messaging, search, channels, and guilds; documented in `docs/re/rest-d02.md`",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G7 RE / REA",
       "tags": [
@@ -10265,14 +10274,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "D-03",
       "title": "UI Component Interaction Traces",
       "description": "Empirical UI contracts: channel sidebar, chat scroll virtualization, emoji picker, user popouts, settings navigation. Target: UI Architecture. Criteria: Component specs define DOM hierarchy, CSS tokens, keyboard bindings, and ARIA roles; documented in `docs/re/frontend-d03.md`",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G7 RE / REA",
       "tags": [
@@ -10285,14 +10295,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "D-04",
       "title": "Media Capture Constraints Protocol",
       "description": "Detailed contract of Discord's media device selection, AGC algorithms, noise suppression flags, and stream renegotiation. Target: Voice Engine. Criteria: Complete specification of audio capture parameters, echo cancellation options, and sample rate requirements",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G7 RE / REA",
       "tags": [
@@ -10305,7 +10316,8 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T09:02:50.787Z"
     },
     {
       "id": "D-05",
@@ -10428,5 +10440,5 @@
       "created_at": "2026-11-21T07:54:46.355Z"
     }
   ],
-  "last_updated": "2026-11-21T07:19:10.276Z"
+  "last_updated": "2026-11-21T09:02:36.913Z"
 }

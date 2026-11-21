@@ -78,5 +78,156 @@
     "закрытие старых fd при ротации сокета в strace не видно",
     "RTCP-тела шифрованы → потери/джиттер недоступны снаружи (нужен оракул jitter-буфера)",
     "VOICE-CRYPTO.md прошлой волны потерян (tmpfs); крипто-поля восстановлены наблюдательно"
-  ]
+  ],
+  "media_capture_constraints_d04": {
+    "audio_capture_parameters": {
+      "canonical_sample_rate_hz": 48000,
+      "canonical_channels": 2,
+      "supported_sample_rates_hz": [8000, 16000, 32000, 48000],
+      "supported_frame_durations_ms": [10, 20, 30],
+      "pcm_samples_per_channel_20ms_48khz": 960,
+      "max_sample_rate_mismatch_percent": 15,
+      "input_volume_range_percent": [0, 100],
+      "output_volume_range_percent": [0, 200],
+      "default_input_volume_percent": 100,
+      "default_output_volume_percent": 100,
+      "napi_exports": [
+        "setVoiceSampleRateCap",
+        "setVoiceChannelCountCap",
+        "setInputVolume",
+        "setOutputVolume",
+        "setNoInputThreshold",
+        "setNoInputCallback"
+      ]
+    },
+    "device_selection": {
+      "match_mode": "exact",
+      "webrtc_constraint_key": "deviceId",
+      "hotplug_fallback_policy": "ExactWithFallback_to_system_default_with_auto_restore",
+      "virtual_audio_devices": {
+        "pipewire_loopback": "chord-screen-share-audio",
+        "wasapi_loopback": "chord-wasapi-loopback-audio",
+        "coreaudio_tap": "coreaudio_tap"
+      },
+      "anti_echo_own_application_filter": {
+        "reject_zero_pid": true,
+        "reject_own_pid": true,
+        "max_process_binary_len": 256,
+        "max_pid_string_len": 10
+      },
+      "privacy_label_redaction": "<redacted>",
+      "napi_exports": [
+        "getInputDevices",
+        "getOutputDevices",
+        "getVideoInputDevices",
+        "setInputDevice",
+        "setOutputDevice",
+        "setVideoInputDevice",
+        "setDeviceChangeCallback"
+      ]
+    },
+    "echo_cancellation_options": {
+      "engine": "WebRTC_AEC3",
+      "echoCancellation": true,
+      "echoCancellationPreEcho": true,
+      "echoReferenceMode": "system_loopback",
+      "builtInEchoCancellation": false,
+      "bypassSystemProcessing": false,
+      "enforce_high_pass_filtering": true,
+      "voice_default_enabled": true,
+      "screen_share_enabled": false,
+      "fallback_control": "NoopEchoControl",
+      "telemetry_fields": ["echo_delay_ms", "erl", "erle"]
+    },
+    "agc_algorithms": {
+      "AdaptiveDigital": {
+        "auto_gain_control": true,
+        "echo_cancellation": true,
+        "noise_suppression": true,
+        "typing_noise_detection": true,
+        "target_level_dbfs": -3,
+        "compression_gain_db": 9,
+        "limiter_enabled": true,
+        "vad_krisp_activation_threshold": 0.8
+      },
+      "FixedDigital": {
+        "auto_gain_control": false,
+        "echo_cancellation": true,
+        "noise_suppression": true,
+        "typing_noise_detection": true,
+        "target_level_dbfs": -3,
+        "compression_gain_db": 0,
+        "limiter_enabled": true,
+        "vad_krisp_activation_threshold": 0.5
+      },
+      "BypassedForStream": {
+        "auto_gain_control": false,
+        "echo_cancellation": false,
+        "noise_suppression": false,
+        "typing_noise_detection": false,
+        "target_level_dbfs": 0,
+        "compression_gain_db": 0,
+        "limiter_enabled": false
+      }
+    },
+    "noise_suppression_flags": {
+      "backends": ["disabled", "webrtc_ns", "rnnoise", "krisp"],
+      "noiseSuppression": true,
+      "noiseCancellation": true,
+      "noiseCancellationDuringProcessing": false,
+      "skipNoiseCancellationIfMuted": true,
+      "default_suppression_level": 100,
+      "krisp_max_attenuation_db": 45,
+      "rnnoise_max_attenuation_db": 30,
+      "default_vad_threshold_db": -40,
+      "vad_threshold_range_db": [-100, 0],
+      "vad_auto_threshold": true,
+      "vad_use_krisp": true,
+      "default_krisp_vad_threshold": 0.5,
+      "agc_krisp_vad_threshold": 0.8,
+      "vad_leading_frames": 5,
+      "vad_trailing_frames": 25,
+      "max_vad_hangover_frames": 100,
+      "cpu_overuse_threshold_us_per_20ms": 12000,
+      "cpu_overuse_consecutive_frames": 5,
+      "krisp_models": {
+        "small_NC_8k": "krisp-nc-o-nb-v2.kef",
+        "small_NC": "krisp-nc-o-lite-v1.kef",
+        "full_NC": "krisp-nc-o-med-v7.kef",
+        "bvc_pro": "krisp-bvc-o-pro-v3.kef",
+        "vad": "krisp-vad-o-v2.kef"
+      }
+    },
+    "stream_renegotiation": {
+      "lifecycle_states": ["Idle", "Active", "Stopped"],
+      "adaptation_states": ["Idle", "Active", "Degraded", "PausedBySink"],
+      "resolution_bounds": {
+        "min_width": 160,
+        "min_height": 90,
+        "max_width": 3840,
+        "max_height": 2160,
+        "even_yuv420_alignment": true,
+        "presets": {
+          "480p": [854, 480],
+          "720p": [1280, 720],
+          "1080p": [1920, 1080],
+          "1440p": [2560, 1440],
+          "2160p": [3840, 2160]
+        }
+      },
+      "fps_bounds": [1, 120],
+      "bitrate_bounds_bps": [150000, 25000000],
+      "default_720p30_target_bitrate_bps": 2500000,
+      "default_720p60_target_bitrate_bps": 4000000,
+      "soundshare_speaking_bit": 2,
+      "video_opcode": 12,
+      "media_sink_wants_opcode": 15,
+      "idle_framerate_reduce_after_ms": 15000,
+      "idle_reduced_max_fps": 20,
+      "loss_congestion_threshold_256": 13,
+      "loss_recovery_threshold_256": 5,
+      "remb_headroom_ratio": [4, 5],
+      "remb_ttl_ms": 5000
+    }
+  }
 }
