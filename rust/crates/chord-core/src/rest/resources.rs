@@ -2,7 +2,14 @@
 
 use std::fmt;
 
-use super::routes::{self, HttpMethod};
+use crate::API_V9_BASE;
+
+use super::headers::AUTH_HEADER_NAMES;
+use super::routes::{
+    self, CAPTURED_D02_ROUTE_COUNT, CHANNEL_ATTACHMENTS_PATH, CHANNEL_SEARCH_PATH, HttpMethod,
+    INVITE_PATH, ROUTES, RouteSpec, STATIC_EXTENSION_ROUTE_COUNT, TYPING_PATH,
+};
+use super::super_properties::field_names;
 
 /// Supported read-only resource categories.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -127,4 +134,132 @@ pub fn path(kind: ResourceKind, application_id: Option<&str>) -> Result<String, 
     let route =
         routes::find(HttpMethod::Get, entry.path_template).ok_or(ResourceError::RouteNotFound)?;
     routes::render_path(route, &parts).map_err(|_| ResourceError::RouteRender)
+}
+
+/// Functional domain classification of a REST API v9 endpoint in the D-02 catalog.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum RestRouteDomain {
+    /// User identity, `/users/@me`, MFA WebAuthn credentials, and session/auth endpoints.
+    Authentication,
+    /// Message history, message creation, message ACK, reactions, and pinned messages.
+    Messaging,
+    /// Thread search, guild message search, channel message search, and autocomplete search.
+    Search,
+    /// Channel-scoped operations (`/channels/{id}/*`).
+    Channels,
+    /// Guild-scoped operations (`/guilds/{id}/*`, `/guilds`).
+    Guilds,
+    /// Client telemetry endpoints (`/beaker`, `/science`).
+    Telemetry,
+    /// User profile, billing, quests, entitlements, storefront, and ecosystem resources.
+    Resources,
+}
+
+/// Aggregate summary of the D-02 REST API v9 route catalog for the Network BFF.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RestDomainCatalogSummary {
+    /// Canonical REST API v9 base URL (`https://discord.com/api/v9`).
+    pub api_base: &'static str,
+    /// Number of empirically captured D-02 routes (47).
+    pub captured_d02_routes: usize,
+    /// Number of static extension routes inside `ROUTES` (2).
+    pub static_extension_routes: usize,
+    /// Number of mandatory authentication headers in the request envelope (6).
+    pub auth_header_count: usize,
+    /// Number of fields in `X-Super-Properties` (22).
+    pub super_properties_field_count: usize,
+    /// Number of D-02 routes carrying a request body schema (6).
+    pub d02_payload_route_count: usize,
+    /// Number of routes covering authentication and user identity.
+    pub authentication_routes: usize,
+    /// Number of routes covering messaging operations.
+    pub messaging_routes: usize,
+    /// Number of routes covering search and autocomplete operations.
+    pub search_routes: usize,
+    /// Number of routes targeting `/channels/{id}/*`.
+    pub channel_routes: usize,
+    /// Number of routes targeting `/guilds/{id}/*`.
+    pub guild_routes: usize,
+}
+
+/// All catalogued route specs combining `ROUTES` (49) and the 5 `EXTENSIONS` resolved via `routes::find`.
+fn all_catalog_routes() -> Vec<&'static RouteSpec> {
+    let mut all: Vec<&'static RouteSpec> = ROUTES.iter().collect();
+    for (method, ext_path) in [
+        (HttpMethod::Post, TYPING_PATH),
+        (HttpMethod::Get, INVITE_PATH),
+        (HttpMethod::Post, INVITE_PATH),
+        (HttpMethod::Get, CHANNEL_SEARCH_PATH),
+        (HttpMethod::Post, CHANNEL_ATTACHMENTS_PATH),
+    ] {
+        if let Some(spec) = routes::find(method, ext_path) {
+            all.push(spec);
+        }
+    }
+    all
+}
+
+/// Classifies a REST v9 route `(method, path)` into its primary [`RestRouteDomain`].
+#[must_use]
+pub fn classify_route_domain(_method: HttpMethod, path: &str) -> RestRouteDomain {
+    if path == "/users/@me"
+        || path.starts_with("/users/@me/mfa/")
+        || path.starts_with("/auth/")
+        || path == "/users/@me/auth/sessions"
+    {
+        RestRouteDomain::Authentication
+    } else if path.ends_with("/search") || path == "/games/autocomplete" {
+        RestRouteDomain::Search
+    } else if path.starts_with("/channels/{id}/messages") {
+        RestRouteDomain::Messaging
+    } else if path.starts_with("/channels/") {
+        RestRouteDomain::Channels
+    } else if path.starts_with("/guilds") {
+        RestRouteDomain::Guilds
+    } else if path == "/beaker" || path == "/science" {
+        RestRouteDomain::Telemetry
+    } else {
+        RestRouteDomain::Resources
+    }
+}
+
+/// Returns all catalogued [`RouteSpec`] entries matching `domain`.
+///
+/// Note: `RestRouteDomain::Channels` includes all `/channels/*` endpoints (including messaging
+/// and channel/thread search), and `RestRouteDomain::Guilds` includes all `/guilds/*` endpoints
+/// (including guild search), while `classify_route_domain` assigns the most specific domain.
+#[must_use]
+pub fn routes_by_domain(domain: RestRouteDomain) -> Vec<&'static RouteSpec> {
+    all_catalog_routes()
+        .into_iter()
+        .filter(|spec| match domain {
+            RestRouteDomain::Channels => spec.path.starts_with("/channels/"),
+            RestRouteDomain::Guilds => spec.path.starts_with("/guilds/"),
+            other => classify_route_domain(spec.method, spec.path) == other,
+        })
+        .collect()
+}
+
+/// Computes the D-02 REST API v9 catalog summary across authentication, messaging, search,
+/// channels, guilds, request payload schemas, and auth headers.
+#[must_use]
+pub fn d02_domain_catalog_summary() -> RestDomainCatalogSummary {
+    let d02_payload_route_count = ROUTES
+        .iter()
+        .filter(|spec| !spec.is_static_extension() && !spec.body_keys.is_empty())
+        .count();
+
+    RestDomainCatalogSummary {
+        api_base: API_V9_BASE,
+        captured_d02_routes: CAPTURED_D02_ROUTE_COUNT,
+        static_extension_routes: STATIC_EXTENSION_ROUTE_COUNT,
+        auth_header_count: AUTH_HEADER_NAMES.len(),
+        super_properties_field_count: field_names().len(),
+        d02_payload_route_count,
+        authentication_routes: routes_by_domain(RestRouteDomain::Authentication).len(),
+        messaging_routes: routes_by_domain(RestRouteDomain::Messaging).len(),
+        search_routes: routes_by_domain(RestRouteDomain::Search).len(),
+        channel_routes: routes_by_domain(RestRouteDomain::Channels).len(),
+        guild_routes: routes_by_domain(RestRouteDomain::Guilds).len(),
+    }
 }
