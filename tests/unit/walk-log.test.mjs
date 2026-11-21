@@ -31,6 +31,7 @@ describe("parseVisited", () => {
     const state = parseVisited("");
     assert.equal(state.labels.size, 0);
     assert.equal(state.maxStep, 0);
+    assert.equal(state.corruptedLines, 0);
   });
 
   it("записи без строкового label игнорируются", () => {
@@ -73,6 +74,7 @@ describe("parseVisited", () => {
     const state = parseVisited(lines.join("\n"));
     assert.equal(state.maxStep, 56);
     assert.equal(state.labels.size, 55);
+    assert.equal(state.corruptedLines, 1);
   });
 });
 

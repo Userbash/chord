@@ -26,6 +26,7 @@ export function parseVisited(text) {
   /** @type {Set<string>} */
   const labels = new Set();
   let maxStep = 0;
+  let corruptedLines = 0;
   for (const line of text.split("\n")) {
     if (!line.trim()) continue;
     try {
@@ -36,9 +37,10 @@ export function parseVisited(text) {
       if (typeof record.label === "string") labels.add(record.label);
     } catch {
       // Повреждённая строка не мешает восстановить остальные записи.
+      corruptedLines++;
     }
   }
-  return { labels, maxStep };
+  return { labels, maxStep, corruptedLines };
 }
 
 /**

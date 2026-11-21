@@ -809,9 +809,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-low",
       "effort": "low",
-      "status": "RESERVED",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T09:08:27.578Z",
+      "completedAt": "2026-11-21T09:12:27.797Z"
     },
     {
       "slot": 44,
@@ -826,9 +828,10 @@
       "scriptCommand": "node scripts/report-diff.mjs",
       "model": "none",
       "effort": "none",
-      "status": "RESERVED",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": null,
+      "completedAt": "2026-11-21T09:12:27.797Z"
     }
   ]
 }

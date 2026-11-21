@@ -158,6 +158,19 @@ export function dispatchNextSlot() {
     return false;
   }
 
+  if (nextSlot.isScript || nextSlot.tier === 'TIER_0_SCRIPT') {
+    console.log(`⚡ [AUTO-DRIVER] Слот #${nextSlot.slot} [${nextSlot.id}] выполняется локальным скриптом (0 токенов): ${nextSlot.scriptCommand}`);
+    if (nextSlot.scriptCommand) {
+      try {
+        execSync(nextSlot.scriptCommand, { cwd: PROJECT_ROOT, stdio: 'inherit' });
+      } catch (err) {
+        console.warn(`⚠️ [AUTO-DRIVER] Предупреждение при выполнении ${nextSlot.scriptCommand}: ${err.message}`);
+      }
+    }
+    markTaskCompleted(nextSlot.id);
+    return true;
+  }
+
   console.log(`🚀 [AUTO-DRIVER] Запуск воркера для Слота #${nextSlot.slot} [${nextSlot.id}]: ${nextSlot.title}`);
   const specText = `Task ${nextSlot.id}: ${nextSlot.title}\nDescription: ${nextSlot.description}\nDepartment: ${nextSlot.department}\nPriority: ${nextSlot.priority}\nContract: Follow AGENTS.md, TEST-POLICY.md strictly. Write tests first.`;
   const taskTitle = `[${nextSlot.id}] ${nextSlot.title}`;
@@ -231,6 +244,9 @@ export function runCycle() {
 
   // Если задачи завершились, выполняем авто-коммит и пуш
   if (completedTasks.length > 0) {
+    try {
+      execSync('node scripts/sync-project-map.mjs', { cwd: PROJECT_ROOT, stdio: 'inherit' });
+    } catch {}
     console.log(`🚀 [AUTO-DRIVER] Синхронизация Git после завершения ${completedTasks.join(', ')}...`);
     cmdCommit(`docs(kanban): auto-complete tasks ${completedTasks.join(', ')}`);
   }

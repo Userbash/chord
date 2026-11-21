@@ -39,6 +39,8 @@
     "auto:driver:watch": "node scripts/orchestration-auto-driver.mjs --watch 15",
     "roadmap:audit": "node scripts/roadmap-audit.mjs",
     "roadmap:sync": "node scripts/roadmap-audit.mjs --sync",
+    "map:sync": "node scripts/sync-project-map.mjs",
+    "report:diff": "node scripts/report-diff.mjs",
     "test:rust": "bash scripts/test-all-rust.sh",
     "test:stress": "node scripts/stress-fts5.mjs --messages 10000 --threads 2",
     "audit:bridges": "node scripts/audit-thin-bridges.mjs",
