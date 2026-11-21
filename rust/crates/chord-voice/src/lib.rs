@@ -15,6 +15,7 @@ pub mod dave;
 pub mod dave_v1;
 pub mod devices;
 pub mod media;
+pub mod media_constraints;
 pub mod noise;
 pub mod ptt;
 pub mod reception;
