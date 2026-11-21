@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T07:00:00.449Z",
+  "updated_at": "2026-11-21T07:03:03.549Z",
   "columns": [
     {
       "id": "backlog",
@@ -7754,7 +7754,7 @@
     {
       "id": "TASK-1011B",
       "title": "60 FPS векторный экран графиков RtcDiagnosticsHud на WGPU",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Окно графиков задержки и битрейта с зумом, сеткой шкал и тултипами данных.",
@@ -7786,14 +7786,14 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/voice/rtc_hud.rs, tests/unit/rtc-hud-1011b.test.mjs.\nОракул: clean-room-oracle/webrtc-internals.\nПлан: 1. Red-тест 2. WGPU кривые 3. Тултипы 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
+      "updated_at": "2026-11-21T07:04:23.743Z",
       "progress": 0,
-      "column": "backlog"
+      "column": "done"
     },
     {
       "id": "TASK-1010A",
       "title": "Детектор бездействия по D-Bus ScreenSaver и ext-idle-notifier-v1",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Замер миллисекунд простоя пользователя с поддержкой Wayland и fallback на X11.",
@@ -7825,14 +7825,14 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-platform/src/idle_monitor.rs, tests/unit/idle-monitor-1010a.test.mjs.\nОракул: D-Bus ScreenSaver spec.\nПлан: 1. Red-тест 2. Wayland/X11 биндинги 3. События 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
+      "updated_at": "2026-11-21T07:04:23.743Z",
       "progress": 0,
-      "column": "backlog"
+      "column": "done"
     },
     {
       "id": "TASK-1010B",
       "title": "Перемещение в afk_channel_id по тайм-ауту с флагом self_mute",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G5 Voice / Platform",
       "summary": "Сверка с guild.afk_timeout и отправка Gateway Opcode 4 на перевод в AFK-канал.",
@@ -7864,14 +7864,14 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/voice/afk_handler.rs, tests/unit/afk-handler-1010b.test.mjs.\nОракул: clean-room-oracle/gateway-schema.json (Opcode 4).\nПлан: 1. Red-тест 2. Таймер гильдии 3. Opcode 4 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
+      "updated_at": "2026-11-21T07:04:23.743Z",
       "progress": 0,
-      "column": "backlog"
+      "column": "done"
     },
     {
       "id": "TASK-1007A",
       "title": "Модель ролей, валидатор прав u64 и REST PATCH /guilds/{id}/roles",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G1 Backend",
       "summary": "Битовые флаги Permissions u64, проверка невозможности эскалации и эндпоинты упорядочивания.",
@@ -7903,14 +7903,14 @@
       ],
       "coding_instructions": "Файлы: rust/crates/discord-core/src/roles.rs, tests/unit/roles-permissions-1007a.test.mjs.\nОракул: clean-room-oracle/rest-d02.json.\nПлан: 1. Red-тест 2. Struct Role/Permissions 3. REST методы 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
+      "updated_at": "2026-11-21T07:04:23.743Z",
       "progress": 0,
-      "column": "backlog"
+      "column": "done"
     },
     {
       "id": "TASK-1007B",
       "title": "Drag-and-drop интерфейс иерархии ролей и выбор цвета",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Перетаскивание позиций ролей мышью с линией вставки и селектор RGB цвета роли.",
@@ -7942,14 +7942,14 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/guild/roles_hierarchy.rs, tests/unit/roles-hierarchy-1007b.test.mjs.\nОракул: диалог настройки ролей.\nПлан: 1. Red-тест 2. GPUI Drag-and-drop 3. Цветовой пикер 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
+      "updated_at": "2026-11-21T07:04:23.743Z",
       "progress": 0,
-      "column": "backlog"
+      "column": "done"
     },
     {
       "id": "TASK-1007C",
       "title": "Интерактивная матрица 35+ переключателей прав роли",
-      "status": "backlog",
+      "status": "done",
       "priority": "P2",
       "department": "G2 Frontend",
       "summary": "Список прав с предупреждениями при включении ADMINISTRATOR и плавающей плашкой сохранения.",
@@ -7981,9 +7981,9 @@
       ],
       "coding_instructions": "Файлы: rust/discord-gpui/src/guild/permissions_matrix.rs, tests/unit/permissions-matrix-1007c.test.mjs.\nОракул: clean-room-oracle/frontend-d03.json.\nПлан: 1. Red-тест 2. GPUI тумблеры 3. Плашка сохранения 4. 5/5 мутаций.",
       "created_at": "2026-11-11T13:11:49.322Z",
-      "updated_at": "2026-11-11T13:11:49.322Z",
+      "updated_at": "2026-11-21T07:04:23.743Z",
       "progress": 0,
-      "column": "backlog"
+      "column": "done"
     },
     {
       "id": "TASK-1008A",
@@ -9025,8 +9025,8 @@
       "id": "LIB-SIMPLIFY-06",
       "title": "Concurrency & Automation: x86_64 Tokio/Rayon Runtime + Скрипты экономии токенов",
       "description": "Разделение потоков исполнения: Tokio для асинхронной сети, Rayon для тяжелых CPU-задач (картинки/видео), rtrb для звука. Разработка автоматических скриптов для рутинных задач ИИ.",
-      "status": "in_dev",
-      "column": "in_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "tags": [
         "Architecture",
@@ -9048,7 +9048,8 @@
         "602.1: Сквозная трассировка tracing со скрытием токенов и паролей (Secret Redaction Filter)",
         "603.1: Написание скрипта kanban-automate.mjs для беззатратного управления доской",
         "603.2: Написание скрипта smart-typecheck.mjs и ram-guard для воркеров"
-      ]
+      ],
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "LIB-SIMPLIFY-07",
@@ -9265,8 +9266,8 @@
       "id": "STAGE-10.BFF.6",
       "title": "Связка DaveVoiceBridge с командами voice_connect, voice_state, voice_e2ee_status",
       "description": "Индикация статуса E2EE шифрования DAVE в голосовом интерфейсе пользователя",
-      "status": "in_progress",
-      "column": "in_progress",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "tags": [
         "tauri",
@@ -9274,7 +9275,7 @@
         "dave",
         "p0"
       ],
-      "updated_at": "2026-11-21T06:17:51.135Z"
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "STAGE-05.1.1",
@@ -9340,99 +9341,106 @@
       "id": "STAGE-05.3.1",
       "title": "Генератор payload Identify (Opcode 2) с 64-битными свойствами клиента",
       "description": "Корректный handshake с сохранением Snowflake ID и системных заголовков",
-      "status": "ready_for_dev",
-      "column": "ready_for_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P1",
       "tags": [
         "gateway",
         "protocol",
         "stage-05",
         "p1"
-      ]
+      ],
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "STAGE-05.3.2",
       "title": "Механизм Resume (Opcode 6) по session_id и seq с экспоненциальным backoff (1s..60s)",
       "description": "Восстановление сессии без сброса кэша гильдий и повторной загрузки каналов",
-      "status": "ready_for_dev",
-      "column": "ready_for_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P1",
       "tags": [
         "gateway",
         "resume",
         "stage-05",
         "p1"
-      ]
+      ],
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "STAGE-05.3.3",
       "title": "Контрактные тесты реконнекта и восстановления сессии без потери сообщений",
       "description": "Тесты на отсоединение сетевого кабеля, таймаут шлюза и возобновление очереди событий",
-      "status": "ready_for_dev",
-      "column": "ready_for_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P1",
       "tags": [
         "testing",
         "contract",
         "stage-05",
         "p1"
-      ]
+      ],
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "STAGE-11.1.1",
       "title": "D-Bus вызов ashpd::desktop::screencast::Screencast Portal для выбора экрана/окна",
       "description": "Стандартный диалог выбора источника захвата Wayland/X11 через XDG Desktop Portal",
-      "status": "ready_for_dev",
-      "column": "ready_for_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "tags": [
         "video",
         "screencast",
         "ashpd",
         "p2"
-      ]
+      ],
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "STAGE-11.1.2",
       "title": "Безопасная передача файлового дескриптора PipeWire (OwnedFd) в media thread",
       "description": "Нулевое копирование (zero-copy) видеопотока через прямой PipeWire дескриптор",
-      "status": "ready_for_dev",
-      "column": "ready_for_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "tags": [
         "video",
         "pipewire",
         "dma-buf",
         "p2"
-      ]
+      ],
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "STAGE-11.2.1",
       "title": "Ограниченная кольцевая очередь видеокадров с политикой сброса DropOldest (лимит 3 кадра)",
       "description": "Предотвращение накопления задержки видео (latency spike) при просадках FPS кодека",
-      "status": "ready_for_dev",
-      "column": "ready_for_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "tags": [
         "video",
         "ring-buffer",
         "stage-11",
         "p2"
-      ]
+      ],
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "STAGE-11.2.2",
       "title": "Контрактный тест 60 FPS захвата экрана без утечек памяти и файловых дескрипторов",
       "description": "Проверка стабильности захвата экрана в течение 10 минут непрерывного стрима",
-      "status": "ready_for_dev",
-      "column": "ready_for_dev",
+      "status": "done",
+      "column": "done",
       "priority": "P2",
       "tags": [
         "testing",
         "contract",
         "stage-11",
         "p2"
-      ]
+      ],
+      "updated_at": "2026-11-21T07:04:23.743Z"
     },
     {
       "id": "STAGE-12.1.1",
