@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T09:53:37.794Z",
+  "updated_at": "2026-11-21T09:54:01.255Z",
   "columns": [
     {
       "id": "backlog",
