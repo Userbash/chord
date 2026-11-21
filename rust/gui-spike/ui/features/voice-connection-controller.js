@@ -38,6 +38,7 @@ export function createVoiceConnectionController(ctx) {
   let userActivityListenersBound = false;
   let refreshLiveReadyInFlight = false;
   let lastVoiceStatesDigest = "";
+  let lastSyncedPeerRosterKey = "";
   let syncTickCounter = 0;
   let lastDmFriendsSyncAt = 0;
 
@@ -474,8 +475,20 @@ export function createVoiceConnectionController(ctx) {
       if (!ctx.getActiveVoiceConnection() || !ctx.isLiveSession() || rtcPollInFlight) return null;
       rtcPollInFlight = true;
       try {
-        const res = await ctx.invoke(ctx.ipcCmds.rtcStatus);
+        const rtcCmd = ctx.VOICE_RTC_STATUS_IPC_CMD ?? ctx.ipcCmds?.rtcStatus ?? "voice_rtc_status";
+        const e2eeCmd =
+          ctx.VOICE_E2EE_STATUS_IPC_CMD ?? ctx.ipcCmds?.e2eeStatus ?? "voice_e2ee_status";
+        const res = await ctx.invoke(rtcCmd);
         if (res && typeof res === "object") {
+          if (!res.e2ee) {
+            const cid = ctx.getActiveVoiceConnection()?.channelId ?? null;
+            const e2eeSnap = await ctx
+              .invoke(e2eeCmd, { channelId: cid, channel_id: cid })
+              .catch(() => null);
+            if (e2eeSnap && typeof e2eeSnap === "object") {
+              res.e2ee = e2eeSnap;
+            }
+          }
           handleRtcUpdate(res);
           return res;
         }
@@ -649,12 +662,14 @@ export function createVoiceConnectionController(ctx) {
       connectedAtMs: nowMs,
       isAfk: isAfkChannel,
     };
+    lastSyncedPeerRosterKey = "";
     ctx.setActiveVoiceConnection(newConn);
     ctx.setLiveRtcStatus({
       ...ctx.getLiveRtcStatus(),
       phase: "signaling",
       state: "signaling",
       error: null,
+      e2ee: null,
     });
     const reactiveStore = ctx.getGlobalAppReactiveStore();
     reactiveStore.activeVoiceConnection.value = /** @type {any} */ ({
@@ -681,15 +696,24 @@ export function createVoiceConnectionController(ctx) {
         selfVideo: false,
         selfStream: false,
       };
+      const connectCmd = ctx.VOICE_CONNECT_IPC_CMD ?? ctx.ipcCmds?.connect ?? "voice_connect";
+      const e2eeCmd =
+        ctx.VOICE_E2EE_STATUS_IPC_CMD ?? ctx.ipcCmds?.e2eeStatus ?? "voice_e2ee_status";
       void ctx
-        .invoke(ctx.ipcCmds.connect, {
+        .invoke(connectCmd, {
           guildId: targetGuildId,
           channelId: channel.id,
           selfMute: effectiveMute,
           selfDeaf: ctx.selfVoicePrefs.deafened,
         })
-        .then((/** @type {any} */ snap) => {
+        .then(async (/** @type {any} */ snap) => {
           if (snap && typeof snap === "object") {
+            const freshE2ee = await ctx
+              .invoke(e2eeCmd, { channelId: channel.id, channel_id: channel.id })
+              .catch(() => null);
+            if (freshE2ee && typeof freshE2ee === "object") {
+              snap.e2ee = freshE2ee;
+            }
             ctx.setLiveRtcStatus(snap);
             const curr = ctx.getActiveVoiceConnection();
             if (curr) {
@@ -700,6 +724,7 @@ export function createVoiceConnectionController(ctx) {
                 phase: snap.phase ?? snap.state ?? "signaling",
                 state: snap.state ?? "signaling",
                 error: snap.error ?? snap.reason ?? null,
+                e2ee: snap.e2ee ?? null,
                 selfMute: Boolean(curr.muted),
                 selfDeaf: Boolean(curr.deafened),
                 selfVideo: Boolean(curr.cameraOn),
@@ -857,6 +882,7 @@ export function createVoiceConnectionController(ctx) {
     stopRtcStatusPolling();
     stopAudioDeviceLevelsPolling();
     stopVoiceSync();
+    lastSyncedPeerRosterKey = "";
     lastAudioDeviceInputConfig = { deviceId: "", volume: -1, muted: null };
     lastAudioDeviceOutputConfig = { deviceId: "", volume: -1, muted: null };
     lastVoiceConnectState = {
@@ -871,7 +897,9 @@ export function createVoiceConnectionController(ctx) {
     ctx.setLiveRtcStatus({
       ...ctx.getLiveRtcStatus(),
       state: "disconnected",
+      phase: "disconnected",
       lastPingMs: null,
+      e2ee: null,
     });
     if (ctx.isLiveSession()) {
       void ctx.invoke(ctx.ipcCmds.disconnect, { guildId: prevGuildId }).catch(() => {});
@@ -958,13 +986,48 @@ export function createVoiceConnectionController(ctx) {
     refreshLiveReadyInFlight = true;
     syncTickCounter += 1;
     try {
-      const fastVs = await ctx.invoke(ctx.ipcCmds.setAudioDevice, { kind: "voice_states_sync" });
+      const setAudioCmd =
+        ctx.VOICE_SET_AUDIO_DEVICE_IPC_CMD ?? ctx.ipcCmds?.setAudioDevice ?? "voice_set_audio_device";
+      const fastVs = await ctx.invoke(setAudioCmd, { kind: "voice_states_sync" });
       const rawVs = fastVs?.voiceStates;
       let nextDigest = "";
       const activeConn = ctx.getActiveVoiceConnection();
       const rtcStatus = ctx.getLiveRtcStatus();
       if (rawVs && typeof rawVs === "object") {
         nextDigest = ctx.mergeVoiceStatesSnapshot(ctx.liveVoiceStatesByGuild, rawVs);
+        if (activeConn && activeConn.channelId) {
+          const selfId = ctx.cleanDiscordStr(String(ctx.getLiveSelfUser()?.id || ""));
+          const gKey = String(activeConn.guildId || "@me");
+          const chStates =
+            ctx.liveVoiceStatesByGuild.get(gKey) ??
+            ctx.liveVoiceStatesByGuild.get(ctx.normalizeVoiceGuildKey(gKey)) ??
+            [];
+          const peerIds = chStates
+            .filter(
+              (/** @type {any} */ v) =>
+                String(v?.channel_id ?? v?.channelId ?? "") === String(activeConn.channelId),
+            )
+            .map((/** @type {any} */ v) => ctx.cleanDiscordStr(String(v?.user_id ?? v?.userId ?? "")))
+            .filter((/** @type {string} */ uid) => /^\d+$/.test(uid) && uid !== "0" && uid !== selfId)
+            .sort();
+          const rosterKey = `${activeConn.channelId}:${peerIds.join(",")}`;
+          if (rosterKey !== lastSyncedPeerRosterKey) {
+            lastSyncedPeerRosterKey = rosterKey;
+            const voiceStateCmd =
+              ctx.VOICE_STATE_IPC_CMD ?? ctx.ipcCmds?.voiceState ?? "voice_state";
+            const stateRes = await ctx
+              .invoke(voiceStateCmd, {
+                guildId: activeConn.guildId ?? null,
+                channelId: String(activeConn.channelId),
+                peerUserIds: peerIds,
+                peer_user_ids: peerIds,
+              })
+              .catch(() => null);
+            if (stateRes?.e2ee) {
+              ctx.setLiveRtcStatus({ ...ctx.getLiveRtcStatus(), e2ee: stateRes.e2ee });
+            }
+          }
+        }
         ctx.getGlobalAppReactiveStore().applyLivePushPayload({
           voiceConnection: activeConn
             ? /** @type {any} */ ({

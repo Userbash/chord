@@ -11,11 +11,16 @@
 //! Удержание окна незавершённого кадра — документированное ограничение streaming API, не потеря.
 
 pub mod etf;
+pub mod zlib;
 pub mod zstd;
 
 pub use etf::{
     EtfEncodeError, EtfError, EtfValue, MAX_DEPTH, decode, decode_term, encode, encode_checked,
     encode_term, encode_term_checked,
+};
+pub use zlib::{
+    CompressionStats, GatewayCompression, GatewayDecompressor, ZLIB_SYNC_FLUSH_SUFFIX, ZlibError,
+    ZlibStream, compress_zlib_stream_chunks,
 };
 pub use zstd::{ZstdError, ZstdStream};
 

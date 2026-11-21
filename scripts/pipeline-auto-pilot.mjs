@@ -187,11 +187,6 @@ function getActiveWorkerCount(runId) {
 }
 
 function autoDispatchQueue(runId) {
-  const activeCount = getActiveWorkerCount(runId);
-  if (activeCount >= MAX_ACTIVE_WORKERS) {
-    return 0;
-  }
-
   if (!fs.existsSync(KANBAN_JSON)) return 0;
   const raw = fs.readFileSync(KANBAN_JSON, 'utf8');
   const board = JSON.parse(raw);
@@ -199,22 +194,42 @@ function autoDispatchQueue(runId) {
   const pendingCards = board.cards.filter(c => c.status === 'ready_for_dev' || c.column === 'ready_for_dev');
   if (pendingCards.length === 0) return 0;
 
+  const activeCount = getActiveWorkerCount(runId);
+  const availableSlots = Math.max(0, MAX_ACTIVE_WORKERS - activeCount);
+
   let dispatched = 0;
-  const availableSlots = MAX_ACTIVE_WORKERS - activeCount;
+  let aiWorkersLaunched = 0;
 
-  for (let i = 0; i < Math.min(availableSlots, pendingCards.length); i++) {
-    const card = pendingCards[i];
-    console.log(`\n🚀 [Autopilot Dispatcher] Dispatching next task from queue: [${card.id}] ${card.title}`);
-
-    // Determine model based on department & complexity via task-router
-    let model = 'gemini-4-hydrogen-medium';
-    let effort = 'medium';
+  for (const card of pendingCards) {
+    let routing = null;
     try {
       const routingJson = runCmdOutput(`node scripts/task-router.mjs --spec "${card.title}"`);
-      const parsed = JSON.parse(routingJson);
-      if (parsed.model) model = parsed.model;
-      if (parsed.effort) effort = parsed.effort;
+      routing = JSON.parse(routingJson);
     } catch {}
+
+    // 1. TIER 0: ДЕТЕРМИНИРОВАННЫЙ СКРИПТ (0 ТОКЕНОВ ИИ)
+    if (routing && routing.isScript && routing.scriptCommand) {
+      console.log(`\n⚡ [Autopilot Zero-Token] Executing script for [${card.id}]: ${card.title}`);
+      console.log(`   Command: ${routing.scriptCommand}`);
+      const scriptRes = runCmdOutput(routing.scriptCommand);
+      console.log(`   Output: ${scriptRes.trim().split('\n').slice(-2).join('\n   ')}`);
+      updateKanbanCardStatus(card.id, 'done');
+      console.log(`   ✅ [Zero-Token Done] Task ${card.id} completed in seconds with 0 tokens!`);
+      dispatched++;
+      continue; // Не занимает слот воркера
+    }
+
+    // 2. AI TASKS: Проверяем лимит свободных слотов воркеров
+    if (aiWorkersLaunched >= availableSlots) {
+      // Свободные слоты воркеров исчерпаны
+      continue;
+    }
+
+    const model = routing?.model || 'gemini-4-hydrogen-medium';
+    const effort = routing?.effort || 'low';
+
+    console.log(`\n🚀 [Autopilot Dispatcher] Dispatching AI worker for [${card.id}] ${card.title}`);
+    console.log(`   Model: ${model} | Effort: ${effort} | Tier: ${routing?.tier || 'TIER_M'}`);
 
     const spec = `[${card.id}] ${card.title}: ${card.description || 'Implement task per specification and TDD rules'}`;
     const cmd = `${ORCA_BIN} orchestration worker-start --run ${runId} --spec "${spec.replace(/"/g, '\\"')}" --task-title "${card.id}" --agent antigravity --model "${model}" --effort "${effort}" --json`;
@@ -223,6 +238,7 @@ function autoDispatchQueue(runId) {
     console.log(`   Dispatch result: ${res.trim()}`);
     updateKanbanCardStatus(card.id, 'in_progress');
     dispatched++;
+    aiWorkersLaunched++;
   }
 
   return dispatched;
@@ -256,6 +272,11 @@ function runAutopilotCycle() {
 
   // 4. Harvest worker_done
   const harvested = harvestInbox(runId);
+
+  // 4.1. Zero-Token Worker Routine Detection & Auto-Fix
+  try {
+    runCmdOutput('node scripts/worker-routine-detector.mjs --auto-fix');
+  } catch {}
 
   // 5. Iteration guard & circuit breaker check (max 5-6 steps)
   try {

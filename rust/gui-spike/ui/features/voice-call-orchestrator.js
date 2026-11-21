@@ -58,18 +58,44 @@ export function createVoiceCallController(deps) {
   const ctx = {
     // Pass-through helpers and stores from app.js
     ...deps,
+    ipcCmds: {
+      setAudioDevice: "voice_set_audio_device",
+      audioDevices: "voice_audio_devices",
+      rtcStatus: "voice_rtc_status",
+      voiceState: "voice_state",
+      e2eeStatus: "voice_e2ee_status",
+      connect: "voice_connect",
+      disconnect: "voice_disconnect",
+      ...ipcCmds,
+    },
     VOICE_SET_AUDIO_DEVICE_IPC_CMD:
       deps.VOICE_SET_AUDIO_DEVICE_IPC_CMD ?? ipcCmds.setAudioDevice ?? "voice_set_audio_device",
     VOICE_AUDIO_DEVICES_IPC_CMD:
       deps.VOICE_AUDIO_DEVICES_IPC_CMD ?? ipcCmds.audioDevices ?? "voice_audio_devices",
     VOICE_RTC_STATUS_IPC_CMD:
       deps.VOICE_RTC_STATUS_IPC_CMD ?? ipcCmds.rtcStatus ?? "voice_rtc_status",
+    VOICE_STATE_IPC_CMD:
+      deps.VOICE_STATE_IPC_CMD ?? ipcCmds.voiceState ?? "voice_state",
+    VOICE_E2EE_STATUS_IPC_CMD:
+      deps.VOICE_E2EE_STATUS_IPC_CMD ?? ipcCmds.e2eeStatus ?? "voice_e2ee_status",
     VOICE_CONNECT_IPC_CMD:
       deps.VOICE_CONNECT_IPC_CMD ?? ipcCmds.connect ?? "voice_connect",
     VOICE_DISCONNECT_IPC_CMD:
       deps.VOICE_DISCONNECT_IPC_CMD ?? ipcCmds.disconnect ?? "voice_disconnect",
 
     // Aliases for SVG icons
+    SVG_ICONS: {
+      micOn: "",
+      micOff: "",
+      deafOn: "",
+      deafOff: "",
+      chevronDown: "",
+      signalBars: "",
+      signalFine: "",
+      signalAverage: "",
+      signalBad: "",
+      ...(deps.SVG_ICONS ?? {}),
+    },
     SVG_MIC_ON: deps.SVG_MIC_ON ?? deps.SVG_ICONS?.micOn ?? "",
     SVG_MIC_OFF: deps.SVG_MIC_OFF ?? deps.SVG_ICONS?.micOff ?? "",
     SVG_DEAF_ON: deps.SVG_DEAF_ON ?? deps.SVG_ICONS?.deafOn ?? "",

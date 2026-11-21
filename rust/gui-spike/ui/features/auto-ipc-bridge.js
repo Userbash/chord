@@ -21,6 +21,32 @@ export async function invoke(cmd, args = {}) {
 
 /** Экспортированные строго типизированные тонкие обвязки команд */
 /**
+ * Вызов команды db_messages (источник: main.rs)
+ * @param {object} [args]
+ * @param {any} [args.channel_id]
+ * @param {any} [args.before]
+ * @param {any} [args.limit]
+ * @returns {Promise<any>}
+ */
+export async function dbMessages({ channel_id, before, limit } = {}) {
+  return invoke("db_messages", {channel_id, before, limit});
+}
+
+/**
+ * Вызов команды db_query (источник: main.rs)
+ * @param {object} [args]
+ * @param {any} [args.query]
+ * @param {any} [args.channel_id]
+ * @param {any} [args.author_id]
+ * @param {any} [args.limit]
+ * @param {any} [args.offset]
+ * @returns {Promise<any>}
+ */
+export async function dbQuery({ query, channel_id, author_id, limit, offset } = {}) {
+  return invoke("db_query", {query, channel_id, author_id, limit, offset});
+}
+
+/**
  * Вызов команды process_metrics (источник: main.rs)
  * @returns {Promise<any>}
  */
@@ -650,6 +676,61 @@ export async function voiceRtcStatus() {
 }
 
 /**
+ * Вызов команды voice_state (источник: main.rs)
+ * @param {object} [args]
+ * @param {any} [args.guild_id]
+ * @param {any} [args.channel_id]
+ * @param {any} [args.self_mute]
+ * @param {any} [args.self_deaf]
+ * @param {any} [args.self_video]
+ * @param {any} [args.self_stream]
+ * @param {any} [args.peer_user_ids]
+ * @returns {Promise<any>}
+ */
+export async function voiceState({ guild_id, channel_id, self_mute, self_deaf, self_video, self_stream, peer_user_ids } = {}) {
+  return invoke("voice_state", {guild_id, channel_id, self_mute, self_deaf, self_video, self_stream, peer_user_ids});
+}
+
+/**
+ * Вызов команды voice_e2ee_status (источник: main.rs)
+ * @param {object} [args]
+ * @param {any} [args.channel_id]
+ * @returns {Promise<any>}
+ */
+export async function voiceE2eeStatus({ channel_id } = {}) {
+  return invoke("voice_e2ee_status", {channel_id});
+}
+
+/**
+ * Вызов команды audio_devices (источник: main.rs)
+ * @returns {Promise<any>}
+ */
+export async function audioDevices() {
+  return invoke("audio_devices", {});
+}
+
+/**
+ * Вызов команды audio_set_volume (источник: main.rs)
+ * @param {object} [args]
+ * @param {any} [args.volume_pct]
+ * @param {any} [args.kind]
+ * @returns {Promise<any>}
+ */
+export async function audioSetVolume({ volume_pct, kind } = {}) {
+  return invoke("audio_set_volume", {volume_pct, kind});
+}
+
+/**
+ * Вызов команды audio_mute (источник: main.rs)
+ * @param {object} [args]
+ * @param {any} [args.muted]
+ * @returns {Promise<any>}
+ */
+export async function audioMute({ muted } = {}) {
+  return invoke("audio_mute", {muted});
+}
+
+/**
  * Вызов команды voice_audio_devices (источник: main.rs)
  * @returns {Promise<any>}
  */
@@ -877,6 +958,18 @@ export async function remoteAuthFinish({ handshake_token, temporary_token } = {}
  */
 export async function remoteAuthCancel({ handshake_token } = {}) {
   return invoke("remote_auth_cancel", {handshake_token});
+}
+
+/**
+ * Вызов команды rest_request (источник: main.rs)
+ * @param {object} [args]
+ * @param {any} [args.method]
+ * @param {any} [args.endpoint]
+ * @param {any} [args.body]
+ * @returns {Promise<any>}
+ */
+export async function restRequest({ method, endpoint, body } = {}) {
+  return invoke("rest_request", {method, endpoint, body});
 }
 
 /**

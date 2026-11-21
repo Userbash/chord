@@ -8,7 +8,7 @@
 //! - `search_guild_messages` (`GET /guilds/{guild_id}/messages/search?[content=...&]offset=...&limit=...`)
 
 use chord_core::rest::bridge::{
-    DiscordRestBridgeError, build_relative_url_with_query, validate_snowflake_id,
+    build_relative_url_with_query, validate_snowflake_id,
 };
 use chord_core::rest::routes::HttpMethod;
 use chord_core::rest::transport::HttpResponse;
@@ -18,7 +18,8 @@ use serde_json::Value;
 use url::Url;
 
 pub use chord_core::rest::bridge::{
-    DiscordHttpClient, DiscordRestBridge as CoreDiscordRestBridge, RateLimitBucketState,
+    DiscordHttpClient, DiscordRestBridge as CoreDiscordRestBridge, DiscordRestBridgeError,
+    RateLimitBucketState,
 };
 
 /// Элемент пачки bulk read-state (`POST /read-states/ack-bulk`).
@@ -140,6 +141,41 @@ impl ExtendedIpcPlan {
     }
 }
 
+/// Разбирает HTTP-метод для `rest_request` в [`HttpMethod`].
+pub fn parse_http_method(method: &str) -> Result<HttpMethod, DiscordRestBridgeError> {
+    match method.trim().to_ascii_uppercase().as_str() {
+        "GET" => Ok(HttpMethod::Get),
+        "POST" => Ok(HttpMethod::Post),
+        "PUT" => Ok(HttpMethod::Put),
+        "PATCH" => Ok(HttpMethod::Patch),
+        "DELETE" => Ok(HttpMethod::Delete),
+        other => Err(DiscordRestBridgeError::InvalidUrl(format!(
+            "unsupported HTTP method: {other}"
+        ))),
+    }
+}
+
+/// DTO запроса для Tauri-команды `rest_request` (проброс REST-запросов из WebView).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RestRequestDto {
+    pub method: String,
+    pub path: String,
+    #[serde(default)]
+    pub query: Option<Vec<(String, String)>>,
+    #[serde(default)]
+    pub body: Option<Value>,
+}
+
+/// DTO ответа для Tauri-команды `rest_request`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RestResponseDto {
+    pub status: u16,
+    pub ok: bool,
+    pub body: Value,
+}
+
 /// Прозрачный мост выполнения [`ExtendedIpcCommand`] и [`ExtendedIpcPlan`] через `reqwest + url + serde`.
 #[derive(Debug, Clone)]
 pub struct DiscordRestBridge {
@@ -210,6 +246,47 @@ impl DiscordRestBridge {
         let response = self.execute_command(cmd).await?;
         serde_json::from_slice(&response.body)
             .map_err(|e| DiscordRestBridgeError::Serialization(e.to_string()))
+    }
+
+    /// Выполняет произвольный REST-запрос из WebView через тонкий мост `reqwest` + `url::Url`.
+    pub async fn execute_rest_request(
+        &self,
+        method: &str,
+        path: &str,
+        body: Option<&Value>,
+    ) -> Result<RestResponseDto, DiscordRestBridgeError> {
+        let http_method = parse_http_method(method)?;
+        let body_bytes = match body {
+            Some(val) if !val.is_null() => Some(
+                serde_json::to_vec(val)
+                    .map_err(|e| DiscordRestBridgeError::Serialization(e.to_string()))?,
+            ),
+            _ => None,
+        };
+        let response = self
+            .inner
+            .execute_raw(http_method, path, &[], body_bytes.as_deref())
+            .await?;
+        let parsed_body = if response.body.is_empty() {
+            Value::Null
+        } else {
+            serde_json::from_slice(&response.body)
+                .unwrap_or_else(|_| Value::String(String::from_utf8_lossy(&response.body).into_owned()))
+        };
+        Ok(RestResponseDto {
+            status: response.status,
+            ok: (200..300).contains(&response.status),
+            body: parsed_body,
+        })
+    }
+
+    /// Вариант с приёмом типизированного [`RestRequestDto`].
+    pub async fn execute_rest_request_dto(
+        &self,
+        request: &RestRequestDto,
+    ) -> Result<RestResponseDto, DiscordRestBridgeError> {
+        self.execute_rest_request(&request.method, &request.path, request.body.as_ref())
+            .await
     }
 }
 

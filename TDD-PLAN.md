@@ -494,6 +494,14 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/media-pool-stage-02-1-3.test.mjs` | `rust/crates/chord-core/src/runtime.rs` | `RUNTIME_RS` |
 | `tests/unit/secret-redaction-stage-02-3-1.test.mjs` | `rust/crates/chord-core/src/logging.rs` | `LOGGING_RS` |
 | `tests/unit/shutdown-signals-secret-redaction-stage-02.test.mjs` | `rust/crates/chord-core/src/shutdown.rs` | `SHUTDOWN_RS` |
+| `tests/unit/heartbeat-loop-stage-05-2-1.test.mjs` | `rust/crates/chord-core/src/heartbeat.rs` | `HEARTBEAT_RS` |
+| `tests/unit/heartbeat-ack-stage-05-2-2.test.mjs` | `rust/crates/chord-core/src/heartbeat.rs` | `HEARTBEAT_RS` |
+| `tests/unit/tokio-tungstenite-tls-stage-05-1-1.test.mjs` | `rust/crates/chord-core/src/ws_transport.rs` | `WS_TRANSPORT_RS` |
+| `tests/unit/zlib-stream-stage-05-1-2.test.mjs` | `rust/crates/chord-codec/src/zlib.rs` | `ZLIB_RS` |
+| `tests/unit/identify-opcode2-stage-05-3-1.test.mjs` | `rust/crates/chord-core/src/identify.rs` | `IDENTIFY_OP` |
+| `tests/unit/keyring-crypto-1021a.test.mjs` | `rust/crates/chord-store/src/keyring_crypto.rs` | `SecretServiceProvider` |
+| `tests/unit/resume-opcode6-stage-05-3-2.test.mjs` | `rust/crates/chord-core/src/resume.rs` | `RESUME_RS` |
+| `tests/unit/stage10-bff6-dave-voice-ui.test.mjs` | `rust/gui-spike/ui/modules/voice-rtc-panel.js` | `resolveDaveE2eeIndicatorView` |
 | `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
 
 ## 9. Risks and Limitations

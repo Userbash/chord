@@ -2422,6 +2422,8 @@ function boot() {
   const VOICE_SET_AUDIO_DEVICE_IPC_CMD = ["voice", "set", "audio", "device"].join("_");
   const VOICE_AUDIO_DEVICES_IPC_CMD = ["voice", "audio", "devices"].join("_");
   const VOICE_RTC_STATUS_IPC_CMD = ["voice", "rtc", "status"].join("_");
+  const VOICE_STATE_IPC_CMD = ["voice", "state"].join("_");
+  const VOICE_E2EE_STATUS_IPC_CMD = ["voice", "e2ee", "status"].join("_");
   const VOICE_CONNECT_IPC_CMD = ["voice", "connect"].join("_");
   const VOICE_DISCONNECT_IPC_CMD = ["voice", "disconnect"].join("_");
   const PIN_CHANNEL_MESSAGE_IPC_CMD = ["pin", "channel", "message"].join("_");
@@ -2979,6 +2981,8 @@ function boot() {
       setAudioDevice: VOICE_SET_AUDIO_DEVICE_IPC_CMD,
       audioDevices: VOICE_AUDIO_DEVICES_IPC_CMD,
       rtcStatus: VOICE_RTC_STATUS_IPC_CMD,
+      voiceState: VOICE_STATE_IPC_CMD,
+      e2eeStatus: VOICE_E2EE_STATUS_IPC_CMD,
       connect: VOICE_CONNECT_IPC_CMD,
       disconnect: VOICE_DISCONNECT_IPC_CMD,
     },

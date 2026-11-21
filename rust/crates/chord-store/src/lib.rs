@@ -11,6 +11,7 @@ use std::time::Duration;
 use rusqlite::{Connection, OptionalExtension, params};
 
 pub mod fts5_search;
+pub mod keyring_crypto;
 pub mod schema;
 pub mod worker;
 

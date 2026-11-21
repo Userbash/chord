@@ -13,7 +13,8 @@
 //!    - валидацию `SearchGuildMessages` (`offset <= 9975`, `limit` в `1..=25`, `content` опциональный).
 
 use chord_client::ipc_ext::{
-    validate_and_build_plan, BulkReadStateEntry, ExtendedIpcCommand, ExtendedIpcPlan,
+    validate_and_build_plan, BulkReadStateEntry, DiscordRestBridge, ExtendedIpcCommand,
+    ExtendedIpcPlan,
 };
 use serde_json::json;
 
@@ -690,4 +691,17 @@ fn ipc_ext_plan_resolves_url_and_typed_serde_dtos_via_transparent_bridge() {
         .expect("build reqwest::Request");
     assert_eq!(reqwest_req.method().as_str(), "GET");
     assert_eq!(reqwest_req.url().as_str(), resolved_url.as_str());
+}
+
+#[test]
+fn rest_request_rejects_invalid_http_method() {
+    use chord_core::rest::bridge::DiscordRestBridgeError;
+
+    let bridge = DiscordRestBridge::with_anonymous_base("https://discord.com/api/v9")
+        .expect("anonymous bridge");
+    let rt = tokio::runtime::Runtime::new().expect("tokio runtime");
+    let err = rt
+        .block_on(bridge.execute_rest_request("BAD METHOD", "/users/@me", None))
+        .expect_err("invalid HTTP method must fail");
+    assert!(matches!(err, DiscordRestBridgeError::InvalidUrl(_)));
 }

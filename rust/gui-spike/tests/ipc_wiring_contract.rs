@@ -830,12 +830,15 @@ const UI_IPC_COMMAND_CONSTANTS: [&str; 4] = [
     "READY_COMMAND",
 ];
 
-const ALL_81_UI_IPC_COMMANDS: [&str; 81] = [
+const ALL_89_UI_IPC_COMMANDS: [&str; 89] = [
     "accept_invite",
     "ack_message",
     "add_reaction",
     "attachments_upload_put",
     "attachments_upload_slots",
+    "audio_devices",
+    "audio_mute",
+    "audio_set_volume",
     "auth_login_password",
     "auth_login_token",
     "auth_logout",
@@ -849,6 +852,8 @@ const ALL_81_UI_IPC_COMMANDS: [&str; 81] = [
     "create_gift_code",
     "create_guild",
     "create_invite",
+    "db_messages",
+    "db_query",
     "delete_message",
     "edit_message",
     "fetch_application_entitlements",
@@ -886,6 +891,7 @@ const ALL_81_UI_IPC_COMMANDS: [&str; 81] = [
     "request_upload_slots",
     "resolve_gift_code",
     "resolve_invite",
+    "rest_request",
     "revoke_gift_code",
     "search_page",
     "search_remote",
@@ -905,9 +911,11 @@ const ALL_81_UI_IPC_COMMANDS: [&str; 81] = [
     "voice_deaf",
     "voice_desktop_sources",
     "voice_disconnect",
+    "voice_e2ee_status",
     "voice_mute",
     "voice_rtc_status",
     "voice_set_audio_device",
+    "voice_state",
     "voice_stream_set_paused",
     "voice_stream_start",
     "voice_stream_stop",
@@ -1200,16 +1208,16 @@ fn every_ui_invoke_command_in_js_sources_is_registered_in_tauri_main() {
     seen_ui_commands.sort();
     assert_eq!(
         seen_ui_commands.len(),
-        ALL_81_UI_IPC_COMMANDS.len(),
+        ALL_89_UI_IPC_COMMANDS.len(),
         "множество всех найденных UI IPC-команд (включая AUTH_COMMANDS, JOIN_COMMANDS, NET_COMMANDS, READY_COMMAND) должно быть равно ровно {} командам: {seen_ui_commands:?}",
-        ALL_81_UI_IPC_COMMANDS.len()
+        ALL_89_UI_IPC_COMMANDS.len()
     );
     let seen_refs: Vec<&str> = seen_ui_commands.iter().map(String::as_str).collect();
     assert_eq!(
         seen_refs.as_slice(),
-        &ALL_81_UI_IPC_COMMANDS,
+        &ALL_89_UI_IPC_COMMANDS,
         "множество найденных в ui/**/*.js IPC-команд должно точно совпадать с каноническим списком из {} команд",
-        ALL_81_UI_IPC_COMMANDS.len()
+        ALL_89_UI_IPC_COMMANDS.len()
     );
 
     for required in F1_UI_IPC_ALIASES

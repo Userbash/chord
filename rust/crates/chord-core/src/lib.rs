@@ -19,6 +19,7 @@ pub mod cache;
 pub mod dispatch;
 pub mod gateway;
 pub mod gateway_events;
+pub mod heartbeat;
 pub mod history;
 pub mod identify;
 pub mod logging;
@@ -32,7 +33,9 @@ pub mod shutdown;
 pub mod soundshare;
 pub mod state;
 pub mod stream;
+pub mod threads;
 pub mod ws;
+pub mod ws_transport;
 
 /// Ре-экспорт кодека: потребителям и интеграционным тестам `discord-core` не нужна
 /// отдельная зависимость на `discord-codec`.
@@ -54,13 +57,21 @@ pub use gateway::{
     Effect, GatewayError, HeartbeatMode, Hello, Op, QOS_HEARTBEAT_OP, QosPayload, ReconnectReason,
     Session,
 };
+pub use heartbeat::{
+    DEFAULT_HEARTBEAT_INTERVAL_MS, HEARTBEAT_ACK_OP, HEARTBEAT_OP, HeartbeatAckOutcome,
+    HeartbeatConfig, HeartbeatLoopControl, HeartbeatLoopError, HeartbeatLoopHandle,
+    HeartbeatLoopOutcome, HeartbeatLoopSplit, HeartbeatPulse, HeartbeatSharedState,
+    NO_SEQUENCE_SENTINEL, ZombieReconnectSignal, ZombieSocketDetector, heartbeat_loop,
+    heartbeat_loop_with_state, spawn_heartbeat_loop,
+};
 pub use history::{
     Cursor, History, HistoryConfig, HistoryDiagnostics, HistoryError, LiveOutcome, MessagePage,
     PageApply, PageError, PageRequest, PageToken,
 };
 pub use identify::{
-    CAPABILITIES_ACTIVE, CAPABILITIES_CHANNEL_OBFUSCATION, IdentifyError, IdentifyParams,
-    IdentifyProperties, PresenceInfo, build_identify, build_identify_frame,
+    CAPABILITIES_ACTIVE, CAPABILITIES_CHANNEL_OBFUSCATION, IDENTIFY_OP, IdentifyClientState,
+    IdentifyError, IdentifyHandshakeFrame, IdentifyHandshakeGenerator, IdentifyParams,
+    IdentifyProperties, IdentifySystemHeaders, PresenceInfo, build_identify, build_identify_frame,
     qos_token_client_provided,
 };
 pub use logging::{
@@ -80,8 +91,11 @@ pub use rest::bridge::{
 pub use rest::client::{ApiAuth, ApiAuthError, AuthScheme};
 pub use rest::user::{Me, MeError, parse_me};
 pub use resume::{
-    RESUME_MAX_DOWNTIME_MS, ReconnectAction, ResumeError, ResumeParams, ResumeState,
-    build_resume_frame, plan_reconnect,
+    RESUME_BACKOFF_MAX_MS, RESUME_BACKOFF_MIN_MS, RESUME_MAX_DOWNTIME_MS,
+    RESUME_MAX_FAILURE_ATTEMPTS, RESUME_OP, RESUME_RESET_AFTER_FAILURES, ReconnectAction,
+    ResumeError, ResumeExponentialBackoff, ResumeHandshakeFrame, ResumeParams,
+    ResumeRecoveryOutcome, ResumeRecoveryReport, ResumeSessionCoordinator, ResumeSessionManager,
+    ResumeState, build_resume_frame, build_resume_json_payload, plan_reconnect,
 };
 pub use settings::{
     FrecencyUserSettings, PreloadedUserSettings, ProtoField, ProtoMessage, ProtoValue,
@@ -101,6 +115,13 @@ pub use ws::{
     GATEWAY_ENDPOINT, GATEWAY_QUERY, GatewayPipe, GatewayUrl, GatewayUrlError, RunOptions,
     RunOutcome, TransportError, connect_and_run, connect_and_run_resume, connect_and_run_with,
     encode_heartbeat, encode_qos_heartbeat,
+};
+pub use ws_transport::{
+    DEFAULT_CONNECT_TIMEOUT, DEFAULT_MAX_GATEWAY_WIRE_BYTES, DEFAULT_MAX_WRITE_BUFFER_BYTES,
+    DEFAULT_SEND_TIMEOUT, GatewayInboundFrame, GatewayTransport, GatewayTransportConfig,
+    GatewayTransportError, GatewayTransportMetrics, build_gateway_tls_connector,
+    connect_gateway_stream, connect_gateway_transport, ensure_gateway_crypto_provider,
+    validate_gateway_endpoint,
 };
 
 /// База REST API v9 (47 подтверждённых маршрутов, 133 запроса в захвате D-02).

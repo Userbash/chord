@@ -141,6 +141,46 @@ impl<B: DaveBackend> DaveVoiceBridge<B> {
         self.backend.voice_privacy_code()
     }
 
+    #[must_use]
+    pub const fn active_protocol_version(&self) -> u16 {
+        self.active_protocol_version
+    }
+
+    #[must_use]
+    pub fn configured_protocol_version(&self) -> u16 {
+        self.backend.protocol_version()
+    }
+
+    #[must_use]
+    pub fn epoch(&self) -> Option<u64> {
+        self.backend.epoch()
+    }
+
+    #[must_use]
+    pub fn user_id(&self) -> u64 {
+        self.backend.user_id()
+    }
+
+    #[must_use]
+    pub fn channel_id(&self) -> u64 {
+        self.backend.channel_id()
+    }
+
+    #[must_use]
+    pub fn participant_ids(&self) -> &[u64] {
+        &self.participants
+    }
+
+    #[must_use]
+    pub fn announced_ids(&self) -> &[u64] {
+        &self.announced
+    }
+
+    #[must_use]
+    pub const fn resets(&self) -> u8 {
+        self.resets
+    }
+
     /// Handles Go Live / Stream signaling opcodes `18..=22` (`what_to_keep`).
     pub fn handle_stream_opcode(
         &self,

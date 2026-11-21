@@ -34,6 +34,8 @@ chord-i18n = { path = "../crates/chord-i18n" }
 chord-media = { path = "../crates/chord-media" }
 chord-ui = { path = "../crates/chord-ui" }
 chord-updater = { path = "../crates/chord-updater" }
+audio-spike = { path = "../audio-spike" }
+dave-spike = { path = "../dave-spike" }
 # RW-39/NET-C2: keyring (`org.freedesktop.secrets` через libsecret) — только path-dep.
 # `Keyring` там `!Send`, поэтому backend держит его в потоке-владельце.
 chord-platform = { path = "../crates/chord-platform", default-features = false, features = ["ashpd-tokio"] }

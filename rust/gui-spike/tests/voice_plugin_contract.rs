@@ -367,3 +367,24 @@ fn main_rs_wires_voice_plugin_and_voice_plugin_is_strictly_english() {
         "voice_plugin.rs must contain strictly English code, comments, and error messages"
     );
 }
+
+#[test]
+fn audio_pipeline_bridge_commands_manage_volume_mute_and_devices() {
+    let devices = run_async(voice_plugin::audio_devices()).expect("audio_devices");
+    assert!(devices.get("cpalInputs").is_some(), "cpalInputs missing");
+    assert!(devices.get("cpalOutputs").is_some(), "cpalOutputs missing");
+
+    let vol_res = run_async(voice_plugin::audio_set_volume(150, None)).expect("audio_set_volume");
+    assert_eq!(vol_res["ok"], json!(true));
+    assert_eq!(vol_res["volumePct"], json!(150));
+
+    let clamped_res =
+        run_async(voice_plugin::audio_set_volume(999, Some("input".to_string())))
+            .expect("audio_set_volume clamped");
+    assert_eq!(clamped_res["volumePct"], json!(200));
+
+    let mute_res = run_async(voice_plugin::audio_mute(true)).expect("audio_mute true");
+    assert_eq!(mute_res["ok"], json!(true));
+    let unmute_res = run_async(voice_plugin::audio_mute(false)).expect("audio_mute false");
+    assert_eq!(unmute_res["ok"], json!(true));
+}

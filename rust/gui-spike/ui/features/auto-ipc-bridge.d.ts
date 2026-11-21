@@ -5,6 +5,12 @@
 
 export declare function invoke<T = any>(cmd: string, args?: Record<string, any>): Promise<T>;
 
+/** db_messages (from main.rs) */
+export declare function dbMessages(args: { channel_id?: any; before?: any; limit?: any }): Promise<any>;
+
+/** db_query (from main.rs) */
+export declare function dbQuery(args: { query?: any; channel_id?: any; author_id?: any; limit?: any; offset?: any }): Promise<any>;
+
 /** process_metrics (from main.rs) */
 export declare function processMetrics(args?: Record<string, never>): Promise<any>;
 
@@ -179,6 +185,21 @@ export declare function voiceDeaf(args: { self_deaf?: any }): Promise<any>;
 /** voice_rtc_status (from main.rs) */
 export declare function voiceRtcStatus(args?: Record<string, never>): Promise<any>;
 
+/** voice_state (from main.rs) */
+export declare function voiceState(args: { guild_id?: any; channel_id?: any; self_mute?: any; self_deaf?: any; self_video?: any; self_stream?: any; peer_user_ids?: any }): Promise<any>;
+
+/** voice_e2ee_status (from main.rs) */
+export declare function voiceE2eeStatus(args: { channel_id?: any }): Promise<any>;
+
+/** audio_devices (from main.rs) */
+export declare function audioDevices(args?: Record<string, never>): Promise<any>;
+
+/** audio_set_volume (from main.rs) */
+export declare function audioSetVolume(args: { volume_pct?: any; kind?: any }): Promise<any>;
+
+/** audio_mute (from main.rs) */
+export declare function audioMute(args: { muted?: any }): Promise<any>;
+
 /** voice_audio_devices (from main.rs) */
 export declare function voiceAudioDevices(args?: Record<string, never>): Promise<any>;
 
@@ -244,6 +265,9 @@ export declare function remoteAuthFinish(args: { handshake_token?: any; temporar
 
 /** remote_auth_cancel (from main.rs) */
 export declare function remoteAuthCancel(args: { handshake_token?: any }): Promise<any>;
+
+/** rest_request (from main.rs) */
+export declare function restRequest(args: { method?: any; endpoint?: any; body?: any }): Promise<any>;
 
 /** remote_auth_cancel_session (from main.rs) */
 export declare function remoteAuthCancelSession(args?: Record<string, never>): Promise<any>;
