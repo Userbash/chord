@@ -10,6 +10,10 @@
 
 use std::path::{Path, PathBuf};
 
+#[path = "autostart_os.rs"]
+mod autostart_os;
+pub use autostart_os::*;
+
 /// Запись автозапуска: имя, программа, аргументы и флаг «скрыть из автозапуска».
 #[derive(Debug, PartialEq, Eq)]
 pub struct AutostartEntry<'a> {
@@ -28,6 +32,8 @@ pub enum AutostartError {
     EmptyExec,
     /// `\n`, `\r` или `\0` в любом строковом поле.
     ControlCharacter,
+    /// Ошибка файловой системы / системного бэкенда.
+    IoError(&'static str),
 }
 
 /// Генерирует текст XDG autostart-файла (с завершающим `\n`).

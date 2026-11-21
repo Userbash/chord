@@ -234,9 +234,15 @@ mod tests {
             "mpris:trackid".to_string(),
             "/com/spotify/track/4uLU6hMCjMI75M1A2tKUQC".to_string(),
         );
-        map.insert("xesam:title".to_string(), "Never Gonna Give You Up".to_string());
+        map.insert(
+            "xesam:title".to_string(),
+            "Never Gonna Give You Up".to_string(),
+        );
         map.insert("xesam:artist".to_string(), "Rick Astley".to_string());
-        map.insert("xesam:album".to_string(), "Whenever You Need Somebody".to_string());
+        map.insert(
+            "xesam:album".to_string(),
+            "Whenever You Need Somebody".to_string(),
+        );
         map.insert("mpris:length".to_string(), "213000000".to_string());
         MprisMetadata::from_mpris_map(&map, 30_000_000)
     }
@@ -335,26 +341,30 @@ mod tests {
     #[test]
     fn ignores_unrelated_dbus_interfaces_and_bus_names() {
         let mut client = SpotifyMprisClient::new();
-        assert!(client
-            .handle_signal(
-                MprisSignal::PropertiesChanged {
-                    interface: "org.mpris.MediaPlayer2".to_string(),
-                    playback_status: Some(PlaybackStatus::Playing),
-                    metadata: Some(sample_metadata()),
-                    position_us: None,
-                },
-                1_700_000_050_000,
-            )
-            .is_none());
-        assert!(client
-            .handle_signal(
-                MprisSignal::NameOwnerChanged {
-                    bus_name: "org.mpris.MediaPlayer2.vlc".to_string(),
-                    new_owner: String::new(),
-                },
-                1_700_000_050_000,
-            )
-            .is_none());
+        assert!(
+            client
+                .handle_signal(
+                    MprisSignal::PropertiesChanged {
+                        interface: "org.mpris.MediaPlayer2".to_string(),
+                        playback_status: Some(PlaybackStatus::Playing),
+                        metadata: Some(sample_metadata()),
+                        position_us: None,
+                    },
+                    1_700_000_050_000,
+                )
+                .is_none()
+        );
+        assert!(
+            client
+                .handle_signal(
+                    MprisSignal::NameOwnerChanged {
+                        bus_name: "org.mpris.MediaPlayer2.vlc".to_string(),
+                        new_owner: String::new(),
+                    },
+                    1_700_000_050_000,
+                )
+                .is_none()
+        );
     }
 
     #[test]

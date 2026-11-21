@@ -41,10 +41,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T07:55:03.702Z"
+      "dispatchedAt": "2026-11-21T07:55:03.702Z",
+      "completedAt": "2026-11-21T08:02:56.349Z"
     },
     {
       "slot": 3,
@@ -59,10 +60,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T07:55:07.571Z"
+      "dispatchedAt": "2026-11-21T07:55:07.571Z",
+      "completedAt": "2026-11-21T08:02:56.349Z"
     },
     {
       "slot": 4,
@@ -77,10 +79,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T07:55:11.425Z"
+      "dispatchedAt": "2026-11-21T07:55:11.425Z",
+      "completedAt": "2026-11-21T08:02:56.349Z"
     },
     {
       "slot": 5,
@@ -95,10 +98,11 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "DISPATCHED_WORKING",
+      "status": "COMPLETED_VERIFIED",
       "terminalId": null,
       "dispatchId": "dispatched",
-      "dispatchedAt": "2026-11-21T07:57:35.462Z"
+      "dispatchedAt": "2026-11-21T07:57:35.462Z",
+      "completedAt": "2026-11-21T08:02:56.349Z"
     },
     {
       "slot": 6,
@@ -113,9 +117,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:03:00.213Z"
     },
     {
       "slot": 7,
@@ -130,9 +135,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:03:04.205Z"
     },
     {
       "slot": 8,
@@ -147,9 +153,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:03:08.089Z"
     },
     {
       "slot": 9,
@@ -164,9 +171,10 @@
       "scriptCommand": null,
       "model": "gemini-4-hydrogen-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:03:11.912Z"
     },
     {
       "slot": 10,

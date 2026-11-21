@@ -340,3 +340,53 @@ fn test_tray_controller_backend_unavailable_resilience() {
     let res = controller2.update_voice_state(true, false, false);
     assert!(matches!(res, Err(TrayError::OperationFailed(_))));
 }
+
+#[test]
+fn test_r4_02_shell_menu_and_about_restart_quit_lifecycle() {
+    let menu = TrayMenu::shell_menu();
+    assert_eq!(menu.len(), 4);
+    assert_eq!(menu.items[0].action, TrayMenuAction::Open);
+    assert_eq!(menu.items[1].action, TrayMenuAction::About);
+    assert_eq!(menu.items[2].action, TrayMenuAction::Restart);
+    assert_eq!(menu.items[3].action, TrayMenuAction::Quit);
+    assert!(menu.items.iter().all(|item| item.enabled && item.visible));
+
+    let mut controller = TrayController::new(
+        Some(MockTrayBackend::default()),
+        MinimizeToTrayPolicy::new(true),
+    )
+    .with_window_visible(false);
+    assert!(!controller.is_window_visible());
+
+    // Clicking tray icon shows main window, clicking again hides it
+    controller.on_tray_clicked();
+    assert!(controller.is_window_visible());
+    controller.on_tray_clicked();
+    assert!(!controller.is_window_visible());
+
+    // About shows window and flags about_requested
+    let disp_about = controller.on_menu_action(TrayMenuAction::About);
+    assert_eq!(disp_about, CloseDisposition::HideToTray);
+    assert!(controller.is_window_visible());
+    assert!(controller.take_about_requested());
+    assert!(!controller.take_about_requested());
+
+    // Restart flags restart_requested and quits cleanly
+    let disp_restart = controller.on_menu_action(TrayMenuAction::Restart);
+    assert_eq!(disp_restart, CloseDisposition::QuitProcess);
+    assert!(controller.is_quitting());
+    assert!(controller.is_restart_requested());
+    assert!(controller.backend().unwrap().destroyed);
+
+    // Quit destroys backend and marks quitting
+    let mut controller_quit = TrayController::new(
+        Some(MockTrayBackend::default()),
+        MinimizeToTrayPolicy::new(true),
+    )
+    .with_window_visible(true);
+    let disp_quit = controller_quit.on_menu_action(TrayMenuAction::Quit);
+    assert_eq!(disp_quit, CloseDisposition::QuitProcess);
+    assert!(controller_quit.is_quitting());
+    assert!(!controller_quit.is_restart_requested());
+    assert!(controller_quit.backend().unwrap().destroyed);
+}

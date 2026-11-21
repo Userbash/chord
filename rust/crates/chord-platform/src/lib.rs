@@ -19,6 +19,7 @@ pub mod screencast;
 pub mod spellcheck;
 pub mod spotify_mpris;
 pub mod tray;
+pub mod unread_badge;
 
 #[allow(unsafe_code)]
 mod ffi_hunspell;

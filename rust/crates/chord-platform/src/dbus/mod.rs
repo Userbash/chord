@@ -352,6 +352,43 @@ impl Connection {
         Ok(())
     }
 
+    /// Отправка исходящего D-Bus сигнала (`MessageType::Signal`).
+    pub fn emit_signal(&mut self, signal: &Signal) -> Result<(), DbusError> {
+        let mut signature = String::new();
+        for value in &signal.body {
+            let fragment = message::signature_of_value(value)
+                .ok_or(DbusError::Protocol("empty container has no element type"))?;
+            signature.push_str(&fragment);
+        }
+
+        let serial = self.next_serial();
+        let mut fields = vec![
+            (message::FIELD_PATH, Value::String(signal.path.clone())),
+            (
+                message::FIELD_INTERFACE,
+                Value::String(signal.interface.clone()),
+            ),
+            (message::FIELD_MEMBER, Value::String(signal.member.clone())),
+        ];
+        if !signature.is_empty() {
+            fields.push((message::FIELD_SIGNATURE, Value::String(signature.clone())));
+        }
+
+        let (bytes, fds) = message::build_with_fds(
+            MessageType::Signal,
+            serial,
+            &fields,
+            &signature,
+            &signal.body,
+        )?;
+        if !fds.is_empty() && !self.unix_fd {
+            return Err(DbusError::Protocol(
+                "unix fd passing is not negotiated with the bus",
+            ));
+        }
+        fd::send_with_fds(&self.stream, &bytes, &fds)
+    }
+
     /// Следующий сигнал (уже пришедшие отдаются из очереди).
     pub fn next_signal(&mut self, timeout: Duration) -> Result<Signal, DbusError> {
         loop {

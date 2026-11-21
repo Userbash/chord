@@ -1,7 +1,7 @@
 {
   "project": "Discord GPUI Client (Rust + WGPU)",
   "wave": "RW-53: Library-Driven Refactoring & Cleanroom Architecture Migration",
-  "updated_at": "2026-11-21T07:55:27.654Z",
+  "updated_at": "2026-11-21T07:57:48.670Z",
   "columns": [
     {
       "id": "backlog",
@@ -9028,8 +9028,8 @@
       "id": "LIB-SIMPLIFY-06",
       "title": "Concurrency & Automation: x86_64 Tokio/Rayon Runtime + Скрипты экономии токенов",
       "description": "Разделение потоков исполнения: Tokio для асинхронной сети, Rayon для тяжелых CPU-задач (картинки/видео), rtrb для звука. Разработка автоматических скриптов для рутинных задач ИИ.",
-      "status": "done",
-      "column": "done",
+      "status": "in_dev",
+      "column": "in_dev",
       "priority": "P0",
       "tags": [
         "Architecture",
@@ -9556,8 +9556,8 @@
       "id": "R4-01",
       "title": "Window Shell",
       "description": "Frameless window with native titlebar, window geometry save/restore, multi-monitor boundary protection, minimum dimensions 940×500 (default 1280×720), transparency and blur support. Target: Native Client: Shell Layer. Criteria: Window persists geometry across restarts; respects minimum bounds; remains visible when monitor topologies change",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9570,14 +9570,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:02:56.346Z"
     },
     {
       "id": "R4-02",
       "title": "System Tray",
       "description": "System tray icon with unread indicator status, context menu (Open, About, Restart, Quit), toggle window visibility on click, start minimized option. Target: Shell: System Tray. Criteria: Clicking tray icon hides/shows main window; unread counter updates icon state; Quit terminates process cleanly",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9590,14 +9591,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:02:56.347Z"
     },
     {
       "id": "R4-03",
       "title": "Unread Badges",
       "description": "Unread message counter badge: Linux Unity/Freedesktop D-Bus launcher, Windows taskbar overlay icon, macOS dock badge; numeric 1–10, overflow dot indicator, 0 clears. Target: Shell: OS Integration. Criteria: Badge visible on desktop launcher/dock/taskbar; 0 clears badge; overflow renders dot; configurable in settings",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9610,14 +9612,15 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:02:56.347Z"
     },
     {
       "id": "R4-04",
       "title": "System Autostart (Autostart)",
       "description": "Autostart on OS login: Windows/macOS login items, Linux XDG `.desktop`/portal; flag `--start-minimized`. Target: shell: autostart. Criteria: Settings toggle reliably manages autostart on all three OSes; starts minimized without window flicker",
-      "status": "backlog",
-      "column": "backlog",
+      "status": "done",
+      "column": "done",
       "priority": "P0",
       "department": "G5 Voice / Platform",
       "tags": [
@@ -9630,7 +9633,8 @@
       "effort": "medium",
       "isScript": false,
       "scriptCommand": null,
-      "created_at": "2026-11-21T07:54:46.355Z"
+      "created_at": "2026-11-21T07:54:46.355Z",
+      "completedAt": "2026-11-21T08:02:56.347Z"
     },
     {
       "id": "R4-05",

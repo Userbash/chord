@@ -189,11 +189,7 @@ impl GamepadDriver {
         match action {
             Some(nav) => {
                 let prev = self.last_axis_nav.insert((id, axis), nav);
-                if prev == Some(nav) {
-                    None
-                } else {
-                    Some(nav)
-                }
+                if prev == Some(nav) { None } else { Some(nav) }
             }
             None => {
                 self.last_axis_nav.remove(&(id, axis));
