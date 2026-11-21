@@ -160,10 +160,25 @@ export function dispatchNextSlot() {
 
   console.log(`🚀 [AUTO-DRIVER] Запуск воркера для Слота #${nextSlot.slot} [${nextSlot.id}]: ${nextSlot.title}`);
   const specText = `Task ${nextSlot.id}: ${nextSlot.title}\nDescription: ${nextSlot.description}\nDepartment: ${nextSlot.department}\nPriority: ${nextSlot.priority}\nContract: Follow AGENTS.md, TEST-POLICY.md strictly. Write tests first.`;
-  const cmd = `orca orchestration worker-start --run ${RUN_ID} --agent antigravity --model ${nextSlot.model} --effort ${nextSlot.effort} --spec ${JSON.stringify(specText)} --task-title ${JSON.stringify('[' + nextSlot.id + '] ' + nextSlot.title)} --json`;
+  const taskTitle = `[${nextSlot.id}] ${nextSlot.title}`;
 
   try {
-    const out = execSync(cmd, { cwd: PROJECT_ROOT, encoding: 'utf8' });
+    const resSpawn = spawnSync('orca', [
+      'orchestration', 'worker-start',
+      '--run', RUN_ID,
+      '--agent', 'antigravity',
+      '--model', nextSlot.model,
+      '--effort', nextSlot.effort,
+      '--spec', specText,
+      '--task-title', taskTitle,
+      '--json'
+    ], { cwd: PROJECT_ROOT, encoding: 'utf8' });
+
+    if (resSpawn.status !== 0) {
+      throw new Error(resSpawn.stderr || resSpawn.stdout || 'orca worker-start exited with non-zero code');
+    }
+
+    const out = resSpawn.stdout.trim();
     const parsed = JSON.parse(out);
     nextSlot.dispatchId = parsed.dispatchId || parsed.id || 'dispatched';
     nextSlot.status = 'DISPATCHED_WORKING';
