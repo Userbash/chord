@@ -284,9 +284,10 @@
       "scriptCommand": null,
       "model": "gemini-4-argon-medium",
       "effort": "medium",
-      "status": "RESERVED",
+      "status": "DISPATCHED_WORKING",
       "terminalId": null,
-      "dispatchId": null
+      "dispatchId": "dispatched",
+      "dispatchedAt": "2026-11-21T08:14:01.908Z"
     },
     {
       "slot": 16,

@@ -9,7 +9,7 @@
 //! успешно (окружение недоступно, а не падение).
 
 use chord_platform::spellcheck::{
-    MultiLanguageSpellChecker, SpellChecker, SpellError, list_available_dictionaries, tokenize,
+    list_available_dictionaries, tokenize, MultiLanguageSpellChecker, SpellChecker, SpellError,
 };
 use std::fs;
 use std::io::{BufRead, BufReader};

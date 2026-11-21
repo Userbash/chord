@@ -444,10 +444,8 @@ impl MultiLanguageSpellChecker {
         let mut next = Vec::new();
         let mut loaded_tags = Vec::new();
         for raw in locales {
-            let tag = SpellLocale::parse(raw).map_or_else(
-                || raw.trim().replace('-', "_"),
-                |l| l.as_tag().to_string(),
-            );
+            let tag = SpellLocale::parse(raw)
+                .map_or_else(|| raw.trim().replace('-', "_"), |l| l.as_tag().to_string());
             if tag.is_empty() || loaded_tags.contains(&tag) {
                 continue;
             }
