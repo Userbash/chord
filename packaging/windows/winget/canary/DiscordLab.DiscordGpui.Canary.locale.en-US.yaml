@@ -1,0 +1,23 @@
+PackageIdentifier: DiscordLab.DiscordGpui.Canary
+PackageVersion: 1.0.0-canary.1
+PackageLocale: en-US
+Publisher: Discord Lab Contributors
+PublisherUrl: https://github.com/discord-lab/discord-gpui
+PackageName: Discord GPUI Canary
+PackageUrl: https://github.com/discord-lab/discord-gpui
+License: MIT OR Apache-2.0
+LicenseUrl: https://github.com/discord-lab/discord-gpui/blob/main/LICENSE-MIT
+ShortDescription: Native Rust GPUI Discord client (Canary channel)
+Description: >-
+  Canary release channel of Discord GPUI, a native, high-performance Discord desktop client
+  built in Rust with GPUI and DAVE MLS v1 E2EE voice.
+Moniker: discord-gpui-canary
+Tags:
+  - discord
+  - canary
+  - chat
+  - voice
+  - rust
+ReleaseNotesUrl: https://github.com/discord-lab/discord-gpui/releases/tag/v1.0.0-canary.1
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

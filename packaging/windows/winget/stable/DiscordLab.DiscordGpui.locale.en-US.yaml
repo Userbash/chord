@@ -1,0 +1,23 @@
+PackageIdentifier: DiscordLab.DiscordGpui
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: Discord Lab Contributors
+PublisherUrl: https://github.com/discord-lab/discord-gpui
+PackageName: Discord GPUI
+PackageUrl: https://github.com/discord-lab/discord-gpui
+License: MIT OR Apache-2.0
+LicenseUrl: https://github.com/discord-lab/discord-gpui/blob/main/LICENSE-MIT
+ShortDescription: Native Rust GPUI Discord client (Stable channel)
+Description: >-
+  Discord GPUI is a native, high-performance Discord desktop client built in Rust with GPUI,
+  featuring hardware-accelerated rendering and DAVE MLS v1 E2EE voice.
+Moniker: discord-gpui
+Tags:
+  - discord
+  - chat
+  - voice
+  - rust
+  - gpui
+ReleaseNotesUrl: https://github.com/discord-lab/discord-gpui/releases/tag/v1.0.0
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
