@@ -44,16 +44,16 @@
 use chord_voice::rtcp::{ReportBlock, RtcpPacket, RtcpRemb};
 use chord_voice::session::MediaSinkWants;
 use chord_voice::stream_quality::{
-    ADAPTATION_TICK_INTERVAL_MS, CONNECTION_IDLE_FRAMERATE_REDUCE_MS,
-    DEFAULT_720P30_TARGET_BITRATE_BPS, DEFAULT_720P60_TARGET_BITRATE_BPS, EncoderScaleOutput,
-    FREE_TIER_MAX_FPS, FREE_TIER_MAX_HEIGHT, FREE_TIER_MAX_WIDTH, GoLiveQualityPatchPolicy,
-    GoLiveStreamContext, LOSS_CONGESTION_THRESHOLD_256, LOSS_RECOVERY_THRESHOLD_256,
-    MAX_STREAM_BITRATE_BPS, MAX_STREAM_DIMENSION, MAX_STREAM_FPS, MIN_STREAM_BITRATE_BPS,
-    MIN_STREAM_DIMENSION, MIN_STREAM_FPS, PIXEL_LIMIT_480P, PIXEL_LIMIT_720P, PIXEL_LIMIT_1080P,
-    PIXEL_LIMIT_1440P, PIXEL_LIMIT_2160P, REMB_HEADROOM_DENOMINATOR, REMB_HEADROOM_NUMERATOR,
-    REMB_LIMIT_TTL_MS, StreamAdaptationState, StreamContentHint, StreamFrameratePreset,
+    scale_dimensions_to_pixel_limit, EncoderScaleOutput, GoLiveQualityPatchPolicy,
+    GoLiveStreamContext, StreamAdaptationState, StreamContentHint, StreamFrameratePreset,
     StreamProfilePreset, StreamQualityController, StreamQualityError, StreamQualityProfile,
-    StreamResolutionPreset, scale_dimensions_to_pixel_limit,
+    StreamResolutionPreset, ADAPTATION_TICK_INTERVAL_MS, CONNECTION_IDLE_FRAMERATE_REDUCE_MS,
+    DEFAULT_720P30_TARGET_BITRATE_BPS, DEFAULT_720P60_TARGET_BITRATE_BPS, FREE_TIER_MAX_FPS,
+    FREE_TIER_MAX_HEIGHT, FREE_TIER_MAX_WIDTH, LOSS_CONGESTION_THRESHOLD_256,
+    LOSS_RECOVERY_THRESHOLD_256, MAX_STREAM_BITRATE_BPS, MAX_STREAM_DIMENSION, MAX_STREAM_FPS,
+    MIN_STREAM_BITRATE_BPS, MIN_STREAM_DIMENSION, MIN_STREAM_FPS, PIXEL_LIMIT_1080P,
+    PIXEL_LIMIT_1440P, PIXEL_LIMIT_2160P, PIXEL_LIMIT_480P, PIXEL_LIMIT_720P,
+    REMB_HEADROOM_DENOMINATOR, REMB_HEADROOM_NUMERATOR, REMB_LIMIT_TTL_MS,
 };
 
 #[test]
@@ -303,12 +303,9 @@ fn dim3_boundary_pixel_limits_loss_thresholds_remb_ttl_and_idle_timeout() {
     // 2. Exact RTCP loss threshold boundary: 12/256 (~4.68%) vs 13/256 (~5.07%)
     let profile = StreamQualityProfile::from_preset(StreamProfilePreset::P720Fps60);
     let initial_target = profile.target_bitrate_bps;
-    let mut ctrl = StreamQualityController::new(
-        9208,
-        profile,
-        GoLiveQualityPatchPolicy::PatchedUnrestricted,
-    )
-    .unwrap();
+    let mut ctrl =
+        StreamQualityController::new(9208, profile, GoLiveQualityPatchPolicy::PatchedUnrestricted)
+            .unwrap();
     let _ = ctrl.handle_go_live(1280, 720);
 
     // At t=1000ms, loss = 12 (< 13 threshold): no congestion reduction
@@ -348,12 +345,9 @@ fn dim3_boundary_pixel_limits_loss_thresholds_remb_ttl_and_idle_timeout() {
 #[test]
 fn dim4_and_dim5_error_handling_and_empty_sink_wants_pause_and_remb_constraints() {
     let profile = StreamQualityProfile::from_preset(StreamProfilePreset::P720Fps60);
-    let mut ctrl = StreamQualityController::new(
-        9208,
-        profile,
-        GoLiveQualityPatchPolicy::PatchedUnrestricted,
-    )
-    .unwrap();
+    let mut ctrl =
+        StreamQualityController::new(9208, profile, GoLiveQualityPatchPolicy::PatchedUnrestricted)
+            .unwrap();
     let _ = ctrl.handle_go_live(1280, 720);
 
     // Empty / 0-quality MediaSinkWants for our video SSRC (9209) pauses active encoding
@@ -442,12 +436,9 @@ fn dim6_and_dim7_patch_stream_quality_policy_clamping_and_secret_redaction() {
 #[test]
 fn dim8_and_dim9_degradation_downscaling_recovery_and_telemetry_counters() {
     let profile = StreamQualityProfile::from_preset(StreamProfilePreset::P1080Fps60);
-    let mut ctrl = StreamQualityController::new(
-        9208,
-        profile,
-        GoLiveQualityPatchPolicy::PatchedUnrestricted,
-    )
-    .unwrap();
+    let mut ctrl =
+        StreamQualityController::new(9208, profile, GoLiveQualityPatchPolicy::PatchedUnrestricted)
+            .unwrap();
     let _ = ctrl.handle_go_live(1920, 1080);
 
     // Severe bandwidth constraint via REMB (900 kbps wire -> 720 kbps effective) + MediaSinkWants quality=50

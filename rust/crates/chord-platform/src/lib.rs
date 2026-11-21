@@ -21,6 +21,7 @@ pub mod spellcheck;
 pub mod spotify_mpris;
 pub mod tray;
 pub mod unread_badge;
+pub mod windows;
 
 #[allow(unsafe_code)]
 mod ffi_hunspell;
