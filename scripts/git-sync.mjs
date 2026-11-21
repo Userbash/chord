@@ -39,7 +39,8 @@ const MAX_PUSH_RETRIES = 3;
 
 function execQuiet(cmd, opts = {}) {
   try {
-    return execSync(cmd, { cwd: PROJECT_ROOT, encoding: 'utf8', stdio: 'pipe', ...opts }).trim();
+    const res = execSync(cmd, { cwd: PROJECT_ROOT, encoding: 'utf8', stdio: 'pipe', ...opts });
+    return opts.noTrim ? res : res.trim();
   } catch (err) {
     return null;
   }
@@ -65,13 +66,14 @@ export function getConfiguredRemotes() {
 }
 
 export function getChangedFiles() {
-  const statusOut = execQuiet('git status --porcelain=v1') || '';
+  const statusOut = execQuiet('git status --porcelain=v1', { noTrim: true }) || '';
   if (!statusOut) return [];
   return statusOut
     .split('\n')
+    .filter(line => line.length >= 4)
     .map(line => {
-      const match = line.match(/^..\s+(.*)$/);
-      return match ? match[1].trim() : null;
+      const pathPart = line.slice(3).trim();
+      return pathPart.replace(/^"|"$/g, '');
     })
     .filter(Boolean);
 }
