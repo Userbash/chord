@@ -69,7 +69,6 @@ pub enum StreamResolutionPreset {
 }
 
 impl StreamResolutionPreset {
-    #[must_use]
     pub const fn dimensions(self) -> (u32, u32) {
         match self {
             Self::P480 => (854, 480),
@@ -80,15 +79,9 @@ impl StreamResolutionPreset {
         }
     }
 
-    #[must_use]
     pub const fn max_pixel_count(self) -> u32 {
-        match self {
-            Self::P480 => PIXEL_LIMIT_480P,
-            Self::P720 => PIXEL_LIMIT_720P,
-            Self::P1080 => PIXEL_LIMIT_1080P,
-            Self::P1440 => PIXEL_LIMIT_1440P,
-            Self::Source4K => PIXEL_LIMIT_2160P,
-        }
+        let (w, h) = self.dimensions();
+        w * h
     }
 }
 
@@ -101,7 +94,6 @@ pub enum StreamFrameratePreset {
 }
 
 impl StreamFrameratePreset {
-    #[must_use]
     pub const fn as_u32(self) -> u32 {
         match self {
             Self::Fps15 => 15,
@@ -131,7 +123,6 @@ pub enum StreamProfilePreset {
 }
 
 impl StreamProfilePreset {
-    #[must_use]
     pub const fn resolution(self) -> StreamResolutionPreset {
         match self {
             Self::P480Fps15 | Self::P480Fps30 | Self::P480Fps60 => StreamResolutionPreset::P480,
@@ -142,7 +133,6 @@ impl StreamProfilePreset {
         }
     }
 
-    #[must_use]
     pub const fn framerate(self) -> StreamFrameratePreset {
         match self {
             Self::P480Fps15 | Self::P720Fps15 | Self::P1080Fps15 | Self::P1440Fps15 => {
@@ -153,15 +143,10 @@ impl StreamProfilePreset {
             | Self::P1080Fps30
             | Self::P1440Fps30
             | Self::Source4KFps30 => StreamFrameratePreset::Fps30,
-            Self::P480Fps60
-            | Self::P720Fps60
-            | Self::P1080Fps60
-            | Self::P1440Fps60
-            | Self::Source4KFps60 => StreamFrameratePreset::Fps60,
+            _ => StreamFrameratePreset::Fps60,
         }
     }
 
-    #[must_use]
     pub const fn bitrate_bounds_bps(self) -> (u32, u32, u32) {
         match self {
             Self::P480Fps15 => (200_000, 800_000, 1_200_000),
@@ -215,31 +200,7 @@ pub enum StreamQualityError {
 
 impl fmt::Display for StreamQualityError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::InvalidDimensions { width, height } => {
-                write!(f, "invalid dimensions {width}x{height}")
-            }
-            Self::OddDimensions { width, height } => write!(f, "odd dimensions {width}x{height}"),
-            Self::InvalidFramerate(fps) => write!(f, "invalid framerate {fps} FPS"),
-            Self::BitrateOutOfRange {
-                min_bps,
-                target_bps,
-                max_bps,
-            } => {
-                write!(
-                    f,
-                    "bitrates ({min_bps}/{target_bps}/{max_bps}) out of range"
-                )
-            }
-            Self::InvalidBitrateHierarchy {
-                min_bps,
-                target_bps,
-                max_bps,
-            } => {
-                write!(f, "invalid hierarchy {min_bps}<={target_bps}<={max_bps}")
-            }
-            Self::InvalidSsrc => f.write_str("stream audio SSRC must be non-zero"),
-        }
+        write!(f, "{self:?}")
     }
 }
 
@@ -264,7 +225,6 @@ impl Default for StreamQualityProfile {
 }
 
 impl StreamQualityProfile {
-    #[must_use]
     pub const fn from_preset(preset: StreamProfilePreset) -> Self {
         let res = preset.resolution();
         let (width, height) = res.dimensions();
@@ -311,9 +271,8 @@ impl StreamQualityProfile {
     }
 
     pub fn validate(&self) -> Result<(), StreamQualityError> {
-        if !(MIN_STREAM_DIMENSION..=MAX_STREAM_DIMENSION).contains(&self.width)
-            || !(MIN_STREAM_DIMENSION..=MAX_STREAM_DIMENSION).contains(&self.height)
-        {
+        let dim_range = MIN_STREAM_DIMENSION..=MAX_STREAM_DIMENSION;
+        if !dim_range.contains(&self.width) || !dim_range.contains(&self.height) {
             return Err(StreamQualityError::InvalidDimensions {
                 width: self.width,
                 height: self.height,
@@ -328,10 +287,10 @@ impl StreamQualityProfile {
         if !(MIN_STREAM_FPS..=MAX_STREAM_FPS).contains(&self.fps) {
             return Err(StreamQualityError::InvalidFramerate(self.fps));
         }
-        let range = MIN_STREAM_BITRATE_BPS..=MAX_STREAM_BITRATE_BPS;
-        if !range.contains(&self.min_bitrate_bps)
-            || !range.contains(&self.target_bitrate_bps)
-            || !range.contains(&self.max_bitrate_bps)
+        let br_range = MIN_STREAM_BITRATE_BPS..=MAX_STREAM_BITRATE_BPS;
+        if !br_range.contains(&self.min_bitrate_bps)
+            || !br_range.contains(&self.target_bitrate_bps)
+            || !br_range.contains(&self.max_bitrate_bps)
         {
             return Err(StreamQualityError::BitrateOutOfRange {
                 min_bps: self.min_bitrate_bps,
@@ -351,45 +310,38 @@ impl StreamQualityProfile {
         Ok(())
     }
 
-    #[must_use]
     pub fn apply_patch_policy(self, policy: GoLiveQualityPatchPolicy) -> Self {
-        match policy {
-            GoLiveQualityPatchPolicy::PatchedUnrestricted => self,
-            GoLiveQualityPatchPolicy::FreeTierClamped => {
-                let (width, height) = scale_dimensions_to_pixel_limit(
-                    self.width,
-                    self.height,
-                    FREE_TIER_MAX_WIDTH,
-                    FREE_TIER_MAX_HEIGHT,
-                    PIXEL_LIMIT_720P,
-                );
-                let fps = self.fps.min(FREE_TIER_MAX_FPS);
-                let max_bitrate_bps = self.max_bitrate_bps.min(FREE_TIER_MAX_CEILING_BITRATE_BPS);
-                let target_bitrate_bps = self
-                    .target_bitrate_bps
-                    .min(FREE_TIER_MAX_TARGET_BITRATE_BPS)
-                    .min(max_bitrate_bps);
-                let min_bitrate_bps = self.min_bitrate_bps.min(target_bitrate_bps);
-                Self {
-                    width,
-                    height,
-                    max_pixel_count: width * height,
-                    fps,
-                    min_bitrate_bps,
-                    target_bitrate_bps,
-                    max_bitrate_bps,
-                    content_hint: self.content_hint,
-                }
-            }
+        if policy == GoLiveQualityPatchPolicy::PatchedUnrestricted {
+            return self;
+        }
+        let (width, height) = scale_dimensions_to_pixel_limit(
+            self.width,
+            self.height,
+            FREE_TIER_MAX_WIDTH,
+            FREE_TIER_MAX_HEIGHT,
+            PIXEL_LIMIT_720P,
+        );
+        let max_bitrate_bps = self.max_bitrate_bps.min(FREE_TIER_MAX_CEILING_BITRATE_BPS);
+        let target_bitrate_bps = self
+            .target_bitrate_bps
+            .min(FREE_TIER_MAX_TARGET_BITRATE_BPS)
+            .min(max_bitrate_bps);
+        Self {
+            width,
+            height,
+            max_pixel_count: width * height,
+            fps: self.fps.min(FREE_TIER_MAX_FPS),
+            min_bitrate_bps: self.min_bitrate_bps.min(target_bitrate_bps),
+            target_bitrate_bps,
+            max_bitrate_bps,
+            content_hint: self.content_hint,
         }
     }
 
-    #[must_use]
     pub const fn rtp_timestamp_step_90khz(&self) -> u32 {
         video_ticks_for_fps(self.fps)
     }
 
-    #[must_use]
     pub const fn frame_interval_us(&self) -> u64 {
         1_000_000 / if self.fps == 0 { 1 } else { self.fps as u64 }
     }
@@ -490,7 +442,6 @@ pub struct GoLiveStreamContext {
 }
 
 impl GoLiveStreamContext {
-    #[must_use]
     pub fn new(
         stream_key: impl Into<String>,
         rtc_token: impl Into<String>,
@@ -505,23 +456,23 @@ impl GoLiveStreamContext {
             rtx_ssrc,
         }
     }
-    #[must_use]
+
     pub fn stream_key(&self) -> &str {
         &self.stream_key
     }
-    #[must_use]
+
     pub fn rtc_token(&self) -> &str {
         &self.rtc_token
     }
-    #[must_use]
+
     pub const fn audio_ssrc(&self) -> u32 {
         self.audio_ssrc
     }
-    #[must_use]
+
     pub const fn video_ssrc(&self) -> u32 {
         self.video_ssrc
     }
-    #[must_use]
+
     pub const fn rtx_ssrc(&self) -> u32 {
         self.rtx_ssrc
     }
@@ -612,35 +563,34 @@ impl StreamQualityController {
         })
     }
 
-    #[must_use]
     pub const fn audio_ssrc(&self) -> u32 {
         self.audio_ssrc
     }
-    #[must_use]
+
     pub const fn video_ssrc(&self) -> u32 {
         self.video_ssrc
     }
-    #[must_use]
+
     pub const fn rtx_ssrc(&self) -> u32 {
         self.rtx_ssrc
     }
-    #[must_use]
+
     pub const fn state(&self) -> StreamAdaptationState {
         self.state
     }
-    #[must_use]
+
     pub const fn selected_profile(&self) -> &StreamQualityProfile {
         &self.selected_profile
     }
-    #[must_use]
+
     pub const fn effective_profile(&self) -> &StreamQualityProfile {
         &self.effective_profile
     }
-    #[must_use]
+
     pub const fn current_target_bitrate_bps(&self) -> u32 {
         self.current_target_bitrate_bps
     }
-    #[must_use]
+
     pub const fn telemetry(&self) -> &StreamQualityTelemetry {
         &self.telemetry
     }

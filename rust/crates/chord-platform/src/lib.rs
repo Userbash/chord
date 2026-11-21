@@ -13,6 +13,7 @@ pub mod deep_link;
 pub mod gamepad_driver;
 pub mod handheld;
 pub mod keyring;
+pub mod macos;
 pub mod notifications;
 pub mod power;
 pub mod rpc_ipc;
