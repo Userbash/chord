@@ -511,6 +511,7 @@ npm run check                            # Unified typecheck and full test pass
 | `tests/unit/gamepad-driver-1014a.test.mjs` | `rust/crates/chord-platform/src/gamepad_driver.rs` | `gamepad_driver` |
 | `tests/unit/spotify-widget-1013b.test.mjs` | `rust/chord-gpui/src/profile/spotify_widget.rs` | `spotify_widget` |
 | `tests/unit/voice-call-stage.test.mjs` | `rust/gui-spike/ui/features/voice-call-stage.js` | `VoiceCallStage` |
+| `tests/unit/smart-typecheck-lib-simplify-06.test.mjs` | `scripts/smart-typecheck.mjs` | `LIB-SIMPLIFY-06` |
 
 ## 9. Risks and Limitations
 
