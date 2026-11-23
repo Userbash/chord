@@ -27,7 +27,7 @@ reqwest = { workspace = true }
 tracing = { workspace = true }
 regex = "1"
 tracing-subscriber = { workspace = true }
-twilight-model = { version = "0.15", default-features = false }
+twilight-model = { version = "0.18", default-features = false }
 twilight-util = { version = "0.15", default-features = false, features = ["permission-calculator"] }
 
 [dev-dependencies]
