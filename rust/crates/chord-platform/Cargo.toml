@@ -11,7 +11,7 @@ libc = "0.2"
 # RW51-EPIC4-T1: Cross-platform native audio I/O engine (ALSA / CoreAudio / WASAPI).
 cpal = "0.15.3"
 # XDG Desktop Portal (Wayland PipeWire ScreenCast) — локально закэширован 0.13.13.
-ashpd = { version = "0.13", default-features = false, features = ["screencast"] }
+ashpd = { version = "0.14", default-features = false, features = ["screencast"] }
 enumflags2 = "0.7"
 tokio = { workspace = true }
 # Зануление секретных буферов в памяти.
